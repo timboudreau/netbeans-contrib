@@ -43,7 +43,6 @@ package org.netbeans.modules.properties.rbe.model;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
  * The Bundle property
@@ -57,13 +56,14 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     private String name;
     /** The key of the property */
     private String key;
-    /** The different locale representation of the property */
+    /** Locale representation */
     private Map<Locale, BundlePropertyValue> localeRepresentation;
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
         this.key = fullname;
         this.bundle = bundle;
+        this.localeRepresentation = new HashMap<Locale, BundlePropertyValue>(bundle.getLocales().size());
     }
 
     public String getName() {
@@ -89,28 +89,19 @@ public final class BundleProperty implements Comparable<BundleProperty> {
 //        return localeRepresentation == null ? Collections.<Locale, BundlePropertyValue>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
 //    }
     public BundlePropertyValue getLocalRepresentation(Locale locale) {
-        if (localeRepresentation == null) {
-            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
-        }
-        BundlePropertyValue value = localeRepresentation.get(locale);
-        return value == null ? new BundlePropertyValue(this, locale, null) : value;
+        return localeRepresentation.get(locale);
     }
 
     public boolean isEmpty() {
-        return localeRepresentation == null ? true : localeRepresentation.isEmpty();
+        return localeRepresentation.isEmpty();
     }
 
-    void addLocaleRepresentation(Locale locale, ItemElem itemElem) {
-        if (localeRepresentation == null) {
-            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
-        }
-        localeRepresentation.put(locale, new BundlePropertyValue(this, locale, itemElem));
+    void addLocaleRepresentation(Locale locale, BundlePropertyValue value) {
+        localeRepresentation.put(locale, value);
     }
 
     void removeLocaleRepresentation(Locale locale) {
-        if (localeRepresentation.containsKey(locale)) {
-            localeRepresentation.remove(locale);
-        }
+        localeRepresentation.remove(locale);
     }
 
     public int compareTo(BundleProperty o) {

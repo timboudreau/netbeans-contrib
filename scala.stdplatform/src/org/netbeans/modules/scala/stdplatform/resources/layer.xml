@@ -48,7 +48,7 @@ made subject to such option by the copyright holder.
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.project.libraries.LibraryTypeProvider"/>
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.stdplatform.libraries.J2SELibraryTypeProvider"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.stdplatform.libraries.J2SELibraryTypeProvider.create"/>
-                <attr name="position" intvalue="100"/>
+                <attr name="position" intvalue="150"/>
             </file>
         </folder>
     </folder>

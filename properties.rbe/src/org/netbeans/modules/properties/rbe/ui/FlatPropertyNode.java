@@ -42,68 +42,73 @@ package org.netbeans.modules.properties.rbe.ui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
-import org.netbeans.modules.properties.rbe.model.TreeVisitor;
-import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.lookup.Lookups;
 
 /**
- * The Bundle property node factory
+ * The Bundle property node
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundleProperty>> implements PropertyChangeListener {
+public class FlatPropertyNode extends BundlePropertyNode implements PropertyChangeListener, Comparable<FlatPropertyNode> {
 
-    protected RBE rbe;
+    private TreeItem<BundleProperty> treeItem;
 
-    public BundlePropertyNodeFactory(RBE rbe) {
-        this.rbe = rbe;
+    public FlatPropertyNode(TreeItem<BundleProperty> treeItem) {
+        super((treeItem.getParent() != null ? Children.LEAF : new ChildrenProperties(treeItem)), Lookups.singleton(treeItem.getValue()));
+        this.treeItem = treeItem;
+        treeItem.addPropertyChangeListener(this);
+    }
+
+    public BundleProperty getProperty() {
+        return treeItem.getValue();
     }
 
     @Override
-    protected boolean createKeys(final List<TreeItem<BundleProperty>> toPopulate) {
-        switch (rbe.getMode()) {
-            case FLAT:
-                rbe.getBundle().getPropertiesTree().accept(new TreeVisitor<TreeItem<BundleProperty>>() {
-
-                    public void preVisit(TreeItem<BundleProperty> tree) {
-                        if (tree.getValue() != null && !tree.getValue().isEmpty()) {
-                            toPopulate.add(tree);
-                        }
-                    }
-
-                    public void postVisit(TreeItem<BundleProperty> tree) {
-                    }
-
-                    public boolean isDone() {
-                        return false;
-                    }
-                });
-
-
-                break;
-            case TREE:
-                toPopulate.addAll(rbe.getBundle().getPropertiesTree().getChildren());
-                break;
-        }
-        return true;
+    public String getName() {
+        return treeItem.getValue().getKey();
     }
 
     @Override
-    protected Node createNodeForKey(TreeItem<BundleProperty> key) {
-        switch (rbe.getMode()) {
-            case FLAT:
-                return new FlatPropertyNode(key);
-            case TREE:
-                return new TreeItemPropertyNode(key);
-        }
-        return null;
+    public String getDisplayName() {
+        return treeItem.getValue().getKey();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
         if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-            refresh(false);
+            setChildren(treeItem.getChildren().isEmpty() ? Children.LEAF : new ChildrenProperties(treeItem));
+        }
+    }
+
+    public int compareTo(FlatPropertyNode o) {
+        return treeItem.compareTo(o.treeItem);
+    }
+
+    private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {
+
+        private TreeItem<BundleProperty> treeItem;
+
+        public ChildrenProperties(TreeItem<BundleProperty> treeItem) {
+            this.treeItem = treeItem;
+            treeItem.addPropertyChangeListener(this);
+        }
+
+        @Override
+        protected void addNotify() {
+            setKeys(treeItem.getChildren());
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+                addNotify();
+            }
+        }
+
+        @Override
+        protected Node[] createNodes(TreeItem<BundleProperty> key) {
+            return new Node[]{new TreeItemPropertyNode(key)};
         }
     }
 }

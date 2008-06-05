@@ -71,12 +71,14 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
 
     public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        if (result == null) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        if (pResult == null) {
             return Collections.emptyList();
         }
 
-        AstScope rootScope = result.getRootScope();
+        pResult.toGlobalPhase(info);
+
+        AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return Collections.emptyList();
         }

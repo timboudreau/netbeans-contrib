@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -206,6 +207,14 @@ public class TypeRef extends AstRef {
         return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
     }
 
+    public void addTypeArgs(List<TypeRef> typeArgs) {
+        if (typeArgsList == null) {
+            typeArgsList = new ArrayList<List<TypeRef>>();
+        }
+
+        typeArgsList.add(typeArgs);
+    }
+
     public String getTypeArgsName() {
         StringBuilder sb = new StringBuilder();
         for (List<TypeRef> typeArgs : getTypeArgsList()) {
@@ -266,10 +275,37 @@ public class TypeRef extends AstRef {
     }
 
     @Override
+    public String getName() {
+        String name = super.getName();
+        if (name == null) {
+            if (isResolved()) {
+                String qName = getQualifiedName();
+                int lastDot = qName.lastIndexOf('.');
+                if (lastDot > 0) {
+                    name = qName.substring(lastDot + 1, qName.length());
+                    setName(name);
+                }
+            }
+        }
+
+        return name;
+    }
+
+    @Override
     public TypeRef getType() {
         return this;
     }
 
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        if (getName() != null) {
+            formatter.appendText(getName());
+        }
+    }
+
+    
+    
     public void htmlFormatTypeArgs(HtmlFormatter formatter) {
         for (List<TypeRef> typeArgs : getTypeArgsList()) {
             formatter.appendText("[");
@@ -295,7 +331,7 @@ public class TypeRef extends AstRef {
     public static class PseudoTypeRef extends TypeRef {
 
         public PseudoTypeRef() {
-            super("Pseudo type ref", null, ElementKind.CLASS);
+            super(null, null, ElementKind.CLASS);
             setEnclosingScope(AstScope.emptyScope());
         }
 
@@ -307,6 +343,30 @@ public class TypeRef extends AstRef {
         @Override
         public String getQualifiedName() {
             return qualifiedName == null ? UNRESOLVED : qualifiedName;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getName());
+
+            for (List<TypeRef> typeArgs : getTypeArgsList()) {
+                sb.append("[");
+                if (typeArgs.size() == 0) {
+                    // wildcard
+                    sb.append("_");
+                } else {
+                    for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                        sb.append(itr.next().getName());
+                        if (itr.hasNext()) {
+                            sb.append(", ");
+                        }
+                    }
+                }
+                sb.append("]");
+            }
+
+            return sb.toString();
         }
     }
 }

@@ -53,6 +53,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.util.Exceptions;
 
 /**
@@ -133,7 +134,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         if (indexedElement != null) {
-            IndexedElement.TypeName type = indexedElement.getTypeName();
+            TypeRef type = indexedElement.getType();
             if (type != null) {
                 formatter.appendHtml(" :"); // NOI18N
                 formatter.type(true);
@@ -320,11 +321,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             }
 
             if (indexedElement != null &&
-                    indexedElement.getTypeName() != null &&
+                    indexedElement.getType() != null &&
                     indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(indexedElement.getTypeName().toString());
+                formatter.appendText(indexedElement.getType().toString());
                 formatter.type(false);
             }
 
