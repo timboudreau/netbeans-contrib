@@ -8,7 +8,8 @@ echo $LENGTH
 DISTRS="intel-S2 sparc-S2 intel-Linux"
 #DISTRS="intel-Linux"
 #rm -rf $TARS 
-IMAGES_DIR=/shared/dp/sstrunk/latest/output/image_tars
+IMAGES_DIR=/shared/dp/sstrunk/biweekly/output/image_tars
+#BUILD_NUMBER=`ls -all /shared/dp/sstrunk/biweekly | sed s/.*' '//  | tr . _`
 #IMAGES_DIR=/shared/dp/sstrunk
 rm -rf build
 mkdir -p $RESDIR
