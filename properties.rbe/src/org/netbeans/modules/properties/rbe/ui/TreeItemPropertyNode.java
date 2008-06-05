@@ -40,33 +40,26 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
-import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 
 /**
  * The Bundle property node
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNode extends AbstractNode implements PropertyChangeListener, Comparable<BundlePropertyNode> {
+public class TreeItemPropertyNode extends PropertyNode implements PropertyChangeListener, Comparable<TreeItemPropertyNode> {
 
-    private TreeItem<BundleProperty> treeItem;
-    private RBE rbe;
+    private final TreeItem<BundleProperty> treeItem;
 
-    public BundlePropertyNode(TreeItem<BundleProperty> treeItem, RBE rbe) {
-        super(treeItem.isLeaf() ? Children.LEAF : new ChildrenProperties(treeItem, rbe), Lookups.singleton(treeItem.getValue()));
+    public TreeItemPropertyNode(TreeItem<BundleProperty> treeItem) {
+        super(treeItem.isLeaf() ? Children.LEAF : new ChildrenProperties(treeItem), Lookups.singleton(treeItem.getValue()));
         this.treeItem = treeItem;
-        this.rbe = rbe;
-        if (treeItem.isLeaf()) {
-            treeItem.addPropertyChangeListener(this);
-        }
+        treeItem.addPropertyChangeListener(this);
     }
 
     public BundleProperty getProperty() {
@@ -80,37 +73,25 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
 
     @Override
     public String getDisplayName() {
-        return treeItem.getParent() == null ? treeItem.getValue().getKey() : treeItem.getValue().getName();
-    }
-
-    @Override
-    public Image getIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
-    }
-
-    @Override
-    public Image getOpenedIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
+        return treeItem.getValue().getName();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
         if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-            setChildren(new ChildrenProperties(treeItem, rbe));
+            setChildren(treeItem.getChildren().isEmpty() ? Children.LEAF : new ChildrenProperties(treeItem));
         }
     }
 
-    public int compareTo(BundlePropertyNode o) {
+    public int compareTo(TreeItemPropertyNode o) {
         return treeItem.compareTo(o.treeItem);
     }
 
     private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {
 
         private TreeItem<BundleProperty> treeItem;
-        private RBE rbe;
 
-        public ChildrenProperties(TreeItem<BundleProperty> treeItem, RBE rbe) {
+        public ChildrenProperties(TreeItem<BundleProperty> treeItem) {
             this.treeItem = treeItem;
-            this.rbe = rbe;
             treeItem.addPropertyChangeListener(this);
         }
 
@@ -127,7 +108,7 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
 
         @Override
         protected Node[] createNodes(TreeItem<BundleProperty> key) {
-            return new Node[]{new BundlePropertyNode(key, rbe)};
+            return new Node[]{new TreeItemPropertyNode(key)};
         }
     }
 }

@@ -52,7 +52,7 @@ public class Bridge {
         }
     }
 
-    public Locale getLocaleFromPropertiesFileEntry(PropertiesFileEntry entry) {
+    private Locale getLocaleFromPropertiesFileEntry(PropertiesFileEntry entry) {
         String localeSuffix = Util.getLocaleSuffix(entry);
         return localeSuffix.length() == 0 ? Bundle.DEFAULT_LOCALE : new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
     }
@@ -66,27 +66,30 @@ public class Bridge {
         return null;
     }
 
-    public void createBundlePropertyValues(BundleProperty bundleProperty) {
+    public void createPropertyValues(BundleProperty bundleProperty) {
         for (Locale locale : locale2file.keySet()) {
             createNewItemElem(locale, bundleProperty.getKey(), "", "");
         }
     }
 
-    public void setBundlePropertyValues(BundleProperty bundleProperty) {
+    private void setBundlePropertyValues(BundleProperty bundleProperty) {
         for (Locale locale : locale2file.keySet()) {
-            createNewItemElem(locale, bundleProperty.getKey(), "", "");
+            ItemElem itemElem = getItemElem(locale, bundleProperty.getKey());
+            BundlePropertyValue value;
+            if (itemElem != null) {
+                value = new BundlePropertyValue(bundleProperty, locale, itemElem.getValue(), itemElem.getComment());
+            } else {
+                value = new BundlePropertyValue(bundleProperty, locale, "", ""); //Not created yet
+            }
+            bundleProperty.addLocaleRepresentation(locale, value);
         }
     }
 
     public void createProperties() {
-        String replaceRegex = Pattern.quote(bundle.getTreeSeparator()) + "+";
         for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
-            String propertyName = bundleStructure.getKeys()[k].replaceAll(replaceRegex, bundle.getTreeSeparator());
-            for (Map.Entry<Locale, PropertiesFileEntry> entry : locale2file.entrySet()) {
-                ItemElem itemElem = getItemElem(entry.getKey(), propertyName);
-                bundle.createProperty(propertyName, false);
-
-            }
+            String propertyName = bundleStructure.getKeys()[k];
+            BundleProperty bundleProperty = bundle.createBundleProperty(propertyName);
+            setBundlePropertyValues(bundleProperty);
         }
     }
 
@@ -96,6 +99,24 @@ public class Bridge {
             throw new IllegalArgumentException("Cannot find properties file for locale: " + locale.toString());
         }
         return itemElem.getValue();
+    }
+
+    public void setPropertyValue(Locale locale, String key, String value) {
+        ItemElem itemElem = getItemElem(locale, key);
+        if (itemElem == null) {
+            createNewItemElem(locale, key, value, "");
+        } else {
+            itemElem.setValue(value);
+        }
+    }
+
+    public void setPropertyComment(Locale locale, String key, String comment) {
+        ItemElem itemElem = getItemElem(locale, key);
+        if (itemElem == null) {
+            createNewItemElem(locale, key, "", comment);
+        } else {
+            itemElem.setComment(comment);
+        }
     }
 
     public boolean isPropertyExists(Locale locale, String key) {

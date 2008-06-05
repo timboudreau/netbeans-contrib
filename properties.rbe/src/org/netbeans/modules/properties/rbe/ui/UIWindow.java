@@ -49,10 +49,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -97,7 +96,6 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
 
     @Override
     public void addNotify() {
-
         ExplorerManager.Provider provider = (ExplorerManager.Provider) SwingUtilities.getAncestorOfClass(ExplorerManager.Provider.class, this);
         if (provider == null) {
             throw new IllegalArgumentException("Cannot find an Explorer provider!");
@@ -110,8 +108,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateBeanTree() {
-        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)) {
-        });
+        explorer.setRootContext(new RootNode(rbe));
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -123,13 +120,13 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     protected void updateSelectedProperty() {
         if (explorer.getSelectedNodes().length == 1) {
             Node selectedNode = explorer.getSelectedNodes()[0];
-            if (selectedNode instanceof BundlePropertyNode) {
-                selectProperty((BundlePropertyNode) selectedNode);
+            if (selectedNode instanceof TreeItemPropertyNode) {
+                selectProperty((TreeItemPropertyNode) selectedNode);
             }
         }
     }
 
-    public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
+    public void selectProperty(final TreeItemPropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -139,7 +136,8 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         });
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                rightPanel.add(new UIPropertyPanel(bundlePropertyNode.getProperty().getLocalRepresentation(locale)));
+                BundlePropertyValue value = bundlePropertyNode.getProperty().getLocalRepresentation(locale);
+                rightPanel.add(new UIPropertyPanel(locale, value));
             }
         }
         rightPanel.updateUI();
@@ -207,7 +205,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         );
         treePanelLayout.setVerticalGroup(
             treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 510, Short.MAX_VALUE)
+            .add(0, 534, Short.MAX_VALUE)
         );
 
         searchTextField.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.searchTextField.text")); // NOI18N
@@ -256,16 +254,16 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(12, 12, 12)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(7, 7, 7)
+                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                .add(7, 7, 7))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(12, 12, 12)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(7, 7, 7)
+                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                .add(7, 7, 7))
         );
     }// </editor-fold>//GEN-END:initComponents
 

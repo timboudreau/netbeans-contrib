@@ -73,7 +73,8 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
     }
 
     public void setValue(String value) {
-        //TODO
+        this.value = value;
+        property.getBundle().setPropertyValue(locale, getKey(), value);
     }
 
     protected void updateValue(String value) {
@@ -81,7 +82,8 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
     }
 
     public void setComment(String comment) {
-        //TODO
+        this.comment = comment;
+        property.getBundle().setPropertyComment(locale, getKey(), value);
     }
 
     protected void updateComment(String comment) {
@@ -97,7 +99,7 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
     }
 
     public boolean isCreated() {
-        return value == null;
+        return property.getBundle().isPropertyExists(locale, getKey());
     }
 
     public int compareTo(BundlePropertyValue o) {

@@ -40,9 +40,12 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
+import org.netbeans.modules.properties.rbe.model.TreeVisitor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 
@@ -50,23 +53,57 @@ import org.openide.nodes.Node;
  * The Bundle property node factory
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundleProperty>> {
+public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundleProperty>> implements PropertyChangeListener {
 
-    private RBE rbe;
+    protected RBE rbe;
 
     public BundlePropertyNodeFactory(RBE rbe) {
-        super();
         this.rbe = rbe;
     }
 
     @Override
-    protected boolean createKeys(List<TreeItem<BundleProperty>> toPopulate) {
-        toPopulate.addAll(rbe.getBundle().getPropertiesTree().getChildren());
+    protected boolean createKeys(final List<TreeItem<BundleProperty>> toPopulate) {
+        switch (rbe.getMode()) {
+            case FLAT:
+                rbe.getBundle().getPropertiesTree().accept(new TreeVisitor<TreeItem<BundleProperty>>() {
+
+                    public void preVisit(TreeItem<BundleProperty> tree) {
+                        if (tree.getValue() != null && !tree.getValue().isEmpty()) {
+                            toPopulate.add(tree);
+                        }
+                    }
+
+                    public void postVisit(TreeItem<BundleProperty> tree) {
+                    }
+
+                    public boolean isDone() {
+                        return false;
+                    }
+                });
+
+
+                break;
+            case TREE:
+                toPopulate.addAll(rbe.getBundle().getPropertiesTree().getChildren());
+                break;
+        }
         return true;
     }
 
     @Override
     protected Node createNodeForKey(TreeItem<BundleProperty> key) {
-        return new BundlePropertyNode(key, rbe);
+        switch (rbe.getMode()) {
+            case FLAT:
+                return new FlatPropertyNode(key);
+            case TREE:
+                return new TreeItemPropertyNode(key);
+        }
+        return null;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+            refresh(false);
+        }
     }
 }

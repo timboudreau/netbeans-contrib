@@ -48,6 +48,6 @@ package org.netbeans.modules.properties.rbe.ui;
 public class ResourceBundleEditorOptions {
 
     public static String getSeparator() {
-        return "_";
+        return ".";
     }
 }

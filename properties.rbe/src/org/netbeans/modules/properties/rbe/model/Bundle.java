@@ -58,14 +58,11 @@ import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOptions;
  */
 public class Bundle {
 
-    /** The bundle structure form data object */
-//    private BundleStructure bundleStructure;
     /** The all locales which contains bundle */
     private Set<Locale> locales;
     /** The properties */
     private SortedMap<String, BundleProperty> properties;
     /* Tree values */
-//    private Set<BundleProperty> treeRootProperties;
     private TreeItem<BundleProperty> treeRoot;
     /* Constants */
     /** The default locale */
@@ -78,107 +75,64 @@ public class Bundle {
     public Bundle(PropertiesDataObject dataObject) {
         locales = new TreeSet<Locale>(new LocaleComparator());
         bridge = Bridge.get(dataObject, this);
-        properties = new TreeMap<String, BundleProperty>();
-        initProperties();
     }
 
-//    private void initTree() {
-//        treeRoot = createChildren(null, null, new TreeSet<BundleProperty>(getProperties().values()));
-//    }
     private void initProperties() {
-        treeRoot = new TreeItem<BundleProperty>(null);
+        properties = new TreeMap<String, BundleProperty>();
         bridge.createProperties();
     }
 
-    public Set<Locale> getLocales() {
-        return Collections.unmodifiableSet(locales);
-    }
-
-    public synchronized void createProperty(String key) {
-        createProperty(key, true);
+    private void initTree() {
+        treeRoot = new TreeItem<BundleProperty>(null);
+        treeRoot = createChildren(null, null, new TreeSet<BundleProperty>(properties.values()));
     }
 
     /**
      * Adds property
      * @param fullname
      */
-    protected synchronized void createProperty(String key, boolean createAllLocales) {
+    public synchronized void createProperty(String key) {
         TreeItem<BundleProperty> tree = treeRoot;
         int index;
         int offset = 0;
         boolean finded = true;
-//        key = key.replaceAll(Pattern.quote(getTreeSeparator()) + "+", getTreeSeparator());
         key = proceedKey(key);
-        while (true) {
-            index = key.indexOf(getTreeSeparator(), offset);
-            String group = index == -1 ? key : key.substring(0, index);
-            offset = group.length() + getTreeSeparator().length();
+        if (treeRoot != null) {
+            while (true) {
+                index = key.indexOf(getTreeSeparator(), offset);
+                String group = index == -1 ? key : key.substring(0, index);
+                offset = group.length() + getTreeSeparator().length();
 
-            if (finded) {
-                finded = false;
-                for (TreeItem<BundleProperty> item : tree.getChildren()) {
-                    if (item.getValue().getKey().equals(group)) {
-                        if (createAllLocales && item.getValue().getKey().equals(key)) {
-//                            createBundlePropertyValues(item.getValue());
-                        } else {
-//                            createBundlePropertyValues(item.getValue()); //TODO
+                if (finded) {
+                    finded = false;
+                    for (TreeItem<BundleProperty> item : tree.getChildren()) {
+                        if (item.getValue().getKey().equals(group)) {
+                            if (item.getValue().getKey().equals(key)) {
+                                createPropertyValues(item.getValue());
+                            }
+                            tree = item;
+                            finded = true;
+                            break;
                         }
-                        tree = item;
-                        finded = true;
-                        break;
                     }
                 }
+                if (!finded) {
+                    BundleProperty property = createBundleProperty(group);
+                    createPropertyValues(property);
+                    TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(property);
+                    tree.addChild(treeItem);
+                    tree = treeItem;
+                }
+                if (index == -1) {
+                    break;
+                }
             }
-            if (!finded) {
-                BundleProperty property = createProperty(getPropertyName(group), group);
-                createBundlePropertyValues(property);
-                TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(property);
-                tree.addChild(treeItem);
-                tree = treeItem;
-            }
-            if (index == -1) {
-                break;
-            }
+        } else {
+            properties.put(key, createBundleProperty(key));
         }
     }
 
-    public void save() {
-        treeRoot.accept(new TreeVisitor<TreeItem<BundleProperty>>() {
-
-            public void preVisit(TreeItem<BundleProperty> tree) {
-                if (tree.getHeight() == 1) {
-                    System.out.println();
-                }
-                System.out.println(tree.getValue() == null ? "" : tree.getValue().getKey());
-            }
-
-            public void postVisit(TreeItem<BundleProperty> tree) {
-            }
-
-            public boolean isDone() {
-                return false;
-            }
-        });
-
-    }
-
-    synchronized SortedMap<String, BundleProperty> getProperties() {
-        return Collections.unmodifiableSortedMap(properties);
-    }
-
-    public TreeItem<BundleProperty> getPropertiesTree() {
-        return treeRoot;
-    }
-
-    private void createBundlePropertyValues(BundleProperty property) {
-        bridge.createBundlePropertyValues(property);
-    }
-
-    public BundleProperty getBundleProperty(String key) {
-        return properties.get(key);
-    }
-
-    public void createBundlePropertyLocaleRepresentation(Locale locale, String key, String value, String comment) {
+    public void createPropertyLocaleRepresentation(Locale locale, String key, String value, String comment) {
         key = proceedKey(key);
         BundleProperty bundleProperty = properties.get(key);
         if (bundleProperty == null) {
@@ -187,8 +141,63 @@ public class Bundle {
         }
     }
 
-    protected String proceedKey(String key) {
-        return key;
+    public void setPropertyValue(Locale locale, String key, String value) {
+        bridge.setPropertyValue(locale, key, value);
+    }
+
+    public void setPropertyComment(Locale locale, String key, String comment) {
+        bridge.setPropertyComment(locale, key, comment);
+    }
+//    public void save() {
+//        treeRoot.accept(new TreeVisitor<TreeItem<BundleProperty>>() {
+//
+//            public void preVisit(TreeItem<BundleProperty> tree) {
+//                if (tree.getHeight() == 1) {
+//                    System.out.println();
+//                }
+//                System.out.println(tree.getValue() == null ? "" : tree.getValue().getKey());
+//            }
+//
+//            public void postVisit(TreeItem<BundleProperty> tree) {
+//            }
+//
+//            public boolean isDone() {
+//                return false;
+//            }
+//        });
+//
+//    }
+    public Set<Locale> getLocales() {
+        return Collections.unmodifiableSet(locales);
+    }
+
+    public synchronized SortedMap<String, BundleProperty> getProperties() {
+        if (properties == null) {
+            initProperties();
+        }
+        return Collections.unmodifiableSortedMap(properties);
+    }
+
+    public TreeItem<BundleProperty> getPropertiesTree() {
+        if (properties == null) {
+            initProperties();
+        }
+        if (treeRoot == null) {
+            initTree();
+        }
+        return treeRoot;
+    }
+
+    public BundleProperty getProperty(String key) {
+        return properties.get(key);
+    }
+
+    public boolean isPropertyExists(Locale locale, String key) {
+        return bridge.isPropertyExists(locale, key);
+    }
+
+    private void createPropertyValues(BundleProperty property) {
+        bridge.createPropertyValues(property);
     }
 
     /**
@@ -217,11 +226,11 @@ public class Bundle {
                 int index = property.getKey().indexOf(getTreeSeparator(), offset);
                 if (index != -1) {
                     String fullname = property.getKey().substring(0, index);
-                    subgroup = createProperty(getPropertyName(fullname), fullname);
+                    subgroup = createBundleProperty(fullname);
                     subgroupProperties.add(property);
                     while ((index = property.getKey().indexOf(getTreeSeparator(), fullname.length() + getTreeSeparator().length())) != -1) {
                         fullname = property.getKey().substring(0, index);
-                        subgroupProperties.add(createProperty(getPropertyName(fullname), fullname));
+                        subgroupProperties.add(createBundleProperty(fullname));
                     }
                 } else {
                     subgroup = property;
@@ -238,9 +247,13 @@ public class Bundle {
         return subtree;
     }
 
-    BundleProperty createProperty(String name, String fullname) {
-        BundleProperty bundleProperty = new BundleProperty(this, name, fullname);
-        properties.put(fullname, bundleProperty);
+    private String proceedKey(String key) {
+        return key;
+    }
+
+    BundleProperty createBundleProperty(String key) {
+        BundleProperty bundleProperty = new BundleProperty(this, getPropertyName(key), key);
+        properties.put(key, bundleProperty);
         return bundleProperty;
     }
 
@@ -249,16 +262,16 @@ public class Bundle {
     }
 
     /**
-     * Gets property name, fullname property "a.b.c" has name "c"
+     * Gets property name, property key "a.b.c" has name "c" where separator is '.'
      * @param fullname
      * @return
      */
-    String getPropertyName(String fullname) {
+    private String getPropertyName(String fullname) {
         int lastIndex = fullname.lastIndexOf(getTreeSeparator());
         return lastIndex == -1 ? fullname : fullname.substring(lastIndex + getTreeSeparator().length());
     }
 
-    String getTreeSeparator() {
+    private String getTreeSeparator() {
         return ResourceBundleEditorOptions.getSeparator();
     }
 }

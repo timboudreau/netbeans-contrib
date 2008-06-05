@@ -42,6 +42,7 @@ package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Locale;
 import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
 import org.openide.util.NbBundle;
@@ -53,14 +54,14 @@ import org.openide.util.NbBundle;
 public class UIPropertyPanel extends javax.swing.JPanel {
 
     /** Creates new form Property panel */
-    public UIPropertyPanel(final BundlePropertyValue value) {
+    public UIPropertyPanel(Locale locale, final BundlePropertyValue value) {
         initComponents();
-        if (Bundle.DEFAULT_LOCALE.equals(value.getLocale())) {
+        if (Bundle.DEFAULT_LOCALE.equals(locale)) {
             titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
         } else {
-            titleLabel.setText(getLocaleTitle(value));
+            titleLabel.setText(getLocaleTitle(locale));
         }
-        if (value.isCreated()) {
+        if (value != null && value.isCreated()) {
             textArea.setText(value.getValue());
             //Using focus listener to update item value after change.
             //First attempt was to do it with document listener and update it in runtime,
@@ -81,11 +82,11 @@ public class UIPropertyPanel extends javax.swing.JPanel {
 
     }
 
-    protected String getLocaleTitle(BundlePropertyValue value) {
+    protected String getLocaleTitle(Locale locale) {
         return String.format("%s (%s)%s",
-            value.getLocale().getDisplayLanguage(),
-            value.getLocale().getLanguage(),
-            value.getLocale().getDisplayCountry().length() > 0 ? " - " + value.getLocale().getDisplayCountry() : "");
+            locale.getDisplayLanguage(),
+            locale.getLanguage(),
+            locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
