@@ -322,13 +322,13 @@ final class ScalaConsoleTopComponent extends TopComponent {
         execBuilder.frontWindow(true).inputVisible(true);
         execBuilder.inputOutput(new CustomInputOutput(in, out, err));
         
-        ExecutionService executionService = new ExecutionService(new Callable<Process>() {
+        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
 
             public Process call() throws Exception {
                 return builder.create();
             }
 
-        }, "Scala Shell", execBuilder.create());
+        }, execBuilder.create(), "Scala Shell");
 
         Task task = executionService.run();
 

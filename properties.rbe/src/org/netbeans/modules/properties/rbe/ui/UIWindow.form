@@ -16,18 +16,18 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-              <Component id="splitPane" pref="214" max="32767" attributes="0"/>
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Component id="splitPane" pref="475" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Component id="splitPane" pref="576" max="32767" attributes="0"/>
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -36,9 +36,6 @@
     <Container class="javax.swing.JSplitPane" name="splitPane">
       <Properties>
         <Property name="continuousLayout" type="boolean" value="true"/>
-        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[15, 6]"/>
-        </Property>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -58,9 +55,9 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="toolbar" alignment="0" pref="65" max="32767" attributes="0"/>
+                  <Component id="toolbar" alignment="0" pref="270" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="searchTextField" max="32767" attributes="0"/>
+                      <Component id="searchTextField" pref="215" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
                       <Component id="createButton" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -141,7 +138,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="65" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="270" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -164,6 +161,9 @@
                   <ResourceString bundle="org/netbeans/modules/properties/rbe/ui/Bundle.properties" key="UIWindow.createButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="createButtonActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
