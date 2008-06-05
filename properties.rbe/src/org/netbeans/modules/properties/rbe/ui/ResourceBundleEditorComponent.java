@@ -41,14 +41,17 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.PropertiesEditorSupport;
 import org.netbeans.modules.properties.PropertiesFileEntry;
+import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
@@ -81,11 +84,20 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
 
     @Override
     public boolean canClose() {
+        // TODO: add some save interaction
+        SaveCookie saveCookie = dataObject.getLookup().lookup(SaveCookie.class);
+        if (saveCookie != null) {
+            try {
+                saveCookie.save();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
         closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
         for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
             closeEntry((PropertiesFileEntry) it.next());
         }
-
         return true;
     }
 
@@ -98,7 +110,6 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     @Override
     public Image getIcon() {
         return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesObject.png"); // NOI18N
-
     }
 
     @Override

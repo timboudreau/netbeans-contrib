@@ -96,11 +96,11 @@ public class ResourceBundleEditorEnvironment implements CloneableOpenSupport.Env
     }
 
     public void markModified() throws IOException {
-//        dataObject.setModified(true);
+        dataObject.setModified(true);
     }
 
     public void unmarkModified() {
-//        dataObject.setModified(false);
+        dataObject.setModified(false);
     }
 
     public CloneableOpenSupport findCloneableOpenSupport() {

@@ -52,14 +52,17 @@ import java.util.regex.Pattern;
 import org.netbeans.modules.properties.BundleStructure;
 import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.PropertiesFileEntry;
+import org.netbeans.modules.properties.PropertyBundleEvent;
+import org.netbeans.modules.properties.PropertyBundleListener;
 import org.netbeans.modules.properties.Util;
 import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOptions;
+
 
 /**
  * The Bundle
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class Bundle {
+public class Bundle implements PropertyBundleListener {
 
     /** The bundle structure form data object */
     private BundleStructure bundleStructure;
@@ -80,11 +83,18 @@ public class Bundle {
     public Bundle(BundleStructure bundleStructure) {
         this.bundleStructure = bundleStructure;
         locales = new TreeSet<Locale>(new LocaleComparator());
+        bundleStructure.addPropertyBundleListener(this);
     }
 
     public Set<Locale> getLocales() {
         return Collections.unmodifiableSet(locales);
     }
+
+    BundleStructure getBundleStructure() {
+        return bundleStructure;
+    }
+    
+    
 
     /**
      * Adds property
@@ -105,6 +115,9 @@ public class Bundle {
                 finded = false;
                 for (TreeItem<BundleProperty> item : tree.getChildren()) {
                     if (item.getValue().getKey().equals(group)) {
+                        if (item.getValue().getKey().equals(key)) {
+                            createBundlePropertyValues(item.getValue());
+                        }
                         tree = item;
                         finded = true;
                         break;
@@ -113,6 +126,7 @@ public class Bundle {
             }
             if (!finded) {
                 BundleProperty property = createProperty(getPropertyName(group), group);
+                createBundlePropertyValues(property);
                 TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(property);
                 tree.addChild(treeItem);
                 tree = treeItem;
@@ -132,6 +146,12 @@ public class Bundle {
             }
         }
         return null;
+    }
+
+    void createBundlePropertyValues(BundleProperty bundleProperty) {
+        for (Locale locale : locales) {
+            bundleProperty.addLocaleRepresentation(locale, createNewItemElem(locale, bundleProperty.getKey(), "", ""));
+        }
     }
 
     public void save() {
@@ -253,8 +273,18 @@ public class Bundle {
     private String getTreeSeparator() {
         return ResourceBundleEditorOptions.getSeparator();
     }
-}
 
+    public void bundleChanged(PropertyBundleEvent e) {
+        if (e.getChangeType() == PropertyBundleEvent.CHANGE_ITEM) {
+            PropertiesFileEntry entry = bundleStructure.getEntryByFileName(e.getEntryName());
+            Locale locale = getLocaleFromPropertiesFileEntry(entry);
+            BundleProperty property = properties.get(e.getItemName());
+            if (property != null) {
+                property.getLocalRepresentation(locale).setItemElem(entry.getHandler().getStructure().getItem(e.getItemName()));
+            }
+        }
+    }
+}
 class LocaleComparator implements Comparator<Locale> {
 
     public int compare(Locale locale1, Locale locale2) {

@@ -121,18 +121,22 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateSelectedProperty() {
-        BundlePropertyNode bundlePropertyNode = null;
         if (explorer.getSelectedNodes().length == 1) {
             Node selectedNode = explorer.getSelectedNodes()[0];
             if (selectedNode instanceof BundlePropertyNode) {
-                bundlePropertyNode = (BundlePropertyNode) selectedNode;
+                selectProperty((BundlePropertyNode) selectedNode);
             }
         }
-        selectProperty(bundlePropertyNode);
     }
 
-    public void selectProperty(BundlePropertyNode bundlePropertyNode) {
+    public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                searchTextField.setText(bundlePropertyNode.getName());
+            }
+        });
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
                 rightPanel.add(new UIPropertyPanel(bundlePropertyNode.getProperty().getLocalRepresentation(locale)));
@@ -301,6 +305,7 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 
 private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
     rbe.getBundle().createProperty(searchTextField.getText());
+    updateSelectedProperty();
 //    rbe.getBundle().save();
 }//GEN-LAST:event_createButtonActionPerformed
 

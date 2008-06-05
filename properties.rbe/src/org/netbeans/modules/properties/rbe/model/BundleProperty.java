@@ -40,14 +40,13 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
- * The Nundle property
+ * The Bundle property
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
 public final class BundleProperty implements Comparable<BundleProperty> {
@@ -56,14 +55,14 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     private Bundle bundle;
     /** The name of the property */
     private String name;
-    /** The fullname of the property */
-    private String fullname;
+    /** The key of the property */
+    private String key;
     /** The different locale representation of the property */
     private Map<Locale, BundlePropertyValue> localeRepresentation;
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
-        this.fullname = fullname;
+        this.key = fullname;
         this.bundle = bundle;
     }
 
@@ -76,7 +75,7 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     }
 
     public String getKey() {
-        return fullname;
+        return key;
     }
 
 //    public void setFullName(String fullname) {
@@ -115,6 +114,6 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     }
 
     public int compareTo(BundleProperty o) {
-        return this.fullname.compareTo(o.fullname);
+        return this.key.compareTo(o.key);
     }
 }
