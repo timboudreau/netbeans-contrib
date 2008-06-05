@@ -185,7 +185,7 @@ public class TypeRef extends AstRef {
     }
     private static final String UNRESOLVED = "-1";
     private List<String> annotations;
-    protected List<List<TypeRef>> typeArgsList;
+    private List<List<TypeRef>> typeArgsList;
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -205,6 +205,14 @@ public class TypeRef extends AstRef {
 
     public List<List<TypeRef>> getTypeArgsList() {
         return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
+    }
+
+    public void addTypeArgs(List<TypeRef> typeArgs) {
+        if (typeArgsList == null) {
+            typeArgsList = new ArrayList<List<TypeRef>>();
+        }
+
+        typeArgsList.add(typeArgs);
     }
 
     public String getTypeArgsName() {
@@ -310,36 +318,20 @@ public class TypeRef extends AstRef {
             return qualifiedName == null ? UNRESOLVED : qualifiedName;
         }
     }
-    
+
     /** Inner class used for represent a type ref just for name usage */
     public static class TypeName extends TypeRef {
 
         public TypeName() {
             super(null, null, ElementKind.CLASS);
         }
-        
-        public void addTypeArgs(List<TypeRef> typeArgs) {
-            if (typeArgsList == null) {
-                typeArgsList = new ArrayList<List<TypeRef>>();
-            }
 
-            typeArgsList.add(typeArgs);
-        }
-
-        @Override
-        public String getName() {
-            return super.getName();
-        }        
-        
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append(getName());
-            if (typeArgsList == null) {
-                return sb.toString();
-            }
-            
-            for (List<TypeRef> typeArgs : typeArgsList) {
+
+            for (List<TypeRef> typeArgs : getTypeArgsList()) {
                 sb.append("[");
                 if (typeArgs.size() == 0) {
                     // wildcard
@@ -358,5 +350,4 @@ public class TypeRef extends AstRef {
             return sb.toString();
         }
     }
-    
 }
