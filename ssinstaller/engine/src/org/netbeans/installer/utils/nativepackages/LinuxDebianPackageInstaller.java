@@ -3,21 +3,21 @@ package org.netbeans.installer.utils.nativepackages;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.installer.product.components.Product;
 
 /**
  *
  * @author Igor Nikiforov
  */
-public class LinuxDebianPackageInstaller implements NativePackageInstaller {
+class LinuxDebianPackageInstaller implements NativePackageInstaller {
 
     public static final String PACKAGES_COUNTER = "deb_packages_counter";
     public static final String PACKAGE = "deb_package.";
     
     private String target = null;
-    
+  /*  
     public void install(String pathToPackage, Product product) throws InstallationException {
         String value = product.getProperty(PACKAGES_COUNTER);
         int counter = parseInteger(value) + 1;
@@ -52,7 +52,7 @@ public class LinuxDebianPackageInstaller implements NativePackageInstaller {
             }
         }
     }
-
+*/
     private int parseInteger(String value) {
         return (value == null || value.length() == 0)? 0: Integer.parseInt(value);
     }    
@@ -82,6 +82,22 @@ public class LinuxDebianPackageInstaller implements NativePackageInstaller {
 
     public void setDestinationPath(String path) {
         target = path;
+    }
+
+    public Iterable<String> install(String pathToPackage, Collection<String> packageNames) throws InstallationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Iterable<String> install(String pathToPackage) throws InstallationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void uninstall(Collection<String> packageNames) throws InstallationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void uninstall(String packageName) throws InstallationException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }

@@ -66,7 +66,8 @@ import javax.swing.UIManager;
 import javax.swing.text.Caret;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.modules.extexecution.api.Descriptor;
+import org.netbeans.modules.extexecution.api.ExecutionDescriptor;
+import org.netbeans.modules.extexecution.api.ExecutionDescriptorBuilder;
 import org.netbeans.modules.extexecution.api.ExecutionService;
 import org.netbeans.modules.extexecution.api.ExternalProcessBuilder;
 import org.netbeans.modules.extexecution.api.input.InputProcessor;
@@ -317,50 +318,17 @@ final class ScalaConsoleTopComponent extends TopComponent {
 
 //        ExecutionService executionService = new ScalaExecution(descriptor);
 //        Task task = executionService.run(in, out, err);
+        ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
+        execBuilder.frontWindow(true).inputVisible(true);
+        execBuilder.inputOutput(new CustomInputOutput(in, out, err));
+        
         ExecutionService executionService = new ExecutionService(new Callable<Process>() {
 
             public Process call() throws Exception {
                 return builder.create();
             }
 
-        }, "Scala Shell", new Descriptor() {
-
-            public InputOutput getInputOutput() {
-                return new CustomInputOutput(in, out, err);
-            }
-
-            public FileObject getFileObject() {
-                return null;
-            }
-
-            public InputProcessor getOutputSnooper() {
-                return null;
-            }
-
-            public boolean isControlable() {
-                return false;
-            }
-
-            public boolean isFrontWindow() {
-                return true;
-            }
-
-            public boolean isInputVisible() {
-                return true;
-            }
-
-            public boolean showSuspended() {
-                return false;
-            }
-
-            public boolean showProgress() {
-                return false;
-            }
-
-            public Runnable getPostExecution() {
-                return null;
-            }
-        });
+        }, "Scala Shell", execBuilder.create());
 
         Task task = executionService.run();
 

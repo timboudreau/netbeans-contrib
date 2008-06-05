@@ -133,4 +133,4 @@ transient String xmlPITarget = !( ( 'X' / 'x' ) ( 'M' / 'm' ) ( 'L' / 'l' ) ) xm
 transient String xmlChar = [\u0001-\uD7FF] / [\uE000-\uFFFD] ;
 
 transient Generic XmlWs = xmlWs ;
-transient String xmlWs = ( " " / "\f" / "\t" )+ ;
+transient String xmlWs = ( " " / "\f" / "\t" / "\r\n" / "\r" / "\n")+ ;
