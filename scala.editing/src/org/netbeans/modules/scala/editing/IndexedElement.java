@@ -1248,8 +1248,12 @@ public abstract class IndexedElement extends AstElement {
                 }
                 sb.append(")"); // NOI18N
             }
+            
+            TypeRef retType = function.getType();
 
-            sb.append(" :").append(function.getType().toString());
+            if (retType != null) {
+                sb.append(" :").append(function.getType().toString());
+            }
         }
 
         sb.append("</td>\n"); // NOI18N
