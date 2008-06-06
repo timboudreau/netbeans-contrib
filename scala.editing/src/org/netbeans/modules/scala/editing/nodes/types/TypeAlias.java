@@ -60,9 +60,4 @@ public class TypeAlias extends AstDef {
     public TypeRef getAlias() {
         return alias;
     }
-
-    @Override
-    public String getQualifiedName() {
-        return alias.getQualifiedName();
-    }
 }
