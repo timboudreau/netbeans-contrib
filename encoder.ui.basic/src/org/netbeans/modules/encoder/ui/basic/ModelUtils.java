@@ -241,6 +241,7 @@ public class ModelUtils {
                 org.w3c.dom.Element encodingElem = null;
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     if (nodeList.item(i).getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+                        // Skip non-element nodes, e.g. text node (containing Character Data such as \n, spaces, etc.
                         continue;
                     }
                     org.w3c.dom.Element elem = (org.w3c.dom.Element) nodeList.item(i);

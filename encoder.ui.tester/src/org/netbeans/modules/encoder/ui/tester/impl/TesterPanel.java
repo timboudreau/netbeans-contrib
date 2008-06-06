@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -756,6 +755,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         return dispQName.getQName();
     }
     
+    @Override
     public boolean contains(int x, int y) {
         return true;
     }
@@ -775,6 +775,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             return mQName;
         }
 
+        @Override
         public String toString() {
             return mQName.getLocalPart();
         }
