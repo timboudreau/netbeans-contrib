@@ -61,7 +61,7 @@ public class NbInitializationAction extends WizardAction {
     
     private InitializeRegistryAction initReg;
     private DownloadConfigurationLogicAction downloadLogic;
-    private SearchForJavaAction searchJava;
+  //  private SearchForJavaAction searchJava;
     private WizardAction currentAction;
     
     public NbInitializationAction() {
@@ -72,7 +72,7 @@ public class NbInitializationAction extends WizardAction {
         
         initReg = new InitializeRegistryAction();
         downloadLogic = new DownloadConfigurationLogicAction();
-        searchJava = new SearchForJavaAction();
+      //  searchJava = new SearchForJavaAction();
     }
     
     public void execute() {
@@ -90,7 +90,7 @@ public class NbInitializationAction extends WizardAction {
             downloadLogic.setWizard(getWizard());
             downloadLogic.execute();
         }
-        
+        /*
         if (searchJava.canExecuteForward() &&
                 ExecutionMode.getCurrentExecutionMode() == ExecutionMode.NORMAL) {
             boolean doSearch = false;
@@ -127,7 +127,7 @@ public class NbInitializationAction extends WizardAction {
                 searchJava.setWizard(getWizard());
                 searchJava.execute(javaSearchProgress);
             }
-        }
+        }*/
     }
     public static final String DEFAULT_TITLE = ResourceUtils.getString(NbInitializationAction.class,
             "NIA.title"); // NOI18N
