@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes.tmpls;
+package org.netbeans.modules.scala.editing.nodes.types;
 
 import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -48,8 +48,18 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class TypeAlias extends AstDef {
     
+    private TypeRef alias;
+    
     public TypeAlias(Id id, AstScope bindingScope) {
         super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
+    public void setAliase(TypeRef alias) {
+        this.alias = alias;
+    }
+    
+    public TypeRef getAlias() {
+        return alias;
+    }
+    
 }
