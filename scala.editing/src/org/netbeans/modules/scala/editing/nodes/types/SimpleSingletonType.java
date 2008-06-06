@@ -83,7 +83,6 @@ public class SimpleSingletonType extends TypeRef {
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
         for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
             formatter.appendText(itr.next().getName());
             if (itr.hasNext()) {
