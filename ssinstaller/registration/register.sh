@@ -6,7 +6,20 @@
 
 trap "on_exit; exit" 1 2 15 EXIT
 
-if [ `uname` != "SunOS" ] && [ `uname` != "Linux" ]
+PID=$$
+TMPDIR=/tmp/ssregister.${PID}
+mkdir -p ${TMPDIR}
+
+# on exit remove all temporary data
+on_exit() {
+   cd /
+   if [ -d "$TMPDIR" ]; then
+      rm -fr $TMPDIR;
+   fi
+}
+
+
+if [ `uname` != "__os_name" ]
 then
   echo "Neither Solaris or Linux. Exiting." 
   exit 1
@@ -58,17 +71,6 @@ STDIR="./servicetag"
 PWD=`pwd`
 PATH=/usr/bin:/usr/sbin:/bin:$PWD/${SUNSTUDIO_DIR}/bin
 MYNAME=`basename "$0"`
-PID=$$
-TMPDIR=/tmp/ssregister.${PID}
-mkdir -p ${TMPDIR}
-
-# on exit remove all temporary data
-on_exit() {
-   cd /
-   if [ -d "$TMPDIR" ]; then
-      rm -fr $TMPDIR;
-   fi
-}
 
 
 # script can be invoked with specifying locale that is used
@@ -559,7 +561,7 @@ unpack() {
     rm -r ${NETBEANS_DIR}
 
     tail +__tail_length > ${TMPDIR}/sunstudio.tar.bz2
-    bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf -
+    bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf - || exit "Sun Studio instllation failed."
     rm ${TMPDIR}/sunstudio.tar.bz2
     echo "Sun Studio was successfully installed."
 }
@@ -583,8 +585,8 @@ for i in $COMPONENTS; do
 done
 
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
-   `createRegistrationDocument 1>/dev/null 2>/dev/null`
-   `generateRegistrationHTML 1>/dev/null 2>/dev/null`
+   createRegistrationDocument 1>/dev/null 2>/dev/null
+   generateRegistrationHTML 1>/dev/null 2>/dev/null
    browse "file://${REGISTRATION_PAGE_FILE}"
 fi
 
