@@ -61,7 +61,6 @@ import org.netbeans.installer.utils.system.shortcut.LocationType;
 import org.netbeans.installer.utils.system.shortcut.Shortcut;
 import org.netbeans.installer.wizard.Wizard;
 import org.netbeans.installer.wizard.components.WizardComponent;
-import org.netbeans.installer.wizard.components.panels.JdkLocationPanel;
 
 /**
  *
@@ -91,16 +90,16 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         
         /////////////////////////////////////////////////////////////////////////////
         
-        final File jdkHome = new File (System.getProperty("java.home"));
+        final File jreHome = new File (System.getProperty("java.home"));
         try {
             progress.setDetail(getString("CL.install.jdk.home")); // NOI18N
-            JavaInfo info = JavaUtils.getInfo(jdkHome);
+            JavaInfo info = JavaUtils.getInfo(jreHome);
             LogManager.log("Using the following JDK for NetBeans configuration : ");
-            LogManager.log("... path    : "  + jdkHome);
+            LogManager.log("... path    : "  + jreHome);
             LogManager.log("... version : "  + info.getVersion().toJdkStyle());
             LogManager.log("... vendor  : "  + info.getVendor());
             LogManager.log("... final   : "  + (!info.isNonFinal()));
-            NetBeansUtils.setJavaHome(installLocation, jdkHome);
+            NetBeansUtils.setJavaHome(installLocation, jreHome);
         } catch (IOException e) {
             throw new InstallationException(
                     getString("CL.install.error.jdk.home"), // NOI18N
@@ -114,6 +113,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             NetBeansUtils.addCluster(installLocation, PLATFORM_CLUSTER);
             NetBeansUtils.addCluster(installLocation, NB_CLUSTER);
             NetBeansUtils.addCluster(installLocation, IDE_CLUSTER);
+            NetBeansUtils.addCluster(installLocation, ATD_CLUSTER);
         } catch (IOException e) {
             throw new InstallationException(
                     getString("CL.install.error.netbeans.clusters"), // NOI18N
@@ -524,6 +524,9 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             "{nb-cluster}"; // NOI18N
     public static final String IDE_CLUSTER =
             "{ide-cluster}"; // NOI18N    
+    
+     public static final String ATD_CLUSTER =
+            "{atd-cluster}"; // NOI18N    
     
     public static final String PLATFORM_UID =
             "nb-platform"; // NOI18N
