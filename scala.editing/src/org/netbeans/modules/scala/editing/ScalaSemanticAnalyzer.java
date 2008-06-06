@@ -97,13 +97,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
+        pResult.toGlobalPhase(info);
+
         AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
                 
         final TokenHierarchy th = pResult.getTokenHierarchy();
-        pResult.toGlobalPhase(info);
 
         Map<OffsetRange, Set<ColoringAttributes>> highlights = new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
         visitScopeRecursively(info, rootScope, highlights);

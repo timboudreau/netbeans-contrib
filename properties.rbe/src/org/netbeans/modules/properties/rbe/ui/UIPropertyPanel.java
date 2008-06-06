@@ -42,6 +42,7 @@ package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Locale;
 import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
 import org.openide.util.NbBundle;
@@ -52,15 +53,15 @@ import org.openide.util.NbBundle;
  */
 public class UIPropertyPanel extends javax.swing.JPanel {
 
-    /** Creates new form Propertypanel */
-    public UIPropertyPanel(final BundlePropertyValue value) {
+    /** Creates new form Property panel */
+    public UIPropertyPanel(Locale locale, final BundlePropertyValue value) {
         initComponents();
-        if (Bundle.DEFAULT_LOCALE.equals(value.getLocale())) {
+        if (Bundle.DEFAULT_LOCALE.equals(locale)) {
             titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
         } else {
-            titleLabel.setText(getLocaleTitle(value));
+            titleLabel.setText(getLocaleTitle(locale));
         }
-        if (value.isCreated()) {
+        if (value != null && value.isCreated()) {
             textArea.setText(value.getValue());
             //Using focus listener to update item value after change.
             //First attempt was to do it with document listener and update it in runtime,
@@ -81,11 +82,11 @@ public class UIPropertyPanel extends javax.swing.JPanel {
 
     }
 
-    protected String getLocaleTitle(BundlePropertyValue value) {
+    protected String getLocaleTitle(Locale locale) {
         return String.format("%s (%s)%s",
-            value.getLocale().getDisplayLanguage(),
-            value.getLocale().getLanguage(),
-            value.getLocale().getDisplayCountry().length() > 0 ? " - " + value.getLocale().getDisplayCountry() : "");
+            locale.getDisplayLanguage(),
+            locale.getLanguage(),
+            locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -106,15 +107,15 @@ public class UIPropertyPanel extends javax.swing.JPanel {
         titleLabel.setText(org.openide.util.NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.titleLabel.text")); // NOI18N
         titleLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(titleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(titleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
         );
 
         toolBar.add(jPanel1);
@@ -125,19 +126,19 @@ public class UIPropertyPanel extends javax.swing.JPanel {
         textArea.setWrapStyleWord(true);
         jScrollPane1.setViewportView(textArea);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(toolBar, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(toolBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(toolBar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(toolBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(0, 0, 0)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

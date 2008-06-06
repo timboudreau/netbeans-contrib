@@ -92,12 +92,13 @@ public class AstElement implements ElementHandle {
     }
 
     public String getName() {
-        if (name == null) {
-            assert false : "Should implement getName()";
-            throw new UnsupportedOperationException();
-        } else {
-            return name;
-        }
+        return name;
+//        if (name == null) {
+//            assert false : "Should implement getName()";
+//            throw new UnsupportedOperationException();
+//        } else {
+//            return name;
+//        }
     }
 
     public void setIdToken(Token idToken) {

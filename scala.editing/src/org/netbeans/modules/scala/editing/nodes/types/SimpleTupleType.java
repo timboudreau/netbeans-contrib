@@ -103,7 +103,6 @@ public class SimpleTupleType extends TypeRef {
     
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
         formatter.appendText("(");
         for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
             itr.next().htmlFormat(formatter);

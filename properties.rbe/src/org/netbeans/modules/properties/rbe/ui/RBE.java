@@ -58,7 +58,7 @@ public class RBE {
 
     public RBE(PropertiesDataObject propertiesDataObject) {
         this.propertiesDataObject = propertiesDataObject;
-        bundle = new Bundle(propertiesDataObject.getBundleStructure());
+        bundle = new Bundle(propertiesDataObject);
     }
 
     public DisplayMode getMode() {

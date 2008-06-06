@@ -41,7 +41,6 @@
 package org.netbeans.modules.properties.rbe.model;
 
 import java.util.Locale;
-import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
  * The Bundle Property Value
@@ -51,12 +50,14 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
 
     private BundleProperty property;
     private Locale locale;
-    private ItemElem itemElem;
+    private String value;
+    private String comment;
 
-    protected BundlePropertyValue(BundleProperty property, Locale locale, ItemElem itemElem) {
+    protected BundlePropertyValue(BundleProperty property, Locale locale, String value, String comment) {
         this.property = property;
         this.locale = locale;
-        this.itemElem = itemElem;
+        this.value = value;
+        this.comment = comment;
     }
 
     public String getKey() {
@@ -64,27 +65,29 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
     }
 
     public String getValue() {
-        return itemElem == null ? "" : itemElem.getValue();
+        return value;
     }
 
     public String getComment() {
-        return itemElem == null ? "" : itemElem.getComment();
+        return comment;
     }
 
     public void setValue(String value) {
-        if (itemElem == null) {
-            itemElem = property.getBundle().createNewItemElem(locale, property.getKey(), value, "");
-        } else {
-            itemElem.setValue(value);
-        }
+        this.value = value;
+        property.getBundle().setPropertyValue(locale, getKey(), value);
+    }
+
+    protected void updateValue(String value) {
+        this.value = value;
     }
 
     public void setComment(String comment) {
-        if (itemElem == null) {
-            itemElem = property.getBundle().createNewItemElem(locale, property.getKey(), "", comment);
-        } else {
-            itemElem.setComment(comment);
-        }
+        this.comment = comment;
+        property.getBundle().setPropertyComment(locale, getKey(), value);
+    }
+
+    protected void updateComment(String comment) {
+        this.comment = comment;
     }
 
     public Locale getLocale() {
@@ -96,11 +99,7 @@ public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
     }
 
     public boolean isCreated() {
-        return itemElem != null;
-    }
-
-    void setItemElem(ItemElem itemElem) {
-        this.itemElem = itemElem;
+        return property.getBundle().isPropertyExists(locale, getKey());
     }
 
     public int compareTo(BundlePropertyValue o) {
