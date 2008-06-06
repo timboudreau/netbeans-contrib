@@ -112,7 +112,6 @@ public class FunType extends TypeRef {
     
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
         if (lhs == null) {
             formatter.appendText("(");
             formatter.appendText(")");

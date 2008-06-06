@@ -100,7 +100,6 @@ public class ParamType extends TypeRef {
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
         switch (more) {
             case Star:
                 wrappedType.htmlFormat(formatter);

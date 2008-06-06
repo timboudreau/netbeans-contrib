@@ -42,7 +42,7 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
-import org.netbeans.modules.scala.editing.nodes.tmpls.TypeAlias;
+import org.netbeans.modules.scala.editing.nodes.types.TypeAlias;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.InfixExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.ArgumentExprs;
@@ -602,7 +602,7 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
-            visitChildren(typeParamClauseNode);
+            visitTypeParamClause(typeParamClauseNode);
         }
 
         String modifier = "public";
@@ -644,7 +644,7 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
-            visitChildren(typeParamClauseNode);
+            visitTypeParamClause(typeParamClauseNode);
         }
 
         List<TypeRef> parents = visitTraitTemplateOpt(that.getGeneric(2));
@@ -923,16 +923,24 @@ public class AstElementVisitor extends AstVisitor {
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        TypeAlias type = new TypeAlias(id, scope);
+        TypeAlias typeAlias = new TypeAlias(id, scope);
 
-        scopeStack.peek().addDef(type);
+        scopeStack.peek().addDef(typeAlias);
 
         scopeStack.push(scope);
-        visitChildren(that);
+        
+        GNode typeParamClauseNode = that.getGeneric(1);
+        if (typeParamClauseNode != null) {
+            visitTypeParamClause(typeParamClauseNode);
+        }
+        
+        TypeRef alias = visitType(that.getGeneric(2));
+        typeAlias.setAliase(alias);
+        
         scopeStack.pop();
 
         exit(that);
-        return type;
+        return typeAlias;
     }
 
     public Function visitFunDcl(GNode that) {
@@ -1037,6 +1045,22 @@ public class AstElementVisitor extends AstVisitor {
         return function;
     }
 
+    public void visitTypeParamClause(GNode that) {
+        enter(that);
+        
+        visitChildren(that);
+        
+        exit(that);
+    }
+    
+    public void visitFunTypeParamClause(GNode that) {
+        enter(that);
+        
+        visitChildren(that);
+        
+        exit(that);
+    }
+    
     /**
      * @Note: null params is meaningful, it's diffrent from empty params
      * @return null or list of Var 

@@ -298,14 +298,12 @@ public class TypeRef extends AstRef {
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
         if (getName() != null) {
             formatter.appendText(getName());
+            htmlFormatTypeArgs(formatter);
         }
     }
 
-    
-    
     public void htmlFormatTypeArgs(HtmlFormatter formatter) {
         for (List<TypeRef> typeArgs : getTypeArgsList()) {
             formatter.appendText("[");
