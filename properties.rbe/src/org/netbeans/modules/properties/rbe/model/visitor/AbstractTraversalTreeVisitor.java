@@ -38,74 +38,43 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.model;
+package org.netbeans.modules.properties.rbe.model.visitor;
 
-import java.util.Locale;
+import org.netbeans.modules.properties.rbe.model.TreeItem;
 
 /**
- * The Bundle Property Value
+ * The Abstract traversal visitor
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
+public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> implements TreeVisitor<T> {
 
-    private BundleProperty property;
-    private Locale locale;
-    private String value;
-    private String comment;
-
-    protected BundlePropertyValue(BundleProperty property, Locale locale, String value, String comment) {
-        this.property = property;
-        this.locale = locale;
-        this.value = value;
-        this.comment = comment;
-    }
-
-    public String getKey() {
-        return property.getKey();
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-        property.getBundle().setPropertyValue(locale, getKey(), value);
-    }
-
-    protected void updateValue(String value) {
-        this.value = value;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-        property.getBundle().setPropertyComment(locale, getKey(), value);
-    }
-
-    protected void updateComment(String comment) {
-        this.comment = comment;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public BundleProperty getProperty() {
-        return property;
-    }
-
-    public boolean isCreated() {
-        return property.getBundle().isPropertyExists(locale, getKey());
-    }
-
-    public int compareTo(BundlePropertyValue o) {
-        if (!property.equals(o.property)) {
-            return property.getKey().compareTo(o.property.getKey());
+    public void visit(TreeItem<T> t) {
+        if (!isDone()) {
+            for (TreeItem<T> tree : t.getChildren()) {
+                preVisit(tree); /* Pre-visit */
+                tree.accept(this);
+                postVisit(tree); /* Post-visit */
+            }
         }
-        return Bundle.LOCALE_COMPARATOR.compare(locale, o.locale);
+    }
+
+    /**
+     * Pre-visit the tree
+     * @param t tree
+     */
+    protected abstract void preVisit(TreeItem<T> t);
+
+    /**
+     * Post-visit the tree
+     * @param t
+     */
+    protected abstract void postVisit(TreeItem<T> t);
+
+    /**
+     * Is done?
+     * @return
+     */
+    protected boolean isDone() {
+        return false;
     }
 }
