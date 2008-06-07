@@ -43,9 +43,10 @@ package org.netbeans.modules.properties.rbe.ui;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import org.netbeans.modules.properties.rbe.model.Bundle;
+import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVisitor;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
-import org.netbeans.modules.properties.rbe.model.TreeVisitor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 
@@ -65,7 +66,7 @@ public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundlePrope
     protected boolean createKeys(final List<TreeItem<BundleProperty>> toPopulate) {
         switch (rbe.getMode()) {
             case FLAT:
-                rbe.getBundle().getPropertiesTree().accept(new TreeVisitor<TreeItem<BundleProperty>>() {
+                rbe.getBundle().getPropertyTree().accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
 
                     public void preVisit(TreeItem<BundleProperty> tree) {
                         if (tree.getValue() != null && !tree.getValue().isEmpty()) {
@@ -75,16 +76,12 @@ public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundlePrope
 
                     public void postVisit(TreeItem<BundleProperty> tree) {
                     }
-
-                    public boolean isDone() {
-                        return false;
-                    }
                 });
-
-
+                rbe.getBundle().addPropertyChangeListener(this);
                 break;
             case TREE:
-                toPopulate.addAll(rbe.getBundle().getPropertiesTree().getChildren());
+                toPopulate.addAll(rbe.getBundle().getPropertyTree().getChildren());
+                rbe.getBundle().getPropertyTree().addPropertyChangeListener(this);
                 break;
         }
         return true;
@@ -102,7 +99,7 @@ public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundlePrope
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName()) || Bundle.PROPERTY_PROPERTIES.equals(evt.getPropertyName())) {
             refresh(false);
         }
     }

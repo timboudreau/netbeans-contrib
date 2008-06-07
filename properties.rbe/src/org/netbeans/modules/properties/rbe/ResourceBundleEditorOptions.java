@@ -1,4 +1,4 @@
- /*
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
@@ -38,25 +38,16 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.model;
+package org.netbeans.modules.properties.rbe;
 
 /**
- * The Tree visitor
+ * The Resource Bundle Editor options
+ * TODO
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public interface TreeVisitor<T extends TreeItem<?>> {
+public class ResourceBundleEditorOptions {
 
-    /**
-     * Pre tree visit
-     * @param tree
-     */
-    void preVisit(T tree);
-
-    /**
-     * Post tree visit
-     * @param tree
-     */
-    void postVisit(T tree);
-
-    boolean isDone();
+    public static String getSeparator() {
+        return ".";
+    }
 }

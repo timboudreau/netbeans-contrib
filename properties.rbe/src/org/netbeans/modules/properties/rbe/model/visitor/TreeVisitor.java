@@ -1,4 +1,4 @@
-/*
+ /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
@@ -38,16 +38,15 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model.visitor;
+
+import org.netbeans.modules.properties.rbe.model.TreeItem;
 
 /**
- * The Resource Bundle Editor options
- * TODO
+ * The Tree visitor
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorOptions {
+public interface TreeVisitor<T extends Comparable<T>> {
 
-    public static String getSeparator() {
-        return ".";
-    }
+    void visit(TreeItem<T> t);
 }

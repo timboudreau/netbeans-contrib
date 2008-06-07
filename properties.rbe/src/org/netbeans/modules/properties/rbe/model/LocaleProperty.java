@@ -40,11 +40,72 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
+import java.util.Locale;
+
 /**
- * The Visitable tree
+ * The Bundle Property Value
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public interface VisitableTree<T extends TreeItem<?>> {
+public class LocaleProperty implements Comparable<LocaleProperty> {
 
-    void accept(TreeVisitor<T> visitor);
+    private BundleProperty property;
+    private Locale locale;
+    private String value;
+    private String comment;
+
+    public LocaleProperty(BundleProperty property, Locale locale, String value, String comment) {
+        this.property = property;
+        this.locale = locale;
+        this.value = value;
+        this.comment = comment;
+    }
+
+    public String getKey() {
+        return property.getKey();
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+        property.getBundle().setPropertyValue(locale, getKey(), value);
+    }
+
+    protected void updateValue(String value) {
+        this.value = value;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+        property.getBundle().setPropertyComment(locale, getKey(), value);
+    }
+
+    protected void updateComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public BundleProperty getProperty() {
+        return property;
+    }
+
+    public boolean isCreated() {
+        return property.getBundle().isPropertyExists(locale, getKey());
+    }
+
+    public int compareTo(LocaleProperty o) {
+        if (!property.equals(o.property)) {
+            return property.getKey().compareTo(o.property.getKey());
+        }
+        return Bundle.LOCALE_COMPARATOR.compare(locale, o.locale);
+    }
 }

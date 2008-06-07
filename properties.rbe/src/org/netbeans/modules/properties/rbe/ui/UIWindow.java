@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
-import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
+import org.netbeans.modules.properties.rbe.model.LocaleProperty;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
@@ -98,15 +98,10 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
 
     @Override
     public void addNotify() {
-        ExplorerManager.Provider provider = (ExplorerManager.Provider) SwingUtilities.getAncestorOfClass(ExplorerManager.Provider.class, this);
-        if (provider == null) {
-            throw new IllegalArgumentException("Cannot find an Explorer provider!");
-        } else {
-            explorer = provider.getExplorerManager();
-        }
+        super.addNotify();
+        explorer = ExplorerManager.find(this);
         explorer.addPropertyChangeListener(this);
         updateBeanTree();
-        super.addNotify();
     }
 
     protected void updateBeanTree() {
@@ -138,7 +133,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         });
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                BundlePropertyValue value = bundlePropertyNode.getProperty().getLocalRepresentation(locale);
+                LocaleProperty value = bundlePropertyNode.getProperty().getLocalProperty(locale);
                 rightPanel.add(new UIPropertyPanel(locale, value));
             }
         }
