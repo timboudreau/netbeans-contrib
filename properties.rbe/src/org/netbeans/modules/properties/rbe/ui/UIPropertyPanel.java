@@ -44,7 +44,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Locale;
 import org.netbeans.modules.properties.rbe.model.Bundle;
-import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
+import org.netbeans.modules.properties.rbe.model.LocaleProperty;
 import org.openide.util.NbBundle;
 
 /**
@@ -54,7 +54,7 @@ import org.openide.util.NbBundle;
 public class UIPropertyPanel extends javax.swing.JPanel {
 
     /** Creates new form Property panel */
-    public UIPropertyPanel(Locale locale, final BundlePropertyValue value) {
+    public UIPropertyPanel(Locale locale, final LocaleProperty value) {
         initComponents();
         if (Bundle.DEFAULT_LOCALE.equals(locale)) {
             titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));

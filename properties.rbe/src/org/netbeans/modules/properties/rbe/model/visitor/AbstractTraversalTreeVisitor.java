@@ -38,16 +38,43 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model.visitor;
+
+import org.netbeans.modules.properties.rbe.model.TreeItem;
 
 /**
- * The Resource Bundle Editor options
- * TODO
+ * The Abstract traversal visitor
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorOptions {
+public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> implements TreeVisitor<T> {
 
-    public static String getSeparator() {
-        return ".";
+    public void visit(TreeItem<T> t) {
+        if (!isDone()) {
+            for (TreeItem<T> tree : t.getChildren()) {
+                preVisit(tree); /* Pre-visit */
+                tree.accept(this);
+                postVisit(tree); /* Post-visit */
+            }
+        }
+    }
+
+    /**
+     * Pre-visit the tree
+     * @param t tree
+     */
+    protected abstract void preVisit(TreeItem<T> t);
+
+    /**
+     * Post-visit the tree
+     * @param t
+     */
+    protected abstract void postVisit(TreeItem<T> t);
+
+    /**
+     * Is done?
+     * @return
+     */
+    protected boolean isDone() {
+        return false;
     }
 }

@@ -38,74 +38,16 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.model;
-
-import java.util.Locale;
+package org.netbeans.modules.properties.rbe;
 
 /**
- * The Bundle Property Value
+ * The Resource Bundle Editor options
+ * TODO
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
+public class ResourceBundleEditorOptions {
 
-    private BundleProperty property;
-    private Locale locale;
-    private String value;
-    private String comment;
-
-    protected BundlePropertyValue(BundleProperty property, Locale locale, String value, String comment) {
-        this.property = property;
-        this.locale = locale;
-        this.value = value;
-        this.comment = comment;
-    }
-
-    public String getKey() {
-        return property.getKey();
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-        property.getBundle().setPropertyValue(locale, getKey(), value);
-    }
-
-    protected void updateValue(String value) {
-        this.value = value;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-        property.getBundle().setPropertyComment(locale, getKey(), value);
-    }
-
-    protected void updateComment(String comment) {
-        this.comment = comment;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public BundleProperty getProperty() {
-        return property;
-    }
-
-    public boolean isCreated() {
-        return property.getBundle().isPropertyExists(locale, getKey());
-    }
-
-    public int compareTo(BundlePropertyValue o) {
-        if (!property.equals(o.property)) {
-            return property.getKey().compareTo(o.property.getKey());
-        }
-        return Bundle.LOCALE_COMPARATOR.compare(locale, o.locale);
+    public static String getSeparator() {
+        return ".";
     }
 }

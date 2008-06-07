@@ -48,7 +48,7 @@ import java.util.Map;
  * The Bundle property
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public final class BundleProperty implements Comparable<BundleProperty> {
+public class BundleProperty implements Comparable<BundleProperty> {
 
     /** The property bundle */
     private Bundle bundle;
@@ -56,14 +56,14 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     private String name;
     /** The key of the property */
     private String key;
-    /** Locale representation */
-    private Map<Locale, BundlePropertyValue> localeRepresentation;
+    /** Locale properties */
+    private Map<Locale, LocaleProperty> localeProperties;
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
         this.key = fullname;
         this.bundle = bundle;
-        this.localeRepresentation = new HashMap<Locale, BundlePropertyValue>(bundle.getLocales().size());
+        this.localeProperties = new HashMap<Locale, LocaleProperty>(bundle.getLocales().size());
     }
 
     public String getName() {
@@ -78,30 +78,24 @@ public final class BundleProperty implements Comparable<BundleProperty> {
         return key;
     }
 
-//    public void setFullName(String fullname) {
-//        this.fullname = fullname;
-//    }
     public Bundle getBundle() {
         return bundle;
     }
 
-//    public Map<Locale, BundlePropertyValue> getLocaleRepresentation() {
-//        return localeRepresentation == null ? Collections.<Locale, BundlePropertyValue>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
-//    }
-    public BundlePropertyValue getLocalRepresentation(Locale locale) {
-        return localeRepresentation.get(locale);
+    public LocaleProperty getLocalProperty(Locale locale) {
+        return localeProperties.get(locale);
     }
 
     public boolean isEmpty() {
-        return localeRepresentation.isEmpty();
+        return localeProperties.isEmpty();
     }
 
-    void addLocaleRepresentation(Locale locale, BundlePropertyValue value) {
-        localeRepresentation.put(locale, value);
+    void addLocaleProperty(Locale locale, LocaleProperty value) {
+        localeProperties.put(locale, value);
     }
 
-    void removeLocaleRepresentation(Locale locale) {
-        localeRepresentation.remove(locale);
+    void removeLocaleProperty(Locale locale) {
+        localeProperties.remove(locale);
     }
 
     public int compareTo(BundleProperty o) {
