@@ -69,7 +69,13 @@ public class ClassTemplate extends Template {
     }
 
     public void assignTypeParams(List<TypeRef> typeArgs) {
-        
+        assert getTypeParams().size() == typeArgs.size();
+        List<TypeParam> _typeParams = getTypeParams();
+        for (int i = 0 ; i < _typeParams.size(); i++) {
+            TypeParam typeParam = _typeParams.get(i);
+            TypeRef typeArg = typeArgs.get(i);
+            typeParam.setValue(typeArg);
+        }
     }
     
     @Override

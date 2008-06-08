@@ -45,6 +45,7 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
@@ -67,6 +68,16 @@ public class Function extends AstDef {
         return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
     }
 
+    public void assignTypeParams(List<TypeRef> typeArgs) {
+        assert getTypeParams().size() == typeArgs.size();
+        List<TypeParam> _typeParams = getTypeParams();
+        for (int i = 0 ; i < _typeParams.size(); i++) {
+            TypeParam typeParam = _typeParams.get(i);
+            TypeRef typeArg = typeArgs.get(i);
+            typeParam.setValue(typeArg);
+        }
+    }        
+    
     public void setParam(List<Var> params) {
         this.params = params;
     }
