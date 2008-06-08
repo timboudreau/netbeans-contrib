@@ -38,13 +38,13 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.model;
+package org.netbeans.modules.properties.rbe.model.visitor;
 
 /**
  * The Visitable tree
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public interface VisitableTree<T extends TreeItem<?>> {
+public interface VisitableTree<T extends Comparable<T>> {
 
     void accept(TreeVisitor<T> visitor);
 }

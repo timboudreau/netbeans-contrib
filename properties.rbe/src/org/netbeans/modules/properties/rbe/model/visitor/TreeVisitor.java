@@ -1,4 +1,4 @@
-/*
+ /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
@@ -38,69 +38,15 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model.visitor;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.List;
-import org.netbeans.modules.properties.rbe.model.Bundle;
-import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVisitor;
-import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
-import org.openide.nodes.ChildFactory;
-import org.openide.nodes.Node;
 
 /**
- * The Bundle property node factory
+ * The Tree visitor
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundleProperty>> implements PropertyChangeListener {
+public interface TreeVisitor<T extends Comparable<T>> {
 
-    protected RBE rbe;
-
-    public BundlePropertyNodeFactory(RBE rbe) {
-        this.rbe = rbe;
-    }
-
-    @Override
-    protected boolean createKeys(final List<TreeItem<BundleProperty>> toPopulate) {
-        switch (rbe.getMode()) {
-            case FLAT:
-                rbe.getBundle().getPropertyTree().accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
-
-                    public void preVisit(TreeItem<BundleProperty> tree) {
-                        if (tree.getValue() != null && !tree.getValue().isEmpty()) {
-                            toPopulate.add(tree);
-                        }
-                    }
-
-                    public void postVisit(TreeItem<BundleProperty> tree) {
-                    }
-                });
-                rbe.getBundle().addPropertyChangeListener(this);
-                break;
-            case TREE:
-                toPopulate.addAll(rbe.getBundle().getPropertyTree().getChildren());
-                rbe.getBundle().getPropertyTree().addPropertyChangeListener(this);
-                break;
-        }
-        return true;
-    }
-
-    @Override
-    protected Node createNodeForKey(TreeItem<BundleProperty> key) {
-        switch (rbe.getMode()) {
-            case FLAT:
-                return new FlatPropertyNode(key);
-            case TREE:
-                return new TreeItemPropertyNode(key);
-        }
-        return null;
-    }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName()) || Bundle.PROPERTY_PROPERTIES.equals(evt.getPropertyName())) {
-            refresh(false);
-        }
-    }
+    void visit(TreeItem<T> t);
 }

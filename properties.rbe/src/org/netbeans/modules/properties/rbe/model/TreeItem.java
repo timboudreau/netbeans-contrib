@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
+import org.netbeans.modules.properties.rbe.model.visitor.VisitableTree;
+import org.netbeans.modules.properties.rbe.model.visitor.TreeVisitor;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
@@ -50,7 +52,7 @@ import java.util.TreeSet;
  * The Tree item
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem<T>>, Comparable<TreeItem<T>> {
+public class TreeItem<T extends Comparable<T>> implements VisitableTree<T>, Comparable<TreeItem<T>> {
 
     protected T value;
     protected TreeItem<T> parent;
@@ -113,14 +115,8 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem
         return getParent() == null ? 0 : getParent().getHeight() + 1;
     }
 
-    public void accept(TreeVisitor<TreeItem<T>> visitor) {
-        if (!visitor.isDone()) {
-            visitor.preVisit(this);
-            for (TreeItem<T> tree : children) {
-                tree.accept(visitor);
-            }
-            visitor.postVisit(this);
-        }
+    public void accept(TreeVisitor<T> visitor) {
+        visitor.visit(this);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {

@@ -59,7 +59,7 @@ public class ResourceBundleEditorAction extends CookieAction {
 
     protected void performAction(Node[] activatedNodes) {
         PropertiesDataObject dataObject = activatedNodes[0].getLookup().lookup(PropertiesDataObject.class);
-        synchronized (editors) { // Could be?
+        synchronized (editors) { // Ok?
             ResourceBundleEditorOpen editor = editors.get(dataObject);
             if (editor == null) {
                 editor = new ResourceBundleEditorOpen(dataObject);
