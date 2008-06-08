@@ -38,8 +38,10 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Id;
 
 /**
  *
