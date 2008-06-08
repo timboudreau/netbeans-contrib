@@ -36,58 +36,69 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes.tmpls;
+package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Id;
-import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ClassTemplate extends Template {
+public class TypeParam extends TypeDef {
 
-    private List<TypeParam> typeParams;
+    public enum Bound {
 
-    public ClassTemplate(Id id, AstScope bindingScope) {
-        super(id, bindingScope, ElementKind.CLASS);
+        Upper,
+        Lower,
+        View
     }
 
-    public void setTypeParams(List<TypeParam> typeParams) {
-        this.typeParams = typeParams;
+    public enum Variant {
+
+        Plus,
+        Minus
+    }
+    private Bound bound;
+    private TypeRef boundType;
+    private Variant variant;
+    private List<TypeParam> params;
+
+    public TypeParam(Id id, AstScope bindingScope) {
+        super(id, bindingScope);
     }
 
-    public List<TypeParam> getTypeParam() {
-        return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
+    public void setBound(Bound bound) {
+        this.bound = bound;
     }
 
-    @Override
-    public String getBinaryName() {
-        return getName();
+    public Bound getBound() {
+        return bound;
     }
 
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        formatter.appendText(getName());
-        if (!getTypeParam().isEmpty()) {
-            formatter.appendText("[");
+    public void setBoundType(TypeRef boundType) {
+        this.boundType = boundType;
+    } 
+    
+    public TypeRef getBoundType() {
+        return boundType;
+    }
+    
+    public void setVariant(Variant variant) {
+        this.variant = variant;
+    }
 
-            for (Iterator<TypeParam> itr = getTypeParam().iterator(); itr.hasNext();) {
-                TypeParam typeParam = itr.next();
-                typeParam.htmlFormat(formatter);
-
-                if (itr.hasNext()) {
-                    formatter.appendHtml(", ");
-                }
-            }
-
-            formatter.appendText("]");
-        }
+    public Variant getVariant() {
+        return variant;
+    }
+    
+    public void setParams(List<TypeParam> params) {
+        this.params = params;
+    }
+    
+    public List<TypeParam> getParams() {
+        return params == null ? Collections.<TypeParam>emptyList() : params;
     }
 }

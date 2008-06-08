@@ -38,13 +38,13 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 
 /**
  *
@@ -52,19 +52,19 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  */
 public class Function extends AstDef {
 
-    private List<TypeRef> typeParams;
+    private List<TypeParam> typeParams;
     private List<Var> params;
 
     public Function(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
         super(name, idToken, bindingScope, kind);
     }
 
-    public void setTypeParam(List<TypeRef> typeParams) {
+    public void setTypeParam(List<TypeParam> typeParams) {
         this.typeParams = typeParams;
     }
 
-    public List<TypeRef> getTypeParam() {
-        return typeParams == null ? Collections.<TypeRef>emptyList() : typeParams;
+    public List<TypeParam> getTypeParam() {
+        return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
     }
 
     public void setParam(List<Var> params) {
@@ -97,8 +97,8 @@ public class Function extends AstDef {
         if (!getTypeParam().isEmpty()) {
             formatter.appendHtml("[");
 
-            for (Iterator<TypeRef> itr = getTypeParam().iterator(); itr.hasNext();) {
-                TypeRef typeParam = itr.next();
+            for (Iterator<TypeParam> itr = getTypeParam().iterator(); itr.hasNext();) {
+                TypeParam typeParam = itr.next();
                 typeParam.htmlFormat(formatter);
 
                 if (itr.hasNext()) {

@@ -254,12 +254,19 @@ public class TypeRef extends AstRef {
         AstDef def = getEnclosingScope().findDef(this);
         if (def != null) {
             if (def instanceof TypeDef) {
-                qualifiedName = ((TypeDef) def).getAlias().getQualifiedName();
+                TypeRef alias = ((TypeDef) def).getAlias();
+                if (alias != null) {
+                    qualifiedName = alias.getQualifiedName();
+                    return qualifiedName;
+                } else {
+                    return UNRESOLVED;
+                }
             } else {
                 // should be Template
                 qualifiedName = def.getQualifiedName();
+                return qualifiedName;
             }
-            return qualifiedName;
+            
         }
 
         List<Importing> importings = getEnclosingScope().getDefsInScope(Importing.class);

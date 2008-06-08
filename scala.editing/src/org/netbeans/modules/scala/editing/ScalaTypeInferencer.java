@@ -124,7 +124,7 @@ public class ScalaTypeInferencer {
         for (AstExpr expr : scope.getExprs()) {
             globalInferExpr(expr, null);
         }
-        
+
         for (AstRef ref : scope.getRefs()) {
             TypeRef toResolve = null;
             if (ref instanceof FunRef) {
@@ -374,20 +374,26 @@ public class ScalaTypeInferencer {
                     IndexedFunction idxFunction = (IndexedFunction) member;
                     if (idxFunction.isNullArgs()) {
                         isCandicate = true;
-                        idxRetTypeStr = idxFunction.getType().getName();
+                        TypeRef idxRetType = idxFunction.getType();
+                        if (idxRetType != null) {
+                            idxRetTypeStr = idxRetType.getName();
+                        }
                     }
                 } else if (member instanceof IndexedField) {
                     IndexedField idxField = (IndexedField) member;
                     isCandicate = true;
-                    idxRetTypeStr = idxField.getType().getName();
+                    TypeRef idxRetType = idxField.getType();
+                    if (idxRetType != null) {
+                        idxRetTypeStr = idxRetType.getName();
+                    }
                 }
 
                 if (isCandicate) {
                     if (idxRetTypeStr == null) {
-                        idxRetTypeStr = "void";
+                        idxRetTypeStr = "Unit";
                     }
-                    if (idxRetTypeStr.equals("void")) {
-                        fieldRef.setRetTypeStr("void");
+                    if (idxRetTypeStr.equals("Unit")) {
+                        fieldRef.setRetTypeStr("Unit");
                         break;
                     }
 

@@ -64,6 +64,9 @@ import java.util.List;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyFunRef;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Bound;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Variant;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.util.Pair;
@@ -602,7 +605,8 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
-            visitTypeParamClause(typeParamClauseNode);
+            List<TypeParam> typeParams = visitTypeParamClause(typeParamClauseNode);
+            classTmpl.setTypeParams(typeParams);
         }
 
         String modifier = "public";
@@ -644,7 +648,8 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
-            visitTypeParamClause(typeParamClauseNode);
+            List<TypeParam> typeParams = visitTypeParamClause(typeParamClauseNode);
+            traitTmpl.setTypeParams(typeParams);
         }
 
         List<TypeRef> parents = visitTraitTemplateOpt(that.getGeneric(2));
@@ -1032,33 +1037,111 @@ public class AstElementVisitor extends AstVisitor {
         enter(that);
 
         Id id = visitId(that.getGeneric(0));
-        GNode funTypeParamClauseNode = that.getGeneric(1);
-        if (funTypeParamClauseNode != null) {
-            visitChildren(funTypeParamClauseNode);
-        }
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
         Function function = new Function(id.getName(), id.getIdToken(), scopeStack.peek(), ElementKind.METHOD);
         function.setParam(params);
 
+        GNode funTypeParamClauseNode = that.getGeneric(1);
+        if (funTypeParamClauseNode != null) {
+            List<TypeParam> typeParams = visitFunTypeParamClause(funTypeParamClauseNode);
+            function.setTypeParam(typeParams);
+        }
+
         exit(that);
         return function;
     }
 
-    public void visitTypeParamClause(GNode that) {
+    public List<TypeParam> visitTypeParamClause(GNode that) {
         enter(that);
         
-        visitChildren(that);
+        List<TypeParam> typeParams = new ArrayList<TypeParam>();
+        
+        TypeParam first = visitVariantTypeParam(that.getGeneric(0));
+        typeParams.add(first);
+        
+        for (Object o : that.getList(1)) {
+            TypeParam other = visitVariantTypeParam((GNode) o);
+            typeParams.add(other);
+        }
         
         exit(that);
+        return typeParams;
     }
     
-    public void visitFunTypeParamClause(GNode that) {
+    public List<TypeParam> visitFunTypeParamClause(GNode that) {
         enter(that);
         
-        visitChildren(that);
+        List<TypeParam> typeParams = new ArrayList<TypeParam>();
+        
+        TypeParam first = visitTypeParam(that.getGeneric(0));
+        typeParams.add(first);
+        
+        for (Object o : that.getList(1)) {
+            TypeParam other = visitTypeParam((GNode) o);
+            typeParams.add(other);
+        }
         
         exit(that);
+        return typeParams;
+    }        
+    
+    public TypeParam visitVariantTypeParam(GNode that) {
+        enter(that);
+        
+        Variant variant = null;
+        String variantStr = that.getString(0);
+        if (variantStr != null) {
+            if (variantStr.equals("+")) {
+                variant = Variant.Plus;
+            } else {
+                variant = Variant.Minus;
+            }
+        }
+        
+        TypeParam typeParam = visitTypeParam(that.getGeneric(1));
+
+        typeParam.setVariant(variant);
+        
+        exit(that);
+        return typeParam;
+    }
+    
+    public TypeParam visitTypeParam(GNode that) {
+        enter(that);
+        
+        Id id = visitId(that.getGeneric(0));
+        
+        TypeParam typeParam = new TypeParam(id, AstScope.emptyScope());
+        
+        scopeStack.peek().addDef(typeParam);
+        
+        GNode typeParamClauseNode = that.getGeneric(1);
+        if (typeParamClauseNode != null) {
+            List<TypeParam> params = visitTypeParamClause(typeParamClauseNode);
+            typeParam.setParams(params);
+        }
+        
+        GNode boundTypeNode = that.getGeneric(2);
+        if (boundTypeNode != null) {
+            typeParam.setBound(Bound.Lower);
+            typeParam.setBoundType(visitType(boundTypeNode));
+        }
+        
+        boundTypeNode = that.getGeneric(3);
+        if (boundTypeNode != null) {
+            typeParam.setBound(Bound.Upper);
+            typeParam.setBoundType(visitType(boundTypeNode));
+        }
+        
+        boundTypeNode = that.getGeneric(4);
+        if (boundTypeNode != null) {
+            typeParam.setBound(Bound.View);
+            typeParam.setBoundType(visitType(boundTypeNode));
+        }        
+
+        exit(that);
+        return typeParam;
     }
     
     /**
