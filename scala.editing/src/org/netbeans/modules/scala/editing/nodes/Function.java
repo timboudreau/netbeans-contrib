@@ -63,7 +63,7 @@ public class Function extends AstDef {
         this.typeParams = typeParams;
     }
 
-    public List<TypeParam> getTypeParam() {
+    public List<TypeParam> getTypeParams() {
         return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
     }
 
@@ -94,10 +94,10 @@ public class Function extends AstDef {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        if (!getTypeParam().isEmpty()) {
+        if (!getTypeParams().isEmpty()) {
             formatter.appendHtml("[");
 
-            for (Iterator<TypeParam> itr = getTypeParam().iterator(); itr.hasNext();) {
+            for (Iterator<TypeParam> itr = getTypeParams().iterator(); itr.hasNext();) {
                 TypeParam typeParam = itr.next();
                 typeParam.htmlFormat(formatter);
 

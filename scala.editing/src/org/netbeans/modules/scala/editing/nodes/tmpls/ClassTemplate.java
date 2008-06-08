@@ -46,6 +46,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Id;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
@@ -63,10 +64,14 @@ public class ClassTemplate extends Template {
         this.typeParams = typeParams;
     }
 
-    public List<TypeParam> getTypeParam() {
+    public List<TypeParam> getTypeParams() {
         return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
     }
 
+    public void assignTypeParams(List<TypeRef> typeArgs) {
+        
+    }
+    
     @Override
     public String getBinaryName() {
         return getName();
@@ -75,10 +80,10 @@ public class ClassTemplate extends Template {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         formatter.appendText(getName());
-        if (!getTypeParam().isEmpty()) {
+        if (!getTypeParams().isEmpty()) {
             formatter.appendText("[");
 
-            for (Iterator<TypeParam> itr = getTypeParam().iterator(); itr.hasNext();) {
+            for (Iterator<TypeParam> itr = getTypeParams().iterator(); itr.hasNext();) {
                 TypeParam typeParam = itr.next();
                 typeParam.htmlFormat(formatter);
 
