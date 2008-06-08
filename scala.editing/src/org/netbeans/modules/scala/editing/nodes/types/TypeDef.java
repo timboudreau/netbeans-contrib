@@ -49,17 +49,17 @@ import org.netbeans.modules.scala.editing.nodes.Id;
  */
 public class TypeDef extends AstDef {
 
-    private TypeRef alias;
+    private TypeRef value;
 
     public TypeDef(Id id, AstScope bindingScope) {
         super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
-    public void setAliase(TypeRef alias) {
-        this.alias = alias;
+    public void setValue(TypeRef value) {
+        this.value = value;
     }
 
-    public TypeRef getAlias() {
-        return alias;
+    public TypeRef getValue() {
+        return value;
     }
 }

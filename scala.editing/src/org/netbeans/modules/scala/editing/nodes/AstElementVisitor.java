@@ -940,7 +940,7 @@ public class AstElementVisitor extends AstVisitor {
         }
         
         TypeRef alias = visitType(that.getGeneric(2));
-        typeAlias.setAliase(alias);
+        typeAlias.setValue(alias);
         
         scopeStack.pop();
 

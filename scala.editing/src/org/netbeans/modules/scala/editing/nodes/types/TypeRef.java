@@ -254,7 +254,7 @@ public class TypeRef extends AstRef {
         AstDef def = getEnclosingScope().findDef(this);
         if (def != null) {
             if (def instanceof TypeDef) {
-                TypeRef alias = ((TypeDef) def).getAlias();
+                TypeRef alias = ((TypeDef) def).getValue();
                 if (alias != null) {
                     qualifiedName = alias.getQualifiedName();
                     return qualifiedName;
