@@ -91,8 +91,6 @@ public class ScalaIndexer implements Indexer {
     static final String FIELD_EXTENDS_NAME = "extends"; //NOI18N
     static final String FIELD_CLASS_NAME = "class"; //NOI18N
     static final String FIELD_CASE_INSENSITIVE_CLASS_NAME = "class-ig"; //NOI18N
-    static final String FIELD_REQUIRE = "require"; //NOI18N
-    static final String FIELD_REQUIRES = "requires"; //NOI18N
     static final String FIELD_IMPORT = "import"; //NOI18N
     static final String FIELD_METHOD_NAME = "method"; //NOI18N
     /** Attributes: "i" -> private, "o" -> protected, ", "s" - static/notinstance, "d" - documented */

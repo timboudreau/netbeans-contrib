@@ -45,30 +45,30 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 /**
  * TypeRef of parameters
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class ParamType extends TypeRef {
     
     public enum More {
 
-        Pure,
+        Raw,
         Star,
         ByName,
     }
            
     private More more;
-    private TypeRef wrappedType;
+    private TypeRef rawType;
 
     public ParamType(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
     }
 
-    public void setWrappedType(TypeRef wrappedType) {
-        this.wrappedType = wrappedType;
+    public void setRawType(TypeRef rawType) {
+        this.rawType = rawType;
     }
 
-    public TypeRef getWrappedType() {
-        return wrappedType;
+    public TypeRef getRawType() {
+        return rawType;
     }
 
     public void setMore(More more) {
@@ -84,15 +84,15 @@ public class ParamType extends TypeRef {
         StringBuilder sb = new StringBuilder();
         switch (more) {
             case Star:
-                sb.append(wrappedType.getName());
+                sb.append(rawType.getName());
                 sb.append("*");
                 break;
             case ByName:
                 sb.append("=>");
-                sb.append(wrappedType.getName());
+                sb.append(rawType.getName());
                 break;
             default:
-                sb.append(wrappedType.getName());
+                sb.append(rawType.getName());
         }
         return sb.toString();
     }
@@ -102,15 +102,15 @@ public class ParamType extends TypeRef {
     public void htmlFormat(HtmlFormatter formatter) {
         switch (more) {
             case Star:
-                wrappedType.htmlFormat(formatter);
+                rawType.htmlFormat(formatter);
                 formatter.appendText("*");
                 break;
             case ByName:
                 formatter.appendText("\u21D2");
-                wrappedType.htmlFormat(formatter);
+                rawType.htmlFormat(formatter);
                 break;
             default:
-                wrappedType.htmlFormat(formatter);                
+                rawType.htmlFormat(formatter);                
         }
     }
 }

@@ -42,7 +42,7 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
-import org.netbeans.modules.scala.editing.nodes.types.TypeAlias;
+import org.netbeans.modules.scala.editing.nodes.types.TypeDef;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.InfixExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.ArgumentExprs;
@@ -899,13 +899,13 @@ public class AstElementVisitor extends AstVisitor {
         return objectTmpl;
     }
 
-    public TypeAlias visitTypeDcl(GNode that) {
+    public TypeDef visitTypeDcl(GNode that) {
         enter(that);
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        TypeAlias type = new TypeAlias(id, scope);
+        TypeDef type = new TypeDef(id, scope);
 
         scopeStack.peek().addDef(type);
 
@@ -917,13 +917,13 @@ public class AstElementVisitor extends AstVisitor {
         return type;
     }
 
-    public TypeAlias visitTypeDef(GNode that) {
+    public TypeDef visitTypeDef(GNode that) {
         enter(that);
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        TypeAlias typeAlias = new TypeAlias(id, scope);
+        TypeDef typeAlias = new TypeDef(id, scope);
 
         scopeStack.peek().addDef(typeAlias);
 
@@ -1142,7 +1142,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Object first = that.get(0);
         GNode typeNode = null;
-        ParamType.More more = ParamType.More.Pure;
+        ParamType.More more = ParamType.More.Raw;
         if (first instanceof GNode) {
             typeNode = (GNode) first;
             if (that.size() == 2) {
@@ -1154,7 +1154,7 @@ public class AstElementVisitor extends AstVisitor {
         }
         TypeRef toWrap = visitType(typeNode);
         ParamType type = new ParamType(toWrap.getIdToken(), ElementKind.CLASS);
-        type.setWrappedType(toWrap);
+        type.setRawType(toWrap);
         type.setMore(more);
 
         exit(that);
