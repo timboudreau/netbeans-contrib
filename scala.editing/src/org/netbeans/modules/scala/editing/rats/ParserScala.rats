@@ -121,8 +121,8 @@ transient generic XmlEmptyElemTagP = XmlLt XmlEmptyTagName XmlWs? XmlSlashGt ;
 transient generic XmlSTagP = XmlLt XmlSTagName XmlWs? XmlGt ;
 
 /* @DocError in ScalaReference: ScalaExpr ::= '{' expr '}' */
-transient generic ScalaExpr     = void:"{":sep !(void:"{":sep ) Block    void:"}":sep !(void:"}":sep );
-transient generic ScalaPatterns = void:"{":sep !(void:"{":sep ) Patterns void:"}":sep !(void:"}":sep );
+transient generic ScalaExpr     = void:"{":sep !( void:"{":sep ) Block    void:"}":sep !( void:"}":sep );
+transient generic ScalaPatterns = void:"{":sep !( void:"{":sep ) Patterns void:"}":sep !( void:"}":sep );
 
 
 // ----- Literal
@@ -197,15 +197,15 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  Path void:".":sep void:"type":key                 TypeArgs* ( void:"#":key Id )* @SimpleSingletonType
-/ StableId                                          TypeArgs* ( void:"#":key Id )* @SimpleIdType
-/ void:"(":sep Types ( void:",":sep )? void:")":sep TypeArgs* ( void:"#":key Id )* @SimpleTupleType
+  Path void:".":sep void:"type":key                 TypeArgs? ( void:"#":key Id )* @SimpleSingletonType
+/ StableId                                          TypeArgs? ( void:"#":key Id )* @SimpleIdType
+/ void:"(":sep Types ( void:",":sep )? void:")":sep TypeArgs? ( void:"#":key Id )* @SimpleTupleType
 ;
 
-/* @DocError in ScalaReference: TypeArgs can be [_] */
-transient generic TypeArgs = void:"[":sep ( Types / "_":key ) void:"]":sep ;
+transient generic TypeArgs = void:"[":sep Types void:"]":sep ;
 
-transient generic Types = Type ( void:",":sep Type )* ;
+/* @DocError in ScalaReference: Type in Types can be "_" */
+transient generic Types = ( Type / WildKey) ( void:",":sep ( Type / WildKey) )* ;
 
 transient generic Refinement = N? void:"{":sep RefineStat? ( SEMI RefineStat? )* void:"}":sep ;
 

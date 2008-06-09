@@ -495,19 +495,19 @@ public abstract class IndexedElement extends AstElement {
                 posAndLevel[1]++;
                 curr.setName(sb.toString());
                 typeArgs = new ArrayList<TypeRef>();
-                curr.addTypeArgs(typeArgs);
+                curr.setTypeArgs(typeArgs);
 
                 TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
-                typeArgs.add(typeArg);                
+                typeArgs.add(typeArg);
             } else if (c == '>') {
                 posAndLevel[1]--;
             } else if (c == ',') {
                 TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 if (typeArgs != null) {
-                    typeArgs.add(typeArg);                    
+                    typeArgs.add(typeArg);
                 } else {
                     //System.out.println(typeAttr);
-                }                
+                }
             } else if (c == ' ') {
                 // strip it
             } else {
@@ -518,7 +518,7 @@ public abstract class IndexedElement extends AstElement {
         if (curr.getName() == null) {
             curr.setName(sb.toString());
         }
-        
+
         return curr;
     }
 
@@ -596,7 +596,7 @@ public abstract class IndexedElement extends AstElement {
     /** Return flag corresponding to the given encoding chars */
     public static int decode(String s, int startIndex, int defaultValue) {
         int value = 0;
-        for (int i = startIndex,  n = s.length(); i < n; i++) {
+        for (int i = startIndex, n = s.length(); i < n; i++) {
             char c = s.charAt(i);
             if (c == ';') {
                 if (i == startIndex) {
@@ -848,14 +848,13 @@ public abstract class IndexedElement extends AstElement {
             sb.append(type.getName());
         }
 
-        List<List<TypeRef>> typeArgsList = type.getTypeArgsList();
-        for (Iterator<List<TypeRef>> itr = typeArgsList.iterator(); itr.hasNext();) {
+        List<TypeRef> typeArgs = type.getTypeArgs();
+        if (!typeArgs.isEmpty()) {
             sb.append("<");
-            List<TypeRef> typeArgs = itr.next();
-            for (Iterator<TypeRef> itr1 = typeArgs.iterator(); itr1.hasNext();) {
-                TypeRef typeArg = itr1.next();
+            for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                TypeRef typeArg = itr.next();
                 encodeAttributesOfType(typeArg, sb);
-                if (itr1.hasNext()) {
+                if (itr.hasNext()) {
                     sb.append(",");
                 }
             }
@@ -1218,7 +1217,7 @@ public abstract class IndexedElement extends AstElement {
                         int typeIndex = ve.indexOf(':');
                         if (typeIndex != -1) {
                             sb.append("<font color=\"#808080\">"); // NOI18N
-                            for (int i = typeIndex + 1,  n = ve.length(); i < n; i++) {
+                            for (int i = typeIndex + 1, n = ve.length(); i < n; i++) {
                                 char c = ve.charAt(i);
                                 if (c == '<') { // Handle types... Array<String> etc
                                     sb.append("&lt;");
@@ -1248,7 +1247,7 @@ public abstract class IndexedElement extends AstElement {
                 }
                 sb.append(")"); // NOI18N
             }
-            
+
             TypeRef retType = function.getType();
 
             if (retType != null) {

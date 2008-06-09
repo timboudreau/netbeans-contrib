@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -185,7 +184,7 @@ public class TypeRef extends AstRef {
     }
     private static final String UNRESOLVED = "-1";
     private List<String> annotations;
-    private List<List<TypeRef>> typeArgsList;
+    private List<TypeRef> typeArgs;
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -199,40 +198,28 @@ public class TypeRef extends AstRef {
         return annotations;
     }
 
-    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
-        this.typeArgsList = typeArgsList;
+    public void setTypeArgs(List<TypeRef> typeArgs) {
+        this.typeArgs = typeArgs;
     }
 
-    public List<List<TypeRef>> getTypeArgsList() {
-        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
-    }
-
-    public void addTypeArgs(List<TypeRef> typeArgs) {
-        if (typeArgsList == null) {
-            typeArgsList = new ArrayList<List<TypeRef>>();
-        }
-
-        typeArgsList.add(typeArgs);
+    public List<TypeRef> getTypeArgs() {
+        return typeArgs == null ? Collections.<TypeRef>emptyList() : typeArgs;
     }
 
     public String getTypeArgsName() {
-        StringBuilder sb = new StringBuilder();
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+        if (!getTypeArgs().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
             sb.append("[");
-            if (typeArgs.size() == 0) {
-                // wildcard
-                sb.append("_");
-            } else {
-                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                    sb.append(itr.next().getName());
-                    if (itr.hasNext()) {
-                        sb.append(", ");
-                    }
+            for (Iterator<TypeRef> itr = getTypeArgs().iterator(); itr.hasNext();) {
+                sb.append(itr.next().getName());
+                if (itr.hasNext()) {
+                    sb.append(", ");
                 }
             }
             sb.append("]");
+            return sb.toString();
         }
-        return sb.toString();
+        return "";
     }
 
     public boolean isResolved() {
@@ -266,7 +253,7 @@ public class TypeRef extends AstRef {
                 qualifiedName = def.getQualifiedName();
                 return qualifiedName;
             }
-            
+
         }
 
         List<Importing> importings = getEnclosingScope().getDefsInScope(Importing.class);
@@ -317,9 +304,9 @@ public class TypeRef extends AstRef {
     }
 
     public void htmlFormatTypeArgs(HtmlFormatter formatter) {
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+        if (typeArgs != null) {
             formatter.appendText("[");
-            if (typeArgs.size() == 0) {
+            if (typeArgs.isEmpty()) {
                 // wildcard
                 formatter.appendText("_");
             } else {
@@ -359,22 +346,7 @@ public class TypeRef extends AstRef {
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append(getName());
-
-            for (List<TypeRef> typeArgs : getTypeArgsList()) {
-                sb.append("[");
-                if (typeArgs.size() == 0) {
-                    // wildcard
-                    sb.append("_");
-                } else {
-                    for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                        sb.append(itr.next().getName());
-                        if (itr.hasNext()) {
-                            sb.append(", ");
-                        }
-                    }
-                }
-                sb.append("]");
-            }
+            sb.append(getTypeArgsName());
 
             return sb.toString();
         }

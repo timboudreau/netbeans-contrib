@@ -38,11 +38,10 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
-import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
-import org.netbeans.modules.scala.editing.nodes.types.TypeDef;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.InfixExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.ArgumentExprs;
@@ -50,6 +49,12 @@ import org.netbeans.modules.scala.editing.nodes.exprs.BlockExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.NewExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.Postfixable;
+import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyFunRef;
+import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
+import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
+import org.netbeans.modules.scala.editing.nodes.types.TypeDef;
 import org.netbeans.modules.scala.editing.nodes.types.ParamType;
 import org.netbeans.modules.scala.editing.nodes.types.InfixType;
 import org.netbeans.modules.scala.editing.nodes.types.CompoundType;
@@ -57,16 +62,11 @@ import org.netbeans.modules.scala.editing.nodes.types.SimpleTupleType;
 import org.netbeans.modules.scala.editing.nodes.types.SimpleIdType;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.types.FunType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyFunRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Bound;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Variant;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.ElementKind;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.util.Pair;
@@ -933,15 +933,15 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.peek().addDef(typeAlias);
 
         scopeStack.push(scope);
-        
+
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             visitTypeParamClause(typeParamClauseNode);
         }
-        
+
         TypeRef alias = visitType(that.getGeneric(2));
         typeAlias.setValue(alias);
-        
+
         scopeStack.pop();
 
         exit(that);
@@ -1054,41 +1054,41 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<TypeParam> visitTypeParamClause(GNode that) {
         enter(that);
-        
+
         List<TypeParam> typeParams = new ArrayList<TypeParam>();
-        
+
         TypeParam first = visitVariantTypeParam(that.getGeneric(0));
         typeParams.add(first);
-        
+
         for (Object o : that.getList(1)) {
             TypeParam other = visitVariantTypeParam((GNode) o);
             typeParams.add(other);
         }
-        
+
         exit(that);
         return typeParams;
     }
-    
+
     public List<TypeParam> visitFunTypeParamClause(GNode that) {
         enter(that);
-        
+
         List<TypeParam> typeParams = new ArrayList<TypeParam>();
-        
+
         TypeParam first = visitTypeParam(that.getGeneric(0));
         typeParams.add(first);
-        
+
         for (Object o : that.getList(1)) {
             TypeParam other = visitTypeParam((GNode) o);
             typeParams.add(other);
         }
-        
+
         exit(that);
         return typeParams;
-    }        
-    
+    }
+
     public TypeParam visitVariantTypeParam(GNode that) {
         enter(that);
-        
+
         Variant variant = null;
         String variantStr = that.getString(0);
         if (variantStr != null) {
@@ -1098,52 +1098,52 @@ public class AstElementVisitor extends AstVisitor {
                 variant = Variant.Minus;
             }
         }
-        
+
         TypeParam typeParam = visitTypeParam(that.getGeneric(1));
 
         typeParam.setVariant(variant);
-        
+
         exit(that);
         return typeParam;
     }
-    
+
     public TypeParam visitTypeParam(GNode that) {
         enter(that);
-        
+
         Id id = visitId(that.getGeneric(0));
-        
+
         TypeParam typeParam = new TypeParam(id, AstScope.emptyScope());
-        
+
         scopeStack.peek().addDef(typeParam);
-        
+
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             List<TypeParam> params = visitTypeParamClause(typeParamClauseNode);
             typeParam.setParams(params);
         }
-        
+
         GNode boundTypeNode = that.getGeneric(2);
         if (boundTypeNode != null) {
             typeParam.setBound(Bound.Lower);
             typeParam.setBoundType(visitType(boundTypeNode));
         }
-        
+
         boundTypeNode = that.getGeneric(3);
         if (boundTypeNode != null) {
             typeParam.setBound(Bound.Upper);
             typeParam.setBoundType(visitType(boundTypeNode));
         }
-        
+
         boundTypeNode = that.getGeneric(4);
         if (boundTypeNode != null) {
             typeParam.setBound(Bound.View);
             typeParam.setBoundType(visitType(boundTypeNode));
-        }        
+        }
 
         exit(that);
         return typeParam;
     }
-    
+
     /**
      * @Note: null params is meaningful, it's diffrent from empty params
      * @return null or list of Var 
@@ -1266,13 +1266,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
-        
+
         ElementKind kind = ElementKind.VARIABLE;
         AstDef enclodingDef = currScope.getBindingDef();
         if (enclodingDef != null && enclodingDef instanceof Template) {
             kind = ElementKind.FIELD;
         }
-        
+
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1301,13 +1301,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
-        
+
         ElementKind kind = ElementKind.VARIABLE;
         AstDef enclodingDef = currScope.getBindingDef();
         if (enclodingDef != null && enclodingDef instanceof Template) {
             kind = ElementKind.FIELD;
         }
-        
+
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1335,13 +1335,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
-        
+
         ElementKind kind = ElementKind.VARIABLE;
         AstDef enclodingDef = currScope.getBindingDef();
         if (enclodingDef != null && enclodingDef instanceof Template) {
             kind = ElementKind.FIELD;
         }
-        
+
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1369,13 +1369,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
-        
+
         ElementKind kind = ElementKind.VARIABLE;
         AstDef enclodingDef = currScope.getBindingDef();
         if (enclodingDef != null && enclodingDef instanceof Template) {
             kind = ElementKind.FIELD;
         }
-        
+
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1433,16 +1433,16 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return new Object[]{ids, expr};
     }
-    
+
     public void visitCaseClauses(GNode that) {
         enter(that);
-        
+
         visitCaseClause(that.getGeneric(0)); // first
-        
+
         for (Object o : that.getList(1)) {
             visitCaseClause((GNode) o);
         }
-        
+
         exit(that);
     }
 
@@ -1863,20 +1863,20 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return exprs;
     }
-    
+
     public BlockExpr visitBlockExpr(GNode that) {
         enter(that);
-        
+
         GNode what = that.getGeneric(0);
         if (what.getName().equals("CaseClauses")) {
             visitCaseClauses(what);
         } else if (what.getName().equals("Block")) {
             visitBlock(what);
         }
-        
+
         // @todo
         BlockExpr expr = new BlockExpr(getBoundsTokens(that));
-        
+
         exit(that);
         return expr;
     }
@@ -2092,7 +2092,7 @@ public class AstElementVisitor extends AstVisitor {
             scopeStack.peek().addExpr(infixExpr);
         } else {
             expr = first;
-            // has been added to scope 
+        // has been added to scope 
         }
 
         exit(that);
@@ -2208,7 +2208,7 @@ public class AstElementVisitor extends AstVisitor {
                     // Cannot resolve the ref here, should be done when global type inference
                     funRef.setBase(pathId);
                 }
-                
+
                 funRef.setCall(callId);
 
                 funRef.setArgs(argExprs.getArgs());
@@ -2494,14 +2494,10 @@ public class AstElementVisitor extends AstVisitor {
 
         assert type != null : "There is other SimpleType? - " + that.getName();
 
-        List<List<TypeRef>> typeArgsList = new ArrayList<List<TypeRef>>();
-        for (Object typeArgsNode : that.getList(1)) {
+        GNode typeArgsNode = that.getGeneric(1);
+        if (typeArgsNode != null) {
             List<TypeRef> typeArgs = visitTypeArgs((GNode) typeArgsNode);
-            typeArgsList.add(typeArgs);
-        }
-
-        if (typeArgsList.size() > 0) {
-            type.setTypeArgsList(typeArgsList);
+            type.setTypeArgs(typeArgs);
         }
 
         exit(that);
@@ -2511,15 +2507,7 @@ public class AstElementVisitor extends AstVisitor {
     public List<TypeRef> visitTypeArgs(GNode that) {
         enter(that);
 
-        List<TypeRef> typeArgs = null;
-
-        Object what = that.get(0);
-        if (what instanceof GNode) {
-            typeArgs = visitTypes((GNode) what);
-        } else {
-            // wildcard
-            typeArgs = Collections.<TypeRef>emptyList();
-        }
+        List<TypeRef> typeArgs = visitTypes(that.getGeneric(0));
 
         exit(that);
         return typeArgs;
@@ -2530,12 +2518,27 @@ public class AstElementVisitor extends AstVisitor {
 
         List<TypeRef> types = new ArrayList<TypeRef>();
 
-        TypeRef first = visitType(that.getGeneric(0));
-        types.add(first);
+        TypeRef type;
+        GNode firstNode = that.getGeneric(0);
+        if (firstNode.getName().equals("WildKey")) {
+            Id id = new Id("_", getIdToken(firstNode), ElementKind.VARIABLE);
+            type = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+            ((SimpleIdType) type).setPaths(Collections.<Id>singletonList(id));
+        } else {
+            type = visitType(firstNode);
+        }
+        types.add(type);
 
-        Pair others = that.getList(1);
-        for (Object typeNode : others) {
-            types.add(visitType((GNode) typeNode));
+        for (Object other : that.getList(1)) {
+            GNode otherNode = (GNode) other;
+            if (otherNode.getName().equals("WildKey")) {
+                Id id = new Id("_", getIdToken(otherNode), ElementKind.VARIABLE);
+                type = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+                ((SimpleIdType) type).setPaths(Collections.<Id>singletonList(id));
+            } else {
+                type = visitType(otherNode);
+            }
+            types.add(type);
         }
 
         exit(that);

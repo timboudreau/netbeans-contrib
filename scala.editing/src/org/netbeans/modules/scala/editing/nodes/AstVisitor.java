@@ -182,6 +182,8 @@ public abstract class AstVisitor extends Visitor {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
         } else if (name.endsWith("expected")) {
             token = ts.token();
+        } else if (name.equals("_")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
         } else {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
         }

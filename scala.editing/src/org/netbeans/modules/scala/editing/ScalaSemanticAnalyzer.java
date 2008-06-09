@@ -173,6 +173,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     highlights.put(idRange, ColoringAttributes.FIELD_SET);
                 }
             } else if (ref instanceof TypeRef) {
+                String name = ref.getName();
+                if (name != null && name.equals("_")) {
+                    continue;
+                }
+                
                 if (!((TypeRef) ref).isResolved()) {
                     AstDef def = scope.findDef(ref);
                     if (!(def instanceof TypeParam)) {
