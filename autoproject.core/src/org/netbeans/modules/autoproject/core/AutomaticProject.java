@@ -61,6 +61,7 @@ class AutomaticProject implements Project {
         // SearchInfo
         // SharabilityQueryImplementation
         // CustomizerProvider
+        // AuxiliaryProperties
         // XXX introduce LookupMerger for ActionProvider, ProjectInformation
         lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
                 new FileEncodingQueryImpl(this),
