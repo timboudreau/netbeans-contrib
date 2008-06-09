@@ -72,7 +72,6 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.modules.web.api.webmodule.WebModule;
@@ -287,11 +286,7 @@ public class JsfProjectUtils {
 
     public static boolean supportProjectProperty(Project project) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = (AuxiliaryConfiguration)project.getLookup().lookup(AuxiliaryConfiguration.class);
-            if (ac == null) {
-                return false;
-            }
-            
+            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement != null) {
                 return true;
@@ -319,11 +314,7 @@ public class JsfProjectUtils {
     
     public static String getProjectProperty(Project project, String propName) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
-            if (ac == null) {
-                return "";
-            }
-            
+            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {  // Creator 2 project
                 return getCreatorProperty(project, propName);
@@ -408,11 +399,7 @@ public class JsfProjectUtils {
     
     private static void putProjectProperty(Project project, String propName, String value, String oldval) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
-            if (ac == null) {
-                return;
-            }
-            
+            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

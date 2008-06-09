@@ -84,6 +84,7 @@ import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.EditorStyleConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.api.LocaleQuery;
 import org.netbeans.modules.spellchecker.hints.AddToDictionaryHint;
@@ -391,11 +392,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         DictionaryImpl d = r != null ? r.get() : null;
         
         if (d == null) {
-            AuxiliaryConfiguration ac = p.getLookup().lookup(AuxiliaryConfiguration.class);
-            
-            if (ac != null) {
-                project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(ac)));
-            }
+            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(p);
+            project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(ac)));
         }
         
         return d;

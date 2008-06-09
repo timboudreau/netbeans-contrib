@@ -65,7 +65,6 @@ class AutomaticProject implements Project {
         // XXX introduce LookupMerger for ActionProvider, ProjectInformation
         lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
                 new FileEncodingQueryImpl(this),
-                new AuxiliaryConfigImpl(this),
                 new LogicalViewImpl(this),
                 this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
     }

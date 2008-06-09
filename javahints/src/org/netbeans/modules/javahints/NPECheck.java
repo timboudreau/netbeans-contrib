@@ -69,6 +69,7 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.modules.java.hints.spi.support.FixFactory;
 import org.netbeans.spi.editor.hints.ErrorDescription;
@@ -725,7 +726,7 @@ public class NPECheck extends AbstractHint {
         
         if (set == null) {
             project2CheckForNullNames.put(p, set = new HashSet<String>());
-            AuxiliaryConfiguration ac = p.getLookup().lookup(AuxiliaryConfiguration.class);
+            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(p);
 
             if (ac != null) {
                 org.w3c.dom.Element configurationFragment = ac.getConfigurationFragment("npe-check-hints", "http://www.netbeans.org/ns/npe-check-hints/1", true);
