@@ -102,7 +102,7 @@ import static org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.
 public class NbCustomizeSelectionDialog extends NbiDialog {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    private NbWelcomePanel panel;
+    private SSWelcomePanel panel;
     private Runnable callback;
     
     private List<RegistryNode> registryNodes;
@@ -130,7 +130,7 @@ public class NbCustomizeSelectionDialog extends NbiDialog {
     private Icon emptyIcon;
     
     public NbCustomizeSelectionDialog(
-            final NbWelcomePanel panel,
+            final SSWelcomePanel panel,
             final Runnable callback,
             final List<RegistryNode> registryNodes) {
         this.panel = panel;
