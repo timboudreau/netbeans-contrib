@@ -1,5 +1,3 @@
-package org.netbeans.installer.products.sample.panels;
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
@@ -36,13 +34,8 @@ package org.netbeans.installer.products.sample.panels;
  * copyright holder.
  */
 
+package org.netbeans.installer.products.sample.panels;
 
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import javax.swing.JPanel;
-import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
@@ -54,10 +47,6 @@ import org.netbeans.installer.wizard.ui.SwingUi;
 import org.netbeans.installer.wizard.ui.WizardUi;
 import org.netbeans.installer.wizard.containers.SwingContainer;
 
-/**
- *
- * @author Kirill Sorokin
- */
 public class SSBasePanel extends DestinationPanel {
     
     public SSBasePanel() {
@@ -92,7 +81,7 @@ public class SSBasePanel extends DestinationPanel {
         
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
-    public static class SSBaseDestinationPanelUi extends DestinationPanelUi {
+    private static class SSBaseDestinationPanelUi extends DestinationPanelUi {
         protected SSBasePanel panel;
         
         public SSBaseDestinationPanelUi(SSBasePanel panel) {
@@ -100,17 +89,19 @@ public class SSBasePanel extends DestinationPanel {
             this.panel = panel;
         }
         
+        @Override
         public SwingUi getSwingUi(SwingContainer container) {
             if (swingUi == null) {
-                swingUi = new NbBaseDestinationPanelSwingUi(panel, container);
+                swingUi = new SSBaseDestinationPanelSwingUi(panel, container);
             }            
             return super.getSwingUi(container);
         }
     }
     
-    public static class NbBaseDestinationPanelSwingUi extends DestinationPanelSwingUi {
-        protected SSBasePanel panel;
+    private static class SSBaseDestinationPanelSwingUi extends DestinationPanelSwingUi {
+       // protected SSBasePanel panel;
         
+        /*
         private NbiTextField alternateRoot;
         private NbiButton alternateRootButton;
         private NbiCheckBox copySystemPrequesties;
@@ -119,13 +110,13 @@ public class SSBasePanel extends DestinationPanel {
         private NbiCheckBox currentZoneOnly;
         
         private NbiLabel alternateRootLabel;
-                
-        public NbBaseDestinationPanelSwingUi(
+          */      
+        public SSBaseDestinationPanelSwingUi(
                 final SSBasePanel panel,
                 final SwingContainer container) {
             super(panel, container);            
             this.panel = panel;            
-            initComponents();
+          //  initComponents();
         }
         
         // protected ////////////////////////////////////////////////////////////////
@@ -142,11 +133,17 @@ public class SSBasePanel extends DestinationPanel {
         @Override
         protected String validateInput() {
             String errorMessage = super.validateInput();
-            LogManager.log("GGGGGGGGGGG=" + errorMessage);
-            return null;
+            // This hack allows us to install in /opt while "SUNWspro" is a part of 
+            // package path
+            if (errorMessage != null 
+                    && errorMessage.startsWith(component.
+                    getProperty(DestinationPanel.ERROR_NOT_EMPTY_PROPERTY))) {
+                errorMessage = null;
+            }
+            return errorMessage;
         }
         
-        // private //////////////////////////////////////////////////////////////////
+        /*
         private void initComponents() {
             alternateRoot = new NbiTextField();
             alternateRootButton = new NbiButton();
@@ -240,7 +237,7 @@ public class SSBasePanel extends DestinationPanel {
 
        
         }
-               
+        */       
     }
     
     /////////////////////////////////////////////////////////////////////////////////

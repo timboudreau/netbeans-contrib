@@ -42,23 +42,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.netbeans.installer.wizard.components.panels.netbeans.NbPostInstallSummaryPanel;
-import org.netbeans.installer.wizard.components.panels.netbeans.NbPreInstallSummaryPanel;
+import org.netbeans.installer.wizard.components.panels.netbeans.SSPreInstallSummaryPanel;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ErrorManager;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.WizardComponent;
 import org.netbeans.installer.wizard.components.WizardSequence;
-// Modified by Igor Nikiforov
-// Former content
-//import org.netbeans.installer.wizard.components.actions.CreateBundleAction;
 import org.netbeans.installer.wizard.components.actions.sunstudio.CreateBundleAction;
-// End of modifictaon
-import org.netbeans.installer.wizard.components.actions.CreateMacOSAppLauncherAction;
 import org.netbeans.installer.wizard.components.actions.CreateNativeLauncherAction;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;
 import org.netbeans.installer.wizard.components.actions.DownloadInstallationDataAction;
@@ -68,7 +64,7 @@ import org.netbeans.installer.wizard.components.actions.netbeans.NbRegistrationA
 import org.netbeans.installer.wizard.components.actions.netbeans.NbServiceTagCreateAction;
 import org.netbeans.installer.wizard.components.panels.PostCreateBundleSummaryPanel;
 import org.netbeans.installer.wizard.components.panels.PreCreateBundleSummaryPanel;
-import org.netbeans.installer.wizard.components.panels.LicensesPanel;
+
 
 /**
  *
@@ -77,9 +73,8 @@ import org.netbeans.installer.wizard.components.panels.LicensesPanel;
 public class MainSequence extends WizardSequence {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    private DownloadConfigurationLogicAction downloadConfigurationLogicAction;
-    private LicensesPanel licensesPanel;
-    private NbPreInstallSummaryPanel nbPreInstallSummaryPanel;
+    private DownloadConfigurationLogicAction downloadConfigurationLogicAction;    
+    private SSPreInstallSummaryPanel nbPreInstallSummaryPanel;
     private UninstallAction uninstallAction;
     private DownloadInstallationDataAction downloadInstallationDataAction;
     private InstallAction installAction;
@@ -94,9 +89,8 @@ public class MainSequence extends WizardSequence {
     private Map<Product, ProductWizardSequence> productSequences;
     
     public MainSequence() {
-        downloadConfigurationLogicAction = new DownloadConfigurationLogicAction();
-        licensesPanel = new LicensesPanel();
-        nbPreInstallSummaryPanel = new NbPreInstallSummaryPanel();
+        downloadConfigurationLogicAction = new DownloadConfigurationLogicAction();        
+        nbPreInstallSummaryPanel = new SSPreInstallSummaryPanel();
         uninstallAction = new UninstallAction();
         downloadInstallationDataAction = new DownloadInstallationDataAction();
         installAction = new InstallAction();
@@ -158,13 +152,14 @@ public class MainSequence extends WizardSequence {
                     addChild(installAction);
                     addChild(serviceTagAction);
                 
-                addChild(new WizardAction() {
+                    addChild(new WizardAction() {
                         @Override
                         public void execute() {
                             final Registry registry = Registry.getInstance();
 
                             File root = registry.getProducts("ss-base").get(0).getInstallationLocation();
-                            File tmpF = new File(root.getAbsolutePath() + File.separator + "SUNWspro");
+                            String dir = Platform.LINUX.equals(SystemUtils.getCurrentPlatform()) ? "sunstudioceres" : "SUNWspro";
+                            File tmpF = new File(root.getAbsolutePath() + File.separator + dir);
                             tmpF.mkdir();
                             LogManager.log("Creating dir=" + tmpF);
                             for (File filetoMove : root.listFiles(new FilenameFilter() {
@@ -172,12 +167,13 @@ public class MainSequence extends WizardSequence {
                                 public boolean accept(File dir, String name) {
                                     return name.endsWith("install.sh");
                                 }
-                            })) {
-                                LogManager.log("Moving: " + filetoMove + " to " + root.getAbsolutePath() + File.separator + "SUNWspro" + File.separator + filetoMove.getName());
-                                filetoMove.renameTo(new File(root.getAbsolutePath() + File.separator + "SUNWspro" + File.separator + filetoMove.getName()));
+                            })) {                                   
+                                LogManager.log("Moving: " + filetoMove + " to " + root.getAbsolutePath() 
+                                        + File.separator + dir + File.separator + filetoMove.getName());
+                                filetoMove.renameTo(new File(root.getAbsolutePath() + File.separator + dir 
+                                        + File.separator + filetoMove.getName()));
                             }
                             new File(root, "dummy").delete();
-
                         }
                     });
                   

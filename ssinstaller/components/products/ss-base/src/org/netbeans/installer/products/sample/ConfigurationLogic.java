@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.NativeClusterConfigurationLogic;
 import org.netbeans.installer.product.components.Product;
@@ -20,6 +18,9 @@ import org.netbeans.installer.utils.helper.RemovalMode;
 import org.netbeans.installer.utils.helper.Text;
 import org.netbeans.installer.utils.progress.Progress;
 import org.netbeans.installer.wizard.components.WizardComponent;
+import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.helper.Platform;
+
 
 public class ConfigurationLogic extends ProductConfigurationLogic {
 
@@ -41,7 +42,8 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                 LogManager.log("Unexpected exception during removal of " + product.getDisplayName());
             }
         }
-        File spro = new File(getProduct().getInstallationLocation(), "SUNWspro");
+        String dir = Platform.LINUX.equals(SystemUtils.getCurrentPlatform()) ? "sunstudioceres" : "SUNWspro";
+        File spro = new File(getProduct().getInstallationLocation(), dir);
         try {
             FileUtils.deleteFile(spro, true);
         } catch (IOException ex) {
