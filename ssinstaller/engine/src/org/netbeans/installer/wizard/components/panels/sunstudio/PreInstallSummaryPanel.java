@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.wizard.components.panels.netbeans;
+package org.netbeans.installer.wizard.components.panels.sunstudio;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -74,10 +74,10 @@ import org.netbeans.installer.wizard.containers.SwingContainer;
 import org.netbeans.installer.wizard.ui.SwingUi;
 import org.netbeans.installer.wizard.ui.WizardUi;
 
-public class SSPreInstallSummaryPanel extends ErrorMessagePanel {
+public class PreInstallSummaryPanel extends ErrorMessagePanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    public SSPreInstallSummaryPanel() {
+    public PreInstallSummaryPanel() {
         setProperty(TITLE_PROPERTY,
                 DEFAULT_TITLE);
         setProperty(DESCRIPTION_PROPERTY,
@@ -141,9 +141,9 @@ public class SSPreInstallSummaryPanel extends ErrorMessagePanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
     public static class NbPreInstallSummaryPanelUi extends ErrorMessagePanelUi {
-        protected SSPreInstallSummaryPanel component;
+        protected PreInstallSummaryPanel component;
         
-        public NbPreInstallSummaryPanelUi(SSPreInstallSummaryPanel component) {
+        public NbPreInstallSummaryPanelUi(PreInstallSummaryPanel component) {
             super(component);
             
             this.component = component;
@@ -160,7 +160,7 @@ public class SSPreInstallSummaryPanel extends ErrorMessagePanel {
     }
     
     public static class SSPreInstallSummaryPanelSwingUi extends ErrorMessagePanelSwingUi {
-        protected SSPreInstallSummaryPanel component;
+        protected PreInstallSummaryPanel component;
         
         private NbiTextPane locationsPane;
         
@@ -183,7 +183,7 @@ public class SSPreInstallSummaryPanel extends ErrorMessagePanel {
        // private NbiLabel runtimesToRemove;
         
         public SSPreInstallSummaryPanelSwingUi(
-                final SSPreInstallSummaryPanel component,
+                final PreInstallSummaryPanel component,
                 final SwingContainer container) {
             super(component, container);
             
@@ -732,63 +732,63 @@ public class SSPreInstallSummaryPanel extends ErrorMessagePanel {
             "error.cannot.write"; // NOI18N
     
     public static final String DEFAULT_TITLE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.title"); // NOI18N
     public static final String DEFAULT_DESCRIPTION =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.description"); // NOI18N
     public static final String DEFAULT_DESCRIPTION_UNINSTALL =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.description.uninstall"); // NOI18N
     
     public static final String DEFAULT_INSTALLATION_FOLDER =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.installation.folder"); // NOI18N
     public static final String DEFAULT_INSTALLATION_FOLDER_NETBEANS =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.installation.folder.netbeans"); // NOI18N
     public static final String DEFAULT_UNINSTALL_LIST_LABEL_TEXT =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.uninstall.list.label.text"); // NOI18N
     public static final String DEFAULT_INSTALLATION_SIZE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.installation.size"); // NOI18N
     public static final String DEFAULT_DOWNLOAD_SIZE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.download.size"); // NOI18N
     public static final String DEFAULT_GF_ADDONS_LOCATION_TEXT =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.addons.gf.install.location.text"); // NOI18N
     public static final String DEFAULT_NB_ADDONS_LOCATION_TEXT =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.addons.nb.install.location.text"); // NOI18N
     
     public static final String DEFAULT_NEXT_BUTTON_TEXT =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.next.button.text"); // NOI18N
     public static final String DEFAULT_NEXT_BUTTON_TEXT_UNINSTALL =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.next.button.text.uninstall"); // NOI18N
     public static final String ADDITIONAL_RUNTIMES_TO_DELETE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.additional.runtimes.to.delete");//NOI18N
     public static final String DEFAULT_ERROR_NOT_ENOUGH_SPACE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.not.enough.space"); // NOI18N
     public static final String DEFAULT_ERROR_CANNOT_CHECK_SPACE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.cannot.check.space");// NOI8N
     public static final String DEFAULT_ERROR_LOGIC_ACCESS =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.logic.access");// NOI18N
     public static final String DEFAULT_ERROR_FSROOTS =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.fsroots"); // NOI18N
     public static final String DEFAULT_ERROR_NON_EXISTENT_ROOT =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.non.existent.root"); // NOI18N
     public static final String DEFAULT_ERROR_CANNOT_WRITE =
-            ResourceUtils.getString(SSPreInstallSummaryPanel.class,
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.cannot.write"); // NOI18N
     
     public static final long REQUIRED_SPACE_ADDITION =

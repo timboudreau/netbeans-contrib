@@ -33,7 +33,7 @@
  * the option applies only if the new code is made subject to such option by the
  * copyright holder.
  */
-package org.netbeans.installer.wizard.components.actions.netbeans;
+package org.netbeans.installer.wizard.components.actions.sunstudio;
 
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.wizard.components.WizardAction;

@@ -33,7 +33,7 @@
  * the option applies only if the new code is made subject to such option by the
  * copyright holder.
  */
-package org.netbeans.installer.wizard.components.actions.netbeans;
+package org.netbeans.installer.wizard.components.actions.sunstudio;
 
 import java.util.logging.Level;
 import org.netbeans.modules.servicetag.ServiceTag;
@@ -74,10 +74,10 @@ import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_WITH_
  *
  * @author Dmitry Lipin
  */
-public class NbServiceTagCreateAction extends WizardAction {
+public class ServiceTagCreateAction extends WizardAction {
     private String source;
 
-    public NbServiceTagCreateAction() {
+    public ServiceTagCreateAction() {
         Logger parent = Logger.getLogger(this.getClass().getName()).getParent();
         Handler[] handlers = (parent == null) ? null : parent.getHandlers();
         //if(parent!=null) parent.setLevel(Level.ALL);
@@ -180,7 +180,7 @@ public class NbServiceTagCreateAction extends WizardAction {
         }
     }
    
-    public static void setNetBeansStatus(boolean register) {
+    static void setNetBeansStatus(boolean register) {
         StatusData sd = (register) ? 
             new StatusData(StatusData.STATUS_REGISTERED, StatusData.DEFAULT_DELAY):
             new StatusData(StatusData.STATUS_LATER, 1);
@@ -210,93 +210,9 @@ public class NbServiceTagCreateAction extends WizardAction {
             }
         }
     }
-/*
-    private void createSTGlassFish(Product gfProduct, boolean createInstallationST) {
-        LogManager.log("... create ST for GlassFish/AppServer");
-        File location = gfProduct.getInstallationLocation();
-        File gfJavaHome = SystemUtils.getCurrentJavaHome();//default
-        try {
-            gfJavaHome = GlassFishUtils.getJavaHome(location);
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
 
-        if (createInstallationST) {
-            File ant = new File(location, "lib/ant/bin/ant" + (SystemUtils.isWindows() ? ".bat" : ""));
-            File registryXml = new File(location, "registry.xml");
-            try {
-                final String[] command = {
-                    ant.getAbsolutePath(),
-                    (SystemUtils.isWindows() ? "" : "--noconfig"),
-                    "-v",
-                    "-f",
-                    registryXml.getAbsolutePath(),
-                    "-Dinstall.home=" + location.getAbsolutePath(),
-                    "-Dsource=" + source
-                };
-                if(!SystemUtils.isWindows()) {
-                    SystemUtils.correctFilesPermissions(ant);
-                }
-                SystemUtils.setEnvironmentVariable("JAVA_HOME",gfJavaHome.getPath());
-                SystemUtils.executeCommand(location, command);
-            } catch (IOException e) {
-                LogManager.log(e);
-            } catch (NativeException e) {
-                LogManager.log(e);
-            }
-        }
-
-
-
-        try {
-            // usually netbeans is installed first, so netbeans.home should be already installed
-            // if not - that means that only GF/AS was installed and NB not - then 
-            // do not add ST info to NB ST and do not initialize 
-            // instance_urn & product_defined_inst_id in the GF/AS ST
-            ServiceTag gfST = null;
-            if (System.getProperty("netbeans.home") != null) {
-                // java.home system variable usually points to private jre with MacOS exception
-                final File javaHome = (!SystemUtils.isMacOS()) ? new File(gfJavaHome, "jre") : gfJavaHome;
-                gfST = NbServiceTagSupport.createGfServiceTag(source,
-                        javaHome.getAbsolutePath(),
-                        JavaUtils.getVersion(gfJavaHome).toJdkStyle(),
-                        location.getAbsolutePath());
-            }
-            File gfReg = new File(location, "lib/registration/servicetag-registry.xml");
-
-            if (gfReg.exists()) {
-                Map<String, Object> map = new HashMap<String, Object>();
-                if (gfST != null) {
-                    String urn = gfST.getInstanceURN();
-                    LogManager.log("... GF instanceUrn : " + urn);
-                    if (urn != null && !urn.equals("")) {
-                        map.put("<instance_urn/>", "<instance_urn>" + urn + "</instance_urn>");
-                        map.put("<instance_urn></instance_urn>", "<instance_urn>" + urn + "</instance_urn>");
-                    }
-                    // specific to ST that is created by AppServer itself and stored in the installation image
-                    // platform_arch and product_defined_inst_id are not set in AS install image
-                    map.put("<platform_arch></platform_arch>",
-                            "<platform_arch>" + gfST.getPlatformArch() + "</platform_arch>");
-                    map.put("<product_defined_inst_id></product_defined_inst_id>",
-                            "<product_defined_inst_id>" + gfST.getProductDefinedInstanceID() + "</product_defined_inst_id>");
-
-                } else {
-                    map.put("<platform_arch></platform_arch>",
-                            "<platform_arch>" + System.getProperty("os.arch") + "</platform_arch>");
-                }
-                map.put("<source>Sun Java System Application Server Native Packages</source>",
-                        "<source>" + source + "</source>");
-                // AppServer installation image has this incorrect vendor
-                map.put("Sun Micosystems Inc.",
-                        "Sun Microsystems Inc.");
-                FileUtils.modifyFile(gfReg, map);
-            }
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-    }
-  */  
-            /**
+            
+    /**
      * Return the NetBeans service tag from local registration data.
      * Return null if srevice tag is not found.
      * 
@@ -322,11 +238,11 @@ public class NbServiceTagCreateAction extends WizardAction {
         // Determine the product URN and name
         String productURN, productName, parentURN, parentName, version;
 
-        productURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.urn");
-        productName = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.name");
-        version = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.version");
-        parentURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.parent.urn");
-        parentName = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.parent.name");
+        productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.urn");
+        productName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.name");
+        version = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.version");
+        parentURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.parent.urn");
+        parentName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.parent.name");
 
         return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
                                       productName,
@@ -344,7 +260,7 @@ public class NbServiceTagCreateAction extends WizardAction {
 
     private void createSTSunStudio(Product ssProduct, boolean createInstallationST) {
         try {
-            String productURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.urn");
+            String productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.urn");
             if (null == getRegistredServiceTag(productURN)) {
                 ServiceTag st = newSSServiceTag(productURN);
                 org.netbeans.modules.servicetag.Registry.getSystemRegistry().addServiceTag(st);
@@ -355,91 +271,7 @@ public class NbServiceTagCreateAction extends WizardAction {
         }
        // NbServiceTagSupport.writeRegistrationXml();
     }
-    /*
-    private void createSTSunStudio(Product ssProduct, boolean createInstallationST) {
-        LogManager.log("... create ST for Sun Studio");
-        File location = ssProduct.getInstallationLocation();
-        File gfJavaHome = SystemUtils.getCurrentJavaHome();//default
-        try {
-            gfJavaHome = GlassFishUtils.getJavaHome(location);
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-
-        if (createInstallationST) {
-            File ant = new File(location, "lib/ant/bin/ant" + (SystemUtils.isWindows() ? ".bat" : ""));
-            File registryXml = new File(location, "registry.xml");
-            try {
-                final String[] command = {
-                    ant.getAbsolutePath(),
-                    (SystemUtils.isWindows() ? "" : "--noconfig"),
-                    "-v",
-                    "-f",
-                    registryXml.getAbsolutePath(),
-                    "-Dinstall.home=" + location.getAbsolutePath(),
-                    "-Dsource=" + source
-                };
-                if(!SystemUtils.isWindows()) {
-                    SystemUtils.correctFilesPermissions(ant);
-                }
-                SystemUtils.setEnvironmentVariable("JAVA_HOME",gfJavaHome.getPath());
-                SystemUtils.executeCommand(location, command);
-            } catch (IOException e) {
-                LogManager.log(e);
-            } catch (NativeException e) {
-                LogManager.log(e);
-            }
-        }
-
-
-
-        try {
-            // usually netbeans is installed first, so netbeans.home should be already installed
-            // if not - that means that only GF/AS was installed and NB not - then 
-            // do not add ST info to NB ST and do not initialize 
-            // instance_urn & product_defined_inst_id in the GF/AS ST
-            ServiceTag gfST = null;
-            if (System.getProperty("netbeans.home") != null) {
-                // java.home system variable usually points to private jre with MacOS exception
-                final File javaHome = (!SystemUtils.isMacOS()) ? new File(gfJavaHome, "jre") : gfJavaHome;
-                gfST = NbServiceTagSupport.createGfServiceTag(source,
-                        javaHome.getAbsolutePath(),
-                        JavaUtils.getVersion(gfJavaHome).toJdkStyle(),
-                        location.getAbsolutePath());
-            }
-            File gfReg = new File(location, "lib/registration/servicetag-registry.xml");
-
-            if (gfReg.exists()) {
-                Map<String, Object> map = new HashMap<String, Object>();
-                if (gfST != null) {
-                    String urn = gfST.getInstanceURN();
-                    LogManager.log("... GF instanceUrn : " + urn);
-                    if (urn != null && !urn.equals("")) {
-                        map.put("<instance_urn/>", "<instance_urn>" + urn + "</instance_urn>");
-                        map.put("<instance_urn></instance_urn>", "<instance_urn>" + urn + "</instance_urn>");
-                    }
-                    // specific to ST that is created by AppServer itself and stored in the installation image
-                    // platform_arch and product_defined_inst_id are not set in AS install image
-                    map.put("<platform_arch></platform_arch>",
-                            "<platform_arch>" + gfST.getPlatformArch() + "</platform_arch>");
-                    map.put("<product_defined_inst_id></product_defined_inst_id>",
-                            "<product_defined_inst_id>" + gfST.getProductDefinedInstanceID() + "</product_defined_inst_id>");
-
-                } else {
-                    map.put("<platform_arch></platform_arch>",
-                            "<platform_arch>" + System.getProperty("os.arch") + "</platform_arch>");
-                }
-                map.put("<source>Sun Java System Application Server Native Packages</source>",
-                        "<source>" + source + "</source>");
-                // AppServer installation image has this incorrect vendor
-                map.put("Sun Micosystems Inc.",
-                        "Sun Microsystems Inc.");
-                FileUtils.modifyFile(gfReg, map);
-            }
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-    }*/
+   
     
     /**
      * Create new service tag instance for GlassFish
@@ -524,9 +356,9 @@ public class NbServiceTagCreateAction extends WizardAction {
     public static final String ALLOW_SERVICETAG_CREATION_PROPERTY =
             "servicetag.allow.create";//NOI18N
     public static final String SOURCE_NAME =
-            ResourceUtils.getString(NbServiceTagCreateAction.class,
+            ResourceUtils.getString(ServiceTagCreateAction.class,
             "NSTCA.installer.source.name");//NOI18N
     public static final String SOURCE_NAME_JDK =
-            ResourceUtils.getString(NbServiceTagCreateAction.class,
+            ResourceUtils.getString(ServiceTagCreateAction.class,
             "NSTCA.installer.source.name.jdk");//NOI18N
 }

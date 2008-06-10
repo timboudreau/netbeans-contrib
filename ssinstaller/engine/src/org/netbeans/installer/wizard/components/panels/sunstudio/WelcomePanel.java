@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.wizard.components.panels.netbeans;
+package org.netbeans.installer.wizard.components.panels.sunstudio;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -85,14 +85,14 @@ import org.netbeans.installer.wizard.ui.WizardUi;
  *
  * @author Kirill Sorokin
  */
-public class SSWelcomePanel extends ErrorMessagePanel {
+public class WelcomePanel extends ErrorMessagePanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
     private Registry bundledRegistry;
     private Registry defaultRegistry;
     
     private boolean registriesFiltered;    
-    public SSWelcomePanel() {
+    public WelcomePanel() {
         setProperty(TITLE_PROPERTY,
                 "nbWelcomepanel");
         setProperty(DESCRIPTION_PROPERTY,
@@ -105,8 +105,8 @@ public class SSWelcomePanel extends ErrorMessagePanel {
                     DEFAULT_WELCOME_TEXT_HEADER );
         
         setProperty(WELCOME_TEXT_DETAILS_PROPERTY,
-                ResourceUtils.getString(SSWelcomePanel.class,
-                WELCOME_TEXT_HEADER_APPENDING_PROPERTY  ));
+                ResourceUtils.getString(WelcomePanel.class,
+                WELCOME_TEXT_HEADER_APPENDING_PROPERTY    ));
         
         
         setProperty(WELCOME_TEXT_GROUP_TEMPLATE_PROPERTY,
@@ -193,7 +193,7 @@ public class SSWelcomePanel extends ErrorMessagePanel {
     @Override
     public WizardUi getWizardUi() {
         if (wizardUi == null) {
-            wizardUi = new SSWelcomePanelUi(this);
+            wizardUi = new WelcomePanelUi(this);
         }
         
         return wizardUi;
@@ -247,10 +247,10 @@ public class SSWelcomePanel extends ErrorMessagePanel {
     
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
-    private static class SSWelcomePanelUi extends ErrorMessagePanelUi {
-        protected SSWelcomePanel component;
+    private static class WelcomePanelUi extends ErrorMessagePanelUi {
+        protected WelcomePanel component;
         
-        public SSWelcomePanelUi(SSWelcomePanel component) {
+        public WelcomePanelUi(WelcomePanel component) {
             super(component);
             
             this.component = component;
@@ -259,15 +259,15 @@ public class SSWelcomePanel extends ErrorMessagePanel {
         @Override
         public SwingUi getSwingUi(SwingContainer container) {
             if (swingUi == null) {
-                swingUi = new SSWelcomePanelSwingUi(component, container);
+                swingUi = new WelcomePanelSwingUi(component, container);
             }
             
             return super.getSwingUi(container);
         }
     }
     
-    private static class SSWelcomePanelSwingUi extends ErrorMessagePanelSwingUi {
-        protected SSWelcomePanel panel;
+    private static class WelcomePanelSwingUi extends ErrorMessagePanelSwingUi {
+        protected WelcomePanel panel;
         
         private NbiTextPane textPane;
         private NbiTextPane detailsTextPane;
@@ -277,7 +277,7 @@ public class SSWelcomePanel extends ErrorMessagePanel {
         private NbiButton customizeButton;
         private NbiLabel installationSizeLabel;
         
-        private NbCustomizeSelectionDialog customizeDialog;        
+        private CustomizeSelectionDialog customizeDialog;        
         private NbiPanel leftImagePanel;
         
         private List<RegistryNode> registryNodes;
@@ -286,8 +286,8 @@ public class SSWelcomePanel extends ErrorMessagePanel {
         
         ValidatingThread validatingThread;
         
-        public SSWelcomePanelSwingUi(
-                final SSWelcomePanel component,
+        public WelcomePanelSwingUi(
+                final WelcomePanel component,
                 final SwingContainer container) {
             super(component, container);
             
@@ -708,7 +708,7 @@ public class SSWelcomePanel extends ErrorMessagePanel {
                     }
                 };
                 
-                customizeDialog = new NbCustomizeSelectionDialog(
+                customizeDialog = new CustomizeSelectionDialog(
                         panel,
                         callback,
                         registryNodes);
@@ -757,10 +757,10 @@ public class SSWelcomePanel extends ErrorMessagePanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
     static final String DEFAULT_TITLE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.title");
     static final String DEFAULT_DESCRIPTION =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.description"); // NOI18N
     
      static final String TEXT_PANE_CONTENT_TYPE_PROPERTY =
@@ -785,35 +785,35 @@ public class SSWelcomePanel extends ErrorMessagePanel {
             "installation.size.label.text"; // NOI18N
     
      static final String DEFAULT_TEXT_PANE_CONTENT_TYPE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.text.pane.content.type"); // NOI18N
      static final String DEFAULT_WELCOME_TEXT_HEADER =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.header"); // NOI18N
     
      static final String WELCOME_TEXT_HEADER_APPENDING_PROPERTY =
             "NWP.welcome.text.header.append"; // NOI18N   
     
      static final String DEFAULT_WELCOME_TEXT_GROUP_TEMPLATE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.group.template"); // NOI18N
      static final String DEFAULT_WELCOME_TEXT_PRODUCT_INSTALLED_TEMPLATE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.product.installed.template"); // NOI18N
      static final String DEFAULT_WELCOME_TEXT_PRODUCT_NOT_INSTALLED_TEMPLATE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.product.not.installed.template"); // NOI18N
      static final String DEFAULT_WELCOME_TEXT_OPENTAG =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.opentag");
      static final String DEFAULT_WELCOME_TEXT_FOOTER =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.welcome.text.footer"); // NOI18N
      static final String DEFAULT_CUSTOMIZE_BUTTON_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.customize.button.text"); // NOI18N
      static final String DEFAULT_INSTALLATION_SIZE_LABEL_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.installation.size.label.text"); // NOI18N
    
      static final String CUSTOMIZE_TITLE_PROPERTY =
@@ -847,43 +847,43 @@ public class SSWelcomePanel extends ErrorMessagePanel {
      static final String WELCOME_PAGE_LEFT_BOTTOM_IMAGE_PROPERTY =
             "nbi.wizard.ui.swing.welcome.left.bottom.image";//NOI18N
      static final String DEFAULT_CUSTOMIZE_TITLE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.customize.title"); // NOI18N
      static final String DEFAULT_MESSAGE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.message.both"); // NOI18N
      static final String DEFAULT_MESSAGE_INSTALL =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.message.install"); // NOI18N
      static final String DEFAULT_MESSAGE_UNINSTALL =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.message.uninstall"); // NOI18N
      static final String DEFAULT_COMPONENT_DESCRIPTION_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.component.description.text"); // NOI18N
      static final String DEFAULT_COMPONENT_DESCRIPTION_CONTENT_TYPE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.component.description.content.type"); // NOI18N
      static final String DEFAULT_SIZES_LABEL_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.sizes.label.text"); // NOI18N
      static final String DEFAULT_SIZES_LABEL_TEXT_NO_DOWNLOAD =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.sizes.label.text.no.download"); // NOI18N
      static final String DEFAULT_INSTALLATION_SIZE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.default.installation.size"); // NOI18N
      static final String DEFAULT_DOWNLOAD_SIZE =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.default.download.size"); // NOI18N
      static final String DEFAULT_OK_BUTTON_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.ok.button.text"); // NOI18N
      static final String DEFAULT_CANCEL_BUTTON_TEXT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.cancel.button.text"); // NOI18N
      static final String DEFAULT_DEFAULT_COMPONENT_DESCRIPTION =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.default.component.description"); // NOI18N
     
      static final String ERROR_NO_CHANGES_PROPERTY =
@@ -906,31 +906,31 @@ public class SSWelcomePanel extends ErrorMessagePanel {
             "error.everything.is.installed"; // NOI18N
     
      static final String DEFAULT_ERROR_NO_CHANGES =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.no.changes.both"); // NOI18N
      static final String DEFAULT_ERROR_NO_CHANGES_INSTALL_ONLY =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.no.changes.install"); // NOI18N
      static final String DEFAULT_ERROR_NO_CHANGES_UNINSTALL_ONLY =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.no.changes.uninstall"); // NOI18N
      static final String DEFAULT_ERROR_REQUIREMENT_INSTALL =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.requirement.install"); // NOI18N
      static final String DEFAULT_ERROR_CONFLICT_INSTALL =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.conflict.install"); // NOI18N
      static final String DEFAULT_ERROR_REQUIREMENT_UNINSTALL =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.requirement.uninstall"); // NOI18N
      static final String DEFAULT_ERROR_NO_ENOUGH_SPACE_TO_DOWNLOAD =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.not.enough.space.to.download"); // NOI18N
      static final String DEFAULT_ERROR_NO_ENOUGH_SPACE_TO_EXTRACT =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.not.enough.space.to.extract"); // NOI18N
      static final String DEFAULT_ERROR_EVERYTHING_IS_INSTALLED =
-            ResourceUtils.getString(SSWelcomePanel.class,
+            ResourceUtils.getString(WelcomePanel.class,
             "NWP.error.everything.is.installed"); // NOI18N
     
      static final long REQUIRED_SPACE_ADDITION =
