@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.wizard.components.panels.netbeans;
+package org.netbeans.installer.wizard.components.panels.sunstudio;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -42,8 +42,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.LinkedList;
 import java.util.List;
 import org.netbeans.installer.product.Registry;
@@ -57,7 +55,7 @@ import org.netbeans.installer.utils.helper.swing.NbiCheckBox;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
 import org.netbeans.installer.wizard.components.WizardPanel;
-import org.netbeans.installer.wizard.components.actions.netbeans.NbRegistrationAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.RegistrationAction;
 import org.netbeans.installer.wizard.containers.SwingContainer;
 import org.netbeans.installer.wizard.containers.SwingFrameContainer;
 import org.netbeans.installer.wizard.ui.SwingUi;
@@ -74,10 +72,10 @@ import static org.netbeans.installer.utils.helper.DetailedStatus.FAILED_TO_UNINS
  *
  * @author Kirill Sorokin
  */
-public class NbPostInstallSummaryPanel extends WizardPanel {
+public class PostInstallSummaryPanel extends WizardPanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    public NbPostInstallSummaryPanel() {
+    public PostInstallSummaryPanel() {
         setProperty(TITLE_PROPERTY, 
                 DEFAULT_TITLE);
         setProperty(DESCRIPTION_PROPERTY, 
@@ -132,9 +130,9 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
     public static class NbPostInstallSummaryPanelUi extends WizardPanelUi {
-        protected NbPostInstallSummaryPanel component;
+        protected PostInstallSummaryPanel component;
         
-        public NbPostInstallSummaryPanelUi(NbPostInstallSummaryPanel component) {
+        public NbPostInstallSummaryPanelUi(PostInstallSummaryPanel component) {
             super(component);
             
             this.component = component;
@@ -150,7 +148,7 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
     }
     
     public static class NbPostInstallSummaryPanelSwingUi extends WizardPanelSwingUi {
-        protected NbPostInstallSummaryPanel component;
+        protected PostInstallSummaryPanel component;
         
         private NbiTextPane messagePaneInstall;
         private NbiTextPane messagePaneUninstall;
@@ -160,7 +158,7 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
         private NbiPanel spacer;
 
         public NbPostInstallSummaryPanelSwingUi(
-                final NbPostInstallSummaryPanel component,
+                final PostInstallSummaryPanel component,
                 final SwingContainer container) {
             super(component, container);
             
@@ -278,9 +276,8 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
                     !toRegister.isEmpty()  && // if anything to register
                     !SystemUtils.isMacOS() && // no support on mac
                     Boolean.getBoolean(ALLOW_SERVICETAG_REGISTRATION_PROPERTY) && //system property is defined
-                    (BrowserSupport.isSupported() ||                   // if JDK6 supports browser or
-                    SystemUtils.isWindows() ||                         // on windows we can find browser in registry or
-                    NbRegistrationAction.getUnixBrowser() != null);    // on unix we can found it in some predefined locations
+                    (BrowserSupport.isSupported() ||                   // if JDK6 supports browser or                   
+                    RegistrationAction.getUnixBrowser() != null);    // on unix we can found it in some predefined locations
             
             if (!registrationEnabled) {
                 messagePaneRegistration.setVisible(false);
@@ -464,92 +461,92 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
             "message.files.remaining"; // NOI18N
     
     public static final String DEFAULT_MESSAGE_TEXT_SUCCESS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.success"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_SUCCESS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.success"); // NOI18N
     public static final String DEFAULT_MESSAGE_TEXT_WARNINGS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.warnings"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_WARNINGS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.warnings"); // NOI18N
     public static final String DEFAULT_MESSAGE_TEXT_ERRORS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.errors"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_ERRORS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.errors"); // NOI18N
     public static final String DEFAULT_MESSAGE_TEXT_SUCCESS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.success.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_SUCCESS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.success.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_TEXT_WARNINGS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.warnings.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_WARNINGS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.warnings.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_TEXT_ERRORS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.text.errors.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_CONTENT_TYPE_ERRORS_UNINSTALL =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.content.type.errors.uninstall"); // NOI18N
     public static final String DEFAULT_MESSAGE_FILES_REMAINING =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.files.remaining"); // NOI18N
     
     public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_WINDOWS = 
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.netbeans.text.windows"); // NOI18N
     public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_UNIX = 
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.netbeans.text.unix"); // NOI18N
     public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_MACOSX = 
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.netbeans.text.macosx"); // NOI18N
     public static final String DEFAULT_MESSAGE_NETBEANS_CONTENT_TYPE = 
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.netbeans.content.type"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_TEXT =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.text"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_NETBEANS =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.netbeans"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_GLASSFISH =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.glassfish"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_APPSERVER =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.appserver"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_JDK =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.jdk"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_CONCAT =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.concat");//NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_CHECKBOX =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.checkbox"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_CONTENT_TYPE =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.content.type");//NOI18N    
     public static final String ALLOW_SERVICETAG_REGISTRATION_PROPERTY =
             "servicetag.allow.register";
 
     public static final String DEFAULT_TITLE = ResourceUtils.getString(
-            NbPostInstallSummaryPanel.class,
+            PostInstallSummaryPanel.class,
             "NPoISP.title"); // NOI18N
     public static final String DEFAULT_DESCRIPTION =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.description"); // NOI18N
     
     public static final String DEFAULT_NEXT_BUTTON_TEXT =
-            ResourceUtils.getString(NbPostInstallSummaryPanel.class,
+            ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.next.button.text"); // NOI18N
 }

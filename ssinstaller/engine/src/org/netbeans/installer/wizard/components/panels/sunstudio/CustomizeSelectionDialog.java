@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.wizard.components.panels.netbeans;
+package org.netbeans.installer.wizard.components.panels.sunstudio;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -99,10 +99,10 @@ import static org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.
  *
  * @author Kirill Sorokin
  */
-public class NbCustomizeSelectionDialog extends NbiDialog {
+public class CustomizeSelectionDialog extends NbiDialog {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    private SSWelcomePanel panel;
+    private WelcomePanel panel;
     private Runnable callback;
     
     private List<RegistryNode> registryNodes;
@@ -129,8 +129,8 @@ public class NbCustomizeSelectionDialog extends NbiDialog {
     private Icon errorIcon;
     private Icon emptyIcon;
     
-    public NbCustomizeSelectionDialog(
-            final SSWelcomePanel panel,
+    public CustomizeSelectionDialog(
+            final WelcomePanel panel,
             final Runnable callback,
             final List<RegistryNode> registryNodes) {
         this.panel = panel;
@@ -844,14 +844,14 @@ public class NbCustomizeSelectionDialog extends NbiDialog {
             "checkbox.update"; // NOI18N
     
     public static final String FEATURE_DESCRIPTION_TITLE =
-            ResourceUtils.getString(NbCustomizeSelectionDialog.class,
+            ResourceUtils.getString(CustomizeSelectionDialog.class,
             "NCSD.feature.description.title"); // NOI18N
     public static final String CUSTOMIZE_DIALOG_WIDTH_PROPERTY =
             "NCSD.dialog.width";
     public static final String CUSTOMIZE_DIALOG_HEIGHT_PROPERTY =
             "NCSD.dialog.height";
     public static final String LIST_INSTALLED_PRODUCT_TEXT =
-            ResourceUtils.getString(NbCustomizeSelectionDialog.class,
+            ResourceUtils.getString(CustomizeSelectionDialog.class,
             "NCSD.list.product.installed");//NOI8N
     private static final String CANCEL_ACTION_NAME =
             "evaluate.cancel"; // NOI18N
