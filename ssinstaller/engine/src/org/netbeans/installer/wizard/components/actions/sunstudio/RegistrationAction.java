@@ -33,7 +33,7 @@
  * the option applies only if the new code is made subject to such option by the
  * copyright holder.
  */
-package org.netbeans.installer.wizard.components.actions.netbeans;
+package org.netbeans.installer.wizard.components.actions.sunstudio;
 
 import org.netbeans.modules.servicetag.RegistrationData;
 import java.io.File;
@@ -42,35 +42,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
-import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
-import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
-import org.netbeans.installer.utils.exceptions.NativeException;
-import org.netbeans.installer.utils.system.WindowsNativeUtils;
-import org.netbeans.installer.utils.system.windows.WindowsRegistry;
 import org.netbeans.installer.wizard.components.WizardAction;
-import org.netbeans.installer.wizard.components.panels.netbeans.NbPostInstallSummaryPanel;
+import org.netbeans.installer.wizard.components.panels.sunstudio.PostInstallSummaryPanel;
 import org.netbeans.modules.reglib.BrowserSupport;
 import org.netbeans.modules.reglib.NbConnectionSupport;
 import org.netbeans.modules.reglib.NbServiceTagSupport;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_SUCCESSFULLY;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_WITH_WARNINGS;
 
-/**
- *
- * @author Dmitry Lipin
- */
-public class NbRegistrationAction extends WizardAction {
+public class RegistrationAction extends WizardAction {
 
-    public NbRegistrationAction() {
+    public RegistrationAction() {
     }
 
     public void execute() {
@@ -81,11 +70,8 @@ public class NbRegistrationAction extends WizardAction {
             final Registry registry = Registry.getInstance();
             products.addAll(registry.getProducts(INSTALLED_SUCCESSFULLY));
             products.addAll(registry.getProducts(INSTALLED_WITH_WARNINGS));
-            String productId = StringUtils.EMPTY_STRING;
+            String productId = "nb";
             Product nbProduct = null;
-            Product gfProduct = null;
-            Product jdkProduct = null;
-            Product asProduct = null;
             List <Product> productsToRegister = new ArrayList<Product>();
             if (!products.isEmpty()) {
                 for (Product product : products) {
@@ -94,43 +80,19 @@ public class NbRegistrationAction extends WizardAction {
                         productId = "nb" + productId;
                         nbProduct = product;
                         productsToRegister.add(nbProduct);
-                    } else if (uid.equals("jdk")) {
-                        productId = productId + "jdk";
-                        jdkProduct = product;
-                        productsToRegister.add(jdkProduct);
-                    } else if (uid.equals("glassfish")) {
-                        productId = productId + "gf";
-                        gfProduct = product;
-                        productsToRegister.add(gfProduct);
-                    } /*else if (uid.equals("ss-base")) {
-                        productId = productId + "ss";
-                        asProduct = product;
-                        productsToRegister.add(asProduct);
-                    }*/
-
+                    }
                 }
             }
             LogManager.log("... product ID: " + productId);
             if (productId.startsWith("nb")) {
                 if (nbProduct != null) {
                     System.setProperty("netbeans.home", nbProduct.getInstallationLocation().getPath());
-                }
-                if (gfProduct != null) {
-                    System.setProperty("glassfish.home", gfProduct.getInstallationLocation().getPath());
-                }
-                if (asProduct != null) {
-                    System.setProperty("glassfish.home", asProduct.getInstallationLocation().getPath());
-                }
+                }             
 
                 boolean result = showRegistrationPage(productId, productsToRegister);
                 if (result) {
-                    registerNetBeans();
-                    if (gfProduct != null) {
-                        registerGlassFish(gfProduct.getInstallationLocation());
-                    }
-                    if (asProduct != null) {
-                        registerGlassFish(asProduct.getInstallationLocation());
-                    }
+                    ServiceTagCreateAction.setNetBeansStatus(true);
+                   
                 }
             }
         } catch (Exception ex) {
@@ -171,27 +133,7 @@ public class NbRegistrationAction extends WizardAction {
         LogManager.logExit("... registration page shown");
         return result;
     }
-
-    private void registerNetBeans() {
-        NbServiceTagCreateAction.setNetBeansStatus(true);
-    }
-
-    private void registerGlassFish(File location) {
-        File gfReg = new File(location, "lib/registration/servicetag-registry.xml");
-        /*
-        if (gfReg.exists()) {
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("<registration_status>NOT_REGISTERED</registration_status>",
-                    "<registration_status>REGISTERED</registration_status>");
-            try {
-                FileUtils.modifyFile(gfReg, map);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        */
-    }
-
+  
     /**
      * Opens a browser for JDK product registration.
      * @param url Registration Webapp URL
@@ -206,7 +148,7 @@ public class NbRegistrationAction extends WizardAction {
                 result = true;
             } else {
                 LogManager.log("... browse (fb): " + uri);
-                result = openBrowserFallback(uri);
+                result = browseUnix(uri);
             }
         } catch (IllegalArgumentException ex) {
             LogManager.log("Cannot open browser", ex);
@@ -218,69 +160,12 @@ public class NbRegistrationAction extends WizardAction {
     }
 
     public static void main(String[] args) {
-        new NbRegistrationAction();
+        new RegistrationAction();
     }
-
-    private boolean openBrowserFallback(URI uri) {
-        try {
-            if (SystemUtils.isWindows()) {
-                WindowsNativeUtils wnu = (WindowsNativeUtils) SystemUtils.getNativeUtils();
-                WindowsRegistry registry = wnu.getWindowsRegistry();
-                String type = null;
-                if (registry.keyExists(registry.HKEY_CURRENT_USER, "Software\\Classes\\.html")) {
-                    type = registry.getStringValue(registry.HKEY_CURRENT_USER, "Software\\Classes\\.html", "");
-                } else if (registry.keyExists(registry.HKEY_CLASSES_ROOT, ".html")) {
-                    type = registry.getStringValue(registry.HKEY_CLASSES_ROOT, ".html", "");
-                }
-
-                LogManager.log(".. html type : " + type);
-                if (type != null && !type.equals("")) {
-                    String command = null;
-                    String userCmdKey = "Software\\Classes\\" + type + "\\shell\\open\\command";
-                    String systemCmdKey = type + "\\shell\\open\\command";
-                    if (registry.keyExists(registry.HKEY_CURRENT_USER, userCmdKey)) {
-                        command = registry.getStringValue(registry.HKEY_CURRENT_USER, userCmdKey, "");
-                        LogManager.log("... using user browser");
-                    } else if (registry.keyExists(registry.HKEY_CLASSES_ROOT, systemCmdKey)) {
-                        command = registry.getStringValue(registry.HKEY_CLASSES_ROOT, systemCmdKey, "");
-                        LogManager.log("... using system browser");
-                    }
-                    if (command != null && !command.contains("%1")) {
-                        userCmdKey = "Software\\Classes\\" + type + "\\shell\\opennew\\command";
-                        systemCmdKey = type + "\\shell\\opennew\\command";
-                        if (registry.keyExists(registry.HKEY_CURRENT_USER, userCmdKey)) {
-                            command = registry.getStringValue(registry.HKEY_CURRENT_USER, userCmdKey, "");
-                            LogManager.log("... using user browser");
-                        } else if (registry.keyExists(registry.HKEY_CLASSES_ROOT, systemCmdKey)) {
-                            command = registry.getStringValue(registry.HKEY_CLASSES_ROOT, systemCmdKey, "");
-                            LogManager.log("... using system browser");
-                        }
-                    }
-                    LogManager.log("... command : " + command);
-                    if (command != null && !command.equals("")) {
-                        if (command.contains("%1") && !command.contains("\"%1\"")) {
-                            command.replace("%1", "\"%1\"");
-                        }
-                        command = command.replace("%1", uri.toString());
-                        LogManager.log("... running : " + command);
-                        Runtime.getRuntime().exec(command);
-                        return true;
-                    }
-                }
-            } else if (SystemUtils.isLinux() || SystemUtils.isSolaris()) {
-                return browseUnix(uri);
-            }
-        } catch (NativeException e) {
-            LogManager.log(e);
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-        return false;
-    }
-
+  
     @Override
     public boolean canExecuteForward() {
-        return Boolean.getBoolean(NbPostInstallSummaryPanel.ALLOW_SERVICETAG_REGISTRATION_PROPERTY);
+        return Boolean.getBoolean(PostInstallSummaryPanel.ALLOW_SERVICETAG_REGISTRATION_PROPERTY);
     }
 
     @Override
@@ -299,7 +184,7 @@ public class NbRegistrationAction extends WizardAction {
         return null;
     }
 
-    private boolean browseUnix(URI uri) throws IOException {
+    private static boolean browseUnix(URI uri) throws IOException {
         File browser = getUnixBrowser();
         if (browser != null) {
             LogManager.log("... using browser: " + browser);
@@ -308,7 +193,7 @@ public class NbRegistrationAction extends WizardAction {
         }
         return false;
     }
-    public static final String[] POSSIBLE_BROWSER_LOCATIONS_LINUX = new String[]{
+    private static final String[] POSSIBLE_BROWSER_LOCATIONS_LINUX = new String[]{
         "/usr/bin/firefox",
         "/usr/bin/mozilla-firefox",
         "/usr/local/firefox/firefox",
@@ -317,7 +202,7 @@ public class NbRegistrationAction extends WizardAction {
         "/usr/local/mozilla/mozilla",
         "/opt/bin/mozilla"
     };
-    public static final String[] POSSIBLE_BROWSER_LOCATIONS_SOLARIS = new String[]{
+    private static final String[] POSSIBLE_BROWSER_LOCATIONS_SOLARIS = new String[]{
         "/usr/sfw/lib/firefox/firefox",
         "/opt/csw/bin/firefox",
         "/usr/sfw/lib/mozilla/mozilla",

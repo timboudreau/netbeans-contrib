@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.regexplugin/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Layer: org/netbeans/modules/regexplugin/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/regexplugin/Bundle.properties
+
