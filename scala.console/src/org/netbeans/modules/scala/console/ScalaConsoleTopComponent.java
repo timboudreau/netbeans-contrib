@@ -299,12 +299,13 @@ final class ScalaConsoleTopComponent extends TopComponent {
         final Reader in = new InputStreamReader(pipeIn);
         final PrintWriter out = new PrintWriter(new PrintStream(taReadline));
         final PrintWriter err = new PrintWriter(new PrintStream(taReadline));
-//        ExecutionDescriptor descriptor = new ExecutionDescriptor("Scala Shell", pwd);
-//        descriptor.interactive(true).showProgress(false).showSuspended(false).rebuildCmd(true);
-
 
         String scalaHome = ScalaExecution.getScalaHome();
-        String cmdName = ScalaExecution.getScala().getName();
+        File file = ScalaExecution.getScala();
+        if (file == null) {
+            return;
+        }
+        String cmdName = file.getName();
         List<String> scalaArgs = ScalaExecution.getScalaArgs(scalaHome, cmdName);
         final ExternalProcessBuilder builder = new ExternalProcessBuilder(scalaArgs.get(0));
 
@@ -316,8 +317,6 @@ final class ScalaConsoleTopComponent extends TopComponent {
         builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
         builder.pwd(pwd);
 
-//        ExecutionService executionService = new ScalaExecution(descriptor);
-//        Task task = executionService.run(in, out, err);
         ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
         execBuilder.frontWindow(true).inputVisible(true);
         execBuilder.inputOutput(new CustomInputOutput(in, out, err));
