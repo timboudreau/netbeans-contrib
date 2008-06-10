@@ -484,44 +484,6 @@ public abstract class IndexedElement extends AstElement {
         return null;
     }
 
-    /** @todo decode tuple type, function type etc */
-    private TypeRef decodeType(String typeAttr, int[] posAndLevel, List<TypeRef> typeArgs) {
-        PseudoTypeRef curr = new PseudoTypeRef();
-        StringBuilder sb = new StringBuilder();
-        while (posAndLevel[0] < typeAttr.length()) {
-            char c = typeAttr.charAt(posAndLevel[0]);
-            posAndLevel[0]++;
-            if (c == '<') {
-                posAndLevel[1]++;
-                curr.setName(sb.toString());
-                typeArgs = new ArrayList<TypeRef>();
-                curr.setTypeArgs(typeArgs);
-
-                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
-                typeArgs.add(typeArg);
-            } else if (c == '>') {
-                posAndLevel[1]--;
-            } else if (c == ',') {
-                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
-                if (typeArgs != null) {
-                    typeArgs.add(typeArg);
-                } else {
-                    //System.out.println(typeAttr);
-                }
-            } else if (c == ' ') {
-                // strip it
-            } else {
-                sb.append(c);
-            }
-        }
-
-        if (curr.getName() == null) {
-            curr.setName(sb.toString());
-        }
-
-        return curr;
-    }
-
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
@@ -828,7 +790,7 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            encodeAttributesOfType(type, sb);
+            encodeType(type, sb);
         } else {
             // @Todo
         }
@@ -840,8 +802,10 @@ public abstract class IndexedElement extends AstElement {
     /**
      * We'll keep the sigunature as same as java's class file format for type paramters, also
      * @see org.netbeans.modules.scala.editing.JavaUtilities#getTypeName(TypeMirror, boolean, boolean)
+     * @param type to be encoded
+     * @param StringBuilder for attributes
      */
-    private static void encodeAttributesOfType(TypeRef type, StringBuilder sb) {
+    private static void encodeType(TypeRef type, StringBuilder sb) {
         if (type.isResolved()) {
             sb.append(type.getQualifiedName());
         } else {
@@ -850,18 +814,56 @@ public abstract class IndexedElement extends AstElement {
 
         List<TypeRef> typeArgs = type.getTypeArgs();
         if (!typeArgs.isEmpty()) {
-            sb.append("<");
+            sb.append("[");
             for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
                 TypeRef typeArg = itr.next();
-                encodeAttributesOfType(typeArg, sb);
+                encodeType(typeArg, sb);
                 if (itr.hasNext()) {
                     sb.append(",");
                 }
             }
-            sb.append(">");
+            sb.append("]");
         }
     }
 
+    /** @todo decode tuple type, function type etc */
+    private TypeRef decodeType(String typeAttr, int[] posAndLevel, List<TypeRef> typeArgs) {
+        PseudoTypeRef curr = new PseudoTypeRef();
+        StringBuilder sb = new StringBuilder();
+        while (posAndLevel[0] < typeAttr.length()) {
+            char c = typeAttr.charAt(posAndLevel[0]);
+            posAndLevel[0]++;
+            if (c == '[') {
+                posAndLevel[1]++;
+                curr.setName(sb.toString());
+                typeArgs = new ArrayList<TypeRef>();
+                curr.setTypeArgs(typeArgs);
+
+                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                typeArgs.add(typeArg);
+            } else if (c == ']') {
+                posAndLevel[1]--;
+            } else if (c == ',') {
+                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                if (typeArgs != null) {
+                    typeArgs.add(typeArg);
+                } else {
+                    //System.out.println(typeAttr);
+                }
+            } else if (c == ' ') {
+                // strip it
+            } else {
+                sb.append(c);
+            }
+        }
+
+        if (curr.getName() == null) {
+            curr.setName(sb.toString());
+        }
+
+        return curr;
+    }    
+    
     public static String encodeAttributes(javax.lang.model.element.Element jelement) {
         OffsetRange docRange = OffsetRange.NONE;
 
