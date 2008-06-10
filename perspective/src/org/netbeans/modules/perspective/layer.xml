@@ -106,9 +106,11 @@
     <!-- Shortcuts -->
     <folder name="Shortcuts">
         <!--Quick Switch Shortcut -->
+        <!-- XXX clashes with codetemplatetools, disabling for now; cf. #135565
         <file name="OS-S.shadow">
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
+        -->
     </folder>
     <folder name="perspectives">
     </folder>
