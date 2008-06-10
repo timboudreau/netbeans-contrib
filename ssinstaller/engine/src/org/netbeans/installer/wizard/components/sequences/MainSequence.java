@@ -41,8 +41,8 @@ import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.netbeans.installer.wizard.components.panels.netbeans.NbPostInstallSummaryPanel;
-import org.netbeans.installer.wizard.components.panels.netbeans.SSPreInstallSummaryPanel;
+import org.netbeans.installer.wizard.components.panels.sunstudio.PostInstallSummaryPanel;
+import org.netbeans.installer.wizard.components.panels.sunstudio.PreInstallSummaryPanel;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ErrorManager;
@@ -60,8 +60,8 @@ import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLog
 import org.netbeans.installer.wizard.components.actions.DownloadInstallationDataAction;
 import org.netbeans.installer.wizard.components.actions.InstallAction;
 import org.netbeans.installer.wizard.components.actions.UninstallAction;
-import org.netbeans.installer.wizard.components.actions.netbeans.NbRegistrationAction;
-import org.netbeans.installer.wizard.components.actions.netbeans.NbServiceTagCreateAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.RegistrationAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.ServiceTagCreateAction;
 import org.netbeans.installer.wizard.components.panels.PostCreateBundleSummaryPanel;
 import org.netbeans.installer.wizard.components.panels.PreCreateBundleSummaryPanel;
 
@@ -74,35 +74,35 @@ public class MainSequence extends WizardSequence {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
     private DownloadConfigurationLogicAction downloadConfigurationLogicAction;    
-    private SSPreInstallSummaryPanel nbPreInstallSummaryPanel;
+    private PreInstallSummaryPanel nbPreInstallSummaryPanel;
     private UninstallAction uninstallAction;
     private DownloadInstallationDataAction downloadInstallationDataAction;
     private InstallAction installAction;
-    private NbPostInstallSummaryPanel nbPostInstallSummaryPanel;
+    private PostInstallSummaryPanel nbPostInstallSummaryPanel;
     private PreCreateBundleSummaryPanel preCreateBundleSummaryPanel;
     private CreateBundleAction createBundleAction;
     private CreateNativeLauncherAction createNativeLauncherAction;
     
     private PostCreateBundleSummaryPanel postCreateBundleSummaryPanel;
-    private NbServiceTagCreateAction serviceTagAction;
-    private NbRegistrationAction nbRegistrationAction;
+    private ServiceTagCreateAction serviceTagAction;
+    private RegistrationAction nbRegistrationAction;
     private Map<Product, ProductWizardSequence> productSequences;
     
     public MainSequence() {
         downloadConfigurationLogicAction = new DownloadConfigurationLogicAction();        
-        nbPreInstallSummaryPanel = new SSPreInstallSummaryPanel();
+        nbPreInstallSummaryPanel = new PreInstallSummaryPanel();
         uninstallAction = new UninstallAction();
         downloadInstallationDataAction = new DownloadInstallationDataAction();
         installAction = new InstallAction();
-        nbPostInstallSummaryPanel = new NbPostInstallSummaryPanel();
+        nbPostInstallSummaryPanel = new PostInstallSummaryPanel();
         preCreateBundleSummaryPanel = new PreCreateBundleSummaryPanel();
         createBundleAction = new CreateBundleAction();
         createNativeLauncherAction = new CreateNativeLauncherAction();
         
         
         postCreateBundleSummaryPanel = new PostCreateBundleSummaryPanel();
-        serviceTagAction = new NbServiceTagCreateAction();
-        nbRegistrationAction = new NbRegistrationAction ();
+        serviceTagAction = new ServiceTagCreateAction();
+        nbRegistrationAction = new RegistrationAction ();
         productSequences = new HashMap<Product, ProductWizardSequence>();
         
         installAction.setProperty(InstallAction.TITLE_PROPERTY,
@@ -111,6 +111,7 @@ public class MainSequence extends WizardSequence {
                 DEFAULT_IA_DESCRIPTION);
     }
     
+    @Override
     public void executeForward() {
         final Registry registry = Registry.getInstance();
         final List<Product> toInstall = registry.getProductsToInstall();
