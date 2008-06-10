@@ -41,18 +41,49 @@ public interface EncoderTestTask {
     
     /**
      * Decodes the input file according the the xsd meta file and
-     * generate a output xml file
+     * generate a output xml file.
+     * 
+     * @param type encoder type.
+     * @param metaFile the xsd meta file.
+     * @param rootElement root element for decoding.
+     * @param inputFile input file.
+     * @param outputFile output file.
+     * @param predecodeCoding pre-decode coding.
+     * @param charBased whether or not character based.
+     * @return output file.
+     * 
+     * @throws com.sun.encoder.EncoderException
+     * @throws java.io.IOException
+     * @throws javax.xml.transform.TransformerConfigurationException
+     * @throws javax.xml.transform.TransformerException
+     * @throws com.sun.encoder.EncoderConfigurationException
      */
-    public File decode(EncoderType type, File metaFile, QName rootElement,
+    File decode(EncoderType type, File metaFile, QName rootElement,
             File inputFile, File outputFile, String predecodeCoding,
             boolean charBased) throws EncoderException, IOException,
                     TransformerConfigurationException, TransformerException,
                     EncoderConfigurationException;
-    
+
     /**
-     * Encodes the xml file with the xsd meta file and generate the encoded output file.
+     * Encodes the xml file with the xsd meta file and generate the encoded
+     * output file.
+     * 
+     * @param type encoder type.
+     * @param metaFile the xsd meta file.
+     * @param rootElement root element for encoding.
+     * @param xmlFile xml input file.
+     * @param outputFile output file.
+     * @param postencodeCoding post-encode coding.
+     * @param charBased whether or not character based.
+     * @return null.
+     * 
+     * @throws com.sun.encoder.EncoderException
+     * @throws java.io.IOException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws org.xml.sax.SAXException
+     * @throws com.sun.encoder.EncoderConfigurationException
      */
-    public File encode(EncoderType type, File metaFile, QName rootElement,
+    File encode(EncoderType type, File metaFile, QName rootElement,
             File xmlFile, File outputFile, String postencodeCoding,
             boolean charBased) throws EncoderException, IOException,
                     ParserConfigurationException, SAXException,

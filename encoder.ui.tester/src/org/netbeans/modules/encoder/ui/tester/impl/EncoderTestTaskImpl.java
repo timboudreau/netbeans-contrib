@@ -53,9 +53,18 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
     
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle");
-     /**
-     * Encodes the xml file with the xsd meta file and generate the encoded output file.
-     */    
+    /**
+     * Returns an Encoder instance based on specified encoder type, xsd meta
+     * file and root element.
+     * 
+     * @param type encoder type.
+     * @param xsdFile the xsd meta file.
+     * @param rootElement root element.
+     * @return an Encoder instance.
+     * 
+     * @throws java.io.FileNotFoundException
+     * @throws com.sun.encoder.EncoderConfigurationException
+     */
     public Encoder getEncoder(EncoderType type, File xsdFile, QName rootElement)
             throws FileNotFoundException, EncoderConfigurationException {
         if (xsdFile == null || !xsdFile.exists()) {
@@ -71,8 +80,23 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
     
     /**
      * Decodes the input file according the the xsd meta file and
-     * generate a output xml file
-     */    
+     * generate a output xml file.
+     * 
+     * @param type encoder type.
+     * @param metaFile the xsd meta file.
+     * @param rootElement root element for decoding.
+     * @param inputFile input file.
+     * @param outputFile output file.
+     * @param predecodeCoding pre-decode coding.
+     * @param charBased whether or not character based.
+     * @return output file.
+     * 
+     * @throws com.sun.encoder.EncoderException
+     * @throws java.io.IOException
+     * @throws javax.xml.transform.TransformerConfigurationException
+     * @throws javax.xml.transform.TransformerException
+     * @throws com.sun.encoder.EncoderConfigurationException
+     */
     public File decode(EncoderType type, File metaFile, QName rootElement,
             File inputFile, File outputFile, String predecodeCoding,
             boolean charBased) throws EncoderException, IOException,
@@ -106,6 +130,25 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
         return outputFile;
     }
 
+    /**
+     * Encodes the xml file with the xsd meta file and generate the encoded
+     * output file.
+     * 
+     * @param type encoder type.
+     * @param metaFile the xsd meta file.
+     * @param rootElement root element for encoding.
+     * @param xmlFile xml input file.
+     * @param outputFile output file.
+     * @param postencodeCoding post-encode coding.
+     * @param charBased whether or not character based.
+     * @return null.
+     * 
+     * @throws com.sun.encoder.EncoderException
+     * @throws java.io.IOException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws org.xml.sax.SAXException
+     * @throws com.sun.encoder.EncoderConfigurationException
+     */
     public File encode(EncoderType type, File metaFile, QName rootElement,
             File xmlFile, File outputFile, String postencodeCoding,
             boolean charBased) throws EncoderException, IOException,
