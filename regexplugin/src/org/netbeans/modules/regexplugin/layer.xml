@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="regexDockTopComponent.settings" url="regexDockTopComponentSettings.xml"/>
+            <file name="regexTopComponent.settings" url="regexTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="regexTopComponent.wstcref" url="regexTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="rightSlidingSide">
+                <file name="regexDockTopComponent.wstcref" url="regexDockTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+   <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-regexplugin-ToolMenuAction.instance"/>
+            </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-regexplugin-ToolMenuAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-regexplugin-ToolMenuAction.instance"/>
+                <attr name="position" intvalue="1275"/>
+            </file>
+            </folder>
+    </folder>
+</filesystem>
