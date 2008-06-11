@@ -217,6 +217,13 @@ final class LexerInputCharStream implements CharStream {
      *  first element in the stream. 
      */
     public void seek(int index) {
+
+        // condition added because it was causing strange errors sometimes
+        // e.g. pressing TAB at the end of file without NEWLINE at <EOF>
+        if ((position - index) > input.readLengthEOF()) {
+            return;
+        }
+        
         if (index < position) {
             int move = position - index;
             for (int i = 0; i < move; i++) {
