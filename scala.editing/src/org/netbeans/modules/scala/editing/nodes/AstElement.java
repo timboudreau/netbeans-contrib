@@ -65,7 +65,7 @@ public class AstElement implements ElementHandle {
      *    idToken's text as name, idToken may be <null> and idToken.text() 
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private Token idToken;
+    private Token pickToken;
     private String name;
     private ElementKind kind;
     private AstScope enclosingScope;
@@ -81,8 +81,8 @@ public class AstElement implements ElementHandle {
         this(null, idToken, kind);
     }
 
-    public AstElement(String name, Token idToken, ElementKind kind) {
-        this.idToken = idToken;
+    public AstElement(String name, Token pickToken, ElementKind kind) {
+        this.pickToken = pickToken;
         this.name = name;
         this.kind = kind;
     }
@@ -101,17 +101,17 @@ public class AstElement implements ElementHandle {
 //        }
     }
 
-    public void setIdToken(Token idToken) {
-        this.idToken = idToken;
+    public void setPickToken(Token pickToken) {
+        this.pickToken = pickToken;
     }
 
-    public Token getIdToken() {
-        return idToken;
+    public Token getPickToken() {
+        return pickToken;
     }
     
     public int getPickOffset(TokenHierarchy th) {
-        if (idToken != null) {
-            return idToken.offset(th);
+        if (pickToken != null) {
+            return pickToken.offset(th);
         } else {
             assert false : getName() + ": Should implement getPickOffset(th)";
             return -1;
@@ -119,8 +119,8 @@ public class AstElement implements ElementHandle {
     }
     
     public int getPickEndOffset(TokenHierarchy th) {
-        if (idToken != null) {
-            return idToken.offset(th) + idToken.length();
+        if (pickToken != null) {
+            return pickToken.offset(th) + pickToken.length();
         } else {
             assert false : getName() + ": Should implement getPickEndOffset(th)";
             return -1;

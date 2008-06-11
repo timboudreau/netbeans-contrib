@@ -46,12 +46,13 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Function extends AstDef {
+public class Function extends AstDef  implements WithTypeParams {
 
     private List<TypeParam> typeParams;
     private List<Var> params;

@@ -63,8 +63,6 @@ import org.netbeans.modules.scala.editing.nodes.types.SimpleIdType;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.types.FunType;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Bound;
-import org.netbeans.modules.scala.editing.nodes.types.TypeParam.Variant;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import xtc.tree.GNode;
@@ -91,7 +89,7 @@ public class AstElementVisitor extends AstVisitor {
         AstScope scope = new AstScope(rootScope.getBoundsTokens());
         scopeStack.peek().addScope(scope);
 
-        Packaging packaging = new Packaging(latest.getIdToken(), scope);
+        Packaging packaging = new Packaging(latest.getPickToken(), scope);
         packaging.setTop();
         packaging.setIds(pathId.getPaths());
 
@@ -114,7 +112,7 @@ public class AstElementVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
 
-        Packaging packaging = new Packaging(latest.getIdToken(), scope);
+        Packaging packaging = new Packaging(latest.getPickToken(), scope);
         packaging.setIds(pathId.getPaths());
 
         rootScope.addDef(packaging);
@@ -249,7 +247,7 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.peek().addScope(scope);
 
         // We put lastId as the idToken, so when search closest element on caret, will return this def
-        Importing importDef = new Importing(paths.get(paths.size() - 1).getIdToken(), scope);
+        Importing importDef = new Importing(paths.get(paths.size() - 1).getPickToken(), scope);
 
         scopeStack.peek().addDef(importDef);
 
@@ -267,7 +265,7 @@ public class AstElementVisitor extends AstVisitor {
             // latest id is imported type
             Id latest = paths.get(paths.size() - 1);
             paths.remove(latest);
-            TypeRef type = new TypeRef(latest.getName(), latest.getIdToken(), ElementKind.CLASS);
+            TypeRef type = new TypeRef(latest.getName(), latest.getPickToken(), ElementKind.CLASS);
 
             scopeStack.peek().addRef(type);
 
@@ -309,7 +307,7 @@ public class AstElementVisitor extends AstVisitor {
         TypeRef type = null;
 
         Id id = visitId(that.getGeneric(0));
-        TypeRef idType = new TypeRef(id.getName(), id.getIdToken(), ElementKind.CLASS);
+        TypeRef idType = new TypeRef(id.getName(), id.getPickToken(), ElementKind.CLASS);
 
         GNode funTypeTail = that.getGeneric(1);
         if (funTypeTail != null) {
@@ -321,7 +319,7 @@ public class AstElementVisitor extends AstVisitor {
                 tailType = new TypeRef("_", getIdToken(funTypeTail), ElementKind.CLASS);
             } else {
                 Id tailId = visitId(funTypeTail);
-                tailType = new TypeRef(tailId.getName(), tailId.getIdToken(), ElementKind.CLASS);
+                tailType = new TypeRef(tailId.getName(), tailId.getPickToken(), ElementKind.CLASS);
             }
 
             funType.setRhs(tailType);
@@ -349,7 +347,7 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         Id nameId = ids.get(ids.size() - 1);
-        PathId pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
+        PathId pathId = new PathId(nameId.getPickToken(), ElementKind.VARIABLE);
         pathId.setPaths(ids);
 
         exit(that);
@@ -388,7 +386,7 @@ public class AstElementVisitor extends AstVisitor {
             ids.add(new Id("this", getIdToken(thisKey), ElementKind.VARIABLE));
 
             Id nameId = ids.get(ids.size() - 1);
-            pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
+            pathId = new PathId(nameId.getPickToken(), ElementKind.VARIABLE);
             pathId.setPaths(ids);
         } else if (first.getName().equals("StableId")) {
             pathId = visitStableId(first);
@@ -448,7 +446,7 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         Id nameId = ids.get(ids.size() - 1);
-        PathId pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
+        PathId pathId = new PathId(nameId.getPickToken(), ElementKind.VARIABLE);
         pathId.setPaths(ids);
 
         exit(that);
@@ -618,7 +616,7 @@ public class AstElementVisitor extends AstVisitor {
         List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
         for (Function constructor : constructors) {
             constructor.setName(id.getName());
-            constructor.setIdToken(id.getIdToken());
+            constructor.setPickToken(id.getPickToken());
         }
 
         List<TypeRef> parents = visitClassTemplateOpt(that.getGeneric(5));
@@ -1019,7 +1017,7 @@ public class AstElementVisitor extends AstVisitor {
 
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        Function function = new Function(id.getName(), id.getIdToken(), scope, ElementKind.CONSTRUCTOR);
+        Function function = new Function(id.getName(), id.getPickToken(), scope, ElementKind.CONSTRUCTOR);
         function.setParam(params);
 
         Template enclosingTemplate = scopeStack.peek().getEnclosingDef(Template.class);
@@ -1039,7 +1037,7 @@ public class AstElementVisitor extends AstVisitor {
         Id id = visitId(that.getGeneric(0));
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
-        Function function = new Function(id.getName(), id.getIdToken(), scopeStack.peek(), ElementKind.METHOD);
+        Function function = new Function(id.getName(), id.getPickToken(), scopeStack.peek(), ElementKind.METHOD);
         function.setParam(params);
 
         GNode funTypeParamClauseNode = that.getGeneric(1);
@@ -1089,15 +1087,7 @@ public class AstElementVisitor extends AstVisitor {
     public TypeParam visitVariantTypeParam(GNode that) {
         enter(that);
 
-        Variant variant = null;
-        String variantStr = that.getString(0);
-        if (variantStr != null) {
-            if (variantStr.equals("+")) {
-                variant = Variant.Plus;
-            } else {
-                variant = Variant.Minus;
-            }
-        }
+        String variant = that.getString(0);
 
         TypeParam typeParam = visitTypeParam(that.getGeneric(1));
 
@@ -1124,19 +1114,19 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode boundTypeNode = that.getGeneric(2);
         if (boundTypeNode != null) {
-            typeParam.setBound(Bound.Lower);
+            typeParam.setBound(">:");
             typeParam.setBoundType(visitType(boundTypeNode));
         }
 
         boundTypeNode = that.getGeneric(3);
         if (boundTypeNode != null) {
-            typeParam.setBound(Bound.Upper);
+            typeParam.setBound("<:");
             typeParam.setBoundType(visitType(boundTypeNode));
         }
 
         boundTypeNode = that.getGeneric(4);
         if (boundTypeNode != null) {
-            typeParam.setBound(Bound.View);
+            typeParam.setBound("<%");
             typeParam.setBoundType(visitType(boundTypeNode));
         }
 
@@ -1236,7 +1226,7 @@ public class AstElementVisitor extends AstVisitor {
             more = ParamType.More.ByName;
         }
         TypeRef toWrap = visitType(typeNode);
-        ParamType type = new ParamType(toWrap.getIdToken(), ElementKind.CLASS);
+        ParamType type = new ParamType(toWrap.getPickToken(), ElementKind.CLASS);
         type.setRawType(toWrap);
         type.setMore(more);
 
@@ -2076,7 +2066,7 @@ public class AstElementVisitor extends AstVisitor {
             FunRef lastFunRef = null;
             for (InfixOpExprs currInfixOpExprs : infixOpExprsList) {
                 Id callId = currInfixOpExprs.op;
-                lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+                lastFunRef = new FunRef(callId.getPickToken(), ElementKind.CALL);
                 lastFunRef.setBase(currLhs);
                 lastFunRef.setCall(callId);
                 lastFunRef.setArgs(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
@@ -2202,7 +2192,7 @@ public class AstElementVisitor extends AstVisitor {
                 Id callId = paths.get(paths.size() - 1);
                 paths.remove(callId);
 
-                FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+                FunRef funRef = new FunRef(callId.getPickToken(), ElementKind.CALL);
 
                 if (paths.size() > 0) {
                     // Cannot resolve the ref here, should be done when global type inference
@@ -2221,7 +2211,7 @@ public class AstElementVisitor extends AstVisitor {
             } else {
                 // dog.sound
                 // Similest case, only one PathId
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.VARIABLE);
 
                 scopeStack.peek().addRef(idRef);
 
@@ -2230,7 +2220,7 @@ public class AstElementVisitor extends AstVisitor {
                     Id fieldId = paths.get(paths.size() - 1);
                     paths.remove(fieldId);
 
-                    FieldRef fieldRef = new FieldRef(fieldId.getIdToken());
+                    FieldRef fieldRef = new FieldRef(fieldId.getPickToken());
 
                     // Cannot resolve the ref here, should be done when global type inference
                     fieldRef.setBase(pathId);
@@ -2296,7 +2286,7 @@ public class AstElementVisitor extends AstVisitor {
         GNode what = that.getGeneric(0);
         if (what.getName().equals("WildKey")) {
             Id id = visitId(what);
-            ref = new IdRef("_", id.getIdToken(), ElementKind.OTHER);
+            ref = new IdRef("_", id.getPickToken(), ElementKind.OTHER);
         } else if (what.getName().equals("ArgumentExprs")) {
             // apply call
             ArgumentExprs argExprs = visitArgumentExprs(what);
@@ -2317,13 +2307,13 @@ public class AstElementVisitor extends AstVisitor {
             if (argsNode != null) {
                 ArgumentExprs argExprs = visitArgumentExprs(argsNode);
 
-                FunRef funRef = new FunRef(id.getIdToken(), ElementKind.CALL);
+                FunRef funRef = new FunRef(id.getPickToken(), ElementKind.CALL);
                 funRef.setCall(id);
                 funRef.setArgs(argExprs.getArgs());
                 // base not set yet, should be set later by SimpleExpr
                 ref = funRef;
             } else {
-                FieldRef fieldRef = new FieldRef(id.getIdToken());
+                FieldRef fieldRef = new FieldRef(id.getPickToken());
                 fieldRef.setField(id);
                 // base not set yet, should be set later by SimpleExpr
                 ref = fieldRef;
@@ -2415,7 +2405,7 @@ public class AstElementVisitor extends AstVisitor {
                 types.add(visitCompoundType(restNode.getGeneric(1)));
             }
 
-            InfixType infixType = new InfixType(first.getIdToken(), ElementKind.CLASS);
+            InfixType infixType = new InfixType(first.getPickToken(), ElementKind.CLASS);
             infixType.setTypes(types);
             infixType.setOps(ops);
 
@@ -2459,7 +2449,7 @@ public class AstElementVisitor extends AstVisitor {
             type = first;
         } else {
 
-            CompoundType compoundType = new CompoundType(first.getIdToken(), ElementKind.CLASS);
+            CompoundType compoundType = new CompoundType(first.getPickToken(), ElementKind.CLASS);
             compoundType.setTypes(types);
 
             type = compoundType;
@@ -2522,7 +2512,7 @@ public class AstElementVisitor extends AstVisitor {
         GNode firstNode = that.getGeneric(0);
         if (firstNode.getName().equals("WildKey")) {
             Id id = new Id("_", getIdToken(firstNode), ElementKind.VARIABLE);
-            type = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+            type = new SimpleIdType(id.getPickToken(), ElementKind.CLASS);
             ((SimpleIdType) type).setPaths(Collections.<Id>singletonList(id));
         } else {
             type = visitType(firstNode);
@@ -2533,7 +2523,7 @@ public class AstElementVisitor extends AstVisitor {
             GNode otherNode = (GNode) other;
             if (otherNode.getName().equals("WildKey")) {
                 Id id = new Id("_", getIdToken(otherNode), ElementKind.VARIABLE);
-                type = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+                type = new SimpleIdType(id.getPickToken(), ElementKind.CLASS);
                 ((SimpleIdType) type).setPaths(Collections.<Id>singletonList(id));
             } else {
                 type = visitType(otherNode);
@@ -2550,7 +2540,7 @@ public class AstElementVisitor extends AstVisitor {
 
         PathId id = visitStableId(that.getGeneric(0));
         Id first = id.getPaths().get(0);
-        SimpleIdType type = new SimpleIdType(first.getIdToken(), ElementKind.CLASS);
+        SimpleIdType type = new SimpleIdType(first.getPickToken(), ElementKind.CLASS);
         type.setPaths(id.getPaths());
 
         scopeStack.peek().addRef(type);
@@ -2564,7 +2554,7 @@ public class AstElementVisitor extends AstVisitor {
 
         PathId id = visitPath(that.getGeneric(0));
         Id first = id.getPaths().get(0);
-        SimpleIdType type = new SimpleIdType(first.getIdToken(), ElementKind.CLASS);
+        SimpleIdType type = new SimpleIdType(first.getPickToken(), ElementKind.CLASS);
         type.setPaths(id.getPaths());
 
         scopeStack.peek().addRef(type);
@@ -2578,7 +2568,7 @@ public class AstElementVisitor extends AstVisitor {
 
         List<TypeRef> types = visitTypes(that.getGeneric(0));
         // idToken is used to get the offset here, just set first type's idToken as idToken, 
-        SimpleTupleType type = new SimpleTupleType(types.get(0).getIdToken(), ElementKind.CLASS);
+        SimpleTupleType type = new SimpleTupleType(types.get(0).getPickToken(), ElementKind.CLASS);
         type.setTypes(types);
 
         for (TypeRef typeRef : types) {

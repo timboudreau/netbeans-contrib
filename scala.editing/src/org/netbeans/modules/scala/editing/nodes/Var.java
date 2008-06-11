@@ -53,7 +53,7 @@ public class Var extends AstDef {
     private AstExpr expr;
 
     public Var(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getIdToken(), bindingScope, kind);
+        super(id.getName(), id.getPickToken(), bindingScope, kind);
         setType(id.getType());
     }
 

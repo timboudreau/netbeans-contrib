@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -49,12 +50,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.SourceFileReader;
+import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.gsf.spi.DefaultParseListener;
+import org.netbeans.modules.gsf.spi.DefaultParserFile;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.URLMapper;
@@ -74,7 +85,6 @@ public class ScalaIndex {
     private static final boolean ALL_REACHABLE = !Boolean.getBoolean("javascript.checkincludes");
     private static String clusterUrl = null;
     private static final String CLUSTER_URL = "cluster:"; // NOI18N
-
     public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     public static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
@@ -262,7 +272,6 @@ public class ScalaIndex {
         return Collections.<String>emptySet();
     }
 
-    
     /** Return both functions and properties matching the given prefix, of the
      * given (possibly null) type
      */
@@ -279,13 +288,12 @@ public class ScalaIndex {
                 break;
             }
         }
-        
-        /** @TODO we need a better way to check if it's of scala */
 
+        /** @TODO we need a better way to check if it's of scala */
         if (!ofScala) {
             elements = javaIndex.getByFqn(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
         }
-        
+
         if (elements.size() == 0) {
             elements = javaIndex.getByFqn(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
         }
@@ -313,7 +321,7 @@ public class ScalaIndex {
 
         return idxElements;
     }
-    
+
     public Set<IndexedElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
 
         Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, false);
@@ -579,7 +587,7 @@ public class ScalaIndex {
                         if (prefix.length() < lastDot) {
                             int nextDot = elementName.indexOf('.', fqn.length());
                             if (nextDot != -1) {
-                                int flags = IndexedElement.decode(signature, inEndIdx, 0);
+                                int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
                                 ElementKind k = ElementKind.PACKAGE;
                                 // If there are no more dots after this one, it's a class, not a package
                                 int nextNextDot = elementName.indexOf('.', nextDot + 1);
@@ -604,10 +612,10 @@ public class ScalaIndex {
                         if (element == null) {
                             element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, funcIn, inEndIdx, this, false);
                         }
-                        boolean isFunction = element instanceof IndexedFunction;
-                        if (isFunction && !includeMethods) {
+                        boolean isMethod = element instanceof IndexedFunction;
+                        if (isMethod && !includeMethods) {
                             continue;
-                        } else if (!isFunction && !includeProperties) {
+                        } else if (!isMethod && !includeProperties) {
                             continue;
                         }
                         if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
@@ -644,8 +652,208 @@ public class ScalaIndex {
         return elements;
     }
 
+    private Set<IndexedElement> getMembers(String prefix, String type, NameKind kind,
+            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
+            boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
+        //assert in != null && in.length() > 0;
+
+        final Set<SearchResult> result = new HashSet<SearchResult>();
+
+        String field = ScalaIndexer.FIELD_FQN;
+        Set<String> terms = TERMS_FQN;
+        NameKind originalKind = kind;
+        if (kind == NameKind.EXACT_NAME) {
+            // I can't do exact searches on methods because the method
+            // entries include signatures etc. So turn this into a prefix
+            // search and then compare chopped off signatures with the name
+            kind = NameKind.PREFIX;
+        }
+
+        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+            // TODO - can I do anything about this????
+            //field = ScalaIndexer.FIELD_BASE_LOWER;
+            //terms = FQN_BASE_LOWER;
+        }
+
+        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+        String searchUrl = null;
+        if (context != null) {
+            try {
+                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        Set<String> seenTypes = new HashSet<String>();
+        seenTypes.add(type);
+        boolean haveRedirected = false;
+        boolean inheriting = type == null;
+
+        boolean resolved = false;
+
+        while (true) {
+
+            String fqn = type != null && type.length() > 0
+                    ? type + "." + prefix
+                    : prefix;
+
+            String lcfqn = fqn.toLowerCase();
+            search(field, lcfqn, kind, result, scope, terms);
+
+            for (SearchResult map : result) {
+                String[] signatures = map.getValues(field);
+
+                if (signatures != null) {
+                    // Check if this file even applies
+                    String fileUrl = map.getPersistentUrl();
+                    if (context != null) {
+                        if (searchUrl == null || !searchUrl.equals(fileUrl)) {
+                            boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
+
+                            if (!isLibrary && !isReachable(context, fileUrl)) {
+                                continue;
+                            }
+                        }
+                    }
+
+                    for (String signature : signatures) {
+                        // Lucene returns some inexact matches, TODO investigate why this is necessary
+                        if ((kind == NameKind.PREFIX) && !signature.startsWith(lcfqn)) {
+                            continue;
+                        } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !signature.regionMatches(true, 0, lcfqn, 0, lcfqn.length())) {
+                            continue;
+                        } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+                            int end = signature.indexOf(';');
+                            assert end != -1;
+                            String n = signature.substring(0, end);
+                            try {
+                                if (!n.matches(lcfqn)) {
+                                    continue;
+                                }
+                            } catch (Exception e) {
+                                // Silently ignore regexp failures in the search expression
+                            }
+                        } else if (originalKind == NameKind.EXACT_NAME) {
+                            // Make sure the name matches exactly
+                            // We know that the prefix is correct from the first part of
+                            // this if clause, by the signature may have more
+                            if (((signature.length() > lcfqn.length()) &&
+                                    (signature.charAt(lcfqn.length()) != ';'))) {
+                                continue;
+                            }
+                        }
+
+                        // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
+                        assert map != null;
+
+                        String elementName = null;
+                        int nameEndIdx = signature.indexOf(';');
+                        assert nameEndIdx != -1 : signature;
+                        elementName = signature.substring(0, nameEndIdx);
+                        nameEndIdx++;
+
+                        String funcIn = null;
+                        int inEndIdx = signature.indexOf(';', nameEndIdx);
+                        assert inEndIdx != -1 : signature;
+                        inEndIdx++;
+
+                        int startCs = inEndIdx;
+                        inEndIdx = signature.indexOf(';', startCs);
+                        assert inEndIdx != -1;
+                        if (inEndIdx > startCs) {
+                            // Compute the case sensitive name
+                            elementName = signature.substring(startCs, inEndIdx);
+                            if (kind == NameKind.PREFIX && !elementName.startsWith(fqn)) {
+                                continue;
+                            } else if (kind == NameKind.EXACT_NAME && !elementName.equals(fqn)) {
+                                continue;
+                            }
+                        }
+                        inEndIdx++;
+
+                        FileObject fo = ScalaIndex.getFileObject(fileUrl);
+                        if (fo != null && !resolved) {
+                            ScalaParser.resolve(fo);
+                            resolved = true;
+                        }
+
+
+                        int lastDot = elementName.lastIndexOf('.');
+                        IndexedElement element = null;
+                        if (prefix.length() < lastDot) {
+                            int nextDot = elementName.indexOf('.', fqn.length());
+                            if (nextDot != -1) {
+                                int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
+                                ElementKind k = ElementKind.PACKAGE;
+                                // If there are no more dots after this one, it's a class, not a package
+                                int nextNextDot = elementName.indexOf('.', nextDot + 1);
+                                if (nextNextDot == -1) {
+                                    k = ElementKind.CLASS;
+                                }
+                                if (type != null && type.length() > 0) {
+                                    String pkg = elementName.substring(type.length() + 1, nextDot);
+                                    element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
+                                } else {
+                                    String pkg = elementName.substring(0, nextDot);
+                                    element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
+                                }
+                            } else {
+                                funcIn = elementName.substring(0, lastDot);
+                                elementName = elementName.substring(lastDot + 1);
+                            }
+                        } else if (lastDot != -1) {
+                            funcIn = elementName.substring(0, lastDot);
+                            elementName = elementName.substring(lastDot + 1);
+                        }
+                        if (element == null) {
+                            element = IndexedElement.create(signature, fileUrl, null, elementName, funcIn, inEndIdx, this, false);
+                        }
+
+                        boolean isMethod = element instanceof IndexedFunction;
+                        if (isMethod && !includeMethods) {
+                            continue;
+                        } else if (!isMethod && !includeProperties) {
+                            continue;
+                        }
+                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+                            continue;
+                        }
+                        if (!haveRedirected) {
+                            element.setSmart(true);
+                        }
+                        if (!inheriting) {
+                            element.setInherited(false);
+                        }
+                        elements.add(element);
+
+                    /** test code */
+                    }
+                }
+            }
+
+            if (type == null || "scala.AnyRef".equals(type)) { // NOI18N
+                break;
+            }
+            type = getExtends(type, scope);
+            if (type == null) {
+                type = "scala.AnyRef"; // NOI18N
+                haveRedirected = true;
+            }
+            // Prevent circularity in types
+            if (seenTypes.contains(type)) {
+                break;
+            } else {
+                seenTypes.add(type);
+            }
+            inheriting = true;
+        }
+
+        return elements;
+    }
+
     private Set<IndexedElement> getTypesByFqn(String fqnPrefix, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context, 
+            Set<SearchScope> scope, ScalaParserResult context,
             boolean onlyConstructors, boolean includeDuplicates, boolean onlyContent) {
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
@@ -751,13 +959,13 @@ public class ScalaIndex {
                     }
                     inEndIdx++;
 
-                    int flags = IndexedElement.decode(signature, inEndIdx, 0);
+                    int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
                     if (!IndexedElement.isTemplate(flags)) {
                         continue;
                     }
 
                     IndexedElement element = null;
-                    
+
                     int lastDot = elementName.lastIndexOf('.');
                     if (lastDot == -1) {
                         // should be class, under default package
@@ -781,7 +989,7 @@ public class ScalaIndex {
                             }
                         }
                     }
-                    
+
                     if (element != null) {
                         elements.add(element);
                     }

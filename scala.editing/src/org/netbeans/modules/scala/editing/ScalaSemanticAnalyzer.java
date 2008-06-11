@@ -138,12 +138,12 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         final TokenHierarchy th = TokenHierarchy.get(document);
 
         for (AstDef def : scope.getDefs()) {
-            Token idToken = def.getIdToken();
+            Token idToken = def.getPickToken();
             if (idToken == null) {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
             switch (def.getKind()) {
                 case MODULE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
@@ -162,7 +162,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
         
         for (AstRef ref : scope.getRefs()) {
-            Token idToken = ref.getIdToken();
+            Token idToken = ref.getPickToken();
             if (idToken == null) {
                 continue;
             }

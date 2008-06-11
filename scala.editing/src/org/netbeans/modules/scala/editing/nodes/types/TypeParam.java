@@ -49,32 +49,20 @@ import org.netbeans.modules.scala.editing.nodes.Id;
  */
 public class TypeParam extends TypeDef {
 
-    public enum Bound {
-
-        Upper,
-        Lower,
-        View
-    }
-
-    public enum Variant {
-
-        Plus,
-        Minus
-    }
-    private Bound bound;
+    private String bound;
     private TypeRef boundType;
-    private Variant variant;
+    private String variant;
     private List<TypeParam> params;
 
     public TypeParam(Id id, AstScope bindingScope) {
         super(id, bindingScope);
     }
 
-    public void setBound(Bound bound) {
+    public void setBound(String bound) {
         this.bound = bound;
     }
 
-    public Bound getBound() {
+    public String getBound() {
         return bound;
     }
 
@@ -86,11 +74,11 @@ public class TypeParam extends TypeDef {
         return boundType;
     }
     
-    public void setVariant(Variant variant) {
+    public void setVariant(String variant) {
         this.variant = variant;
     }
 
-    public Variant getVariant() {
+    public String getVariant() {
         return variant;
     }
     

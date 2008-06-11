@@ -68,7 +68,9 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -90,7 +92,7 @@ public abstract class IndexedElement extends AstElement {
     protected static final int NODE_INDEX = 5;
     protected static final int DOC_START_INDEX = 6;
     protected static final int DOC_END_INDEX = 7;
-    protected static final int BROWSER_INDEX = 8;
+    protected static final int TYPE_PARAMS_INDEX = 8;
     protected static final int TYPE_INDEX = 9;
     // ------------- Flags/attributes -----------------
 
@@ -158,7 +160,7 @@ public abstract class IndexedElement extends AstElement {
     }
 
     static IndexedElement create(String attributes, String fileUrl, String fqn, String name, String in, int attrIndex, ScalaIndex index, boolean createPackage) {
-        int flags = IndexedElement.decode(attributes, attrIndex, 0);
+        int flags = IndexedElement.decodeFlags(attributes, attrIndex, 0);
 
         if (createPackage) {
             IndexedPackage pkg = new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
@@ -219,7 +221,7 @@ public abstract class IndexedElement extends AstElement {
             int nextDot = elementName.indexOf('.', name.length());
             if (nextDot != -1) {
                 String pkg = elementName.substring(0, nextDot);
-                IndexedPackage indexedElement = new IndexedPackage(null, pkg, fqn, index, fileUrl, signature, IndexedElement.decode(signature, inEndIdx, 0), ElementKind.PACKAGE);
+                IndexedPackage indexedElement = new IndexedPackage(null, pkg, fqn, index, fileUrl, signature, IndexedElement.decodeFlags(signature, inEndIdx, 0), ElementKind.PACKAGE);
                 return indexedElement;
             }
         }
@@ -416,7 +418,7 @@ public abstract class IndexedElement extends AstElement {
         } else {
             int OffsetIndex = getAttributeSection(NODE_INDEX);
             if (OffsetIndex != -1) {
-                offset = IndexedElement.decode(attributes, OffsetIndex, -1);
+                offset = IndexedElement.decodeFlags(attributes, OffsetIndex, -1);
             }
         }
         return offset;
@@ -426,8 +428,8 @@ public abstract class IndexedElement extends AstElement {
         int docOffsetIndex = getAttributeSection(DOC_START_INDEX);
         int docEndOffsetIndex = getAttributeSection(DOC_END_INDEX);
         if (docOffsetIndex != -1 && docEndOffsetIndex != -1) {
-            int docOffset = decode(attributes, docOffsetIndex, -1);
-            int docEndOffset = decode(attributes, docEndOffsetIndex, -1);
+            int docOffset = decodeFlags(attributes, docOffsetIndex, -1);
+            int docEndOffset = decodeFlags(attributes, docEndOffsetIndex, -1);
             return new OffsetRange(docOffset, docEndOffset);
         }
         return OffsetRange.NONE;
@@ -551,12 +553,12 @@ public abstract class IndexedElement extends AstElement {
     }
 
     /** Return a string (suitable for persistence) encoding the given flags */
-    public static String encode(int flags) {
+    public static String encodeFlags(int flags) {
         return Integer.toString(flags, 16);
     }
 
     /** Return flag corresponding to the given encoding chars */
-    public static int decode(String s, int startIndex, int defaultValue) {
+    public static int decodeFlags(String s, int startIndex, int defaultValue) {
         int value = 0;
         for (int i = startIndex, n = s.length(); i < n; i++) {
             char c = s.charAt(i);
@@ -674,7 +676,6 @@ public abstract class IndexedElement extends AstElement {
     }
 
     public static String encodeAttributes(AstElement element, TokenHierarchy th) {
-        OffsetRange docRange = getDocumentationOffset(element, th);
         //Map<String,String> typeMap = element.getDocProps();
 
         // Look up compatibility
@@ -713,10 +714,11 @@ public abstract class IndexedElement extends AstElement {
 //                    flags = flags | IndexedElement.NODOC;
 //                }
 //            }
+        OffsetRange docRange = getDocumentationOffset(element, th);
         if (docRange != OffsetRange.NONE) {
             flags = flags | DOCUMENTED;
         }
-        sb.append(IndexedElement.encode(flags));
+        sb.append(IndexedElement.encodeFlags(flags));
 
         // Parameters
         sb.append(';');
@@ -757,14 +759,14 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == NODE_INDEX;
-        sb.append(IndexedElement.encode(element.getPickOffset(th)));
+        sb.append(IndexedElement.encodeFlags(element.getPickOffset(th)));
 
         // Documentation offset
         sb.append(';');
         index++;
         assert index == DOC_START_INDEX;
         if (docRange != OffsetRange.NONE) {
-            sb.append(IndexedElement.encode(docRange.getStart()));
+            sb.append(IndexedElement.encodeFlags(docRange.getStart()));
         }
 
         // Documentation end offset
@@ -772,16 +774,18 @@ public abstract class IndexedElement extends AstElement {
         index++;
         assert index == DOC_END_INDEX;
         if (docRange != OffsetRange.NONE) {
-            sb.append(IndexedElement.encode(docRange.getEnd()));
+            sb.append(IndexedElement.encodeFlags(docRange.getEnd()));
         }
 
-        // Browser compatibility
+        // TypeParams
         sb.append(';');
         index++;
-        assert index == BROWSER_INDEX;
-        sb.append(compatibility);
+        assert index == TYPE_PARAMS_INDEX;
+        if (element instanceof WithTypeParams) {
+            encodeTypeParams(((WithTypeParams) element).getTypeParams(), sb);
+        }
 
-        // Types
+        // Type
         sb.append(';');
         index++;
         assert index == TYPE_INDEX;
@@ -864,6 +868,29 @@ public abstract class IndexedElement extends AstElement {
         return curr;
     }    
     
+    private static void encodeTypeParams(List<TypeParam> typeParams, StringBuilder sb) {
+        if (!typeParams.isEmpty()) {
+            sb.append("[");
+            for (Iterator<TypeParam> itr = typeParams.iterator(); itr.hasNext();) {
+                TypeParam typeParam = itr.next();
+                sb.append(typeParam.getName());
+                if (typeParam.getVariant() != null) {
+                    sb.append(typeParam.getVariant());
+                }
+                if (typeParam.getBound() != null) {
+                    sb.append(typeParam.getBound());
+                    encodeType(typeParam.getBoundType(), sb);
+                }
+                                
+                encodeTypeParams(typeParam.getParams(), sb);
+                if (itr.hasNext()) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        }
+    }
+        
     public static String encodeAttributes(javax.lang.model.element.Element jelement) {
         OffsetRange docRange = OffsetRange.NONE;
 
@@ -910,7 +937,7 @@ public abstract class IndexedElement extends AstElement {
         if (docRange != OffsetRange.NONE) {
             flags = flags | DOCUMENTED;
         }
-        sb.append(IndexedElement.encode(flags));
+        sb.append(IndexedElement.encodeFlags(flags));
 
         // Parameters
         sb.append(';');
@@ -951,14 +978,14 @@ public abstract class IndexedElement extends AstElement {
         index++;
         assert index == NODE_INDEX;
         int offset = 0; // will compute lazily
-        sb.append(encode(offset));
+        sb.append(encodeFlags(offset));
 
         // Documentation offset
         sb.append(';');
         index++;
         assert index == DOC_START_INDEX;
         if (docRange != OffsetRange.NONE) {
-            sb.append(IndexedElement.encode(docRange.getStart()));
+            sb.append(IndexedElement.encodeFlags(docRange.getStart()));
         }
 
         // Documentation end offset
@@ -966,16 +993,16 @@ public abstract class IndexedElement extends AstElement {
         index++;
         assert index == DOC_END_INDEX;
         if (docRange != OffsetRange.NONE) {
-            sb.append(IndexedElement.encode(docRange.getEnd()));
+            sb.append(IndexedElement.encodeFlags(docRange.getEnd()));
         }
 
         // Browser compatibility
         sb.append(';');
         index++;
-        assert index == BROWSER_INDEX;
+        assert index == TYPE_PARAMS_INDEX;
         sb.append(compatibility);
 
-        // Types
+        // Type
         sb.append(';');
         index++;
         assert index == TYPE_INDEX;
