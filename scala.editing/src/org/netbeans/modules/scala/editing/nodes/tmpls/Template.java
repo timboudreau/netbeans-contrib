@@ -58,7 +58,7 @@ public abstract class Template extends AstDef {
     private List<TypeRef> extendsWith;
     
     public Template(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getIdToken(), bindingScope, kind);
+        super(id.getName(), id.getPickToken(), bindingScope, kind);
     }
 
     public void setCaseOne() {

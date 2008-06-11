@@ -92,8 +92,16 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
     }
     
     private void showDialog() {
-        testerPanel = new TesterPanel(metaFile.getAbsolutePath());
         try {
+            QName[] qnames = getTopElementDecls(metaFile);
+            if (qnames.length == 0) {
+                // i.e. no top element(s) are selected in the XSD
+                // show dialog to ask user to fix the XSD file before testing
+                JOptionPane.showMessageDialog(null,
+                        _bundle.getString("test_panel.lbl.no_top_element_in_xsd"));
+                return;
+            }
+            testerPanel = new TesterPanel(metaFile.getAbsolutePath());
             testerPanel.setTopElementDecls(getTopElementDecls(metaFile), null);
         } catch (XmlException ex) {
             ErrorManager.getDefault().notify(ex);
@@ -210,6 +218,11 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             return;
         }
 
+        /**
+         * if outputFile already exists and "overwrite" is unchecked, then
+         * output file name is based on the given base name with "_1" suffixed
+         * and with the same file extension.
+         */
         if (outputFile.exists()) {
             if (!testerPanel.isOverwrite()) {
                 String ext = FileUtil.getExtension(outputFile.getAbsolutePath());   

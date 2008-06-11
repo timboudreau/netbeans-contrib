@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : LangRef.xml
+    Created on : February 4, 2008, 1:28 PM
+    Author     : Angad
+    Description:
+        Regular Expressions Language Reference XML Document
+-->
+<LangRefRoot name="Language Reference">
+    <LangRefType name="Characters">
+          <LangElement langtext="\a" description="Matches a bell (alarm) \u0007.">Bell \a</LangElement>
+          <LangElement langtext="\\" description="The backslash character \\.">Backslash Character \\</LangElement>
+          <LangElement langtext="\0n" description="The character with octal value 0n (0 &lt;= n &lt;= 7).">Octal value \0n</LangElement>
+          <LangElement langtext="\0nn" description="The character with octal value 0nn (0 &lt;= n &lt;= 7).">Octal value \0nn</LangElement>
+          <LangElement langtext="\0mnn" description="The character with octal value 0mnn (0 &lt;= m &lt;= 3, 0 &lt;= n &lt;= 7).">Octal value \0mnn</LangElement>
+          <LangElement langtext="\xhh" description="The character with hexadecimal value 0xhh.">Hexadecimal value \xhh</LangElement>
+          <LangElement langtext="\uhhhh" description="The character with hexadecimal value 0xhhhh.">Hexadecimal value \uhhhh</LangElement>
+          <LangElement langtext="\b" description="Matches a backspace \u0008 if in a [] character class; otherwise, see the note following this table.">Backspace \b</LangElement>
+          <LangElement langtext="\t" description="Matches a tab \u0009.">Tab \t</LangElement>
+          <LangElement langtext="\r" description="Matches a carriage return \u000D. Note that a new line is made up of \r\n (CRLF) on Windows systems.">Carriage Return \r</LangElement>
+          <LangElement langtext="\v" description="Matches a vertical tab \u000B.">Vertical tab \v</LangElement>
+          <LangElement langtext="\f" description="Matches a form feed \u000C.">Form Feed \f</LangElement>
+          <LangElement langtext="\n" description="Matches a new line \u000A. Note that a new line is made up of \r\n (CRLF) on Windows systems.">New line \n</LangElement>
+          <LangElement langtext="\e" description="Matches an escape \u001B.">Escape \e</LangElement>
+          <LangElement langtext="\040" description="Matches an ASCII character as octal (up to three digits); numbers with no leading zero are backreferences if they have only one digit or if they correspond to a capturing group number. (For more information, see Backreferences.) For example, the character \040 represents a space.">ASCII character as Octal \040</LangElement>
+          <LangElement langtext="\x20" description="Matches an ASCII character using hexadecimal representation (exactly two digits).">ASCII character as Hex \x20</LangElement>
+          <LangElement langtext="\cC" description="Matches an ASCII control character; for example, \cC is control-C.">Control Character \cC</LangElement>
+          <LangElement langtext="\u0020" description="Matches a Unicode character using hexadecimal representation (exactly four digits).">Unicode character \u0020</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Substituitions">
+        <LangElement langtext="$number" description="Matches a Unicode character using hexadecimal representation (exactly four digits).">Value of matched group by group number $number</LangElement>
+        <LangElement langtext="${name}" description="Substitutes the last substring matched by a (?&lt;name&gt; ) group.">Value of matched group by group name ${name}</LangElement>
+        <LangElement langtext="$$" description="Substitutes a single '$' literal.">Dollar Sign $$</LangElement>
+        <LangElement langtext="$&amp;" description="Substitutes a copy of the entire match itself.">Entire Match $&amp;</LangElement>
+        <LangElement langtext="$`" description="Substitutes all the text of the input string before the match.">All text before match $`</LangElement>
+        <LangElement langtext="$'" description="Substitutes all the text of the input string after the match.">All text after match $'</LangElement>
+        <LangElement langtext="$+" description="Substitutes the last group captured.">Last group captured $+</LangElement>
+        <LangElement langtext="$_" description="Substitutes the entire input string.">Entire input string $_</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Character Classes">
+        <LangElement langtext="." description="Matches any character except \n. If modified by the Singleline option, a period character matches any character.">Any character .</LangElement>
+        <LangElement langtext="[aeiou]" description="Matches any single character included in the specified set of characters.">Any character in the set [aeiou]</LangElement>
+        <LangElement langtext="[^aeiou]" description="Matches any single character not in the specified set of characters.">Any character not in the set [^aeiou]</LangElement>
+        <LangElement langtext="[0-9a-fA-F]" description="Use of a hyphen (–) allows specification of contiguous character ranges.">Character ranges [0-9a-fA-F]</LangElement>
+        <LangElement langtext="\p{name}" description="Matches any character in the named character class specified by {name}. Supported names are Unicode groups and block ranges. For example, Ll, Nd, Z, IsGreek, IsBoxDrawing.">Unicode group \p{name}</LangElement>
+        <LangElement langtext="\P{name}" description="Matches text not included in groups and block ranges specified in {name}.">Not in unicode group \P{name}</LangElement>
+        <LangElement langtext="\w" description="Matches any word character. Equivalent to the Unicode character categories [\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Pc}]. If ECMAScript-compliant behavior is specified with the ECMAScript option, \w is equivalent to [a-zA-Z_0-9].">Any word character \w</LangElement>
+        <LangElement langtext="\W" description="Matches any nonword character. Equivalent to the Unicode categories [^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Pc}]. If ECMAScript-compliant behavior is specified with the ECMAScript option, \W is equivalent to [^a-zA-Z_0-9].">Nonword character \W</LangElement>
+        <LangElement langtext="\s" description="Matches any white-space character. Equivalent to the Unicode character categories [\f\n\r\t\v\x85\p{Z}]. If ECMAScript-compliant behavior is specified with the ECMAScript option, \s is equivalent to [ \f\n\r\t\v].">White-space character</LangElement>
+        <LangElement langtext="\S" description="Matches any non-white-space character. Equivalent to the Unicode character categories [^\f\n\r\t\v\x85\p{Z}]. If ECMAScript-compliant behavior is specified with the ECMAScript option, \S is equivalent to [^ \f\n\r\t\v].">Non-white-space character</LangElement>
+        <LangElement langtext="\d" description="Matches any decimal digit. Equivalent to \p{Nd} for Unicode and [0-9] for non-Unicode, ECMAScript behavior.">Digit \d</LangElement>
+        <LangElement langtext="\D" description="Matches any nondigit. Equivalent to \P{Nd} for Unicode and [^0-9] for non-Unicode, ECMAScript behavior.">Non-digit \D</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="POSIX character classes (US-ASCII only)">
+        <LangElement langtext="\p{Lower}" description="">A lower-case alphabetic character: [a-z]</LangElement>
+        <LangElement langtext="\p{Upper}" description="">An upper-case alphabetic character:[A-Z]</LangElement>
+        <LangElement langtext="\p{ASCII}" description="">All ASCII:[\x00-\x7F]</LangElement>
+        <LangElement langtext="\p{Alpha}" description="">An alphabetic character:[\p{Lower}\p{Upper}]</LangElement>
+        <LangElement langtext="\p{Digit}" description="">A decimal digit: [0-9]</LangElement>
+        <LangElement langtext="\p{Alnum}" description="">An alphanumeric character:[\p{Alpha}\p{Digit}]</LangElement>
+        <LangElement langtext="\p{Punct}" description="">Punctuation: One of !"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</LangElement>
+        <LangElement langtext="\p{Graph}" description="">A visible character: [\p{Alnum}\p{Punct}]</LangElement>
+        <LangElement langtext="\p{Print}" description="">A printable character: [\p{Graph}\x20]</LangElement>
+        <LangElement langtext="\p{Blank}" description="">A space or a tab: [ \t]</LangElement>
+        <LangElement langtext="\p{Cntrl}" description="">A control character: [\x00-\x1F\x7F]</LangElement>
+        <LangElement langtext="\p{XDigit}" description="">A hexadecimal digit: [0-9a-fA-F]</LangElement>
+        <LangElement langtext="\p{Space}" description="">A whitespace character: [ \t\n\x0B\f\r]</LangElement>
+    </LangRefType>
+ 
+    <LangRefType name="java.lang.Character classes">
+        <LangElement langtext="\p{javaLowerCase}" description="Equivalent to java.lang.Character.isLowerCase()">javaLowerCase</LangElement>
+        <LangElement langtext="\p{javaUpperCase}" description="Equivalent to java.lang.Character.isUpperCase()">javaUpperCase</LangElement>
+        <LangElement langtext="\p{javaWhitespace}" description="Equivalent to java.lang.Character.isWhitespace()">javaWhitespace</LangElement>
+        <LangElement langtext="\p{javaMirrored}" description="Equivalent to java.lang.Character.isMirrored()">javaMirrored</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Classes for Unicode blocks and categories">
+        <LangElement langtext="\p{InGreek}" description="A character in the Greek block">Simple block</LangElement>
+        <LangElement langtext="\p{Lu}" description="An uppercase letter">Simple category</LangElement>
+        <LangElement langtext="\p{Sc}" description="A currency symbol">Currency symbol</LangElement>
+        <LangElement langtext="\P{InGreek}" description="Any character except one in the Greek block">Block (Negation)</LangElement>
+        <LangElement langtext="[\p{L}&amp;&amp;[^\p{Lu}]] " description="Any letter except an uppercase letter">Category (Subtraction)</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Atomic Zero-Width Assertions">
+        <LangElement langtext="^" description="Specifies that the match must occur at the beginning of the string or the beginning of the line. For more information, see the Multiline option.">Match start of string ^</LangElement>
+        <LangElement langtext="$" description="Specifies that the match must occur at the end of the string, before \n at the end of the string, or at the end of the line.">Match end of string $</LangElement>
+        <LangElement langtext="\A" description="Specifies that the match must occur at the beginning of the string (ignores the Multiline option).">Match start of string (ignore Multiline) \A</LangElement>
+        <LangElement langtext="\Z" description="Specifies that the match must occur at the end of the string or before \n at the end of the string (ignores the Multiline option).">Match before end of string (ignore Multiline) \Z</LangElement>
+        <LangElement langtext="\z" description="Specifies that the match must occur at the end of the string (ignores the Multiline option).">Match end of string (ignore Multiline) \z</LangElement>
+        <LangElement langtext="\G" description="Specifies that the match must occur at the point where the previous match ended. When used with Match.NextMatch(), this ensures that matches are all contiguous.">Match where previous match ended \G</LangElement>
+        <LangElement langtext="\b" description="Specifies that the match must occur on a boundary between \w (alphanumeric) and \W (nonalphanumeric) characters. The match must occur on word boundaries — that is, at the first or last characters in words separated by any nonalphanumeric characters.">Boundary \b</LangElement>
+        <LangElement langtext="\B" description="Specifies that the match must not occur on a \b boundary.">Non-boundary</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Greedy Quatifiers">
+        <LangElement langtext="?" description="Specifies zero or one matches; for example, \w? or (abc)?. Equivalent to {0,1}.">Zero or one matches ?</LangElement>
+        <LangElement langtext="*" description="Specifies zero or more matches; for example, \w* or (abc)*. Equivalent to {0,}.">Zero or more matches *</LangElement>
+        <LangElement langtext="+" description="Specifies one or more matches; for example, \w+ or (abc)+. Equivalent to {1,}.">One or more matches +</LangElement>
+        <LangElement langtext="{n}" description="Specifies exactly n matches; for example, (pizza){2}. ">Exactly n matches {n}</LangElement>
+        <LangElement langtext="{n,}" description="Specifies at least n matches; for example, (abc){2,}.">At least n matches {n,}</LangElement>
+        <LangElement langtext="{n,m}" description="Specifies at least n, but no more than m, matches.">At least n and no more than m matches {n,m}</LangElement>
+        
+    </LangRefType>
+    
+    <LangRefType name="Reluctant Quatifiers">
+        <LangElement langtext="??" description="Specifies zero repeats if possible, or one (lazy ?).">Zero repeats if possible ??</LangElement>
+        <LangElement langtext="*?" description="Specifies the first match that consumes as few repeats as possible (equivalent to lazy *).">First match with few repeats as possible *?</LangElement>
+        <LangElement langtext="+?" description="Specifies as few repeats as possible, but at least one (equivalent to lazy +).">As few repeats but at least once +?</LangElement>
+        <LangElement langtext="{n}?" description="Equivalent to {n} (lazy {n}).">Lazy {n} {n}?</LangElement>
+        <LangElement langtext="{n,}?" description="Specifies as few repeats as possible, but at least n (lazy {n,}).">Lazy {n,} {n,}?</LangElement>
+        <LangElement langtext="{n,m}?" description="Specifies as few repeats as possible between n and m (lazy {n,m}).">Lazy {n,m} {n,m}?</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Possessive Quatifiers">
+        <LangElement langtext="?+" description="">Once or not at all</LangElement>
+        <LangElement langtext="*+" description="">Zero or more times</LangElement>
+        <LangElement langtext="++" description="">One or more times</LangElement>
+        <LangElement langtext="{n}+" description="">Exactly n times</LangElement>
+        <LangElement langtext="{n,}+" description="">At least n times</LangElement>
+        <LangElement langtext="{n,m}+" description="">At least n but not more than m times</LangElement>
+    </LangRefType>
+        
+    <LangRefType name="Grouping Constructs">
+        <LangElement langtext="()" description="Captures the matched substring. Captures using () are numbered automatically based on the order of the opening parenthesis, starting from one. The first capture, capture element number zero, is the text matched by the whole regular expression pattern.">Group ()</LangElement>
+        <LangElement langtext="(?&lt;name&gt;)" description="Captures the matched substring into a group name or number name. The string used for name must not contain any punctuation and it cannot begin with a number. You can use single quotes instead of angle brackets; for example, (?'name').">Named group (?&lt;name&gt;)</LangElement>
+        <LangElement langtext="(?&lt;name1-name2&gt;)" description="Balancing group definition. Deletes the definition of the previously defined group name2 and stores in group name1 the interval between the previously defined name2 group and the current group. If no group name2 is defined, the match backtracks. Because deleting the last definition of name2 reveals the previous definition of name2, this construct allows the stack of captures for group name2 to be used as a counter for keeping track of nested constructs such as parentheses. In this construct, name1 is optional. You can use single quotes instead of angle brackets; for example, (?'name1-name2').">Balancing group (?&lt;name1-name2&gt;)</LangElement>
+        <LangElement langtext="(?:)" description="Noncapturing group.">Noncapturing group (?:)</LangElement>
+        <LangElement langtext="(?=)" description="Zero-width positive lookahead assertion. Continues match only if the subexpression matches at this position on the right. For example, \w+(?=\d) matches a word followed by a digit, without matching the digit. This construct does not backtrack.">Positive lookahead (?=)</LangElement>
+        <LangElement langtext="(?!)" description="Zero-width negative lookahead assertion. Continues match only if the subexpression does not match at this position on the right. For example, \b(?!un)\w+\b matches words that do not begin with un.">Negative lookahead (?!)</LangElement>
+        <LangElement langtext="(?&lt;=)" description="Zero-width positive lookbehind assertion. Continues match only if the subexpression matches at this position on the left. For example, (?&lt;=19)99 matches instances of 99 that follow 19. This construct does not backtrack.">Positive lookbehind (?&lt;=)</LangElement>
+        <LangElement langtext="(?&lt;!)" description="Zero-width negative lookbehind assertion. Continues match only if the subexpression does not match at the position on the left.">Negative lookbehind (?&lt;!)</LangElement>
+        <LangElement langtext="(?&gt;)" description="Nonbacktracking subexpression (also known as a 'greedy' subexpression). The subexpression is fully matched once, and then does not participate piecemeal in backtracking. (That is, the subexpression matches only strings that would be matched by the subexpression alone.)">Nonbacktracking subexpression (?&gt;)</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Backreference Constructs">
+        <LangElement langtext="\number" description="Backreference. For example, (\w)\1 finds doubled word characters.">Backreference \number</LangElement>
+        <LangElement langtext="\k&lt;name&gt;" description="Named backreference. For example, (?&lt;char&gt;\w)\k&lt;char&gt; finds doubled word characters. The expression (?&lt;43&gt;\w)\43 does the same. You can use single quotes instead of angle brackets; for example, \k'char'.">Named backreference \k&lt;name&gt;</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Alternation Constructs">
+        <LangElement langtext="|" description="Matches any one of the terms separated by the | (vertical bar) character; for example, cat|dog|tiger. The leftmost successful match wins.">Or |</LangElement>
+        <LangElement langtext="(?(expression)yes|no)" description="Matches the 'yes' part if the expression matches at this point; otherwise, matches the 'no' part. The 'no' part can be omitted. The expression can be any valid subexpression, but it is turned into a zero-width assertion, so this syntax is equivalent to (?(?=expression)yes|no). Note that if the expression is the name of a named group or a capturing group number, the alternation construct is interpreted as a capture test (described in the next row of this table). To avoid confusion in these cases, you can spell out the inside (?=expression) explicitly.">Conditional (?(expression)yes|no)</LangElement>
+        <LangElement langtext="(?(name)yes|no)" description="Matches the 'yes' part if the named capture string has a match; otherwise, matches the 'no' part. The 'no' part can be omitted. If the given name does not correspond to the name or number of a capturing group used in this expression, the alternation construct is interpreted as an expression test (described in the preceding row of this table).">Capture test (?(name)yes|no)</LangElement>
+    </LangRefType>
+        
+    <LangRefType name="Miscellaneous Constructs">
+        <LangElement langtext="(?#yourcomment)" description="Inline comment inserted within a regular expression. The comment terminates at the first closing parenthesis character.">Comment (?#yourcomment)</LangElement>
+        <LangElement langtext="#" description="X-mode comment. The comment begins at an unescaped # and continues to the end of the line. (Note that the x option or the RegexOptions.IgnorePatternWhitespace enumerated option must be activated for this kind of comment to be recognized.)">Single line comment #</LangElement>
+        <LangElement langtext="\" description="Nothing, but quotes the following character">Quotes following \</LangElement>
+        <LangElement langtext="\Q" description="Nothing, but quotes all characters until \E">Quotes until \E</LangElement>
+        <LangElement langtext="\E" description="Nothing, but ends quoting started by \Q">Quotes started by \Q</LangElement>
+    </LangRefType>
+    
+    <LangRefType name="Options">
+        <LangElement langtext="(?i)" description="Enables case-insensitive matching.">Case Insensitive (?i)</LangElement>
+        <LangElement langtext="(?m)" description="Enables multiline mode. In multiline mode the expressions ^ and $ match just after or just before, respectively, a line terminator or the end of the input sequence. By default these expressions only match at the beginning and the end of the entire input sequence.">Multiline (?m)</LangElement>
+        <LangElement langtext="(?s)" description="Enables dotall mode. In dotall mode, the expression . matches any character, including a line terminator. By default this expression does not match line terminators.">Dotall Mode (?s)</LangElement>
+        <LangElement langtext="(?u)" description="Enables Unicode-aware case folding. When this flag is specified then case-insensitive matching, when enabled by the CASE_INSENSITIVE flag, is done in a manner consistent with the Unicode Standard. By default, case-insensitive matching assumes that only characters in the US-ASCII charset are being matched.">Unicode Case (?u)</LangElement>
+        <LangElement langtext="(?d)" description="Enables Unix lines mode. In this mode, only the '\n' line terminator is recognized in the behavior of ., ^, and $.">Unix Lines (?d)</LangElement>
+        <LangElement langtext="(?x)" description="Permits whitespace and comments in pattern. In this mode, whitespace is ignored, and embedded comments starting with # are ignored until the end of a line.">Comments (?x)</LangElement>
+    </LangRefType>
+</LangRefRoot>

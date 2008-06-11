@@ -175,13 +175,13 @@ public class ScalaTypeInferencer {
                 // let's try member chain first
                 Iterator<Id> itr = paths.iterator();
                 Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.VARIABLE);
                 idRef.setEnclosingScope(funRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, funRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
                     Id field = itr.next();
-                    FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                    FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);
@@ -244,7 +244,7 @@ public class ScalaTypeInferencer {
                 if (qualifiedName != null) {
                     baseTypeStr = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
-                    funRef.setCall(new Id("apply", objectName.getIdToken(), ElementKind.VARIABLE));
+                    funRef.setCall(new Id("apply", objectName.getPickToken(), ElementKind.VARIABLE));
 
                     funRef.setApply();
                     callName = "apply";
@@ -319,13 +319,13 @@ public class ScalaTypeInferencer {
                 // let's try member chain first
                 Iterator<Id> itr = paths.iterator();
                 Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.VARIABLE);
                 idRef.setEnclosingScope(fieldRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
                     Id field = itr.next();
-                    FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                    FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);

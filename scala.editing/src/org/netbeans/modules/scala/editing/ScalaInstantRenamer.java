@@ -129,7 +129,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
         
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
             for (AstElement element : occurrences) {
-                regions.add(ScalaLexUtilities.getRangeOfToken(th, element.getIdToken()));
+                regions.add(ScalaLexUtilities.getRangeOfToken(th, element.getPickToken()));
             }
         
         if (regions.size() > 0) {

@@ -44,8 +44,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -62,9 +64,12 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.gsf.spi.DefaultParseListener;
+import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -82,6 +87,8 @@ import xtc.tree.Location;
  * @author Tor Norbye
  */
 public class ScalaParser implements Parser {
+    
+    private static float[] profile = new float[] {0.0f, 0.0f}; 
 
     private final PositionManager positions = createPositionManager();
 
@@ -104,6 +111,8 @@ public class ScalaParser implements Parser {
         SourceFileReader reader = job.reader;
 
         for (ParserFile file : job.files) {
+            long start = System.currentTimeMillis();
+            
             ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
             listener.started(beginEvent);
 
@@ -124,6 +133,12 @@ public class ScalaParser implements Parser {
 
             ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
             listener.finished(doneEvent);
+            
+            long time = System.currentTimeMillis() - start;
+            profile[0] += time / 1000.0f;
+            profile[1] += 1.0f;
+            System.out.println("Parsing time: " + time / 1000.0f + "s");
+            System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
         }
     }
 
@@ -580,4 +595,55 @@ public class ScalaParser implements Parser {
             return errorOffset;
         }
     }
+    
+    public static void resolve(final FileObject fo) {
+
+        ParserFile parserFile = new DefaultParserFile(fo, null, false);
+        if (parserFile != null) {
+            List<ParserFile> files = Collections.singletonList(parserFile);
+            SourceFileReader reader =
+                    new SourceFileReader() {
+
+                        public CharSequence read(ParserFile file) throws IOException {
+                            Document doc = NbUtilities.getBaseDocument(fo, true);
+
+                            if (doc == null) {
+                                return "";
+                            }
+
+                            try {
+                                return doc.getText(0, doc.getLength());
+                            } catch (BadLocationException ble) {
+                                IOException ioe = new IOException();
+                                ioe.initCause(ble);
+                                throw ioe;
+                            }
+                        }
+
+                        public int getCaretOffset(ParserFile fileObject) {
+                            return -1;
+                        }
+                    };
+
+            DefaultParseListener listener = new DefaultParseListener();
+
+            TranslatedSource translatedSource = null; // TODO - determine this here?                
+            Parser.Job job = new Parser.Job(files, listener, reader, translatedSource);
+            new ScalaParser().parseFiles(job);
+
+            ScalaParserResult pResult = (ScalaParserResult) listener.getParserResult();
+
+            if (pResult != null) {
+                AstScope rootScope = pResult.getRootScope();
+                if (rootScope != null) {
+                    List<Template> templates;
+                }
+            } else {
+                assert false : "Parse result is null : " + fo.getName();
+            }
+        }
+
+    }
+
+    
 }

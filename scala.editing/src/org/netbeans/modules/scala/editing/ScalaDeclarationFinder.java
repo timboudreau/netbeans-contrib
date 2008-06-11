@@ -177,7 +177,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 int offset = 0;
                 if (isLocal) {
                     fo = info.getFileObject();
-                    offset = foundElement.getIdToken().offset(th);
+                    offset = foundElement.getPickToken().offset(th);
                 } else {
                     IndexedElement foundIdxElement = (IndexedElement) foundElement;
                     fo = foundIdxElement.getFileObject();
