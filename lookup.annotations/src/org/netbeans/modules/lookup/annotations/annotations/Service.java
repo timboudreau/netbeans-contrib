@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Service is an implementation of a provided {@linkplain Contract}
  * @author Jaroslav Bachorik
  */
 @Retention(RetentionPolicy.CLASS)
