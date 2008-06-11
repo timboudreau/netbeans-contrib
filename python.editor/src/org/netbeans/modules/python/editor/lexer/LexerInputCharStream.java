@@ -58,6 +58,7 @@ final class LexerInputCharStream implements CharStream {
 
     private final LexerInput input;
     private final List<Character> buffer;
+    private final String sourceName;
     private int position = 0;
     private int line = 0;
     private int charPositionInLine = 0;
@@ -72,8 +73,9 @@ final class LexerInputCharStream implements CharStream {
     /** Track the last mark() call result value for use in rewind(). */
     protected int lastMarker;
 
-    public LexerInputCharStream(LexerInput lexerInput) {
+    public LexerInputCharStream(LexerInput lexerInput, String sourceName) {
         this.input = lexerInput;
+        this.sourceName = sourceName;
         this.buffer = new ArrayList<Character>();
     }
 
@@ -289,6 +291,10 @@ final class LexerInputCharStream implements CharStream {
         int line;
         /** What char position 0..n-1 in line is scanner before processing buffer[p]? */
         int charPositionInLine;
+    }
+
+    public String getSourceName() {
+        return sourceName;
     }
 }
     

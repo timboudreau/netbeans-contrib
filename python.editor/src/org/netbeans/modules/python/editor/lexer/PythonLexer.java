@@ -50,7 +50,7 @@ import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 import org.openide.util.Exceptions;
-import org.python.antlr.PythonTreeWalker.PyLexer;
+import org.python.antlr.PythonGrammar.PyLexer;
 
 /**
  * @todo incremental parsing
@@ -87,7 +87,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
 
         CharStream charStream = null;
         if (lexerInput != null) {
-            charStream = new LexerInputCharStream(lexerInput);
+            charStream = new LexerInputCharStream(lexerInput, "unknown");
         }
         scanner.setCharStream(charStream);
         if (charStream != null) {
@@ -160,7 +160,8 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
     }
 
     private PythonTokenId getTokenId(int token) {
-        if (token >= org.python.antlr.PythonLexer.T169 && token <= org.python.antlr.PythonLexer.T195) {
+        //if (token >= org.python.antlr.PythonLexer.T169 && token <= org.python.antlr.PythonLexer.T195) {
+        if (token >= org.python.antlr.PythonLexer.T__172 && token <= org.python.antlr.PythonLexer.T__197) {
             return PythonTokenId.ANY_KEYWORD;
         }
         switch (token) {
