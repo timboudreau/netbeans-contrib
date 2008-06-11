@@ -714,7 +714,7 @@ public abstract class IndexedElement extends AstElement {
 //                    flags = flags | IndexedElement.NODOC;
 //                }
 //            }
-        OffsetRange docRange = getDocumentationOffset(element, th);
+        OffsetRange docRange = ScalaLexUtilities.getDocumentationOffset(element, th);
         if (docRange != OffsetRange.NONE) {
             flags = flags | DOCUMENTED;
         }
@@ -1016,15 +1016,6 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
 
         return sb.toString();
-    }
-
-    private static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
-        int astOffset = element.getPickOffset(th);
-        // XXX This is wrong; I should do a
-        //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
-        // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
-        int lexOffset = astOffset;
-        return ScalaLexUtilities.getDocCommentRangeBefore(th, lexOffset);
     }
 
     public boolean isDocumented() {
