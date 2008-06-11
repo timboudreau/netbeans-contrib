@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+<project name="contrib/lookup.annotations" basedir="." default="netbeans">
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    <target name="init" depends="projectized.init">
+        <delete dir="${build.classes.dir}/META-INF" failonerror="false" includeemptydirs="true"/>
+    </target>
+    
+    <target name="jar-prep" depends="projectized-common.jar-prep">
+        <mkdir dir="${build.classes.dir}/META-INF/services"/>
+        <move todir="${build.classes.dir}/META-INF/services" failonerror="false">
+            <fileset dir="${build.classes.dir}/META-INF/servicez" includes="**/*"/>
+        </move>
+        <delete dir="${build.classes.dir}/META-INF/servicez"/>
+    </target>
+    
+    <target name="compile" depends="init,up-to-date" unless="is.jar.uptodate">
+        <mkdir dir="${build.classes.dir}"/>
+        <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
+            <classpath refid="cp"/>
+        </depend>
+        <apply executable="${java.home}/bin/java" parallel="true">
+            <arg value="-cp"/><arg value="${nb_all}/libs.javacapi/external/javac-api-nb-7.0-b07.jar:${nb_all}/libs.javacimpl/external/javac-impl-nb-7.0-b07.jar"/>
+            <arg value="com.sun.tools.javac.Main"/>
+            <arg value="-sourcepath"/><arg path="${src.dir}"/>
+            <arg value="-s"/><arg path="${src.dir}"/>
+            <arg value="-d"/><arg path="${build.classes.dir}"/>
+            <arg value="-encoding"/><arg value="UTF-8"/>
+            <fileset dir="${src.dir}" includes="**/*.java"/>
+        </apply>
+<!--
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" debuglevel="${build.compiler.debuglevel}" encoding="UTF-8"
+                deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath refid="cp"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        -->
+        <!-- Sanity check: -->
+        <pathconvert pathsep=":" property="class.files.in.src">
+            <path>
+                <fileset dir="${src.dir}">
+                    <include name="**/*.class"/>
+                </fileset>
+            </path>
+        </pathconvert>
+        <fail>
+            <condition>
+                <not>
+                    <equals arg1="${class.files.in.src}" arg2=""/>
+                </not>
+            </condition>
+            You have stray *.class files in ${src.dir} which you must remove.
+            Probably you failed to clean your sources before updating them.
+        </fail>
+        <!-- OK, continue: -->
+        <copy todir="${build.classes.dir}">
+            <!-- #58298: strip comments to save some space -->
+            <fileset dir="${src.dir}" includes="**/*.properties"/>
+            <filterchain>
+                <tokenfilter>
+                    <!-- #61965: preserve #NOI18N and similar comments -->
+                    <filetokenizer/>
+                    <replaceregex pattern="^#(?!(PART)?(NO)?I18N).*[\r\n]+" replace="" flags="gm"/>
+                </tokenfilter>
+            </filterchain>
+        </copy>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
+        </copy>
+    </target>
+
+    <target name="compile-single" depends="init">
+        <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
+        <mkdir dir="${build.classes.dir}"/>
+        <!-- XXX consider forcing debug=true and deprecation=true -->
+        <!-- XXX consider deleting the .class file first to force a rebuild -->
+        <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
+            <classpath refid="cp"/>
+        </depend>
+        <echo>${javac.includes}</echo>
+        <apply executable="${java.home}/bin/java" parallel="true">
+            <arg value="-cp"/><arg value="${nb_all}/libs.javacapi/external/javac-api-nb-7.0-b07.jar:${nb_all}/libs.javacimpl/external/javac-impl-nb-7.0-b07.jar"/>
+            <arg value="com.sun.tools.javac.Main"/>
+            <arg value="-sourcepath"/><arg path="${src.dir}"/>
+            <arg value="-s"/><arg path="${src.dir}"/>
+            <arg value="-d"/><arg path="${build.classes.dir}"/>
+            <arg value="-encoding"/><arg value="UTF-8"/>
+            <filelist dir="${src.dir}" files="${javac.includes}"/>
+        </apply>
+<!--
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}"
+               debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" encoding="UTF-8"
+               source="${javac.source}" target="${javac.target}" includes="${javac.includes}" optimize="${build.compiler.optimize}" includeantruntime="false">
+            <classpath refid="cp"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+-->
+    </target>
+</project>

@@ -42,7 +42,11 @@ public class EncodingMark {
      */
     private final String mStyle;
     
-    /** Creates a new instance of EncodingMark */
+    /** Creates a new instance of EncodingMark
+     * @param name encoding style name, e.g. "Custom Encoding"
+     * @param namespace namespace of encoding style e.g. "urn:com.sun:encoder-custom-1.0"
+     * @param style encoding style ID, e.g. "customencoder-1.0"
+     */
     public EncodingMark(String name, String namespace, String style) {
         mName = name;
         mNamespace = namespace;

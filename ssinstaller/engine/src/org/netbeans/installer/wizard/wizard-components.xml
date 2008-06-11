@@ -37,11 +37,11 @@
 
 <wizard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="wizard-components.xsd">
     <component 
-        class="org.netbeans.installer.wizard.components.actions.netbeans.NbInitializationAction"/>  
+        class="org.netbeans.installer.wizard.components.actions.sunstudio.SystemInitializationAction"/>  
     <component 
         class="org.netbeans.installer.wizard.components.panels.LicensesPanel"/>
     <component 
-        class="org.netbeans.installer.wizard.components.panels.netbeans.NbWelcomePanel"/>
+        class="org.netbeans.installer.wizard.components.panels.sunstudio.WelcomePanel"/>
     <component 
         class="org.netbeans.installer.wizard.components.sequences.MainSequence"/>
     <component 

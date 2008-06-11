@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.encoder.custom.aip;
 
 /**
@@ -26,22 +25,33 @@ package org.netbeans.modules.encoder.custom.aip;
  */
 public interface DelimiterSetChangeNotificationSupport {
 
+    /**
+     * Adds a delimiter set change listener array.
+     * @param listeners a delimiter set change listener array.
+     */
     public void addDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
-    
+
     /**
      * Adds a delimiter set change listener.
+     * @param listener a delimiter set change listener.
      */
     public void addDelimiterSetChangeListener(DelimiterSetChangeListener listener);
-    
+
     /**
-     * Gets all delimiter set listeners in this notifier.
+     * Returns all delimiter set listeners in this notifier.
+     * @return a delimiter set change listener array.
      */
     public DelimiterSetChangeListener[] getDelimiterSetChangeListeners();
-    
+
     /**
      * Removes a delimiter set change listener.
+     * @param listener a delimiter set change listener.
      */
     public void removeDelimiterSetChangeListener(DelimiterSetChangeListener listener);
-    
+
+    /**
+     * Removes a delimiter set change listener array.
+     * @param listeners a delimiter set change listener array.
+     */
     public void removeDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
 }
