@@ -36,6 +36,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import org.netbeans.modules.lookup.annotations.annotations.Contract;
 import org.netbeans.modules.lookup.annotations.annotations.ContractProvided;
+import org.netbeans.modules.lookup.annotations.annotations.ContractsProvided;
 import org.netbeans.modules.lookup.annotations.annotations.Service;
 import org.netbeans.modules.lookup.annotations.model.ContractM;
 import org.netbeans.modules.lookup.annotations.model.ServiceM;
@@ -187,6 +188,13 @@ public class NBServiceRegistrator extends AbstractProcessor {
             TypeElement annElement = (TypeElement) annMirror.getAnnotationType().asElement();
             String annTypeName = processingEnv.getElementUtils().getBinaryName(annElement).toString();
 
+//            if (annTypeName.equals(ContractsProvided.class.getName())) {
+//                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annMirror.getElementValues().entrySet()) {
+//                    if (entry.getKey().getSimpleName().toString().equals("value")) {
+//                        contracts.add(new ContractM(entry.getValue().toString().replace(".class", "")));
+//                    }
+//                }
+//            }
             if (annTypeName.equals(ContractProvided.class.getName())) {
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annMirror.getElementValues().entrySet()) {
                     if (entry.getKey().getSimpleName().toString().equals("value")) {

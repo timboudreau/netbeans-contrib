@@ -39,10 +39,19 @@
 
 package org.netbeans.modules.lookup.annotations.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * 
+ * Using this annotation you can force a {@linkplain Service} to provide
+ * implementation for a particular {@linkplain  Contract}
+ * The {@linkplain Contract} is defined as a class
  * @author Jaroslav Bachorik
  */
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.TYPE)
 public @interface ContractProvided {
     public Class<?> value();
 }
