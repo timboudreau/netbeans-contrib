@@ -40,7 +40,6 @@
 package org.netbeans.modules.python.editor;
 
 import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.RecognitionException;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -54,8 +53,8 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
+import org.python.antlr.ModuleParser;
 import org.python.antlr.ParseException;
-import org.python.antlr.PythonGrammar;
 import org.python.antlr.PythonTree;
 
 /**
@@ -71,31 +70,17 @@ public class PythonParser implements Parser {
     //public PythonParserResult parseStream(InputStream istream, ParserFile file) throws Exception {
     public PythonParserResult parseStream(String source, ParserFile file) throws Exception {
         try {
-            //InputStreamReader reader = new InputStreamReader(istream, "ISO-8859-1"); // NOI18N
-            //PythonGrammar g = new PythonGrammar(new ANTLRReaderStream(reader));
-            PythonGrammar g = new PythonGrammar(new ANTLRStringStream(source));
+//            InputStreamReader reader = new InputStreamReader(istream, "ISO-8859-1"); // NOI18N
+//            ModuleParser g = new ModuleParser(new ANTLRReaderStream(reader));
+            ModuleParser g = new ModuleParser(new ANTLRStringStream(source));
             PythonTree t = g.file_input();
             return new PythonParserResult(t, this, file);
         } catch (ParseException pe) {
-            PythonTree tree = pe.currentToken;
-            int offset = 0;
-            if (tree != null) {
-                offset = tree.getTokenStartIndex();
-            }
+            int offset = pe.getOffset();
+            assert offset >= 0;
             String desc = pe.getLocalizedMessage();
             if (desc == null) {
                 desc = pe.getMessage();
-            }
-            String key = null;
-            DefaultError error = new DefaultError(key, desc, null, file.getFileObject(), offset, offset, Severity.ERROR);
-            PythonParserResult parserResult = new PythonParserResult(null, this, file);
-            parserResult.addError(error);
-            return parserResult;
-        } catch (RecognitionException re) {
-            int offset = re.index;
-            String desc = re.getLocalizedMessage();
-            if (desc == null) {
-                desc = re.getMessage();
             }
             String key = null;
             DefaultError error = new DefaultError(key, desc, null, file.getFileObject(), offset, offset, Severity.ERROR);

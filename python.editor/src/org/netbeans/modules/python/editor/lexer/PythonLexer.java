@@ -50,7 +50,7 @@ import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 import org.openide.util.Exceptions;
-import org.python.antlr.PythonGrammar.PyLexer;
+import org.python.antlr.ModuleParser.PyLexer;
 
 /**
  * @todo incremental parsing
