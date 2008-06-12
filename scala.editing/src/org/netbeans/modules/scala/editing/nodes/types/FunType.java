@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.scala.editing.nodes.types;
 
+import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 

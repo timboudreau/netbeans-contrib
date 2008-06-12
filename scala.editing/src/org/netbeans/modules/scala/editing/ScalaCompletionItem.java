@@ -43,16 +43,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.CompletionProposal;
 import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.util.Exceptions;
 
@@ -65,6 +66,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     private static ImageIcon keywordIcon;
     protected CompletionRequest request;
     protected AstElement element;
+    protected GsfElement gsfElement;
     protected IndexedElement indexedElement;
 
     private ScalaCompletionItem(AstElement element, CompletionRequest request) {
@@ -99,12 +101,14 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public ElementHandle getElement() {
-        // XXX Is this called a lot? I shouldn't need it most of the time
-        return element;
+        if (gsfElement == null) {
+            gsfElement = new GsfElement(element);
+        }
+        return gsfElement;
     }
 
-    public ElementKind getKind() {
-        return element.getKind();
+    public org.netbeans.modules.gsf.api.ElementKind getKind() {
+        return getElement().getKind();
     }
 
     public ImageIcon getIcon() {
@@ -112,10 +116,10 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public String getLhsHtml() {
-        ElementKind kind = getKind();
+        org.netbeans.modules.gsf.api.ElementKind kind = getKind();
         HtmlFormatter formatter = request.formatter;
         formatter.reset();
-        boolean emphasize = (kind != ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
+        boolean emphasize = (kind != org.netbeans.modules.gsf.api.ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
         if (emphasize) {
             formatter.emphasis(true);
         }
@@ -195,7 +199,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public Set<Modifier> getModifiers() {
-        return element.getModifiers();
+        return getElement().getModifiers();
     }
 
     @Override
@@ -246,7 +250,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml() {
-            ElementKind kind = getKind();
+            org.netbeans.modules.gsf.api.ElementKind kind = getKind();
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
             boolean strike = false;
@@ -417,8 +421,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
-        public ElementKind getKind() {
-            return ElementKind.KEYWORD;
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
+            return org.netbeans.modules.gsf.api.ElementKind.KEYWORD;
         }
 
         //@Override
@@ -465,7 +469,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         @Override
         public ElementHandle getElement() {
             // For completion documentation
-            return new AstElement(null, ElementKind.KEYWORD);
+            return new GsfElement(org.netbeans.modules.gsf.api.ElementKind.KEYWORD);
         }
 
         @Override
@@ -478,9 +482,9 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         private final String tag;
         private final String description;
-        private final ElementKind kind;
+        private final org.netbeans.modules.gsf.api.ElementKind kind;
 
-        TagItem(String keyword, String description, CompletionRequest request, ElementKind kind) {
+        TagItem(String keyword, String description, CompletionRequest request, org.netbeans.modules.gsf.api.ElementKind kind) {
             super(null, request);
             this.tag = keyword;
             this.description = description;
@@ -493,7 +497,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
-        public ElementKind getKind() {
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
             return kind;
         }
 
@@ -534,7 +538,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         @Override
         public ElementHandle getElement() {
             // For completion documentation
-            return new AstElement(null, ElementKind.KEYWORD);
+            return new GsfElement(org.netbeans.modules.gsf.api.ElementKind.KEYWORD);
         }
 
         @Override
@@ -577,7 +581,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml() {
-            ElementKind kind = getKind();
+            org.netbeans.modules.gsf.api.ElementKind kind = getKind();
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
             boolean strike = indexedElement != null && indexedElement.isDeprecated();
@@ -623,7 +627,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml() {
-            ElementKind kind = getKind();
+            org.netbeans.modules.gsf.api.ElementKind kind = getKind();
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
             boolean strike = indexedElement != null && indexedElement.isDeprecated();

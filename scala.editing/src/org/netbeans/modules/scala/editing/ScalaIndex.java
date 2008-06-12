@@ -49,8 +49,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
@@ -438,7 +438,7 @@ public class ScalaIndex {
                     if (isFunction && !includeMethods) {
                         continue;
                     } else if (onlyConstructors) {
-                        if (element.getKind() == ElementKind.PROPERTY && funcIn == null && Character.isUpperCase(elementName.charAt(0))) {
+                        if (element.getKind() == ElementKind.FIELD && funcIn == null && Character.isUpperCase(elementName.charAt(0))) {
                             //element.setKind(ElementKind.CONSTRUCTOR);
                         } else if (element.getKind() != ElementKind.CONSTRUCTOR) {
                             continue;

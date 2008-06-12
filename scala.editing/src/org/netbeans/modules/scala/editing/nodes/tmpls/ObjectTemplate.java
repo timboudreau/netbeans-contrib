@@ -38,8 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes.tmpls;
 
-import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Id;
 
 /**
  *

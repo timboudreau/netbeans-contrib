@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  * Id may be AstDefinition or AstUsage, so extends AstElement

@@ -38,13 +38,14 @@
  */
 package org.netbeans.modules.scala.editing.nodes.exprs;
 
-import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstExpr;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class ArgumentExprs extends AstElement {
     

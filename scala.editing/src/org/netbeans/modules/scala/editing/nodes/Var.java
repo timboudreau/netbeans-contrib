@@ -38,8 +38,8 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
@@ -81,7 +81,7 @@ public class Var extends AstDef {
     @Override
     public boolean referredBy(AstRef ref) {
         switch (ref.getKind()) {
-            case VARIABLE:
+            case LOCAL_VARIABLE:
             case PARAMETER:
             case FIELD:
                 return getName().equals(ref.getName());
@@ -106,7 +106,7 @@ public class Var extends AstDef {
     @Override
     public boolean mayEqual(AstDef def) {
         switch (def.getKind()) {
-            case VARIABLE:
+            case LOCAL_VARIABLE:
             case PARAMETER:
             case FIELD:
                 return getName().equals(def.getName());
