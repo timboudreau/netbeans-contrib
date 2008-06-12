@@ -50,7 +50,7 @@ import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 import org.openide.util.Exceptions;
-import org.python.antlr.PythonGrammar.PyLexer;
+import org.python.antlr.ModuleParser.PyLexer;
 
 /**
  * @todo incremental parsing
@@ -138,17 +138,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             }
         } catch (Exception e) {
             LOG.finest("Caught exception: " + e);
-            int len = lexerInput.readLength();// - myCharBuffer.getExtraCharCount();
-            int tokenLength = lexerInput.readLength();
-            
-            scanner.reset();
-            
-            while (len < tokenLength) {
-                LOG.finest("Consuming character");
-//                scannerConsumeChar();
-                len++;
-            }
-            return createToken(PythonTokenId.ERROR.ordinal(), tokenLength);
+            return createToken(ERROR, lexerInput.readLength());
         }
     }
 
