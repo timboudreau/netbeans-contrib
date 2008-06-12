@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,46 +31,37 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.python.editor;
 
-import org.netbeans.modules.gsf.api.Parser;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
-import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.python.antlr.PythonTree;
 
-public class PythonLanguage extends DefaultLanguageConfig {
+/**
+ * A ParserResult for Python. The AST Jython's AST.
+ * 
+ * @author Tor Norbye
+ */
+public class PythonParserResult extends ParserResult {
+    private PythonTree tree;
     
-    public PythonLanguage() {
+    public PythonParserResult(PythonTree tree, PythonParser parser, ParserFile file) {
+        super(parser, file, PythonMimeResolver.PYTHON_MIME_TYPE);
+        this.tree = tree;
     }
 
-    @Override
-    public String getLineCommentPrefix() {
-        return "#"; // NOI18N
+    public PythonTree getTree() {
+        return tree;
     }
-
+    
     @Override
-    public boolean isIdentifierChar(char c) {
-        return false;//RubyUtils.isIdentifierChar(c);
-    }
-
-    @Override
-    public Language getLexerLanguage() {
-        return PythonTokenId.language();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Python";
-    }
-
-    @Override
-    public String getPreferredExtension() {
-        return "py"; // NOI18N
-    }
-
-    @Override
-    public Parser getParser() {
-        return new PythonParser();
+    public AstTreeNode getAst() {
+        return null;
     }
 }
