@@ -67,6 +67,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
@@ -87,9 +88,8 @@ import xtc.tree.Location;
  * @author Tor Norbye
  */
 public class ScalaParser implements Parser {
-    
-    private static float[] profile = new float[] {0.0f, 0.0f}; 
 
+    private static float[] profile = new float[]{0.0f, 0.0f};
     private final PositionManager positions = createPositionManager();
 
     public ScalaParser() {
@@ -112,7 +112,7 @@ public class ScalaParser implements Parser {
 
         for (ParserFile file : job.files) {
             long start = System.currentTimeMillis();
-            
+
             ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
             listener.started(beginEvent);
 
@@ -133,7 +133,7 @@ public class ScalaParser implements Parser {
 
             ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
             listener.finished(doneEvent);
-            
+
             long time = System.currentTimeMillis() - start;
             profile[0] += time / 1000.0f;
             profile[1] += 1.0f;
@@ -399,7 +399,7 @@ public class ScalaParser implements Parser {
         if (th == null) {
             th = TokenHierarchy.create(source, ScalaTokenId.language());
         }
-        
+
         context.th = th;
 
         final boolean ignoreErrors = sanitizedSource;
@@ -595,10 +595,10 @@ public class ScalaParser implements Parser {
             return errorOffset;
         }
     }
-    
-    public static void resolve(final FileObject fo) {
 
+    public static List<Template> resolve(final FileObject fo, String templateName) {
         ParserFile parserFile = new DefaultParserFile(fo, null, false);
+        
         if (parserFile != null) {
             List<ParserFile> files = Collections.singletonList(parserFile);
             SourceFileReader reader =
@@ -636,14 +636,27 @@ public class ScalaParser implements Parser {
             if (pResult != null) {
                 AstScope rootScope = pResult.getRootScope();
                 if (rootScope != null) {
-                    List<Template> templates;
+                    List<Template> templates = new ArrayList<Template>();
+                    collectTemplatesByName(rootScope, templateName, templates);
+                    return templates;
                 }
             } else {
                 assert false : "Parse result is null : " + fo.getName();
             }
         }
 
+        return Collections.<Template>emptyList();
     }
 
-    
+    private static void collectTemplatesByName(AstScope scope, String name, List<Template> templates) {
+        for (AstDef def : scope.getDefs()) {
+            if (def instanceof Template && def.getName().equals(name)) {
+                templates.add((Template) def);
+            }
+        }
+
+        for (AstScope _scope : scope.getScopes()) {
+            collectTemplatesByName(_scope, name, templates);
+        }        
+    }
 }

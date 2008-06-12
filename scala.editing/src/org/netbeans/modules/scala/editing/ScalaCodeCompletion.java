@@ -463,7 +463,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
 
             if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
-                completeObjectMembers(proposals, request);
+                completeTemplateMembers(proposals, request);
                 return completionResult;
             }
 
@@ -471,7 +471,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             addLocals(proposals, request);
 
-            if (completeObjectMembers(proposals, request)) {
+            if (completeTemplateMembers(proposals, request)) {
                 return completionResult;
             }
 
@@ -1219,7 +1219,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
      *
      * @todo Look for self or this or super; these should be limited to inherited.
      */
-    private boolean completeObjectMembers(List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeTemplateMembers(List<CompletionProposal> proposals, CompletionRequest request) {
 
         ScalaIndex index = request.index;
         String prefix = request.prefix;
@@ -1259,10 +1259,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             Set<IndexedElement> elements = Collections.emptySet();
 
-            String typeStr = call.getType();
+            String typeQname = call.getType();
             String lhs = call.getLhs();
 
-            if (typeStr == null) {
+            if (typeQname == null) {
                 if (closest != null) {
                     TypeRef type = null;
 
@@ -1280,7 +1280,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     if (type != null) {
-                        typeStr = type.getQualifiedName();
+                        typeQname = type.getQualifiedName();
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1295,7 +1295,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             //} 
             }
 
-            if (typeStr == null && call.getPrevCallParenPos() != -1) {
+            if (typeQname == null && call.getPrevCallParenPos() != -1) {
                 // It's some sort of call
                 assert call.getType() == null;
                 assert call.getLhs() == null;
@@ -1328,7 +1328,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                        }
 //                    }
                 }
-            } else if (typeStr == null && lhs != null && closest != null) {
+            } else if (typeQname == null && lhs != null && closest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1337,7 +1337,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                }
             }
 
-            if ((typeStr == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
+            if ((typeQname == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1350,9 +1350,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             // I'm not doing any data flow analysis at this point, so
             // I can't do anything with a LHS like "foo.". Only actual types.
-            if (typeStr != null && typeStr.length() > 0) {
+            if (typeQname != null && typeQname.length() > 0) {
                 if ("this".equals(lhs)) {
-                    typeStr = fqn;
+                    typeQname = fqn;
                     skipPrivate = false;
 //                } else if ("super".equals(lhs)) {
 //                    skipPrivate = false;
@@ -1374,13 +1374,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                    }
                 }
 
-                if (typeStr != null && typeStr.length() > 0) {
+                if (typeQname != null && typeQname.length() > 0) {
                     // Possibly a class on the left hand side: try searching with the class as a qualifier.
                     // Try with the LHS + current FQN recursively. E.g. if we're in
                     // Test::Unit when there's a call to Foo.x, we'll try
                     // Test::Unit::Foo, and Test::Foo
-                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeStr)) {
-                        elements = index.getElements(prefix, fqn + "." + typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
+                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeQname)) {
+                        elements = index.getElements(prefix, fqn + "." + typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                         int f = fqn.lastIndexOf("::");
 
@@ -1392,7 +1392,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     // Add methods in the class (without an FQN)
-                    Set<IndexedElement> m = index.getElements(prefix, typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
+                    Set<IndexedElement> m = index.getElements(prefix, typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                     if (m.size() > 0) {
                         elements = m;
@@ -1409,7 +1409,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             // Try just the method call (e.g. across all classes). This is ignoring the 
             // left hand side because we can't resolve it.
-            if ((elements.size() == 0) && (prefix.length() > 0 || typeStr == null)) {
+            if ((elements.size() == 0) && (prefix.length() > 0 || typeQname == null)) {
 //                if (prefix.length() == 0) {
 //                    proposals.clear();
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
