@@ -45,11 +45,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Denotes a class or interface as a contract provider
+ * This annotation enables you to define more than one {@linkplain Contract}
+ * for {@linkplain Service}
+ * 
  * @author Jaroslav Bachorik
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-public @interface Contract {
-
+public @interface ContractsProvided {
+    ContractProvided[] value();
 }
