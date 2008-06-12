@@ -138,17 +138,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             }
         } catch (Exception e) {
             LOG.finest("Caught exception: " + e);
-            int len = lexerInput.readLength();// - myCharBuffer.getExtraCharCount();
-            int tokenLength = lexerInput.readLength();
-            
-            scanner.reset();
-            
-            while (len < tokenLength) {
-                LOG.finest("Consuming character");
-//                scannerConsumeChar();
-                len++;
-            }
-            return createToken(PythonTokenId.ERROR.ordinal(), tokenLength);
+            return createToken(ERROR, lexerInput.readLength());
         }
     }
 
