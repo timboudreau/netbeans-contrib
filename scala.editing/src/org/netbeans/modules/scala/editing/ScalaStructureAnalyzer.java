@@ -178,7 +178,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public String getName() {
-            return def.getName();
+            return def.getSimpleName().toString();
         }
 
         public String getSortText() {

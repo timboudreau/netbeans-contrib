@@ -404,7 +404,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                 if (closest != null) {
                     if (closest instanceof Importing) {
-                        String prefix1 = ((Importing) closest).getName();
+                        String prefix1 = ((Importing) closest).getSimpleName().toString();
                         if (request.prefix.equals("")) {
                             prefix1 = prefix1 + ".";
                         }
@@ -500,8 +500,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         List<Var> localVars = closestScope.getDefsInScope(Var.class);
         for (Var var : localVars) {
-            if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
-                    (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
+            if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getSimpleName().toString())) ||
+                    (kind != NameKind.EXACT_NAME && startsWith(var.getSimpleName().toString(), prefix))) {
                 proposals.add(new PlainItem(var, request));
             }
         }
@@ -511,8 +511,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             if (fun.getKind() != ElementKind.METHOD) {
                 continue;
             }
-            if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getName())) ||
-                    (kind != NameKind.EXACT_NAME && startsWith(fun.getName(), prefix))) {
+            if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getSimpleName().toString())) ||
+                    (kind != NameKind.EXACT_NAME && startsWith(fun.getSimpleName().toString(), prefix))) {
                 proposals.add(new FunctionItem(fun, request));
             }
         }
@@ -1546,7 +1546,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                     for (IndexedElement element : elements) {
                         // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-                        if ((prefix.length() > 0) && !element.getName().startsWith(prefix)) {
+                        if ((prefix.length() > 0) && !element.getSimpleName().toString().startsWith(prefix)) {
                             continue;
                         }
 

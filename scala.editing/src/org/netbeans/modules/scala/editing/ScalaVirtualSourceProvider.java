@@ -107,8 +107,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     try {
                         CharSequence javaStub = generator.generateClass(template);
                         Packaging packaging = template.getPackageElement();
-                        String pkgName = packaging == null ? "" : packaging.getName();
-                        result.add(file, pkgName, template.getName(), javaStub);
+                        String pkgName = packaging == null ? "" : packaging.getSimpleName().toString();
+                        result.add(file, pkgName, template.getSimpleName().toString(), javaStub);
                         break;
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -213,7 +213,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             try {
                 Packaging packaging = template.getPackageElement();
                 if (packaging != null) {
-                    out.println("package " + packaging.getName() + ";\n");
+                    out.println("package " + packaging.getSimpleName() + ";\n");
                 }
 
                 //genImports(template, out);
@@ -222,14 +222,14 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 
                 printModifiers(out, template.getModifiers());                
                 out.print("class ");
-                out.print(template.getName());
+                out.print(template.getSimpleName());
                 out.print(" implements scala.ScalaObject");
 
 //                List<SimpleType> parents = template.getExtendsWith();
 //
 //                out.print("  extends ");
 //                for (SimpleType parent : parents) {
-//                    out.print(parent.getName());
+//                    out.print(parent.getSimpleName());
 //                    out.print(" ");
 //                    break;
 //                }
@@ -237,7 +237,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
                 out.println("{");
                 
-                out.println("public " + template.getName() + "() {};");
+                out.println("public " + template.getSimpleName() + "() {};");
 
                 out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
 

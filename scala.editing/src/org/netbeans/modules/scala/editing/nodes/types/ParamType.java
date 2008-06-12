@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -80,21 +81,23 @@ public class ParamType extends TypeRef {
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         switch (more) {
             case Star:
-                sb.append(rawType.getName());
+                sb.append(rawType.getSimpleName());
                 sb.append("*");
                 break;
             case ByName:
                 sb.append("=>");
-                sb.append(rawType.getName());
+                sb.append(rawType.getSimpleName());
                 break;
             default:
-                sb.append(rawType.getName());
+                sb.append(rawType.getSimpleName());
         }
-        return sb.toString();
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
 
 

@@ -39,7 +39,7 @@
 
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -91,23 +91,25 @@ public class FunType extends TypeRef {
         return -1;
     }    
     
-    /** Since name is null, we should implement getName() */
+    /** Since name is null, we should implement getSimpleName() */
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (lhs == null) {
             sb.append("(");
             sb.append(")");
         } else if (lhs instanceof ParamType && ((ParamType) lhs).getMore() == ParamType.More.ByName) {
             sb.append("(");
-            sb.append(lhs.getName());
+            sb.append(lhs.getSimpleName());
             sb.append(")");
         } else {
-            sb.append(lhs.getName());
+            sb.append(lhs.getSimpleName());
         }
         sb.append("=>");
-        sb.append(rhs.getName());
-        return sb.toString();
+        sb.append(rhs.getSimpleName());
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
     
     

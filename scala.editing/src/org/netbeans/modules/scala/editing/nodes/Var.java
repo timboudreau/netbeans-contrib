@@ -54,7 +54,7 @@ public class Var extends AstDef implements VariableElement {
     private AstExpr expr;
 
     public Var(AstId id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getPickToken(), bindingScope, kind);
+        super(id.getSimpleName().toString(), id.getPickToken(), bindingScope, kind);
         setType(id.getType());
     }
 
@@ -86,7 +86,7 @@ public class Var extends AstDef implements VariableElement {
     @Override
     public boolean referredBy(AstRef ref) {
         if (ref instanceof IdRef) {
-            return getName().equals(ref.getName());
+            return getSimpleName().equals(ref.getSimpleName());
         }
         
         return false;
@@ -111,7 +111,7 @@ public class Var extends AstDef implements VariableElement {
             case LOCAL_VARIABLE:
             case PARAMETER:
             case FIELD:
-                return getName().equals(def.getName());
+                return getSimpleName().equals(def.getSimpleName());
             default:
                 return false;
         }

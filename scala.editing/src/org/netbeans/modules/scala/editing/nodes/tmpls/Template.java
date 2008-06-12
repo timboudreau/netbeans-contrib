@@ -59,7 +59,7 @@ public abstract class Template extends AstDef {
     private List<TypeRef> extendsWith;
     
     protected Template(AstId id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getPickToken(), bindingScope, kind);
+        super(id.getSimpleName(), id.getPickToken(), bindingScope, kind);
     }
 
     public void setCaseOne() {
@@ -81,10 +81,10 @@ public abstract class Template extends AstDef {
     @Override
     public boolean referredBy(AstRef ref) {
         if (ref instanceof TypeRef) {
-            return getName().equals(ref.getName());
+            return getSimpleName().equals(ref.getSimpleName());
         } else if (ref instanceof IdRef){
             if (isCaseOne()) {
-                return getName().equals(ref.getName());
+                return getSimpleName().equals(ref.getSimpleName());
             }
         } 
         

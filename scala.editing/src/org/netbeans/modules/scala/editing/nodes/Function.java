@@ -45,7 +45,6 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -62,7 +61,7 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     private List<TypeParam> typeParams;
     private List<Var> parameters;
 
-    public Function(String name, Token pickToken, AstScope bindingScope, boolean isConstructor) {
+    public Function(CharSequence name, Token pickToken, AstScope bindingScope, boolean isConstructor) {
         super(name, pickToken, bindingScope, ElementKind.METHOD);
         if (isConstructor) {
             setKind(ElementKind.CONSTRUCTOR);
@@ -125,7 +124,9 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
             FunRef funRef = (FunRef) ref;
             // only check local call only
             if (funRef.isLocal()) {
-                return getName().equals(funRef.getCall().getName()) && parameters != null && parameters.size() == funRef.getArgs().size();
+                return getSimpleName().equals(funRef.getCall().getSimpleName()) && 
+                        parameters != null && 
+                        parameters.size() == funRef.getArgs().size();
             }
         }
 

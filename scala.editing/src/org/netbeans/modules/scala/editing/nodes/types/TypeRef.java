@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
@@ -189,8 +190,8 @@ public class TypeRef extends AstRef implements TypeMirror {
     private List<TypeRef> typeArgs;
     private TypeKind kind;
 
-    public TypeRef(String name, Token idToken, TypeKind kind) {
-        super(name, idToken);
+    public TypeRef(CharSequence name, Token pickToken, TypeKind kind) {
+        super(name, pickToken);
         this.kind = kind;
     }
 
@@ -223,7 +224,7 @@ public class TypeRef extends AstRef implements TypeMirror {
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             for (Iterator<TypeRef> itr = getTypeArgs().iterator(); itr.hasNext();) {
-                sb.append(itr.next().getName());
+                sb.append(itr.next().getSimpleName());
                 if (itr.hasNext()) {
                     sb.append(", ");
                 }
@@ -244,7 +245,7 @@ public class TypeRef extends AstRef implements TypeMirror {
             return qualifiedName;
         }
 
-        TypeRef predType = PRED_TYPES.get(getName());
+        TypeRef predType = PRED_TYPES.get(getSimpleName().toString());
         if (predType != null) {
             qualifiedName = predType.getQualifiedName();
             return qualifiedName;
@@ -271,8 +272,8 @@ public class TypeRef extends AstRef implements TypeMirror {
         List<Importing> importings = getEnclosingScope().getDefsInScope(Importing.class);
         for (Importing importing : importings) {
             for (TypeRef importedType : importing.getImportedTypes()) {
-                if (importedType.getName().equals(getName())) {
-                    qualifiedName = importing.getPackageName() + "." + importedType.getName();
+                if (importedType.getSimpleName().equals(getSimpleName())) {
+                    qualifiedName = importing.getPackageName() + "." + importedType.getSimpleName();
                     return qualifiedName;
                 }
             }
@@ -286,20 +287,19 @@ public class TypeRef extends AstRef implements TypeMirror {
     }
 
     @Override
-    public String getName() {
-        String name = super.getName();
-        if (name == null) {
+    public Name getSimpleName() {        
+        if (super.getSimpleName() == null) {
             if (isResolved()) {
                 String qName = getQualifiedName();
                 int lastDot = qName.lastIndexOf('.');
                 if (lastDot > 0) {
-                    name = qName.substring(lastDot + 1, qName.length());
-                    setName(name);
+                    String sName = qName.substring(lastDot + 1, qName.length());
+                    setSimpleName(sName);
                 }
             }
         }
 
-        return name;
+        return super.getSimpleName();
     }
 
     @Override
@@ -309,8 +309,8 @@ public class TypeRef extends AstRef implements TypeMirror {
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        if (getName() != null) {
-            formatter.appendText(getName());
+        if (getSimpleName() != null) {
+            formatter.appendText(getSimpleName().toString());
             htmlFormatTypeArgs(formatter);
         }
     }
@@ -357,7 +357,7 @@ public class TypeRef extends AstRef implements TypeMirror {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append(getName());
+            sb.append(getSimpleName());
             sb.append(getTypeArgsName());
 
             return sb.toString();

@@ -204,7 +204,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedElement candidate = null;
 
-        String callName = funRef.getCall().getName();
+        String callName = funRef.getCall().getSimpleName().toString();
         String in = null;
         AstNode base = funRef.getBase();
         if (base != null) {
@@ -237,7 +237,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedElement candidate = null;
 
-        String prefix = field.getField().getName();
+        String prefix = field.getField().getSimpleName().toString();
         String in = null;
         AstNode base = field.getBase();
         if (base != null) {
@@ -256,7 +256,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                         }
                     } else if (member instanceof IndexedField) {
                         IndexedField idxField = (IndexedField) member;
-                        if (idxField.getName().equals(prefix)) {
+                        if (idxField.getSimpleName().equals(prefix)) {
                             candidate = idxField;
                             break;
                         }
@@ -285,7 +285,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
             for (IndexedElement idxType : idxTypes) {
                 if (idxType instanceof IndexedType) {
-                    if (idxType.getName().equals(simpleName)) {
+                    if (idxType.getSimpleName().equals(simpleName)) {
                         candidate = (IndexedType) idxType;
                     }
                 }

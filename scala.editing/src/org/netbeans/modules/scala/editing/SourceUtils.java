@@ -158,7 +158,7 @@ public class SourceUtils {
                         }
 
                         for (ObjectTemplate obj : objs) {
-                            if (obj.getName().equals(qualifiedName)) {
+                            if (obj.getSimpleName().toString().equals(qualifiedName)) {
                                 List<Function> funs = obj.getBindingScope().getDefsInScope(Function.class);
                                 for (Function fun : funs) {
                                     if (isMainMethod(fun)) {
@@ -184,7 +184,7 @@ public class SourceUtils {
      * @return true when the method is a main method
      */
     public static boolean isMainMethod(final Function method) {
-        if (!method.getName().equals("main")) {                //NOI18N
+        if (!method.getSimpleName().toString().equals("main")) {                //NOI18N
 
             return false;
         }

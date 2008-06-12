@@ -91,7 +91,7 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getName() {
-        return node.getName().toString();
+        return node.getSimpleName().toString();
     }
 
     public boolean signatureEquals(ElementHandle handle) {

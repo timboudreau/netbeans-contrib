@@ -38,9 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
@@ -52,9 +52,8 @@ public class FieldRef extends AstRef {
     private AstNode base;
     private AstId field;
 
-    public FieldRef(Token idToken) {
-        super(null, idToken);
-        setType(new PseudoTypeRef());
+    public FieldRef(Token pickToken) {
+        super(null, pickToken);
     }
 
     public void setBase(AstNode base) {
@@ -74,19 +73,17 @@ public class FieldRef extends AstRef {
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(baseType.getName());
+                sb.append(baseType.getSimpleName());
             }
         }
-        sb.append(field.getName());
-        return sb.toString();
-    }
+        sb.append(field.getSimpleName());
 
-    public void setRetTypeStr(String retTypeStr) {
-        getType().setQualifiedName(retTypeStr);
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
 }

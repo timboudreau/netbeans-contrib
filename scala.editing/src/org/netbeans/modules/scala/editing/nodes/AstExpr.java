@@ -47,12 +47,12 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author dcaoyuan
  */
-public class AstExpr extends AstElement {
+public class AstExpr extends AstNode {
 
     private Token[] boundsTokens;
 
     public AstExpr(Token[] boundsTokens) {
-        super(ElementKind.OTHER);
+        super("expr");
         assert boundsTokens.length == 2;
         this.boundsTokens = boundsTokens;
     }
@@ -81,10 +81,5 @@ public class AstExpr extends AstElement {
 
     public int getBoundsEndOffset(TokenHierarchy th) {
         return boundsTokens[1].offset(th) + boundsTokens[1].length();
-    }
-
-    @Override
-    public String getName() {
-        return "expr";
     }
 }

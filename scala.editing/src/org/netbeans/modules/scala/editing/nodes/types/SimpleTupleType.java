@@ -42,6 +42,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -85,19 +86,19 @@ public class SimpleTupleType extends TypeRef {
     }        
 
     @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();
-        
+    public Name getSimpleName() {
+        StringBuilder sb = new StringBuilder();        
         sb.append("(");
         for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
+            sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(", ");
             }
         }
         sb.append(")");
         
-        return sb.toString();
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
     
     

@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -67,21 +68,23 @@ public class SimpleIdType extends TypeRef {
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<AstId> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
+            sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(".");
             }
         }
-        return sb.toString();
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         for (Iterator<AstId> itr = getPaths().iterator(); itr.hasNext();) {
-            formatter.appendText(itr.next().getName());
+            formatter.appendText(itr.next().getSimpleName().toString());
             if (itr.hasNext()) {
                 formatter.appendText(".");
             }

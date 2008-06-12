@@ -44,7 +44,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
-import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 
@@ -64,7 +63,7 @@ public class AstElement extends AstNode implements Element {
         this(null, pickToken, kind);
     }
 
-    public AstElement(String name, Token pickToken, ElementKind kind) {
+    public AstElement(CharSequence name, Token pickToken, ElementKind kind) {
         super(name, pickToken);
         this.kind = kind;
     }
@@ -78,10 +77,6 @@ public class AstElement extends AstNode implements Element {
     }
 
     public Element getEnclosingElement() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public Name getSimpleName() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -107,6 +102,7 @@ public class AstElement extends AstNode implements Element {
 
     @Override
     public String toString() {
-        return getName() + "(kind=" + getKind() + ", type=" + getType() + ")";
+        return getSimpleName() + "(kind=" + getKind() + ", type=" + getType() + ")";
     }
+
 }

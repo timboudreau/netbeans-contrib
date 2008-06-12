@@ -39,20 +39,19 @@
 package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import java.util.List;
-import javax.lang.model.element.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ArgumentExprs extends AstElement {
+public class ArgumentExprs extends AstExpr {
     
     private List<AstExpr> args;
 
-    public ArgumentExprs(ElementKind kind) {
-        super(kind);
+    public ArgumentExprs(Token[] boundsTokens) {
+        super(boundsTokens);
     }
     
     public void setArgs(List<AstExpr> args) {
@@ -62,11 +61,4 @@ public class ArgumentExprs extends AstElement {
     public List<AstExpr> getArgs() {
         return args;
     }
-
-    @Override
-    public String getName() {
-        return "args";
-    }
-    
-    
 }

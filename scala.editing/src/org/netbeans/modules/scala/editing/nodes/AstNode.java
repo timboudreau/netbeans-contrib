@@ -36,13 +36,13 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
@@ -57,6 +57,7 @@ import org.openide.filesystems.FileObject;
  * @author Caoyuan Deng
  */
 public abstract class AstNode {
+
     /** 
      * @Note: 
      * 1. Not all AstNode has pickToken, such as Expr etc.
@@ -65,33 +66,45 @@ public abstract class AstNode {
      *    will return null when an Identifier token modified, seems sync issue
      */
     private Token pickToken;
-    private String name;
+    private Name simpleName;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     protected TypeRef type;
     protected String qualifiedName;
 
     public AstNode() {
-        this(null);
+        this(null, null);
+    }
+
+    public AstNode(CharSequence simpleName) {
+        this(simpleName, null);
     }
 
     public AstNode(Token pickToken) {
         this(null, pickToken);
     }
 
-    public AstNode(String name, Token pickToken) {
+    public AstNode(CharSequence simpleName, Token pickToken) {
         this.pickToken = pickToken;
-        this.name = name;
+        setSimpleName(simpleName);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSimpleName(CharSequence simpleName) {
+        if (simpleName != null) {
+            if (simpleName instanceof Name) {
+                this.simpleName = (Name) simpleName;
+            } else {
+                this.simpleName = new AstName(simpleName);
+            }
+        } else {
+            this.simpleName = null;
+        }
     }
 
-    public String getName() {
-        return name;
+    public Name getSimpleName() {
+        return simpleName;
 //        if (name == null) {
-//            assert false : "Should implement getName()";
+//            assert false : "Should implement getSimpleName()";
 //            throw new UnsupportedOperationException();
 //        } else {
 //            return name;
@@ -110,7 +123,7 @@ public abstract class AstNode {
         if (pickToken != null) {
             return pickToken.offset(th);
         } else {
-            assert false : getName() + ": Should implement getPickOffset(th)";
+            assert false : getSimpleName() + ": Should implement getPickOffset(th)";
             return -1;
         }
     }
@@ -119,7 +132,7 @@ public abstract class AstNode {
         if (pickToken != null) {
             return pickToken.offset(th) + pickToken.length();
         } else {
-            assert false : getName() + ": Should implement getPickEndOffset(th)";
+            assert false : getSimpleName() + ": Should implement getPickEndOffset(th)";
             return -1;
         }
     }
@@ -127,19 +140,19 @@ public abstract class AstNode {
     public boolean isDeprecated() {
         return false;
     }
-    
+
     public boolean isInherited() {
         return false;
-    }        
+    }
 
     public String getBinaryName() {
-        return getName();
+        return getSimpleName().toString();
     }
 
     public String getQualifiedName() {
         if (qualifiedName == null) {
             Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getName() : packaging.getName() + "." + getName();
+            qualifiedName = packaging == null ? getSimpleName().toString() : packaging.getSimpleName().toString() + "." + getSimpleName().toString();
         }
         return qualifiedName;
     }
@@ -172,7 +185,7 @@ public abstract class AstNode {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : getName() + ": Each element should set enclosing scope!, except native TypeRef";
+        assert enclosingScope != null : getSimpleName() + ": Each element should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 
@@ -219,5 +232,49 @@ public abstract class AstNode {
         } else {
             return "";
         }
+    }
+
+    protected class AstName implements Name {
+
+        private CharSequence name;
+
+        public AstName(CharSequence name) {
+            assert name != null : "AstName should not be null";
+            this.name = name;
+        }
+
+        public char charAt(int index) {
+            return name.charAt(index);
+        }
+
+        public boolean contentEquals(CharSequence arg0) {
+            return name.toString().contentEquals(arg0);
+        }
+
+        public int length() {
+            return name.length();
+        }
+
+        public CharSequence subSequence(int start, int end) {
+            return name.subSequence(start, end);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Name) {
+                return contentEquals((Name) obj);
+            }
+            return super.equals(obj);
+        }
+
+        @Override
+        public int hashCode() {
+            return name.toString().hashCode();
+        }
+        
+        @Override
+        public String toString() {
+            return name.toString();
+        }        
     }
 }

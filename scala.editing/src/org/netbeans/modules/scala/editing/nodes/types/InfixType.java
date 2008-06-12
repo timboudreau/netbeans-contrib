@@ -40,6 +40,7 @@
 package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.List;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -81,14 +82,16 @@ public class InfixType extends TypeRef {
     }        
 
     @Override
-    public java.lang.String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
-        sb.append(types.get(0).getName());
+        sb.append(types.get(0).getSimpleName());
         for (int i = 1; i < types.size(); i++) {
-            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
-            sb.append(types.get(i).getName());
+            sb.append(" ").append(ops.get(i - 1).getSimpleName()).append(" ");
+            sb.append(types.get(i).getSimpleName());
         }
-        return sb.toString();
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }    
     
     @Override

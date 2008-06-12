@@ -650,7 +650,7 @@ public class ScalaParser implements Parser {
 
     private static void collectTemplatesByName(AstScope scope, String name, List<Template> templates) {
         for (AstDef def : scope.getDefs()) {
-            if (def instanceof Template && def.getName().equals(name)) {
+            if (def instanceof Template && def.getSimpleName().toString().equals(name)) {
                 templates.add((Template) def);
             }
         }

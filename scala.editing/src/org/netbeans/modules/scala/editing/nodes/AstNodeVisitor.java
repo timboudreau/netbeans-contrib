@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
@@ -266,7 +267,7 @@ public class AstNodeVisitor extends AstVisitor {
             // latest id is imported type
             AstId latest = paths.get(paths.size() - 1);
             paths.remove(latest);
-            TypeRef type = new TypeRef(latest.getName(), latest.getPickToken(), TypeKind.DECLARED);
+            TypeRef type = new TypeRef(latest.getSimpleName(), latest.getPickToken(), TypeKind.DECLARED);
 
             scopeStack.peek().addRef(type);
 
@@ -308,7 +309,7 @@ public class AstNodeVisitor extends AstVisitor {
         TypeRef type = null;
 
         AstId id = visitId(that.getGeneric(0));
-        TypeRef idType = new TypeRef(id.getName(), id.getPickToken(), TypeKind.OTHER);
+        TypeRef idType = new TypeRef(id.getSimpleName(), id.getPickToken(), TypeKind.OTHER);
 
         GNode funTypeTail = that.getGeneric(1);
         if (funTypeTail != null) {
@@ -320,7 +321,7 @@ public class AstNodeVisitor extends AstVisitor {
                 tailType = new TypeRef("_", getIdToken(funTypeTail), TypeKind.OTHER);
             } else {
                 AstId tailId = visitId(funTypeTail);
-                tailType = new TypeRef(tailId.getName(), tailId.getPickToken(), TypeKind.OTHER);
+                tailType = new TypeRef(tailId.getSimpleName(), tailId.getPickToken(), TypeKind.OTHER);
             }
 
             funType.setRhs(tailType);
@@ -616,7 +617,7 @@ public class AstNodeVisitor extends AstVisitor {
 
         List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
         for (Function constructor : constructors) {
-            constructor.setName(id.getName());
+            constructor.setSimpleName(id.getSimpleName());
             constructor.setPickToken(id.getPickToken());
         }
 
@@ -1018,12 +1019,12 @@ public class AstNodeVisitor extends AstVisitor {
 
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        Function function = new Function(id.getName(), id.getPickToken(), scope, true);
+        Function function = new Function(id.getSimpleName(), id.getPickToken(), scope, true);
         function.setParameters(params);
 
         Template enclosingTemplate = scopeStack.peek().getEnclosingDef(Template.class);
         if (enclosingTemplate != null) {
-            function.setName(enclosingTemplate.getName());
+            function.setSimpleName(enclosingTemplate.getSimpleName());
         }
 
         scopeStack.peek().addDef(function);
@@ -1038,7 +1039,7 @@ public class AstNodeVisitor extends AstVisitor {
         AstId id = visitId(that.getGeneric(0));
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
-        Function function = new Function(id.getName(), id.getPickToken(), scopeStack.peek(), false);
+        Function function = new Function(id.getSimpleName(), id.getPickToken(), scopeStack.peek(), false);
         function.setParameters(params);
 
         GNode funTypeParamClauseNode = that.getGeneric(1);
@@ -1832,7 +1833,7 @@ public class AstNodeVisitor extends AstVisitor {
             args = Collections.<AstExpr>singletonList(arg);
         }
 
-        ArgumentExprs argExprs = new ArgumentExprs(ElementKind.OTHER);
+        ArgumentExprs argExprs = new ArgumentExprs(getBoundsTokens(that));
         argExprs.setArgs(args);
 
         exit(that);
@@ -2024,7 +2025,7 @@ public class AstNodeVisitor extends AstVisitor {
                 (all other special characters)
                  */
                 int precedence = 0;
-                String opName = op.getName();
+                String opName = op.getSimpleName().toString();
                 if (opName.equals("*") || opName.equals("/") || opName.equals("%")) {
                     precedence = 1 * 10000 + i;
                 } else if (opName.equals("+") || opName.equals("-")) {
@@ -2160,12 +2161,11 @@ public class AstNodeVisitor extends AstVisitor {
 
         if (base == null) {
             // @TODO
-            base = new AstExpr(getBoundsTokens(
-                    baseNode)) {
+            base = new AstExpr(getBoundsTokens(baseNode)) {
 
                 @Override
-                public String getName() {
-                    return "todo";
+                public Name getSimpleName() {
+                    return new AstName("todo");
                 }
             };
 
@@ -2212,7 +2212,7 @@ public class AstNodeVisitor extends AstVisitor {
             } else {
                 // dog.sound
                 // Similest case, only one PathId
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken());
+                IdRef idRef = new IdRef(firstId.getSimpleName(), firstId.getPickToken());
 
                 scopeStack.peek().addRef(idRef);
 
@@ -2432,8 +2432,8 @@ public class AstNodeVisitor extends AstVisitor {
             return new SimpleIdType(null) {
 
                 @Override
-                public String getName() {
-                    return "{...}";
+                public Name getSimpleName() {
+                    return new AstName("{...}");
                 }
             };
         }

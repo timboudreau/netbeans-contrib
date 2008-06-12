@@ -84,15 +84,15 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public String getName() {
-        return element.getName();
+        return element.getSimpleName().toString();
     }
 
     public String getInsertPrefix() {
         return getName();
 //            if (getKind() == ElementKind.PACKAGE) {
-//                return getName() + ".";
+//                return getSimpleName() + ".";
 //            } else {
-//                return getName();
+//                return getSimpleName();
 //            }
     }
 
@@ -424,8 +424,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         //    HtmlFormatter formatter = request.formatter;
         //    formatter.reset();
         //    formatter.name(kind, true);
-        //    //formatter.appendText(getName());
-        //    formatter.appendHtml(getName());
+        //    //formatter.appendText(getSimpleName());
+        //    formatter.appendHtml(getSimpleName());
         //    formatter.name(kind, false);
         //
         //    return formatter.getText();
@@ -500,8 +500,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         //    HtmlFormatter formatter = request.formatter;
         //    formatter.reset();
         //    formatter.name(kind, true);
-        //    //formatter.appendText(getName());
-        //    formatter.appendHtml(getName());
+        //    //formatter.appendText(getSimpleName());
+        //    formatter.appendHtml(getSimpleName());
         //    formatter.name(kind, false);
         //
         //    return formatter.getText();
@@ -563,7 +563,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getName() {
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             int lastDot = name.lastIndexOf('.');
             if (lastDot > 0) {
                 name = name.substring(lastDot + 1, name.length());
@@ -609,7 +609,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getName() {
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             int lastDot = name.lastIndexOf('.');
             if (lastDot > 0) {
                 name = name.substring(lastDot + 1, name.length());

@@ -48,7 +48,7 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
  */
 public class IdRef extends AstRef {
     
-    public IdRef(String name, Token pickToken) {
+    public IdRef(CharSequence name, Token pickToken) {
         super(name, pickToken);
     }
 

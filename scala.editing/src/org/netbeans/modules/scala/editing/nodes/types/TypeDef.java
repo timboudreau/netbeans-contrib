@@ -52,7 +52,7 @@ public class TypeDef extends AstDef {
     private TypeRef value;
 
     public TypeDef(AstId id, AstScope bindingScope) {
-        super(id.getName(), id.getPickToken(), bindingScope, ElementKind.CLASS);
+        super(id.getSimpleName(), id.getPickToken(), bindingScope, ElementKind.CLASS);
     }
 
     public void setValue(TypeRef value) {

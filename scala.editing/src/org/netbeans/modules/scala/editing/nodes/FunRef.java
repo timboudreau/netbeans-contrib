@@ -40,10 +40,10 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.List;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
@@ -57,9 +57,8 @@ public class FunRef extends AstRef {
     private List<? extends AstNode> args;
     private boolean apply;
 
-    public FunRef(Token idToken) {
-        super(null, idToken);
-        setType(new PseudoTypeRef());
+    public FunRef(Token pickToken) {
+        super(null, pickToken);
     }
 
     public void setBase(AstNode base) {
@@ -89,32 +88,30 @@ public class FunRef extends AstRef {
     public boolean isLocal() {
         return base == null;
     }
-    
+
     public void setApply() {
         apply = true;
     }
-    
+
     public boolean isApply() {
         return apply;
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(" :").append(baseType.getName());
+                sb.append(" :").append(baseType.getSimpleName());
             }
         }
-        sb.append('.').append(call.getName());
-        return sb.toString();
+        sb.append('.').append(call.getSimpleName());
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
-    
-    public void setTypeByQualifiedName(String typeQualifiedName) {
-        getType().setQualifiedName(typeQualifiedName);
-    }
-    
+
     // ----- Special FunRef
     public static class ApplyFunRef extends FunRef {
 
@@ -123,6 +120,11 @@ public class FunRef extends AstRef {
         }
 
         @Override
+        public Name getSimpleName() {
+            return new AstName("apply");
+        }        
+        
+        @Override
         public int getPickOffset(TokenHierarchy th) {
             return getBase().getPickOffset(th);
         }
@@ -130,11 +132,6 @@ public class FunRef extends AstRef {
         @Override
         public int getPickEndOffset(TokenHierarchy th) {
             return getBase().getPickEndOffset(th);
-        }
-                
-        @Override
-        public String getName() {
-            return "apply";
         }
     }
 }

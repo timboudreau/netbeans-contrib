@@ -174,7 +174,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     highlights.put(hiRange, ColoringAttributes.FIELD_SET);
                 }
             } else if (ref instanceof TypeRef) {
-                String name = ref.getName();
+                String name = ref.getSimpleName().toString();
                 if (name != null && name.equals("_")) {
                     continue;
                 }

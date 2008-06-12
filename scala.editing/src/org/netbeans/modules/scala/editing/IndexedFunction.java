@@ -116,7 +116,7 @@ public class IndexedFunction extends IndexedElement {
             }
         }
 
-        if (getName().equals(funRef.getCall().getName()) || getName().equals("apply") && funRef.isLocal()) {
+        if (getSimpleName().equals(funRef.getCall().getSimpleName()) || getSimpleName().equals("apply") && funRef.isLocal()) {
             if (myArgs.size() == funRef.getArgs().size() || containsVariableLengthArg) {
                 return true;
             }

@@ -365,7 +365,7 @@ public class ScalaIndexer implements Indexer {
                         } else {
                             List<TypeRef> importedTypes = importExpr.getImportedTypes();
                             for (TypeRef type : importedTypes) {
-                                importAttr.append(type.getName()).append(";");
+                                importAttr.append(type.getSimpleName()).append(";");
                                 
                                 importPkgs.add(pkgName);
                                 document.addPair(FIELD_IMPORT, importAttr.toString(), true);
@@ -444,7 +444,7 @@ public class ScalaIndexer implements Indexer {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             StringBuilder base = new StringBuilder();
             base.append(name.toLowerCase());
             base.append(';');
@@ -484,7 +484,7 @@ public class ScalaIndexer implements Indexer {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             StringBuilder base = new StringBuilder();
             base.append(name.toLowerCase());
             base.append(';');

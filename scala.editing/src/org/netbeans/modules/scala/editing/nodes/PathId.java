@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
@@ -64,15 +65,17 @@ public class PathId extends AstId {
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<AstId> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
+            sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(".");
             }
         }
-        return sb.toString();
+
+        setSimpleName(sb);        
+        return super.getSimpleName();
     }
 
     @Override

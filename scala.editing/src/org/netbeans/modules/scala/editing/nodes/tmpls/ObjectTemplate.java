@@ -54,6 +54,6 @@ public class ObjectTemplate extends Template {
 
     @Override
     public String getBinaryName() {
-        return getName() + "$";
+        return getSimpleName() + "$";
     }
 }

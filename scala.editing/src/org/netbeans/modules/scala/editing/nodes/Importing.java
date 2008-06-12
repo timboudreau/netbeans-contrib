@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
@@ -58,27 +59,27 @@ public class Importing extends AstDef {
     public Importing(Token idToken, AstScope bindingScope) {
         super(null, idToken, bindingScope, ElementKind.OTHER);
     }
-    
+
     public void setPaths(List<AstId> paths) {
         this.paths = paths;
     }
-    
+
     public List<AstId> getPaths() {
         return paths;
     }
-    
+
     public void setImportedTypes(List<TypeRef> importedTypes) {
         this.importedTypes = importedTypes;
     }
-    
+
     public List<TypeRef> getImportedTypes() {
         return importedTypes == null ? Collections.<TypeRef>emptyList() : importedTypes;
     }
-    
+
     public void setWild() {
         this.wild = true;
     }
-    
+
     public boolean isWild() {
         return wild;
     }
@@ -86,28 +87,31 @@ public class Importing extends AstDef {
     public String getPackageName() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<AstId> itr = paths.iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
+            sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(".");
             }
         }
         return sb.toString();
     }
-    
+
     @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();        
-        for (AstId id : paths) {
-            sb.append(id.getName()).append(".");
-        }
-        if (isWild()) {
-            sb.append("_");
-            return sb.toString();
-        }
-        if (getImportedTypes().size() == 1) {
-            sb.append(getImportedTypes().get(0).getName());
-        }
-        return sb.toString();
+    public Name getSimpleName() {
+            StringBuilder sb = new StringBuilder();
+
+            for (AstId id : paths) {
+                sb.append(id.getSimpleName()).append(".");
+            }
+
+            if (isWild()) {
+                sb.append("_");
+                setSimpleName(sb.toString());
+                return super.getSimpleName();
+            } else if (getImportedTypes().size() == 1) {
+                sb.append(getImportedTypes().get(0).getSimpleName());
+                setSimpleName(sb);
+            }
+
+        return super.getSimpleName();
     }
-        
 }

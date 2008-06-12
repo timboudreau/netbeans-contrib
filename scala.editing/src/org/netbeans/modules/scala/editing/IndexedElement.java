@@ -52,6 +52,7 @@ import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
@@ -233,7 +234,7 @@ public abstract class IndexedElement extends AstElement {
 
     static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
         String in = element.getIn();
-        String thename = element.getName();
+        String thename = element.getSimpleName().toString();
         StringBuilder base = new StringBuilder();
         base.append(thename.toLowerCase());
         base.append(';');
@@ -245,7 +246,7 @@ public abstract class IndexedElement extends AstElement {
         base.append(';');
         base.append(encodeAttributes(element, th));
 
-        return create(element.getName(), base.toString(), "", index, false);
+        return create(element.getSimpleName().toString(), base.toString(), "", index, false);
     }
 
     public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.CompilationInfo javaInfo) {
@@ -289,8 +290,8 @@ public abstract class IndexedElement extends AstElement {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public Name getSimpleName() {
+        return new AstName(name);
     }
 
     @Override
@@ -731,7 +732,7 @@ public abstract class IndexedElement extends AstElement {
             if (params != null) {
                 int argIndex = 0;
                 for (Var param : params) {
-                    String paramName = param.getName();
+                    String paramName = param.getSimpleName().toString();
                     if (argIndex == 0 && "super".equals(paramName)) { // NOI18N
                         // Prototype inserts these as the first param to handle inheritance/super
 
@@ -744,7 +745,7 @@ public abstract class IndexedElement extends AstElement {
                     sb.append(paramName);
                     TypeRef paramType = param.getType();
                     if (paramType != null) {
-                        String typeName = paramType.getName();
+                        String typeName = paramType.getSimpleName().toString();
                         if (typeName != null) {
                             sb.append(':');
                             sb.append(typeName);
@@ -813,7 +814,7 @@ public abstract class IndexedElement extends AstElement {
         if (type.isResolved()) {
             sb.append(type.getQualifiedName());
         } else {
-            sb.append(type.getName());
+            sb.append(type.getSimpleName());
         }
 
         List<TypeRef> typeArgs = type.getTypeArgs();
@@ -839,7 +840,7 @@ public abstract class IndexedElement extends AstElement {
             posAndLevel[0]++;
             if (c == '[') {
                 posAndLevel[1]++;
-                curr.setName(sb.toString());
+                curr.setSimpleName(sb.toString());
                 typeArgs = new ArrayList<TypeRef>();
                 curr.setTypeArgs(typeArgs);
 
@@ -861,8 +862,8 @@ public abstract class IndexedElement extends AstElement {
             }
         }
 
-        if (curr.getName() == null) {
-            curr.setName(sb.toString());
+        if (curr.getSimpleName() == null) {
+            curr.setSimpleName(sb);
         }
 
         return curr;
@@ -873,7 +874,7 @@ public abstract class IndexedElement extends AstElement {
             sb.append("[");
             for (Iterator<TypeParam> itr = typeParams.iterator(); itr.hasNext();) {
                 TypeParam typeParam = itr.next();
-                sb.append(typeParam.getName());
+                sb.append(typeParam.getSimpleName());
                 if (typeParam.getVariant() != null) {
                     sb.append(typeParam.getVariant());
                 }
@@ -1221,7 +1222,7 @@ public abstract class IndexedElement extends AstElement {
         }
         // TODO - share this between Navigator implementation and here...
         sb.append("<b>"); // NOI18N
-        sb.append(element.getName());
+        sb.append(element.getSimpleName());
         sb.append("</b>"); // NOI18N
 
         if (element instanceof IndexedFunction) {

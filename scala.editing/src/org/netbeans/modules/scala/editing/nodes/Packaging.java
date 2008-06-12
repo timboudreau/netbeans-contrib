@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -67,8 +68,9 @@ public class Packaging extends AstDef {
     }
 
     @Override
-    public String getName() {
-        return getQualifiedName();
+    public Name getSimpleName() {
+        setSimpleName(getQualifiedName());
+        return super.getSimpleName();
     }    
     
     @Override
@@ -76,7 +78,7 @@ public class Packaging extends AstDef {
         if (qualifiedName == null) {
             StringBuilder sb = new StringBuilder();
             for (Iterator<AstId> itr = getIds().iterator(); itr.hasNext();) {
-                sb.append(itr.next().getName());
+                sb.append(itr.next().getSimpleName());
                 if (itr.hasNext()) {
                     sb.append(".");
                 }

@@ -81,12 +81,12 @@ public class ClassTemplate extends Template implements WithTypeParams {
     
     @Override
     public String getBinaryName() {
-        return getName();
+        return getSimpleName().toString();
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        formatter.appendText(getName());
+        formatter.appendText(getSimpleName().toString());
         if (!getTypeParams().isEmpty()) {
             formatter.appendText("[");
 
