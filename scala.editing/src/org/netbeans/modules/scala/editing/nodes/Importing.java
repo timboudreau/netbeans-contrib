@@ -96,22 +96,26 @@ public class Importing extends AstDef {
     }
 
     @Override
+    public boolean referredBy(AstRef ref) {
+        return false;
+    }        
+    
+    /** @Todo should define another named method */
+    @Override
     public Name getSimpleName() {
-            StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-            for (AstId id : paths) {
-                sb.append(id.getSimpleName()).append(".");
-            }
+        for (AstId id : paths) {
+            sb.append(id.getSimpleName()).append(".");
+        }
 
-            if (isWild()) {
-                sb.append("_");
-                setSimpleName(sb.toString());
-                return super.getSimpleName();
-            } else if (getImportedTypes().size() == 1) {
-                sb.append(getImportedTypes().get(0).getSimpleName());
-                setSimpleName(sb);
-            }
+        if (isWild()) {
+            sb.append("_");
+        } else if (getImportedTypes().size() == 1) {
+            sb.append(getImportedTypes().get(0).getSimpleName());
+        }
 
+        setSimpleName(sb);
         return super.getSimpleName();
     }
 }

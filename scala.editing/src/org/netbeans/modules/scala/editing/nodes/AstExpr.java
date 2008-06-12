@@ -53,7 +53,7 @@ public class AstExpr extends AstNode {
     private Token[] boundsTokens;
 
     public AstExpr(Token[] boundsTokens) {
-        super("expr");
+        super(NO_MEANING_NAME);
         assert boundsTokens.length == 2;
         this.boundsTokens = boundsTokens;
     }

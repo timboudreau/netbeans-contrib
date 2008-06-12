@@ -58,6 +58,8 @@ import org.openide.filesystems.FileObject;
  */
 public abstract class AstNode {
 
+    protected final static String NO_MEANING_NAME = "-1";
+    
     /** 
      * @Note: 
      * 1. Not all AstNode has pickToken, such as Expr etc.

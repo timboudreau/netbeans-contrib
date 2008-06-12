@@ -85,6 +85,7 @@ public class Packaging extends AstDef {
             }
             qualifiedName = sb.toString();
         }
+
         return qualifiedName;
     }
 
@@ -95,7 +96,12 @@ public class Packaging extends AstDef {
     public boolean isTop() {
         return top;
     }
-
+    
+    @Override
+    public boolean referredBy(AstRef ref) {
+        return false;
+    }        
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
