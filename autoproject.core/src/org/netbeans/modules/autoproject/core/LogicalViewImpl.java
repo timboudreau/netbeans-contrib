@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import javax.swing.Action;
-import javax.swing.JSeparator;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.spi.project.ActionProvider;
@@ -127,8 +126,8 @@ class LogicalViewImpl implements LogicalViewProvider {
                     }
                 }
             }
-            addFromLayers(actions, "Projects/Profiler_Actions_temporary"); //NOI18N
-            addFromLayers(actions, "Projects/org-netbeans-modules-autoproject/Actions"); // NOI18N
+            actions.addAll(Utilities.actionsForPath("Projects/Profiler_Actions_temporary")); //NOI18N
+            actions.addAll(Utilities.actionsForPath("Projects/org-netbeans-modules-autoproject/Actions")); // NOI18N
             actions.add(null);
             actions.add(CommonProjectActions.setAsMainProjectAction());
             actions.add(CommonProjectActions.openSubprojectsAction());
@@ -142,22 +141,12 @@ class LogicalViewImpl implements LogicalViewProvider {
             actions.add(null);
              */
             actions.add(SystemAction.get(FindAction.class));
-            addFromLayers(actions, "Projects/Actions"); // NOI18N
+            actions.addAll(Utilities.actionsForPath("Projects/Actions")); // NOI18N
             actions.add(null);
             /* XXX
             actions.add(CommonProjectActions.customizeProjectAction());
              */
             return actions.toArray(new Action[actions.size()]);
-        }
-        private static void addFromLayers(List<Action> actions, String path) {
-            Lookup look = Lookups.forPath(path);
-            for (Object next : look.lookupAll(Object.class)) {
-                if (next instanceof Action) {
-                    actions.add((Action) next);
-                } else if (next instanceof JSeparator) {
-                    actions.add(null);
-                }
-            }
         }
 
         /* XXX no rename support currently:

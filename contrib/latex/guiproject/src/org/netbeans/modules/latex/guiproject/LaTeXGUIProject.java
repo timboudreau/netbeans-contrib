@@ -284,6 +284,10 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider {
             actions.add(null);
             
             // honor 57874 contact
+            /* XXX with org.openide.util 7.14 could use instead:
+            actions.add(null);
+            actions.addAll(Utilities.actionsForPath("Projects/Actions")); // NOI18N
+             */
             
             try {
                 Repository repository  = Repository.getDefault();
