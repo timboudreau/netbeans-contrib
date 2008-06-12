@@ -67,7 +67,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -169,16 +168,7 @@ public final class ThemeBuilderViewProvider implements LogicalViewProvider{
             actions.add(null);
             actions.add(SystemAction.get(FindAction.class));
             actions.add(null);
-            /*FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Projects/Actions"); // NOI18N
-            if (fo != null) {
-                for (Object next : new FolderLookup(DataFolder.findFolder(fo)).getLookup().lookupAll(Object.class)) {
-                    if (next instanceof Action) {
-                        actions.add((Action) next);
-                    } else if (next instanceof JSeparator) {
-                        actions.add(null);
-                    }
-                }
-            }*/
+            // org.openide.util 7.14: actions.addAll(Utilities.actionsForPath("Projects/Actions")); // NOI18N
             actions.add(null);
             actions.add(SystemAction.get(ToolsAction.class));
             actions.add(null);

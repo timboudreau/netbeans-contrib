@@ -56,6 +56,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
 
@@ -185,7 +186,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 }
 
                 if (fo != null) {
-                    return new DeclarationLocation(fo, offset, foundElement);
+                    return new DeclarationLocation(fo, offset, new GsfElement(foundElement));
                 }
             }
 

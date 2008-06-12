@@ -48,9 +48,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.Modifier;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.Parser;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.SourceFileReader;
@@ -99,7 +99,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                         sb.append("package " + pkg + ";"); // NOI18N
                     }
                     String name = fo.getName();
-                    sb.append("public class " + name + "{}"); // NOI18N
+                    sb.append("public class ").append(name).append(" implements scala.ScalaObject {}"); // NOI18N
                     result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
@@ -109,6 +109,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                         Packaging packaging = template.getPackageElement();
                         String pkgName = packaging == null ? "" : packaging.getName();
                         result.add(file, pkgName, template.getName(), javaStub);
+                        break;
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -217,13 +218,12 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
                 //genImports(template, out);
 
-                out.println("/**");
-                out.println(" * A virtual class " + template.getName());
-                out.println(" */");
+                //out.println("@NetBeansVirtualSource(11, 12)");
                 
                 printModifiers(out, template.getModifiers());                
                 out.print("class ");
-                out.println(template.getName());
+                out.print(template.getName());
+                out.print(" implements scala.ScalaObject");
 
 //                List<SimpleType> parents = template.getExtendsWith();
 //
@@ -235,11 +235,11 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 //                }
 
 
-                out.println(" {");
+                out.println("{");
                 
-                out.print("public " + template.getName() + "() {};");
+                out.println("public " + template.getName() + "() {};");
 
-                out.print("public void vitualMethod() {};");
+                out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
 
                 out.println("}");
             } finally {

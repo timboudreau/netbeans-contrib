@@ -41,14 +41,17 @@
 
 package org.netbeans.modules.python.editor.lexer;
 
-import org.netbeans.modules.python.editor.lexer.PythonLexer;
+import java.util.ConcurrentModificationException;
+import javax.swing.text.BadLocationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.lib.lexer.test.LexerTestUtilities;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.lib.lexer.test.ModificationTextDocument;
 
 /**
  *
@@ -105,4 +108,83 @@ public class PythonLexerTest extends NbTestCase {
         LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.STRING_LITERAL, "\"# This is not a comment.\"");
     }
 
+    public void test2() {
+        String text =
+                "#! /usr/bin/python\n" +
+                "print \"Hello World!\"\t\n";
+        TokenHierarchy hi = TokenHierarchy.create(text, PythonTokenId.language());
+        TokenSequence ts = hi.tokenSequence();
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.COMMENT, "#! /usr/bin/python\n");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ANY_KEYWORD, "print");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.WHITESPACE, " ");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.STRING_LITERAL, "\"Hello World!\"");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.WHITESPACE, "\t");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.NEWLINE, "\n");
+        assertFalse(ts.moveNext());
+    }
+    
+    public void test3() {
+        String text =
+                "#! /usr/bin/python\n" +
+                "print \"Hello World!\"\t";
+        TokenHierarchy hi = TokenHierarchy.create(text, PythonTokenId.language());
+        TokenSequence ts = hi.tokenSequence();
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.COMMENT, "#! /usr/bin/python\n");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ANY_KEYWORD, "print");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.WHITESPACE, " ");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.STRING_LITERAL, "\"Hello World!\"");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ERROR, "\t");
+        assertFalse(ts.moveNext());
+    }
+    
+    public void test4() throws BadLocationException {
+        Document doc = new ModificationTextDocument();
+        // Assign a language to the document
+        doc.putProperty(Language.class, PythonTokenId.language());
+        TokenHierarchy<?> hi = TokenHierarchy.get(doc);
+        assertNotNull("Null token hierarchy for document", hi);
+        TokenSequence<?> ts = hi.tokenSequence();
+        assertFalse(ts.moveNext());
+        
+        // Insert text into document
+        String text =
+                "#! /usr/bin/python\n" +
+                "print \"Hello World!\"";
+        doc.insertString(0, text, null);
+
+        // Last token sequence should throw exception - new must be obtained
+        try {
+            ts.moveNext();
+            fail("TokenSequence.moveNext() did not throw exception as expected.");
+        } catch (ConcurrentModificationException e) {
+            // Expected exception
+        }
+        
+        ts = hi.tokenSequence();
+        
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.COMMENT, "#! /usr/bin/python\n");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ANY_KEYWORD, "print");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.WHITESPACE, " ");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.STRING_LITERAL, "\"Hello World!\"");
+
+        assertFalse(ts.moveNext());
+
+        LexerTestUtilities.incCheck(doc, false);
+        
+        int offset = text.length() - 1;
+
+        doc.remove(offset, 1);
+        
+        ts = hi.tokenSequence();
+        
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.COMMENT, "#! /usr/bin/python\n");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ANY_KEYWORD, "print");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.WHITESPACE, " ");
+        LexerTestUtilities.assertNextTokenEquals(ts, PythonTokenId.ERROR, "\"Hello World!");
+
+        assertFalse(ts.moveNext());
+
+        LexerTestUtilities.incCheck(doc, false);
+    }
+    
 }

@@ -40,9 +40,9 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.List;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 

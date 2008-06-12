@@ -46,9 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
@@ -175,7 +175,7 @@ public class ScalaTypeInferencer {
                 // let's try member chain first
                 Iterator<Id> itr = paths.iterator();
                 Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.LOCAL_VARIABLE);
                 idRef.setEnclosingScope(funRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, funRef.getEnclosingScope());
                 AstRef currBase = idRef;
@@ -244,7 +244,7 @@ public class ScalaTypeInferencer {
                 if (qualifiedName != null) {
                     baseTypeStr = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
-                    funRef.setCall(new Id("apply", objectName.getPickToken(), ElementKind.VARIABLE));
+                    funRef.setCall(new Id("apply", objectName.getPickToken(), ElementKind.LOCAL_VARIABLE));
 
                     funRef.setApply();
                     callName = "apply";
@@ -319,7 +319,7 @@ public class ScalaTypeInferencer {
                 // let's try member chain first
                 Iterator<Id> itr = paths.iterator();
                 Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.LOCAL_VARIABLE);
                 idRef.setEnclosingScope(fieldRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
                 AstRef currBase = idRef;

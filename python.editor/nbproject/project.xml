@@ -57,8 +57,16 @@
             </test-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/jython-antlr.jar</runtime-relative-path>
-                <binary-origin>external/jython-antlr.jar</binary-origin>
+                <runtime-relative-path>ext/jython.jar</runtime-relative-path>
+                <binary-origin>external/jython.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/antlr-runtime-3.1b1.jar</runtime-relative-path>
+                <binary-origin>external/antlr-runtime-3.1b1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jarjar.jar</runtime-relative-path>
+                <binary-origin>external/jarjar.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

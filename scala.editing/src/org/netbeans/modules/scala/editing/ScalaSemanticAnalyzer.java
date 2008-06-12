@@ -41,12 +41,12 @@ package org.netbeans.modules.scala.editing;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -145,7 +145,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
             switch (def.getKind()) {
-                case MODULE:
+                case INTERFACE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:

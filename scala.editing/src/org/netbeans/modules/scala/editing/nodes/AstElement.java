@@ -38,17 +38,24 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ElementVisitor;
+import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.openide.filesystems.FileObject;
 
@@ -56,7 +63,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Caoyuan Deng
  */
-public class AstElement implements ElementHandle {
+public class AstElement implements Element {
 
     /** 
      * @Note: 
@@ -86,6 +93,34 @@ public class AstElement implements ElementHandle {
         this.name = name;
         this.kind = kind;
     }
+
+    public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends Element> getEnclosedElements() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Element getEnclosingElement() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Name getSimpleName() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <A extends Annotation> A getAnnotation(Class<A> arg0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends AnnotationMirror> getAnnotationMirrors() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public TypeMirror asType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }        
     
     public void setName(String name) {
         this.name = name;
@@ -223,7 +258,7 @@ public class AstElement implements ElementHandle {
             return "";
         }
     }
-
+    
     @Override
     public String toString() {
         return getName() + "(kind=" + getKind() + ", type=" + getType() + ")";

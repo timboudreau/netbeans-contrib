@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.gsf.api.Parser;
 import org.netbeans.modules.python.editor.lexer.PythonTokenId;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
@@ -72,5 +73,10 @@ public class PythonLanguage extends DefaultLanguageConfig {
     @Override
     public String getPreferredExtension() {
         return "py"; // NOI18N
+    }
+
+    @Override
+    public Parser getParser() {
+        return new PythonParser();
     }
 }

@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Id;
@@ -58,7 +58,7 @@ public class TraitTemplate extends Template implements WithTypeParams {
     private List<TypeParam> typeParams;
 
     public TraitTemplate(Id id, AstScope bindingScope) {
-        super(id, bindingScope, ElementKind.MODULE);
+        super(id, bindingScope, ElementKind.INTERFACE);
     }
 
     public void setTypeParams(List<TypeParam> typeParams) {

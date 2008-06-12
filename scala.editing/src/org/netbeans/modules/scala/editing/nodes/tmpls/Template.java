@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -82,7 +82,7 @@ public abstract class Template extends AstDef {
         switch (ref.getKind()) {
             case CLASS:
                 return getName().equals(ref.getName());
-            case VARIABLE:
+            case LOCAL_VARIABLE:
                 if (isCaseOne()) {
                     return getName().equals(ref.getName());
                 } else {

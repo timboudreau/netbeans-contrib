@@ -38,8 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
@@ -51,7 +49,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
@@ -178,7 +178,7 @@ public abstract class IndexedElement extends AstElement {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
             return type;
         } else if ((flags & TRAIT) != 0) {
-            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.MODULE);
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.INTERFACE);
             return type;
         } else if ((flags & FIELD) != 0) {
             IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
@@ -313,7 +313,7 @@ public abstract class IndexedElement extends AstElement {
                 case CLASS:
                     return ElementKind.CLASS;
                 case INTERFACE:
-                    return ElementKind.MODULE;
+                    return ElementKind.INTERFACE;
                 default:
                     return ElementKind.OTHER;
             }
@@ -616,9 +616,9 @@ public abstract class IndexedElement extends AstElement {
             flags = flags | STATIC;
         }
 
-        if (element.getModifiers().contains(Modifier.DEPRECATED)) {
-            flags = flags | DEPRECATED;
-        }
+//        if (element.getModifiers().contains(Modifier.DEPRECATED)) {
+//            flags = flags | DEPRECATED;
+//        }
 
         if (element.getModifiers().contains(Modifier.PRIVATE)) {
             flags = flags | PRIVATE;
@@ -714,7 +714,7 @@ public abstract class IndexedElement extends AstElement {
 //                    flags = flags | IndexedElement.NODOC;
 //                }
 //            }
-        OffsetRange docRange = getDocumentationOffset(element, th);
+        OffsetRange docRange = ScalaLexUtilities.getDocumentationOffset(element, th);
         if (docRange != OffsetRange.NONE) {
             flags = flags | DOCUMENTED;
         }
@@ -1016,15 +1016,6 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
 
         return sb.toString();
-    }
-
-    private static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
-        int astOffset = element.getPickOffset(th);
-        // XXX This is wrong; I should do a
-        //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
-        // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
-        int lexOffset = astOffset;
-        return ScalaLexUtilities.getDocCommentRangeBefore(th, lexOffset);
     }
 
     public boolean isDocumented() {

@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.modules.gsf.api.Modifier;
+import javax.lang.model.element.Modifier;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
