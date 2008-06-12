@@ -43,6 +43,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.apache.tools.ant.module.api.AntProjectCookie;
+import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.openide.filesystems.FileObject;
@@ -68,7 +69,7 @@ class ProjectInformationImpl implements ProjectInformation {
     public String getDisplayName() {
         FileObject f = p.getProjectDirectory().getFileObject("build.xml");
         if (f != null) {
-            AntProjectCookie apc = AntUtils.getAntProjectCookie(f);
+            AntProjectCookie apc = AntScriptUtils.antProjectCookieFor(f);
             if (apc != null) {
                 Document doc = apc.getDocument();
                 if (doc != null) {
