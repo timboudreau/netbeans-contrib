@@ -320,19 +320,9 @@ final class ScalaConsoleTopComponent extends TopComponent {
         ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
         execBuilder.frontWindow(true).inputVisible(true);
         execBuilder.inputOutput(new CustomInputOutput(in, out, err));
-        
-        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
+        execBuilder.postExecution(new Runnable() {
 
-            public Process call() throws Exception {
-                return builder.create();
-            }
-
-        }, execBuilder.create(), "Scala Shell");
-
-        Task task = executionService.run();
-
-        task.addTaskListener(new TaskListener() {
-            public void taskFinished(Task task) {
+            public void run() {
                 finished = true;
                 textPane.setEditable(false);
                 SwingUtilities.invokeLater(new Runnable() {
@@ -344,6 +334,16 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 });
             }
         });
+
+        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
+
+            public Process call() throws Exception {
+                return builder.create();
+            }
+
+        }, execBuilder.create(), "Scala Shell");
+
+        executionService.run();
 
         // [Issue 91208]  avoid of putting cursor in IRB console on line where is not a prompt
         textPane.addMouseListener(new MouseAdapter() {
