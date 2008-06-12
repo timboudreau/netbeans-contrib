@@ -203,7 +203,8 @@ public class TreeCreator implements Visitor {
     }
 
     public void visit(ASTError astError) {
-        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, astError.toString());
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "ASTError", 
+                astError.getStartOffset(), astError.getStartOffset());
         parentNode.addChild(adapter);
     }
 
