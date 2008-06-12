@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -59,8 +59,8 @@ public class ParamType extends TypeRef {
     private More more;
     private TypeRef rawType;
 
-    public ParamType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public ParamType(Token pickToken) {
+        super(null, pickToken, TypeKind.DECLARED);
     }
 
     public void setRawType(TypeRef rawType) {

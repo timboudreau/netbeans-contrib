@@ -51,7 +51,7 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
  */
 public class Importing extends AstDef {
 
-    private List<Id> paths;
+    private List<AstId> paths;
     private List<TypeRef> importedTypes;
     private boolean wild;
 
@@ -59,11 +59,11 @@ public class Importing extends AstDef {
         super(null, idToken, bindingScope, ElementKind.OTHER);
     }
     
-    public void setPaths(List<Id> paths) {
+    public void setPaths(List<AstId> paths) {
         this.paths = paths;
     }
     
-    public List<Id> getPaths() {
+    public List<AstId> getPaths() {
         return paths;
     }
     
@@ -85,7 +85,7 @@ public class Importing extends AstDef {
 
     public String getPackageName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = paths.iterator(); itr.hasNext();) {
+        for (Iterator<AstId> itr = paths.iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
@@ -97,7 +97,7 @@ public class Importing extends AstDef {
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();        
-        for (Id id : paths) {
+        for (AstId id : paths) {
             sb.append(id.getName()).append(".");
         }
         if (isWild()) {

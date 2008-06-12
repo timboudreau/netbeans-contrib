@@ -42,10 +42,10 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -53,24 +53,24 @@ import org.netbeans.modules.scala.editing.nodes.Id;
  */
 public class SimpleSingletonType extends TypeRef {
     
-    private List<Id> ids;
+    private List<AstId> ids;
     
-    public SimpleSingletonType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public SimpleSingletonType(Token pickToken) {
+        super(null, pickToken, TypeKind.DECLARED);
     }
     
-    public void setIds(List<Id> ids) {
+    public void setIds(List<AstId> ids) {
         this.ids = ids;
     }
     
-    public List<Id> getIds() {
-        return ids == null ? Collections.<Id>emptyList() : ids;
+    public List<AstId> getIds() {
+        return ids == null ? Collections.<AstId>emptyList() : ids;
     }
 
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+        for (Iterator<AstId> itr = getIds().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
@@ -83,7 +83,7 @@ public class SimpleSingletonType extends TypeRef {
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+        for (Iterator<AstId> itr = getIds().iterator(); itr.hasNext();) {
             formatter.appendText(itr.next().getName());
             if (itr.hasNext()) {
                 formatter.appendText(".");

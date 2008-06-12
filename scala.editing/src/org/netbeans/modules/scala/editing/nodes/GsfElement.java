@@ -51,90 +51,102 @@ import org.openide.filesystems.FileObject;
  */
 public class GsfElement implements ElementHandle {
 
-    private AstElement element;
+    private AstNode node;
     private ElementKind kind;
     private Set<Modifier> modifiers;
 
-    public GsfElement(AstElement element) {
-        this.element = element;
+    public GsfElement(AstNode node) {
+        this.node = node;
     }
-    
+
     public GsfElement(ElementKind kind) {
         this.kind = kind;
     }
 
     public FileObject getFileObject() {
-        return element.getFileObject();
+        return node.getFileObject();
     }
 
     public String getIn() {
-        return element.getIn();
+        return node.getIn();
     }
 
     public ElementKind getKind() {
         if (kind == null) {
-            kind = getGsfKind(element);
+            kind = getGsfKind(node);
         }
         return kind;
     }
 
     public String getMimeType() {
-        return element.getMimeType();
+        return node.getMimeType();
     }
 
     public Set<Modifier> getModifiers() {
         if (modifiers == null) {
-            modifiers = getGsfModifiers(element);
+            modifiers = getGsfModifiers(node);
         }
 
         return modifiers;
     }
 
     public String getName() {
-        return element.getSimpleName().toString();
+        return node.getName().toString();
     }
 
     public boolean signatureEquals(ElementHandle handle) {
         return false;
     }
 
-    public static ElementKind getGsfKind(AstElement element) {
-        switch (element.getKind()) {
-            case CLASS:
-                return ElementKind.CLASS;
-            case CONSTRUCTOR:
-                return ElementKind.CONSTRUCTOR;
-            case ENUM:
-                return ElementKind.CLASS;
-            case ENUM_CONSTANT:
-                return ElementKind.CONSTANT;
-            case EXCEPTION_PARAMETER:
-                return ElementKind.OTHER;
-            case FIELD:
-                return ElementKind.FIELD;
-            case INTERFACE:
-                return ElementKind.MODULE;
-            case LOCAL_VARIABLE:
-                return ElementKind.VARIABLE;
-            case METHOD:
-                return ElementKind.METHOD;
-            case OTHER:
-                return ElementKind.OTHER;
-            case PACKAGE:
-                return ElementKind.PACKAGE;
-            case PARAMETER:
-                return ElementKind.PARAMETER;
-            case TYPE_PARAMETER:
-                return ElementKind.CLASS;
-            default:
-                return ElementKind.OTHER;
+    public static ElementKind getGsfKind(AstNode node) {
+        if (node instanceof AstDef) {
+            switch (((AstDef) node).getKind()) {
+                case CLASS:
+                    return ElementKind.CLASS;
+                case CONSTRUCTOR:
+                    return ElementKind.CONSTRUCTOR;
+                case ENUM:
+                    return ElementKind.CLASS;
+                case ENUM_CONSTANT:
+                    return ElementKind.CONSTANT;
+                case EXCEPTION_PARAMETER:
+                    return ElementKind.OTHER;
+                case FIELD:
+                    return ElementKind.FIELD;
+                case INTERFACE:
+                    return ElementKind.MODULE;
+                case LOCAL_VARIABLE:
+                    return ElementKind.VARIABLE;
+                case METHOD:
+                    return ElementKind.METHOD;
+                case OTHER:
+                    return ElementKind.OTHER;
+                case PACKAGE:
+                    return ElementKind.PACKAGE;
+                case PARAMETER:
+                    return ElementKind.PARAMETER;
+                case TYPE_PARAMETER:
+                    return ElementKind.CLASS;
+                default:
+                    return ElementKind.OTHER;
+            }
+        } else if (node instanceof AstRef) {
+            AstScope scope = node.getEnclosingScope();
+            if (scope != null) {
+                AstDef def = scope.findDef(node);
+                if (def != null) {
+                    return getGsfKind(def);
+                }
+            }
         }
+        
+        return ElementKind.OTHER;
     }
 
-    public static Set<Modifier> getGsfModifiers(AstElement element) {
+    public static Set<Modifier> getGsfModifiers(AstNode node) {
         Set<Modifier> modifiers = new HashSet<Modifier>();
 
-        for (javax.lang.model.element.Modifier mod : element.getModifiers()) {
+        for (javax.lang.model.element.Modifier mod : node.getModifiers()) {
             switch (mod) {
                 case PRIVATE:
                     modifiers.add(Modifier.PRIVATE);
@@ -149,7 +161,7 @@ public class GsfElement implements ElementHandle {
                     continue;
             }
         }
-        
+
         return modifiers;
     }
 }

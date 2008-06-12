@@ -188,7 +188,7 @@ public class SourceUtils {
 
             return false;
         }
-        List<Var> params = method.getParams();
+        List<Var> params = method.getParameters();
         if (params != null && params.size() != 1) {
             return false;
         }

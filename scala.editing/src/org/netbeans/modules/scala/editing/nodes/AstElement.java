@@ -41,56 +41,31 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
-import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class AstElement implements Element {
+public class AstElement extends AstNode implements Element {
 
-    /** 
-     * @Note: 
-     * 1. Not all Element has idToken, such as Expr etc.
-     * 2. Due to strange behavior of StructureAnalyzer, we can not rely on 
-     *    idToken's text as name, idToken may be <null> and idToken.text() 
-     *    will return null when an Identifier token modified, seems sync issue
-     */
-    private Token pickToken;
-    private String name;
     private ElementKind kind;
-    private AstScope enclosingScope;
-    private Set<Modifier> mods;
-    protected TypeRef type;
-    protected String qualifiedName;
-    
-    public AstElement( ElementKind kind) {
+
+    public AstElement(ElementKind kind) {
         this(null, kind);
     }
 
-    public AstElement(Token idToken, ElementKind kind) {
-        this(null, idToken, kind);
+    public AstElement(Token pickToken, ElementKind kind) {
+        this(null, pickToken, kind);
     }
 
     public AstElement(String name, Token pickToken, ElementKind kind) {
-        this.pickToken = pickToken;
-        this.name = name;
+        super(name, pickToken);
         this.kind = kind;
     }
 
@@ -120,145 +95,16 @@ public class AstElement implements Element {
 
     public TypeMirror asType() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }        
-    
-    public void setName(String name) {
-        this.name = name;
     }
 
-    public String getName() {
-        return name;
-//        if (name == null) {
-//            assert false : "Should implement getName()";
-//            throw new UnsupportedOperationException();
-//        } else {
-//            return name;
-//        }
-    }
-
-    public void setPickToken(Token pickToken) {
-        this.pickToken = pickToken;
-    }
-
-    public Token getPickToken() {
-        return pickToken;
-    }
-    
-    public int getPickOffset(TokenHierarchy th) {
-        if (pickToken != null) {
-            return pickToken.offset(th);
-        } else {
-            assert false : getName() + ": Should implement getPickOffset(th)";
-            return -1;
-        }
-    }
-    
-    public int getPickEndOffset(TokenHierarchy th) {
-        if (pickToken != null) {
-            return pickToken.offset(th) + pickToken.length();
-        } else {
-            assert false : getName() + ": Should implement getPickEndOffset(th)";
-            return -1;
-        }
-    }
-    
     public void setKind(ElementKind kind) {
         this.kind = kind;
     }
-    
+
     public ElementKind getKind() {
         return kind;
     }
 
-    public String getBinaryName() {
-        return getName();
-    }
-
-    public String getQualifiedName() {
-        if (qualifiedName == null) {
-            Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getName() : packaging.getName() + "." + getName();
-        }
-        return qualifiedName;
-    }
-
-    public Packaging getPackageElement() {
-        return getEnclosingDef(Packaging.class);
-    }
-
-    public void setType(TypeRef type) {
-        this.type = type;
-    }
-
-    public TypeRef getType() {
-        return type;
-    }
-
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {        
-        return getEnclosingScope().getEnclosingDef(clazz);
-    }
-
-    /**
-     * @Note: enclosingScope will be set when call
-     *   {@link AstScope#addDef(Def)} or {@link AstScope#addUsage(Usage)}
-     */
-    public void setEnclosingScope(AstScope enclosingScope) {
-        this.enclosingScope = enclosingScope;
-    }
-
-    /**
-     * @return the scope that encloses this item 
-     */
-    public AstScope getEnclosingScope() {
-        assert enclosingScope != null : getName() + ": Each element should set enclosing scope!, except native TypeRef";
-        return enclosingScope;
-    }
-
-    public void htmlFormat(HtmlFormatter formatter) {
-    }
-
-    public String getMimeType() {
-        return ScalaMimeResolver.MIME_TYPE;
-    }
-
-    public boolean signatureEquals(ElementHandle handle) {
-        // XXX TODO
-        return false;
-    }
-
-    public FileObject getFileObject() {
-        return null;
-    }
-
-    public void addModifier(String modifier) {
-        if (mods == null) {
-            mods = new HashSet<Modifier>();
-        }
-        Modifier mod = null;
-        if (modifier.equals("private")) {
-            mod = Modifier.PRIVATE;
-        } else if (modifier.equals("protected")) {
-            mod = Modifier.PROTECTED;
-        } else {
-            mod = Modifier.PUBLIC;
-        }
-        mods.add(mod);
-
-    }
-
-    public Set<Modifier> getModifiers() {
-        return mods == null ? Collections.<Modifier>emptySet() : mods;
-    }
-    
-    public String getIn() {
-        Template enclosingTemplate = getEnclosingDef(Template.class);
-        if (enclosingTemplate != null) {
-            return enclosingTemplate.getQualifiedName();
-        } else {
-            return "";
-        }
-    }
-    
     @Override
     public String toString() {
         return getName() + "(kind=" + getKind() + ", type=" + getType() + ")";

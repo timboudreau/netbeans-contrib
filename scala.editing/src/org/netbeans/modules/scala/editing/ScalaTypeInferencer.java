@@ -46,19 +46,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
@@ -97,7 +96,7 @@ public class ScalaTypeInferencer {
     public void infer() {
         // anything can do? should all inder global?
     }
-    // ------ Global infer
+
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -109,7 +108,7 @@ public class ScalaTypeInferencer {
 
         /** 
          * Since we do not compute type inference dependencies yet, we are not sure
-         * the proper inference order. To resolve dependencies, rhe simplest way 
+         * the proper inference order. To resolve dependencies, the simplest way 
          * here is doing it twice:
          */
         newResolvedRefs.clear();
@@ -162,25 +161,25 @@ public class ScalaTypeInferencer {
         String callName = null;
 
         // resolve return type of funRef:
-        AstElement base = funRef.getBase();
+        AstNode base = funRef.getBase();
 
         if (base != null) {
             TypeRef baseType = null;
 
             if (base instanceof PathId) {
                 // shoudl convert it to FieldRef first
-                List<Id> paths = ((PathId) base).getPaths();
+                List<AstId> paths = ((PathId) base).getPaths();
                 assert paths.isEmpty() == false;
                 // Is this a qualifiered name or member chain?
                 // let's try member chain first
-                Iterator<Id> itr = paths.iterator();
-                Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.LOCAL_VARIABLE);
+                Iterator<AstId> itr = paths.iterator();
+                AstId firstId = itr.next();
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken());
                 idRef.setEnclosingScope(funRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, funRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
-                    Id field = itr.next();
+                    AstId field = itr.next();
                     FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
@@ -218,7 +217,7 @@ public class ScalaTypeInferencer {
                 return;
             }
 
-            Id call = funRef.getCall();
+            AstId call = funRef.getCall();
             callName = call == null ? "apply" : call.getName();
 
         } else {
@@ -228,7 +227,7 @@ public class ScalaTypeInferencer {
                 // a local call, should has been resolved
                 return;
             } else {
-                Id objectName = funRef.getCall();
+                AstId objectName = funRef.getCall();
 
                 List<Importing> importings = funRef.getEnclosingScope().getDefsInScope(Importing.class);
                 List<String> importPkgs = new ArrayList<String>();
@@ -244,7 +243,7 @@ public class ScalaTypeInferencer {
                 if (qualifiedName != null) {
                     baseTypeStr = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
-                    funRef.setCall(new Id("apply", objectName.getPickToken(), ElementKind.LOCAL_VARIABLE));
+                    funRef.setCall(new AstId("apply", objectName.getPickToken()));
 
                     funRef.setApply();
                     callName = "apply";
@@ -306,25 +305,25 @@ public class ScalaTypeInferencer {
         }
 
         // resolve return type of fieldRef:
-        AstElement base = fieldRef.getBase();
+        AstNode base = fieldRef.getBase();
         if (base != null) {
 
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
 
             if (base instanceof PathId) {
-                List<Id> paths = ((PathId) base).getPaths();
+                List<AstId> paths = ((PathId) base).getPaths();
                 assert paths.isEmpty() == false;
                 // Is this a qualifiered name or member chain?
                 // let's try member chain first
-                Iterator<Id> itr = paths.iterator();
-                Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken(), ElementKind.LOCAL_VARIABLE);
+                Iterator<AstId> itr = paths.iterator();
+                AstId firstId = itr.next();
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getPickToken());
                 idRef.setEnclosingScope(fieldRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
-                    Id field = itr.next();
+                    AstId field = itr.next();
                     FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
@@ -362,7 +361,7 @@ public class ScalaTypeInferencer {
                 return;
             }
 
-            Id field = fieldRef.getField();
+            AstId field = fieldRef.getField();
             String fieldName = field.getName();
 
             Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
@@ -551,7 +550,7 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        AstElement base = expr.getBase();
+        AstNode base = expr.getBase();
         TypeRef baseType = base.getType();
         if (baseType != null && baseType.isResolved()) {
             return;

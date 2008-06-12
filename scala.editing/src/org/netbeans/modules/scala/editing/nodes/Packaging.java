@@ -51,19 +51,19 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  */
 public class Packaging extends AstDef {
 
-    private List<Id> ids;
+    private List<AstId> ids;
     private boolean top;
 
     public Packaging(Token idToken, AstScope bindingScope) {
         super(null, idToken, bindingScope, ElementKind.PACKAGE);
     }
 
-    public void setIds(List<Id> ids) {
+    public void setIds(List<AstId> ids) {
         this.ids = ids;
     }
 
-    public List<Id> getIds() {
-        return ids == null ? Collections.<Id>emptyList() : ids;
+    public List<AstId> getIds() {
+        return ids == null ? Collections.<AstId>emptyList() : ids;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class Packaging extends AstDef {
     public String getQualifiedName() {
         if (qualifiedName == null) {
             StringBuilder sb = new StringBuilder();
-            for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+            for (Iterator<AstId> itr = getIds().iterator(); itr.hasNext();) {
                 sb.append(itr.next().getName());
                 if (itr.hasNext()) {
                     sb.append(".");

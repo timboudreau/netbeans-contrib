@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.List;
-import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
@@ -53,38 +52,38 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 public class FunRef extends AstRef {
 
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
-    private AstElement base;
-    private Id call;
-    private List<? extends AstElement> args;
+    private AstNode base;
+    private AstId call;
+    private List<? extends AstNode> args;
     private boolean apply;
 
-    public FunRef(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public FunRef(Token idToken) {
+        super(null, idToken);
         setType(new PseudoTypeRef());
     }
 
-    public void setBase(AstElement base) {
+    public void setBase(AstNode base) {
         this.base = base;
     }
 
-    public AstElement getBase() {
+    public AstNode getBase() {
         return base;
     }
 
-    public void setCall(Id call) {
+    public void setCall(AstId call) {
         this.call = call;
     }
 
-    public Id getCall() {
+    public AstId getCall() {
         return call;
     }
 
-    public void setArgs(List<? extends AstElement> args) {
+    public void setArgs(List<? extends AstNode> args) {
         this.args = args;
     }
 
-    public List<? extends AstElement> getArgs() {
-        return args == null ? Collections.<AstElement>emptyList() : args;
+    public List<? extends AstNode> getArgs() {
+        return args == null ? Collections.<AstNode>emptyList() : args;
     }
 
     public boolean isLocal() {
@@ -120,7 +119,7 @@ public class FunRef extends AstRef {
     public static class ApplyFunRef extends FunRef {
 
         public ApplyFunRef() {
-            super(null, ElementKind.METHOD);
+            super(null);
         }
 
         @Override

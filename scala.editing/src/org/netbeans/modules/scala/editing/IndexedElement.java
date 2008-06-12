@@ -595,7 +595,7 @@ public abstract class IndexedElement extends AstElement {
         } else if (element instanceof Function) {
             Function fun = (Function) element;
             flags = flags | FUNCTION;
-            if (fun.getParams() == null) {
+            if (fun.getParameters() == null) {
                 flags = flags | NULL_ARGS;
             }
         }
@@ -727,7 +727,7 @@ public abstract class IndexedElement extends AstElement {
         if (element instanceof Function) {
             Function function = (Function) element;
 
-            List<Var> params = function.getParams();
+            List<Var> params = function.getParameters();
             if (params != null) {
                 int argIndex = 0;
                 for (Var param : params) {

@@ -162,15 +162,16 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
         
         for (AstRef ref : scope.getRefs()) {
-            Token idToken = ref.getPickToken();
-            if (idToken == null) {
+            Token hiToken = ref.getPickToken();
+            if (hiToken == null) {
                 continue;
             }
             
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
+            OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
             if (ref instanceof IdRef) {
-                if (ref.getKind() == ElementKind.FIELD) {
-                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
+                AstDef def = scope.findDef(ref);
+                if (def != null && def.getKind() == ElementKind.FIELD) {                    
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
                 }
             } else if (ref instanceof TypeRef) {
                 String name = ref.getName();
@@ -181,7 +182,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                 if (!((TypeRef) ref).isResolved()) {
                     AstDef def = scope.findDef(ref);
                     if (!(def instanceof TypeParam)) {
-                        highlights.put(idRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
+                        highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
                     }
                 }
             }

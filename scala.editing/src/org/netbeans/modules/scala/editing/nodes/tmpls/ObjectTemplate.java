@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 
 import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -48,7 +48,7 @@ import org.netbeans.modules.scala.editing.nodes.Id;
  */
 public class ObjectTemplate extends Template {
 
-    public ObjectTemplate(Id id, AstScope bindingScope) {
+    public ObjectTemplate(AstId id, AstScope bindingScope) {
         super(id, bindingScope, ElementKind.CLASS);
     }
 

@@ -42,7 +42,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -55,8 +55,8 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 public class SimpleTupleType extends TypeRef {
     private List<TypeRef> types;
     
-    public SimpleTupleType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public SimpleTupleType(Token pickToken) {
+        super(null, pickToken, TypeKind.DECLARED);
     }
     
     public void setTypes(List<TypeRef> types) {

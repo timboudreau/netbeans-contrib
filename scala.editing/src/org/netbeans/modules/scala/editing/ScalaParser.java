@@ -68,7 +68,7 @@ import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
+import org.netbeans.modules.scala.editing.nodes.AstNodeVisitor;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -426,7 +426,7 @@ public class ScalaParser implements Parser {
                 SemanticValue v = (SemanticValue) r;
                 GNode node = (GNode) v.value;
 
-                AstElementVisitor visitor = new AstElementVisitor(node, th);
+                AstNodeVisitor visitor = new AstNodeVisitor(node, th);
                 visitor.visit(node);
                 rootScope = visitor.getRootScope();
 

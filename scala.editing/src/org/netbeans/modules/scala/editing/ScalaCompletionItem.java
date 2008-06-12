@@ -230,17 +230,17 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class FunctionItem extends ScalaCompletionItem {
 
-        private IndexedFunction function;
-
+        IndexedFunction function;
+        
         FunctionItem(AstElement element, CompletionRequest request) {
             super(element, request);
             assert element.getKind() == ElementKind.METHOD;
             function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
         }
 
-        FunctionItem(IndexedFunction element, CompletionRequest request) {
+        FunctionItem(IndexedElement element, CompletionRequest request) {
             super(request, element);
-            this.function = element;
+            function = (IndexedFunction) element;
         }
 
         @Override
@@ -254,13 +254,13 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
             boolean strike = false;
-            if (!strike && function.isDeprecated()) {
+            if (!strike && element.isDeprecated()) {
                 strike = true;
             }
             if (strike) {
                 formatter.deprecated(true);
             }
-            boolean emphasize = !function.isInherited();
+            boolean emphasize = !element.isInherited();
             if (emphasize) {
                 formatter.emphasis(true);
             }
@@ -273,6 +273,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             if (strike) {
                 formatter.deprecated(false);
             }
+            
+            
 
             if (!function.isNullArgs()) {
                 Collection<String> args = function.getArgs();
@@ -289,25 +291,15 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                         String arg = itr.next();
                         int typeIdx = arg.indexOf(':');
                         if (typeIdx != -1) {
-                            if (function.isJava()) {
-                                formatter.type(true);
-                                // TODO - call JsUtils.normalizeTypeString() on this string?
-                                formatter.appendText(arg, typeIdx + 1, arg.length());
-                                formatter.type(false);
+                            formatter.appendText(arg, 0, typeIdx);
+                            formatter.parameters(false);
+                            formatter.appendHtml(" :");
+                            formatter.parameters(true);
 
-                                formatter.appendHtml(" ");
-                                formatter.appendText(arg, 0, typeIdx);
-                            } else {
-                                formatter.appendText(arg, 0, typeIdx);
-                                formatter.parameters(false);
-                                formatter.appendHtml(" :");
-                                formatter.parameters(true);
-
-                                formatter.type(true);
-                                // TODO - call JsUtils.normalizeTypeString() on this string?
-                                formatter.appendText(arg, typeIdx + 1, arg.length());
-                                formatter.type(false);
-                            }
+                            formatter.type(true);
+                            // TODO - call JsUtils.normalizeTypeString() on this string?
+                            formatter.appendText(arg, typeIdx + 1, arg.length());
+                            formatter.type(false);
                         } else {
                             formatter.appendText(arg);
                         }
@@ -347,11 +339,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
             final String insertPrefix = getInsertPrefix();
             sb.append(insertPrefix);
-            
+
             if (function.isNullArgs()) {
                 return sb.toString();
             }
-            
+
             List<String> params = getInsertParams();
             String startDelimiter = "(";
             String endDelimiter = ")";

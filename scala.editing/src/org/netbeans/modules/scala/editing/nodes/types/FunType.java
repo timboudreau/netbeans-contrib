@@ -40,6 +40,7 @@
 package org.netbeans.modules.scala.editing.nodes.types;
 
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -54,7 +55,7 @@ public class FunType extends TypeRef {
     private TypeRef rhs;
     
     public FunType() {
-        super(null, null, ElementKind.CLASS);
+        super(null, null, TypeKind.DECLARED);
     }
     
     public void setLhs(TypeRef lhs) {

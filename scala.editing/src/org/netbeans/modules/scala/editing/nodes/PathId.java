@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
 import java.util.List;
-import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
@@ -48,26 +47,26 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
  *
  * @author Caoyuan Deng
  */
-public class PathId extends Id {
+public class PathId extends AstId {
 
-    private List<Id> paths;
+    private List<AstId> paths;
 
-    public PathId(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public PathId(Token idToken) {
+        super(null, idToken);
     }
 
-    public void setPaths(List<Id> paths) {
+    public void setPaths(List<AstId> paths) {
         this.paths = paths;
     }
 
-    public List<Id> getPaths() {
+    public List<AstId> getPaths() {
         return paths;
     }
 
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
+        for (Iterator<AstId> itr = getPaths().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");

@@ -49,7 +49,8 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.NbBundle;
 
@@ -86,18 +87,22 @@ public class ScalaInstantRenamer implements InstantRenamer {
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         AstScope rootScope = pResult.getRootScope();
-        
-        AstElement closest = rootScope.findDefRef(th, caretOffset);
 
-        switch (closest.getKind()) {
-            case FIELD:
-            case PARAMETER:
-            case LOCAL_VARIABLE:
-            case METHOD:
-                return true;
-            // TODO - block renaming of GLOBALS! I should already know
-            // what's local and global based on JsSemantic...
-        }
+        AstNode closest = rootScope.findDefRef(th, caretOffset);
+
+        AstDef def = rootScope.findDef(closest);
+        
+        if (def instanceof AstDef) {
+            switch (((AstDef) closest).getKind()) {
+                case FIELD:
+                case PARAMETER:
+                case LOCAL_VARIABLE:
+                case METHOD:
+                    return true;
+                // TODO - block renaming of GLOBALS! I should already know
+                // what's local and global based on JsSemantic...
+            }
+        }                 
 
         return false;
     }
@@ -114,26 +119,26 @@ public class ScalaInstantRenamer implements InstantRenamer {
         }
 
         final TokenHierarchy th = TokenHierarchy.get(document);
-        
+
         int astOffset = AstUtilities.getAstOffset(info, caretOffset);
         if (astOffset == -1) {
             return Collections.emptySet();
         }
 
         AstScope rootScope = pResult.getRootScope();
-        
-        AstElement closest = rootScope.findDefRef(th, caretOffset);
 
-        List<AstElement> occurrences = rootScope.findOccurrences(closest);
-        
+        AstNode closest = rootScope.findDefRef(th, caretOffset);
+
+        List<AstNode> occurrences = rootScope.findOccurrences(closest);
+
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
-            for (AstElement element : occurrences) {
-                regions.add(ScalaLexUtilities.getRangeOfToken(th, element.getPickToken()));
-            }
-        
+        for (AstNode node : occurrences) {
+            regions.add(ScalaLexUtilities.getRangeOfToken(th, node.getPickToken()));
+        }
+
         if (regions.size() > 0) {
             if (pResult.getTranslatedSource() != null) {
-                Set<OffsetRange> translated = new HashSet<OffsetRange>(2*regions.size());
+                Set<OffsetRange> translated = new HashSet<OffsetRange>(2 * regions.size());
                 for (OffsetRange astRange : regions) {
                     OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                     if (lexRange != OffsetRange.NONE) {
@@ -144,7 +149,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
                 regions = translated;
             }
         }
-        
+
         return regions;
     }
 }

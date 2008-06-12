@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -54,7 +54,7 @@ public class TypeParam extends TypeDef {
     private String variant;
     private List<TypeParam> params;
 
-    public TypeParam(Id id, AstScope bindingScope) {
+    public TypeParam(AstId id, AstScope bindingScope) {
         super(id, bindingScope);
     }
 

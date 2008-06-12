@@ -44,7 +44,8 @@ import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
@@ -57,7 +58,7 @@ public abstract class Template extends AstDef {
 
     private List<TypeRef> extendsWith;
     
-    public Template(Id id, AstScope bindingScope, ElementKind kind) {
+    protected Template(AstId id, AstScope bindingScope, ElementKind kind) {
         super(id.getName(), id.getPickToken(), bindingScope, kind);
     }
 
@@ -79,17 +80,14 @@ public abstract class Template extends AstDef {
 
     @Override
     public boolean referredBy(AstRef ref) {
-        switch (ref.getKind()) {
-            case CLASS:
+        if (ref instanceof TypeRef) {
+            return getName().equals(ref.getName());
+        } else if (ref instanceof IdRef){
+            if (isCaseOne()) {
                 return getName().equals(ref.getName());
-            case LOCAL_VARIABLE:
-                if (isCaseOne()) {
-                    return getName().equals(ref.getName());
-                } else {
-                    return false;
-                }
-            default:
-                return false;
-        }
+            }
+        } 
+        
+        return false;
     }
 }
