@@ -107,7 +107,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     try {
                         CharSequence javaStub = generator.generateClass(template);
                         Packaging packaging = template.getPackageElement();
-                        String pkgName = packaging == null ? "" : packaging.getSimpleName().toString();
+                        String pkgName = packaging == null ? "" : packaging.getQualifiedName().toString();
                         result.add(file, pkgName, template.getSimpleName().toString(), javaStub);
                         break;
                     } catch (FileNotFoundException ex) {
@@ -213,7 +213,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             try {
                 Packaging packaging = template.getPackageElement();
                 if (packaging != null) {
-                    out.println("package " + packaging.getSimpleName() + ";\n");
+                    out.println("package " + packaging.getQualifiedName() + ";\n");
                 }
 
                 //genImports(template, out);

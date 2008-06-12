@@ -237,7 +237,7 @@ public class ScalaTypeInferencer {
                     }
                 }
                 Packaging packaging = funRef.getPackageElement();
-                String ofPackage = packaging == null ? null : packaging.getSimpleName().toString();
+                String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
 
                 String qualifiedName = globalInferTypeRef(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
                 if (qualifiedName != null) {
@@ -430,7 +430,7 @@ public class ScalaTypeInferencer {
             }
         }
         Packaging packaging = type.getPackageElement();
-        String ofPackage = packaging == null ? null : packaging.getSimpleName().toString();
+        String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
         String qualifiedName = globalInferTypeRef(index, type.getSimpleName().toString(), ofPackage, importPkgs);
         if (qualifiedName != null) {
             type.setQualifiedName(qualifiedName);

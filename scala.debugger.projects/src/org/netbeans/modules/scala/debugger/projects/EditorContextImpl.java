@@ -1167,7 +1167,7 @@ public class EditorContextImpl extends EditorContext {
                     if (enclosingPackage == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackage.getName() + "." + className;
+                        result[0] = enclosingPackage.getQualifiedName() + "." + className;
                     }
 
                 }

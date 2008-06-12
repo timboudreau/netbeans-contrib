@@ -154,7 +154,7 @@ public abstract class AstNode {
     public String getQualifiedName() {
         if (qualifiedName == null) {
             Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getSimpleName().toString() : packaging.getSimpleName().toString() + "." + getSimpleName().toString();
+            qualifiedName = packaging == null ? getSimpleName().toString() : packaging.getQualifiedName().toString() + "." + getSimpleName().toString();
         }
         return qualifiedName;
     }

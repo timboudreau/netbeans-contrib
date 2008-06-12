@@ -404,7 +404,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                 if (closest != null) {
                     if (closest instanceof Importing) {
-                        String prefix1 = ((Importing) closest).getSimpleName().toString();
+                        String prefix1 = ((Importing) closest).toString();
                         if (request.prefix.equals("")) {
                             prefix1 = prefix1 + ".";
                         }

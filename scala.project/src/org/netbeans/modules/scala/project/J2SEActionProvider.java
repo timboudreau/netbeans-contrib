@@ -546,7 +546,7 @@ class J2SEActionProvider implements ActionProvider {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
                             //Just one main class
-                            clazz = mainClasses.iterator().next().getName();
+                            clazz = mainClasses.iterator().next().getSimpleName().toString();
                         }
                         else {
                             //Several main classes, let the user choose
@@ -770,7 +770,7 @@ class J2SEActionProvider implements ActionProvider {
                                 if (classes[0].length() > 0) {
                                     classes[0] = classes[0] + " ";            // NOI18N
                                 }
-                                classes[0] = classes[0] + type.getName().toString().replace('.', '/') + "*.class";  // NOI18N
+                                classes[0] = classes[0] + type.getSimpleName().toString().replace('.', '/') + "*.class";  // NOI18N
                             }
                         }
                     }

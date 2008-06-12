@@ -102,7 +102,7 @@ public class Importing extends AstDef {
     
     /** @Todo should define another named method */
     @Override
-    public Name getSimpleName() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
 
         for (AstId id : paths) {
@@ -115,7 +115,6 @@ public class Importing extends AstDef {
             sb.append(getImportedTypes().get(0).getSimpleName());
         }
 
-        setSimpleName(sb);
-        return super.getSimpleName();
+        return sb.toString();
     }
 }
