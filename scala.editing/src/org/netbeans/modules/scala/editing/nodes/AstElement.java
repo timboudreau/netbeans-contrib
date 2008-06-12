@@ -51,19 +51,19 @@ import org.netbeans.api.lexer.Token;
  *
  * @author Caoyuan Deng
  */
-public class AstElement extends AstNode implements Element {
+public abstract class AstElement extends AstNode implements Element {
 
     private ElementKind kind;
 
-    public AstElement(ElementKind kind) {
+    protected AstElement(ElementKind kind) {
         this(null, kind);
     }
 
-    public AstElement(Token pickToken, ElementKind kind) {
+    protected AstElement(Token pickToken, ElementKind kind) {
         this(null, pickToken, kind);
     }
 
-    public AstElement(CharSequence name, Token pickToken, ElementKind kind) {
+    protected AstElement(CharSequence name, Token pickToken, ElementKind kind) {
         super(name, pickToken);
         this.kind = kind;
     }

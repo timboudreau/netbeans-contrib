@@ -201,8 +201,8 @@ public class TypeRef extends AstRef implements TypeMirror {
 
     public TypeKind getKind() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }    
-    
+    }
+
     public void setAnnotations(List<String> annotations) {
         this.annotations = annotations;
     }
@@ -287,22 +287,6 @@ public class TypeRef extends AstRef implements TypeMirror {
     }
 
     @Override
-    public Name getSimpleName() {        
-        if (super.getSimpleName() == null) {
-            if (isResolved()) {
-                String qName = getQualifiedName();
-                int lastDot = qName.lastIndexOf('.');
-                if (lastDot > 0) {
-                    String sName = qName.substring(lastDot + 1, qName.length());
-                    setSimpleName(sName);
-                }
-            }
-        }
-
-        return super.getSimpleName();
-    }
-
-    @Override
     public TypeRef getType() {
         return this;
     }
@@ -347,6 +331,20 @@ public class TypeRef extends AstRef implements TypeMirror {
         public PseudoTypeRef(String qualifiedName) {
             this();
             setQualifiedName(qualifiedName);
+        }
+
+        @Override
+        public Name getSimpleName() {
+            if (isResolved()) {
+                String qName = getQualifiedName();
+                int lastDot = qName.lastIndexOf('.');
+                if (lastDot > 0) {
+                    String sName = qName.substring(lastDot + 1, qName.length());
+                    setSimpleName(sName);
+                }
+            }
+
+            return super.getSimpleName();
         }
 
         @Override

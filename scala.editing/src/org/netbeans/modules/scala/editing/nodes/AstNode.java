@@ -72,19 +72,19 @@ public abstract class AstNode {
     protected TypeRef type;
     protected String qualifiedName;
 
-    public AstNode() {
+    protected AstNode() {
         this(null, null);
     }
 
-    public AstNode(CharSequence simpleName) {
+    protected AstNode(CharSequence simpleName) {
         this(simpleName, null);
     }
 
-    public AstNode(Token pickToken) {
+    protected AstNode(Token pickToken) {
         this(null, pickToken);
     }
 
-    public AstNode(CharSequence simpleName, Token pickToken) {
+    protected AstNode(CharSequence simpleName, Token pickToken) {
         this.pickToken = pickToken;
         setSimpleName(simpleName);
     }

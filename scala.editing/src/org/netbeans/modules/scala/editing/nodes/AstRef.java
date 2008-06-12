@@ -47,7 +47,7 @@ import org.netbeans.api.lexer.Token;
  */
 public class AstRef extends AstNode {
     
-    public AstRef(CharSequence name, Token pickToken) {
+    protected AstRef(CharSequence name, Token pickToken) {
         super(name, pickToken);
     }
     

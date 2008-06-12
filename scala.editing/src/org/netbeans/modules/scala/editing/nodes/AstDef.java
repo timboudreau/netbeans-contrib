@@ -48,12 +48,12 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class AstDef extends AstElement {
+public abstract class AstDef extends AstElement {
 
     private AstScope bindingScope;
     private Token[] docBoundsTokens;
 
-    public AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
+    protected AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
         super(name, pickToken, kind);
         this.bindingScope = bindingScope;
         this.bindingScope.setBindingDef(this);
