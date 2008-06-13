@@ -67,11 +67,8 @@ import org.python.antlr.PythonTree;
  */
 public class PythonParser implements Parser {
 
-    //public PythonParserResult parseStream(InputStream istream, ParserFile file) throws Exception {
-    public PythonParserResult parseStream(String source, ParserFile file) throws Exception {
+    public PythonParserResult parse(String source, ParserFile file) throws Exception {
         try {
-//            InputStreamReader reader = new InputStreamReader(istream, "ISO-8859-1"); // NOI18N
-//            ModuleParser g = new ModuleParser(new ANTLRReaderStream(reader));
             ModuleParser g = new ModuleParser(new ANTLRStringStream(source));
             PythonTree t = g.file_input();
             return new PythonParserResult(t, this, file);
@@ -116,7 +113,7 @@ public class PythonParser implements Parser {
                 if (caretOffset != -1 && job.translatedSource != null) {
                     caretOffset = job.translatedSource.getAstOffset(caretOffset);
                 }
-                result = parseStream(source, file);
+                result = parse(source, file);
             } catch (Exception ioe) {
                 listener.exception(ioe);
             }
@@ -127,10 +124,10 @@ public class PythonParser implements Parser {
     }
 
     public PositionManager getPositionManager() {
-        return new RubyPositionManager();
+        return new PythonPositionManager();
     }
 
-    private class RubyPositionManager implements PositionManager {
+    private class PythonPositionManager implements PositionManager {
         public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
             return OffsetRange.NONE;
         }
