@@ -247,6 +247,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         public String getInsertPrefix() {
             return getName();
         }
+        
+        @Override
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
+            return org.netbeans.modules.gsf.api.ElementKind.METHOD;
+        }
 
         @Override
         public String getLhsHtml() {
@@ -562,6 +567,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
+            return org.netbeans.modules.gsf.api.ElementKind.PACKAGE;
+        }
+
+        @Override
         public String getName() {
             String name = element.getSimpleName().toString();
             int lastDot = name.lastIndexOf('.');
@@ -605,6 +615,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         TypeItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
+        }
+
+        @Override
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
+            return org.netbeans.modules.gsf.api.ElementKind.CLASS;
         }
 
         @Override
