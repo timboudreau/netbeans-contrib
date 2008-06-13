@@ -50,23 +50,23 @@ import org.netbeans.api.lexer.Token;
  */
 public class SimpleExpr extends AstExpr implements Postfixable {
         
-    private AstElement base;
+    private AstNode base;
     
     private List<TypeRef> typeArgs;
     private List<AstRef> memberChain;
     
     private String prefixOp;
-    private Id postfixOp;
+    private AstId postfixOp;
     
     public SimpleExpr(Token[] boundsTokens) {
         super(boundsTokens);
     }
 
-    public void setBase(AstElement base) {
+    public void setBase(AstNode base) {
         this.base = base;
     }
     
-    public AstElement getBase() {
+    public AstNode getBase() {
         return base;
     }
     
@@ -82,11 +82,11 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         this.prefixOp = prefixOp;
     }
  
-    public void setPostfixOp(Id postfixOp) {
+    public void setPostfixOp(AstId postfixOp) {
         this.postfixOp = postfixOp;
     }
 
-    public Id getPostfixOp() {
+    public AstId getPostfixOp() {
         return postfixOp;
     }
         

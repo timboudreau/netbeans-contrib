@@ -299,12 +299,13 @@ final class ScalaConsoleTopComponent extends TopComponent {
         final Reader in = new InputStreamReader(pipeIn);
         final PrintWriter out = new PrintWriter(new PrintStream(taReadline));
         final PrintWriter err = new PrintWriter(new PrintStream(taReadline));
-//        ExecutionDescriptor descriptor = new ExecutionDescriptor("Scala Shell", pwd);
-//        descriptor.interactive(true).showProgress(false).showSuspended(false).rebuildCmd(true);
-
 
         String scalaHome = ScalaExecution.getScalaHome();
-        String cmdName = ScalaExecution.getScala().getName();
+        File file = ScalaExecution.getScala();
+        if (file == null) {
+            return;
+        }
+        String cmdName = file.getName();
         List<String> scalaArgs = ScalaExecution.getScalaArgs(scalaHome, cmdName);
         final ExternalProcessBuilder builder = new ExternalProcessBuilder(scalaArgs.get(0));
 
@@ -316,24 +317,12 @@ final class ScalaConsoleTopComponent extends TopComponent {
         builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
         builder.pwd(pwd);
 
-//        ExecutionService executionService = new ScalaExecution(descriptor);
-//        Task task = executionService.run(in, out, err);
         ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
         execBuilder.frontWindow(true).inputVisible(true);
         execBuilder.inputOutput(new CustomInputOutput(in, out, err));
-        
-        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
+        execBuilder.postExecution(new Runnable() {
 
-            public Process call() throws Exception {
-                return builder.create();
-            }
-
-        }, execBuilder.create(), "Scala Shell");
-
-        Task task = executionService.run();
-
-        task.addTaskListener(new TaskListener() {
-            public void taskFinished(Task task) {
+            public void run() {
                 finished = true;
                 textPane.setEditable(false);
                 SwingUtilities.invokeLater(new Runnable() {
@@ -345,6 +334,16 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 });
             }
         });
+
+        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
+
+            public Process call() throws Exception {
+                return builder.create();
+            }
+
+        }, execBuilder.create(), "Scala Shell");
+
+        executionService.run();
 
         // [Issue 91208]  avoid of putting cursor in IRB console on line where is not a prompt
         textPane.addMouseListener(new MouseAdapter() {

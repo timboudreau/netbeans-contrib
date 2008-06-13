@@ -51,11 +51,12 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
 
@@ -143,49 +144,49 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
-            AstElement foundElement = null;
+            AstNode foundNode = null;
             boolean isLocal = false;
 
-            AstElement closest = root.findDefRef(th, astOffset);
+            AstNode closest = root.findDefRef(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def != null) {
-                foundElement = def;
+                foundNode = def;
                 isLocal = true;
             } else {
                 if (closest instanceof FunRef) {
                     IndexedFunction idxFunction = findMethodDeclaration(info, (FunRef) closest, null);
                     if (idxFunction != null) {
-                        foundElement = idxFunction;
+                        foundNode = idxFunction;
                     }
                 } else if (closest instanceof FieldRef) {
                     IndexedElement idxElement = findFieldDeclaration(info, (FieldRef) closest, null);
                     if (idxElement != null) {
-                        foundElement = idxElement;
+                        foundNode = idxElement;
                     }
                 } else if (closest instanceof TypeRef) {
                     if (((TypeRef) closest).isResolved()) {
                         IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
                         if (idxType != null) {
-                            foundElement = idxType;
+                            foundNode = idxType;
                         }
                     }
                 }
             }
 
-            if (foundElement != null) {
+            if (foundNode != null) {
                 FileObject fo = null;
                 int offset = 0;
                 if (isLocal) {
                     fo = info.getFileObject();
-                    offset = foundElement.getIdToken().offset(th);
+                    offset = foundNode.getPickToken().offset(th);
                 } else {
-                    IndexedElement foundIdxElement = (IndexedElement) foundElement;
+                    IndexedElement foundIdxElement = (IndexedElement) foundNode;
                     fo = foundIdxElement.getFileObject();
                     offset = foundIdxElement.getOffset();
                 }
 
                 if (fo != null) {
-                    return new DeclarationLocation(fo, offset, foundElement);
+                    return new DeclarationLocation(fo, offset, new GsfElement(foundNode));
                 }
             }
 
@@ -203,9 +204,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedElement candidate = null;
 
-        String callName = funRef.getCall().getName();
+        String callName = funRef.getCall().getSimpleName().toString();
         String in = null;
-        AstElement base = funRef.getBase();
+        AstNode base = funRef.getBase();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
@@ -236,9 +237,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedElement candidate = null;
 
-        String prefix = field.getField().getName();
+        String prefix = field.getField().getSimpleName().toString();
         String in = null;
-        AstElement base = field.getBase();
+        AstNode base = field.getBase();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
@@ -255,7 +256,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                         }
                     } else if (member instanceof IndexedField) {
                         IndexedField idxField = (IndexedField) member;
-                        if (idxField.getName().equals(prefix)) {
+                        if (idxField.getSimpleName().toString().equals(prefix)) {
                             candidate = idxField;
                             break;
                         }
@@ -280,11 +281,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         if (lastDot != -1) {
             // should include "." to narrow the search result?
             String pkgName = qName.substring(0, lastDot + 1);
-            String simpleName = qName.substring(lastDot + 1, qName.length());
+            String sName = qName.substring(lastDot + 1, qName.length());
             Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
             for (IndexedElement idxType : idxTypes) {
                 if (idxType instanceof IndexedType) {
-                    if (idxType.getName().equals(simpleName)) {
+                    if (idxType.getSimpleName().toString().equals(sName)) {
                         candidate = (IndexedType) idxType;
                     }
                 }

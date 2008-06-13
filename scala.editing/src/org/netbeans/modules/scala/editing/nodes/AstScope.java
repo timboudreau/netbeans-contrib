@@ -157,7 +157,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public AstElement findDefRef(TokenHierarchy th, int offset) {
+    public AstNode findDefRef(TokenHierarchy th, int offset) {
         // Always seach refs first, since ref can be included in def
         if (refs != null) {
             if (!refsSorted) {
@@ -355,39 +355,39 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public List<AstElement> findOccurrences(AstElement element) {
+    public List<AstNode> findOccurrences(AstNode node) {
         AstDef def = null;
 
-        if (element instanceof AstDef) {
-            def = (AstDef) element;
-        } else if (element instanceof AstRef) {
-            def = findDef((AstRef) element);
+        if (node instanceof AstDef) {
+            def = (AstDef) node;
+        } else if (node instanceof AstRef) {
+            def = findDef((AstRef) node);
         }
 
         if (def == null) {
             return Collections.emptyList();
         }
 
-        List<AstElement> occurrences = new ArrayList<AstElement>();
+        List<AstNode> occurrences = new ArrayList<AstNode>();
         occurrences.add(def);
         occurrences.addAll(findRefs(def));
 
         return occurrences;
     }
 
-    public AstDef findDef(AstElement element) {
+    public AstDef findDef(AstNode node) {
         AstDef def = null;
 
-        if (element instanceof AstDef) {
-            def = (AstDef) element;
-        } else if (element instanceof AstRef) {
-            def = findDef((AstRef) element);
+        if (node instanceof AstDef) {
+            def = (AstDef) node;
+        } else if (node instanceof AstRef) {
+            def = findDef((AstRef) node);
         }
 
         return def;
     }
 
-    public AstDef findDef(AstRef ref) {
+    private AstDef findDef(AstRef ref) {
         AstScope closestScope = ref.getEnclosingScope();
         return closestScope.findDefInScopeRecursively(ref);
     }

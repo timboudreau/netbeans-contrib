@@ -49,9 +49,9 @@ import java.io.IOException;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.autoproject.java.AntUtils;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.DialogDescriptor;
@@ -59,6 +59,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 // XXX permit the build script to be overridden...
@@ -93,7 +94,12 @@ public final class UnboundTargetAlert extends JPanel {
     private void listTargets() {
         FileObject script = project.getProjectDirectory().getFileObject("build.xml");
         if (script != null) {
-            List<String> targets = AntUtils.getAntScriptTargetNames(script);
+            List<String> targets = null;
+            try {
+                targets = AntScriptUtils.getCallableTargetNames(script);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             if (targets != null) {
                 selectCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
                 selectCombo.setSelectedItem("");

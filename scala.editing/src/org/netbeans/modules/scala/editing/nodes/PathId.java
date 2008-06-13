@@ -38,42 +38,44 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class PathId extends Id {
+public class PathId extends AstId {
 
-    private List<Id> paths;
+    private List<AstId> paths;
 
-    public PathId(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public PathId(Token idToken) {
+        super(null, idToken);
     }
 
-    public void setPaths(List<Id> paths) {
+    public void setPaths(List<AstId> paths) {
         this.paths = paths;
     }
 
-    public List<Id> getPaths() {
+    public List<AstId> getPaths() {
         return paths;
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
+        for (Iterator<AstId> itr = getPaths().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(".");
             }
         }
-        return sb.toString();
+
+        setSimpleName(sb);        
+        return super.getSimpleName();
     }
 
     @Override

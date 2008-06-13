@@ -46,7 +46,7 @@ import org.netbeans.modules.scala.editing.nodes.*;
  */
 public interface Postfixable {
 
-    void setPostfixOp(Id postfixOp);
+    void setPostfixOp(AstId postfixOp);
 
-    Id getPostfixOp();
+    AstId getPostfixOp();
 }

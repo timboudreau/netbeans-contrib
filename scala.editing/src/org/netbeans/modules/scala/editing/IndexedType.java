@@ -39,7 +39,8 @@
 
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
+
 
 /**
  *

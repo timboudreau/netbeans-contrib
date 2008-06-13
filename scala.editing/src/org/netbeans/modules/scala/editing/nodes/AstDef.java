@@ -38,9 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.element.ElementKind;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
@@ -48,13 +48,13 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class AstDef extends AstElement {
+public abstract class AstDef extends AstElement {
 
     private AstScope bindingScope;
     private Token[] docBoundsTokens;
 
-    public AstDef(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
-        super(name, idToken, kind);
+    protected AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
+        super(name, pickToken, kind);
         this.bindingScope = bindingScope;
         this.bindingScope.setBindingDef(this);
     }
@@ -85,16 +85,22 @@ public class AstDef extends AstElement {
     }
     
     public boolean referredBy(AstRef ref) {
-        return getName().equals(ref.getName());
+        if (getSimpleName() == null) {
+            System.out.println("def");
+        }
+        if (ref.getSimpleName() == null) {
+            System.out.println("ref");
+        }
+        return getSimpleName().equals(ref.getSimpleName());
     }
 
     public boolean mayEqual(AstDef def) {
-        return this.getName().equals(def.getName());
+        return getSimpleName().equals(def.getSimpleName());
     }
     
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        formatter.appendText(getName());
+        formatter.appendText(getSimpleName().toString());
     }
 }

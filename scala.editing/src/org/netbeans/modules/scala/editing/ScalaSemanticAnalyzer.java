@@ -41,12 +41,12 @@ package org.netbeans.modules.scala.editing;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -138,14 +138,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         final TokenHierarchy th = TokenHierarchy.get(document);
 
         for (AstDef def : scope.getDefs()) {
-            Token idToken = def.getIdToken();
+            Token idToken = def.getPickToken();
             if (idToken == null) {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
             switch (def.getKind()) {
-                case MODULE:
+                case INTERFACE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:
@@ -162,18 +162,19 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
         
         for (AstRef ref : scope.getRefs()) {
-            Token idToken = ref.getIdToken();
-            if (idToken == null) {
+            Token hiToken = ref.getPickToken();
+            if (hiToken == null) {
                 continue;
             }
             
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
+            OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
             if (ref instanceof IdRef) {
-                if (ref.getKind() == ElementKind.FIELD) {
-                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
+                AstDef def = scope.findDef(ref);
+                if (def != null && def.getKind() == ElementKind.FIELD) {                    
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
                 }
             } else if (ref instanceof TypeRef) {
-                String name = ref.getName();
+                String name = ref.getSimpleName().toString();
                 if (name != null && name.equals("_")) {
                     continue;
                 }
@@ -181,7 +182,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                 if (!((TypeRef) ref).isResolved()) {
                     AstDef def = scope.findDef(ref);
                     if (!(def instanceof TypeParam)) {
-                        highlights.put(idRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
+                        highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
                     }
                 }
             }

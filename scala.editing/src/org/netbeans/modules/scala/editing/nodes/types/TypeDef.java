@@ -38,10 +38,10 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -51,8 +51,8 @@ public class TypeDef extends AstDef {
 
     private TypeRef value;
 
-    public TypeDef(Id id, AstScope bindingScope) {
-        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
+    public TypeDef(AstId id, AstScope bindingScope) {
+        super(id.getSimpleName(), id.getPickToken(), bindingScope, ElementKind.CLASS);
     }
 
     public void setValue(TypeRef value) {

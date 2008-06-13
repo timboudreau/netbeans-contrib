@@ -45,7 +45,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Denotes a class or interface as a contract provider
  * @author Jaroslav Bachorik
  */
 @Retention(RetentionPolicy.CLASS)

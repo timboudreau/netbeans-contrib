@@ -48,11 +48,10 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 
@@ -119,7 +118,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
         
-        AstElement closest = rootScope.findDefRef(th, caretPosition);
+        AstNode closest = rootScope.findDefRef(th, caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -154,7 +153,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
             try {
                 doc.readLock();
                 int length = doc.getLength();
-                OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, closest.getIdToken());
+                OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, closest.getPickToken());
                 OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                 int lexStartPos = lexRange.getStart();
                 int lexEndPos   = lexRange.getEnd();
@@ -174,7 +173,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
                 // line, unless it's in a comment there.
                 org.netbeans.api.lexer.Token<? extends ScalaTokenId> token = ScalaLexUtilities.getToken(doc, caretPosition);
                 //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
-                boolean isMethodName = closest.getKind() == ElementKind.METHOD;
+                //boolean isMethodName = closest.getKind() == ElementKind.METHOD;
             //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
 
 //                    if (isMethodName) {
@@ -218,9 +217,9 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            List<AstElement> _occurrences = rootScope.findOccurrences(closest);
-            for (AstElement element : _occurrences) {
-                highlights.put(ScalaLexUtilities.getRangeOfToken(th, element.getIdToken()), ColoringAttributes.MARK_OCCURRENCES);
+            List<AstNode> _occurrences = rootScope.findOccurrences(closest);
+            for (AstNode node : _occurrences) {
+                highlights.put(ScalaLexUtilities.getRangeOfToken(th, node.getPickToken()), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;
         }

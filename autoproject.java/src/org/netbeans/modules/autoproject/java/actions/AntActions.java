@@ -54,9 +54,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.AntTargetExecutor;
+import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.java.AntUtils;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileObject;
@@ -107,7 +107,7 @@ public class AntActions extends AbstractAction implements ContextAwareAction {
 
             Menu() {
                 FileObject buildXml = p.getProjectDirectory().getFileObject("build.xml");
-                apc = buildXml != null ? AntUtils.getAntProjectCookie(buildXml) : null;
+                apc = buildXml != null ? AntScriptUtils.antProjectCookieFor(buildXml) : null;
                 Mnemonics.setLocalizedText(this, NbBundle.getMessage(AntActions.class, "AntActions.label"));
             }
 

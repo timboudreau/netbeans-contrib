@@ -44,12 +44,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.swing.ImageIcon;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -58,6 +58,7 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 
 /**
  *
@@ -86,7 +87,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (AstDef def : rootScope.getDefs()) {
-            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE && def.getKind() != ElementKind.OTHER) {
+            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.LOCAL_VARIABLE && def.getKind() != ElementKind.OTHER) {
                 items.add(new ScalaStructureItem(def, info, formatter));
             }
         }
@@ -159,6 +160,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     private class ScalaStructureItem implements StructureItem {
 
         private AstDef def;
+        private GsfElement gsfElement;
         private CompilationInfo info;
         private Document doc;
         private HtmlFormatter formatter;
@@ -176,7 +178,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public String getName() {
-            return def.getName();
+            return def.getSimpleName().toString();
         }
 
         public String getSortText() {
@@ -190,35 +192,32 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public ElementHandle getElementHandle() {
-            return def;
+            if (gsfElement == null) {
+                gsfElement = new GsfElement(def);
+            }
+            return gsfElement;
         }
 
-        public ElementKind getKind() {
-            return def.getKind();
+        public org.netbeans.modules.gsf.api.ElementKind getKind() {
+            return getElementHandle().getKind();
         }
 
         public Set<Modifier> getModifiers() {
-            return def.getModifiers();
+            return getElementHandle().getModifiers();
         }
 
         public boolean isLeaf() {
             switch (def.getKind()) {
-                case ATTRIBUTE:
-                case CONSTANT:
                 case CONSTRUCTOR:
                 case METHOD:
                 case FIELD:
-                case KEYWORD:
-                case VARIABLE:
+                case LOCAL_VARIABLE:
                 case OTHER:
-                case GLOBAL:
-                case PROPERTY:
                 case PARAMETER:
                     return true;
 
-                case FILE:
                 case PACKAGE:
-                case MODULE:
+                case INTERFACE:
                 case CLASS:
                     return false;
 
@@ -234,7 +233,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
                 for (AstDef child : nested) {
-                    if (child.getKind() != ElementKind.PARAMETER && child.getKind() != ElementKind.VARIABLE && child.getKind() != ElementKind.OTHER) {
+                    if (child.getKind() != ElementKind.PARAMETER && child.getKind() != ElementKind.LOCAL_VARIABLE && child.getKind() != ElementKind.OTHER) {
                         children.add(new ScalaStructureItem(child, info, formatter));
                     }
                 }

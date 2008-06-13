@@ -40,11 +40,10 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.List;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
@@ -53,76 +52,78 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 public class FunRef extends AstRef {
 
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
-    private AstElement base;
-    private Id call;
-    private List<? extends AstElement> args;
+    private AstNode base;
+    private AstId call;
+    private List<? extends AstNode> args;
     private boolean apply;
 
-    public FunRef(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
-        setType(new PseudoTypeRef());
+    public FunRef(Token pickToken) {
+        super(null, pickToken);
     }
 
-    public void setBase(AstElement base) {
+    public void setBase(AstNode base) {
         this.base = base;
     }
 
-    public AstElement getBase() {
+    public AstNode getBase() {
         return base;
     }
 
-    public void setCall(Id call) {
+    public void setCall(AstId call) {
         this.call = call;
     }
 
-    public Id getCall() {
+    public AstId getCall() {
         return call;
     }
 
-    public void setArgs(List<? extends AstElement> args) {
+    public void setArgs(List<? extends AstNode> args) {
         this.args = args;
     }
 
-    public List<? extends AstElement> getArgs() {
-        return args == null ? Collections.<AstElement>emptyList() : args;
+    public List<? extends AstNode> getArgs() {
+        return args == null ? Collections.<AstNode>emptyList() : args;
     }
 
     public boolean isLocal() {
         return base == null;
     }
-    
+
     public void setApply() {
         apply = true;
     }
-    
+
     public boolean isApply() {
         return apply;
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(" :").append(baseType.getName());
+                sb.append(" :").append(baseType.getSimpleName());
             }
         }
-        sb.append('.').append(call.getName());
-        return sb.toString();
+        sb.append('.').append(call.getSimpleName());
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
-    
-    public void setTypeByQualifiedName(String typeQualifiedName) {
-        getType().setQualifiedName(typeQualifiedName);
-    }
-    
+
     // ----- Special FunRef
     public static class ApplyFunRef extends FunRef {
 
         public ApplyFunRef() {
-            super(null, ElementKind.METHOD);
+            super(null);
         }
 
+        @Override
+        public Name getSimpleName() {
+            return new AstName("apply");
+        }        
+        
         @Override
         public int getPickOffset(TokenHierarchy th) {
             return getBase().getPickOffset(th);
@@ -131,11 +132,6 @@ public class FunRef extends AstRef {
         @Override
         public int getPickEndOffset(TokenHierarchy th) {
             return getBase().getPickEndOffset(th);
-        }
-                
-        @Override
-        public String getName() {
-            return "apply";
         }
     }
 }

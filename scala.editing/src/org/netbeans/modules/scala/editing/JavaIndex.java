@@ -328,7 +328,7 @@ public class JavaIndex {
                             simpleName = e.getEnclosingElement().getSimpleName().toString();
                         case METHOD: {
                             ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
-
+                            
                             StringBuilder base = new StringBuilder();
                             base.append(simpleName.toLowerCase());
                             base.append(';');

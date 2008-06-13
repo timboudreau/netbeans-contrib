@@ -51,8 +51,8 @@ public class InfixExpr extends AstExpr implements Postfixable {
 
     private FunRef topFunRef;
     private List<SimpleExpr> exprs;
-    private List<Id> ops;
-    private Id postfixOp;
+    private List<AstId> ops;
+    private AstId postfixOp;
 
     public InfixExpr(Token[] boundsTokens) {
         super(boundsTokens);
@@ -74,19 +74,19 @@ public class InfixExpr extends AstExpr implements Postfixable {
         return exprs;
     }
 
-    public void setOps(List<Id> ops) {
+    public void setOps(List<AstId> ops) {
         this.ops = ops;
     }
 
-    public List<Id> getOps() {
+    public List<AstId> getOps() {
         return ops;
     }
 
-    public void setPostfixOp(Id postfixOp) {
+    public void setPostfixOp(AstId postfixOp) {
         this.postfixOp = postfixOp;
     }
 
-    public Id getPostfixOp() {
+    public AstId getPostfixOp() {
         return postfixOp;
     }
     

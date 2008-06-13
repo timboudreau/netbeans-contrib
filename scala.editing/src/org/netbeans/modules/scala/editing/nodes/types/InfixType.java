@@ -40,11 +40,12 @@
 package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.List;
+import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -53,10 +54,10 @@ import org.netbeans.modules.scala.editing.nodes.Id;
 public class InfixType extends TypeRef {
     
     private List<TypeRef> types;
-    private List<Id> ops;
+    private List<AstId> ops;
     
-    public InfixType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public InfixType(Token pickToken) {
+        super(null, pickToken, TypeKind.DECLARED);
     }
     
     public void setTypes(List<TypeRef> types) {
@@ -67,11 +68,11 @@ public class InfixType extends TypeRef {
         return types;
     }
     
-    public void setOps(List<Id> ops) {
+    public void setOps(List<AstId> ops) {
         this.ops = ops;
     }
     
-    public List<Id> getOps() {
+    public List<AstId> getOps() {
         return ops;
     }
     
@@ -81,14 +82,16 @@ public class InfixType extends TypeRef {
     }        
 
     @Override
-    public java.lang.String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
-        sb.append(types.get(0).getName());
+        sb.append(types.get(0).getSimpleName());
         for (int i = 1; i < types.size(); i++) {
-            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
-            sb.append(types.get(i).getName());
+            sb.append(" ").append(ops.get(i - 1).getSimpleName()).append(" ");
+            sb.append(types.get(i).getSimpleName());
         }
-        return sb.toString();
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }    
     
     @Override

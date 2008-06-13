@@ -45,12 +45,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.Modifier;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -365,7 +365,7 @@ public class ScalaIndexer implements Indexer {
                         } else {
                             List<TypeRef> importedTypes = importExpr.getImportedTypes();
                             for (TypeRef type : importedTypes) {
-                                importAttr.append(type.getName()).append(";");
+                                importAttr.append(type.getSimpleName()).append(";");
                                 
                                 importPkgs.add(pkgName);
                                 document.addPair(FIELD_IMPORT, importAttr.toString(), true);
@@ -411,7 +411,7 @@ public class ScalaIndexer implements Indexer {
 
                     switch (child.getKind()) {
                         case CLASS:
-                        case MODULE: {
+                        case INTERFACE: {
                             if (child instanceof Template) {
                                 analyzeTemplate((Template) child);
                             }
@@ -444,7 +444,7 @@ public class ScalaIndexer implements Indexer {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             StringBuilder base = new StringBuilder();
             base.append(name.toLowerCase());
             base.append(';');
@@ -484,7 +484,7 @@ public class ScalaIndexer implements Indexer {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
-            String name = element.getName();
+            String name = element.getSimpleName().toString();
             StringBuilder base = new StringBuilder();
             base.append(name.toLowerCase());
             base.append(';');

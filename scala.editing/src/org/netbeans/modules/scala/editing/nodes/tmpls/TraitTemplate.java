@@ -41,23 +41,24 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class TraitTemplate extends Template {
+public class TraitTemplate extends Template implements WithTypeParams {
 
     private List<TypeParam> typeParams;
 
-    public TraitTemplate(Id id, AstScope bindingScope) {
-        super(id, bindingScope, ElementKind.MODULE);
+    public TraitTemplate(AstId id, AstScope bindingScope) {
+        super(id, bindingScope, ElementKind.INTERFACE);
     }
 
     public void setTypeParams(List<TypeParam> typeParams) {
@@ -85,12 +86,12 @@ public class TraitTemplate extends Template {
 
     @Override
     public String getBinaryName() {
-        return getName();
+        return getSimpleName().toString();
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        formatter.appendText(getName());
+        formatter.appendText(getSimpleName().toString());
         if (!getTypeParams().isEmpty()) {
             formatter.appendText("[");
 

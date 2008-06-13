@@ -38,10 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
@@ -50,44 +49,41 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 public class FieldRef extends AstRef {
 
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
-    private AstElement base;
-    private Id field;
+    private AstNode base;
+    private AstId field;
 
-    public FieldRef(Token idToken) {
-        super(null, idToken, ElementKind.FIELD);
-        setType(new PseudoTypeRef());
+    public FieldRef(Token pickToken) {
+        super(null, pickToken);
     }
 
-    public void setBase(AstElement base) {
+    public void setBase(AstNode base) {
         this.base = base;
     }
 
-    public AstElement getBase() {
+    public AstNode getBase() {
         return base;
     }
 
-    public void setField(Id field) {
+    public void setField(AstId field) {
         this.field = field;
     }
 
-    public Id getField() {
+    public AstId getField() {
         return field;
     }
 
     @Override
-    public String getName() {
+    public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(baseType.getName());
+                sb.append(baseType.getSimpleName());
             }
         }
-        sb.append(field.getName());
-        return sb.toString();
-    }
+        sb.append(field.getSimpleName());
 
-    public void setRetTypeStr(String retTypeStr) {
-        getType().setQualifiedName(retTypeStr);
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
 }

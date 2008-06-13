@@ -43,8 +43,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVisitor;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
@@ -55,100 +58,100 @@ import org.netbeans.modules.scala.editing.nodes.Importing;
  *
  * @author Caoyuan Deng
  */
-public class TypeRef extends AstRef {
+public class TypeRef extends AstRef implements TypeMirror {
 
-    public static final TypeRef Any = new TypeRef("Any", null, ElementKind.CLASS) {
+    public static final TypeRef Any = new TypeRef("Any", null, TypeKind.NONE) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Any";
         }
     };
-    public static final TypeRef AnyRef = new TypeRef("AnyRef", null, ElementKind.CLASS) {
+    public static final TypeRef AnyRef = new TypeRef("AnyRef", null, TypeKind.NONE) {
 
         @Override
         public String getQualifiedName() {
             return "scala.AnyRef";
         }
     };
-    public static final TypeRef AnyVal = new TypeRef("AnyVal", null, ElementKind.CLASS) {
+    public static final TypeRef AnyVal = new TypeRef("AnyVal", null, TypeKind.NONE) {
 
         @Override
         public String getQualifiedName() {
             return "scala.AnyVal";
         }
     };
-    public static final TypeRef Double = new TypeRef("Double", null, ElementKind.CLASS) {
+    public static final TypeRef Double = new TypeRef("Double", null, TypeKind.DOUBLE) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Double";
         }
     };
-    public static final TypeRef Float = new TypeRef("Float", null, ElementKind.CLASS) {
+    public static final TypeRef Float = new TypeRef("Float", null, TypeKind.FLOAT) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Float";
         }
     };
-    public static final TypeRef Long = new TypeRef("Long", null, ElementKind.CLASS) {
+    public static final TypeRef Long = new TypeRef("Long", null, TypeKind.LONG) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Long";
         }
     };
-    public static final TypeRef Int = new TypeRef("Int", null, ElementKind.CLASS) {
+    public static final TypeRef Int = new TypeRef("Int", null, TypeKind.INT) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Int";
         }
     };
-    public static final TypeRef Short = new TypeRef("Short", null, ElementKind.CLASS) {
+    public static final TypeRef Short = new TypeRef("Short", null, TypeKind.SHORT) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Short";
         }
     };
-    public static final TypeRef Byte = new TypeRef("Byte", null, ElementKind.CLASS) {
+    public static final TypeRef Byte = new TypeRef("Byte", null, TypeKind.BYTE) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Byte";
         }
     };
-    public static final TypeRef Boolean = new TypeRef("Boolean", null, ElementKind.CLASS) {
+    public static final TypeRef Boolean = new TypeRef("Boolean", null, TypeKind.BOOLEAN) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Boolean";
         }
     };
-    public static final TypeRef Null = new TypeRef("Unit", null, ElementKind.CLASS) {
+    public static final TypeRef Null = new TypeRef("Unit", null, TypeKind.NULL) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Unit";
         }
     };
-    public static final TypeRef Char = new TypeRef("Char", null, ElementKind.CLASS) {
+    public static final TypeRef Char = new TypeRef("Char", null, TypeKind.CHAR) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Char";
         }
     };
-    public static final TypeRef String = new TypeRef("String", null, ElementKind.CLASS) {
+    public static final TypeRef String = new TypeRef("String", null, TypeKind.DECLARED) {
 
         @Override
         public String getQualifiedName() {
             return "java.lang.String";
         }
     };
-    public static final TypeRef Symbol = new TypeRef("Symbol", null, ElementKind.CLASS) {
+    public static final TypeRef Symbol = new TypeRef("Symbol", null, TypeKind.OTHER) {
 
         @Override
         public String getQualifiedName() {
@@ -185,9 +188,19 @@ public class TypeRef extends AstRef {
     private static final String UNRESOLVED = "-1";
     private List<String> annotations;
     private List<TypeRef> typeArgs;
+    private TypeKind kind;
 
-    public TypeRef(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    public TypeRef(CharSequence name, Token pickToken, TypeKind kind) {
+        super(name, pickToken);
+        this.kind = kind;
+    }
+
+    public <R, P> R accept(TypeVisitor<R, P> arg0, P arg1) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public TypeKind getKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void setAnnotations(List<String> annotations) {
@@ -211,7 +224,7 @@ public class TypeRef extends AstRef {
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             for (Iterator<TypeRef> itr = getTypeArgs().iterator(); itr.hasNext();) {
-                sb.append(itr.next().getName());
+                sb.append(itr.next().getSimpleName());
                 if (itr.hasNext()) {
                     sb.append(", ");
                 }
@@ -232,7 +245,7 @@ public class TypeRef extends AstRef {
             return qualifiedName;
         }
 
-        TypeRef predType = PRED_TYPES.get(getName());
+        TypeRef predType = PRED_TYPES.get(getSimpleName().toString());
         if (predType != null) {
             qualifiedName = predType.getQualifiedName();
             return qualifiedName;
@@ -241,9 +254,9 @@ public class TypeRef extends AstRef {
         AstDef def = getEnclosingScope().findDef(this);
         if (def != null) {
             if (def instanceof TypeDef) {
-                TypeRef alias = ((TypeDef) def).getValue();
-                if (alias != null) {
-                    qualifiedName = alias.getQualifiedName();
+                TypeRef value = ((TypeDef) def).getValue();
+                if (value != null) {
+                    qualifiedName = value.getQualifiedName();
                     return qualifiedName;
                 } else {
                     return UNRESOLVED;
@@ -259,8 +272,8 @@ public class TypeRef extends AstRef {
         List<Importing> importings = getEnclosingScope().getDefsInScope(Importing.class);
         for (Importing importing : importings) {
             for (TypeRef importedType : importing.getImportedTypes()) {
-                if (importedType.getName().equals(getName())) {
-                    qualifiedName = importing.getPackageName() + "." + importedType.getName();
+                if (importedType.getSimpleName().equals(getSimpleName())) {
+                    qualifiedName = importing.getPackageName() + "." + importedType.getSimpleName();
                     return qualifiedName;
                 }
             }
@@ -274,31 +287,14 @@ public class TypeRef extends AstRef {
     }
 
     @Override
-    public String getName() {
-        String name = super.getName();
-        if (name == null) {
-            if (isResolved()) {
-                String qName = getQualifiedName();
-                int lastDot = qName.lastIndexOf('.');
-                if (lastDot > 0) {
-                    name = qName.substring(lastDot + 1, qName.length());
-                    setName(name);
-                }
-            }
-        }
-
-        return name;
-    }
-
-    @Override
     public TypeRef getType() {
         return this;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        if (getName() != null) {
-            formatter.appendText(getName());
+        if (getSimpleName() != null) {
+            formatter.appendText(getSimpleName().toString());
             htmlFormatTypeArgs(formatter);
         }
     }
@@ -328,13 +324,27 @@ public class TypeRef extends AstRef {
     public static class PseudoTypeRef extends TypeRef {
 
         public PseudoTypeRef() {
-            super(null, null, ElementKind.CLASS);
+            super(null, null, TypeKind.DECLARED);
             setEnclosingScope(AstScope.emptyScope());
         }
 
         public PseudoTypeRef(String qualifiedName) {
             this();
             setQualifiedName(qualifiedName);
+        }
+
+        @Override
+        public Name getSimpleName() {
+            if (isResolved()) {
+                String qName = getQualifiedName();
+                int lastDot = qName.lastIndexOf('.');
+                if (lastDot > 0) {
+                    String sName = qName.substring(lastDot + 1, qName.length());
+                    setSimpleName(sName);
+                }
+            }
+
+            return super.getSimpleName();
         }
 
         @Override
@@ -345,7 +355,7 @@ public class TypeRef extends AstRef {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append(getName());
+            sb.append(getSimpleName());
             sb.append(getTypeArgsName());
 
             return sb.toString();

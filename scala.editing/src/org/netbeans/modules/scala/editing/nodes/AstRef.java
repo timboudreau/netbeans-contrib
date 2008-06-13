@@ -40,16 +40,15 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class AstRef extends AstElement {
+public class AstRef extends AstNode {
     
-    public AstRef(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    protected AstRef(CharSequence name, Token pickToken) {
+        super(name, pickToken);
     }
     
 }

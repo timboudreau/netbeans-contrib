@@ -38,8 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes.tmpls;
 
-import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**
  *
@@ -47,12 +48,12 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class ObjectTemplate extends Template {
 
-    public ObjectTemplate(Id id, AstScope bindingScope) {
+    public ObjectTemplate(AstId id, AstScope bindingScope) {
         super(id, bindingScope, ElementKind.CLASS);
     }
 
     @Override
     public String getBinaryName() {
-        return getName() + "$";
+        return getSimpleName() + "$";
     }
 }

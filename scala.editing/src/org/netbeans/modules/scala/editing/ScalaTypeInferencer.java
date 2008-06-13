@@ -48,17 +48,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
@@ -97,7 +96,7 @@ public class ScalaTypeInferencer {
     public void infer() {
         // anything can do? should all inder global?
     }
-    // ------ Global infer
+
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -109,7 +108,7 @@ public class ScalaTypeInferencer {
 
         /** 
          * Since we do not compute type inference dependencies yet, we are not sure
-         * the proper inference order. To resolve dependencies, rhe simplest way 
+         * the proper inference order. To resolve dependencies, the simplest way 
          * here is doing it twice:
          */
         newResolvedRefs.clear();
@@ -162,26 +161,26 @@ public class ScalaTypeInferencer {
         String callName = null;
 
         // resolve return type of funRef:
-        AstElement base = funRef.getBase();
+        AstNode base = funRef.getBase();
 
         if (base != null) {
             TypeRef baseType = null;
 
             if (base instanceof PathId) {
                 // shoudl convert it to FieldRef first
-                List<Id> paths = ((PathId) base).getPaths();
+                List<AstId> paths = ((PathId) base).getPaths();
                 assert paths.isEmpty() == false;
                 // Is this a qualifiered name or member chain?
                 // let's try member chain first
-                Iterator<Id> itr = paths.iterator();
-                Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                Iterator<AstId> itr = paths.iterator();
+                AstId firstId = itr.next();
+                IdRef idRef = new IdRef(firstId.getSimpleName(), firstId.getPickToken());
                 idRef.setEnclosingScope(funRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, funRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
-                    Id field = itr.next();
-                    FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                    AstId field = itr.next();
+                    FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);
@@ -218,8 +217,8 @@ public class ScalaTypeInferencer {
                 return;
             }
 
-            Id call = funRef.getCall();
-            callName = call == null ? "apply" : call.getName();
+            AstId call = funRef.getCall();
+            callName = call == null ? "apply" : call.getSimpleName().toString();
 
         } else {
             // it's a local call or Object's apply
@@ -228,7 +227,7 @@ public class ScalaTypeInferencer {
                 // a local call, should has been resolved
                 return;
             } else {
-                Id objectName = funRef.getCall();
+                AstId objectName = funRef.getCall();
 
                 List<Importing> importings = funRef.getEnclosingScope().getDefsInScope(Importing.class);
                 List<String> importPkgs = new ArrayList<String>();
@@ -238,13 +237,13 @@ public class ScalaTypeInferencer {
                     }
                 }
                 Packaging packaging = funRef.getPackageElement();
-                String ofPackage = packaging == null ? null : packaging.getName();
+                String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
 
-                String qualifiedName = globalInferTypeRef(index, objectName.getName(), ofPackage, importPkgs);
+                String qualifiedName = globalInferTypeRef(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
                 if (qualifiedName != null) {
                     baseTypeStr = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
-                    funRef.setCall(new Id("apply", objectName.getIdToken(), ElementKind.VARIABLE));
+                    funRef.setCall(new AstId("apply", objectName.getPickToken()));
 
                     funRef.setApply();
                     callName = "apply";
@@ -265,12 +264,12 @@ public class ScalaTypeInferencer {
 
                 if (idxFunction.isReferredBy(funRef)) {
                     TypeRef idxRetType = idxFunction.getType();
-                    String idxRetTypeStr = idxRetType == null ? null : idxRetType.getName();
+                    String idxRetTypeStr = idxRetType == null ? null : idxRetType.getSimpleName().toString();
                     if (idxRetTypeStr == null) {
                         idxRetTypeStr = "void";
                     }
                     if (idxRetTypeStr.equals("void")) {
-                        funRef.setTypeByQualifiedName("void");
+                        funRef.setType(new PseudoTypeRef("void"));
                         break;
                     }
 
@@ -285,14 +284,14 @@ public class ScalaTypeInferencer {
                                 Set<String> importPkgs = getImportPkgs(index, hisIn);
                                 idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
                             } else {
-                                System.out.println("found idx function without package: " + idxFunction.getName());
+                                System.out.println("found idx function without package: " + idxFunction.getSimpleName().toString());
                             }
                         } else {
                             // @todo
                             }
                     }
 
-                    funRef.setTypeByQualifiedName(idxRetTypeStr);
+                    funRef.setType(new PseudoTypeRef(idxRetTypeStr));
                     break;
                 }
             }
@@ -306,26 +305,26 @@ public class ScalaTypeInferencer {
         }
 
         // resolve return type of fieldRef:
-        AstElement base = fieldRef.getBase();
+        AstNode base = fieldRef.getBase();
         if (base != null) {
 
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
 
             if (base instanceof PathId) {
-                List<Id> paths = ((PathId) base).getPaths();
+                List<AstId> paths = ((PathId) base).getPaths();
                 assert paths.isEmpty() == false;
                 // Is this a qualifiered name or member chain?
                 // let's try member chain first
-                Iterator<Id> itr = paths.iterator();
-                Id firstId = itr.next();
-                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                Iterator<AstId> itr = paths.iterator();
+                AstId firstId = itr.next();
+                IdRef idRef = new IdRef(firstId.getSimpleName(), firstId.getPickToken());
                 idRef.setEnclosingScope(fieldRef.getEnclosingScope());
                 newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
                 AstRef currBase = idRef;
                 while (itr.hasNext()) {
-                    Id field = itr.next();
-                    FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                    AstId field = itr.next();
+                    FieldRef aFieldRef = new FieldRef(field.getPickToken());
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);
@@ -362,8 +361,8 @@ public class ScalaTypeInferencer {
                 return;
             }
 
-            Id field = fieldRef.getField();
-            String fieldName = field.getName();
+            AstId field = fieldRef.getField();
+            String fieldName = field.getSimpleName().toString();
 
             Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
             for (IndexedElement member : members) {
@@ -376,7 +375,7 @@ public class ScalaTypeInferencer {
                         isCandicate = true;
                         TypeRef idxRetType = idxFunction.getType();
                         if (idxRetType != null) {
-                            idxRetTypeStr = idxRetType.getName();
+                            idxRetTypeStr = idxRetType.getSimpleName().toString();
                         }
                     }
                 } else if (member instanceof IndexedField) {
@@ -384,7 +383,7 @@ public class ScalaTypeInferencer {
                     isCandicate = true;
                     TypeRef idxRetType = idxField.getType();
                     if (idxRetType != null) {
-                        idxRetTypeStr = idxRetType.getName();
+                        idxRetTypeStr = idxRetType.getSimpleName().toString();
                     }
                 }
 
@@ -393,7 +392,7 @@ public class ScalaTypeInferencer {
                         idxRetTypeStr = "Unit";
                     }
                     if (idxRetTypeStr.equals("Unit")) {
-                        fieldRef.setRetTypeStr("Unit");
+                        fieldRef.setType(new PseudoTypeRef("Unit"));
                         break;
                     }
 
@@ -408,14 +407,14 @@ public class ScalaTypeInferencer {
                                 Set<String> importPkgs = getImportPkgs(index, hisIn);
                                 idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
                             } else {
-                                System.out.println("found idx element without package: " + member.getName());
+                                System.out.println("found idx element without package: " + member.getSimpleName());
                             }
                         } else {
                             // @todo
                         }
                     }
 
-                    fieldRef.setRetTypeStr(idxRetTypeStr);
+                    fieldRef.setType(new PseudoTypeRef(idxRetTypeStr));
                     break;
                 }
             }
@@ -424,15 +423,15 @@ public class ScalaTypeInferencer {
 
     private String globalInferTypeRef(ScalaIndex index, TypeRef type) {
         List<Importing> importings = type.getEnclosingScope().getDefsInScope(Importing.class);
-        List<String> importPkgs = new ArrayList<String>();
+        List<String> importedPkgs = new ArrayList<String>();
         for (Importing importing : importings) {
             if (importing.isWild()) {
-                importPkgs.add(importing.getPackageName());
+                importedPkgs.add(importing.getPackageName());
             }
         }
         Packaging packaging = type.getPackageElement();
-        String ofPackage = packaging == null ? null : packaging.getName();
-        String qualifiedName = globalInferTypeRef(index, type.getName(), ofPackage, importPkgs);
+        String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
+        String qualifiedName = globalInferTypeRef(index, type.getSimpleName().toString(), ofPackage, importedPkgs);
         if (qualifiedName != null) {
             type.setQualifiedName(qualifiedName);
         }
@@ -443,9 +442,9 @@ public class ScalaTypeInferencer {
      * 
      * @return null or full qualifier type name 
      */
-    private String globalInferTypeRef(ScalaIndex index, String simpleName, String ofPackage, Collection<String> importPkgs) {
+    private String globalInferTypeRef(ScalaIndex index, String sName, String ofPackage, Collection<String> importedPkgs) {
         // 1. search imported types first
-        for (String pkgName : importPkgs) {
+        for (String pkgName : importedPkgs) {
             pkgName = pkgName + ".";
             if (pkgName.startsWith("_root_.")) {
                 pkgName = pkgName.substring(7, pkgName.length());
@@ -453,8 +452,8 @@ public class ScalaTypeInferencer {
 
             for (IndexedElement element : getImportedTypes(index, pkgName)) {
                 if (element instanceof IndexedType) {
-                    if (element.getName().equals(simpleName)) {
-                        return pkgName + simpleName;
+                    if (element.getSimpleName().toString().equals(sName)) {
+                        return pkgName + sName;
                     }
                 }
             }
@@ -462,7 +461,7 @@ public class ScalaTypeInferencer {
 
         // 2. search packages with the same preceding of current packaging
         if (ofPackage != null) {
-            for (String pkgName : importPkgs) {
+            for (String pkgName : importedPkgs) {
                 pkgName = pkgName + ".";
                 if (pkgName.startsWith("_root_.")) {
                     continue;
@@ -472,8 +471,8 @@ public class ScalaTypeInferencer {
                 pkgName = ofPackage + "." + pkgName;
                 for (IndexedElement element : getImportedTypes(index, pkgName)) {
                     if (element instanceof IndexedType) {
-                        if (element.getName().equals(simpleName)) {
-                            return pkgName + simpleName;
+                        if (element.getSimpleName().toString().equals(sName)) {
+                            return pkgName + sName;
                         }
                     }
                 }
@@ -482,7 +481,7 @@ public class ScalaTypeInferencer {
         }
 
         // 3. search "scala" packages 
-        for (String pkgName : importPkgs) {
+        for (String pkgName : importedPkgs) {
             pkgName = pkgName + ".";
             if (pkgName.startsWith("_root_.")) {
                 continue;
@@ -492,8 +491,8 @@ public class ScalaTypeInferencer {
             pkgName = "scala." + pkgName;
             for (IndexedElement element : getScalaPrecedingPackageTypes(index, pkgName)) {
                 if (element instanceof IndexedType) {
-                    if (element.getName().equals(simpleName)) {
-                        return pkgName + simpleName;
+                    if (element.getSimpleName().toString().equals(sName)) {
+                        return pkgName + sName;
                     }
                 }
             }
@@ -505,8 +504,8 @@ public class ScalaTypeInferencer {
             String pkgName = ofPackage + ".";
             for (IndexedElement element : getPackageTypes(index, pkgName)) {
                 if (element instanceof IndexedType) {
-                    if (element.getName().equals(simpleName)) {
-                        return pkgName + simpleName;
+                    if (element.getSimpleName().toString().equals(sName)) {
+                        return pkgName + sName;
                     }
                 }
             }
@@ -515,8 +514,8 @@ public class ScalaTypeInferencer {
         // 5. search auto-imported "scala." package
         for (IndexedElement element : getScalaPackageTypes(index)) {
             if (element instanceof IndexedType) {
-                if (element.getName().equals(simpleName)) {
-                    return "scala." + simpleName;
+                if (element.getSimpleName().toString().equals(sName)) {
+                    return "scala." + sName;
                 }
             }
         }
@@ -524,8 +523,8 @@ public class ScalaTypeInferencer {
         // 6. search auto-imported "java.lang." package
         for (IndexedElement element : getJavaLangPackageTypes(index)) {
             if (element instanceof IndexedType) {
-                if (element.getName().equals(simpleName)) {
-                    return "java.lang." + simpleName;
+                if (element.getSimpleName().toString().equals(sName)) {
+                    return "java.lang." + sName;
                 }
             }
         }
@@ -551,7 +550,7 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        AstElement base = expr.getBase();
+        AstNode base = expr.getBase();
         TypeRef baseType = base.getType();
         if (baseType != null && baseType.isResolved()) {
             return;

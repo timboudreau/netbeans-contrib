@@ -41,25 +41,54 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Function extends AstDef {
+public class Function extends AstDef implements WithTypeParams, ExecutableElement {
 
     private List<TypeParam> typeParams;
-    private List<Var> params;
+    private List<Var> parameters;
 
-    public Function(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
-        super(name, idToken, bindingScope, kind);
+    public Function(CharSequence name, Token pickToken, AstScope bindingScope, boolean isConstructor) {
+        super(name, pickToken, bindingScope, ElementKind.METHOD);
+        if (isConstructor) {
+            setKind(ElementKind.CONSTRUCTOR);
+        }
+    }
+        
+    public AnnotationValue getDefaultValue() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public List<? extends TypeMirror> getThrownTypes() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isVarArgs() {
+        /** @todo */
+        return false;
+    }
+
+    public TypeMirror getReturnType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends TypeParameterElement> getTypeParameters() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }        
+    
     public void setTypeParam(List<TypeParam> typeParams) {
         this.typeParams = typeParams;
     }
@@ -78,15 +107,15 @@ public class Function extends AstDef {
         }
     }        
     
-    public void setParam(List<Var> params) {
-        this.params = params;
+    public void setParameters(List<Var> parameters) {
+        this.parameters = parameters;
     }
 
     /**
      * @return null or params 
      */
-    public List<Var> getParams() {
-        return params;
+    public List<Var> getParameters() {
+        return parameters;
     }
 
     @Override
@@ -95,7 +124,9 @@ public class Function extends AstDef {
             FunRef funRef = (FunRef) ref;
             // only check local call only
             if (funRef.isLocal()) {
-                return getName().equals(funRef.getCall().getName()) && params != null && params.size() == funRef.getArgs().size();
+                return getSimpleName().equals(funRef.getCall().getSimpleName()) && 
+                        parameters != null && 
+                        parameters.size() == funRef.getArgs().size();
             }
         }
 
@@ -120,12 +151,12 @@ public class Function extends AstDef {
             formatter.appendHtml("]");
         }
 
-        if (params != null) {
+        if (parameters != null) {
             formatter.appendHtml("(");
-            if (!params.isEmpty()) {
+            if (!parameters.isEmpty()) {
                 formatter.parameters(true);
 
-                for (Iterator<Var> itr = getParams().iterator(); itr.hasNext();) {
+                for (Iterator<Var> itr = getParameters().iterator(); itr.hasNext();) {
                     Var param = itr.next();
                     param.htmlFormat(formatter);
 

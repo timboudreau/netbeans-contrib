@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.Arrays;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 
 /**
@@ -116,7 +116,7 @@ public class IndexedFunction extends IndexedElement {
             }
         }
 
-        if (getName().equals(funRef.getCall().getName()) || getName().equals("apply") && funRef.isLocal()) {
+        if (getSimpleName().equals(funRef.getCall().getSimpleName()) || getSimpleName().toString().equals("apply") && funRef.isLocal()) {
             if (myArgs.size() == funRef.getArgs().size() || containsVariableLengthArg) {
                 return true;
             }

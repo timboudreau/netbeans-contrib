@@ -40,11 +40,12 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.AstId;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
@@ -57,8 +58,8 @@ public abstract class Template extends AstDef {
 
     private List<TypeRef> extendsWith;
     
-    public Template(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getIdToken(), bindingScope, kind);
+    protected Template(AstId id, AstScope bindingScope, ElementKind kind) {
+        super(id.getSimpleName(), id.getPickToken(), bindingScope, kind);
     }
 
     public void setCaseOne() {
@@ -79,17 +80,14 @@ public abstract class Template extends AstDef {
 
     @Override
     public boolean referredBy(AstRef ref) {
-        switch (ref.getKind()) {
-            case CLASS:
-                return getName().equals(ref.getName());
-            case VARIABLE:
-                if (isCaseOne()) {
-                    return getName().equals(ref.getName());
-                } else {
-                    return false;
-                }
-            default:
-                return false;
-        }
+        if (ref instanceof TypeRef) {
+            return getSimpleName().equals(ref.getSimpleName());
+        } else if (ref instanceof IdRef){
+            if (isCaseOne()) {
+                return getSimpleName().equals(ref.getSimpleName());
+            }
+        } 
+        
+        return false;
     }
 }
