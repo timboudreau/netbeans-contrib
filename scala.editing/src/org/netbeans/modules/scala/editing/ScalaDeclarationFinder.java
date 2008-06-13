@@ -256,7 +256,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                         }
                     } else if (member instanceof IndexedField) {
                         IndexedField idxField = (IndexedField) member;
-                        if (idxField.getSimpleName().equals(prefix)) {
+                        if (idxField.getSimpleName().toString().equals(prefix)) {
                             candidate = idxField;
                             break;
                         }
@@ -281,11 +281,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         if (lastDot != -1) {
             // should include "." to narrow the search result?
             String pkgName = qName.substring(0, lastDot + 1);
-            String simpleName = qName.substring(lastDot + 1, qName.length());
+            String sName = qName.substring(lastDot + 1, qName.length());
             Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
             for (IndexedElement idxType : idxTypes) {
                 if (idxType instanceof IndexedType) {
-                    if (idxType.getSimpleName().equals(simpleName)) {
+                    if (idxType.getSimpleName().toString().equals(sName)) {
                         candidate = (IndexedType) idxType;
                     }
                 }

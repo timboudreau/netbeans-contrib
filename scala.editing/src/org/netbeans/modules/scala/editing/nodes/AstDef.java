@@ -95,7 +95,7 @@ public abstract class AstDef extends AstElement {
     }
 
     public boolean mayEqual(AstDef def) {
-        return this.getSimpleName().equals(def.getSimpleName());
+        return getSimpleName().equals(def.getSimpleName());
     }
     
     @Override

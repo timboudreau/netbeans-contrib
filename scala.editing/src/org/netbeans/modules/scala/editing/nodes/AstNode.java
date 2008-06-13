@@ -265,8 +265,10 @@ public abstract class AstNode {
         public boolean equals(Object obj) {
             if (obj instanceof Name) {
                 return contentEquals((Name) obj);
+            } else if (obj instanceof CharSequence) {
+                return contentEquals((CharSequence) obj);
             }
-            return super.equals(obj);
+            return false;
         }
 
         @Override
