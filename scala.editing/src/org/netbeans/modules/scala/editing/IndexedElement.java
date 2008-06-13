@@ -819,7 +819,7 @@ public abstract class IndexedElement extends AstElement {
 
         List<TypeRef> typeArgs = type.getTypeArgs();
         if (typeArgs.size() > 0) {
-            sb.append("[");
+            sb.append("<");
             for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
                 TypeRef typeArg = itr.next();
                 encodeType(typeArg, sb);
@@ -827,7 +827,7 @@ public abstract class IndexedElement extends AstElement {
                     sb.append(",");
                 }
             }
-            sb.append("]");
+            sb.append(">");
         }
     }
 
@@ -838,7 +838,7 @@ public abstract class IndexedElement extends AstElement {
         while (posAndLevel[0] < typeAttr.length()) {
             char c = typeAttr.charAt(posAndLevel[0]);
             posAndLevel[0]++;
-            if (c == '[') {
+            if (c == '<') {
                 posAndLevel[1]++;
                 curr.setSimpleName(sb.toString());
                 typeArgs = new ArrayList<TypeRef>();
@@ -846,7 +846,7 @@ public abstract class IndexedElement extends AstElement {
 
                 TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 typeArgs.add(typeArg);
-            } else if (c == ']') {
+            } else if (c == '>') {
                 posAndLevel[1]--;
             } else if (c == ',') {
                 TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
