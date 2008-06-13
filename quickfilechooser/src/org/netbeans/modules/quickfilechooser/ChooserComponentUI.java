@@ -193,6 +193,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         completions.setVisibleRowCount(25);
         completions.setEnabled(false);
         completions.setCellRenderer(new FileCellRenderer());
+        completions.setPrototypeCellValue(new File(System.getProperty("java.io.tmpdir")));
         JScrollPane jsc = new JScrollPane(completions);
         JPanel pnl2 = new JPanel();
         pnl2.setLayout(new BorderLayout());
