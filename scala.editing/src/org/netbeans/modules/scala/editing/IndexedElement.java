@@ -818,7 +818,7 @@ public abstract class IndexedElement extends AstElement {
         }
 
         List<TypeRef> typeArgs = type.getTypeArgs();
-        if (!typeArgs.isEmpty()) {
+        if (typeArgs.size() > 0) {
             sb.append("[");
             for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
                 TypeRef typeArg = itr.next();

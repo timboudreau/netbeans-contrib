@@ -2512,9 +2512,10 @@ public class AstNodeVisitor extends AstVisitor {
         TypeRef type;
         GNode firstNode = that.getGeneric(0);
         if (firstNode.getName().equals("WildKey")) {
-            AstId id = new AstId("_", getIdToken(firstNode));
+            AstId id = visitId(firstNode);
             type = new SimpleIdType(id.getPickToken());
             ((SimpleIdType) type).setPaths(Collections.<AstId>singletonList(id));
+            scopeStack.peek().addRef(type);
         } else {
             type = visitType(firstNode);
         }
@@ -2523,9 +2524,10 @@ public class AstNodeVisitor extends AstVisitor {
         for (Object other : that.getList(1)) {
             GNode otherNode = (GNode) other;
             if (otherNode.getName().equals("WildKey")) {
-                AstId id = new AstId("_", getIdToken(otherNode));
+                AstId id = visitId(otherNode);
                 type = new SimpleIdType(id.getPickToken());
                 ((SimpleIdType) type).setPaths(Collections.<AstId>singletonList(id));
+                scopeStack.peek().addRef(type);
             } else {
                 type = visitType(otherNode);
             }
@@ -2571,10 +2573,6 @@ public class AstNodeVisitor extends AstVisitor {
         // idToken is used to get the offset here, just set first type's idToken as idToken, 
         SimpleTupleType type = new SimpleTupleType(types.get(0).getPickToken());
         type.setTypes(types);
-
-        for (TypeRef typeRef : types) {
-            scopeStack.peek().addRef(typeRef);
-        }
 
         exit(that);
         return type;
