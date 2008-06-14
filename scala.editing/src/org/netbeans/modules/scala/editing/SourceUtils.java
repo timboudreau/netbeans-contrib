@@ -43,15 +43,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
-import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -71,7 +71,7 @@ public class SourceUtils {
      * @return the classes containing main method
      * @throws IllegalArgumentException when file does not exist or is not a java source file.
      */
-    public static Collection<AstElement> getMainClasses(final FileObject fo) {
+    public static Collection<TypeElement> getMainClasses(final FileObject fo) {
         if (fo == null || !fo.isValid() || fo.isVirtual()) {
             throw new IllegalArgumentException();
         }
@@ -80,7 +80,7 @@ public class SourceUtils {
             throw new IllegalArgumentException();
         }
         try {
-            final List<AstElement> result = new LinkedList<AstElement>();
+            final List<TypeElement> result = new LinkedList<TypeElement>();
             js.runUserActionTask(new CancellableTask<CompilationController>() {
 
                 public void cancel() {
@@ -104,9 +104,9 @@ public class SourceUtils {
                         }
 
                         for (ObjectTemplate obj : objs) {
-                            List<Function> funs = obj.getBindingScope().getDefsInScope(Function.class);
-                            for (Function fun : funs) {
-                                if (isMainMethod(fun)) {
+                            List<ExecutableElement> methods = obj.getBindingScope().getDefsInScope(ExecutableElement.class);
+                            for (ExecutableElement method : methods) {
+                                if (isMainMethod(method)) {
                                     result.add(obj);
                                     break;
                                 }
@@ -118,7 +118,7 @@ public class SourceUtils {
             return result;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
-            return Collections.<AstElement>emptySet();
+            return Collections.<TypeElement>emptySet();
         }
     }
 
@@ -159,9 +159,9 @@ public class SourceUtils {
 
                         for (ObjectTemplate obj : objs) {
                             if (obj.getSimpleName().toString().equals(qualifiedName)) {
-                                List<Function> funs = obj.getBindingScope().getDefsInScope(Function.class);
-                                for (Function fun : funs) {
-                                    if (isMainMethod(fun)) {
+                                List<ExecutableElement> methods = obj.getBindingScope().getDefsInScope(ExecutableElement.class);
+                                for (ExecutableElement method : methods) {
+                                    if (isMainMethod(method)) {
                                         result[0] = true;
                                         break;
                                     }
@@ -183,12 +183,12 @@ public class SourceUtils {
      * @param method to be checked
      * @return true when the method is a main method
      */
-    public static boolean isMainMethod(final Function method) {
+    public static boolean isMainMethod(final ExecutableElement method) {
         if (!method.getSimpleName().toString().equals("main")) {                //NOI18N
 
             return false;
         }
-        List<Var> params = method.getParameters();
+        List<? extends VariableElement> params = method.getParameters();
         if (params != null && params.size() != 1) {
             return false;
         }
@@ -214,8 +214,8 @@ public class SourceUtils {
      * @return the classes containing the main methods
      * Currently this method is not optimized and may be slow
      */
-    public static Collection<AstElement> getMainClasses(final FileObject[] sourceRoots) {
-        final List<AstElement> result = new LinkedList<AstElement>();
+    public static Collection<TypeElement> getMainClasses(final FileObject[] sourceRoots) {
+        final List<TypeElement> result = new LinkedList<TypeElement>();
         for (FileObject root : sourceRoots) {
             try {
                 ClassPath bootPath = ClassPath.getClassPath(root, ClassPath.BOOT);
@@ -248,7 +248,7 @@ public class SourceUtils {
 //                }, false);
             } catch (Exception ioe) {
                 Exceptions.printStackTrace(ioe);
-                return Collections.<AstElement>emptySet();
+                return Collections.<TypeElement>emptySet();
             }
         }
         return result;

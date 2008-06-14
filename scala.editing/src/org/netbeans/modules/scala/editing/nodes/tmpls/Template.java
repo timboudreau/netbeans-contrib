@@ -41,6 +41,10 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -52,7 +56,7 @@ import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
  *
  * @author Caoyuan Deng
  */
-public abstract class Template extends AstDef {
+public abstract class Template extends AstDef implements TypeElement {
 
     private boolean caseOne;
 
@@ -62,6 +66,22 @@ public abstract class Template extends AstDef {
         super(id.getSimpleName(), id.getPickToken(), bindingScope, kind);
     }
 
+    public List<? extends TypeMirror> getInterfaces() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public NestingKind getNestingKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }        
+    
+    public TypeMirror getSuperclass() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends TypeParameterElement> getTypeParameters() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
+    
     public void setCaseOne() {
         this.caseOne = true;
     }

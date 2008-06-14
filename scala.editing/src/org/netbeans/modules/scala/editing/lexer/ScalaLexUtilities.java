@@ -62,7 +62,7 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -1180,8 +1180,8 @@ public class ScalaLexUtilities {
         }
     }
     
-    public static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
-        int astOffset = element.getPickOffset(th);
+    public static OffsetRange getDocumentationOffset(AstNode node, TokenHierarchy th) {
+        int astOffset = node.getPickOffset(th);
         // XXX This is wrong; I should do a
         //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
         // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!

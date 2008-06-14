@@ -91,8 +91,8 @@ public class InfixExpr extends AstExpr implements Postfixable {
     }
     
     @Override
-    public TypeRef getType() {
-        return topFunRef.getType(); // @todo
+    public TypeRef asType() {
+        return topFunRef.asType(); // @todo
     }
 
 }

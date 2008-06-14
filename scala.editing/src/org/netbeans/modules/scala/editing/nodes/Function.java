@@ -170,9 +170,9 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
             formatter.appendHtml(")");
         }
 
-        if (getType() != null) {
+        if (asType() != null) {
             formatter.appendHtml(" :");
-            getType().htmlFormat(formatter);
+            asType().htmlFormat(formatter);
         }
     }
 }

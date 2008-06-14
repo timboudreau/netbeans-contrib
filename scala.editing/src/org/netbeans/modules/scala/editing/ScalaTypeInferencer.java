@@ -135,7 +135,7 @@ public class ScalaTypeInferencer {
             } else if (ref instanceof TypeRef) {
                 toResolve = (TypeRef) ref;
             } else {
-                toResolve = ref.getType();
+                toResolve = ref.asType();
             }
 
             if (toResolve == null || toResolve != null && toResolve.isResolved()) {
@@ -151,7 +151,7 @@ public class ScalaTypeInferencer {
     }
 
     private void globalInferFunRef(ScalaIndex index, FunRef funRef) {
-        TypeRef retType = funRef.getType();
+        TypeRef retType = funRef.asType();
         if (retType != null && retType.isResolved()) {
             return;
         }
@@ -184,7 +184,7 @@ public class ScalaTypeInferencer {
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);
-                    TypeRef aFieldRefType = aFieldRef.getType();
+                    TypeRef aFieldRefType = aFieldRef.asType();
                     if (aFieldRefType != null && aFieldRefType.isResolved()) {
                         newResolvedRefs.put(aFieldRef, funRef.getEnclosingScope());
 
@@ -200,7 +200,7 @@ public class ScalaTypeInferencer {
                 base = currBase;
             }
 
-            baseType = base.getType();
+            baseType = base.asType();
             if (baseType != null) {
                 if (!baseType.isResolved()) {
                     globalInferTypeRef(index, baseType);
@@ -222,7 +222,7 @@ public class ScalaTypeInferencer {
 
         } else {
             // it's a local call or Object's apply
-            TypeRef type = funRef.getType();
+            TypeRef type = funRef.asType();
             if (type != null && type.isResolved()) {
                 // a local call, should has been resolved
                 return;
@@ -263,7 +263,7 @@ public class ScalaTypeInferencer {
                 IndexedFunction idxFunction = (IndexedFunction) member;
 
                 if (idxFunction.isReferredBy(funRef)) {
-                    TypeRef idxRetType = idxFunction.getType();
+                    TypeRef idxRetType = idxFunction.asType();
                     String idxRetTypeStr = idxRetType == null ? null : idxRetType.getSimpleName().toString();
                     if (idxRetTypeStr == null) {
                         idxRetTypeStr = "void";
@@ -299,7 +299,7 @@ public class ScalaTypeInferencer {
     }
 
     private void globalInferFieldRef(ScalaIndex index, FieldRef fieldRef) {
-        TypeRef retType = fieldRef.getType();
+        TypeRef retType = fieldRef.asType();
         if (retType != null && retType.isResolved()) {
             return;
         }
@@ -309,7 +309,7 @@ public class ScalaTypeInferencer {
         if (base != null) {
 
             String baseTypeQName = null;
-            TypeRef baseType = base.getType();
+            TypeRef baseType = base.asType();
 
             if (base instanceof PathId) {
                 List<AstId> paths = ((PathId) base).getPaths();
@@ -328,7 +328,7 @@ public class ScalaTypeInferencer {
                     aFieldRef.setBase(currBase);
                     aFieldRef.setField(field);
                     globalInferFieldRef(index, aFieldRef);
-                    TypeRef aFieldRefType = aFieldRef.getType();
+                    TypeRef aFieldRefType = aFieldRef.asType();
                     if (aFieldRefType != null && aFieldRefType.isResolved()) {
                         newResolvedRefs.put(aFieldRef, fieldRef.getEnclosingScope());
 
@@ -344,7 +344,7 @@ public class ScalaTypeInferencer {
                 base = currBase;
             }
 
-            baseType = base.getType();
+            baseType = base.asType();
             if (baseType != null) {
                 if (!baseType.isResolved()) {
                     globalInferTypeRef(index, baseType);
@@ -373,7 +373,7 @@ public class ScalaTypeInferencer {
                     IndexedFunction idxFunction = (IndexedFunction) member;
                     if (idxFunction.isNullArgs()) {
                         isCandicate = true;
-                        TypeRef idxRetType = idxFunction.getType();
+                        TypeRef idxRetType = idxFunction.asType();
                         if (idxRetType != null) {
                             idxRetTypeStr = idxRetType.getSimpleName().toString();
                         }
@@ -381,7 +381,7 @@ public class ScalaTypeInferencer {
                 } else if (member instanceof IndexedField) {
                     IndexedField idxField = (IndexedField) member;
                     isCandicate = true;
-                    TypeRef idxRetType = idxField.getType();
+                    TypeRef idxRetType = idxField.asType();
                     if (idxRetType != null) {
                         idxRetTypeStr = idxRetType.getSimpleName().toString();
                     }
@@ -545,13 +545,13 @@ public class ScalaTypeInferencer {
     }
 
     private void globalInferSimpleExpr(SimpleExpr expr) {
-        TypeRef exprType = expr.getType();
+        TypeRef exprType = expr.asType();
         if (exprType == null) {
             return;
         }
 
         AstNode base = expr.getBase();
-        TypeRef baseType = base.getType();
+        TypeRef baseType = base.asType();
         if (baseType != null && baseType.isResolved()) {
             return;
         }
@@ -560,7 +560,7 @@ public class ScalaTypeInferencer {
             // resolve its def's type.
             AstDef def = rootScope.findDef(base);
             if (def != null) {
-                TypeRef type = def.getType();
+                TypeRef type = def.asType();
                 if (type != null) {
                     // @Todo check type of def with expr's type 
                 } else {
@@ -574,7 +574,7 @@ public class ScalaTypeInferencer {
         AstExpr lhs = expr.getLhs();
         AstExpr rhs = expr.getRhs();
         globalInferExpr(rhs, null);
-        globalInferExpr(lhs, rhs.getType());
+        globalInferExpr(lhs, rhs.asType());
     }
 
     /**

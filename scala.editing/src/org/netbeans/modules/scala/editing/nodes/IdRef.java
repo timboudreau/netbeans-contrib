@@ -53,14 +53,14 @@ public class IdRef extends AstRef {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         if (type != null) {
             return type;
         }
         
         AstDef def = getEnclosingScope().findDef(this);
         if (def != null) {
-            type = def.getType();
+            type = def.asType();
             return type;
         }
         

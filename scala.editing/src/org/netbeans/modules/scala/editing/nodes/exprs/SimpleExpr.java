@@ -92,15 +92,15 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         
     
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         if (type != null) {
             return type;
         }
         
         if (memberChain != null && !memberChain.isEmpty()) {
-            return memberChain.get(memberChain.size() - 1).getType();
+            return memberChain.get(memberChain.size() - 1).asType();
         } else {
-            return base.getType();
+            return base.asType();
         }
     }
         

@@ -67,9 +67,9 @@ public abstract class AstNode {
      *    will return null when an Identifier token modified, seems sync issue
      */
     private Token pickToken;
-    private Name simpleName;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
+    private Name simpleName;
     protected TypeRef type;
     protected Name qualifiedName;
 
@@ -179,7 +179,7 @@ public abstract class AstNode {
         this.type = type;
     }
 
-    public TypeRef getType() {
+    public TypeRef asType() {
         return type;
     }
 

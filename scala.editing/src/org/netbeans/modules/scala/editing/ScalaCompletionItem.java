@@ -52,7 +52,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.util.Exceptions;
@@ -65,11 +65,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     private static ImageIcon keywordIcon;
     protected CompletionRequest request;
-    protected AstElement element;
+    protected AstDef element;
     protected GsfElement gsfElement;
     protected IndexedElement indexedElement;
 
-    private ScalaCompletionItem(AstElement element, CompletionRequest request) {
+    private ScalaCompletionItem(AstDef element, CompletionRequest request) {
         this.element = element;
         this.request = request;
     }
@@ -138,7 +138,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         if (indexedElement != null) {
-            TypeRef type = indexedElement.getType();
+            TypeRef type = indexedElement.asType();
             if (type != null) {
                 formatter.appendHtml(" :"); // NOI18N
                 formatter.type(true);
@@ -232,7 +232,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         IndexedFunction function;
         
-        FunctionItem(AstElement element, CompletionRequest request) {
+        FunctionItem(AstDef element, CompletionRequest request) {
             super(element, request);
             assert element.getKind() == ElementKind.METHOD;
             function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
@@ -322,11 +322,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             }
 
             if (indexedElement != null &&
-                    indexedElement.getType() != null &&
+                    indexedElement.asType() != null &&
                     indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(indexedElement.getType().toString());
+                formatter.appendText(indexedElement.asType().toString());
                 formatter.type(false);
             }
 
@@ -546,7 +546,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class PlainItem extends ScalaCompletionItem {
 
-        PlainItem(AstElement element, CompletionRequest request) {
+        PlainItem(AstDef element, CompletionRequest request) {
             super(element, request);
         }
 
@@ -557,7 +557,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class PackageItem extends ScalaCompletionItem {
 
-        PackageItem(AstElement element, CompletionRequest request) {
+        PackageItem(AstDef element, CompletionRequest request) {
             super(element, request);
 
         }
@@ -608,7 +608,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class TypeItem extends ScalaCompletionItem {
 
-        TypeItem(AstElement element, CompletionRequest request) {
+        TypeItem(AstDef element, CompletionRequest request) {
             super(element, request);
 
         }

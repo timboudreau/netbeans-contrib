@@ -208,7 +208,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = funRef.getBase();
         if (base != null) {
-            TypeRef baseType = base.getType();
+            TypeRef baseType = base.asType();
             if (baseType != null) {
                 in = baseType.getQualifiedName().toString();
             }
@@ -241,7 +241,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = field.getBase();
         if (base != null) {
-            TypeRef baseType = base.getType();
+            TypeRef baseType = base.asType();
             if (baseType != null) {
                 in = baseType.getQualifiedName().toString();
             }

@@ -1267,15 +1267,15 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                     if (closest instanceof FieldRef) {
                         // dog.tal|
-                        type = closest.getType();
+                        type = closest.asType();
                     } else if (closest instanceof FunRef) {
                         // dog.talk().
-                        type = closest.getType();
+                        type = closest.asType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
-                        type = closest.getType();
+                        type = closest.asType();
                     } else {
-                        type = closest.getType();
+                        type = closest.asType();
                     }
 
                     if (type != null) {

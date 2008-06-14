@@ -86,12 +86,12 @@ public class PathId extends AstId {
     }        
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         if (type != null) {
             return type;
         }
         // @Todo
-        return paths.get(paths.size() - 1).getType();
+        return paths.get(paths.size() - 1).asType();
     }
         
 }

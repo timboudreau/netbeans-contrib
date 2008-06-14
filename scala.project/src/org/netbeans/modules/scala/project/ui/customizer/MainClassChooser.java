@@ -47,6 +47,7 @@ import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import javax.lang.model.element.TypeElement;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -58,7 +59,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.scala.editing.SourceUtils;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.openide.awt.Mnemonics;
 import org.openide.awt.MouseUtils;
@@ -74,7 +74,7 @@ public class MainClassChooser extends JPanel {
 
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
-    private Collection<AstElement> possibleMainClasses;
+    private Collection<TypeElement> possibleMainClasses;
             
     /** Creates new form MainClassChooser */
     public MainClassChooser (FileObject[] sourcesRoots) {
@@ -89,7 +89,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel(sourcesRoots);
     }
     
-    public MainClassChooser (final Collection<AstElement> mainClassesInFile) {
+    public MainClassChooser (final Collection<TypeElement> mainClassesInFile) {
         assert mainClassesInFile != null;
         this.initComponents();
         jMainClassList.setCellRenderer(new MainClassRenderer());
@@ -97,7 +97,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel (mainClassesInFile);
     }
     
-    public MainClassChooser (final Collection<AstElement> mainClassesInFile, final String subtitle) {
+    public MainClassChooser (final Collection<TypeElement> mainClassesInFile, final String subtitle) {
         assert mainClassesInFile != null;
         dialogSubtitle = subtitle;
         this.initComponents();
@@ -150,7 +150,7 @@ public class MainClassChooser extends JPanel {
                         }
                     });                    
                 } else {
-                    final AstElement[] arr = possibleMainClasses.toArray(new AstElement[possibleMainClasses.size()]);
+                    final TypeElement[] arr = possibleMainClasses.toArray(new TypeElement[possibleMainClasses.size()]);
                     // #46861, sort name of classes
                     Arrays.sort (arr, new MainClassComparator());
                     SwingUtilities.invokeLater(new Runnable () {
@@ -164,8 +164,8 @@ public class MainClassChooser extends JPanel {
         });
     }
     
-    private void initClassesModel (final Collection<AstElement> mainClasses) {
-        final AstElement[] arr = mainClasses.toArray(new AstElement[mainClasses.size()]);
+    private void initClassesModel (final Collection<TypeElement> mainClasses) {
+        final TypeElement[] arr = mainClasses.toArray(new TypeElement[mainClasses.size()]);
         Arrays.sort (arr, new MainClassComparator());
         possibleMainClasses = mainClasses;
         jMainClassList.setListData (arr);
@@ -278,8 +278,8 @@ public class MainClassChooser extends JPanel {
             String displayName;
             if (value instanceof String) {
                 displayName = (String) value;
-            } if (value instanceof AstElement) {
-                displayName = ((AstElement)value).getQualifiedName().toString();
+            } if (value instanceof TypeElement) {
+                displayName = ((TypeElement)value).getQualifiedName().toString();
             } else {
                 displayName = value.toString ();
             }
@@ -287,9 +287,9 @@ public class MainClassChooser extends JPanel {
         }
     }
     
-    private static class MainClassComparator implements Comparator<AstElement> {
+    private static class MainClassComparator implements Comparator<TypeElement> {
             
-        public int compare(AstElement arg0, AstElement arg1) {
+        public int compare(TypeElement arg0, TypeElement arg1) {
             return arg0.getQualifiedName().toString().compareTo(arg1.getQualifiedName().toString());
         }
     }

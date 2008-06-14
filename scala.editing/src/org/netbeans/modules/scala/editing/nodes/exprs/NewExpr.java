@@ -65,7 +65,7 @@ public class NewExpr extends AstExpr {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         /** @Todo */
         if (getParents().size() > 0) {
             return getParents().get(0);

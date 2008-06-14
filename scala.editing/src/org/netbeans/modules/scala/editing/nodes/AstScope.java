@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Element;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -473,7 +474,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public <T extends AstDef> List<T> getDefsInScope(Class<T> clazz) {
+    public <T extends Element> List<T> getDefsInScope(Class<T> clazz) {
         List<T> result = new ArrayList<T>();
 
         getDefsInScopeRecursively(clazz, result);
@@ -481,7 +482,7 @@ public class AstScope implements Iterable<AstScope> {
         return result;
     }
 
-    private final <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
+    private final <T extends Element> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
         if (defs != null) {
             for (AstDef def : defs) {
                 if (clazz.isInstance(def)) {

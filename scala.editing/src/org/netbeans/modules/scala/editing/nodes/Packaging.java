@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -50,7 +51,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author Caoyuan Deng
  */
-public class Packaging extends AstDef {
+public class Packaging extends AstDef implements PackageElement {
 
     private List<AstId> ids;
     private boolean top;
@@ -89,6 +90,10 @@ public class Packaging extends AstDef {
         return qualifiedName;
     }
 
+    public boolean isUnnamed() {
+        return false;
+    }
+    
     public void setTop() {
         top = true;
     }

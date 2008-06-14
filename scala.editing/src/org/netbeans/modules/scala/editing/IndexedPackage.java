@@ -70,7 +70,7 @@ public class IndexedPackage extends IndexedElement {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         return null;
     }
 

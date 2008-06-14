@@ -101,7 +101,7 @@ public class FunRef extends AstRef {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
-            TypeRef baseType = base.getType();
+            TypeRef baseType = base.asType();
             if (baseType != null) {
                 sb.append(" :").append(baseType.getSimpleName());
             }

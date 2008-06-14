@@ -62,7 +62,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
@@ -83,7 +83,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public abstract class IndexedElement extends AstElement {
+public abstract class IndexedElement extends AstDef {
 
     protected static final int NAME_INDEX = 0;
     protected static final int IN_INDEX = 1;
@@ -149,7 +149,7 @@ public abstract class IndexedElement extends AstElement {
     private Set<Modifier> modifiers;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(null, null);
+        super(null, null, null, null);
         this.fqn = fqn;
         this.name = name;
         this.in = in;
@@ -232,7 +232,7 @@ public abstract class IndexedElement extends AstElement {
         return indexedElement;
     }
 
-    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
+    static IndexedElement create(AstDef element, TokenHierarchy th, ScalaIndex index) {
         String in = element.getIn();
         String thename = element.getSimpleName().toString();
         StringBuilder base = new StringBuilder();
@@ -469,7 +469,7 @@ public abstract class IndexedElement extends AstElement {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
@@ -583,7 +583,7 @@ public abstract class IndexedElement extends AstElement {
     }
 
     /** Return the flags corresponding to the given AST element */
-    public static int computeFlags(AstElement element) {
+    public static int computeFlags(AstDef element) {
         int flags = 0;
 
         if (element instanceof ClassTemplate) {
@@ -676,7 +676,7 @@ public abstract class IndexedElement extends AstElement {
         return flags;
     }
 
-    public static String encodeAttributes(AstElement element, TokenHierarchy th) {
+    public static String encodeAttributes(AstDef element, TokenHierarchy th) {
         //Map<String,String> typeMap = element.getDocProps();
 
         // Look up compatibility
@@ -743,7 +743,7 @@ public abstract class IndexedElement extends AstElement {
                         sb.append(',');
                     }
                     sb.append(paramName);
-                    TypeRef paramType = param.getType();
+                    TypeRef paramType = param.asType();
                     if (paramType != null) {
                         String typeName = paramType.getSimpleName().toString();
                         if (typeName != null) {
@@ -790,7 +790,7 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == TYPE_INDEX;
-        TypeRef type = element.getType();
+        TypeRef type = element.asType();
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -1269,10 +1269,10 @@ public abstract class IndexedElement extends AstElement {
                 sb.append(")"); // NOI18N
             }
 
-            TypeRef retType = function.getType();
+            TypeRef retType = function.asType();
 
             if (retType != null) {
-                sb.append(" :").append(function.getType().toString());
+                sb.append(" :").append(function.asType().toString());
             }
         }
 

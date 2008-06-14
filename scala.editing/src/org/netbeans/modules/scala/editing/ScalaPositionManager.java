@@ -48,8 +48,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.PositionManager;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstNode;
 
 /**
  *
@@ -66,13 +66,11 @@ public class ScalaPositionManager implements PositionManager {
         }
 
         final TokenHierarchy th = TokenHierarchy.get(document);
-        
-        if (object instanceof AstElement) {
-            if (object instanceof AstDef) {
-                range = ((AstDef) object).getRange(th);
-            } else {
-                range = ScalaLexUtilities.getRangeOfToken(th, ((AstElement) object).getPickToken());
-            }
+
+        if (object instanceof AstDef) {
+            range = ((AstDef) object).getRange(th);
+        } else {
+            range = ScalaLexUtilities.getRangeOfToken(th, ((AstNode) object).getPickToken());
         }
         return range;
     }

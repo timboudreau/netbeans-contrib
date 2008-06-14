@@ -52,7 +52,6 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
@@ -440,7 +439,7 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private void indexFunction(AstElement element, IndexDocument document) {
+        private void indexFunction(AstDef element, IndexDocument document) {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
@@ -480,7 +479,7 @@ public class ScalaIndexer implements Indexer {
 //            }
         }
 
-        private void indexField(AstElement element, IndexDocument document) {
+        private void indexField(AstDef element, IndexDocument document) {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();

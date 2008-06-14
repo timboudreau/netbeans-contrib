@@ -1942,7 +1942,7 @@ public class AstNodeVisitor extends AstVisitor {
 
         AstExpr lhs = visitSimpleExpr(that.getGeneric(0));
         AstExpr rhs = visitExpr(that.getGeneric(1));
-        lhs.setType(rhs.getType());
+        lhs.setType(rhs.asType());
         expr.setLhs(lhs);
         expr.setRhs(rhs);
 

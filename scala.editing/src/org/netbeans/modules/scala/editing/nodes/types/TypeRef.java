@@ -299,7 +299,7 @@ public class TypeRef extends AstRef implements TypeMirror {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         return this;
     }
 

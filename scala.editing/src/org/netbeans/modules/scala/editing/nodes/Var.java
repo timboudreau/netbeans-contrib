@@ -55,7 +55,7 @@ public class Var extends AstDef implements VariableElement {
 
     public Var(AstId id, AstScope bindingScope, ElementKind kind) {
         super(id.getSimpleName().toString(), id.getPickToken(), bindingScope, kind);
-        setType(id.getType());
+        setType(id.asType());
     }
 
     public Object getConstantValue() {
@@ -93,13 +93,13 @@ public class Var extends AstDef implements VariableElement {
     }
 
     @Override
-    public TypeRef getType() {
+    public TypeRef asType() {
         if (type != null) {
             return type;
         }
 
         if (expr != null) {
-            return expr.getType();
+            return expr.asType();
         }
 
         return null;
@@ -120,7 +120,7 @@ public class Var extends AstDef implements VariableElement {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef myType = getType();
+        TypeRef myType = asType();
         if (myType != null) {
             formatter.type(true);
             formatter.appendHtml(" :");
