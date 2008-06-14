@@ -69,6 +69,7 @@ import com.sun.source.util.TreePathScanner;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
@@ -104,7 +105,6 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -1163,7 +1163,7 @@ public class EditorContextImpl extends EditorContext {
 
                     String className = tmpl.getBinaryName();
 
-                    Packaging enclosingPackage = tmpl.getPackageElement();
+                    PackageElement enclosingPackage = tmpl.getPackageElement();
                     if (enclosingPackage == null) {
                         result[0] = className;
                     } else {

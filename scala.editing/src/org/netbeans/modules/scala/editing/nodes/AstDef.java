@@ -135,12 +135,6 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public boolean referredBy(AstRef ref) {
-        if (getSimpleName() == null) {
-            System.out.println("def");
-        }
-        if (ref.getSimpleName() == null) {
-            System.out.println("ref");
-        }
         return getSimpleName().equals(ref.getSimpleName());
     }
 
