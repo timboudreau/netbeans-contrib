@@ -330,7 +330,7 @@ public class ScalaIndexer implements Indexer {
 
                 StringBuilder fqn = new StringBuilder();
 
-                String qName = template.getQualifiedName();
+                String qName = template.getQualifiedName().toString();
                 fqn.append(qName.toLowerCase());
                 fqn.append(';');
                 fqn.append(';');
@@ -339,10 +339,10 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(IndexedElement.encodeAttributes(template, pResult.getTokenHierarchy()));
 
                 List<TypeRef> extendsWith = template.getExtendsWith();
-                String clz = template.getQualifiedName();
+                String clz = template.getQualifiedName().toString();
                 if (extendsWith.size() > 0) {
                     for (TypeRef parent : extendsWith) {
-                        String superClz = parent.getQualifiedName();
+                        String superClz = parent.getQualifiedName().toString();
                         document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }
 

@@ -59,7 +59,6 @@ import org.openide.filesystems.FileObject;
 public abstract class AstNode {
 
     protected final static String NO_MEANING_NAME = "-1";
-    
     /** 
      * @Note: 
      * 1. Not all AstNode has pickToken, such as Expr etc.
@@ -72,7 +71,7 @@ public abstract class AstNode {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     protected TypeRef type;
-    protected String qualifiedName;
+    protected Name qualifiedName;
 
     protected AstNode() {
         this(null, null);
@@ -91,12 +90,12 @@ public abstract class AstNode {
         setSimpleName(simpleName);
     }
 
-    public void setSimpleName(CharSequence simpleName) {
-        if (simpleName != null) {
-            if (simpleName instanceof Name) {
-                this.simpleName = (Name) simpleName;
+    public void setSimpleName(CharSequence sName) {
+        if (sName != null) {
+            if (sName instanceof Name) {
+                this.simpleName = (Name) sName;
             } else {
-                this.simpleName = new AstName(simpleName);
+                this.simpleName = new AstName(sName);
             }
         } else {
             this.simpleName = null;
@@ -151,11 +150,24 @@ public abstract class AstNode {
         return getSimpleName().toString();
     }
 
-    public String getQualifiedName() {
+    public void setQualifiedName(CharSequence qName) {
+        if (qName != null) {
+            if (qName instanceof Name) {
+                this.simpleName = (Name) qName;
+            } else {
+                this.simpleName = new AstName(qName);
+            }
+        } else {
+            this.simpleName = null;
+        }
+    }
+
+    public Name getQualifiedName() {
         if (qualifiedName == null) {
             Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getSimpleName().toString() : packaging.getQualifiedName().toString() + "." + getSimpleName().toString();
+            qualifiedName = packaging == null ? getSimpleName() : new AstName(packaging.getQualifiedName() + "." + getSimpleName());
         }
+
         return qualifiedName;
     }
 
@@ -230,13 +242,13 @@ public abstract class AstNode {
     public String getIn() {
         Template enclosingTemplate = getEnclosingDef(Template.class);
         if (enclosingTemplate != null) {
-            return enclosingTemplate.getQualifiedName();
+            return enclosingTemplate.getQualifiedName().toString();
         } else {
             return "";
         }
     }
 
-    protected class AstName implements Name {
+    protected static class AstName implements Name {
 
         private CharSequence name;
 
@@ -275,10 +287,10 @@ public abstract class AstNode {
         public int hashCode() {
             return name.toString().hashCode();
         }
-        
+
         @Override
         public String toString() {
             return name.toString();
-        }        
+        }
     }
 }

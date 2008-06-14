@@ -152,7 +152,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                         String newMainClass = null;
                         if (!main.isEmpty()) {
                             AstElement mainHandle = main.iterator().next();
-                            newMainClass = mainHandle.getQualifiedName();
+                            newMainClass = mainHandle.getQualifiedName().toString();
                         }
                         if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() &&
                                 // XXX ##84806: ideally should update nbproject/configs/*.properties in this case:
@@ -253,7 +253,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             }
                             ObjectTemplate mainClass = null;
                             for (ObjectTemplate obj : objs) {
-                                if (obj.getQualifiedName().equals(mainClassName)) {
+                                if (obj.getQualifiedName().toString().equals(mainClassName)) {
                                     mainClass = obj;
                                     break;
                                 }

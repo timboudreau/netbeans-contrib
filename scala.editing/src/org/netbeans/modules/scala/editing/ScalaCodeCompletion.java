@@ -1279,7 +1279,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     if (type != null) {
-                        typeQname = type.getQualifiedName();
+                        typeQname = type.getQualifiedName().toString();
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);

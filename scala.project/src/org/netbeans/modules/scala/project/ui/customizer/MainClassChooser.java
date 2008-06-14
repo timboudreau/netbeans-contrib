@@ -279,7 +279,7 @@ public class MainClassChooser extends JPanel {
             if (value instanceof String) {
                 displayName = (String) value;
             } if (value instanceof AstElement) {
-                displayName = ((AstElement)value).getQualifiedName();
+                displayName = ((AstElement)value).getQualifiedName().toString();
             } else {
                 displayName = value.toString ();
             }
@@ -290,7 +290,7 @@ public class MainClassChooser extends JPanel {
     private static class MainClassComparator implements Comparator<AstElement> {
             
         public int compare(AstElement arg0, AstElement arg1) {
-            return arg0.getQualifiedName().compareTo(arg1.getQualifiedName());
+            return arg0.getQualifiedName().toString().compareTo(arg1.getQualifiedName().toString());
         }
     }
 

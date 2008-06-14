@@ -210,7 +210,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                in = baseType.getQualifiedName();
+                in = baseType.getQualifiedName().toString();
             }
 
             if (in != null) {
@@ -243,7 +243,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                in = baseType.getQualifiedName();
+                in = baseType.getQualifiedName().toString();
             }
 
             if (in != null) {
@@ -275,7 +275,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedType candidate = null;
 
-        String qName = type.getQualifiedName();
+        String qName = type.getQualifiedName().toString();
 
         int lastDot = qName.lastIndexOf('.');
         if (lastDot != -1) {

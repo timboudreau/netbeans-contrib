@@ -157,7 +157,7 @@ public class ScalaTypeInferencer {
         }
 
         String baseTypeTmpl = null;
-        String baseTypeStr = null;
+        String baseTypeQName = null;
         String callName = null;
 
         // resolve return type of funRef:
@@ -207,13 +207,13 @@ public class ScalaTypeInferencer {
                 }
 
                 if (baseType.isResolved()) {
-                    baseTypeStr = baseType.getQualifiedName();
+                    baseTypeQName = baseType.getQualifiedName().toString();
                 } else {
                     // @todo resolve it first
                 }
             }
 
-            if (baseTypeStr == null) {
+            if (baseTypeQName == null) {
                 return;
             }
 
@@ -241,7 +241,7 @@ public class ScalaTypeInferencer {
 
                 String qualifiedName = globalInferTypeRef(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
                 if (qualifiedName != null) {
-                    baseTypeStr = qualifiedName;
+                    baseTypeQName = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
                     funRef.setCall(new AstId("apply", objectName.getPickToken()));
 
@@ -253,11 +253,11 @@ public class ScalaTypeInferencer {
             }
         }
 
-        if (baseTypeStr == null || callName == null) {
+        if (baseTypeQName == null || callName == null) {
             return;
         }
 
-        Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        Set<IndexedElement> members = index.getElements(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
         for (IndexedElement member : members) {
             if (member instanceof IndexedFunction) {
                 IndexedFunction idxFunction = (IndexedFunction) member;
@@ -308,7 +308,7 @@ public class ScalaTypeInferencer {
         AstNode base = fieldRef.getBase();
         if (base != null) {
 
-            String baseTypeStr = null;
+            String baseTypeQName = null;
             TypeRef baseType = base.getType();
 
             if (base instanceof PathId) {
@@ -351,20 +351,20 @@ public class ScalaTypeInferencer {
                 }
 
                 if (baseType.isResolved()) {
-                    baseTypeStr = baseType.getQualifiedName();
+                    baseTypeQName = baseType.getQualifiedName().toString();
                 } else {
                     // @todo resolve it first
                 }
             }
 
-            if (baseTypeStr == null) {
+            if (baseTypeQName == null) {
                 return;
             }
 
             AstId field = fieldRef.getField();
             String fieldName = field.getSimpleName().toString();
 
-            Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+            Set<IndexedElement> members = index.getElements(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
             for (IndexedElement member : members) {
                 boolean isCandicate = false;
                 String idxRetTypeStr = null;

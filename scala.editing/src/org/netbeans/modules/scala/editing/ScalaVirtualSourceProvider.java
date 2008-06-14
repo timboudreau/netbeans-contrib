@@ -204,7 +204,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
         public CharSequence generateClass(Template template) throws FileNotFoundException {
 
-            String fileName = template.getQualifiedName().replace('.', '/');
+            String fileName = template.getQualifiedName().toString().replace('.', '/');
             toCompile.add(fileName);
 
             StringWriter sw = new StringWriter();

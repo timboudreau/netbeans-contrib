@@ -74,7 +74,7 @@ public class Packaging extends AstDef {
     }    
     
     @Override
-    public String getQualifiedName() {
+    public Name getQualifiedName() {
         if (qualifiedName == null) {
             StringBuilder sb = new StringBuilder();
             for (Iterator<AstId> itr = getIds().iterator(); itr.hasNext();) {
@@ -83,7 +83,7 @@ public class Packaging extends AstDef {
                     sb.append(".");
                 }
             }
-            qualifiedName = sb.toString();
+            qualifiedName = new AstName(sb);
         }
 
         return qualifiedName;
