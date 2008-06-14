@@ -58,8 +58,8 @@ import org.netbeans.installer.wizard.components.actions.sunstudio.CreateBundleAc
 import org.netbeans.installer.wizard.components.actions.CreateNativeLauncherAction;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;
 import org.netbeans.installer.wizard.components.actions.DownloadInstallationDataAction;
-import org.netbeans.installer.wizard.components.actions.InstallAction;
-import org.netbeans.installer.wizard.components.actions.UninstallAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.InstallAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.UninstallAction;
 import org.netbeans.installer.wizard.components.actions.sunstudio.RegistrationAction;
 import org.netbeans.installer.wizard.components.actions.sunstudio.ServiceTagCreateAction;
 import org.netbeans.installer.wizard.components.panels.PostCreateBundleSummaryPanel;

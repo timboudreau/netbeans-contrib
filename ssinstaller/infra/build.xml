@@ -397,9 +397,32 @@ jarsigner.storepass=${jarsigner.storepass}
     <antcall target="build-tools-group"/>
     <antcall target="build-ide-group"/>
     <antcall target="build-other-group"/>
+         <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="tools-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+
  
-    <build-product dir="C_Compiler"/>
-               
+	<build-product dir="C_Compiler"/>
+        <build-product dir="C++_Compiler"/>
         <echo message="BUILDING NB-BASE =========================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
@@ -425,40 +448,15 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         
-         <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value="tools-group"/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
-
 
         <build-product dir="C++_Compiler"/>
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
         <build-product dir="build_tools"/>
-    <!--    <build-product dir="X-Designer" group="other-group"/> -->
         
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library" group="other-group"/>
         <build-product dir="Third-party_Source" group="other-group"/>
-	
 		
 	<!--<build-product dir="demos"/>
         -->
@@ -567,13 +565,50 @@ jarsigner.storepass=${jarsigner.storepass}
      </macrodef>
     <target name="generate-netbeans-cpp-bundles">
         <!-- C/C++ bundles -->
+        <create-bundle root="${output.dir}/registry-temp" 
+                       platform="solaris-x86" 
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
+            <component uid="ss-base" version="1.0.0.0.0"/>            
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>
+	    <component uid="nb-base" version="${nb.full.version}"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+	    
+	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
+        </create-bundle>
+        <delete file="${output.dir}/registry-temp/bundles.list" />
+
+        <create-bundle root="${output.dir}/registry-temp" 
+                       platform="solaris-x86" 
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86-external.sh">
+            <component uid="ss-base" version="1.0.0.0.0"/>
+            
+	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
+        </create-bundle>
+        <delete file="${output.dir}/registry-temp/bundles.list" />
         
 	<create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
-            <component uid="ss-base" version="1.0.0.0.0"/>
+            <component uid="cc" version="1.0.0.0.0"/>
+	    <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>
+	
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
@@ -601,40 +636,7 @@ jarsigner.storepass=${jarsigner.storepass}
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
 
-        <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
-            <component uid="ss-base" version="1.0.0.0.0"/>
-            
-	    <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
-        <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86-external.sh">
-            <component uid="ss-base" version="1.0.0.0.0"/>
-            
-	    <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
-            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
@@ -672,7 +674,7 @@ jarsigner.storepass=${jarsigner.storepass}
     </target>
     
     
-    <target name="build-engine">
+    <target name="build-engine" depends="-init">
 	<property name="engine.dist.file.name" value="nbi-engine.jar"/>
         
         <echo message="BUILDING CORE ENGINE ======================================"/>
@@ -706,6 +708,51 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="core.engine.dist.file" 
                 value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
         </ant>
+	 <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="tools-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+ 
     </target>
 
     <target name="prepare-output-dir">

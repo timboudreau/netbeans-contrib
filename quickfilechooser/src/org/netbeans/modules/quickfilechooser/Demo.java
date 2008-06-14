@@ -61,8 +61,9 @@ public class Demo {
         chooser.setMultiSelectionEnabled(true);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         //chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
-        chooser.setCurrentDirectory(new File("/space/src/nb_all/contrib"));
-        chooser.setSelectedFiles(new File[] {new File("/space/src/nb_all/contrib/docbook")});
+        File contrib = new File(System.getProperty("contrib"));
+        chooser.setCurrentDirectory(contrib);
+        chooser.setSelectedFiles(new File[] {new File(contrib, "docbook")});
         chooser.setFileView(new FileView() {
             public Icon getIcon(File f) {
                 if (f.getName().endsWith(".gif") || f.getName().endsWith(".png")) {

@@ -49,11 +49,13 @@ import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.FileEntry;
 import org.netbeans.installer.utils.helper.Platform;
+import org.netbeans.installer.utils.helper.RemovalMode;
 import org.netbeans.installer.utils.helper.Text;
 import org.netbeans.installer.utils.nativepackages.NativeInstallerFactory;
 import org.netbeans.installer.utils.nativepackages.NativePackageInstaller;
 import org.netbeans.installer.utils.progress.Progress;
 import org.netbeans.installer.wizard.components.WizardComponent;
+
 
 public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
 
@@ -70,76 +72,72 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     }
 
     @Override
+    public int getLogicPercentage() {
+        return 100;
+    }
+
+    @Override
     public void install(Progress progress) throws InstallationException {
         LogManager.logEntry("Installing native package...");
-        /*try {
-        if (!NativeUtils.getInstance().isCurrentUserAdmin()) throw new InstallationException("User is not root!");                
-        } catch (NativeException ex) {
-        throw new InstallationException("Unable to determine user rights!", ex);
-        }*/
+        String installationLocation = Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath();
         final Platform platform = SystemUtils.getCurrentPlatform();
-        if (PackageType.isPlatformSupported(platform)) {
-            try {
-                NativePackageInstaller packageInstaller =// NativeInstallerFactory.getPlatformNativePackageInstaller(platform.isCompatibleWith(Platform.SOLARIS));
-                        PackageType.getPlatformNativePackage(platform).getPackageInstaller();
-                packageInstaller.setDestinationPath(Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath());
-                for (FileEntry installedFile : getProduct().getInstalledFiles()) {
-                    if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
-
-                        String value = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
-                        int counter = parseInteger(value) + 1;
-//        DeviceFileAnalyzer analyzer = new DeviceFileAnalyzer(pathToPackage);
-                        //product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(analyzer.getPackagesCount()));
-                        int i = counter;
-                        //if (analyzer.containsPackages()) {
-                        //Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
-                        Iterable<String> installedPackageNames = packageInstaller.install(installedFile.getFile().getAbsolutePath());
-                        for (String packageName : installedPackageNames) {
-                            Logger.getAnonymousLogger().warning("Installed package: " + packageName);
-                            getProduct().setProperty(DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
-                            i++;
-                        }
-
-                        getProduct().setProperty(DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(i - 1));
-
-                        installedFile.getFile().delete();
-                    }
-                }
-            } catch (Exception e) {
-                throw new InstallationException("Inner Exception", e);
-            }
-        } else {
+        if (!PackageType.isPlatformSupported(platform)) {
             throw new InstallationException("Platform is not supported!");
         }
+
+        try {
+            NativePackageInstaller packageInstaller =// NativeInstallerFactory.getPlatformNativePackageInstaller(platform.isCompatibleWith(Platform.SOLARIS));
+                    PackageType.getPlatformNativePackage(platform).getPackageInstaller();
+            packageInstaller.setDestinationPath(installationLocation);
+            final int percentageChunk = Progress.COMPLETE / getProduct().getInstalledFiles().getSize();
+            final int percentageLeak = Progress.COMPLETE % getProduct().getInstalledFiles().getSize();
+            for (FileEntry installedFile : getProduct().getInstalledFiles()) {
+                if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
+                    String value = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
+                    int i = parseInteger(value) + 1;
+                    Iterable<String> installedPackageNames = packageInstaller.install(installedFile.getFile().getAbsolutePath());
+                    progress.addPercentage(percentageChunk);
+                    progress.setDetail("Installing package" + installedFile.getName());
+                    for (String packageName : installedPackageNames) {
+                        Logger.getAnonymousLogger().warning("Installed package: " + packageName);
+                        getProduct().setProperty(DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
+                        i++;
+                    }
+                    getProduct().setProperty(DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(i - 1));
+                    installedFile.getFile().delete();
+                }
+            }
+        } catch (Exception e) {
+            throw new InstallationException("Inner Exception", e);
+        }
+
         LogManager.logExit("Finish installing native package");
         progress.setPercentage(Progress.COMPLETE);
+
     }
 
     @Override
     public void uninstall(Progress progress) throws UninstallationException {
         LogManager.logEntry("Uninstalling native package...");
-        /*try {
-        if (!NativeUtils.getInstance().isCurrentUserAdmin()) throw new UninstallationException("User is not root!");                
-        } catch (NativeException ex) {
-        throw new UninstallationException("Unable to determine user rights!", ex);
-        }*/
         final Platform platform = SystemUtils.getCurrentPlatform();
-        if (PackageType.isPlatformSupported(platform)) {
-            try {
-                PackageType packageType = PackageType.getPlatformNativePackage(platform);
-                NativePackageInstaller packageInstaller = packageType.getPackageInstaller();
-                packageInstaller.setDestinationPath(Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath());
-                // packageInstaller.uninstall(getProduct());
-                String packagesValue = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
-                for (int packageNumber = 1; packageNumber <= parseInteger(packagesValue); packageNumber++) {
-                    String value = getProduct().getProperty(DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    packageInstaller.uninstall(value);
-                }
-            } catch (Exception e) {
-                throw new UninstallationException("Inner Exception", e);
-            }
-        } else {
+        if (!PackageType.isPlatformSupported(platform)) {
             throw new UninstallationException("Platform is not supported!");
+        }
+        try {
+            PackageType packageType = PackageType.getPlatformNativePackage(platform);
+            NativePackageInstaller packageInstaller = packageType.getPackageInstaller();
+            //packageInstaller.setDestinationPath(Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath());
+            packageInstaller.setDestinationPath("");
+
+            //packageInstaller.uninstall(getProduct());
+            String packagesValue = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
+            for (int packageNumber = 1; packageNumber <= parseInteger(packagesValue); packageNumber++) {
+                String value = getProduct().getProperty(DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
+                progress.addPercentage( (Progress.COMPLETE - Progress.START) / parseInteger(packagesValue));
+                packageInstaller.uninstall(value);
+            }
+        } catch (Exception e) {
+            throw new UninstallationException("Inner Exception", e);
         }
         LogManager.logExit("Finish uninstalling native package");
         progress.setPercentage(Progress.COMPLETE);
@@ -159,12 +157,18 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     public Text getLicense() {
         return null;
     }
-}
 
+    @Override
+    public RemovalMode getRemovalMode() {
+        return RemovalMode.LIST;
+    }
+    
+    
+}
 enum PackageType {
 
     SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), Platform.SOLARIS),
-   // LINUX_DEB(new LinuxDebianPackageInstaller(), Platform.LINUX),
+    // LINUX_DEB(new LinuxDebianPackageInstaller(), Platform.LINUX),
     LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), Platform.LINUX);
     private NativePackageInstaller packageInstaller = null;
     private Platform platform = null;
@@ -194,8 +198,6 @@ enum PackageType {
     private static boolean isCompatiblePlatforms(Platform platform1, Platform platform2) {
         return platform1.getOsFamily().equals(platform2.getOsFamily());
     }
-    
-
 
     public static PackageType getPlatformNativePackage(Platform platform) {
         if (isCompatiblePlatforms(platform, Platform.SOLARIS)) {
@@ -203,10 +205,10 @@ enum PackageType {
         }
         if (isCompatiblePlatforms(platform, Platform.LINUX)) {
             //if (isCompatibleLinuxDistribution(UBUNTU, DEBIAN)) {
-             //   return LINUX_DEB;
+            //   return LINUX_DEB;
             //} else {
-                return LINUX_RPM;
-            //}
+            return LINUX_RPM;
+        //}
         }
         return null;
     }
