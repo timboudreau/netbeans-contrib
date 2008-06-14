@@ -234,15 +234,15 @@ public abstract class IndexedElement extends AstDef {
 
     static IndexedElement create(AstDef element, TokenHierarchy th, ScalaIndex index) {
         String in = element.getIn();
-        String thename = element.getSimpleName().toString();
+        String sName = element.getSimpleName().toString();
         StringBuilder base = new StringBuilder();
-        base.append(thename.toLowerCase());
+        base.append(sName.toLowerCase());
         base.append(';');
         if (in != null) {
             base.append(in);
         }
         base.append(';');
-        base.append(thename);
+        base.append(sName);
         base.append(';');
         base.append(encodeAttributes(element, th));
 
@@ -783,7 +783,7 @@ public abstract class IndexedElement extends AstDef {
         index++;
         assert index == TYPE_PARAMS_INDEX;
         if (element instanceof WithTypeParams) {
-            encodeTypeParams(((WithTypeParams) element).getTypeParams(), sb);
+            encodeTypeParams(((WithTypeParams) element).getTypeParameters(), sb);
         }
 
         // Type
@@ -869,10 +869,10 @@ public abstract class IndexedElement extends AstDef {
         return curr;
     }    
     
-    private static void encodeTypeParams(List<TypeParam> typeParams, StringBuilder sb) {
+    private static void encodeTypeParams(List<? extends TypeParam> typeParams, StringBuilder sb) {
         if (!typeParams.isEmpty()) {
             sb.append("[");
-            for (Iterator<TypeParam> itr = typeParams.iterator(); itr.hasNext();) {
+            for (Iterator<? extends TypeParam> itr = typeParams.iterator(); itr.hasNext();) {
                 TypeParam typeParam = itr.next();
                 sb.append(typeParam.getSimpleName());
                 if (typeParam.getVariant() != null) {

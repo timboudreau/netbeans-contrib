@@ -46,5 +46,5 @@ import java.util.List;
  */
 public interface WithTypeParams {
 
-    List<TypeParam> getTypeParams();
+    List<? extends TypeParam> getTypeParameters();
 }

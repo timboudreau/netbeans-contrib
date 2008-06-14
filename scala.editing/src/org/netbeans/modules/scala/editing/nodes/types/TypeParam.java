@@ -40,6 +40,9 @@ package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.Collections;
 import java.util.List;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 
@@ -47,7 +50,7 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
  *
  * @author Caoyuan Deng
  */
-public class TypeParam extends TypeDef {
+public class TypeParam extends TypeDef implements TypeParameterElement {
 
     private String bound;
     private TypeRef boundType;
@@ -58,6 +61,14 @@ public class TypeParam extends TypeDef {
         super(id, bindingScope);
     }
 
+    public List<? extends TypeMirror> getBounds() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Element getGenericElement() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
+    
     public void setBound(String bound) {
         this.bound = bound;
     }

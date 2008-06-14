@@ -44,7 +44,6 @@ import java.util.List;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -58,7 +57,7 @@ import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
  */
 public class Function extends AstDef implements WithTypeParams, ExecutableElement {
 
-    private List<TypeParam> typeParams;
+    private List<TypeParam> typeParameters;
     private List<Var> parameters;
 
     public Function(CharSequence name, Token pickToken, AstScope bindingScope, boolean isConstructor) {
@@ -85,21 +84,17 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public List<? extends TypeParameterElement> getTypeParameters() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<? extends TypeParam> getTypeParameters() {
+        return typeParameters == null ? Collections.<TypeParam>emptyList() : typeParameters;
     }        
     
     public void setTypeParam(List<TypeParam> typeParams) {
-        this.typeParams = typeParams;
+        this.typeParameters = typeParams;
     }
 
-    public List<TypeParam> getTypeParams() {
-        return typeParams == null ? Collections.<TypeParam>emptyList() : typeParams;
-    }
-
-    public void assignTypeParams(List<TypeRef> typeArgs) {
-        assert getTypeParams().size() == typeArgs.size();
-        List<TypeParam> _typeParams = getTypeParams();
+    public void assignTypeParameters(List<TypeRef> typeArgs) {
+        assert getTypeParameters().size() == typeArgs.size();
+        List<? extends TypeParam> _typeParams = getTypeParameters();
         for (int i = 0 ; i < _typeParams.size(); i++) {
             TypeParam typeParam = _typeParams.get(i);
             TypeRef typeArg = typeArgs.get(i);
@@ -136,10 +131,10 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        if (!getTypeParams().isEmpty()) {
+        if (!getTypeParameters().isEmpty()) {
             formatter.appendHtml("[");
 
-            for (Iterator<TypeParam> itr = getTypeParams().iterator(); itr.hasNext();) {
+            for (Iterator<? extends TypeParam> itr = getTypeParameters().iterator(); itr.hasNext();) {
                 TypeParam typeParam = itr.next();
                 typeParam.htmlFormat(formatter);
 
