@@ -153,12 +153,12 @@ public abstract class AstNode {
     public void setQualifiedName(CharSequence qName) {
         if (qName != null) {
             if (qName instanceof Name) {
-                this.simpleName = (Name) qName;
+                this.qualifiedName = (Name) qName;
             } else {
-                this.simpleName = new AstName(qName);
+                this.qualifiedName = new AstName(qName);
             }
         } else {
-            this.simpleName = null;
+            this.qualifiedName = null;
         }
     }
 

@@ -78,8 +78,8 @@ public abstract class Template extends AstDef implements TypeElement {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void setTypeParams(List<TypeParam> typeParams) {
-        this.typeParameters = typeParams;
+    public void setTypeParameters(List<TypeParam> typeParameters) {
+        this.typeParameters = typeParameters;
     }
 
     public List<? extends TypeParam> getTypeParameters() {

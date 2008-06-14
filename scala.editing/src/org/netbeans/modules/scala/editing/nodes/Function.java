@@ -88,8 +88,8 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         return typeParameters == null ? Collections.<TypeParam>emptyList() : typeParameters;
     }        
     
-    public void setTypeParam(List<TypeParam> typeParams) {
-        this.typeParameters = typeParams;
+    public void setTypeParameters(List<TypeParam> typeParameters) {
+        this.typeParameters = typeParameters;
     }
 
     public void assignTypeParameters(List<TypeRef> typeArgs) {

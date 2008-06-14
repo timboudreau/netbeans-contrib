@@ -340,9 +340,9 @@ public class TypeRef extends AstRef implements TypeMirror {
             setEnclosingScope(AstScope.emptyScope());
         }
 
-        public PseudoTypeRef(String qualifiedName) {
+        public PseudoTypeRef(String qName) {
             this();
-            setQualifiedName(qualifiedName);
+            setQualifiedName(qName);
         }
 
         @Override
