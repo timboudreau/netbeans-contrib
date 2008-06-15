@@ -60,7 +60,7 @@ import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
-import org.netbeans.modules.scala.editing.GsfElement;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 

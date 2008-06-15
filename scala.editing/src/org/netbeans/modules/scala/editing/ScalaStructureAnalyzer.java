@@ -58,7 +58,7 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.GsfElement;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 
 /**
  *

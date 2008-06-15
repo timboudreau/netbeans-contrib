@@ -36,9 +36,8 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing;
+package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
@@ -62,6 +61,65 @@ public class GsfElement implements ElementHandle {
     private boolean inherited;
     private boolean smart;
 
+    public static ElementKind getGsfKind(Element element) {
+        if (element instanceof AstDef) {
+            switch (element.getKind()) {
+                case CLASS:
+                    return ElementKind.CLASS;
+                case CONSTRUCTOR:
+                    return ElementKind.CONSTRUCTOR;
+                case ENUM:
+                    return ElementKind.CLASS;
+                case ENUM_CONSTANT:
+                    return ElementKind.CONSTANT;
+                case EXCEPTION_PARAMETER:
+                    return ElementKind.OTHER;
+                case FIELD:
+                    return ElementKind.FIELD;
+                case INTERFACE:
+                    return ElementKind.MODULE;
+                case LOCAL_VARIABLE:
+                    return ElementKind.VARIABLE;
+                case METHOD:
+                    return ElementKind.METHOD;
+                case OTHER:
+                    return ElementKind.OTHER;
+                case PACKAGE:
+                    return ElementKind.PACKAGE;
+                case PARAMETER:
+                    return ElementKind.PARAMETER;
+                case TYPE_PARAMETER:
+                    return ElementKind.CLASS;
+                default:
+                    return ElementKind.OTHER;
+            }
+        }
+
+        return ElementKind.OTHER;
+    }
+
+    public static Set<Modifier> getGsfModifiers(Element node) {
+        Set<Modifier> modifiers = new HashSet<Modifier>();
+
+        for (javax.lang.model.element.Modifier mod : node.getModifiers()) {
+            switch (mod) {
+                case PRIVATE:
+                    modifiers.add(Modifier.PRIVATE);
+                    continue;
+                case PROTECTED:
+                    modifiers.add(Modifier.PROTECTED);
+                    continue;
+                case PUBLIC:
+                    modifiers.add(Modifier.PUBLIC);
+                    continue;
+                default:
+                    continue;
+            }
+        }
+
+        return modifiers;
+    }
+
     public GsfElement(Element element, FileObject fileObject) {
         this.element = element;
         this.fileObject = fileObject;
@@ -74,7 +132,7 @@ public class GsfElement implements ElementHandle {
     public Element getElement() {
         return element;
     }
-    
+
     public FileObject getFileObject() {
         return fileObject;
     }
@@ -115,87 +173,28 @@ public class GsfElement implements ElementHandle {
         return false;
     }
 
-    public static ElementKind getGsfKind(Element element) {
-        if (element instanceof AstDef) {
-            switch (element.getKind()) {
-                case CLASS:
-                    return ElementKind.CLASS;
-                case CONSTRUCTOR:
-                    return ElementKind.CONSTRUCTOR;
-                case ENUM:
-                    return ElementKind.CLASS;
-                case ENUM_CONSTANT:
-                    return ElementKind.CONSTANT;
-                case EXCEPTION_PARAMETER:
-                    return ElementKind.OTHER;
-                case FIELD:
-                    return ElementKind.FIELD;
-                case INTERFACE:
-                    return ElementKind.MODULE;
-                case LOCAL_VARIABLE:
-                    return ElementKind.VARIABLE;
-                case METHOD:
-                    return ElementKind.METHOD;
-                case OTHER:
-                    return ElementKind.OTHER;
-                case PACKAGE:
-                    return ElementKind.PACKAGE;
-                case PARAMETER:
-                    return ElementKind.PARAMETER;
-                case TYPE_PARAMETER:
-                    return ElementKind.CLASS;
-                default:
-                    return ElementKind.OTHER;
-            }
-        }
-        
-        return ElementKind.OTHER;
-    }
-
-    public static Set<Modifier> getGsfModifiers(Element node) {
-        Set<Modifier> modifiers = new HashSet<Modifier>();
-
-        for (javax.lang.model.element.Modifier mod : node.getModifiers()) {
-            switch (mod) {
-                case PRIVATE:
-                    modifiers.add(Modifier.PRIVATE);
-                    continue;
-                case PROTECTED:
-                    modifiers.add(Modifier.PROTECTED);
-                    continue;
-                case PUBLIC:
-                    modifiers.add(Modifier.PUBLIC);
-                    continue;
-                default:
-                    continue;
-            }
-        }
-
-        return modifiers;
-    }
-    
     public void htmlFormat(HtmlFormatter formatter) {
         if (element instanceof AstDef) {
-            ((AstDef)element).htmlFormat(formatter);
+            ((AstDef) element).htmlFormat(formatter);
         }
     }
-    
+
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
     }
-    
+
     public boolean isDeprecated() {
         return deprecated;
     }
-    
+
     public void setInherited(boolean inherited) {
         this.inherited = inherited;
     }
-    
+
     public boolean isInherited() {
         return inherited;
     }
-    
+
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
