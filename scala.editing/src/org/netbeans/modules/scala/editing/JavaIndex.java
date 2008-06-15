@@ -622,7 +622,7 @@ public class JavaIndex {
                             String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
-                            gsfElement = new GsfElement(e, info.getFileObject());
+                            gsfElement = new GsfElement(e, null, info);
                             //idxElement.setJavaInfo(e, info);
                             break;
                         }
@@ -644,7 +644,7 @@ public class JavaIndex {
                             String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
-                            gsfElement = new GsfElement(e, info.getFileObject());
+                            gsfElement = new GsfElement(e, null, info);
                             break;
                         }
                         case CLASS:

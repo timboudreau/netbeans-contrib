@@ -508,7 +508,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getSimpleName().toString())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getSimpleName().toString(), prefix))) {
-                proposals.add(new PlainItem(new GsfElement(var, request.fileObject), request));
+                proposals.add(new PlainItem(new GsfElement(var, request.fileObject, request.info), request));
             }
         }
 
@@ -519,7 +519,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
             if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getSimpleName().toString())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(fun.getSimpleName().toString(), prefix))) {
-                proposals.add(new FunctionItem(new GsfElement(fun, request.fileObject), request));
+                proposals.add(new FunctionItem(new GsfElement(fun, request.fileObject, request.info), request));
             }
         }
 
@@ -1612,7 +1612,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         for (IndexedElement element : request.index.getPackagesAndContent(fqnPrefix, request.kind, ScalaIndex.ALL_SCOPE)) {
             if (element instanceof IndexedPackage) {
-                proposals.add(new PackageItem(new GsfElement(element, null), request));
+                proposals.add(new PackageItem(new GsfElement(element, request.fileObject, request.info), request));
             } else if (element instanceof IndexedType) {
                 proposals.add(new TypeItem(request, element));
             }

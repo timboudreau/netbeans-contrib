@@ -41,10 +41,15 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.scala.editing.JavaUtilities;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -54,9 +59,10 @@ import org.openide.filesystems.FileObject;
 public class GsfElement implements ElementHandle {
 
     private Element element;
+    private FileObject fileObject;
+    private Object info;
     private ElementKind kind;
     private Set<Modifier> modifiers;
-    private FileObject fileObject;
     private boolean deprecated;
     private boolean inherited;
     private boolean smart;
@@ -120,9 +126,14 @@ public class GsfElement implements ElementHandle {
         return modifiers;
     }
 
-    public GsfElement(Element element, FileObject fileObject) {
+    /**
+     * @param element, that to be wrapped
+     * @param info, CompilationInfo
+     */
+    public GsfElement(Element element, FileObject fileObject, Object info) {
         this.element = element;
         this.fileObject = fileObject;
+        this.info = info;
     }
 
     public GsfElement(ElementKind kind) {
@@ -134,15 +145,26 @@ public class GsfElement implements ElementHandle {
     }
 
     public FileObject getFileObject() {
-        return fileObject;
+        if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
+            return fileObject;
+        } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
+            return JavaUtilities.getOriginFileObject((org.netbeans.api.java.source.CompilationInfo)info, element);
+        } else {
+            assert false;
+            return null;
+        }
     }
 
     public String getIn() {
         if (element instanceof AstDef) {
             return ((AstDef) element).getIn();
         } else {
-            /** @todo */
-            return element.getEnclosingElement().asType().toString();
+            TypeMirror tm = element.getEnclosingElement().asType();
+            if (tm.getKind() == TypeKind.DECLARED) {
+                return ((DeclaredType) tm).asElement().getSimpleName().toString();
+            } else {
+                return tm.getKind().name();
+            }
         }
     }
 
@@ -171,6 +193,10 @@ public class GsfElement implements ElementHandle {
 
     public boolean signatureEquals(ElementHandle handle) {
         return false;
+    }
+
+    public Object getCompilationInfo() {
+        return info;
     }
 
     public void htmlFormat(HtmlFormatter formatter) {

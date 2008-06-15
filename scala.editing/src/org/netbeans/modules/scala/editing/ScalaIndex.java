@@ -85,11 +85,13 @@ public class ScalaIndex {
     public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
     public static final Set<String> TERMS_IMPORT = Collections.singleton(ScalaIndexer.FIELD_IMPORT);
     public static final Set<String> TERMS_CLASS = Collections.singleton(ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME);
+    private CompilationInfo info;
     private final Index index;
     private JavaIndex javaIndex;
 
     /** Creates a new instance of ScalaIndex */
-    private ScalaIndex(Index index, JavaIndex javaIndex) {
+    private ScalaIndex(Index index, JavaIndex javaIndex, CompilationInfo info) {
+        this.info = info;
         this.index = index;
         this.javaIndex = javaIndex;
     }
@@ -98,9 +100,9 @@ public class ScalaIndex {
         this.javaIndex = javaIndex;
     }
 
-    public static ScalaIndex get(CompilationInfo info) {
+    public static ScalaIndex get(CompilationInfo info) {       
         Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
-        ScalaIndex scalaIndex = new ScalaIndex(index, null);
+        ScalaIndex scalaIndex = new ScalaIndex(index, null, info);
 
         JavaIndex javaIndex = JavaIndex.get(info, scalaIndex);
 
@@ -819,7 +821,7 @@ public class ScalaIndex {
                             if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
                                 continue;
                             }
-                            GsfElement gsfElement = new GsfElement(element, fo);
+                            GsfElement gsfElement = new GsfElement(element, fo, info);
                             gsfElement.setInherited(inherited);
                             gsfElements.add(gsfElement);
                         }

@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
@@ -76,7 +78,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     private ScalaCompletionItem(CompletionRequest request, IndexedElement element) {
-        this(new GsfElement(element, null), request);
+        this(new GsfElement(element, request.fileObject, request.info), request);
         this.indexedElement = element;
     }
 
@@ -152,7 +154,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         HtmlFormatter formatter = request.formatter;
         formatter.reset();
 
-        
+
         if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
             if (element.getElement() instanceof IndexedElement) {
                 String origin = ((IndexedElement) element.getElement()).getOrigin();
@@ -295,8 +297,18 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                         formatter.parameters(true);
 
                         formatter.type(true);
-                        // TODO - call JsUtils.normalizeTypeString() on this string?
-                        formatter.appendText(param.asType().toString());
+                        TypeMirror type = param.asType();
+                        String typeName;
+                        if (type instanceof TypeRef) {
+                            typeName = ((TypeRef) type).getSimpleName().toString();
+                        } else {
+                            if (type.getKind() == TypeKind.DECLARED) {
+                                typeName = ((DeclaredType) type).asElement().getSimpleName().toString();
+                            } else {
+                                typeName = type.getKind().name();
+                            }
+                        }
+                        formatter.appendText(typeName);
                         formatter.type(false);
                     } else {
                         formatter.appendText(param.getSimpleName().toString());
@@ -311,7 +323,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
                 formatter.appendHtml(")"); // NOI18N
             }
-            
+
             TypeMirror retType = function.getReturnType();
             if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
