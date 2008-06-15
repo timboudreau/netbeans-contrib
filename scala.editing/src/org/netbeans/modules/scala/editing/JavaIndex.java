@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -59,6 +60,7 @@ import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 
@@ -490,4 +492,303 @@ public class JavaIndex {
         JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return idxElements;
     }
+    
+    public Set<GsfElement> getMembers(String name, String type, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context,
+            boolean onlyConstructors, boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
+
+        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
+        //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
+
+        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+
+        NameKind originalKind = kind;
+        if (kind == NameKind.SIMPLE_NAME) {
+            // I can't do exact searches on methods because the method
+            // entries include signatures etc. So turn this into a prefix
+            // search and then compare chopped off signatures with the name
+            kind = NameKind.PREFIX;
+        }
+
+        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+            // TODO - can I do anything about this????
+            //field = ScalaIndexer.FIELD_BASE_LOWER;
+            //terms = FQN_BASE_LOWER;
+        }
+
+        String searchUrl = null;
+        if (context != null) {
+            try {
+                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        Set<String> seenTypes = new HashSet<String>();
+        seenTypes.add(type);
+        boolean haveRedirected = false;
+        boolean inherited = type == null;
+
+        if (type == null || type.length() == 0) {
+            type = "Object";
+        }
+
+        String pkgName = "";
+        String fqn;
+        if (type != null && type.length() > 0) {
+            int lastDot = type.lastIndexOf('.');
+            if (lastDot > 0) {
+                pkgName = type.substring(0, lastDot);
+                type = type.substring(lastDot + 1, type.length());
+            }
+
+            fqn = type + "." + name;
+        } else {
+            fqn = name;
+        }
+
+        String lcfqn = fqn.toLowerCase();
+
+        /** always use NameKind.SIMPLE_NAME search index.getDeclaredTypes */
+        kind = NameKind.SIMPLE_NAME;
+
+        Elements theElements = info.getElements();
+        Types theTypes = info.getTypes();
+
+        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
+
+        for (ElementHandle<TypeElement> teHandle : dclTypes) {
+            GsfElement gsfElement = null;
+
+            TypeElement te = teHandle.resolve(info);
+
+            PackageElement pe = theElements.getPackageOf(te);
+            if (pe != null) {
+                if (!pkgName.equals("")) {
+                    if (!pe.getQualifiedName().toString().equals(pkgName)) {
+                        continue;
+                    }
+                }
+            }
+
+            boolean isScala = JavaScalaMapping.isScala(te);
+
+            if (isScala) {
+                continue;
+            }
+
+            TypeMirror tm = te.asType();
+            TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
+            
+            if (te != null) {
+                for (Element e : theElements.getAllMembers(te)) {
+
+                    if (e.getModifiers().contains(Modifier.PRIVATE)) {
+                        continue;
+                    }
+
+                    String simpleName = e.getSimpleName().toString();
+                    if (!JavaUtilities.startsWith(simpleName, name)) {
+                        continue;
+                    }
+
+                    String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
+
+                    switch (e.getKind()) {
+                        case EXCEPTION_PARAMETER:
+                        case LOCAL_VARIABLE:
+                        case PARAMETER:
+                            break;
+                        case ENUM_CONSTANT:
+                        case FIELD: {
+                            if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
+                                //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
+                            } else {
+                                TypeMirror tm1 = tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType();
+                            //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
+                            }
+
+                            StringBuilder base = new StringBuilder();
+                            base.append(simpleName.toLowerCase());
+                            base.append(';');
+                            if (in != null) {
+                                base.append(in);
+                            }
+                            base.append(';');
+                            base.append(simpleName);
+                            base.append(';');
+
+                            String attrs = IndexedElement.encodeAttributes(e);
+                            base.append(attrs);
+
+                            gsfElement = new GsfElement(e, info.getFileObject());
+                            //idxElement.setJavaInfo(e, info);
+                            break;
+                        }
+                        case CONSTRUCTOR:
+                            simpleName = e.getEnclosingElement().getSimpleName().toString();
+                        case METHOD: {
+                            ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
+                            
+                            StringBuilder base = new StringBuilder();
+                            base.append(simpleName.toLowerCase());
+                            base.append(';');
+                            if (in != null) {
+                                base.append(in);
+                            }
+                            base.append(';');
+                            base.append(simpleName);
+                            base.append(';');
+
+                            String attrs = IndexedElement.encodeAttributes(e);
+                            base.append(attrs);
+
+                            gsfElement = new GsfElement(e, info.getFileObject());
+                            break;
+                        }
+                        case CLASS:
+                        case ENUM:
+                        case INTERFACE:
+                        case ANNOTATION_TYPE:
+                            DeclaredType dt = (DeclaredType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
+                            //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
+                            break;
+                    }
+
+                    if (gsfElement == null) {
+                        continue;
+                    }
+                    boolean isMethod = gsfElement.getElement() instanceof ExecutableElement;
+                    if (isMethod && !includeMethods) {
+                        continue;
+                    } else if (!isMethod && !includeProperties) {
+                        continue;
+                    }
+
+                    if (onlyConstructors && !gsfElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
+                        continue;
+                    }
+
+                    if (!haveRedirected) {
+                        gsfElement.setSmart(true);
+                    }
+
+                    inherited = typeElem != e.getEnclosingElement();
+                    if (!inherited) {
+                        gsfElement.setInherited(false);
+                    }
+                    gsfElements.add(gsfElement);
+                }
+
+            //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
+            }
+
+//                String[] signatures = map.getValues(field);
+//
+//                if (signatures != null) {
+//                    // Check if this file even applies
+//                    if (context != null) {
+//                        String fileUrl = map.getPersistentUrl();
+//                        if (searchUrl == null || !searchUrl.equals(fileUrl)) {
+//                            boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
+//                            if (!isLibrary && !isReachable(context, fileUrl)) {
+//                                continue;
+//                            }
+//                        }
+//                    }
+//
+//                    for (String signature : signatures) {
+//                        // Lucene returns some inexact matches, TODO investigate why this is necessary
+//                        if ((kind == NameKind.PREFIX) && !signature.startsWith(lcfqn)) {
+//                            continue;
+//                        } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !signature.regionMatches(true, 0, lcfqn, 0, lcfqn.length())) {
+//                            continue;
+//                        } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+//                            int end = signature.indexOf(';');
+//                            assert end != -1;
+//                            String n = signature.substring(0, end);
+//                            try {
+//                                if (!n.matches(lcfqn)) {
+//                                    continue;
+//                                }
+//                            } catch (Exception e) {
+//                                // Silently ignore regexp failures in the search expression
+//                            }
+//                        } else if (originalKind == NameKind.EXACT_NAME) {
+//                            // Make sure the name matches exactly
+//                            // We know that the prefix is correct from the first part of
+//                            // this if clause, by the signature may have more
+//                            if (((signature.length() > lcfqn.length()) &&
+//                                    (signature.charAt(lcfqn.length()) != ';'))) {
+//                                continue;
+//                            }
+//                        }
+//
+//                        // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
+//                        assert map != null;
+//
+//                        String elementName = null;
+//                        int nameEndIdx = signature.indexOf(';');
+//                        assert nameEndIdx != -1 : signature;
+//                        elementName = signature.substring(0, nameEndIdx);
+//                        nameEndIdx++;
+//
+//                        String funcIn = null;
+//                        int inEndIdx = signature.indexOf(';', nameEndIdx);
+//                        assert inEndIdx != -1 : signature;
+//                        inEndIdx++;
+//
+//                        int startCs = inEndIdx;
+//                        inEndIdx = signature.indexOf(';', startCs);
+//                        assert inEndIdx != -1;
+//                        if (inEndIdx > startCs) {
+//                            // Compute the case sensitive name
+//                            elementName = signature.substring(startCs, inEndIdx);
+//                            if (kind == NameKind.PREFIX && !elementName.startsWith(fqn)) {
+//                                continue;
+//                            } else if (kind == NameKind.EXACT_NAME && !elementName.equals(fqn)) {
+//                                continue;
+//                            }
+//                        }
+//                        inEndIdx++;
+//
+//                        int lastDot = elementName.lastIndexOf('.');
+//                        IndexedElement element = null;
+//                        if (name.length() < lastDot) {
+//                            int nextDot = elementName.indexOf('.', fqn.length());
+//                            if (nextDot != -1) {
+//                                int flags = IndexedElement.decode(signature, inEndIdx, 0);
+//                                ElementKind k = ElementKind.PACKAGE;
+//                                // If there are no more dots after this one, it's a class, not a package
+//                                int nextNextDot = elementName.indexOf('.', nextDot + 1);
+//                                if (nextNextDot == -1) {
+//                                    k = ElementKind.CLASS;
+//                                }
+//                                if (type != null && type.length() > 0) {
+//                                    String pkg = elementName.substring(type.length() + 1, nextDot);
+//                                    element = new IndexedPackage(null, pkg, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+//                                } else {
+//                                    String pkg = elementName.substring(0, nextDot);
+//                                    element = new IndexedPackage(null, pkg, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+//                                }
+//                            } else {
+//                                funcIn = elementName.substring(0, lastDot);
+//                                elementName = elementName.substring(lastDot + 1);
+//                            }
+//                        } else if (lastDot != -1) {
+//                            funcIn = elementName.substring(0, lastDot);
+//                            elementName = elementName.substring(lastDot + 1);
+//                        }
+//                        if (element == null) {
+//                            element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, funcIn, inEndIdx, this, false);
+//                        }
+//                    }
+//                }
+        }
+
+
+        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+        return gsfElements;
+    }    
 }

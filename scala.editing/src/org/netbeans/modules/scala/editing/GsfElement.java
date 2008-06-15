@@ -36,10 +36,12 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.element.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -52,13 +54,16 @@ import org.openide.filesystems.FileObject;
  */
 public class GsfElement implements ElementHandle {
 
-    private AstNode node;
+    private Element element;
     private ElementKind kind;
     private Set<Modifier> modifiers;
     private FileObject fileObject;
+    private boolean deprecated;
+    private boolean inherited;
+    private boolean smart;
 
-    public GsfElement(AstNode node, FileObject fileObject) {
-        this.node = node;
+    public GsfElement(Element element, FileObject fileObject) {
+        this.element = element;
         this.fileObject = fileObject;
     }
 
@@ -66,8 +71,8 @@ public class GsfElement implements ElementHandle {
         this.kind = kind;
     }
 
-    public AstNode getNode() {
-        return node;
+    public Element getElement() {
+        return element;
     }
     
     public FileObject getFileObject() {
@@ -75,39 +80,44 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getIn() {
-        return node.getIn();
+        if (element instanceof AstDef) {
+            return ((AstDef) element).getIn();
+        } else {
+            /** @todo */
+            return element.getEnclosingElement().asType().toString();
+        }
     }
 
     public ElementKind getKind() {
         if (kind == null) {
-            kind = getGsfKind(node);
+            kind = getGsfKind(element);
         }
         return kind;
     }
 
     public String getMimeType() {
-        return node.getMimeType();
+        return element instanceof AstDef ? ((AstDef) element).getMimeType() : "text/x-scala";
     }
 
     public Set<Modifier> getModifiers() {
         if (modifiers == null) {
-            modifiers = getGsfModifiers(node);
+            modifiers = getGsfModifiers(element);
         }
 
         return modifiers;
     }
 
     public String getName() {
-        return node.getSimpleName().toString();
+        return element.getSimpleName().toString();
     }
 
     public boolean signatureEquals(ElementHandle handle) {
         return false;
     }
 
-    public static ElementKind getGsfKind(AstNode node) {
-        if (node instanceof AstDef) {
-            switch (((AstDef) node).getKind()) {
+    public static ElementKind getGsfKind(Element element) {
+        if (element instanceof AstDef) {
+            switch (element.getKind()) {
                 case CLASS:
                     return ElementKind.CLASS;
                 case CONSTRUCTOR:
@@ -137,20 +147,12 @@ public class GsfElement implements ElementHandle {
                 default:
                     return ElementKind.OTHER;
             }
-        } else if (node instanceof AstRef) {
-            AstScope scope = node.getEnclosingScope();
-            if (scope != null) {
-                AstDef def = scope.findDef(node);
-                if (def != null) {
-                    return getGsfKind(def);
-                }
-            }
         }
         
         return ElementKind.OTHER;
     }
 
-    public static Set<Modifier> getGsfModifiers(AstNode node) {
+    public static Set<Modifier> getGsfModifiers(Element node) {
         Set<Modifier> modifiers = new HashSet<Modifier>();
 
         for (javax.lang.model.element.Modifier mod : node.getModifiers()) {
@@ -173,14 +175,28 @@ public class GsfElement implements ElementHandle {
     }
     
     public void htmlFormat(HtmlFormatter formatter) {
-        node.htmlFormat(formatter);
+        if (element instanceof AstDef) {
+            ((AstDef)element).htmlFormat(formatter);
+        }
+    }
+    
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
     }
     
     public boolean isDeprecated() {
-        return node.isDeprecated();
+        return deprecated;
+    }
+    
+    public void setInherited(boolean inherited) {
+        this.inherited = inherited;
     }
     
     public boolean isInherited() {
-        return node.isInherited();
+        return inherited;
+    }
+    
+    public void setSmart(boolean smart) {
+        this.smart = smart;
     }
 }

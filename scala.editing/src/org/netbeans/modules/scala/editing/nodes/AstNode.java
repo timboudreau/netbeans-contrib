@@ -138,14 +138,6 @@ public abstract class AstNode {
         }
     }
 
-    public boolean isDeprecated() {
-        return false;
-    }
-
-    public boolean isInherited() {
-        return false;
-    }
-
     public String getBinaryName() {
         return getSimpleName().toString();
     }

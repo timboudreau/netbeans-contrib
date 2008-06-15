@@ -57,7 +57,7 @@ import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -292,6 +292,35 @@ public class ScalaIndex {
         }
 
         return elements;
+    }
+
+    /** Return both functions and properties matching the given prefix, of the
+     * given (possibly null) type
+     */
+    public Set<GsfElement> getMembers(String prefix, String type,
+            NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context,
+            boolean onlyConstructors) {
+
+        Set<GsfElement> gsfElements = getMembers(prefix, type, kind, scope, context, onlyConstructors, true, true, false);
+        // Is there at least one non-inheried member?
+        boolean ofScala = false;
+        for (GsfElement gsfElement : gsfElements) {
+            if (!gsfElement.isInherited()) {
+                ofScala = true;
+                break;
+            }
+        }
+
+        /** @TODO we need a better way to check if it's of scala */
+        if (!ofScala) {
+            gsfElements = javaIndex.getMembers(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
+        }
+
+        if (gsfElements.size() == 0) {
+            gsfElements = javaIndex.getMembers(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
+        }
+
+        return gsfElements;
     }
 
     public Set<IndexedElement> getAllElements(String prefix, String type,
@@ -645,7 +674,7 @@ public class ScalaIndex {
         return elements;
     }
 
-    public Set<GsfElement> getMembers(String prefix, String typeQName,
+    private Set<GsfElement> getMembers(String prefix, String typeQName,
             NameKind kind, Set<SearchScope> scope, ScalaParserResult pResult,
             boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
@@ -670,7 +699,7 @@ public class ScalaIndex {
         }
 
 //        final Set<Element> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<Element>();
-        final Set<GsfElement> elements = new HashSet<GsfElement>();
+        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
         String searchUrl = null;
         if (pResult != null) {
             try {
@@ -683,7 +712,7 @@ public class ScalaIndex {
         Set<String> seenTypes = new HashSet<String>();
         seenTypes.add(typeQName);
         boolean haveRedirected = false;
-        boolean inheriting = typeQName == null;
+        boolean inherited = typeQName == null;
 
         while (true) {
             String fqn = typeQName != null && typeQName.length() > 0
@@ -790,7 +819,9 @@ public class ScalaIndex {
                             if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
                                 continue;
                             }
-                            elements.add(new GsfElement(element, fo));
+                            GsfElement gsfElement = new GsfElement(element, fo);
+                            gsfElement.setInherited(inherited);
+                            gsfElements.add(gsfElement);
                         }
                         break;
                     }
@@ -812,10 +843,10 @@ public class ScalaIndex {
             } else {
                 seenTypes.add(typeQName);
             }
-            inheriting = true;
+            inherited = true;
         }
 
-        return elements;
+        return gsfElements;
     }
 
     private Set<IndexedElement> getTypesByFqn(String fqnPrefix, NameKind kind,

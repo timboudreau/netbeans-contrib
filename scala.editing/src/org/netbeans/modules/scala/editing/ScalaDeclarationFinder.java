@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.Set;
+import javax.lang.model.element.Element;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.DeclarationFinder;
@@ -56,7 +57,7 @@ import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
 
@@ -144,7 +145,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
-            AstNode foundNode = null;
+            Element foundNode = null;
             boolean isLocal = false;
 
             AstNode closest = root.findDefRef(th, astOffset);
@@ -178,7 +179,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 int offset = 0;
                 if (isLocal) {
                     fo = info.getFileObject();
-                    offset = foundNode.getPickToken().offset(th);
+                    offset = ((AstNode) foundNode).getPickToken().offset(th);
                 } else {
                     IndexedElement foundIdxElement = (IndexedElement) foundNode;
                     fo = foundIdxElement.getFileObject();
