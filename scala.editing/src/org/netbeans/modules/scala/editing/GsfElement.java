@@ -68,46 +68,42 @@ public class GsfElement implements ElementHandle {
     private boolean smart;
 
     public static ElementKind getGsfKind(Element element) {
-        if (element instanceof AstDef) {
-            switch (element.getKind()) {
-                case CLASS:
-                    return ElementKind.CLASS;
-                case CONSTRUCTOR:
-                    return ElementKind.CONSTRUCTOR;
-                case ENUM:
-                    return ElementKind.CLASS;
-                case ENUM_CONSTANT:
-                    return ElementKind.CONSTANT;
-                case EXCEPTION_PARAMETER:
-                    return ElementKind.OTHER;
-                case FIELD:
-                    return ElementKind.FIELD;
-                case INTERFACE:
-                    return ElementKind.MODULE;
-                case LOCAL_VARIABLE:
-                    return ElementKind.VARIABLE;
-                case METHOD:
-                    return ElementKind.METHOD;
-                case OTHER:
-                    return ElementKind.OTHER;
-                case PACKAGE:
-                    return ElementKind.PACKAGE;
-                case PARAMETER:
-                    return ElementKind.PARAMETER;
-                case TYPE_PARAMETER:
-                    return ElementKind.CLASS;
-                default:
-                    return ElementKind.OTHER;
-            }
+        switch (element.getKind()) {
+            case CLASS:
+                return ElementKind.CLASS;
+            case CONSTRUCTOR:
+                return ElementKind.CONSTRUCTOR;
+            case ENUM:
+                return ElementKind.CLASS;
+            case ENUM_CONSTANT:
+                return ElementKind.CONSTANT;
+            case EXCEPTION_PARAMETER:
+                return ElementKind.OTHER;
+            case FIELD:
+                return ElementKind.FIELD;
+            case INTERFACE:
+                return ElementKind.MODULE;
+            case LOCAL_VARIABLE:
+                return ElementKind.VARIABLE;
+            case METHOD:
+                return ElementKind.METHOD;
+            case OTHER:
+                return ElementKind.OTHER;
+            case PACKAGE:
+                return ElementKind.PACKAGE;
+            case PARAMETER:
+                return ElementKind.PARAMETER;
+            case TYPE_PARAMETER:
+                return ElementKind.CLASS;
+            default:
+                return ElementKind.OTHER;
         }
-
-        return ElementKind.OTHER;
     }
 
-    public static Set<Modifier> getGsfModifiers(Element node) {
+    public static Set<Modifier> getGsfModifiers(Element element) {
         Set<Modifier> modifiers = new HashSet<Modifier>();
 
-        for (javax.lang.model.element.Modifier mod : node.getModifiers()) {
+        for (javax.lang.model.element.Modifier mod : element.getModifiers()) {
             switch (mod) {
                 case PRIVATE:
                     modifiers.add(Modifier.PRIVATE);
@@ -156,7 +152,7 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getIn() {
-        if (element instanceof AstDef) {
+        if (isScala()) {
             return ((AstDef) element).getIn();
         } else {
             TypeMirror tm = element.getEnclosingElement().asType();
@@ -176,7 +172,7 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getMimeType() {
-        return element instanceof AstDef ? ((AstDef) element).getMimeType() : "text/x-scala";
+        return isScala() ? ((AstDef) element).getMimeType() : "text/x-scala";
     }
 
     public Set<Modifier> getModifiers() {
@@ -213,12 +209,12 @@ public class GsfElement implements ElementHandle {
                 ex.printStackTrace();
             }
         }
-        
+
         return docComment;
     }
 
     public void htmlFormat(HtmlFormatter formatter) {
-        if (element instanceof AstDef) {
+        if (isScala()) {
             ((AstDef) element).htmlFormat(formatter);
         }
     }
@@ -226,7 +222,7 @@ public class GsfElement implements ElementHandle {
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
     }
-    
+
     public boolean isScala() {
         return element instanceof AstDef;
     }
