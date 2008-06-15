@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.openide.filesystems.FileObject;
 
@@ -54,17 +55,23 @@ public class GsfElement implements ElementHandle {
     private AstNode node;
     private ElementKind kind;
     private Set<Modifier> modifiers;
+    private FileObject fileObject;
 
-    public GsfElement(AstNode node) {
+    public GsfElement(AstNode node, FileObject fileObject) {
         this.node = node;
+        this.fileObject = fileObject;
     }
 
     public GsfElement(ElementKind kind) {
         this.kind = kind;
     }
 
+    public AstNode getNode() {
+        return node;
+    }
+    
     public FileObject getFileObject() {
-        return node.getFileObject();
+        return fileObject;
     }
 
     public String getIn() {
@@ -163,5 +170,17 @@ public class GsfElement implements ElementHandle {
         }
 
         return modifiers;
+    }
+    
+    public void htmlFormat(HtmlFormatter formatter) {
+        node.htmlFormat(formatter);
+    }
+    
+    public boolean isDeprecated() {
+        return node.isDeprecated();
+    }
+    
+    public boolean isInherited() {
+        return node.isInherited();
     }
 }

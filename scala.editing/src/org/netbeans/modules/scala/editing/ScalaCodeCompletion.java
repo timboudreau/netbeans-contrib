@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -74,11 +75,13 @@ import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Function;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
@@ -475,7 +478,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 return completionResult;
             }
 
-            // @todo Try to complete methods inheried and predef's methods 
+        // @todo Try to complete methods inheried and predef's methods 
 //            if (completeFunctions(proposals, request)) {
 //                return proposals;
 //            }
@@ -502,7 +505,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getSimpleName().toString())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getSimpleName().toString(), prefix))) {
-                proposals.add(new PlainItem(var, request));
+                proposals.add(new PlainItem(new GsfElement(var, request.fileObject), request));
             }
         }
 
@@ -513,7 +516,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
             if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getSimpleName().toString())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(fun.getSimpleName().toString(), prefix))) {
-                proposals.add(new FunctionItem(fun, request));
+                proposals.add(new FunctionItem(new GsfElement(fun, request.fileObject), request));
             }
         }
 
@@ -592,7 +595,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (int i = 0,   n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -628,7 +631,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (int j = 0,   n = JSDOC_WORDS.length; j < n; j++) {
+        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
@@ -1256,7 +1259,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
 //            boolean skipInstanceMethods = call.isStatic();
 
-            Set<IndexedElement> elements = Collections.emptySet();
+            Set<GsfElement> elements = Collections.emptySet();
 
             String typeQname = call.getType();
             String lhs = call.getLhs();
@@ -1379,7 +1382,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     // Test::Unit when there's a call to Foo.x, we'll try
                     // Test::Unit::Foo, and Test::Foo
                     while (elements.size() == 0 && fqn != null && !fqn.equals(typeQname)) {
-                        elements = index.getElements(prefix, fqn + "." + typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
+                        elements = index.getMembers(prefix, fqn + "." + typeQname, kind, ScalaIndex.ALL_SCOPE, result, false, true, true, false);
 
                         int f = fqn.lastIndexOf("::");
 
@@ -1391,7 +1394,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     // Add methods in the class (without an FQN)
-                    Set<IndexedElement> m = index.getElements(prefix, typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
+                    Set<GsfElement> m = index.getMembers(prefix, typeQname, kind, ScalaIndex.ALL_SCOPE, result, false, true, true, false);
 
                     if (m.size() > 0) {
                         elements = m;
@@ -1399,7 +1402,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
             } else if (lhs != null && lhs.length() > 0) {
                 // No type but an LHS - perhaps it's a type?
-                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false);
+                Set<GsfElement> m = index.getMembers(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false, true, true, false);
 
                 if (m.size() > 0) {
                     elements = m;
@@ -1414,11 +1417,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
 //                    return true;
 //                } else {
-                elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
+                //elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //                }
             }
 
-            for (IndexedElement element : elements) {
+            for (GsfElement gsfElement : elements) {
+                AstDef element = (AstDef) gsfElement.getNode();
                 // Skip constructors - you don't want to call
                 //   x.Foo !
                 if (element.getKind() == ElementKind.CONSTRUCTOR) {
@@ -1426,26 +1430,26 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
                 // Don't include private or protected methods on other objects
-                if (skipPrivate && element.isPrivate()) {
+                if (skipPrivate && element.getModifiers().contains(Modifier.PRIVATE)) {
                     continue;
                 }
 
-                
-                
+
+
 //                // We can only call static methods
 //                if (skipInstanceMethods && !method.isStatic()) {
 //                    continue;
 //                }
 
-                if (element.isNoDoc()) {
-                    continue;
-                }
+//                if (element.isNoDoc()) {
+//                    continue;
+//                }
 
-                if (element instanceof IndexedFunction) {
-                    FunctionItem item = new FunctionItem((IndexedFunction) element, request);
+                if (element instanceof Function) {
+                    FunctionItem item = new FunctionItem(gsfElement, request);
                     proposals.add(item);
-                } else {
-                    PlainItem item = new PlainItem(request, element);
+                } else if (element instanceof Var) {
+                    PlainItem item = new PlainItem(gsfElement, request);
                     proposals.add(item);
                 }
             }
@@ -1605,7 +1609,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         for (IndexedElement element : request.index.getPackagesAndContent(fqnPrefix, request.kind, ScalaIndex.ALL_SCOPE)) {
             if (element instanceof IndexedPackage) {
-                proposals.add(new PackageItem(element, request));
+                proposals.add(new PackageItem(new GsfElement(element, null), request));
             } else if (element instanceof IndexedType) {
                 proposals.add(new TypeItem(request, element));
             }
@@ -1709,13 +1713,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public String document(CompilationInfo info, ElementHandle handle) {
-        ElementHandle element = handle;
-
+    public String document(CompilationInfo info, ElementHandle element) {
+        HtmlFormatter htmlSignature = new SignatureHtmlFormatter();        
         String comment = null;
-
         if (element instanceof IndexedElement) {
-            IndexedElement ie = (IndexedElement) handle;
+            htmlSignature.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
+            IndexedElement ie = (IndexedElement) element;
             if (ie.isDocumented() || ie.isJava()) {
                 comment = ie.getComment();
 //                IndexedElement e = ie.findDocumentedSibling();
@@ -1724,14 +1727,33 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                    e.getComments();
 //                }
             }
-        } else {
-            return null;
-        }
+        } else if (element instanceof GsfElement) {
+            ((GsfElement) element).htmlFormat(htmlSignature);
+            FileObject fo = element.getFileObject();
+            final BaseDocument doc = ScalaLexUtilities.getDocument(fo, false);
+            if (doc == null) {
+                return null;
+            }
 
+            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
+
+            doc.readLock(); // Read-lock due to token hierarchy use
+            OffsetRange range = ScalaLexUtilities.getDocumentationRange(((GsfElement) element).getNode(), th);
+            doc.readUnlock();
+
+            if (range.getEnd() < doc.getLength()) {
+                try {
+                    comment = doc.getText(range.getStart(), range.getLength());
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                    return null;
+                }
+            }           
+        }
 
         StringBuilder html = new StringBuilder();
 
-        String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
+        //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
             html.append(htmlSignature).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
 
@@ -1817,7 +1839,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
     public ParameterInfo parameters(CompilationInfo info, int lexOffset,
             CompletionProposal proposal) {
-        IndexedFunction[] methodHolder = new IndexedFunction[1];
+        Function[] methodHolder = new Function[1];
         int[] paramIndexHolder = new int[1];
         int[] anchorOffsetHolder = new int[1];
         int astOffset = AstUtilities.getAstOffset(info, lexOffset);
@@ -1827,7 +1849,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             return ParameterInfo.NONE;
         }
 
-        IndexedFunction method = methodHolder[0];
+        Function method = methodHolder[0];
         if (method == null) {
             return ParameterInfo.NONE;
         }
@@ -1844,25 +1866,33 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         //                method = ((IndexedFunction)node);
         //            }
         //        }
+        List<String> paramsInStr;
+        List<Var> params = method.getParameters();
+        if (!params.isEmpty()) {
+            paramsInStr = new ArrayList<String>();
+            for (Var param : params) {
+                paramsInStr.add(param.getSimpleName().toString());
+            }
+        } else {
+            paramsInStr = Collections.<String>emptyList();
+        }
 
-        List<String> args = method.getArgs();
-
-        if (args != null && args.size() > 0) {
-            return new ParameterInfo(args, index, anchorOffset);
+        if (paramsInStr != null && paramsInStr.size() > 0) {
+            return new ParameterInfo(paramsInStr, index, anchorOffset);
         }
 
         return ParameterInfo.NONE;
     }
     protected static int callLineStart = -1;
-    protected static IndexedFunction callMethod;
+    protected static Function callMethod;
 
     /** Compute the current method call at the given offset. Returns false if we're not in a method call. 
      * The argument index is returned in parameterIndexHolder[0] and the method being
      * called in methodHolder[0].
      */
     boolean computeMethodCall(CompilationInfo info, int lexOffset, int astOffset,
-            IndexedFunction[] methodHolder, int[] parameterIndexHolder, int[] anchorOffsetHolder,
-            Set<IndexedFunction>[] alternativesHolder) {
+            Function[] methodHolder, int[] parameterIndexHolder, int[] anchorOffsetHolder,
+            Set<Function>[] alternativesHolder) {
         try {
             ScalaParserResult pResult = AstUtilities.getParserResult(info);
             AstScope root = pResult.getRootScope();
@@ -1871,7 +1901,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 return false;
             }
 
-            IndexedFunction targetMethod = null;
+            Function targetMethod = null;
             int index = -1;
 
             // Account for input sanitation
@@ -1986,7 +2016,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             } else if (targetMethod == null) {
                 // Look up the
                 // See if we can find the method corresponding to this call
-                targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
+
+                //targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
                 if (targetMethod == null) {
                     return false;
                 }
@@ -2020,6 +2051,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     }
 
     protected static class CompletionRequest {
+
         private DefaultCompletionResult completionResult;
         protected TokenHierarchy<Document> th;
         protected CompilationInfo info;

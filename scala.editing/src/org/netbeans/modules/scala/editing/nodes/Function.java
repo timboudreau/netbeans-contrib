@@ -80,8 +80,8 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         return false;
     }
 
-    public TypeMirror getReturnType() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public TypeRef getReturnType() {
+        return type;
     }
 
     public List<? extends TypeParam> getTypeParameters() {
@@ -106,11 +106,8 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         this.parameters = parameters;
     }
 
-    /**
-     * @return null or params 
-     */
     public List<Var> getParameters() {
-        return parameters;
+        return parameters == null ? Collections.<Var>emptyList() : parameters;
     }
 
     @Override

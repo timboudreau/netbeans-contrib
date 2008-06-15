@@ -186,7 +186,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 }
 
                 if (fo != null) {
-                    return new DeclarationLocation(fo, offset, new GsfElement(foundNode));
+                    return new DeclarationLocation(fo, offset, new GsfElement(foundNode, fo));
                 }
             }
 

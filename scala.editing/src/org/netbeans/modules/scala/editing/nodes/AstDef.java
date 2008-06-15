@@ -61,7 +61,6 @@ public abstract class AstDef extends AstNode implements Element {
 
     private ElementKind kind;
     private AstScope bindingScope;
-    private Token[] docBoundsTokens;
 
     protected AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
         super(name, pickToken);
@@ -73,19 +72,19 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return arg0.visit(this, arg1);
     }
 
-    public List<? extends Element> getEnclosedElements() {
+    public List<? extends AstDef> getEnclosedElements() {
         if (bindingScope != null) {
             return bindingScope.getDefs();
         } else {
-            return Collections.<Element>emptyList();
+            return Collections.<AstDef>emptyList();
         }
     }
 
-    public Element getEnclosingElement() {        
-        throw new UnsupportedOperationException("Not supported yet.");
+    public AstDef getEnclosingElement() {
+        return getEnclosingScope().getBindingDef();        
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> arg0) {
@@ -112,14 +111,6 @@ public abstract class AstDef extends AstNode implements Element {
     public AstScope getBindingScope() {
         assert bindingScope != null : toString() + ": Each definition should set binding scope!";
         return bindingScope;
-    }
-
-    public void setDocBoundsToken(Token[] docBoundsTokens) {
-        this.docBoundsTokens = docBoundsTokens;
-    }
-
-    public Token[] getDocBoundsTokens() {
-        return docBoundsTokens;
     }
 
     public int getBoundsOffset(TokenHierarchy th) {

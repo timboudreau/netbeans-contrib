@@ -193,7 +193,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         public ElementHandle getElementHandle() {
             if (gsfElement == null) {
-                gsfElement = new GsfElement(def);
+                gsfElement = new GsfElement(def, null);
             }
             return gsfElement;
         }

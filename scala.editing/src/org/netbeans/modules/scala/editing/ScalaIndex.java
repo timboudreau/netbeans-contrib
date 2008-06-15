@@ -50,11 +50,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -642,7 +645,7 @@ public class ScalaIndex {
         return elements;
     }
 
-    private Set<IndexedElement> getMembers(String prefix, String typeQName, 
+    public Set<GsfElement> getMembers(String prefix, String typeQName,
             NameKind kind, Set<SearchScope> scope, ScalaParserResult pResult,
             boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
@@ -666,7 +669,8 @@ public class ScalaIndex {
             //terms = FQN_BASE_LOWER;
         }
 
-        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+//        final Set<Element> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<Element>();
+        final Set<GsfElement> elements = new HashSet<GsfElement>();
         String searchUrl = null;
         if (pResult != null) {
             try {
@@ -682,7 +686,6 @@ public class ScalaIndex {
         boolean inheriting = typeQName == null;
 
         while (true) {
-
             String fqn = typeQName != null && typeQName.length() > 0
                     ? typeQName
                     : "scala.AnyRef";
@@ -770,58 +773,27 @@ public class ScalaIndex {
                     }
                     inEndIdx++;
 
-
+                    int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
+                    if (!IndexedElement.isTemplate(flags)) {
+                        continue;
+                    }                    
+                    
                     List<Template> templates = ScalaParser.resolve(fo, elementName);
-
-
-                    int lastDot = elementName.lastIndexOf('.');
-                    IndexedElement element = null;
-                    if (prefix.length() < lastDot) {
-                        int nextDot = elementName.indexOf('.', fqn.length());
-                        if (nextDot != -1) {
-                            int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
-                            ElementKind k = ElementKind.PACKAGE;
-                            // If there are no more dots after this one, it's a class, not a package
-                            int nextNextDot = elementName.indexOf('.', nextDot + 1);
-                            if (nextNextDot == -1) {
-                                k = ElementKind.CLASS;
+                    for (Template tmpl : templates) {
+                        for (AstDef element : tmpl.getEnclosedElements()) {
+                            boolean isMethod = element instanceof ExecutableElement;
+                            if (isMethod && !includeMethods) {
+                                continue;
+                            } else if (!isMethod && !includeFields) {
+                                continue;
                             }
-                            if (typeQName != null && typeQName.length() > 0) {
-                                String pkg = elementName.substring(typeQName.length() + 1, nextDot);
-                                element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
-                            } else {
-                                String pkg = elementName.substring(0, nextDot);
-                                element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
+                            if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+                                continue;
                             }
-                        } else {
-                            funcIn = elementName.substring(0, lastDot);
-                            elementName = elementName.substring(lastDot + 1);
+                            elements.add(new GsfElement(element, fo));
                         }
-                    } else if (lastDot != -1) {
-                        funcIn = elementName.substring(0, lastDot);
-                        elementName = elementName.substring(lastDot + 1);
+                        break;
                     }
-                    if (element == null) {
-                        element = IndexedElement.create(signature, fileUrl, null, elementName, funcIn, inEndIdx, this, false);
-                    }
-
-                    boolean isMethod = element instanceof IndexedFunction;
-                    if (isMethod && !includeMethods) {
-                        continue;
-                    } else if (!isMethod && !includeFields) {
-                        continue;
-                    }
-                    if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-                        continue;
-                    }
-                    if (!haveRedirected) {
-                        element.setSmart(true);
-                    }
-                    if (!inheriting) {
-                        element.setInherited(false);
-                    }
-                    elements.add(element);
-
                 }
 
             }

@@ -596,7 +596,7 @@ public class ScalaParser implements Parser {
         }
     }
 
-    public static List<Template> resolve(final FileObject fo, String templateName) {
+    public static List<Template> resolve(final FileObject fo, String templateQName) {
         ParserFile parserFile = new DefaultParserFile(fo, null, false);
         
         if (parserFile != null) {
@@ -637,7 +637,7 @@ public class ScalaParser implements Parser {
                 AstScope rootScope = pResult.getRootScope();
                 if (rootScope != null) {
                     List<Template> templates = new ArrayList<Template>();
-                    collectTemplatesByName(rootScope, templateName, templates);
+                    collectTemplatesByName(rootScope, templateQName, templates);
                     return templates;
                 }
             } else {
@@ -648,15 +648,15 @@ public class ScalaParser implements Parser {
         return Collections.<Template>emptyList();
     }
 
-    private static void collectTemplatesByName(AstScope scope, String name, List<Template> templates) {
+    private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
         for (AstDef def : scope.getDefs()) {
-            if (def instanceof Template && def.getSimpleName().toString().equals(name)) {
+            if (def instanceof Template && def.getQualifiedName().toString().equals(qName)) {
                 templates.add((Template) def);
             }
         }
 
         for (AstScope _scope : scope.getScopes()) {
-            collectTemplatesByName(_scope, name, templates);
+            collectTemplatesByName(_scope, qName, templates);
         }        
     }
 }

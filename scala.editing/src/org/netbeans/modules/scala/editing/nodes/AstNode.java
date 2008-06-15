@@ -215,10 +215,6 @@ public abstract class AstNode {
         return false;
     }
 
-    public FileObject getFileObject() {
-        return null;
-    }
-
     public void addModifier(String modifier) {
         if (mods == null) {
             mods = new HashSet<Modifier>();
