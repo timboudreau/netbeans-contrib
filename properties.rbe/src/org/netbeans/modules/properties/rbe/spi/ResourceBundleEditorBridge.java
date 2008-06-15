@@ -36,6 +36,8 @@ public interface ResourceBundleEditorBridge {
 
     void removeBridgeEventListener(BridgeEventListener l);
 
+    void deleteProperty(String key);
+
     public interface Factory {
 
         ResourceBundleEditorBridge get(DataObject dataObject);

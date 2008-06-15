@@ -50,11 +50,13 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.rbe.spi.ResourceBundleEditorBridge;
 import org.netbeans.modules.properties.rbe.spi.ResourceBundleEditorBridge.BridgeBundleEvent;
 import org.netbeans.modules.properties.rbe.ResourceBundleEditorOptions;
+import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVisitor;
 import org.netbeans.modules.properties.rbe.spi.ResourceBundleEditorBridge.Property;
 import org.openide.util.Lookup;
 
@@ -64,6 +66,8 @@ import org.openide.util.Lookup;
  */
 public class Bundle {
 
+    /** The Log */
+    private final static Logger log = Logger.getLogger(Bundle.class.getName());
     /** The all locales which contains bundle */
     private Set<Locale> locales;
     /** The properties */
@@ -178,18 +182,11 @@ public class Bundle {
         } else {
             createdProperty = createBundleProperty(key);
             createLocaleProperties(createdProperty);
-            properties.put(key, createdProperty);
         }
+        firePropertyChange(PROPERTY_PROPERTIES, null, null);
         return createdProperty;
     }
 
-//    public void createPropertyLocaleRepresentation(Locale locale, String key, String value, String comment) {
-//        key = proceedKey(key);
-//        BundleProperty bundleProperty = properties.get(key);
-//        if (bundleProperty == null) {
-//            createProperty(key);
-//        }
-//    }
     public Set<Locale> getLocales() {
         return Collections.unmodifiableSet(locales);
     }
@@ -217,6 +214,30 @@ public class Bundle {
 
     public boolean isPropertyExists(Locale locale, String key) {
         return bridge.isPropertyExists(locale, key);
+    }
+
+    public void deleteProperty(final String key) {
+        bridge.deleteProperty(key);
+        // BundleStructure resorts properties after any change so its slow as hell!
+        log.fine("Deleting resource property: " + key);
+        properties.remove(key);
+        treeRoot.accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
+
+            @Override
+            protected void preVisit(TreeItem<BundleProperty> t) {
+                if (t.getValue().getKey().equals(key)) {
+                    if (t.isLeaf()) {
+                        t.getParent().removeChild(t);
+                    }
+                    done = true;
+                }
+            }
+
+            @Override
+            protected void postVisit(TreeItem<BundleProperty> t) {
+            }
+        });
+        firePropertyChange(PROPERTY_PROPERTIES, null, null);
     }
 
     private void createLocaleProperties(BundleProperty property) {
@@ -290,7 +311,6 @@ public class Bundle {
     BundleProperty createBundleProperty(String key) {
         BundleProperty bundleProperty = new BundleProperty(this, getPropertyName(key), key);
         properties.put(key, bundleProperty);
-        firePropertyChange(PROPERTY_PROPERTIES, null, null);
         return bundleProperty;
     }
 

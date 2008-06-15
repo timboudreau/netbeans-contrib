@@ -40,10 +40,17 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
+import org.netbeans.modules.properties.rbe.model.visitor.TreeVisitor;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
@@ -84,6 +91,21 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
     public int compareTo(TreeItemPropertyNode o) {
         return treeItem.compareTo(o.treeItem);
+    }
+
+    @Override
+    public void destroy() throws IOException {
+        treeItem.accept(new TreeVisitor<BundleProperty>() {
+
+            public void visit(TreeItem<BundleProperty> t) {
+                for (TreeItem<BundleProperty> tree : t.getChildren()) {
+                    tree.accept(this);
+                    tree.getValue().deleteProperty();
+                }
+            }
+        });
+        treeItem.getValue().deleteProperty();
+        treeItem.getParent().removeChild(treeItem);
     }
 
     private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {
