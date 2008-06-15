@@ -57,7 +57,7 @@ import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -809,7 +809,10 @@ public class ScalaIndex {
                         continue;
                     }                    
                     
-                    List<Template> templates = ScalaParser.resolve(fo, elementName);
+                    CompilationInfo newInfo = ScalaUtils.getCompilationInfoForScalaFile(fo);
+                    List<Template> templates = ScalaUtils.resolveTemplate(newInfo, elementName);
+                    
+                    //List<Template> templates = ScalaParser.resolve(fo, elementName);
                     for (Template tmpl : templates) {
                         for (AstDef element : tmpl.getEnclosedElements()) {
                             boolean isMethod = element instanceof ExecutableElement;
@@ -821,7 +824,7 @@ public class ScalaIndex {
                             if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
                                 continue;
                             }
-                            GsfElement gsfElement = new GsfElement(element, fo, info);
+                            GsfElement gsfElement = new GsfElement(element, fo, newInfo);
                             gsfElement.setInherited(inherited);
                             gsfElements.add(gsfElement);
                         }

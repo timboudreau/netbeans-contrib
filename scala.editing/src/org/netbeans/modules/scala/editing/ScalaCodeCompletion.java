@@ -78,13 +78,12 @@ import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Function;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
@@ -1732,31 +1731,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
         } else if (element instanceof GsfElement) {
             ((GsfElement) element).htmlFormat(htmlSignature);
-            FileObject fo = element.getFileObject();
-            if (fo == null) {
-                return null;
-            }
-            final BaseDocument doc = ScalaLexUtilities.getDocument(fo, false);
-            if (doc == null) {
-                return null;
-            }
-
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-
-            Element wrapped = ((GsfElement) element).getElement();
-            if (wrapped instanceof AstDef) {
-                doc.readLock(); // Read-lock due to token hierarchy use
-                OffsetRange range = ScalaLexUtilities.getDocumentationRange((AstDef) wrapped, th);
-                doc.readUnlock();
-
-                if (range.getEnd() < doc.getLength()) {
-                    try {
-                        comment = doc.getText(range.getStart(), range.getLength());
-                    } catch (BadLocationException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                }
-            }
+            comment = ((GsfElement) element).getDocComment();
         }
 
         StringBuilder html = new StringBuilder();

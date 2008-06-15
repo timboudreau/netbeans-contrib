@@ -57,7 +57,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.util.Exceptions;
 

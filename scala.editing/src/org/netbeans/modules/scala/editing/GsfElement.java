@@ -36,12 +36,12 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.scala.editing.JavaUtilities;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -148,7 +148,7 @@ public class GsfElement implements ElementHandle {
         if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
             return fileObject;
         } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
-            return JavaUtilities.getOriginFileObject((org.netbeans.api.java.source.CompilationInfo)info, element);
+            return JavaUtilities.getOriginFileObject((org.netbeans.api.java.source.CompilationInfo) info, element);
         } else {
             assert false;
             return null;
@@ -199,6 +199,24 @@ public class GsfElement implements ElementHandle {
         return info;
     }
 
+    public String getDocComment() {
+        String docComment = null;
+        if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
+            docComment = ScalaUtils.getDocComment((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstDef) element);
+        } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
+            try {
+                docComment = JavaUtilities.getDocComment((org.netbeans.api.java.source.CompilationInfo) info, element);
+                if (docComment != null) {
+                    docComment = "/**" + docComment + "*/";
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        return docComment;
+    }
+
     public void htmlFormat(HtmlFormatter formatter) {
         if (element instanceof AstDef) {
             ((AstDef) element).htmlFormat(formatter);
@@ -207,6 +225,10 @@ public class GsfElement implements ElementHandle {
 
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
+    }
+    
+    public boolean isScala() {
+        return element instanceof AstDef;
     }
 
     public boolean isDeprecated() {

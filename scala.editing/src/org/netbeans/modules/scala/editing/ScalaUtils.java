@@ -27,10 +27,33 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.napi.gsfret.source.ClasspathInfo;
+import org.netbeans.napi.gsfret.source.CompilationController;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -593,5 +616,126 @@ public class ScalaUtils {
         } else {
             return s.substring(0, length - 3) + "...";
         }
-    }        
+    }
+    private static Map<FileObject, Reference<Source>> scalaFileToSource =
+            new WeakHashMap<FileObject, Reference<Source>>();
+    private static Map<FileObject, Reference<CompilationInfo>> scalaFileToCompilationInfo =
+            new WeakHashMap<FileObject, Reference<CompilationInfo>>();
+
+    public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
+        Reference<CompilationInfo> infoRef = scalaFileToCompilationInfo.get(fo);
+        CompilationInfo info = infoRef != null ? infoRef.get() : null;
+
+        if (info == null) {
+            final CompilationInfo[] controllers = new CompilationInfo[1];
+
+            Source source = getSourceForScalaFile(fo);
+            try {
+                source.runUserActionTask(new CancellableTask<CompilationController>() {
+
+                    public void cancel() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(Phase.ELEMENTS_RESOLVED);
+                        controllers[0] = controller;
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            info = controllers[0];
+            scalaFileToCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
+        }
+
+        return info;
+    }
+
+    /** 
+     * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
+     * does not support virtual source yet (only ".java" and ".class" files 
+     * are supported), but we can create js via JavaSource.create(cpInfo);
+     */
+    private static Source getSourceForScalaFile(FileObject fo) {
+        Reference<Source> sourceRef = scalaFileToSource.get(fo);
+        Source source = sourceRef != null ? sourceRef.get() : null;
+
+        if (source == null) {
+            ClasspathInfo cpInfo = ClasspathInfo.create(fo);
+            source = Source.create(cpInfo, fo);
+            scalaFileToSource.put(fo, new WeakReference<Source>(source));
+
+        }
+
+        return source;
+    }
+
+    public static List<Template> resolveTemplate(CompilationInfo info, String templateQName) {
+        ScalaParserResult pResult = getParserResult(info);
+        if (pResult != null) {
+            AstScope rootScope = pResult.getRootScope();
+            if (rootScope != null) {
+                List<Template> templates = new ArrayList<Template>();
+                collectTemplatesByName(rootScope, templateQName, templates);
+                return templates;
+            }
+        } else {
+            assert false : "Parse result is null : " + info.getFileObject().getName();
+        }
+        return Collections.<Template>emptyList();
+    }
+
+    private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
+        for (AstDef def : scope.getDefs()) {
+            if (def instanceof Template && def.getQualifiedName().toString().equals(qName)) {
+                templates.add((Template) def);
+            }
+
+        }
+
+        for (AstScope _scope : scope.getScopes()) {
+            collectTemplatesByName(_scope, qName, templates);
+        }
+
+    }
+
+    public static String getDocComment(CompilationInfo info, AstDef element) {
+        ScalaParserResult pResult = getParserResult(info);
+        if (pResult == null) {
+            return null;
+        }
+        
+        BaseDocument doc = NbUtilities.getDocument(info.getFileObject(), true);
+        if (doc == null) {
+            return null;
+        }
+        
+        TokenHierarchy<Document> th = pResult.getTokenHierarchy();
+        
+        doc.readLock(); // Read-lock due to token hierarchy use
+        OffsetRange range = ScalaLexUtilities.getDocumentationRange(element, th);
+        doc.readUnlock();
+
+        if (range.getEnd() < doc.getLength()) {
+            try {
+                return doc.getText(range.getStart(), range.getLength());
+            } catch (BadLocationException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        
+        return null;
+    }
+
+    public static ScalaParserResult getParserResult(CompilationInfo info) {
+        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
+
+        if (result == null) {
+            return null;
+        } else {
+            return (ScalaParserResult) result;
+        }
+    }
 }

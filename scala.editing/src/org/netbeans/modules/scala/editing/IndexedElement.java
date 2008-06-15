@@ -441,7 +441,7 @@ public abstract class IndexedElement extends AstDef {
 
         if (isJava()) {
             try {
-                String docComment = JavaUtilities.getJavaDoc(javaInfo, javaElement);
+                String docComment = JavaUtilities.getDocComment(javaInfo, javaElement);
                 if (docComment != null) {
                     comment = "/**" + docComment + "*/";
                 }
