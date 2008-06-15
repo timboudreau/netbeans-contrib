@@ -90,6 +90,11 @@ public class BundleProperty implements Comparable<BundleProperty> {
         return localeProperties.isEmpty();
     }
 
+    public void deleteProperty() {
+        localeProperties.clear();
+        bundle.deleteProperty(key);
+    }
+
     void addLocaleProperty(Locale locale, LocaleProperty value) {
         localeProperties.put(locale, value);
     }

@@ -48,12 +48,20 @@ import org.netbeans.modules.properties.rbe.model.TreeItem;
  */
 public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> implements TreeVisitor<T> {
 
+    protected boolean done;
+
     public void visit(TreeItem<T> t) {
         if (!isDone()) {
             for (TreeItem<T> tree : t.getChildren()) {
                 preVisit(tree); /* Pre-visit */
+                if (isDone()) {
+                    return;
+                }
                 tree.accept(this);
                 postVisit(tree); /* Post-visit */
+                if (isDone()) {
+                    return;
+                }
             }
         }
     }
@@ -75,6 +83,6 @@ public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> impl
      * @return
      */
     protected boolean isDone() {
-        return false;
+        return done;
     }
 }
