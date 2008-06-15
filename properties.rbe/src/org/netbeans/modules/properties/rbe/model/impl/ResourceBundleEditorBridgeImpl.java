@@ -62,6 +62,7 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
 //        }
 //        return localeProperty;
 //    }
+
     public Property getLocaleProperty(Locale locale, String key, boolean createIfNotExists) {
         ItemElem itemElem = getItemElem(locale, key);
         Property property = null;
@@ -114,6 +115,10 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         } else {
             itemElem.setComment(comment);
         }
+    }
+
+    public void deleteProperty(String key) {
+        bundleStructure.removeItem(key);
     }
 
     public boolean isPropertyExists(Locale locale, String key) {
