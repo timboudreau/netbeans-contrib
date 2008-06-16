@@ -424,6 +424,11 @@ public abstract class IndexedElement extends AstDef {
         return offset;
     }
 
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return getOffset();
+    }   
+
     OffsetRange getDocRange() {
         int docOffsetIndex = getAttributeSection(DOC_START_INDEX);
         int docEndOffsetIndex = getAttributeSection(DOC_END_INDEX);

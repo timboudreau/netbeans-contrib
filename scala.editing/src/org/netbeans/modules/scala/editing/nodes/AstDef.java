@@ -132,7 +132,7 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public boolean mayEqual(AstDef def) {
-        return getSimpleName().equals(def.getSimpleName());
+        return getSimpleName() != null && def.getSimpleName() != null && getSimpleName().equals(def.getSimpleName());
     }
 
     @Override
