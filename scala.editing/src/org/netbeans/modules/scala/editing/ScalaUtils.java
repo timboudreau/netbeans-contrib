@@ -729,6 +729,16 @@ public class ScalaUtils {
         return null;
     }
 
+    public static int getOffset(CompilationInfo info, AstDef element) {
+        ScalaParserResult pResult = getParserResult(info);
+        if (pResult == null) {
+            return -1;
+        }
+        
+        TokenHierarchy<Document> th = pResult.getTokenHierarchy();
+        return element.getPickOffset(th);
+    }
+    
     public static ScalaParserResult getParserResult(CompilationInfo info) {
         ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
 

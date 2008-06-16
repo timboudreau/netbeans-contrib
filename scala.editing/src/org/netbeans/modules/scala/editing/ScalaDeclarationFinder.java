@@ -40,6 +40,8 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.DeclarationFinder;
@@ -123,11 +125,10 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
 
-        final Document document = info.getDocument();
-        if (document == null) {
+        final BaseDocument doc = (BaseDocument) info.getDocument();
+        if (doc == null) {
             return DeclarationLocation.NONE;
         }
-        final BaseDocument doc = (BaseDocument) document;
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
 
@@ -143,51 +144,48 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 return DeclarationLocation.NONE;
             }
 
-            final TokenHierarchy<Document> th = TokenHierarchy.get(document);
+            final TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
 
-            Element foundNode = null;
+            GsfElement foundNode = null;
             boolean isLocal = false;
 
             AstNode closest = root.findDefRef(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def != null) {
-                foundNode = def;
+                foundNode = new GsfElement(def, info.getFileObject(), info);
                 isLocal = true;
             } else {
                 if (closest instanceof FunRef) {
-                    IndexedFunction idxFunction = findMethodDeclaration(info, (FunRef) closest, null);
-                    if (idxFunction != null) {
-                        foundNode = idxFunction;
+                    GsfElement function = findMethodDeclaration(info, (FunRef) closest, null);
+                    if (function != null) {
+                        foundNode = function;
                     }
                 } else if (closest instanceof FieldRef) {
-                    IndexedElement idxElement = findFieldDeclaration(info, (FieldRef) closest, null);
-                    if (idxElement != null) {
-                        foundNode = idxElement;
+                    GsfElement field = findFieldDeclaration(info, (FieldRef) closest, null);
+                    if (field != null) {
+                        foundNode = field;
                     }
                 } else if (closest instanceof TypeRef) {
-                    if (((TypeRef) closest).isResolved()) {
-                        IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
-                        if (idxType != null) {
-                            foundNode = idxType;
-                        }
-                    }
+//                    if (((TypeRef) closest).isResolved()) {
+//                        IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
+//                        if (idxType != null) {
+//                            foundNode = idxType;
+//                        }
+//                    }
                 }
             }
 
             if (foundNode != null) {
-                FileObject fo = null;
                 int offset = 0;
                 if (isLocal) {
-                    fo = info.getFileObject();
-                    offset = ((AstNode) foundNode).getPickToken().offset(th);
+                    offset = ((AstNode) foundNode.getElement()).getPickOffset(th);
                 } else {
-                    IndexedElement foundIdxElement = (IndexedElement) foundNode;
-                    fo = foundIdxElement.getFileObject();
-                    offset = foundIdxElement.getOffset();
+                    offset = foundNode.getOffset();
                 }
 
+                FileObject fo = foundNode.getFileObject();
                 if (fo != null) {
-                    return new DeclarationLocation(fo, offset, new GsfElement(foundNode, fo, info));
+                    return new DeclarationLocation(fo, offset, foundNode);
                 }
             }
 
@@ -199,11 +197,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     /** Locate the method declaration for the given method call */
-    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<IndexedFunction>[] alternativesHolder) {
+    GsfElement findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<IndexedFunction>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
-        IndexedElement candidate = null;
+        GsfElement candidate = null;
 
         String callName = funRef.getCall().getSimpleName().toString();
         String in = null;
@@ -215,12 +213,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<IndexedElement> members = index.getElements(callName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
-                for (IndexedElement member : members) {
-                    if (member instanceof IndexedFunction) {
-                        IndexedFunction idxFunction = (IndexedFunction) member;
-                        if (idxFunction.isReferredBy(funRef)) {
-                            candidate = idxFunction;
+                Set<GsfElement> gsfElements = index.getMembers(callName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
+                for (GsfElement gsfElement : gsfElements) {
+                    if (gsfElement.getElement() instanceof ExecutableElement) {
+                        if (AstDef.isReferredBy(gsfElement.getElement(), funRef)) {
+                            candidate = gsfElement;
                             break;
                         }
                     }
@@ -229,16 +226,16 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         }
 
-        return (IndexedFunction) candidate;
+        return candidate;
     }
 
-    IndexedElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<IndexedFunction>[] alternativesHolder) {
+    GsfElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<IndexedFunction>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
-        IndexedElement candidate = null;
+        GsfElement candidate = null;
 
-        String prefix = field.getField().getSimpleName().toString();
+        String fieldSName = field.getField().getSimpleName().toString();
         String in = null;
         AstNode base = field.getBase();
         if (base != null) {
@@ -248,19 +245,21 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
-                for (IndexedElement member : members) {
-                    if (member instanceof IndexedFunction) {
-                        if (member.isNullArgs()) {
-                            candidate = member;
+                Set<GsfElement> gsfElements = index.getMembers(fieldSName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
+                for (GsfElement gsfElement : gsfElements) {
+                    Element element = gsfElement.getElement();
+                    if (!element.getSimpleName().toString().equals(fieldSName)) {
+                        continue;
+                    }
+
+                    if (element instanceof ExecutableElement) {
+                        if (((ExecutableElement) element).getParameters().size() == 0) {
+                            candidate = gsfElement;
                             break;
                         }
-                    } else if (member instanceof IndexedField) {
-                        IndexedField idxField = (IndexedField) member;
-                        if (idxField.getSimpleName().toString().equals(prefix)) {
-                            candidate = idxField;
-                            break;
-                        }
+                    } else if (element instanceof VariableElement) {
+                        candidate = gsfElement;
+                        break;
                     }
                 }
             }

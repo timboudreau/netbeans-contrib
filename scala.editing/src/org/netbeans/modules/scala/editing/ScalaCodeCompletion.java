@@ -1168,54 +1168,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         return null;
     }
 
-    private boolean completeFunctions(List<CompletionProposal> proposals, CompletionRequest request) {
-        ScalaIndex index = request.index;
-        String prefix = request.prefix;
-        TokenHierarchy<Document> th = request.th;
-        NameKind kind = request.kind;
-        String fqn = request.fqn;
-        ScalaParserResult result = request.result;
-
-        boolean includeNonFqn = true;
-
-        Set<IndexedElement> matches;
-        if (fqn != null) {
-            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result, false);
-        } else {
-//            if (prefix.length() == 0) {
-//                proposals.clear();
-//                proposals.add(new KeywordItem("", "Type more characters to see matches", request));
-//                return true;
-//            } else {
-            matches = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
-//            }
-        }
-        // Also add in non-fqn-prefixed elements
-        if (includeNonFqn) {
-            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result, false);
-            if (top.size() > 0) {
-                matches.addAll(top);
-            }
-        }
-
-        for (IndexedElement element : matches) {
-            if (element.isNoDoc()) {
-                continue;
-            }
-
-            ScalaCompletionItem item;
-            if (element instanceof IndexedFunction) {
-                item = new FunctionItem((IndexedFunction) element, request);
-            } else {
-                item = new PlainItem(request, element);
-            }
-            proposals.add(item);
-
-        }
-
-        return true;
-    }
-
     /** Determine if we're trying to complete the name of a method on another object rather
      * than an inherited or local one. These should list ALL known methods, unless of course
      * we know the type of the method we're operating on (such as strings or regexps),

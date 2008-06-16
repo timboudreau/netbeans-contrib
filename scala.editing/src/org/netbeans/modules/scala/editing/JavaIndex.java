@@ -60,7 +60,6 @@ import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
-import org.netbeans.modules.scala.editing.GsfElement;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 
@@ -128,7 +127,7 @@ public class JavaIndex {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
 
             for (Element e : pe.getEnclosedElements()) {
-                String simpleName = e.getSimpleName().toString();
+                String sName = e.getSimpleName().toString();
                 
                 TypeMirror tm = e.asType();
                 TypeElement te = tm.getKind() == TypeKind.DECLARED
@@ -140,12 +139,12 @@ public class JavaIndex {
                     if (scalaKind != null) {
                         switch (scalaKind) {
                             case Trait:
-                                scalaElementNames.add(simpleName + "$class");
+                                scalaElementNames.add(sName + "$class");
                                 break;
                             case Object:
-                                int dollor = simpleName.lastIndexOf('$');
+                                int dollor = sName.lastIndexOf('$');
                                 if (dollor != -1) {
-                                    scalaElementNames.add(simpleName.substring(0, dollor));
+                                    scalaElementNames.add(sName.substring(0, dollor));
                                 }
                                 break;
                         }
@@ -156,7 +155,7 @@ public class JavaIndex {
 
                 if (e.getKind().isClass() || e.getKind().isInterface()) {
 
-                    if (JavaUtilities.startsWith(simpleName, prefix)) {
+                    if (JavaUtilities.startsWith(sName, prefix)) {
                         foundElements.add(e);
                     }
                 }
