@@ -50,7 +50,6 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -102,6 +101,7 @@ public abstract class AstNode {
         }
     }
 
+    /** @Todo Importing, Packaging are with null simpleName, any better solution? */
     public Name getSimpleName() {
         return simpleName;
 //        if (name == null) {
@@ -250,7 +250,7 @@ public abstract class AstNode {
         }
 
         public boolean contentEquals(CharSequence arg0) {
-            return name.toString().contentEquals(arg0);
+            return name.toString().contentEquals(arg0.toString());
         }
 
         public int length() {
@@ -261,6 +261,9 @@ public abstract class AstNode {
             return name.subSequence(start, end);
         }
 
+        /** 
+         * @Notice it work for AstName.equals(Name), but we can not sure Name.equals(AstName), 
+         * so, we should use Name.toString().equals(Name) instead */
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof Name) {

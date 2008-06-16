@@ -270,7 +270,7 @@ public class ScalaTypeInferencer {
                 ExecutableElement mFunction = (ExecutableElement) gsfElement.getElement();
 
                 if (AstDef.isReferredBy(mFunction, funRef)) {
-                    TypeMirror mRetType = mFunction.asType();
+                    TypeMirror mRetType = mFunction.getReturnType();
                     String mRetTypeSName = mRetType == null ? null : TypeRef.simpleNameOf(mRetType);
                     if (mRetTypeSName == null) {
                         mRetTypeSName = "void";

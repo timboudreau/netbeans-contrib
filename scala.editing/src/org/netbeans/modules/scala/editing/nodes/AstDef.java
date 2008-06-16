@@ -148,12 +148,12 @@ public abstract class AstDef extends AstNode implements Element {
             List<? extends VariableElement> params = function.getParameters();
             // only check local call only
             if (funRef.isLocal()) {
-                return element.getSimpleName().equals(funRef.getCall().getSimpleName()) &&
+                return element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) &&
                         params != null &&
                         params.size() == funRef.getArgs().size();
             } else {
                 boolean containsVariableLengthArg = function.isVarArgs();
-                if (element.getSimpleName().equals(funRef.getCall().getSimpleName()) || element.getSimpleName().toString().equals("apply") && funRef.isLocal()) {
+                if (element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) || element.getSimpleName().toString().equals("apply") && funRef.isLocal()) {
                     if (params.size() == funRef.getArgs().size() || containsVariableLengthArg) {
                         return true;
                     }
@@ -162,7 +162,7 @@ public abstract class AstDef extends AstNode implements Element {
                 return false;
             }
         } else if (element instanceof VariableElement) {
-            if (element.getSimpleName().equals(ref.getSimpleName())) {
+            if (element.getSimpleName().toString().equals(ref.getSimpleName().toString())) {
                 return true;
             }
         }
