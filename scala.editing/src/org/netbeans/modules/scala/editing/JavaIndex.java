@@ -163,27 +163,27 @@ public class JavaIndex {
             }
 
             for (Element e : foundElements) {
-                String simpleName = e.getSimpleName().toString();
+                String sName = e.getSimpleName().toString();
                 
-                if (scalaElementNames.contains(simpleName)) {
+                if (scalaElementNames.contains(sName)) {
                     continue;
                 }
 
                 String in = "";
                 StringBuilder base = new StringBuilder();
-                base.append(simpleName.toLowerCase());
+                base.append(sName.toLowerCase());
                 base.append(';');
                 if (in != null) {
                     base.append(in);
                 }
                 base.append(';');
-                base.append(simpleName);
+                base.append(sName);
                 base.append(';');
 
                 String attrs = IndexedElement.encodeAttributes(e);
                 base.append(attrs);
 
-                IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                IndexedElement idxElement = IndexedElement.create(sName, base.toString(), null, scalaIndex, false);
                 idxElement.setJavaInfo(e, info);
                 idxElements.add(idxElement);
             }

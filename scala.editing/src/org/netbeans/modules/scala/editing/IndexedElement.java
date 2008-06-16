@@ -83,7 +83,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public abstract class IndexedElement extends AstDef {
+public class IndexedElement extends AstDef {
 
     protected static final int NAME_INDEX = 0;
     protected static final int IN_INDEX = 1;
@@ -130,7 +130,8 @@ public abstract class IndexedElement extends AstDef {
     /** This is a function with null params */
     public static final int NULL_ARGS = 1 << 14;
     public static final int FIELD = 1 << 15;
-    public static final int JAVA = 1 << 16;
+    public static final int PACKAGE = 1 << 16;
+    public static final int JAVA = 1 << 17;
     protected String fqn;
     protected String name;
     protected String in;
@@ -149,7 +150,7 @@ public abstract class IndexedElement extends AstDef {
     private Set<Modifier> modifiers;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(null, null, null, null);
+        super(name, null, null, kind);
         this.fqn = fqn;
         this.name = name;
         this.in = in;
@@ -169,9 +170,9 @@ public abstract class IndexedElement extends AstDef {
         }
 
         if ((flags & FUNCTION) != 0) {
-            ElementKind kind = ((flags & CONSTRUCTOR) != 0) ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
-            IndexedFunction fun = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
-            return fun;
+            ElementKind kind = (flags & CONSTRUCTOR) != 0 ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
+            IndexedFunction function = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            return function;
         } else if ((flags & CLASS) != 0) {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
             return type;
@@ -181,31 +182,34 @@ public abstract class IndexedElement extends AstDef {
         } else if ((flags & TRAIT) != 0) {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.INTERFACE);
             return type;
+        } else if ((flags & PACKAGE) != 0){
+            return new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+        } else {
+            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.OTHER);
         }
-        return null;
     }
 
-    static IndexedElement create(String name, String signature, String fileUrl, ScalaIndex index, boolean createPackage) {
+    static IndexedElement create(String name, String attributes, String fileUrl, ScalaIndex index, boolean createPackage) {
         String elementName = null;
-        int nameEndIdx = signature.indexOf(';');
+        int nameEndIdx = attributes.indexOf(';');
         assert nameEndIdx != -1;
-        elementName = signature.substring(0, nameEndIdx);
+        elementName = attributes.substring(0, nameEndIdx);
         nameEndIdx++;
 
         String funcIn = null;
-        int inEndIdx = signature.indexOf(';', nameEndIdx);
+        int inEndIdx = attributes.indexOf(';', nameEndIdx);
         assert inEndIdx != -1;
         if (inEndIdx > nameEndIdx + 1) {
-            funcIn = signature.substring(nameEndIdx, inEndIdx);
+            funcIn = attributes.substring(nameEndIdx, inEndIdx);
         }
         inEndIdx++;
 
         int startCs = inEndIdx;
-        inEndIdx = signature.indexOf(';', startCs);
+        inEndIdx = attributes.indexOf(';', startCs);
         assert inEndIdx != -1;
         if (inEndIdx > startCs) {
             // Compute the case sensitive name
-            elementName = signature.substring(startCs, inEndIdx);
+            elementName = attributes.substring(startCs, inEndIdx);
         }
         inEndIdx++;
 
@@ -216,12 +220,12 @@ public abstract class IndexedElement extends AstDef {
             int nextDot = elementName.indexOf('.', name.length());
             if (nextDot != -1) {
                 String pkg = elementName.substring(0, nextDot);
-                IndexedPackage indexedElement = new IndexedPackage(null, pkg, fqn, index, fileUrl, signature, IndexedElement.decodeFlags(signature, inEndIdx, 0), ElementKind.PACKAGE);
+                IndexedPackage indexedElement = new IndexedPackage(null, pkg, fqn, index, fileUrl, attributes, IndexedElement.decodeFlags(attributes, inEndIdx, 0), ElementKind.PACKAGE);
                 return indexedElement;
             }
         }
 
-        IndexedElement indexedElement = IndexedElement.create(signature, fileUrl, fqn, elementName, funcIn, inEndIdx, index, createPackage);
+        IndexedElement indexedElement = IndexedElement.create(attributes, fileUrl, fqn, elementName, funcIn, inEndIdx, index, createPackage);
 
         return indexedElement;
     }
@@ -403,6 +407,9 @@ public abstract class IndexedElement extends AstDef {
     }
 
     int getOffset() {
+        if (this instanceof IndexedPackage) {
+            return -1;
+        }
         int offset = 0;
         if (isJava()) {
             try {
@@ -547,7 +554,9 @@ public abstract class IndexedElement extends AstDef {
             attributeIndex = attributes.indexOf(';', attributeIndex + 1);
         }
 
-        assert attributeIndex != -1;
+        if (attributeIndex == -1) {
+            assert false;
+        }
         return attributeIndex + 1;
     }
 
@@ -635,6 +644,9 @@ public abstract class IndexedElement extends AstDef {
         int flags = 0 | IndexedElement.JAVA;
 
         switch (jelement.getKind()) {
+            case PACKAGE:
+                flags = flags | PACKAGE;
+                break;
             case CLASS:
                 flags = flags | CLASS;
                 break;

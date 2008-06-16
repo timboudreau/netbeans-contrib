@@ -791,6 +791,9 @@ public class JavaUtilities {
         final int[] offset = new int[]{-1};
 
         FileObject originFo = getOriginFileObject(info, e);
+        if (originFo == null) {
+            return -1;
+        }
 
         /** @Note
          * We should create a element handle and a new CompilationInfo, then resolve
