@@ -814,6 +814,10 @@ public class ScalaIndex {
                     //List<Template> templates = ScalaParser.resolve(fo, elementName);
                     for (Template tmpl : templates) {
                         for (AstDef element : tmpl.getEnclosedElements()) {
+                            if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
+                                continue;
+                            }
+                            
                             boolean isMethod = element instanceof ExecutableElement;
                             if (isMethod && !includeMethods) {
                                 continue;

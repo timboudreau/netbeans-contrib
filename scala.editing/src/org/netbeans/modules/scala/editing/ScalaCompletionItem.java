@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
@@ -290,28 +288,17 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                     formatter.parameters(true);
 
                     VariableElement param = itr.next();
-                    if (param.asType() != null) {
-                        formatter.appendText(param.getSimpleName().toString());
+                    formatter.appendText(param.getSimpleName().toString());
+                    if (param.asType() != null) {                        
                         formatter.parameters(false);
                         formatter.appendHtml(" :");
                         formatter.parameters(true);
 
                         formatter.type(true);
                         TypeMirror type = param.asType();
-                        String typeName;
-                        if (type instanceof TypeRef) {
-                            typeName = ((TypeRef) type).getSimpleName().toString();
-                        } else {
-                            if (type.getKind() == TypeKind.DECLARED) {
-                                typeName = ((DeclaredType) type).asElement().getSimpleName().toString();
-                            } else {
-                                typeName = type.getKind().name();
-                            }
-                        }
-                        formatter.appendText(typeName);
+                        String typeSName = TypeRef.simpleNameOf(type);
+                        formatter.appendText(typeSName);
                         formatter.type(false);
-                    } else {
-                        formatter.appendText(param.getSimpleName().toString());
                     }
 
                     formatter.parameters(false);
@@ -328,7 +315,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(retType.toString());
+                formatter.appendText(TypeRef.simpleNameOf(retType));
                 formatter.type(false);
             }
 

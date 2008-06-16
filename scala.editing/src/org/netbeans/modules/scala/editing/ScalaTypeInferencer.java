@@ -260,10 +260,14 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        Set<GsfElement> members = index.getMembers(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-        for (GsfElement member : members) {
-            if (member instanceof ExecutableElement) {
-                ExecutableElement mFunction = (ExecutableElement) member;
+        Set<GsfElement> gsfElements = index.getMembers(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        for (GsfElement gsfElement : gsfElements) {
+            if (!gsfElement.getElement().getSimpleName().toString().equals(callName)) {
+                continue;
+            }
+
+            if (gsfElement.getElement() instanceof ExecutableElement) {
+                ExecutableElement mFunction = (ExecutableElement) gsfElement.getElement();
 
                 if (AstDef.isReferredBy(mFunction, funRef)) {
                     TypeMirror mRetType = mFunction.asType();
@@ -279,7 +283,7 @@ public class ScalaTypeInferencer {
                     int lastDot = mRetTypeSName.lastIndexOf('.');
                     if (lastDot == -1) {
                         /** try to find pkg of idxRetTypeStr */
-                        String itsIn = member.getIn();
+                        String itsIn = gsfElement.getIn();
                         if (itsIn != null) {
                             int pkgNameEnd = itsIn.lastIndexOf('.');
                             if (pkgNameEnd != -1) {
@@ -367,13 +371,17 @@ public class ScalaTypeInferencer {
             AstId field = fieldRef.getField();
             String fieldName = field.getSimpleName().toString();
 
-            Set<GsfElement> members = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-            for (GsfElement member : members) {
+            Set<GsfElement> gsfElements = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+            for (GsfElement gsfElement : gsfElements) {
+                if (!gsfElement.getElement().getSimpleName().toString().equals(fieldName)) {
+                    continue;
+                }
+
                 boolean isCandicate = false;
                 String mRetTypeSName = null;
 
-                if (member instanceof ExecutableElement) {
-                    ExecutableElement mfunction = (ExecutableElement) member;
+                if (gsfElement.getElement() instanceof ExecutableElement) {
+                    ExecutableElement mfunction = (ExecutableElement) gsfElement.getElement();
                     if (mfunction.getParameters().size() == 0) {
                         isCandicate = true;
                         TypeMirror mRetType = mfunction.asType();
@@ -381,8 +389,8 @@ public class ScalaTypeInferencer {
                             mRetTypeSName = TypeRef.simpleNameOf(mRetType);
                         }
                     }
-                } else if (member instanceof VariableElement) {
-                    VariableElement mField = (VariableElement) member;
+                } else if (gsfElement.getElement() instanceof VariableElement) {
+                    VariableElement mField = (VariableElement) gsfElement.getElement();
                     isCandicate = true;
                     TypeMirror mRetType = mField.asType();
                     if (mRetType != null) {
@@ -402,7 +410,7 @@ public class ScalaTypeInferencer {
                     int lastDot = mRetTypeSName.lastIndexOf('.');
                     if (lastDot == -1) {
                         /** try to find pkg of idxRetTypeStr */
-                        String hisIn = member.getIn();
+                        String hisIn = gsfElement.getIn();
                         if (hisIn != null) {
                             int pkgNameEnd = hisIn.lastIndexOf('.');
                             if (pkgNameEnd != -1) {
@@ -410,7 +418,7 @@ public class ScalaTypeInferencer {
                                 Set<String> importPkgs = getImportPkgs(index, hisIn);
                                 mRetTypeSName = globalInferTypeRef(index, mRetTypeSName, hisPkgName, importPkgs);
                             } else {
-                                System.out.println("found idx element without package: " + member.toString());
+                                System.out.println("found idx element without package: " + gsfElement.toString());
                             }
                         } else {
                             // @todo
