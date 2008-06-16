@@ -45,6 +45,8 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -84,7 +86,7 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public AstDef getEnclosingElement() {
-        return getEnclosingScope().getBindingDef();        
+        return getEnclosingScope().getBindingDef();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> arg0) {
@@ -130,12 +132,41 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public boolean mayEqual(AstDef def) {
-        return getSimpleName().equals(def.getSimpleName());
+        return getSimpleName() != null && def.getSimpleName() != null && getSimpleName().equals(def.getSimpleName());
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
         formatter.appendText(getSimpleName().toString());
+    }
+
+    public static boolean isReferredBy(Element element, AstRef ref) {
+        if (element instanceof ExecutableElement && ref instanceof FunRef) {
+            ExecutableElement function = (ExecutableElement) element;
+            FunRef funRef = (FunRef) ref;
+            List<? extends VariableElement> params = function.getParameters();
+            // only check local call only
+            if (funRef.isLocal()) {
+                return element.getSimpleName().equals(funRef.getCall().getSimpleName()) &&
+                        params != null &&
+                        params.size() == funRef.getArgs().size();
+            } else {
+                boolean containsVariableLengthArg = function.isVarArgs();
+                if (element.getSimpleName().equals(funRef.getCall().getSimpleName()) || element.getSimpleName().toString().equals("apply") && funRef.isLocal()) {
+                    if (params.size() == funRef.getArgs().size() || containsVariableLengthArg) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        } else if (element instanceof VariableElement) {
+            if (element.getSimpleName().equals(ref.getSimpleName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

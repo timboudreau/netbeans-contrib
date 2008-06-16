@@ -66,7 +66,7 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
             setKind(ElementKind.CONSTRUCTOR);
         }
     }
-        
+
     public AnnotationValue getDefaultValue() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -76,8 +76,21 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     }
 
     public boolean isVarArgs() {
-        /** @todo */
-        return false;
+        List<Var> params = getParameters();
+        boolean containsVariableLengthArg = false;
+        for (Var param : params) {
+            String paramSName = param.getSimpleName().toString();
+            TypeRef paramType = param.asType();
+            if (paramType != null) {
+                String paramTypeSName = paramType.getSimpleName().toString();
+                if (paramTypeSName.endsWith("*")) {
+                    containsVariableLengthArg = true;
+                    break;
+                }
+            }
+        }
+
+        return containsVariableLengthArg;
     }
 
     public TypeRef getReturnType() {
@@ -86,8 +99,8 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
 
     public List<? extends TypeParam> getTypeParameters() {
         return typeParameters == null ? Collections.<TypeParam>emptyList() : typeParameters;
-    }        
-    
+    }
+
     public void setTypeParameters(List<TypeParam> typeParameters) {
         this.typeParameters = typeParameters;
     }
@@ -95,13 +108,13 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     public void assignTypeParameters(List<TypeRef> typeArgs) {
         assert getTypeParameters().size() == typeArgs.size();
         List<? extends TypeParam> _typeParams = getTypeParameters();
-        for (int i = 0 ; i < _typeParams.size(); i++) {
+        for (int i = 0; i < _typeParams.size(); i++) {
             TypeParam typeParam = _typeParams.get(i);
             TypeRef typeArg = typeArgs.get(i);
             typeParam.setValue(typeArg);
         }
-    }        
-    
+    }
+
     public void setParameters(List<Var> parameters) {
         this.parameters = parameters;
     }
@@ -116,8 +129,8 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
             FunRef funRef = (FunRef) ref;
             // only check local call only
             if (funRef.isLocal()) {
-                return getSimpleName().equals(funRef.getCall().getSimpleName()) && 
-                        parameters != null && 
+                return getSimpleName().equals(funRef.getCall().getSimpleName()) &&
+                        parameters != null &&
                         parameters.size() == funRef.getArgs().size();
             }
         }

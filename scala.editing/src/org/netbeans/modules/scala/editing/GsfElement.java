@@ -212,7 +212,25 @@ public class GsfElement implements ElementHandle {
 
         return docComment;
     }
-
+    
+    public int getOffset() {
+        int offset = 0;
+        if (isScala()) {
+            /** @Todo remove case of IndexedElement */
+            if (element instanceof IndexedElement) {
+                return ((IndexedElement) element).getOffset();
+            }
+            return ScalaUtils.getOffset((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstDef) element);
+        } else {
+            try {
+                offset = JavaUtilities.getOffset((org.netbeans.api.java.source.CompilationInfo) info, element);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } 
+        return offset;
+    }
+    
     public void htmlFormat(HtmlFormatter formatter) {
         if (isScala()) {
             ((AstDef) element).htmlFormat(formatter);
@@ -242,4 +260,10 @@ public class GsfElement implements ElementHandle {
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
+
+    @Override
+    public String toString() {
+        return element.toString();
+    }    
+    
 }

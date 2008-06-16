@@ -60,7 +60,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
@@ -424,6 +423,11 @@ public abstract class IndexedElement extends AstDef {
         }
         return offset;
     }
+
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return getOffset();
+    }   
 
     OffsetRange getDocRange() {
         int docOffsetIndex = getAttributeSection(DOC_START_INDEX);
