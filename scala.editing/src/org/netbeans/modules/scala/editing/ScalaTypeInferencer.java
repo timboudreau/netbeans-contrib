@@ -260,41 +260,41 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        Set<IndexedElement> members = index.getElements(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-        for (IndexedElement member : members) {
-            if (member instanceof IndexedFunction) {
-                IndexedFunction idxFunction = (IndexedFunction) member;
+        Set<GsfElement> members = index.getMembers(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        for (GsfElement member : members) {
+            if (member instanceof ExecutableElement) {
+                ExecutableElement mFunction = (ExecutableElement) member;
 
-                if (idxFunction.isReferredBy(funRef)) {
-                    TypeRef idxRetType = idxFunction.asType();
-                    String idxRetTypeStr = idxRetType == null ? null : idxRetType.getSimpleName().toString();
-                    if (idxRetTypeStr == null) {
-                        idxRetTypeStr = "void";
+                if (AstDef.isReferredBy(mFunction, funRef)) {
+                    TypeMirror mRetType = mFunction.asType();
+                    String mRetTypeSName = mRetType == null ? null : TypeRef.simpleNameOf(mRetType);
+                    if (mRetTypeSName == null) {
+                        mRetTypeSName = "void";
                     }
-                    if (idxRetTypeStr.equals("void")) {
+                    if (mRetTypeSName.equals("void")) {
                         funRef.setType(new PseudoTypeRef("void"));
                         break;
                     }
 
-                    int lastDot = idxRetTypeStr.lastIndexOf('.');
+                    int lastDot = mRetTypeSName.lastIndexOf('.');
                     if (lastDot == -1) {
                         /** try to find pkg of idxRetTypeStr */
-                        String hisIn = idxFunction.getIn();
-                        if (hisIn != null) {
-                            int pkgNameEnd = hisIn.lastIndexOf('.');
+                        String itsIn = member.getIn();
+                        if (itsIn != null) {
+                            int pkgNameEnd = itsIn.lastIndexOf('.');
                             if (pkgNameEnd != -1) {
-                                String hisPkgName = hisIn.substring(0, pkgNameEnd);
-                                Set<String> importPkgs = getImportPkgs(index, hisIn);
-                                idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
+                                String hisPkgName = itsIn.substring(0, pkgNameEnd);
+                                Set<String> importPkgs = getImportPkgs(index, itsIn);
+                                mRetTypeSName = globalInferTypeRef(index, mRetTypeSName, hisPkgName, importPkgs);
                             } else {
-                                System.out.println("found idx function without package: " + idxFunction.getSimpleName().toString());
+                                System.out.println("found idx function without package: " + mFunction.getSimpleName().toString());
                             }
                         } else {
                             // @todo
                             }
                     }
 
-                    funRef.setType(new PseudoTypeRef(idxRetTypeStr));
+                    funRef.setType(new PseudoTypeRef(mRetTypeSName));
                     break;
                 }
             }

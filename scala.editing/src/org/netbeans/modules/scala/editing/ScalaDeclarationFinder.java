@@ -187,7 +187,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     /** Locate the method declaration for the given method call */
-    GsfElement findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<IndexedFunction>[] alternativesHolder) {
+    GsfElement findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -219,7 +219,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    GsfElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<IndexedFunction>[] alternativesHolder) {
+    GsfElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
