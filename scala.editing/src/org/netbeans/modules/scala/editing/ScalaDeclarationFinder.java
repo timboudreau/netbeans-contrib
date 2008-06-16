@@ -59,7 +59,6 @@ import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
 
@@ -156,22 +155,13 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 isLocal = true;
             } else {
                 if (closest instanceof FunRef) {
-                    GsfElement function = findMethodDeclaration(info, (FunRef) closest, null);
-                    if (function != null) {
-                        foundNode = function;
-                    }
+                    foundNode = findMethodDeclaration(info, (FunRef) closest, null);
                 } else if (closest instanceof FieldRef) {
-                    GsfElement field = findFieldDeclaration(info, (FieldRef) closest, null);
-                    if (field != null) {
-                        foundNode = field;
-                    }
+                    foundNode = findFieldDeclaration(info, (FieldRef) closest, null);
                 } else if (closest instanceof TypeRef) {
-//                    if (((TypeRef) closest).isResolved()) {
-//                        IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
-//                        if (idxType != null) {
-//                            foundNode = idxType;
-//                        }
-//                    }
+                    if (((TypeRef) closest).isResolved()) {
+                        foundNode = findTypeDeclaration(info, (TypeRef) closest);
+                    }
                 }
             }
 
@@ -269,11 +259,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    IndexedType findTypeDeclaration(CompilationInfo info, TypeRef type) {
+    GsfElement findTypeDeclaration(CompilationInfo info, TypeRef type) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
-        IndexedType candidate = null;
+        GsfElement candidate = null;
 
         String qName = type.getQualifiedName().toString();
 
@@ -286,7 +276,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             for (IndexedElement idxType : idxTypes) {
                 if (idxType instanceof IndexedType) {
                     if (idxType.getSimpleName().toString().equals(sName)) {
-                        candidate = (IndexedType) idxType;
+                        candidate = new GsfElement(idxType, idxType.getFileObject(), info);
                     }
                 }
             }

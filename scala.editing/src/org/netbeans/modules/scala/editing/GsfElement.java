@@ -216,6 +216,10 @@ public class GsfElement implements ElementHandle {
     public int getOffset() {
         int offset = 0;
         if (isScala()) {
+            /** @Todo remove case of IndexedElement */
+            if (element instanceof IndexedElement) {
+                return ((IndexedElement) element).getOffset();
+            }
             return ScalaUtils.getOffset((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstDef) element);
         } else {
             try {
