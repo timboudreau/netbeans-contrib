@@ -46,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.NameKind;
@@ -364,39 +367,39 @@ public class ScalaTypeInferencer {
             AstId field = fieldRef.getField();
             String fieldName = field.getSimpleName().toString();
 
-            Set<IndexedElement> members = index.getElements(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-            for (IndexedElement member : members) {
+            Set<GsfElement> members = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+            for (GsfElement member : members) {
                 boolean isCandicate = false;
-                String idxRetTypeStr = null;
+                String mRetTypeSName = null;
 
-                if (member instanceof IndexedFunction) {
-                    IndexedFunction idxFunction = (IndexedFunction) member;
-                    if (idxFunction.isNullArgs()) {
+                if (member instanceof ExecutableElement) {
+                    ExecutableElement mfunction = (ExecutableElement) member;
+                    if (mfunction.getParameters().size() == 0) {
                         isCandicate = true;
-                        TypeRef idxRetType = idxFunction.asType();
-                        if (idxRetType != null) {
-                            idxRetTypeStr = idxRetType.getSimpleName().toString();
+                        TypeMirror mRetType = mfunction.asType();
+                        if (mRetType != null) {
+                            mRetTypeSName = TypeRef.simpleNameOf(mRetType);
                         }
                     }
-                } else if (member instanceof IndexedField) {
-                    IndexedField idxField = (IndexedField) member;
+                } else if (member instanceof VariableElement) {
+                    VariableElement mField = (VariableElement) member;
                     isCandicate = true;
-                    TypeRef idxRetType = idxField.asType();
-                    if (idxRetType != null) {
-                        idxRetTypeStr = idxRetType.getSimpleName().toString();
+                    TypeMirror mRetType = mField.asType();
+                    if (mRetType != null) {
+                        mRetTypeSName = TypeRef.simpleNameOf(mRetType);
                     }
                 }
 
                 if (isCandicate) {
-                    if (idxRetTypeStr == null) {
-                        idxRetTypeStr = "Unit";
+                    if (mRetTypeSName == null) {
+                        mRetTypeSName = "Unit";
                     }
-                    if (idxRetTypeStr.equals("Unit")) {
+                    if (mRetTypeSName.equals("Unit")) {
                         fieldRef.setType(new PseudoTypeRef("Unit"));
                         break;
                     }
 
-                    int lastDot = idxRetTypeStr.lastIndexOf('.');
+                    int lastDot = mRetTypeSName.lastIndexOf('.');
                     if (lastDot == -1) {
                         /** try to find pkg of idxRetTypeStr */
                         String hisIn = member.getIn();
@@ -405,16 +408,16 @@ public class ScalaTypeInferencer {
                             if (pkgNameEnd != -1) {
                                 String hisPkgName = hisIn.substring(0, pkgNameEnd);
                                 Set<String> importPkgs = getImportPkgs(index, hisIn);
-                                idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
+                                mRetTypeSName = globalInferTypeRef(index, mRetTypeSName, hisPkgName, importPkgs);
                             } else {
-                                System.out.println("found idx element without package: " + member.getSimpleName());
+                                System.out.println("found idx element without package: " + member.toString());
                             }
                         } else {
                             // @todo
                         }
                     }
 
-                    fieldRef.setType(new PseudoTypeRef(idxRetTypeStr));
+                    fieldRef.setType(new PseudoTypeRef(mRetTypeSName));
                     break;
                 }
             }

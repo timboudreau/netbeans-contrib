@@ -181,14 +181,8 @@ public abstract class IndexedElement extends AstDef {
         } else if ((flags & TRAIT) != 0) {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.INTERFACE);
             return type;
-        } else if ((flags & FIELD) != 0) {
-            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
-            return field;
-        } else {
-            /** @Todo assert false */
-            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
-            return field;
         }
+        return null;
     }
 
     static IndexedElement create(String name, String signature, String fileUrl, ScalaIndex index, boolean createPackage) {
