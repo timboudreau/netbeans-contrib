@@ -50,7 +50,7 @@ made subject to such option by the copyright holder.
                     <code-name-base>org.netbeans.modules.editor</code-name-base>
                     <run-dependency>
                         <release-version>3</release-version>
-                        <specification-version>1.23</specification-version>
+                        <specification-version>1.41</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

@@ -45,7 +45,6 @@ package org.netbeans.modules.tasklist.editor;
 import org.netbeans.editor.PopupManager;
 import org.netbeans.editor.BaseTextUI;
 import org.netbeans.editor.EditorUI;
-import org.netbeans.editor.ext.ExtEditorUI;
 import org.openide.windows.WindowManager;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -84,7 +83,7 @@ public final class EditorView {
     }
 
     private static PopupManager getPopup(JEditorPane pane) {
-        ExtEditorUI ui = getEditorUI(pane);
+        EditorUI ui = getEditorUI(pane);
         return ui.getPopupManager();
     }
 
@@ -92,9 +91,9 @@ public final class EditorView {
         return (pane!=null)?(BaseTextUI)pane.getUI():null;
     }
 
-    private static ExtEditorUI getEditorUI(JEditorPane pane){
+    private static EditorUI getEditorUI(JEditorPane pane){
         BaseTextUI btui = getBaseTextUI(pane);
-        return (btui!=null) ? (ExtEditorUI)btui.getEditorUI() : null;
+        return (btui!=null) ? (EditorUI)btui.getEditorUI() : null;
     }
 
 }
