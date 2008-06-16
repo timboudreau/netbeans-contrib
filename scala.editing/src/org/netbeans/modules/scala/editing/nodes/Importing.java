@@ -96,7 +96,12 @@ public class Importing extends AstDef {
     }
 
     @Override
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
+        return false;
+    }
+
+    @Override
+    public boolean mayEqual(AstDef def) {
         return false;
     }        
     

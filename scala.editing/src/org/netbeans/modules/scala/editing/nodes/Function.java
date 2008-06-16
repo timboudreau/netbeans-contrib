@@ -124,7 +124,7 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     }
 
     @Override
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         if (ref instanceof FunRef) {
             FunRef funRef = (FunRef) ref;
             // only check local call only

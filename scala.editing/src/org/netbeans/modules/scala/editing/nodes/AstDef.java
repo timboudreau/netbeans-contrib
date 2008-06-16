@@ -127,12 +127,12 @@ public abstract class AstDef extends AstNode implements Element {
         return getBindingScope().getRange(th);
     }
 
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         return getSimpleName().equals(ref.getSimpleName());
     }
 
     public boolean mayEqual(AstDef def) {
-        return getSimpleName() != null && def.getSimpleName() != null && getSimpleName().equals(def.getSimpleName());
+        return getSimpleName().equals(def.getSimpleName());
     }
 
     @Override

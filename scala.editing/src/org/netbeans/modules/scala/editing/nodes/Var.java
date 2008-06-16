@@ -84,7 +84,7 @@ public class Var extends AstDef implements VariableElement {
     }
 
     @Override
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         if (ref instanceof IdRef) {
             return getSimpleName().equals(ref.getSimpleName());
         }

@@ -113,7 +113,7 @@ public abstract class Template extends AstDef implements TypeElement {
     }
 
     @Override
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         if (ref instanceof TypeRef) {
             return getSimpleName().equals(ref.getSimpleName());
         } else if (ref instanceof IdRef) {
