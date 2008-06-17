@@ -57,6 +57,7 @@ import java.util.Set;
 import javax.swing.event.ChangeListener;
 import javax.swing.JComponent;
 import java.awt.Component;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
         
@@ -106,7 +107,7 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
             return result;
         } catch (Exception ex) {
             ErrorManager.getDefault().log(ErrorManager.EXCEPTION, ex.getMessage());
-            return null;
+            return Collections.EMPTY_SET;
         }
     }
     //WizardDescriptor.InstantiatingIterator method implementation
