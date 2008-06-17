@@ -50,11 +50,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -82,11 +84,13 @@ public class ScalaIndex {
     public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
     public static final Set<String> TERMS_IMPORT = Collections.singleton(ScalaIndexer.FIELD_IMPORT);
     public static final Set<String> TERMS_CLASS = Collections.singleton(ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME);
+    private CompilationInfo info;
     private final Index index;
     private JavaIndex javaIndex;
 
     /** Creates a new instance of ScalaIndex */
-    private ScalaIndex(Index index, JavaIndex javaIndex) {
+    private ScalaIndex(Index index, JavaIndex javaIndex, CompilationInfo info) {
+        this.info = info;
         this.index = index;
         this.javaIndex = javaIndex;
     }
@@ -95,9 +99,9 @@ public class ScalaIndex {
         this.javaIndex = javaIndex;
     }
 
-    public static ScalaIndex get(CompilationInfo info) {
+    public static ScalaIndex get(CompilationInfo info) {       
         Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
-        ScalaIndex scalaIndex = new ScalaIndex(index, null);
+        ScalaIndex scalaIndex = new ScalaIndex(index, null, info);
 
         JavaIndex javaIndex = JavaIndex.get(info, scalaIndex);
 
@@ -174,15 +178,8 @@ public class ScalaIndex {
     @SuppressWarnings("unchecked")
     public Set<IndexedElement> getConstructors(final String name, NameKind kind,
             Set<SearchScope> scope) {
-        // TODO - search by the FIELD_CLASS thingy
-        return getUnknownFunctions(name, kind, scope, true, null, true, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Set<IndexedElement> getAllNames(final String name, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context) {
-        // TODO - search by the FIELD_CLASS thingy
-        return getUnknownFunctions(name, kind, scope, false, context, true, true);
+        // TODO - search by Type
+        return null;
     }
 
     public Map<String, String> getAllExtends() {
@@ -262,18 +259,24 @@ public class ScalaIndex {
         return Collections.<String>emptySet();
     }
 
+    public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context) {
+        Set<GsfElement> gsfElements = javaIndex.getDeclaredTypes(type, toJavaNameKind(kind), toJavaSearchScope(scope), context);
+        return gsfElements;
+    }    
+    
     /** Return both functions and properties matching the given prefix, of the
      * given (possibly null) type
      */
-    public Set<IndexedElement> getElements(String prefix, String type,
+    public Set<GsfElement> getMembers(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context,
             boolean onlyConstructors) {
 
-        Set<IndexedElement> elements = getByFqn(prefix, type, kind, scope, onlyConstructors, context, true, true, false);
+        Set<GsfElement> gsfElements = getMembers(prefix, type, kind, scope, context, onlyConstructors, true, true, false);
         // Is there at least one non-inheried member?
         boolean ofScala = false;
-        for (IndexedElement element : elements) {
-            if (!element.inherited) {
+        for (GsfElement gsfElement : gsfElements) {
+            if (!gsfElement.isInherited()) {
                 ofScala = true;
                 break;
             }
@@ -281,26 +284,14 @@ public class ScalaIndex {
 
         /** @TODO we need a better way to check if it's of scala */
         if (!ofScala) {
-            elements = javaIndex.getByFqn(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
+            gsfElements = javaIndex.getMembers(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
         }
 
-        if (elements.size() == 0) {
-            elements = javaIndex.getByFqn(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
+        if (gsfElements.size() == 0) {
+            gsfElements = javaIndex.getMembers(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
         }
 
-        return elements;
-    }
-
-    public Set<IndexedElement> getAllElements(String prefix, String type,
-            NameKind kind, Set<SearchScope> scope, ScalaParserResult context) {
-
-        return getByFqn(prefix, type, kind, scope, false, context, true, true, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Set<IndexedFunction> getFunctions(String name, String in, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context, boolean includeMethods) {
-        return (Set<IndexedFunction>) (Set) getByFqn(name, in, kind, scope, false, context, includeMethods, false, false);
+        return gsfElements;
     }
 
     public Set<IndexedElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
@@ -321,7 +312,8 @@ public class ScalaIndex {
 
         return idxElements;
     }
-
+    
+    /*
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
@@ -453,196 +445,9 @@ public class ScalaIndex {
 
         return elements;
     }
-
-    private Set<IndexedElement> getByFqn(String prefix, String type, NameKind kind,
-            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
-            boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
-        //assert in != null && in.length() > 0;
-
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-
-        String field = ScalaIndexer.FIELD_FQN;
-        Set<String> terms = TERMS_FQN;
-        NameKind originalKind = kind;
-        if (kind == NameKind.EXACT_NAME) {
-            // I can't do exact searches on methods because the method
-            // entries include signatures etc. So turn this into a prefix
-            // search and then compare chopped off signatures with the name
-            kind = NameKind.PREFIX;
-        }
-
-        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
-            // TODO - can I do anything about this????
-            //field = ScalaIndexer.FIELD_BASE_LOWER;
-            //terms = FQN_BASE_LOWER;
-        }
-
-        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
-        String searchUrl = null;
-        if (context != null) {
-            try {
-                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        Set<String> seenTypes = new HashSet<String>();
-        seenTypes.add(type);
-        boolean haveRedirected = false;
-        boolean inheriting = type == null;
-
-        while (true) {
-
-            String fqn = type != null && type.length() > 0
-                    ? type + "." + prefix
-                    : prefix;
-
-            String lcfqn = fqn.toLowerCase();
-            search(field, lcfqn, kind, result, scope, terms);
-
-            for (SearchResult map : result) {
-                String[] signatures = map.getValues(field);
-
-                if (signatures != null) {
-                    // Check if this file even applies
-                    if (context != null) {
-                        String fileUrl = map.getPersistentUrl();
-                        if (searchUrl == null || !searchUrl.equals(fileUrl)) {
-                            boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
-
-                            if (!isLibrary && !isReachable(context, fileUrl)) {
-                                continue;
-                            }
-                        }
-                    }
-
-                    for (String signature : signatures) {
-                        // Lucene returns some inexact matches, TODO investigate why this is necessary
-                        if ((kind == NameKind.PREFIX) && !signature.startsWith(lcfqn)) {
-                            continue;
-                        } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !signature.regionMatches(true, 0, lcfqn, 0, lcfqn.length())) {
-                            continue;
-                        } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
-                            int end = signature.indexOf(';');
-                            assert end != -1;
-                            String n = signature.substring(0, end);
-                            try {
-                                if (!n.matches(lcfqn)) {
-                                    continue;
-                                }
-                            } catch (Exception e) {
-                                // Silently ignore regexp failures in the search expression
-                            }
-                        } else if (originalKind == NameKind.EXACT_NAME) {
-                            // Make sure the name matches exactly
-                            // We know that the prefix is correct from the first part of
-                            // this if clause, by the signature may have more
-                            if (((signature.length() > lcfqn.length()) &&
-                                    (signature.charAt(lcfqn.length()) != ';'))) {
-                                continue;
-                            }
-                        }
-
-                        // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
-                        assert map != null;
-
-                        String elementName = null;
-                        int nameEndIdx = signature.indexOf(';');
-                        assert nameEndIdx != -1 : signature;
-                        elementName = signature.substring(0, nameEndIdx);
-                        nameEndIdx++;
-
-                        String funcIn = null;
-                        int inEndIdx = signature.indexOf(';', nameEndIdx);
-                        assert inEndIdx != -1 : signature;
-                        inEndIdx++;
-
-                        int startCs = inEndIdx;
-                        inEndIdx = signature.indexOf(';', startCs);
-                        assert inEndIdx != -1;
-                        if (inEndIdx > startCs) {
-                            // Compute the case sensitive name
-                            elementName = signature.substring(startCs, inEndIdx);
-                            if (kind == NameKind.PREFIX && !elementName.startsWith(fqn)) {
-                                continue;
-                            } else if (kind == NameKind.EXACT_NAME && !elementName.equals(fqn)) {
-                                continue;
-                            }
-                        }
-                        inEndIdx++;
-
-                        int lastDot = elementName.lastIndexOf('.');
-                        IndexedElement element = null;
-                        if (prefix.length() < lastDot) {
-                            int nextDot = elementName.indexOf('.', fqn.length());
-                            if (nextDot != -1) {
-                                int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
-                                ElementKind k = ElementKind.PACKAGE;
-                                // If there are no more dots after this one, it's a class, not a package
-                                int nextNextDot = elementName.indexOf('.', nextDot + 1);
-                                if (nextNextDot == -1) {
-                                    k = ElementKind.CLASS;
-                                }
-                                if (type != null && type.length() > 0) {
-                                    String pkg = elementName.substring(type.length() + 1, nextDot);
-                                    element = new IndexedPackage(null, pkg, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
-                                } else {
-                                    String pkg = elementName.substring(0, nextDot);
-                                    element = new IndexedPackage(null, pkg, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
-                                }
-                            } else {
-                                funcIn = elementName.substring(0, lastDot);
-                                elementName = elementName.substring(lastDot + 1);
-                            }
-                        } else if (lastDot != -1) {
-                            funcIn = elementName.substring(0, lastDot);
-                            elementName = elementName.substring(lastDot + 1);
-                        }
-                        if (element == null) {
-                            element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, funcIn, inEndIdx, this, false);
-                        }
-                        boolean isMethod = element instanceof IndexedFunction;
-                        if (isMethod && !includeMethods) {
-                            continue;
-                        } else if (!isMethod && !includeProperties) {
-                            continue;
-                        }
-                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-                            continue;
-                        }
-                        if (!haveRedirected) {
-                            element.setSmart(true);
-                        }
-                        if (!inheriting) {
-                            element.setInherited(false);
-                        }
-                        elements.add(element);
-                    }
-                }
-            }
-
-            if (type == null || "scala.AnyRef".equals(type)) { // NOI18N
-                break;
-            }
-            type = getExtends(type, scope);
-            if (type == null) {
-                type = "scala.AnyRef"; // NOI18N
-                haveRedirected = true;
-            }
-            // Prevent circularity in types
-            if (seenTypes.contains(type)) {
-                break;
-            } else {
-                seenTypes.add(type);
-            }
-            inheriting = true;
-        }
-
-        return elements;
-    }
-
-    private Set<IndexedElement> getMembers(String prefix, String typeQName, 
+     */
+    
+    private Set<GsfElement> getMembers(String prefix, String typeQName,
             NameKind kind, Set<SearchScope> scope, ScalaParserResult pResult,
             boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
@@ -666,7 +471,8 @@ public class ScalaIndex {
             //terms = FQN_BASE_LOWER;
         }
 
-        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+//        final Set<Element> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<Element>();
+        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
         String searchUrl = null;
         if (pResult != null) {
             try {
@@ -679,10 +485,9 @@ public class ScalaIndex {
         Set<String> seenTypes = new HashSet<String>();
         seenTypes.add(typeQName);
         boolean haveRedirected = false;
-        boolean inheriting = typeQName == null;
+        boolean inherited = typeQName == null;
 
         while (true) {
-
             String fqn = typeQName != null && typeQName.length() > 0
                     ? typeQName
                     : "scala.AnyRef";
@@ -770,58 +575,36 @@ public class ScalaIndex {
                     }
                     inEndIdx++;
 
-
-                    List<Template> templates = ScalaParser.resolve(fo, elementName);
-
-
-                    int lastDot = elementName.lastIndexOf('.');
-                    IndexedElement element = null;
-                    if (prefix.length() < lastDot) {
-                        int nextDot = elementName.indexOf('.', fqn.length());
-                        if (nextDot != -1) {
-                            int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
-                            ElementKind k = ElementKind.PACKAGE;
-                            // If there are no more dots after this one, it's a class, not a package
-                            int nextNextDot = elementName.indexOf('.', nextDot + 1);
-                            if (nextNextDot == -1) {
-                                k = ElementKind.CLASS;
+                    int flags = IndexedElement.decodeFlags(signature, inEndIdx, 0);
+                    if (!IndexedElement.isTemplate(flags)) {
+                        continue;
+                    }                    
+                    
+                    CompilationInfo newInfo = ScalaUtils.getCompilationInfoForScalaFile(fo);
+                    List<Template> templates = ScalaUtils.resolveTemplate(newInfo, elementName);
+                    
+                    //List<Template> templates = ScalaParser.resolve(fo, elementName);
+                    for (Template tmpl : templates) {
+                        for (AstDef element : tmpl.getEnclosedElements()) {
+                            if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
+                                continue;
                             }
-                            if (typeQName != null && typeQName.length() > 0) {
-                                String pkg = elementName.substring(typeQName.length() + 1, nextDot);
-                                element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
-                            } else {
-                                String pkg = elementName.substring(0, nextDot);
-                                element = new IndexedPackage(null, pkg, null, this, fileUrl, signature, flags, ElementKind.PACKAGE);
+                            
+                            boolean isMethod = element instanceof ExecutableElement;
+                            if (isMethod && !includeMethods) {
+                                continue;
+                            } else if (!isMethod && !includeFields) {
+                                continue;
                             }
-                        } else {
-                            funcIn = elementName.substring(0, lastDot);
-                            elementName = elementName.substring(lastDot + 1);
+                            if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+                                continue;
+                            }
+                            GsfElement gsfElement = new GsfElement(element, fo, newInfo);
+                            gsfElement.setInherited(inherited);
+                            gsfElements.add(gsfElement);
                         }
-                    } else if (lastDot != -1) {
-                        funcIn = elementName.substring(0, lastDot);
-                        elementName = elementName.substring(lastDot + 1);
+                        break;
                     }
-                    if (element == null) {
-                        element = IndexedElement.create(signature, fileUrl, null, elementName, funcIn, inEndIdx, this, false);
-                    }
-
-                    boolean isMethod = element instanceof IndexedFunction;
-                    if (isMethod && !includeMethods) {
-                        continue;
-                    } else if (!isMethod && !includeFields) {
-                        continue;
-                    }
-                    if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-                        continue;
-                    }
-                    if (!haveRedirected) {
-                        element.setSmart(true);
-                    }
-                    if (!inheriting) {
-                        element.setInherited(false);
-                    }
-                    elements.add(element);
-
                 }
 
             }
@@ -840,10 +623,10 @@ public class ScalaIndex {
             } else {
                 seenTypes.add(typeQName);
             }
-            inheriting = true;
+            inherited = true;
         }
 
-        return elements;
+        return gsfElements;
     }
 
     private Set<IndexedElement> getTypesByFqn(String fqnPrefix, NameKind kind,

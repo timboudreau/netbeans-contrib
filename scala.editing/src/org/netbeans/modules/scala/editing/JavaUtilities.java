@@ -767,7 +767,7 @@ public class JavaUtilities {
         return source;
     }
 
-    public static String getJavaDoc(CompilationInfo info, final Element e) throws IOException {
+    public static String getDocComment(CompilationInfo info, final Element e) throws IOException {
         String docComment = null;
         
         // to resolve javadoc, only needs Phase.ELEMENT_RESOLVED, and we have reached when create info
@@ -791,6 +791,9 @@ public class JavaUtilities {
         final int[] offset = new int[]{-1};
 
         FileObject originFo = getOriginFileObject(info, e);
+        if (originFo == null) {
+            return -1;
+        }
 
         /** @Note
          * We should create a element handle and a new CompilationInfo, then resolve

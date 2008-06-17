@@ -40,26 +40,23 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
 import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
 
 /**
  * The Bundle property node
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class FlatPropertyNode extends BundlePropertyNode implements PropertyChangeListener, Comparable<FlatPropertyNode> {
+public class FlatPropertyNode extends BundlePropertyNode implements Comparable<FlatPropertyNode> {
 
     private TreeItem<BundleProperty> treeItem;
 
     public FlatPropertyNode(TreeItem<BundleProperty> treeItem) {
-        super((treeItem.getParent() != null ? Children.LEAF : new ChildrenProperties(treeItem)), Lookups.singleton(treeItem.getValue()));
+        super(Children.LEAF, Lookups.singleton(treeItem.getValue()));
         this.treeItem = treeItem;
-        treeItem.addPropertyChangeListener(this);
     }
 
     public BundleProperty getProperty() {
@@ -76,39 +73,12 @@ public class FlatPropertyNode extends BundlePropertyNode implements PropertyChan
         return treeItem.getValue().getKey();
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-            setChildren(treeItem.getChildren().isEmpty() ? Children.LEAF : new ChildrenProperties(treeItem));
-        }
-    }
-
     public int compareTo(FlatPropertyNode o) {
         return treeItem.compareTo(o.treeItem);
     }
 
-    private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {
-
-        private TreeItem<BundleProperty> treeItem;
-
-        public ChildrenProperties(TreeItem<BundleProperty> treeItem) {
-            this.treeItem = treeItem;
-            treeItem.addPropertyChangeListener(this);
-        }
-
-        @Override
-        protected void addNotify() {
-            setKeys(treeItem.getChildren());
-        }
-
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-                addNotify();
-            }
-        }
-
-        @Override
-        protected Node[] createNodes(TreeItem<BundleProperty> key) {
-            return new Node[]{new TreeItemPropertyNode(key)};
-        }
+    @Override
+    public void destroy() throws IOException {
+        treeItem.getValue().deleteProperty();
     }
 }

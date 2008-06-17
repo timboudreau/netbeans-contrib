@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.Name;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
@@ -329,6 +330,16 @@ public class TypeRef extends AstRef implements TypeMirror {
         }
     }
 
+    public static String simpleNameOf(TypeMirror type) {
+        if (type instanceof TypeRef) {
+            return ((TypeRef) type).getSimpleName().toString();
+        } else {
+            return type.getKind() == TypeKind.DECLARED
+                    ? ((DeclaredType) type).asElement().getSimpleName().toString()
+                    : type.getKind().name();
+        }
+    }
+
     /**
      * Used to ref remote type, which has qualifiedName field only
      * 
@@ -340,9 +351,9 @@ public class TypeRef extends AstRef implements TypeMirror {
             setEnclosingScope(AstScope.emptyScope());
         }
 
-        public PseudoTypeRef(String qualifiedName) {
+        public PseudoTypeRef(String qName) {
             this();
-            setQualifiedName(qualifiedName);
+            setQualifiedName(qName);
         }
 
         @Override

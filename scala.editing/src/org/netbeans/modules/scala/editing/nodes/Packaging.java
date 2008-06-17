@@ -103,9 +103,14 @@ public class Packaging extends AstDef implements PackageElement {
     }
     
     @Override
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         return false;
     }        
+    
+    @Override
+    public boolean mayEqual(AstDef def) {
+        return false;
+    }                
     
     @Override
     public void htmlFormat(HtmlFormatter formatter) {

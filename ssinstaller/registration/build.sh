@@ -32,7 +32,7 @@ do
     esac
     DISTR_NAME=$RESDIR/sunstudio-$distr.sh
     
-    #bzcat $IMAGES_DIR/*.$distr.tar.bz2 | /usr/sfw/bin/gtar -xf - 
+    bzcat $IMAGES_DIR/*.$distr.tar.bz2 | /usr/sfw/bin/gtar -xf - 
     cp -r $SRCDIR/servicetag $TARDIR/$distr
     tar cf $TARDIR/sunstudio.$distr.tar *
     bzip2 $TARDIR/sunstudio.$distr.tar

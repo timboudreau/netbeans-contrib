@@ -396,7 +396,7 @@ public class AstScope implements Iterable<AstScope> {
     private final AstDef findDefInScopeRecursively(AstRef ref) {
         if (defs != null) {
             for (AstDef def : defs) {
-                if (def.referredBy(ref)) {
+                if (def.isReferredBy(ref)) {
                     return def;
                 }
             }
@@ -430,7 +430,7 @@ public class AstScope implements Iterable<AstScope> {
 
         if (refs != null) {
             for (AstRef ref : refs) {
-                if (def.referredBy(ref)) {
+                if (def.isReferredBy(ref)) {
                     result.add(ref);
                 }
 

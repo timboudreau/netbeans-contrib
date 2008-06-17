@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -126,7 +127,7 @@ public class JavaIndex {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
 
             for (Element e : pe.getEnclosedElements()) {
-                String simpleName = e.getSimpleName().toString();
+                String sName = e.getSimpleName().toString();
                 
                 TypeMirror tm = e.asType();
                 TypeElement te = tm.getKind() == TypeKind.DECLARED
@@ -138,12 +139,12 @@ public class JavaIndex {
                     if (scalaKind != null) {
                         switch (scalaKind) {
                             case Trait:
-                                scalaElementNames.add(simpleName + "$class");
+                                scalaElementNames.add(sName + "$class");
                                 break;
                             case Object:
-                                int dollor = simpleName.lastIndexOf('$');
+                                int dollor = sName.lastIndexOf('$');
                                 if (dollor != -1) {
-                                    scalaElementNames.add(simpleName.substring(0, dollor));
+                                    scalaElementNames.add(sName.substring(0, dollor));
                                 }
                                 break;
                         }
@@ -154,7 +155,7 @@ public class JavaIndex {
 
                 if (e.getKind().isClass() || e.getKind().isInterface()) {
 
-                    if (JavaUtilities.startsWith(simpleName, prefix)) {
+                    if (JavaUtilities.startsWith(sName, prefix)) {
                         foundElements.add(e);
                     }
                 }
@@ -162,27 +163,27 @@ public class JavaIndex {
             }
 
             for (Element e : foundElements) {
-                String simpleName = e.getSimpleName().toString();
+                String sName = e.getSimpleName().toString();
                 
-                if (scalaElementNames.contains(simpleName)) {
+                if (scalaElementNames.contains(sName)) {
                     continue;
                 }
 
                 String in = "";
                 StringBuilder base = new StringBuilder();
-                base.append(simpleName.toLowerCase());
+                base.append(sName.toLowerCase());
                 base.append(';');
                 if (in != null) {
                     base.append(in);
                 }
                 base.append(';');
-                base.append(simpleName);
+                base.append(sName);
                 base.append(';');
 
                 String attrs = IndexedElement.encodeAttributes(e);
                 base.append(attrs);
 
-                IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                IndexedElement idxElement = IndexedElement.create(sName, base.toString(), null, scalaIndex, false);
                 idxElement.setJavaInfo(e, info);
                 idxElements.add(idxElement);
             }
@@ -191,12 +192,75 @@ public class JavaIndex {
         }
         return Collections.<IndexedElement>emptySet();
     }
+ 
+    public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context) {
 
-    public Set<IndexedElement> getByFqn(String name, String type, NameKind kind,
-            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
-            boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
+        //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
 
-        final Set<IndexedElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+
+        NameKind originalKind = kind;
+        if (kind == NameKind.SIMPLE_NAME) {
+            // I can't do exact searches on methods because the method
+            // entries include signatures etc. So turn this into a prefix
+            // search and then compare chopped off signatures with the name
+            kind = NameKind.PREFIX;
+        }
+
+        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+            // TODO - can I do anything about this????
+            //field = ScalaIndexer.FIELD_BASE_LOWER;
+            //terms = FQN_BASE_LOWER;
+        }
+
+        String searchUrl = null;
+        if (context != null) {
+            try {
+                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        if (type == null || type.length() == 0) {
+            type = "Object";
+        }
+
+        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
+
+        for (ElementHandle<TypeElement> teHandle : dclTypes) {
+            TypeElement te = teHandle.resolve(info);
+
+            boolean isScala = JavaScalaMapping.isScala(te);
+
+            if (isScala) {
+                continue;
+            }
+
+            TypeMirror tm = te.asType();
+            TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
+            
+            if (te != null) {
+                GsfElement gsfElement = new GsfElement(typeElem, null, info);
+                gsfElements.add(gsfElement);
+            }
+
+        }
+
+
+        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+        return gsfElements;
+    }
+    
+    
+    public Set<GsfElement> getMembers(String name, String type, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context,
+            boolean onlyConstructors, boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
+
+        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
+        //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
 
         JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
@@ -257,7 +321,7 @@ public class JavaIndex {
         Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
 
         for (ElementHandle<TypeElement> teHandle : dclTypes) {
-            IndexedElement idxElement = null;
+            GsfElement gsfElement = null;
 
             TypeElement te = teHandle.resolve(info);
 
@@ -320,8 +384,8 @@ public class JavaIndex {
                             String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
-                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                            idxElement.setJavaInfo(e, info);
+                            gsfElement = new GsfElement(e, null, info);
+                            //idxElement.setJavaInfo(e, info);
                             break;
                         }
                         case CONSTRUCTOR:
@@ -342,8 +406,7 @@ public class JavaIndex {
                             String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
-                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                            idxElement.setJavaInfo(e, info);
+                            gsfElement = new GsfElement(e, null, info);
                             break;
                         }
                         case CLASS:
@@ -355,29 +418,29 @@ public class JavaIndex {
                             break;
                     }
 
-                    if (idxElement == null) {
+                    if (gsfElement == null) {
                         continue;
                     }
-                    boolean isFunction = idxElement instanceof IndexedFunction;
-                    if (isFunction && !includeMethods) {
+                    boolean isMethod = gsfElement.getElement() instanceof ExecutableElement;
+                    if (isMethod && !includeMethods) {
                         continue;
-                    } else if (!isFunction && !includeProperties) {
+                    } else if (!isMethod && !includeProperties) {
                         continue;
                     }
 
-                    if (onlyConstructors && !idxElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
+                    if (onlyConstructors && !gsfElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
                         continue;
                     }
 
                     if (!haveRedirected) {
-                        idxElement.setSmart(true);
+                        gsfElement.setSmart(true);
                     }
 
                     inherited = typeElem != e.getEnclosingElement();
                     if (!inherited) {
-                        idxElement.setInherited(false);
+                        gsfElement.setInherited(false);
                     }
-                    idxElements.add(idxElement);
+                    gsfElements.add(gsfElement);
                 }
 
             //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
@@ -488,6 +551,6 @@ public class JavaIndex {
 
 
         JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
-        return idxElements;
-    }
+        return gsfElements;
+    }    
 }

@@ -45,6 +45,8 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -61,7 +63,6 @@ public abstract class AstDef extends AstNode implements Element {
 
     private ElementKind kind;
     private AstScope bindingScope;
-    private Token[] docBoundsTokens;
 
     protected AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
         super(name, pickToken);
@@ -73,19 +74,19 @@ public abstract class AstDef extends AstNode implements Element {
     }
 
     public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return arg0.visit(this, arg1);
     }
 
-    public List<? extends Element> getEnclosedElements() {
+    public List<? extends AstDef> getEnclosedElements() {
         if (bindingScope != null) {
             return bindingScope.getDefs();
         } else {
-            return Collections.<Element>emptyList();
+            return Collections.<AstDef>emptyList();
         }
     }
 
-    public Element getEnclosingElement() {        
-        throw new UnsupportedOperationException("Not supported yet.");
+    public AstDef getEnclosingElement() {
+        return getEnclosingScope().getBindingDef();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> arg0) {
@@ -114,14 +115,6 @@ public abstract class AstDef extends AstNode implements Element {
         return bindingScope;
     }
 
-    public void setDocBoundsToken(Token[] docBoundsTokens) {
-        this.docBoundsTokens = docBoundsTokens;
-    }
-
-    public Token[] getDocBoundsTokens() {
-        return docBoundsTokens;
-    }
-
     public int getBoundsOffset(TokenHierarchy th) {
         return getBindingScope().getBoundsOffset(th);
     }
@@ -134,7 +127,7 @@ public abstract class AstDef extends AstNode implements Element {
         return getBindingScope().getRange(th);
     }
 
-    public boolean referredBy(AstRef ref) {
+    public boolean isReferredBy(AstRef ref) {
         return getSimpleName().equals(ref.getSimpleName());
     }
 
@@ -146,5 +139,34 @@ public abstract class AstDef extends AstNode implements Element {
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
         formatter.appendText(getSimpleName().toString());
+    }
+
+    public static boolean isReferredBy(Element element, AstRef ref) {
+        if (element instanceof ExecutableElement && ref instanceof FunRef) {
+            ExecutableElement function = (ExecutableElement) element;
+            FunRef funRef = (FunRef) ref;
+            List<? extends VariableElement> params = function.getParameters();
+            // only check local call only
+            if (funRef.isLocal()) {
+                return element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) &&
+                        params != null &&
+                        params.size() == funRef.getArgs().size();
+            } else {
+                boolean containsVariableLengthArg = function.isVarArgs();
+                if (element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) || element.getSimpleName().toString().equals("apply") && funRef.isLocal()) {
+                    if (params.size() == funRef.getArgs().size() || containsVariableLengthArg) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        } else if (element instanceof VariableElement) {
+            if (element.getSimpleName().toString().equals(ref.getSimpleName().toString())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

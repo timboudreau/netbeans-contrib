@@ -606,7 +606,7 @@ public class AstNodeVisitor extends AstVisitor {
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             List<TypeParam> typeParams = visitTypeParamClause(typeParamClauseNode);
-            classTmpl.setTypeParams(typeParams);
+            classTmpl.setTypeParameters(typeParams);
         }
 
         String modifier = "public";
@@ -649,7 +649,7 @@ public class AstNodeVisitor extends AstVisitor {
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             List<TypeParam> typeParams = visitTypeParamClause(typeParamClauseNode);
-            traitTmpl.setTypeParams(typeParams);
+            traitTmpl.setTypeParameters(typeParams);
         }
 
         List<TypeRef> parents = visitTraitTemplateOpt(that.getGeneric(2));
@@ -1045,7 +1045,7 @@ public class AstNodeVisitor extends AstVisitor {
         GNode funTypeParamClauseNode = that.getGeneric(1);
         if (funTypeParamClauseNode != null) {
             List<TypeParam> typeParams = visitFunTypeParamClause(funTypeParamClauseNode);
-            function.setTypeParam(typeParams);
+            function.setTypeParameters(typeParams);
         }
 
         exit(that);

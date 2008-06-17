@@ -38,22 +38,24 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.CompletionProposal;
 import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.util.Exceptions;
 
@@ -65,17 +67,16 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     private static ImageIcon keywordIcon;
     protected CompletionRequest request;
-    protected AstDef element;
-    protected GsfElement gsfElement;
+    protected GsfElement element;
     protected IndexedElement indexedElement;
 
-    private ScalaCompletionItem(AstDef element, CompletionRequest request) {
+    private ScalaCompletionItem(GsfElement element, CompletionRequest request) {
         this.element = element;
         this.request = request;
     }
 
     private ScalaCompletionItem(CompletionRequest request, IndexedElement element) {
-        this(element, request);
+        this(new GsfElement(element, request.fileObject, request.info), request);
         this.indexedElement = element;
     }
 
@@ -84,7 +85,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public String getName() {
-        return element.getSimpleName().toString();
+        return element.getElement().getSimpleName().toString();
     }
 
     public String getInsertPrefix() {
@@ -101,10 +102,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public ElementHandle getElement() {
-        if (gsfElement == null) {
-            gsfElement = new GsfElement(element);
-        }
-        return gsfElement;
+        return element;
     }
 
     public org.netbeans.modules.gsf.api.ElementKind getKind() {
@@ -154,9 +152,10 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         HtmlFormatter formatter = request.formatter;
         formatter.reset();
 
+
         if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
-            if (element instanceof IndexedElement) {
-                String origin = ((IndexedElement) element).getOrigin();
+            if (element.getElement() instanceof IndexedElement) {
+                String origin = ((IndexedElement) element.getElement()).getOrigin();
                 if (origin != null) {
                     formatter.appendText(origin);
                     return formatter.getText();
@@ -171,8 +170,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         if (in != null) {
             formatter.appendText(in);
             return formatter.getText();
-        } else if (element instanceof IndexedElement) {
-            IndexedElement ie = (IndexedElement) element;
+        } else if (element.getElement() instanceof IndexedElement) {
+            IndexedElement ie = (IndexedElement) element.getElement();
             String filename = ie.getFilenameUrl();
             if (filename != null) {
                 if (filename.indexOf("jsstubs") == -1) { // NOI18N
@@ -230,24 +229,24 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class FunctionItem extends ScalaCompletionItem {
 
-        IndexedFunction function;
-        
-        FunctionItem(AstDef element, CompletionRequest request) {
+        private ExecutableElement function;
+
+        FunctionItem(GsfElement element, CompletionRequest request) {
             super(element, request);
-            assert element.getKind() == ElementKind.METHOD;
-            function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
+            assert element.getElement() instanceof ExecutableElement;
+            function = (ExecutableElement) element.getElement();
         }
 
         FunctionItem(IndexedElement element, CompletionRequest request) {
             super(request, element);
-            function = (IndexedFunction) element;
+        //function = (IndexedFunction) element;
         }
 
         @Override
         public String getInsertPrefix() {
             return getName();
         }
-        
+
         @Override
         public org.netbeans.modules.gsf.api.ElementKind getKind() {
             return org.netbeans.modules.gsf.api.ElementKind.METHOD;
@@ -278,55 +277,45 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             if (strike) {
                 formatter.deprecated(false);
             }
-            
-            
 
-            if (!function.isNullArgs()) {
-                Collection<String> args = function.getArgs();
 
+            List<? extends VariableElement> params = function.getParameters();
+            if (!params.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
 
-                if (args != null && args.size() > 0) {
+                Iterator<? extends VariableElement> itr = params.iterator();
+                while (itr.hasNext()) { // && tIt.hasNext()) {
+                    formatter.parameters(true);
 
-                    Iterator<String> itr = args.iterator();
-
-                    while (itr.hasNext()) { // && tIt.hasNext()) {
+                    VariableElement param = itr.next();
+                    formatter.appendText(param.getSimpleName().toString());
+                    if (param.asType() != null) {                        
+                        formatter.parameters(false);
+                        formatter.appendHtml(" :");
                         formatter.parameters(true);
 
-                        String arg = itr.next();
-                        int typeIdx = arg.indexOf(':');
-                        if (typeIdx != -1) {
-                            formatter.appendText(arg, 0, typeIdx);
-                            formatter.parameters(false);
-                            formatter.appendHtml(" :");
-                            formatter.parameters(true);
-
-                            formatter.type(true);
-                            // TODO - call JsUtils.normalizeTypeString() on this string?
-                            formatter.appendText(arg, typeIdx + 1, arg.length());
-                            formatter.type(false);
-                        } else {
-                            formatter.appendText(arg);
-                        }
-
-                        formatter.parameters(false);
-
-                        if (itr.hasNext()) {
-                            formatter.appendText(", "); // NOI18N
-                        }
+                        formatter.type(true);
+                        TypeMirror type = param.asType();
+                        String typeSName = TypeRef.simpleNameOf(type);
+                        formatter.appendText(typeSName);
+                        formatter.type(false);
                     }
 
+                    formatter.parameters(false);
+
+                    if (itr.hasNext()) {
+                        formatter.appendText(", "); // NOI18N
+                    }
                 }
 
                 formatter.appendHtml(")"); // NOI18N
             }
 
-            if (indexedElement != null &&
-                    indexedElement.asType() != null &&
-                    indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
+            TypeMirror retType = function.getReturnType();
+            if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(indexedElement.asType().toString());
+                formatter.appendText(TypeRef.simpleNameOf(retType));
                 formatter.type(false);
             }
 
@@ -335,7 +324,16 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public List<String> getInsertParams() {
-            return function.getArgs();
+            List<? extends VariableElement> params = function.getParameters();
+            if (!params.isEmpty()) {
+                List<String> insertParams = new ArrayList<String>();
+                for (VariableElement param : params) {
+                    insertParams.add(param.getSimpleName().toString());
+                }
+                return insertParams;
+            } else {
+                return Collections.<String>emptyList();
+            }
         }
 
         @Override
@@ -345,7 +343,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             final String insertPrefix = getInsertPrefix();
             sb.append(insertPrefix);
 
-            if (function.isNullArgs()) {
+
+            if (function.getParameters().isEmpty()) {
                 return sb.toString();
             }
 
@@ -546,7 +545,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class PlainItem extends ScalaCompletionItem {
 
-        PlainItem(AstDef element, CompletionRequest request) {
+        PlainItem(GsfElement element, CompletionRequest request) {
             super(element, request);
         }
 
@@ -557,7 +556,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class PackageItem extends ScalaCompletionItem {
 
-        PackageItem(AstDef element, CompletionRequest request) {
+        PackageItem(GsfElement element, CompletionRequest request) {
             super(element, request);
 
         }
@@ -573,7 +572,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getName() {
-            String name = element.getSimpleName().toString();
+            String name = element.getElement().getSimpleName().toString();
             int lastDot = name.lastIndexOf('.');
             if (lastDot > 0) {
                 name = name.substring(lastDot + 1, name.length());
@@ -608,7 +607,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     protected static class TypeItem extends ScalaCompletionItem {
 
-        TypeItem(AstDef element, CompletionRequest request) {
+        TypeItem(GsfElement element, CompletionRequest request) {
             super(element, request);
 
         }
@@ -624,7 +623,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getName() {
-            String name = element.getSimpleName().toString();
+            String name = element.getElement().getSimpleName().toString();
             int lastDot = name.lastIndexOf('.');
             if (lastDot > 0) {
                 name = name.substring(lastDot + 1, name.length());

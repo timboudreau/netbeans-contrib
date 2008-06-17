@@ -58,7 +58,7 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.GsfElement;
+import org.netbeans.modules.scala.editing.GsfElement;
 
 /**
  *
@@ -193,7 +193,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         public ElementHandle getElementHandle() {
             if (gsfElement == null) {
-                gsfElement = new GsfElement(def);
+                gsfElement = new GsfElement(def, info.getFileObject(), info);
             }
             return gsfElement;
         }

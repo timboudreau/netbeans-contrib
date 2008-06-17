@@ -45,9 +45,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.Locale;
 import javax.swing.BoxLayout;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.LocaleProperty;
 import org.openide.explorer.ExplorerManager;
@@ -105,7 +105,17 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateBeanTree() {
-        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)));
+        explorer.setRootContext(getRootNode());
+    }
+
+    protected AbstractNode getRootNode() {
+        switch (rbe.getMode()) {
+            case FLAT:
+                return new FlatRootNode(rbe);
+            case TREE:
+                return new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true));
+        }
+        return new AbstractNode(Children.LEAF);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -119,18 +129,13 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
             Node selectedNode = explorer.getSelectedNodes()[0];
             if (selectedNode instanceof BundlePropertyNode) {
                 selectProperty((BundlePropertyNode) selectedNode);
+                searchTextField.setText(((BundlePropertyNode) selectedNode).getName());
             }
         }
     }
 
     public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
-        SwingUtilities.invokeLater(new Runnable() {
-
-            public void run() {
-                searchTextField.setText(bundlePropertyNode.getName());
-            }
-        });
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
                 LocaleProperty value = bundlePropertyNode.getProperty().getLocalProperty(locale);
@@ -276,7 +281,12 @@ private void collapseAllButtonActionPerformed(java.awt.event.ActionEvent evt) {/
         if (searchTextField.getText().length() > 0) {
             Node node = getNode(explorer.getRootContext(), searchTextField.getText());
             try {
+                explorer.removePropertyChangeListener(this);
                 explorer.setSelectedNodes(new Node[]{node});
+                explorer.addPropertyChangeListener(this);
+                if (node instanceof BundlePropertyNode) {
+                    selectProperty((BundlePropertyNode) node);
+                }
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -321,7 +331,6 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         }
         return root;
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton changeModeButton;
     private javax.swing.JButton collapseAllButton;
@@ -335,6 +344,23 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JToolBar toolbar;
     private javax.swing.JPanel treePanel;
     // End of variables declaration//GEN-END:variables
+}
+
+class FlatRootNode extends AbstractNode implements PropertyChangeListener {
+
+    private RBE rbe;
+
+    public FlatRootNode(RBE rbe) {
+        super(Children.create(new BundlePropertyNodeFactory(rbe), true));
+        this.rbe = rbe;
+        rbe.getBundle().addPropertyChangeListener(this);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (Bundle.PROPERTY_PROPERTIES.equals(evt.getPropertyName())) {
+            setChildren(Children.create(new BundlePropertyNodeFactory(rbe), true));
+        }
+    }
 }
 
 class ImprovedBeanTreeView extends BeanTreeView {

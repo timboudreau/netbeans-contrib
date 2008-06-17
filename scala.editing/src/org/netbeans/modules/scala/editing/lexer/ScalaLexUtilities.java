@@ -1180,7 +1180,7 @@ public class ScalaLexUtilities {
         }
     }
     
-    public static OffsetRange getDocumentationOffset(AstNode node, TokenHierarchy th) {
+    public static OffsetRange getDocumentationRange(AstNode node, TokenHierarchy th) {
         int astOffset = node.getPickOffset(th);
         // XXX This is wrong; I should do a
         //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);

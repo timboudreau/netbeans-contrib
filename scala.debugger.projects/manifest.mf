@@ -2,6 +2,5 @@ Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
 OpenIDE-Module: org.netbeans.modules.scala.debugger.projects
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/debugger/projects/Bundle.properties
-OpenIDE-Module-Provides: org.netbeans.spi.debugger.jpda.EditorContext, org.netbeans.spi.debugger.jpda.SourcePathProvider
-OpenIDE-Module-Specification-Version: 0.11.4
+OpenIDE-Module-Specification-Version: 0.11.5
 

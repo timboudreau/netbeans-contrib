@@ -78,14 +78,14 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>-->
 
-    <folder name="TaskList">
+<!--    <folder name="TaskList">
         <folder name="Scanners">
             <file name="HintsTaskScanner.instance">
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.FileTaskScanner"/>
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.javahints.tasklist.HintsTaskScanner"/>
             </file>
         </folder>
-    </folder>
+    </folder>-->
     
     <folder name="org.netbeans.modules.java.source">
         <folder name="options">

@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
+import javax.swing.text.DefaultEditorKit;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.PropertiesEditorSupport;
 import org.netbeans.modules.properties.PropertiesFileEntry;
@@ -74,7 +75,14 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
         explorerManager = new ExplorerManager();
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()), Lookups.singleton(dataObject)));
+
+        ActionMap actionMap = getActionMap();
+        actionMap.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(explorerManager));
+        actionMap.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(explorerManager));
+        actionMap.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(explorerManager));
+        actionMap.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
+
+        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, actionMap), Lookups.singleton(dataObject)));
 
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
@@ -110,6 +118,7 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     @Override
     public Image getIcon() {
         return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesObject.png"); // NOI18N
+
     }
 
     @Override
