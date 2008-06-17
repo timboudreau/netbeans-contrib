@@ -21,7 +21,7 @@ on_exit() {
 
 if [ `uname` != "__os_name" ]
 then
-  echo "Neither Solaris or Linux. Exiting." 
+  echo "The incorrect platform. Should be `uname`. Exiting." 
   exit 1
 fi
 
