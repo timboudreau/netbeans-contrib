@@ -266,6 +266,12 @@ public class ScalaIndex {
         return Collections.<String>emptySet();
     }
 
+    public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context) {
+        Set<GsfElement> gsfElements = javaIndex.getDeclaredTypes(type, toJavaNameKind(kind), toJavaSearchScope(scope), context);
+        return gsfElements;
+    }    
+    
     /** Return both functions and properties matching the given prefix, of the
      * given (possibly null) type
      */
@@ -354,7 +360,7 @@ public class ScalaIndex {
 
         return idxElements;
     }
-
+    
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {

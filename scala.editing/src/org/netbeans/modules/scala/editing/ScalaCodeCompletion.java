@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +82,6 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Function;
-import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
@@ -1474,44 +1472,51 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
                 if (token.id() == ScalaTokenId.New) {
-                    Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
+                    if (prefix.length() < 2) {
+                        /** @todo return imported types */
+                        return false;
+                    }
+                    
+                    /** 
+                     * @Todo : we should implement completion for "new" in two phase:
+                     * 1. get Type name
+                     * 2. get constructors of this type when use pressed enter
+                     */
+                    
+                    Set<GsfElement> gsdElements = index.getDeclaredTypes(prefix, kind, ScalaIndex.ALL_SCOPE, request.result);
                     String lhs = request.call == null ? null : request.call.getLhs();
+                    /**
                     if (lhs != null && lhs.length() > 0) {
                         Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
-                            if (elements.size() == 0) {
-                                elements = new HashSet<IndexedElement>();
+                            if (gsdElements.size() == 0) {
+                                gsdElements = new HashSet<GsfElement>();
                             }
                             for (IndexedElement f : m) {
                                 if (f.getKind() == ElementKind.CONSTRUCTOR) {
-                                    elements.add(f);
+                                    gsdElements.add(f);
                                 }
                             }
                         }
                     } else if (prefix.length() > 0) {
                         Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
-                            if (elements.size() == 0) {
-                                elements = new HashSet<IndexedElement>();
+                            if (gsdElements.size() == 0) {
+                                gsdElements = new HashSet<GsfElement>();
                             }
                             for (IndexedElement f : m) {
                                 if (f.getKind() == ElementKind.CONSTRUCTOR) {
-                                    elements.add(f);
+                                    gsdElements.add(f);
                                 }
                             }
                         }
-                    }
+                    } */
 
-                    for (IndexedElement element : elements) {
+                    for (GsfElement gsfElement : gsdElements) {
                         // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-                        if ((prefix.length() > 0) && !element.getSimpleName().toString().startsWith(prefix)) {
+                        if (!gsfElement.getName().startsWith(prefix)) {
                             continue;
                         }
-
-                        if (element.isNoDoc()) {
-                            continue;
-                        }
-
 
 
 //                        // For def completion, skip local methods, only include superclass and included
@@ -1522,12 +1527,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         // If a method is an "initialize" method I should do something special so that
                         // it shows up as a "constructor" (in a new() statement) but not as a directly
                         // callable initialize method (it should already be culled because it's private)
-                        ScalaCompletionItem item;
-                        if (element instanceof IndexedFunction) {
-                            item = new FunctionItem((IndexedFunction) element, request);
-                        } else {
-                            item = new PlainItem(request, element);
-                        }
+//                        ScalaCompletionItem item;
+//                        if (gsfElement instanceof IndexedFunction) {
+//                            item = new FunctionItem((IndexedFunction) gsfElement, request);
+//                        } else {
+//                            item = new PlainItem(request, gsfElement);
+//                        }
+                        ScalaCompletionItem item = new PlainItem(gsfElement, request);
                         // Exact matches
 //                        item.setSmart(method.isSmart());
                         proposals.add(item);
