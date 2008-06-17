@@ -759,10 +759,10 @@ public class ScalaIndex {
                             // we should return a package
                             int dotAfterFqnPrefix = pkgName.indexOf('.', fqnPrefix.length());
                             if (dotAfterFqnPrefix == -1) {
-                                element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+                                element = new IndexedElement(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
                             } else { // "java.lang", it's sub folder of wanted, we should fetch "java" only                                
                                 pkgName = pkgName.substring(0, dotAfterFqnPrefix);
-                                element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+                                element = new IndexedElement(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
                             }
                         }
                     }

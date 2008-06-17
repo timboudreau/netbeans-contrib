@@ -163,7 +163,7 @@ public class IndexedElement extends AstDef {
         int flags = IndexedElement.decodeFlags(attributes, attrIndex, 0);
 
         if (createPackage) {
-            return new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
         }
 
         if ((flags & FUNCTION) != 0) {
@@ -176,7 +176,7 @@ public class IndexedElement extends AstDef {
         } else if ((flags & TRAIT) != 0) {
             return new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.INTERFACE);
         } else if ((flags & PACKAGE) != 0){
-            return new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
         } else {
             return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.OTHER);
         }
@@ -213,7 +213,7 @@ public class IndexedElement extends AstDef {
             int nextDot = elementName.indexOf('.', name.length());
             if (nextDot != -1) {
                 String pkg = elementName.substring(0, nextDot);
-                IndexedPackage indexedElement = new IndexedPackage(null, pkg, fqn, index, fileUrl, attributes, IndexedElement.decodeFlags(attributes, inEndIdx, 0), ElementKind.PACKAGE);
+                IndexedElement indexedElement = new IndexedElement(null, pkg, fqn, index, fileUrl, attributes, IndexedElement.decodeFlags(attributes, inEndIdx, 0), ElementKind.PACKAGE);
                 return indexedElement;
             }
         }
@@ -400,7 +400,7 @@ public class IndexedElement extends AstDef {
     }
 
     int getOffset() {
-        if (this instanceof IndexedPackage) {
+        if (this.getKind() == ElementKind.PACKAGE) {
             return -1;
         }
         int offset = 0;
@@ -408,6 +408,7 @@ public class IndexedElement extends AstDef {
             try {
                 offset = JavaUtilities.getOffset(javaInfo, javaElement);
             } catch (IOException ex) {
+                ex.printStackTrace();
             }
         } else {
             int OffsetIndex = getAttributeSection(NODE_INDEX);

@@ -1568,7 +1568,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         }
 
         for (IndexedElement element : request.index.getPackagesAndContent(fqnPrefix, request.kind, ScalaIndex.ALL_SCOPE)) {
-            if (element instanceof IndexedPackage) {
+            if (element.getKind() == ElementKind.PACKAGE) {
                 proposals.add(new PackageItem(new GsfElement(element, request.fileObject, request.info), request));
             } else if (element instanceof IndexedType) {
                 proposals.add(new TypeItem(request, element));
