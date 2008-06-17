@@ -347,7 +347,9 @@ public class HL7ComponentValidator implements Validator, HL7Component.Visitor {
             if (nonEmptyString(booleanValue)) {
 				if (booleanValue.equals("true")) {
 						if (nonEmptyString(versionID)) {
-							if (!versionID.equals("2.5")) {
+                            boolean condition = versionID.equals("2.5") || 
+                                                versionID.equals("2.5.1");
+							if (!condition) {
 								results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target, getMessage(
 											"HL7ProtocolProperties.INVALID_VERSION_FOR_SFT", new Object[] { versionID })));
 							}
