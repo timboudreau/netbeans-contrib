@@ -7,5 +7,5 @@
 //mapclass java.lang.StringBuffer => java.lang.StringBuilder;
 
 java.lang.StringBuffer $v = new java.lang.StringBuffer($args$) => 
-    java.lang.StringBuilder $v = new java.lang.StringBuilder($args$) :: 
-        sourceLevel(SourceVersion.RELEASE_5);
+    java.lang.StringBuilder $v = new java.lang.StringBuilder($args$)/* XXX unimplemented ::
+        sourceLevel(SourceVersion.RELEASE_5) */;

@@ -41,21 +41,23 @@
 
 package org.netbeans.modules.jackpot.rules;
 
+import com.sun.tools.javac.api.JavacTool;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import javax.tools.JavaCompiler;
 import org.netbeans.api.jackpot.Query;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.spi.jackpot.QueryProvider;
 import org.netbeans.spi.jackpot.ScriptParsingException;
 import org.openide.filesystems.FileObject;
-import org.openide.modules.InstalledFileLocator;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Given a rule script, creates a Query
@@ -92,38 +94,24 @@ public class QueryFactory implements QueryProvider {
     }
     
     private static String jackpotJarsPath() throws IOException {
-        InstalledFileLocator locator = InstalledFileLocator.getDefault();
-        File jar = locator.locate("modules/org-netbeans-modules-jackpot-rules.jar", // NOI18N
-                                  "org.netbeans.modules.jackpot.rules", false);     // NOI18N
-        if (jar == null)
-            return("");  // InstalledFileLocator not initialized, so rely on classpath instead.
-        StringBuffer sb = new StringBuffer();
-        sb.append(jar.getCanonicalPath());
-        sb.append(File.pathSeparator);
-        jar = locator.locate("modules/org-netbeans-modules-jackpot.jar",            // NOI18N
-                                  "org.netbeans.modules.jackpot", false);           // NOI18N
-        if (jar == null)
-            throw new FileNotFoundException("modules/org-netbeans-modules-java-source.jar");
-        sb.append(jar.getCanonicalPath());
-        sb.append(File.pathSeparator);
-        jar = locator.locate("modules/org-netbeans-modules-java-source.jar",        // NOI18N
-                                  "org.netbeans.modules.java.source", false);       // NOI18N
-        if (jar == null)
-            throw new FileNotFoundException("modules/org-netbeans-modules-java-source.jar");
-        sb.append(jar.getCanonicalPath());
-        sb.append(File.pathSeparator);
-        jar = locator.locate("modules/ext/javac-api-nb-7.0-b07.jar",                          // NOI18N
-                             "org.netbeans.libs.javacapi", false);                 // NOI18N
-        if (jar == null)
-            throw new FileNotFoundException("modules/ext/javac-api-nb-7.0-b07.jar");
-        sb.append(jar.getCanonicalPath());
-        sb.append(File.pathSeparator);
-        jar = locator.locate("modules/ext/javac-impl-nb-7.0-b07.jar",                         // NOI18N
-                             "org.netbeans.libs.javacimpl", false);                // NOI18N
-        if (jar == null)
-            throw new FileNotFoundException("modules/ext/javac-impl-nb-7.0-b07.jar");
-        sb.append(jar.getCanonicalPath());
-        return sb.toString();
+        Class[] representativeClasses = {
+            QueryFactory.class, // jackpot.rules
+            Query.class, // jackpot
+            JavaSource.class, // java.source
+            JavaCompiler.class, // libs.javacapi
+            JavacTool.class, // libs.javacimpl
+        };
+        StringBuilder b = new StringBuilder();
+        for (Class c : representativeClasses) {
+            if (b.length() > 0) {
+                b.append(File.pathSeparatorChar);
+            }
+            URL loc = c.getProtectionDomain().getCodeSource().getLocation();
+            File jar = FileUtil.archiveOrDirForURL(loc);
+            assert jar != null : loc;
+            b.append(jar);
+        }
+        return b.toString();
     }
   
     private static class JackpotClassLoader extends ClassLoader {
@@ -135,7 +123,7 @@ public class QueryFactory implements QueryProvider {
             permissions.add(new AllPermission());
         }
 
-        protected Class<?> findClass(String name) throws ClassNotFoundException {
+        protected @Override Class<?> findClass(String name) throws ClassNotFoundException {
             return altLoader.loadClass(name);
         }
 

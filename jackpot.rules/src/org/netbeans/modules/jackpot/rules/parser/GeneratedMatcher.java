@@ -59,7 +59,6 @@ import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.Trees;
 import com.sun.tools.javac.api.JavacTaskImpl;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.jvm.ClassReader;
@@ -68,6 +67,7 @@ import com.sun.tools.javac.parser.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -228,10 +228,13 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
     }
     
     private static Context getContext(CompilationInfo info) {
-        try     {
-            Method m = CompilationInfo.class.getDeclaredMethod("getJavacTask");
+        try {
+            Field f = CompilationInfo.class.getDeclaredField("impl");
+            f.setAccessible(true);
+            Object impl = f.get(info);
+            Method m = impl.getClass().getDeclaredMethod("getJavacTask");
             m.setAccessible(true);
-            JavacTaskImpl task = (JavacTaskImpl)m.invoke(info);
+            JavacTaskImpl task = (JavacTaskImpl) m.invoke(impl);
             return task.getContext();
         }
         catch (Exception ex) {
