@@ -8,7 +8,7 @@ ANT_OPTS="-Xmx1024m -Dhttp.proxyHost=webcache.norway.sun.com -Dhttp.proxyPort=80
 
 CACHE_DIR=$NB_HOME/ssinstaller/infra/build/cache
 
-NB_BUILDS_HOST=/net/endif/export/home3/vesta/packages/nb
+NB_BUILDS_HOST=file:///net/endif/export/home3/vesta/packages/nb
 #http://bits.nbextras.org/download/trunk/nightly/2008-04-01_02-01-24/zip/moduleclusters
 #NB_BUILDS_HOST=http://smetiste.czech.sun.com/builds/netbeans/6.0/fcs/zip/moduleclusters
 
