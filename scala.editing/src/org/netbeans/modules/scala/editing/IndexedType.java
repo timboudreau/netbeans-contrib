@@ -48,8 +48,8 @@ import javax.lang.model.element.ElementKind;
  */
 public class IndexedType extends IndexedElement {
     
-    IndexedType(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(fqn, name, in, index, fileUrl, attributes, flags, kind);
+    IndexedType(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
+        super(qName, sName, in, attributes, flags, fileUrl, index, kind);
     }
     
     @Override

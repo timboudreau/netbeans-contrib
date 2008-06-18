@@ -92,9 +92,11 @@ public class JavaIndex {
     public Set<IndexedElement> getPackages(String fqnPrefix) {
         Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, ALL_SCOPE);
         Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
+        int flags = 0 | IndexedElement.PACKAGE;
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
-                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, null, 0, scalaIndex, true);
+                
+                IndexedElement idxElement = new IndexedElement(pkgName, pkgName, "", "", flags, null, scalaIndex, ElementKind.PACKAGE);
                 idxElements.add(idxElement);
             }
         }
@@ -164,26 +166,16 @@ public class JavaIndex {
 
             for (Element e : foundElements) {
                 String sName = e.getSimpleName().toString();
+                String qName = pkgName + "." + sName;
                 
                 if (scalaElementNames.contains(sName)) {
                     continue;
                 }
 
                 String in = "";
-                StringBuilder base = new StringBuilder();
-                base.append(sName.toLowerCase());
-                base.append(';');
-                if (in != null) {
-                    base.append(in);
-                }
-                base.append(';');
-                base.append(sName);
-                base.append(';');
-
                 String attrs = IndexedElement.encodeAttributes(e);
-                base.append(attrs);
 
-                IndexedElement idxElement = IndexedElement.create(sName, base.toString(), null, scalaIndex, false);
+                IndexedElement idxElement = IndexedElement.create(qName, sName, in, attrs, null, scalaIndex, false);
                 idxElement.setJavaInfo(e, info);
                 idxElements.add(idxElement);
             }

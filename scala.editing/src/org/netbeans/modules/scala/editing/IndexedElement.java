@@ -147,10 +147,10 @@ public class IndexedElement extends AstElement {
     private org.netbeans.api.java.source.CompilationInfo javaInfo;
     private Set<Modifier> modifiers;
 
-    IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(name, null, null, kind);
-        this.fqn = fqn;
-        this.name = name;
+    IndexedElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
+        super(sName, null, null, kind);
+        this.fqn = qName;
+        this.name = sName;
         this.in = in;
         this.index = index;
         this.fileUrl = fileUrl;
@@ -159,85 +159,27 @@ public class IndexedElement extends AstElement {
         this.kind = kind;
     }
 
-    static IndexedElement create(String attributes, String fileUrl, String fqn, String name, String in, int attrIndex, ScalaIndex index, boolean createPackage) {
-        int flags = IndexedElement.decodeFlags(attributes, attrIndex, 0);
+    static IndexedElement create(String qName, String sName, String in, String attributes, String fileUrl, ScalaIndex index, boolean createPackage) {
+        int flags = IndexedElement.decodeFlags(attributes, 0, 0);
 
         if (createPackage) {
-            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.PACKAGE);
         }
 
         if ((flags & FUNCTION) != 0) {
             ElementKind kind = (flags & CONSTRUCTOR) != 0 ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
-            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, kind);
         } else if ((flags & CLASS) != 0) {
-            return new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
         } else if ((flags & OBJECT) != 0) {
-            return new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
         } else if ((flags & TRAIT) != 0) {
-            return new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.INTERFACE);
+            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.INTERFACE);
         } else if ((flags & PACKAGE) != 0){
-            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.PACKAGE);
         } else {
-            return new IndexedElement(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.OTHER);
+            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.OTHER);
         }
-    }
-
-    static IndexedElement create(String name, String attributes, String fileUrl, ScalaIndex index, boolean createPackage) {
-        String elementName = null;
-        int nameEndIdx = attributes.indexOf(';');
-        assert nameEndIdx != -1;
-        elementName = attributes.substring(0, nameEndIdx);
-        nameEndIdx++;
-
-        String funcIn = null;
-        int inEndIdx = attributes.indexOf(';', nameEndIdx);
-        assert inEndIdx != -1;
-        if (inEndIdx > nameEndIdx + 1) {
-            funcIn = attributes.substring(nameEndIdx, inEndIdx);
-        }
-        inEndIdx++;
-
-        int startCs = inEndIdx;
-        inEndIdx = attributes.indexOf(';', startCs);
-        assert inEndIdx != -1;
-        if (inEndIdx > startCs) {
-            // Compute the case sensitive name
-            elementName = attributes.substring(startCs, inEndIdx);
-        }
-        inEndIdx++;
-
-        String fqn = null; // Compute lazily
-
-        int lastDot = elementName.lastIndexOf('.');
-        if (name.length() < lastDot) {
-            int nextDot = elementName.indexOf('.', name.length());
-            if (nextDot != -1) {
-                String pkg = elementName.substring(0, nextDot);
-                IndexedElement indexedElement = new IndexedElement(null, pkg, fqn, index, fileUrl, attributes, IndexedElement.decodeFlags(attributes, inEndIdx, 0), ElementKind.PACKAGE);
-                return indexedElement;
-            }
-        }
-
-        IndexedElement indexedElement = IndexedElement.create(attributes, fileUrl, fqn, elementName, funcIn, inEndIdx, index, createPackage);
-
-        return indexedElement;
-    }
-
-    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
-        String in = element.getIn();
-        String sName = element.getSimpleName().toString();
-        StringBuilder base = new StringBuilder();
-        base.append(sName.toLowerCase());
-        base.append(';');
-        if (in != null) {
-            base.append(in);
-        }
-        base.append(';');
-        base.append(sName);
-        base.append(';');
-        base.append(encodeAttributes(element, th));
-
-        return create(element.getSimpleName().toString(), base.toString(), "", index, false);
     }
 
     public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.CompilationInfo javaInfo) {
