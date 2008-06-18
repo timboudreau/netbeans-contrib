@@ -53,7 +53,7 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
 public class TypeParam extends TypeDef implements TypeParameterElement {
 
     private String bound;
-    private TypeRef boundType;
+    private Type boundType;
     private String variant;
     private List<TypeParam> params;
 
@@ -77,11 +77,11 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
         return bound;
     }
 
-    public void setBoundType(TypeRef boundType) {
+    public void setBoundType(Type boundType) {
         this.boundType = boundType;
     } 
     
-    public TypeRef getBoundType() {
+    public Type getBoundType() {
         return boundType;
     }
     

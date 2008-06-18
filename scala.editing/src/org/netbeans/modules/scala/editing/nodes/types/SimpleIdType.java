@@ -51,7 +51,7 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
  *
  * @author Caoyuan Deng
  */
-public class SimpleIdType extends TypeRef {
+public class SimpleIdType extends Type {
 
     private List<AstId> paths;
 

@@ -45,15 +45,15 @@ import org.netbeans.api.lexer.Token;
  *
  * @author Caoyuan Deng
  */
-public class BlockExpr extends AstExpr {
+public class BlockExpr extends AstExpression {
     
-    private AstExpr returnExpr;
+    private AstExpression returnExpr;
     
     public BlockExpr(Token[] boundsTokens) {
         super(boundsTokens);
     }
     
-    public BlockExpr setReturnExpr(AstExpr returnExpr) {
+    public BlockExpr setReturnExpr(AstExpression returnExpr) {
         this.returnExpr = returnExpr;
         return this;
     }

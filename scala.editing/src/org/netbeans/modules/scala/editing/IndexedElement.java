@@ -60,15 +60,15 @@ import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type.PseudoTypeRef;
 import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -81,7 +81,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public class IndexedElement extends AstDef {
+public class IndexedElement extends AstElement {
 
     protected static final int NAME_INDEX = 0;
     protected static final int IN_INDEX = 1;
@@ -223,7 +223,7 @@ public class IndexedElement extends AstDef {
         return indexedElement;
     }
 
-    static IndexedElement create(AstDef element, TokenHierarchy th, ScalaIndex index) {
+    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
         String in = element.getIn();
         String sName = element.getSimpleName().toString();
         StringBuilder base = new StringBuilder();
@@ -468,7 +468,7 @@ public class IndexedElement extends AstDef {
     }
 
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
@@ -478,7 +478,7 @@ public class IndexedElement extends AstDef {
         if (endIdx > typeIdx) {
             String typeAttribute = attributes.substring(typeIdx, endIdx);
             int[] posAndLevel = new int[]{0, 0};
-            TypeRef typeName = decodeType(typeAttribute, posAndLevel, null);
+            Type typeName = decodeType(typeAttribute, posAndLevel, null);
 
             return typeName;
         }
@@ -565,7 +565,7 @@ public class IndexedElement extends AstDef {
     }
 
     /** Return the flags corresponding to the given AST element */
-    public static int computeFlags(AstDef element) {
+    public static int computeFlags(AstElement element) {
         int flags = 0;
 
         if (element instanceof ClassTemplate) {
@@ -661,7 +661,7 @@ public class IndexedElement extends AstDef {
         return flags;
     }
 
-    public static String encodeAttributes(AstDef element, TokenHierarchy th) {
+    public static String encodeAttributes(AstElement element, TokenHierarchy th) {
         //Map<String,String> typeMap = element.getDocProps();
 
         // Look up compatibility
@@ -728,7 +728,7 @@ public class IndexedElement extends AstDef {
                         sb.append(',');
                     }
                     sb.append(paramName);
-                    TypeRef paramType = param.asType();
+                    Type paramType = param.asType();
                     if (paramType != null) {
                         String typeName = paramType.getSimpleName().toString();
                         if (typeName != null) {
@@ -775,7 +775,7 @@ public class IndexedElement extends AstDef {
         sb.append(';');
         index++;
         assert index == TYPE_INDEX;
-        TypeRef type = element.asType();
+        Type type = element.asType();
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -795,18 +795,18 @@ public class IndexedElement extends AstDef {
      * @param type to be encoded
      * @param StringBuilder for attributes
      */
-    private static void encodeType(TypeRef type, StringBuilder sb) {
+    private static void encodeType(Type type, StringBuilder sb) {
         if (type.isResolved()) {
             sb.append(type.getQualifiedName());
         } else {
             sb.append(type.getSimpleName());
         }
 
-        List<TypeRef> typeArgs = type.getTypeArgs();
+        List<Type> typeArgs = type.getTypeArgs();
         if (typeArgs.size() > 0) {
             sb.append("<");
-            for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                TypeRef typeArg = itr.next();
+            for (Iterator<Type> itr = typeArgs.iterator(); itr.hasNext();) {
+                Type typeArg = itr.next();
                 encodeType(typeArg, sb);
                 if (itr.hasNext()) {
                     sb.append(",");
@@ -817,7 +817,7 @@ public class IndexedElement extends AstDef {
     }
 
     /** @todo decode tuple type, function type etc */
-    private TypeRef decodeType(String typeAttr, int[] posAndLevel, List<TypeRef> typeArgs) {
+    private Type decodeType(String typeAttr, int[] posAndLevel, List<Type> typeArgs) {
         PseudoTypeRef curr = new PseudoTypeRef();
         StringBuilder sb = new StringBuilder();
         while (posAndLevel[0] < typeAttr.length()) {
@@ -826,15 +826,15 @@ public class IndexedElement extends AstDef {
             if (c == '<') {
                 posAndLevel[1]++;
                 curr.setSimpleName(sb.toString());
-                typeArgs = new ArrayList<TypeRef>();
+                typeArgs = new ArrayList<Type>();
                 curr.setTypeArgs(typeArgs);
 
-                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                Type typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 typeArgs.add(typeArg);
             } else if (c == '>') {
                 posAndLevel[1]--;
             } else if (c == ',') {
-                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                Type typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 if (typeArgs != null) {
                     typeArgs.add(typeArg);
                 } else {
@@ -1255,7 +1255,7 @@ public class IndexedElement extends AstDef {
                 sb.append(")"); // NOI18N
             }
 
-            TypeRef retType = function.asType();
+            Type retType = function.asType();
 
             if (retType != null) {
                 sb.append(" :").append(function.asType().toString());

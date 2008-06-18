@@ -50,19 +50,19 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
  *
  * @author Caoyuan Deng
  */
-public class CompoundType extends TypeRef {
+public class CompoundType extends Type {
 
-    private List<TypeRef> types;
+    private List<Type> types;
 
     public CompoundType(Token pickToken) {
         super(null, pickToken, TypeKind.DECLARED);
     }
 
-    public void setTypes(List<TypeRef> types) {
+    public void setTypes(List<Type> types) {
         this.types = types;
     }
 
-    public List<TypeRef> getTypes() {
+    public List<Type> getTypes() {
         return types;
     }
 
@@ -75,7 +75,7 @@ public class CompoundType extends TypeRef {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         sb.append(types.get(0).getSimpleName());
-        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+        for (Iterator<Type> itr = types.iterator(); itr.hasNext();) {
             sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(" with ");
@@ -89,7 +89,7 @@ public class CompoundType extends TypeRef {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         types.get(0).htmlFormat(formatter);
-        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+        for (Iterator<Type> itr = types.iterator(); itr.hasNext();) {
             itr.next().htmlFormat(formatter);
             if (itr.hasNext()) {
                 formatter.appendText(" with ");

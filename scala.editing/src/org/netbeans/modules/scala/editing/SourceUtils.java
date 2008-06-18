@@ -95,16 +95,16 @@ public class SourceUtils {
                         }
 
                         List<ObjectTemplate> objs = null;
-                        for (Packaging packaging : rootScope.getDefsInScope(Packaging.class)) {
-                            objs = packaging.getBindingScope().getDefsInScope(ObjectTemplate.class);
+                        for (Packaging packaging : rootScope.getVisibleElements(Packaging.class)) {
+                            objs = packaging.getBindingScope().getVisibleElements(ObjectTemplate.class);
                             break;
                         }
                         if (objs == null) {
-                            objs = rootScope.getDefsInScope(ObjectTemplate.class);
+                            objs = rootScope.getVisibleElements(ObjectTemplate.class);
                         }
 
                         for (ObjectTemplate obj : objs) {
-                            List<ExecutableElement> methods = obj.getBindingScope().getDefsInScope(ExecutableElement.class);
+                            List<ExecutableElement> methods = obj.getBindingScope().getVisibleElements(ExecutableElement.class);
                             for (ExecutableElement method : methods) {
                                 if (isMainMethod(method)) {
                                     result.add(obj);
@@ -149,17 +149,17 @@ public class SourceUtils {
                         }
                         
                         List<ObjectTemplate> objs = null;
-                        for (Packaging packaging : rootScope.getDefsInScope(Packaging.class)) {
-                            objs = packaging.getBindingScope().getDefsInScope(ObjectTemplate.class);
+                        for (Packaging packaging : rootScope.getVisibleElements(Packaging.class)) {
+                            objs = packaging.getBindingScope().getVisibleElements(ObjectTemplate.class);
                             break;
                         }
                         if (objs == null) {
-                            objs = rootScope.getDefsInScope(ObjectTemplate.class);
+                            objs = rootScope.getVisibleElements(ObjectTemplate.class);
                         }
 
                         for (ObjectTemplate obj : objs) {
                             if (obj.getSimpleName().toString().equals(qualifiedName)) {
-                                List<ExecutableElement> methods = obj.getBindingScope().getDefsInScope(ExecutableElement.class);
+                                List<ExecutableElement> methods = obj.getBindingScope().getVisibleElements(ExecutableElement.class);
                                 for (ExecutableElement method : methods) {
                                     if (isMainMethod(method)) {
                                         result[0] = true;

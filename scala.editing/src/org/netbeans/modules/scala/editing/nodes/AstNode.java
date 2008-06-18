@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -69,7 +69,7 @@ public abstract class AstNode {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private Name simpleName;
-    protected TypeRef type;
+    protected Type type;
     protected Name qualifiedName;
 
     protected AstNode() {
@@ -167,21 +167,21 @@ public abstract class AstNode {
         return getEnclosingDef(Packaging.class);
     }
 
-    public void setType(TypeRef type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
-    public TypeRef asType() {
+    public Type asType() {
         return type;
     }
 
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        return getEnclosingScope().getEnclosingDef(clazz);
+    public <T extends AstElement> T getEnclosingDef(Class<T> clazz) {
+        return getEnclosingScope().getEnclosingElement(clazz);
     }
 
     /**
      * @Note: enclosingScope will be set when call
-     *   {@link AstScope#addDef(Def)} or {@link AstScope#addUsage(Usage)}
+     *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
      */
     public void setEnclosingScope(AstScope enclosingScope) {
         this.enclosingScope = enclosingScope;

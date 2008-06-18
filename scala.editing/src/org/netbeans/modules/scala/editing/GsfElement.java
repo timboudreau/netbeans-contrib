@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -153,7 +153,7 @@ public class GsfElement implements ElementHandle {
 
     public String getIn() {
         if (isScala()) {
-            return ((AstDef) element).getIn();
+            return ((AstElement) element).getIn();
         } else {
             TypeMirror tm = element.getEnclosingElement().asType();
             if (tm.getKind() == TypeKind.DECLARED) {
@@ -172,7 +172,7 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getMimeType() {
-        return isScala() ? ((AstDef) element).getMimeType() : "text/x-scala";
+        return isScala() ? ((AstElement) element).getMimeType() : "text/x-scala";
     }
 
     public Set<Modifier> getModifiers() {
@@ -198,7 +198,7 @@ public class GsfElement implements ElementHandle {
     public String getDocComment() {
         String docComment = null;
         if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
-            docComment = ScalaUtils.getDocComment((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstDef) element);
+            docComment = ScalaUtils.getDocComment((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstElement) element);
         } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
             try {
                 docComment = JavaUtilities.getDocComment((org.netbeans.api.java.source.CompilationInfo) info, element);
@@ -220,7 +220,7 @@ public class GsfElement implements ElementHandle {
             if (element instanceof IndexedElement) {
                 return ((IndexedElement) element).getOffset();
             }
-            return ScalaUtils.getOffset((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstDef) element);
+            return ScalaUtils.getOffset((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstElement) element);
         } else {
             try {
                 offset = JavaUtilities.getOffset((org.netbeans.api.java.source.CompilationInfo) info, element);
@@ -233,7 +233,7 @@ public class GsfElement implements ElementHandle {
     
     public void htmlFormat(HtmlFormatter formatter) {
         if (isScala()) {
-            ((AstDef) element).htmlFormat(formatter);
+            ((AstElement) element).htmlFormat(formatter);
         }
     }
 
@@ -242,7 +242,7 @@ public class GsfElement implements ElementHandle {
     }
 
     public boolean isScala() {
-        return element instanceof AstDef;
+        return element instanceof AstElement;
     }
 
     public boolean isDeprecated() {

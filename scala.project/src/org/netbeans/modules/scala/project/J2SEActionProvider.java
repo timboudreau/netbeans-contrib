@@ -760,7 +760,7 @@ class J2SEActionProvider implements ActionProvider {
                             return;
                         }
                         
-                        List<Template> tmpls = rootScope.getDefsInScope(Template.class);                        
+                        List<Template> tmpls = rootScope.getVisibleElements(Template.class);                        
                         if (tmpls.size() > 0) {
                             for (Template type : tmpls) {
                                 if (classes[0].length() > 0) {

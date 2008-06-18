@@ -51,8 +51,8 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
@@ -118,7 +118,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
         
-        AstNode closest = rootScope.findDefRef(th, caretPosition);
+        AstNode closest = rootScope.findElementOrMirror(th, caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -144,7 +144,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         // rather than give a parse error on obj, it marks the whole region from
         // . to the end of Scanf as a CallNode, which is a weird highlight.
         // We don't want occurrences highlights that span lines.
-        if (closest != null && (closest instanceof AstDef || closest instanceof AstRef)) {
+        if (closest != null && (closest instanceof AstElement || closest instanceof AstMirror)) {
             BaseDocument doc = (BaseDocument) info.getDocument();
             if (doc == null) {
                 // Document was just closed

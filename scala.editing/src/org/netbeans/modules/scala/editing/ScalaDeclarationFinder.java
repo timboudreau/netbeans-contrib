@@ -55,11 +55,11 @@ import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.FieldRef;
-import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.FieldCall;
+import org.netbeans.modules.scala.editing.nodes.FunctionCall;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -148,19 +148,19 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             GsfElement foundNode = null;
             boolean isLocal = false;
 
-            AstNode closest = root.findDefRef(th, astOffset);
-            AstDef def = root.findDef(closest);
-            if (def != null) {
-                foundNode = new GsfElement(def, info.getFileObject(), info);
+            AstNode closest = root.findElementOrMirror(th, astOffset);
+            AstElement element = root.findElementOf(closest);
+            if (element != null) {
+                foundNode = new GsfElement(element, info.getFileObject(), info);
                 isLocal = true;
             } else {
-                if (closest instanceof FunRef) {
-                    foundNode = findMethodDeclaration(info, (FunRef) closest, null);
-                } else if (closest instanceof FieldRef) {
-                    foundNode = findFieldDeclaration(info, (FieldRef) closest, null);
-                } else if (closest instanceof TypeRef) {
-                    if (((TypeRef) closest).isResolved()) {
-                        foundNode = findTypeDeclaration(info, (TypeRef) closest);
+                if (closest instanceof FunctionCall) {
+                    foundNode = findMethodDeclaration(info, (FunctionCall) closest, null);
+                } else if (closest instanceof FieldCall) {
+                    foundNode = findFieldDeclaration(info, (FieldCall) closest, null);
+                } else if (closest instanceof Type) {
+                    if (((Type) closest).isResolved()) {
+                        foundNode = findTypeDeclaration(info, (Type) closest);
                     }
                 }
             }
@@ -187,7 +187,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     /** Locate the method declaration for the given method call */
-    GsfElement findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<GsfElement>[] alternativesHolder) {
+    GsfElement findMethodDeclaration(CompilationInfo info, FunctionCall funRef, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -197,7 +197,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = funRef.getBase();
         if (base != null) {
-            TypeRef baseType = base.asType();
+            Type baseType = base.asType();
             if (baseType != null) {
                 in = baseType.getQualifiedName().toString();
             }
@@ -206,7 +206,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 Set<GsfElement> gsfElements = index.getMembers(callName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
                 for (GsfElement gsfElement : gsfElements) {
                     if (gsfElement.getElement() instanceof ExecutableElement) {
-                        if (AstDef.isReferredBy(gsfElement.getElement(), funRef)) {
+                        if (AstElement.isMirroredBy(gsfElement.getElement(), funRef)) {
                             candidate = gsfElement;
                             break;
                         }
@@ -219,7 +219,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    GsfElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<GsfElement>[] alternativesHolder) {
+    GsfElement findFieldDeclaration(CompilationInfo info, FieldCall field, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -229,7 +229,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = field.getBase();
         if (base != null) {
-            TypeRef baseType = base.asType();
+            Type baseType = base.asType();
             if (baseType != null) {
                 in = baseType.getQualifiedName().toString();
             }
@@ -259,7 +259,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    GsfElement findTypeDeclaration(CompilationInfo info, TypeRef type) {
+    GsfElement findTypeDeclaration(CompilationInfo info, Type type) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 

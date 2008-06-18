@@ -79,12 +79,12 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.FieldRef;
-import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.FieldCall;
+import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.Function;
-import org.netbeans.modules.scala.editing.nodes.IdRef;
+import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
@@ -399,10 +399,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                AstNode closest = root.findDefRef(th, offset);
+                AstNode closest = root.findElementOrMirror(th, offset);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
-                    closest = root.findDefRef(th, closestOffset--);
+                    closest = root.findElementOrMirror(th, closestOffset--);
                 }
 
                 if (closest != null) {
@@ -414,11 +414,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         request.prefix = prefix1;
                         completeImport(proposals, request);
                         return completionResult;
-                    } else if (closest instanceof IdRef) {
+                    } else if (closest instanceof IdCall) {
                         // test if it's an arg of funRef ?
-                        FunRef funRef = null;
+                        FunctionCall funRef = null;
                         while (funRef == null && closestOffset > 0) {
-                            funRef = root.findRef(FunRef.class, th, closestOffset--);
+                            funRef = root.findMirrorAt(FunctionCall.class, th, closestOffset--);
                         }
 
                         if (funRef != null) {
@@ -437,13 +437,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         }
                     }
 
-                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                    if (closest instanceof FunctionCall || closest instanceof FieldCall) {
                         if (!request.prefix.equals("")) {
                             // dog.ta|
-                            if (closest instanceof FunRef && !((FunRef) closest).isLocal()) {
-                                closest = ((FunRef) closest).getBase();
+                            if (closest instanceof FunctionCall && !((FunctionCall) closest).isLocal()) {
+                                closest = ((FunctionCall) closest).getBase();
                             } else {
-                                closest = ((FieldRef) closest).getBase();
+                                closest = ((FieldCall) closest).getBase();
                             }
                         } else {
                             // dog.|
@@ -501,7 +501,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
 
-        List<Var> localVars = closestScope.getDefsInScope(Var.class);
+        List<Var> localVars = closestScope.getVisibleElements(Var.class);
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getSimpleName().toString())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getSimpleName().toString(), prefix))) {
@@ -509,7 +509,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
         }
 
-        List<Function> localFuns = closestScope.getDefsInScope(Function.class);
+        List<Function> localFuns = closestScope.getVisibleElements(Function.class);
         for (Function fun : localFuns) {
             if (fun.getKind() != ElementKind.METHOD) {
                 continue;
@@ -1218,15 +1218,15 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             if (typeQname == null) {
                 if (closest != null) {
-                    TypeRef type = null;
+                    Type type = null;
 
-                    if (closest instanceof FieldRef) {
+                    if (closest instanceof FieldCall) {
                         // dog.tal|
                         type = closest.asType();
-                    } else if (closest instanceof FunRef) {
+                    } else if (closest instanceof FunctionCall) {
                         // dog.talk().
                         type = closest.asType();
-                    } else if (closest instanceof IdRef) {
+                    } else if (closest instanceof IdCall) {
                         // dog.|
                         type = closest.asType();
                     } else {
@@ -1871,10 +1871,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
             }
 
-            FunRef call = null;
-            AstNode closest = root.findDefRef(th, astOffset);
-            if (closest instanceof FunRef) {
-                call = (FunRef) closest;
+            FunctionCall call = null;
+            AstNode closest = root.findElementOrMirror(th, astOffset);
+            if (closest instanceof FunctionCall) {
+                call = (FunctionCall) closest;
             }
 
 

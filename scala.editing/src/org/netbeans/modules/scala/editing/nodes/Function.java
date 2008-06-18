@@ -48,14 +48,14 @@ import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Function extends AstDef implements WithTypeParams, ExecutableElement {
+public class Function extends AstElement implements WithTypeParams, ExecutableElement {
 
     private List<TypeParam> typeParameters;
     private List<Var> parameters;
@@ -80,7 +80,7 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         boolean containsVariableLengthArg = false;
         for (Var param : params) {
             String paramSName = param.getSimpleName().toString();
-            TypeRef paramType = param.asType();
+            Type paramType = param.asType();
             if (paramType != null) {
                 String paramTypeSName = paramType.getSimpleName().toString();
                 if (paramTypeSName.endsWith("*")) {
@@ -93,7 +93,7 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         return containsVariableLengthArg;
     }
 
-    public TypeRef getReturnType() {
+    public Type getReturnType() {
         return type;
     }
 
@@ -105,12 +105,12 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
         this.typeParameters = typeParameters;
     }
 
-    public void assignTypeParameters(List<TypeRef> typeArgs) {
+    public void assignTypeParameters(List<Type> typeArgs) {
         assert getTypeParameters().size() == typeArgs.size();
         List<? extends TypeParam> _typeParams = getTypeParameters();
         for (int i = 0; i < _typeParams.size(); i++) {
             TypeParam typeParam = _typeParams.get(i);
-            TypeRef typeArg = typeArgs.get(i);
+            Type typeArg = typeArgs.get(i);
             typeParam.setValue(typeArg);
         }
     }
@@ -124,12 +124,12 @@ public class Function extends AstDef implements WithTypeParams, ExecutableElemen
     }
 
     @Override
-    public boolean isReferredBy(AstRef ref) {
-        if (ref instanceof FunRef) {
-            FunRef funRef = (FunRef) ref;
+    public boolean isMirroredBy(AstMirror mirror) {
+        if (mirror instanceof FunctionCall) {
+            FunctionCall funRef = (FunctionCall) mirror;
             // only check local call only
             if (funRef.isLocal()) {
-                return getSimpleName().equals(funRef.getCall().getSimpleName()) &&
+                return getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) &&
                         parameters != null &&
                         parameters.size() == funRef.getArgs().size();
             }

@@ -44,16 +44,16 @@ import java.util.List;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Importing extends AstDef {
+public class Importing extends AstElement {
 
     private List<AstId> paths;
-    private List<TypeRef> importedTypes;
+    private List<Type> importedTypes;
     private boolean wild;
 
     public Importing(Token idToken, AstScope bindingScope) {
@@ -68,12 +68,12 @@ public class Importing extends AstDef {
         return paths;
     }
 
-    public void setImportedTypes(List<TypeRef> importedTypes) {
+    public void setImportedTypes(List<Type> importedTypes) {
         this.importedTypes = importedTypes;
     }
 
-    public List<TypeRef> getImportedTypes() {
-        return importedTypes == null ? Collections.<TypeRef>emptyList() : importedTypes;
+    public List<Type> getImportedTypes() {
+        return importedTypes == null ? Collections.<Type>emptyList() : importedTypes;
     }
 
     public void setWild() {
@@ -96,12 +96,12 @@ public class Importing extends AstDef {
     }
 
     @Override
-    public boolean isReferredBy(AstRef ref) {
+    public boolean isMirroredBy(AstMirror mirror) {
         return false;
     }
 
     @Override
-    public boolean mayEqual(AstDef def) {
+    public boolean mayEqual(AstElement element) {
         return false;
     }        
     

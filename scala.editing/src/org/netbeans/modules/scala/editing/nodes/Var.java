@@ -40,18 +40,18 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDef implements VariableElement {
+public class Var extends AstElement implements VariableElement {
 
     private boolean val;
     private boolean implicate;
-    private AstExpr expr;
+    private AstExpression expr;
 
     public Var(AstId id, AstScope bindingScope, ElementKind kind) {
         super(id.getSimpleName().toString(), id.getPickToken(), bindingScope, kind);
@@ -78,22 +78,22 @@ public class Var extends AstDef implements VariableElement {
         return implicate;
     }
 
-    public void setExpr(AstExpr expr) {
+    public void setExpr(AstExpression expr) {
         this.expr = expr;
-        getBindingScope().addExpr(expr);
+        getBindingScope().addExpression(expr);
     }
 
     @Override
-    public boolean isReferredBy(AstRef ref) {
-        if (ref instanceof IdRef) {
-            return getSimpleName().equals(ref.getSimpleName());
+    public boolean isMirroredBy(AstMirror mirror) {
+        if (mirror instanceof IdCall) {
+            return getSimpleName().toString().equals(mirror.getSimpleName().toString());
         }
         
         return false;
     }
 
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         if (type != null) {
             return type;
         }
@@ -106,12 +106,12 @@ public class Var extends AstDef implements VariableElement {
     }
 
     @Override
-    public boolean mayEqual(AstDef def) {
-        switch (def.getKind()) {
+    public boolean mayEqual(AstElement element) {
+        switch (element.getKind()) {
             case LOCAL_VARIABLE:
             case PARAMETER:
             case FIELD:
-                return getSimpleName().equals(def.getSimpleName());
+                return getSimpleName().toString().equals(element.getSimpleName().toString());
             default:
                 return false;
         }
@@ -120,7 +120,7 @@ public class Var extends AstDef implements VariableElement {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef myType = asType();
+        Type myType = asType();
         if (myType != null) {
             formatter.type(true);
             formatter.appendHtml(" :");

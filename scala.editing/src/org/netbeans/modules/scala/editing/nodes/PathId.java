@@ -42,7 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -79,14 +79,14 @@ public class PathId extends AstId {
     }
 
     @Override
-    public void setType(TypeRef type) {
+    public void setType(Type type) {
         this.type = type;
         // @Todo
         paths.get(paths.size() - 1).setType(type);
     }        
 
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         if (type != null) {
             return type;
         }

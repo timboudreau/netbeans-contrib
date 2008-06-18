@@ -40,25 +40,25 @@ package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import java.util.List;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.AstExpr;
+import org.netbeans.modules.scala.editing.nodes.AstExpression;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ArgumentExprs extends AstExpr {
+public class ArgumentExprs extends AstExpression {
     
-    private List<AstExpr> args;
+    private List<AstExpression> args;
 
     public ArgumentExprs(Token[] boundsTokens) {
         super(boundsTokens);
     }
     
-    public void setArgs(List<AstExpr> args) {
+    public void setArgs(List<AstExpression> args) {
         this.args = args;
     }
     
-    public List<AstExpr> getArgs() {
+    public List<AstExpression> getArgs() {
         return args;
     }
 }

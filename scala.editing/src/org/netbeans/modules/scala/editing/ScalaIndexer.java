@@ -51,11 +51,11 @@ import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -84,8 +84,12 @@ public class ScalaIndexer implements Indexer {
     // The signature should look like this:
     // ;flags;;args;offset;docoffset;browsercompat;types;
     // (between flags and args you have the case sensitive name for flags)
-    static final String FIELD_FQN = "fqn"; //NOI18N
-    static final String FIELD_BASE = "base"; //NOI18N
+    static final String FIELD_QUALIFIED_NAME = "qualifiedName"; //NOI18N
+    static final String FIELD_SIMPLE_NAME = "simpleName"; //NOI18N
+    static final String FIELD_PACKAGE_NAME = "packageName"; //NOI18N
+    static final String FIELD_CASE_INSENSITIVE_QUALIFIED_NAME = "ciQualifiedName"; //NOI18N
+    static final String FIELD_CASE_INSENSITIVE_SIMPLE_NAME = "ciSimpleName"; //NOI18N
+    static final String FIELD_ATTRIBUTE = "attribute"; //NOI18N
     static final String FIELD_CLASS = "clz"; //NOI18N
     static final String FIELD_EXTENDS_NAME = "extends"; //NOI18N
     static final String FIELD_CLASS_NAME = "class"; //NOI18N
@@ -266,7 +270,7 @@ public class ScalaIndexer implements Indexer {
                 return;
             }
 
-            List<AstDef> templates = new ArrayList<AstDef>();
+            List<AstElement> templates = new ArrayList<AstElement>();
             scan(root, templates);
             analyze(templates);
 
@@ -276,10 +280,10 @@ public class ScalaIndexer implements Indexer {
 
         }
 
-        private void scan(AstScope scope, List<AstDef> templates) {
-            for (AstDef def : scope.getDefs()) {
-                if (def instanceof Template) {
-                    templates.add(def);
+        private void scan(AstScope scope, List<AstElement> templates) {
+            for (AstElement element : scope.getElements()) {
+                if (element instanceof Template) {
+                    templates.add(element);
                 }
             }
 
@@ -288,10 +292,10 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private void analyze(List<AstDef> templates) {
-            for (AstDef def : templates) {
-                if (def instanceof Template) {
-                    analyzeTemplate((Template) def);
+        private void analyze(List<AstElement> templates) {
+            for (AstElement element : templates) {
+                if (element instanceof Template) {
+                    analyzeTemplate((Template) element);
                 }
             }
         }
@@ -337,10 +341,10 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(';');
                 fqn.append(IndexedElement.encodeAttributes(template, pResult.getTokenHierarchy()));
 
-                List<TypeRef> extendsWith = template.getExtendsWith();
+                List<Type> extendsWith = template.getExtendsWith();
                 String clz = template.getQualifiedName().toString();
                 if (extendsWith.size() > 0) {
-                    for (TypeRef parent : extendsWith) {
+                    for (Type parent : extendsWith) {
                         String superClz = parent.getQualifiedName().toString();
                         document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }
@@ -348,7 +352,7 @@ public class ScalaIndexer implements Indexer {
                     ClassCache.INSTANCE.refresh();
                 }
 
-                List<Importing> imports = template.getBindingScope().getDefsInScope(Importing.class);
+                List<Importing> imports = template.getBindingScope().getVisibleElements(Importing.class);
 
                 if (imports.size() > 0) {
                     Set<String> importPkgs = new HashSet<String>();
@@ -362,8 +366,8 @@ public class ScalaIndexer implements Indexer {
                             importPkgs.add(pkgName);
                             document.addPair(FIELD_IMPORT, importAttr.toString(), true);
                         } else {
-                            List<TypeRef> importedTypes = importExpr.getImportedTypes();
-                            for (TypeRef type : importedTypes) {
+                            List<Type> importedTypes = importExpr.getImportedTypes();
+                            for (Type type : importedTypes) {
                                 importAttr.append(type.getSimpleName()).append(";");
                                 
                                 importPkgs.add(pkgName);
@@ -401,12 +405,12 @@ public class ScalaIndexer implements Indexer {
 //                    return;
 //                }
 
-                document.addPair(FIELD_FQN, fqn.toString(), true);
+                document.addPair(FIELD_QUALIFIED_NAME, fqn.toString(), true);
                 document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, qName.toLowerCase(), true);
                 document.addPair(FIELD_CLASS_NAME, qName, true);
 
                 // Add the fields, etc.. Recursively add the children classes or modules if any
-                for (AstDef child : template.getBindingScope().getDefs()) {
+                for (AstElement child : template.getBindingScope().getElements()) {
 
                     switch (child.getKind()) {
                         case CLASS:
@@ -439,7 +443,7 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private void indexFunction(AstDef element, IndexDocument document) {
+        private void indexFunction(AstElement element, IndexDocument document) {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
@@ -454,7 +458,7 @@ public class ScalaIndexer implements Indexer {
             base.append(name);
             base.append(';');
             base.append(attributes);
-            document.addPair(FIELD_BASE, base.toString(), true);
+            document.addPair(FIELD_ATTRIBUTE, base.toString(), true);
 
             StringBuilder fqn = new StringBuilder();
             if (in != null && in.length() > 0) {
@@ -471,7 +475,7 @@ public class ScalaIndexer implements Indexer {
             fqn.append(name);
             fqn.append(';');
             fqn.append(attributes);
-            document.addPair(FIELD_FQN, fqn.toString(), true);
+            document.addPair(FIELD_QUALIFIED_NAME, fqn.toString(), true);
 
 //            FunctionCache cache = FunctionCache.INSTANCE;
 //            if (!cache.isEmpty()) {
@@ -479,7 +483,7 @@ public class ScalaIndexer implements Indexer {
 //            }
         }
 
-        private void indexField(AstDef element, IndexDocument document) {
+        private void indexField(AstElement element, IndexDocument document) {
             String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
@@ -494,7 +498,7 @@ public class ScalaIndexer implements Indexer {
             base.append(name);
             base.append(';');
             base.append(attributes);
-            document.addPair(FIELD_BASE, base.toString(), true);
+            document.addPair(FIELD_ATTRIBUTE, base.toString(), true);
 
             StringBuilder fqn = new StringBuilder();
             if (in != null && in.length() > 0) {
@@ -511,7 +515,7 @@ public class ScalaIndexer implements Indexer {
             fqn.append(name);
             fqn.append(';');
             fqn.append(attributes);
-            document.addPair(FIELD_FQN, fqn.toString(), true);
+            document.addPair(FIELD_QUALIFIED_NAME, fqn.toString(), true);
         }
     }
 }   

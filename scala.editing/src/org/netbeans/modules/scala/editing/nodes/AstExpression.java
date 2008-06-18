@@ -36,19 +36,51 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
+ * @Todo, make it abstract
+ * 
  * @author Caoyuan Deng
  */
-public class AstRef extends AstNode {
-    
-    protected AstRef(CharSequence name, Token pickToken) {
-        super(name, pickToken);
+public class AstExpression extends AstNode {
+
+    private Token[] boundsTokens;
+
+    public AstExpression(Token[] boundsTokens) {
+        super(NO_MEANING_NAME);
+        assert boundsTokens.length == 2;
+        this.boundsTokens = boundsTokens;
     }
-    
+
+    public Token[] getBoundsTokens() {
+        return boundsTokens;
+    }
+
+    public OffsetRange getRange(TokenHierarchy th) {
+        return new OffsetRange(getBoundsOffset(th), getBoundsEndOffset(th));
+    }
+
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return getBoundsOffset(th);
+    }
+
+    @Override
+    public int getPickEndOffset(TokenHierarchy th) {
+        return getBoundsEndOffset(th);
+    }
+
+    public int getBoundsOffset(TokenHierarchy th) {
+        return boundsTokens[0].offset(th);
+    }
+
+    public int getBoundsEndOffset(TokenHierarchy th) {
+        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+    }
 }

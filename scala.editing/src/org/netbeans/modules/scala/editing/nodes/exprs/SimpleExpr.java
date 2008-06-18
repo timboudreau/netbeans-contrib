@@ -40,7 +40,7 @@
 package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 
@@ -48,12 +48,12 @@ import org.netbeans.api.lexer.Token;
  *
  * @author Caoyuan Deng
  */
-public class SimpleExpr extends AstExpr implements Postfixable {
+public class SimpleExpr extends AstExpression implements Postfixable {
         
     private AstNode base;
     
-    private List<TypeRef> typeArgs;
-    private List<AstRef> memberChain;
+    private List<Type> typeArgs;
+    private List<AstMirror> memberChain;
     
     private String prefixOp;
     private AstId postfixOp;
@@ -70,11 +70,11 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         return base;
     }
     
-    public void setTypeArgs(List<TypeRef> typeArgs) {
+    public void setTypeArgs(List<Type> typeArgs) {
         this.typeArgs = typeArgs;
     }
     
-    public void setMemberChain(List<AstRef> memberChain) {
+    public void setMemberChain(List<AstMirror> memberChain) {
         this.memberChain = memberChain;
     }
 
@@ -92,7 +92,7 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         
     
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         if (type != null) {
             return type;
         }

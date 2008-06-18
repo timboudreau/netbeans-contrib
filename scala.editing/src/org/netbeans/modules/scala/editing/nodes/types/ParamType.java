@@ -44,11 +44,11 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
- * TypeRef of parameters
+ * Type of parameters
  *
  * @author Caoyuan Deng
  */
-public class ParamType extends TypeRef {
+public class ParamType extends Type {
     
     public enum More {
 
@@ -58,17 +58,17 @@ public class ParamType extends TypeRef {
     }
            
     private More more;
-    private TypeRef rawType;
+    private Type rawType;
 
     public ParamType(Token pickToken) {
         super(null, pickToken, TypeKind.DECLARED);
     }
 
-    public void setRawType(TypeRef rawType) {
+    public void setRawType(Type rawType) {
         this.rawType = rawType;
     }
 
-    public TypeRef getRawType() {
+    public Type getRawType() {
         return rawType;
     }
 

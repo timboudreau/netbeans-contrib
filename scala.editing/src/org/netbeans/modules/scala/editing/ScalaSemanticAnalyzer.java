@@ -50,12 +50,12 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.AstRef;
-import org.netbeans.modules.scala.editing.nodes.IdRef;
+import org.netbeans.modules.scala.editing.nodes.AstMirror;
+import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *  
@@ -137,14 +137,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
 
-        for (AstDef def : scope.getDefs()) {
-            Token idToken = def.getPickToken();
+        for (AstElement element : scope.getElements()) {
+            Token idToken = element.getPickToken();
             if (idToken == null) {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
-            switch (def.getKind()) {
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, element.getPickToken());
+            switch (element.getKind()) {
                 case INTERFACE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
@@ -161,27 +161,27 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             }
         }
         
-        for (AstRef ref : scope.getRefs()) {
-            Token hiToken = ref.getPickToken();
+        for (AstMirror mirror : scope.getMirrors()) {
+            Token hiToken = mirror.getPickToken();
             if (hiToken == null) {
                 continue;
             }
             
             OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
-            if (ref instanceof IdRef) {
-                AstDef def = scope.findDef(ref);
-                if (def != null && def.getKind() == ElementKind.FIELD) {                    
+            if (mirror instanceof IdCall) {
+                AstElement element = scope.findElementOf(mirror);
+                if (element != null && element.getKind() == ElementKind.FIELD) {                    
                     highlights.put(hiRange, ColoringAttributes.FIELD_SET);
                 }
-            } else if (ref instanceof TypeRef) {
-                String name = ref.getSimpleName().toString();
+            } else if (mirror instanceof Type) {
+                String name = mirror.getSimpleName().toString();
                 if (name != null && name.equals("_")) {
                     continue;
                 }
                 
-                if (!((TypeRef) ref).isResolved()) {
-                    AstDef def = scope.findDef(ref);
-                    if (!(def instanceof TypeParam)) {
+                if (!((Type) mirror).isResolved()) {
+                    AstElement element = scope.findElementOf(mirror);
+                    if (!(element instanceof TypeParam)) {
                         highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
                     }
                 }

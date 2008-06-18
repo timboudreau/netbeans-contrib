@@ -84,7 +84,7 @@ import org.netbeans.api.lexer.Token;
  *
  * @author dcaoyuan
  */
-public class Literal extends AstExpr {
+public class Literal extends AstExpression {
     
     public Literal(Token[] boundsTokens) {
         super(boundsTokens);

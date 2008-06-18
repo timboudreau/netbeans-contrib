@@ -53,18 +53,20 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
+ * Element with AstNode information
+ * 
  * Represents a program element such as a package, class, or method. Each element 
  * represents a static, language-level construct (and not, for example, a runtime 
  * construct of the virtual machine). 
  * 
  * @author Caoyuan Deng
  */
-public abstract class AstDef extends AstNode implements Element {
+public abstract class AstElement extends AstNode implements Element {
 
     private ElementKind kind;
     private AstScope bindingScope;
 
-    protected AstDef(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
+    protected AstElement(CharSequence name, Token pickToken, AstScope bindingScope, ElementKind kind) {
         super(name, pickToken);
         this.kind = kind;
         if (bindingScope != null) {
@@ -77,16 +79,16 @@ public abstract class AstDef extends AstNode implements Element {
         return arg0.visit(this, arg1);
     }
 
-    public List<? extends AstDef> getEnclosedElements() {
+    public List<? extends AstElement> getEnclosedElements() {
         if (bindingScope != null) {
-            return bindingScope.getDefs();
+            return bindingScope.getElements();
         } else {
-            return Collections.<AstDef>emptyList();
+            return Collections.<AstElement>emptyList();
         }
     }
 
-    public AstDef getEnclosingElement() {
-        return getEnclosingScope().getBindingDef();
+    public AstElement getEnclosingElement() {
+        return getEnclosingScope().getBindingElement();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> arg0) {
@@ -127,12 +129,12 @@ public abstract class AstDef extends AstNode implements Element {
         return getBindingScope().getRange(th);
     }
 
-    public boolean isReferredBy(AstRef ref) {
-        return getSimpleName().equals(ref.getSimpleName());
+    public boolean isMirroredBy(AstMirror mirror) {
+        return getSimpleName().toString().equals(mirror.getSimpleName().toString());
     }
 
-    public boolean mayEqual(AstDef def) {
-        return getSimpleName().equals(def.getSimpleName());
+    public boolean mayEqual(AstElement element) {
+        return getSimpleName().toString().equals(element.getSimpleName().toString());
     }
 
     @Override
@@ -141,20 +143,20 @@ public abstract class AstDef extends AstNode implements Element {
         formatter.appendText(getSimpleName().toString());
     }
 
-    public static boolean isReferredBy(Element element, AstRef ref) {
-        if (element instanceof ExecutableElement && ref instanceof FunRef) {
+    public static boolean isMirroredBy(Element element, AstMirror mirror) {
+        if (element instanceof ExecutableElement && mirror instanceof FunctionCall) {
             ExecutableElement function = (ExecutableElement) element;
-            FunRef funRef = (FunRef) ref;
+            FunctionCall funCall = (FunctionCall) mirror;
             List<? extends VariableElement> params = function.getParameters();
             // only check local call only
-            if (funRef.isLocal()) {
-                return element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) &&
+            if (funCall.isLocal()) {
+                return element.getSimpleName().toString().equals(funCall.getCall().getSimpleName().toString()) &&
                         params != null &&
-                        params.size() == funRef.getArgs().size();
+                        params.size() == funCall.getArgs().size();
             } else {
                 boolean containsVariableLengthArg = function.isVarArgs();
-                if (element.getSimpleName().toString().equals(funRef.getCall().getSimpleName().toString()) || element.getSimpleName().toString().equals("apply") && funRef.isLocal()) {
-                    if (params.size() == funRef.getArgs().size() || containsVariableLengthArg) {
+                if (element.getSimpleName().toString().equals(funCall.getCall().getSimpleName().toString()) || element.getSimpleName().toString().equals("apply") && funCall.isLocal()) {
+                    if (params.size() == funCall.getArgs().size() || containsVariableLengthArg) {
                         return true;
                     }
                 }
@@ -162,7 +164,7 @@ public abstract class AstDef extends AstNode implements Element {
                 return false;
             }
         } else if (element instanceof VariableElement) {
-            if (element.getSimpleName().toString().equals(ref.getSimpleName().toString())) {
+            if (element.getSimpleName().toString().equals(mirror.getSimpleName().toString())) {
                 return true;
             }
         }

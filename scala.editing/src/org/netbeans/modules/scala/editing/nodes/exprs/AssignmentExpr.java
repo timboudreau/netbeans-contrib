@@ -46,28 +46,28 @@ import org.netbeans.api.lexer.Token;
  *
  * @author Caoyuan Deng
  */
-public class AssignmentExpr extends AstExpr {
+public class AssignmentExpr extends AstExpression {
     
-    private AstExpr lhs;
-    private AstExpr rhs;
+    private AstExpression lhs;
+    private AstExpression rhs;
     
     public AssignmentExpr(Token[] boundsTokens) {
         super(boundsTokens);
     }
 
-    public void setLhs(AstExpr lhs) {
+    public void setLhs(AstExpression lhs) {
         this.lhs = lhs;
     }
     
-    public AstExpr getLhs() {
+    public AstExpression getLhs() {
         return lhs;
     }
     
-    public void setRhs(AstExpr rhs) {
+    public void setRhs(AstExpression rhs) {
         this.rhs = rhs;
     }
     
-    public AstExpr getRhs() {
+    public AstExpression getRhs() {
         return rhs;
     }
 }

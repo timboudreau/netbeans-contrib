@@ -40,27 +40,28 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
+ * Refernece/Mirror of an Id
  *
  * @author Caoyuan Deng
  */
-public class IdRef extends AstRef {
+public class IdCall extends AstMirror {
     
-    public IdRef(CharSequence name, Token pickToken) {
+    public IdCall(CharSequence name, Token pickToken) {
         super(name, pickToken);
     }
 
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         if (type != null) {
             return type;
         }
         
-        AstDef def = getEnclosingScope().findDef(this);
-        if (def != null) {
-            type = def.asType();
+        AstElement element = getEnclosingScope().findElementOf(this);
+        if (element != null) {
+            type = element.asType();
             return type;
         }
         

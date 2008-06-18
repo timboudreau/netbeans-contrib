@@ -38,49 +38,100 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.List;
+import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
- * @Todo, make it abstract
- * 
  * @author Caoyuan Deng
  */
-public class AstExpr extends AstNode {
+public class FunctionCall extends AstMirror {
 
-    private Token[] boundsTokens;
+    /** base may be AstExpression, FunctionCall, FieldCall, IdCall etc */
+    private AstNode base;
+    private AstId call;
+    private List<? extends AstNode> args;
+    private boolean apply;
 
-    public AstExpr(Token[] boundsTokens) {
-        super(NO_MEANING_NAME);
-        assert boundsTokens.length == 2;
-        this.boundsTokens = boundsTokens;
+    public FunctionCall(Token pickToken) {
+        super(null, pickToken);
     }
 
-    public Token[] getBoundsTokens() {
-        return boundsTokens;
+    public void setBase(AstNode base) {
+        this.base = base;
     }
 
-    public OffsetRange getRange(TokenHierarchy th) {
-        return new OffsetRange(getBoundsOffset(th), getBoundsEndOffset(th));
+    public AstNode getBase() {
+        return base;
+    }
+
+    public void setCall(AstId call) {
+        this.call = call;
+    }
+
+    public AstId getCall() {
+        return call;
+    }
+
+    public void setArgs(List<? extends AstNode> args) {
+        this.args = args;
+    }
+
+    public List<? extends AstNode> getArgs() {
+        return args == null ? Collections.<AstNode>emptyList() : args;
+    }
+
+    public boolean isLocal() {
+        return base == null;
+    }
+
+    public void setApply() {
+        apply = true;
+    }
+
+    public boolean isApply() {
+        return apply;
     }
 
     @Override
-    public int getPickOffset(TokenHierarchy th) {
-        return getBoundsOffset(th);
+    public Name getSimpleName() {
+        StringBuilder sb = new StringBuilder();
+        if (base != null) {
+            Type baseType = base.asType();
+            if (baseType != null) {
+                sb.append(" :").append(baseType.getSimpleName());
+            }
+        }
+        sb.append('.').append(call.getSimpleName());
+        
+        setSimpleName(sb);
+        return super.getSimpleName();
     }
 
-    @Override
-    public int getPickEndOffset(TokenHierarchy th) {
-        return getBoundsEndOffset(th);
-    }
+    // ----- Special FunctionCall
+    public static class ApplyFunctionCall extends FunctionCall {
 
-    public int getBoundsOffset(TokenHierarchy th) {
-        return boundsTokens[0].offset(th);
-    }
+        public ApplyFunctionCall() {
+            super(null);
+        }
 
-    public int getBoundsEndOffset(TokenHierarchy th) {
-        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+        @Override
+        public Name getSimpleName() {
+            return new AstName("apply");
+        }        
+        
+        @Override
+        public int getPickOffset(TokenHierarchy th) {
+            return getBase().getPickOffset(th);
+        }
+
+        @Override
+        public int getPickEndOffset(TokenHierarchy th) {
+            return getBase().getPickEndOffset(th);
+        }
     }
 }

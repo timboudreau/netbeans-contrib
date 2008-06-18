@@ -56,7 +56,7 @@ import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -79,8 +79,8 @@ public class ScalaIndex {
     private static final String CLUSTER_URL = "cluster:"; // NOI18N
     public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
-    public static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
-    public static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
+    public static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_QUALIFIED_NAME);
+    public static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_ATTRIBUTE);
     public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
     public static final Set<String> TERMS_IMPORT = Collections.singleton(ScalaIndexer.FIELD_IMPORT);
     public static final Set<String> TERMS_CLASS = Collections.singleton(ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME);
@@ -313,6 +313,10 @@ public class ScalaIndex {
         return idxElements;
     }
     
+    public Set<IndexedElement> getImportedTypes(List<String> importedPkg, String ofPackage) {
+        return null;
+    }
+    
     /*
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
@@ -320,7 +324,7 @@ public class ScalaIndex {
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
-        String field = ScalaIndexer.FIELD_BASE;
+        String field = ScalaIndexer.FIELD_ATTRIBUTE;
         Set<String> terms = TERMS_BASE;
 
         NameKind originalKind = kind;
@@ -455,7 +459,7 @@ public class ScalaIndex {
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
-        String field = ScalaIndexer.FIELD_FQN;
+        String field = ScalaIndexer.FIELD_QUALIFIED_NAME;
         Set<String> terms = TERMS_FQN;
         NameKind originalKind = kind;
         if (kind == NameKind.EXACT_NAME) {
@@ -585,7 +589,7 @@ public class ScalaIndex {
                     
                     //List<Template> templates = ScalaParser.resolve(fo, elementName);
                     for (Template tmpl : templates) {
-                        for (AstDef element : tmpl.getEnclosedElements()) {
+                        for (AstElement element : tmpl.getEnclosedElements()) {
                             if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
                                 continue;
                             }
@@ -636,7 +640,7 @@ public class ScalaIndex {
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
         String field = ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME;
-        String valueField = ScalaIndexer.FIELD_FQN;
+        String valueField = ScalaIndexer.FIELD_QUALIFIED_NAME;
         Set<String> terms = TERMS_FQN;
         NameKind originalKind = kind;
         if (kind == NameKind.EXACT_NAME) {
@@ -798,7 +802,7 @@ public class ScalaIndex {
         // Document looks related to HTMLDocument through inheritance
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
-        String field = ScalaIndexer.FIELD_BASE;
+        String field = ScalaIndexer.FIELD_ATTRIBUTE;
         Set<String> terms = TERMS_BASE;
         String lcsymbol = base.toLowerCase();
         assert lcsymbol.length() == baseLength;
@@ -871,7 +875,7 @@ public class ScalaIndex {
     private String getSimpleType(String fqn) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
-        String field = ScalaIndexer.FIELD_FQN;
+        String field = ScalaIndexer.FIELD_QUALIFIED_NAME;
         Set<String> terms = TERMS_BASE;
         String lcsymbol = fqn.toLowerCase();
         int symbolLength = fqn.length();

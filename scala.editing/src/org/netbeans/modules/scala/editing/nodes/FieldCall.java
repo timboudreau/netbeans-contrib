@@ -38,26 +38,21 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
-import java.util.List;
 import javax.lang.model.element.Name;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class FunRef extends AstRef {
+public class FieldCall extends AstMirror {
 
-    /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
+    /** base may be AstExpression, FunctionCall, FieldCall, IdCall etc */
     private AstNode base;
-    private AstId call;
-    private List<? extends AstNode> args;
-    private boolean apply;
+    private AstId field;
 
-    public FunRef(Token pickToken) {
+    public FieldCall(Token pickToken) {
         super(null, pickToken);
     }
 
@@ -69,69 +64,26 @@ public class FunRef extends AstRef {
         return base;
     }
 
-    public void setCall(AstId call) {
-        this.call = call;
+    public void setField(AstId field) {
+        this.field = field;
     }
 
-    public AstId getCall() {
-        return call;
-    }
-
-    public void setArgs(List<? extends AstNode> args) {
-        this.args = args;
-    }
-
-    public List<? extends AstNode> getArgs() {
-        return args == null ? Collections.<AstNode>emptyList() : args;
-    }
-
-    public boolean isLocal() {
-        return base == null;
-    }
-
-    public void setApply() {
-        apply = true;
-    }
-
-    public boolean isApply() {
-        return apply;
+    public AstId getField() {
+        return field;
     }
 
     @Override
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
-            TypeRef baseType = base.asType();
+            Type baseType = base.asType();
             if (baseType != null) {
-                sb.append(" :").append(baseType.getSimpleName());
+                sb.append(baseType.getSimpleName());
             }
         }
-        sb.append('.').append(call.getSimpleName());
-        
+        sb.append(field.getSimpleName());
+
         setSimpleName(sb);
         return super.getSimpleName();
-    }
-
-    // ----- Special FunRef
-    public static class ApplyFunRef extends FunRef {
-
-        public ApplyFunRef() {
-            super(null);
-        }
-
-        @Override
-        public Name getSimpleName() {
-            return new AstName("apply");
-        }        
-        
-        @Override
-        public int getPickOffset(TokenHierarchy th) {
-            return getBase().getPickOffset(th);
-        }
-
-        @Override
-        public int getPickEndOffset(TokenHierarchy th) {
-            return getBase().getPickEndOffset(th);
-        }
     }
 }

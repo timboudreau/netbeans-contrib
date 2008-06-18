@@ -49,28 +49,28 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
  *
  * @author Caoyuan Deng
  */
-public class FunType extends TypeRef {
+public class FunType extends Type {
     
-    private TypeRef lhs;
-    private TypeRef rhs;
+    private Type lhs;
+    private Type rhs;
     
     public FunType() {
         super(null, null, TypeKind.DECLARED);
     }
     
-    public void setLhs(TypeRef lhs) {
+    public void setLhs(Type lhs) {
         this.lhs = lhs;
     }
     
-    public TypeRef getLhs() {
+    public Type getLhs() {
         return lhs;
     }
     
-    public void setRhs(TypeRef rhs) {
+    public void setRhs(Type rhs) {
         this.rhs = rhs;
     }
     
-    public TypeRef getRhs() {
+    public Type getRhs() {
         return rhs;
     }
 

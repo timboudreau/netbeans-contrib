@@ -53,19 +53,19 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
  *
  * @author dcaoyuan
  */
-public class SimpleTupleType extends TypeRef {
-    private List<TypeRef> types;
+public class SimpleTupleType extends Type {
+    private List<Type> types;
     
     public SimpleTupleType(Token pickToken) {
         super(null, pickToken, TypeKind.DECLARED);
     }
     
-    public void setTypes(List<TypeRef> types) {
+    public void setTypes(List<Type> types) {
         this.types = types;
     }
     
-    public List<TypeRef> getTypes() {
-        return types == null ? Collections.<TypeRef>emptyList() : types;
+    public List<Type> getTypes() {
+        return types == null ? Collections.<Type>emptyList() : types;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SimpleTupleType extends TypeRef {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();        
         sb.append("(");
-        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
+        for (Iterator<Type> itr = getTypes().iterator(); itr.hasNext();) {
             sb.append(itr.next().getSimpleName());
             if (itr.hasNext()) {
                 sb.append(", ");
@@ -105,7 +105,7 @@ public class SimpleTupleType extends TypeRef {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         formatter.appendText("(");
-        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
+        for (Iterator<Type> itr = getTypes().iterator(); itr.hasNext();) {
             itr.next().htmlFormat(formatter);
             if (itr.hasNext()) {
                 formatter.appendText(", ");

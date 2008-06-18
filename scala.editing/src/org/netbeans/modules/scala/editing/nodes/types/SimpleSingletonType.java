@@ -52,7 +52,7 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
  *
  * @author dcaoyuan
  */
-public class SimpleSingletonType extends TypeRef {
+public class SimpleSingletonType extends Type {
     
     private List<AstId> ids;
     

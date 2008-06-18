@@ -1155,7 +1155,7 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    Template tmpl = rootScope.getEnclosingDef(Template.class, th, offset);
+                    Template tmpl = rootScope.getEnclosingElement(Template.class, th, offset);
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);

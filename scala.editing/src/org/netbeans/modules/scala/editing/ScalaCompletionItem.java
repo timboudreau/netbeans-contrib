@@ -56,7 +56,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.netbeans.modules.scala.editing.GsfElement;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.util.Exceptions;
 
 /**
@@ -136,7 +136,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         if (indexedElement != null) {
-            TypeRef type = indexedElement.asType();
+            Type type = indexedElement.asType();
             if (type != null) {
                 formatter.appendHtml(" :"); // NOI18N
                 formatter.type(true);
@@ -296,7 +296,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
                         formatter.type(true);
                         TypeMirror type = param.asType();
-                        String typeSName = TypeRef.simpleNameOf(type);
+                        String typeSName = Type.simpleNameOf(type);
                         formatter.appendText(typeSName);
                         formatter.type(false);
                     }
@@ -315,7 +315,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(TypeRef.simpleNameOf(retType));
+                formatter.appendText(Type.simpleNameOf(retType));
                 formatter.type(false);
             }
 

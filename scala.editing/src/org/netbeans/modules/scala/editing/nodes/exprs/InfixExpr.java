@@ -39,7 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 
@@ -47,9 +47,9 @@ import org.netbeans.api.lexer.Token;
  *
  * @author Caoyuan Deng
  */
-public class InfixExpr extends AstExpr implements Postfixable {
+public class InfixExpr extends AstExpression implements Postfixable {
 
-    private FunRef topFunRef;
+    private FunctionCall topFunRef;
     private List<SimpleExpr> exprs;
     private List<AstId> ops;
     private AstId postfixOp;
@@ -58,11 +58,11 @@ public class InfixExpr extends AstExpr implements Postfixable {
         super(boundsTokens);
     }
 
-    public void setTopFunRef(FunRef topFunRef) {
+    public void setTopFunRef(FunctionCall topFunRef) {
         this.topFunRef = topFunRef;
     }
     
-    public FunRef getTopFunRef() {
+    public FunctionCall getTopFunRef() {
         return topFunRef;
     }
     
@@ -91,7 +91,7 @@ public class InfixExpr extends AstExpr implements Postfixable {
     }
     
     @Override
-    public TypeRef asType() {
+    public Type asType() {
         return topFunRef.asType(); // @todo
     }
 

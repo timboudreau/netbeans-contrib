@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.editing;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Modifier;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 
@@ -55,14 +55,14 @@ public class ScalaStubGenerator {
         StringBuilder sb = new StringBuilder();
 
         
-        List<AstDef> templates = new ArrayList<AstDef>();
+        List<AstElement> templates = new ArrayList<AstElement>();
         
         return sb.toString();
     }
 
     private void scan(AstScope scope, StringBuilder sb) {
-        for (AstDef def : scope.getDefs()) {
-            if (def instanceof ClassTemplate) {
+        for (AstElement element : scope.getElements()) {
+            if (element instanceof ClassTemplate) {
                 
             }
         }

@@ -51,20 +51,20 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
  *
  * @author Caoyuan Deng
  */
-public class InfixType extends TypeRef {
+public class InfixType extends Type {
     
-    private List<TypeRef> types;
+    private List<Type> types;
     private List<AstId> ops;
     
     public InfixType(Token pickToken) {
         super(null, pickToken, TypeKind.DECLARED);
     }
     
-    public void setTypes(List<TypeRef> types) {
+    public void setTypes(List<Type> types) {
         this.types = types;
     }
     
-    public List<TypeRef> getTypes() {
+    public List<Type> getTypes() {
         return types;
     }
     

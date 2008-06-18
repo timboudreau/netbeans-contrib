@@ -44,22 +44,22 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
-import org.netbeans.modules.scala.editing.nodes.IdRef;
+import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public abstract class Template extends AstDef implements TypeElement {
+public abstract class Template extends AstElement implements TypeElement {
 
     private boolean caseOne;
-    private List<TypeRef> extendsWith;
+    private List<Type> extendsWith;
     private List<TypeParam> typeParameters;
 
     protected Template(AstId id, AstScope bindingScope, ElementKind kind) {
@@ -86,12 +86,12 @@ public abstract class Template extends AstDef implements TypeElement {
         return typeParameters == null ? Collections.<TypeParam>emptyList() : typeParameters;
     }
 
-    public void assignTypeParams(List<TypeRef> typeArgs) {
+    public void assignTypeParams(List<Type> typeArgs) {
         assert getTypeParameters().size() == typeArgs.size();
         List<? extends TypeParam> _typeParams = getTypeParameters();
         for (int i = 0; i < _typeParams.size(); i++) {
             TypeParam typeParam = _typeParams.get(i);
-            TypeRef typeArg = typeArgs.get(i);
+            Type typeArg = typeArgs.get(i);
             typeParam.setValue(typeArg);
         }
     }
@@ -104,21 +104,21 @@ public abstract class Template extends AstDef implements TypeElement {
         return caseOne;
     }
 
-    public void setExtendsWith(List<TypeRef> extendsWith) {
+    public void setExtendsWith(List<Type> extendsWith) {
         this.extendsWith = extendsWith;
     }
 
-    public List<TypeRef> getExtendsWith() {
-        return extendsWith == null ? Collections.<TypeRef>emptyList() : extendsWith;
+    public List<Type> getExtendsWith() {
+        return extendsWith == null ? Collections.<Type>emptyList() : extendsWith;
     }
 
     @Override
-    public boolean isReferredBy(AstRef ref) {
-        if (ref instanceof TypeRef) {
-            return getSimpleName().equals(ref.getSimpleName());
-        } else if (ref instanceof IdRef) {
+    public boolean isMirroredBy(AstMirror mirror) {
+        if (mirror instanceof Type) {
+            return getSimpleName().toString().equals(mirror.getSimpleName().toString());
+        } else if (mirror instanceof IdCall) {
             if (isCaseOne()) {
-                return getSimpleName().equals(ref.getSimpleName());
+                return getSimpleName().toString().equals(mirror.getSimpleName().toString());
             }
         }
 

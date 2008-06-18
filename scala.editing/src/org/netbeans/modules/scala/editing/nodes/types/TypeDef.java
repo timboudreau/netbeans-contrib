@@ -39,7 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes.types;
 
 import javax.lang.model.element.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 
@@ -47,19 +47,19 @@ import org.netbeans.modules.scala.editing.nodes.AstId;
  *
  * @author Caoyuan Deng
  */
-public class TypeDef extends AstDef {
+public class TypeDef extends AstElement {
 
-    private TypeRef value;
+    private Type value;
 
     public TypeDef(AstId id, AstScope bindingScope) {
         super(id.getSimpleName(), id.getPickToken(), bindingScope, ElementKind.CLASS);
     }
 
-    public void setValue(TypeRef value) {
+    public void setValue(Type value) {
         this.value = value;
     }
 
-    public TypeRef getValue() {
+    public Type getValue() {
         return value;
     }
 }

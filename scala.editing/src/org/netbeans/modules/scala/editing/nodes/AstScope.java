@@ -54,16 +54,16 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class AstScope implements Iterable<AstScope> {
 
-    private AstDef bindingDef;
+    private AstElement bindingElement;
     private AstScope parent;
     private List<AstScope> scopes;
-    private List<AstDef> defs;
-    private List<AstRef> refs;
-    private List<AstExpr> exprs;
+    private List<AstElement> elements;
+    private List<AstMirror> mirrors;
+    private List<AstExpression> expressions;
     private boolean scopesSorted;
-    private boolean defsSorted;
-    private boolean refsSorted;
-    private boolean exprsSorted;
+    private boolean elementsSorted;
+    private boolean mirrorsSorted;
+    private boolean expressionsSorted;
     private Token[] boundsTokens;
 
     public AstScope(Token[] boundsTokens) {
@@ -86,12 +86,12 @@ public class AstScope implements Iterable<AstScope> {
         return boundsTokens[1].offset(th) + boundsTokens[1].length();
     }
 
-    public void setBindingDef(AstDef bindingDef) {
-        this.bindingDef = bindingDef;
+    public void setBindingDef(AstElement bindingElement) {
+        this.bindingElement = bindingElement;
     }
 
-    public AstDef getBindingDef() {
-        return bindingDef;
+    public AstElement getBindingElement() {
+        return bindingElement;
     }
 
     public AstScope getParent() {
@@ -102,16 +102,16 @@ public class AstScope implements Iterable<AstScope> {
         return scopes == null ? Collections.<AstScope>emptyList() : scopes;
     }
 
-    public List<AstDef> getDefs() {
-        return defs == null ? Collections.<AstDef>emptyList() : defs;
+    public List<AstElement> getElements() {
+        return elements == null ? Collections.<AstElement>emptyList() : elements;
     }
 
-    public List<AstRef> getRefs() {
-        return refs == null ? Collections.<AstRef>emptyList() : refs;
+    public List<AstMirror> getMirrors() {
+        return mirrors == null ? Collections.<AstMirror>emptyList() : mirrors;
     }
 
-    public List<AstExpr> getExprs() {
-        return exprs == null ? Collections.<AstExpr>emptyList() : exprs;
+    public List<AstExpression> getExpressions() {
+        return expressions == null ? Collections.<AstExpression>emptyList() : expressions;
     }
 
     void addScope(AstScope scope) {
@@ -123,31 +123,31 @@ public class AstScope implements Iterable<AstScope> {
         scope.parent = this;
     }
 
-    void addDef(AstDef def) {
-        if (defs == null) {
-            defs = new ArrayList<AstDef>();
+    void addElement(AstElement element) {
+        if (elements == null) {
+            elements = new ArrayList<AstElement>();
         }
-        defs.add(def);
-        defsSorted = false;
-        def.setEnclosingScope(this);
+        elements.add(element);
+        elementsSorted = false;
+        element.setEnclosingScope(this);
     }
 
-    public void addRef(AstRef ref) {
-        if (refs == null) {
-            refs = new ArrayList<AstRef>();
+    public void addMirror(AstMirror mirror) {
+        if (mirrors == null) {
+            mirrors = new ArrayList<AstMirror>();
         }
-        refs.add(ref);
-        refsSorted = false;
-        ref.setEnclosingScope(this);
+        mirrors.add(mirror);
+        mirrorsSorted = false;
+        mirror.setEnclosingScope(this);
     }
 
-    void addExpr(AstExpr expr) {
-        if (exprs == null) {
-            exprs = new ArrayList<AstExpr>();
+    void addExpression(AstExpression expression) {
+        if (expressions == null) {
+            expressions = new ArrayList<AstExpression>();
         }
-        exprs.add(expr);
-        exprsSorted = false;
-        expr.setEnclosingScope(this);
+        expressions.add(expression);
+        expressionsSorted = false;
+        expression.setEnclosingScope(this);
     }
 
     public Iterator<AstScope> iterator() {
@@ -158,18 +158,18 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public AstNode findDefRef(TokenHierarchy th, int offset) {
-        // Always seach refs first, since ref can be included in def
-        if (refs != null) {
-            if (!refsSorted) {
-                Collections.sort(refs, new RefComparator(th));
-                refsSorted = true;
+    public AstNode findElementOrMirror(TokenHierarchy th, int offset) {
+        // Always seach Mirror first, since Mirror can be included in Element
+        if (mirrors != null) {
+            if (!mirrorsSorted) {
+                Collections.sort(mirrors, new MirrorComparator(th));
+                mirrorsSorted = true;
             }
             int low = 0;
-            int high = refs.size() - 1;
+            int high = mirrors.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstRef middle = refs.get(mid);
+                AstMirror middle = mirrors.get(mid);
                 if (offset < middle.getPickOffset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getPickEndOffset(th)) {
@@ -180,16 +180,16 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
-        if (defs != null) {
-            if (!defsSorted) {
-                Collections.sort(defs, new DefComparator(th));
-                defsSorted = true;
+        if (elements != null) {
+            if (!elementsSorted) {
+                Collections.sort(elements, new ElementComparator(th));
+                elementsSorted = true;
             }
             int low = 0;
-            int high = defs.size() - 1;
+            int high = elements.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstDef middle = defs.get(mid);
+                AstElement middle = elements.get(mid);
                 if (offset < middle.getPickOffset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getPickEndOffset(th)) {
@@ -215,7 +215,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return middle.findDefRef(th, offset);
+                    return middle.findElementOrMirror(th, offset);
                 }
             }
         }
@@ -223,17 +223,17 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public <T extends AstDef> T findDef(Class<T> clazz, TokenHierarchy th, int offset) {
-        if (defs != null) {
-            if (!defsSorted) {
-                Collections.sort(defs, new DefComparator(th));
-                defsSorted = true;
+    public <T extends AstElement> T findElementAt(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (elements != null) {
+            if (!elementsSorted) {
+                Collections.sort(elements, new ElementComparator(th));
+                elementsSorted = true;
             }
             int low = 0;
-            int high = defs.size() - 1;
+            int high = elements.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstDef middle = defs.get(mid);
+                AstElement middle = elements.get(mid);
                 if (offset < middle.getPickOffset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getPickEndOffset(th)) {
@@ -259,7 +259,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return (T) middle.findDef(clazz, th, offset);
+                    return (T) middle.findElementAt(clazz, th, offset);
                 }
             }
         }
@@ -267,17 +267,17 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public <T extends AstRef> T findRef(Class<T> clazz, TokenHierarchy th, int offset) {
-        if (refs != null) {
-            if (!refsSorted) {
-                Collections.sort(refs, new RefComparator(th));
-                refsSorted = true;
+    public <T extends AstMirror> T findMirrorAt(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (mirrors != null) {
+            if (!mirrorsSorted) {
+                Collections.sort(mirrors, new MirrorComparator(th));
+                mirrorsSorted = true;
             }
             int low = 0;
-            int high = refs.size() - 1;
+            int high = mirrors.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstRef middle = refs.get(mid);
+                AstMirror middle = mirrors.get(mid);
                 if (offset < middle.getPickOffset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getPickEndOffset(th)) {
@@ -304,7 +304,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return (T) middle.findRef(clazz, th, offset);
+                    return (T) middle.findMirrorAt(clazz, th, offset);
                 }
             }
         }
@@ -312,17 +312,17 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public AstExpr findExpr(TokenHierarchy th, int offset) {
-        if (exprs != null) {
-            if (!exprsSorted) {
-                Collections.sort(exprs, new ExprComparator(th));
-                exprsSorted = true;
+    public AstExpression findExpressionAt(TokenHierarchy th, int offset) {
+        if (expressions != null) {
+            if (!expressionsSorted) {
+                Collections.sort(expressions, new ExpressionComparator(th));
+                expressionsSorted = true;
             }
             int low = 0;
-            int high = exprs.size() - 1;
+            int high = expressions.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstExpr middle = exprs.get(mid);
+                AstExpression middle = expressions.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
@@ -348,7 +348,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return middle.findExpr(th, offset);
+                    return middle.findExpressionAt(th, offset);
                 }
             }
         }
@@ -357,89 +357,91 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public List<AstNode> findOccurrences(AstNode node) {
-        AstDef def = null;
+        AstElement element = null;
 
-        if (node instanceof AstDef) {
-            def = (AstDef) node;
-        } else if (node instanceof AstRef) {
-            def = findDef((AstRef) node);
+        if (node instanceof AstElement) {
+            element = (AstElement) node;
+        } else if (node instanceof AstMirror) {
+            element = findElementOf((AstMirror) node);
         }
 
-        if (def == null) {
+        if (element == null) {
             return Collections.emptyList();
         }
 
         List<AstNode> occurrences = new ArrayList<AstNode>();
-        occurrences.add(def);
-        occurrences.addAll(findRefs(def));
+        occurrences.add(element);
+        occurrences.addAll(findMirrorsOf(element));
 
         return occurrences;
     }
 
-    public AstDef findDef(AstNode node) {
-        AstDef def = null;
+    public AstElement findElementOf(AstNode node) {
+        AstElement element = null;
 
-        if (node instanceof AstDef) {
-            def = (AstDef) node;
-        } else if (node instanceof AstRef) {
-            def = findDef((AstRef) node);
+        if (node instanceof AstElement) {
+            element = (AstElement) node;
+        } else if (node instanceof AstMirror) {
+            element = findElementOf((AstMirror) node);
         }
 
-        return def;
+        return element;
     }
 
-    private AstDef findDef(AstRef ref) {
-        AstScope closestScope = ref.getEnclosingScope();
-        return closestScope.findDefInScopeRecursively(ref);
+    private AstElement findElementOf(AstMirror mirror) {
+        AstScope closestScope = mirror.getEnclosingScope();
+        return closestScope.findElementOfUpward(mirror);
     }
 
-    private final AstDef findDefInScopeRecursively(AstRef ref) {
-        if (defs != null) {
-            for (AstDef def : defs) {
-                if (def.isReferredBy(ref)) {
-                    return def;
+    private final AstElement findElementOfUpward(AstMirror mirror) {
+        if (elements != null) {
+            for (AstElement element : elements) {
+                if (element.isMirroredBy(mirror)) {
+                    return element;
                 }
             }
         }
 
+        /** search upward */
         if (parent != null) {
-            return parent.findDefInScopeRecursively(ref);
+            return parent.findElementOfUpward(mirror);
         }
 
         return null;
     }
 
-    public List<AstRef> findRefs(AstDef def) {
-        List<AstRef> result = new ArrayList<AstRef>();
+    public List<AstMirror> findMirrorsOf(AstElement element) {
+        List<AstMirror> result = new ArrayList<AstMirror>();
 
-        AstScope enclosingScope = def.getEnclosingScope();
-        enclosingScope.findRefsInScopeRecursively(def, result);
+        AstScope enclosingScope = element.getEnclosingScope();
+        enclosingScope.findMirrorsOfDownward(element, result);
 
         return result;
     }
 
-    private final void findRefsInScopeRecursively(AstDef def, List<AstRef> result) {
-        // find if there is closest override def, if so, we shoud bypass it now :
-        if (defs != null) {
-            for (AstDef _def : defs) {
-                if (_def != def && _def.mayEqual(def)) {
+    private final void findMirrorsOfDownward(AstElement element, List<AstMirror> result) {
+        // find if there is closest override Element, if so, we shoud bypass it now :
+        if (elements != null) {
+            for (AstElement _element : elements) {
+                if (_element != element && _element.mayEqual(element)) {
                     return;
                 }
             }
         }
 
-        if (refs != null) {
-            for (AstRef ref : refs) {
-                if (def.isReferredBy(ref)) {
-                    result.add(ref);
+        if (mirrors != null) {
+            for (AstMirror mirror : mirrors) {
+                if (element.isMirroredBy(mirror)) {
+                    result.add(mirror);
                 }
 
             }
         }
 
+        /** search downward */
         if (scopes != null) {
             for (AstScope scope : scopes) {
-                scope.findRefsInScopeRecursively(def, result);
+                scope.findMirrorsOfDownward(element, result);
             }
         }
     }
@@ -474,39 +476,39 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public <T extends Element> List<T> getDefsInScope(Class<T> clazz) {
+    public <T extends Element> List<T> getVisibleElements(Class<T> clazz) {
         List<T> result = new ArrayList<T>();
 
-        getDefsInScopeRecursively(clazz, result);
+        getVisibleElementsUpward(clazz, result);
 
         return result;
     }
 
-    private final <T extends Element> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
-        if (defs != null) {
-            for (AstDef def : defs) {
-                if (clazz.isInstance(def)) {
-                    result.add((T) def);
+    private final <T extends Element> void getVisibleElementsUpward(Class<T> clazz, List<T> result) {
+        if (elements != null) {
+            for (AstElement element : elements) {
+                if (clazz.isInstance(element)) {
+                    result.add((T) element);
                 }
             }
         }
 
         if (parent != null) {
-            parent.getDefsInScopeRecursively(clazz, result);
+            parent.getVisibleElementsUpward(clazz, result);
         }
     }
 
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz, TokenHierarchy th, int offset) {
+    public <T extends AstElement> T getEnclosingElement(Class<T> clazz, TokenHierarchy th, int offset) {
         AstScope scope = getClosestScope(th, offset);
-        return scope.getEnclosingDef(clazz);
+        return scope.getEnclosingElement(clazz);
     }
 
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        if (bindingDef != null && clazz.isInstance(bindingDef)) {
-            return (T) bindingDef;
+    public <T extends AstElement> T getEnclosingElement(Class<T> clazz) {
+        if (bindingElement != null && clazz.isInstance(bindingElement)) {
+            return (T) bindingElement;
         } else {
             if (parent != null) {
-                return parent.getEnclosingDef(clazz);
+                return parent.getEnclosingElement(clazz);
             } else {
                 return null;
             }
@@ -515,7 +517,7 @@ public class AstScope implements Iterable<AstScope> {
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindingDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
+        return "Scope(Binding=" + bindingElement + "," + ",elememts=" + getElements() + ",mirrors=" + getMirrors() + ")";
     }
     // ----- inner classes
     private static class ScopeComparator implements Comparator<AstScope> {
@@ -531,41 +533,41 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    private static class ExprComparator implements Comparator<AstExpr> {
+    private static class ExpressionComparator implements Comparator<AstExpression> {
 
         private TokenHierarchy th;
 
-        public ExprComparator(TokenHierarchy th) {
+        public ExpressionComparator(TokenHierarchy th) {
             this.th = th;
         }
 
-        public int compare(AstExpr o1, AstExpr o2) {
+        public int compare(AstExpression o1, AstExpression o2) {
             return o1.getBoundsOffset(th) < o2.getBoundsOffset(th) ? -1 : 1;
         }
     }
 
-    private static class DefComparator implements Comparator<AstDef> {
+    private static class ElementComparator implements Comparator<AstElement> {
 
         private TokenHierarchy th;
 
-        public DefComparator(TokenHierarchy th) {
+        public ElementComparator(TokenHierarchy th) {
             this.th = th;
         }
 
-        public int compare(AstDef o1, AstDef o2) {
+        public int compare(AstElement o1, AstElement o2) {
             return o1.getPickOffset(th) < o2.getPickOffset(th) ? -1 : 1;
         }
     }
 
-    private static class RefComparator implements Comparator<AstRef> {
+    private static class MirrorComparator implements Comparator<AstMirror> {
 
         private TokenHierarchy th;
 
-        public RefComparator(TokenHierarchy th) {
+        public MirrorComparator(TokenHierarchy th) {
             this.th = th;
         }
 
-        public int compare(AstRef o1, AstRef o2) {
+        public int compare(AstMirror o1, AstMirror o2) {
             return o1.getPickOffset(th) < o2.getPickEndOffset(th) ? -1 : 1;
         }
     }

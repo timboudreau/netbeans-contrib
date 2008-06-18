@@ -45,7 +45,7 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
@@ -688,9 +688,9 @@ public class ScalaUtils {
     }
 
     private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
-        for (AstDef def : scope.getDefs()) {
-            if (def instanceof Template && def.getQualifiedName().toString().equals(qName)) {
-                templates.add((Template) def);
+        for (AstElement element : scope.getElements()) {
+            if (element instanceof Template && element.getQualifiedName().toString().equals(qName)) {
+                templates.add((Template) element);
             }
 
         }
@@ -701,7 +701,7 @@ public class ScalaUtils {
 
     }
 
-    public static String getDocComment(CompilationInfo info, AstDef element) {
+    public static String getDocComment(CompilationInfo info, AstElement element) {
         ScalaParserResult pResult = getParserResult(info);
         if (pResult == null) {
             return null;
@@ -729,7 +729,7 @@ public class ScalaUtils {
         return null;
     }
 
-    public static int getOffset(CompilationInfo info, AstDef element) {
+    public static int getOffset(CompilationInfo info, AstElement element) {
         ScalaParserResult pResult = getParserResult(info);
         if (pResult == null) {
             return -1;

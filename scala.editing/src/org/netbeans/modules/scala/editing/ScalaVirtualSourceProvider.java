@@ -58,7 +58,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
@@ -175,9 +175,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
     }
 
     private static void scan(AstScope scope, List<Template> templates) {
-        for (AstDef def : scope.getDefs()) {
-            if (def instanceof Template) {
-                templates.add((Template) def);
+        for (AstElement element : scope.getElements()) {
+            if (element instanceof Template) {
+                templates.add((Template) element);
             }
         }
 

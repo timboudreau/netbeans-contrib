@@ -51,7 +51,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author Caoyuan Deng
  */
-public class Packaging extends AstDef implements PackageElement {
+public class Packaging extends AstElement implements PackageElement {
 
     private List<AstId> ids;
     private boolean top;
@@ -103,12 +103,12 @@ public class Packaging extends AstDef implements PackageElement {
     }
     
     @Override
-    public boolean isReferredBy(AstRef ref) {
+    public boolean isMirroredBy(AstMirror mirror) {
         return false;
     }        
     
     @Override
-    public boolean mayEqual(AstDef def) {
+    public boolean mayEqual(AstElement element) {
         return false;
     }                
     

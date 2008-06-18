@@ -50,7 +50,7 @@ import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.NbBundle;
 
@@ -88,12 +88,12 @@ public class ScalaInstantRenamer implements InstantRenamer {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         AstScope rootScope = pResult.getRootScope();
 
-        AstNode closest = rootScope.findDefRef(th, caretOffset);
+        AstNode closest = rootScope.findElementOrMirror(th, caretOffset);
 
-        AstDef def = rootScope.findDef(closest);
+        AstElement element = rootScope.findElementOf(closest);
         
-        if (def instanceof AstDef) {
-            switch (((AstDef) closest).getKind()) {
+        if (element instanceof AstElement) {
+            switch (((AstElement) closest).getKind()) {
                 case FIELD:
                 case PARAMETER:
                 case LOCAL_VARIABLE:
@@ -127,7 +127,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
 
         AstScope rootScope = pResult.getRootScope();
 
-        AstNode closest = rootScope.findDefRef(th, caretOffset);
+        AstNode closest = rootScope.findElementOrMirror(th, caretOffset);
 
         List<AstNode> occurrences = rootScope.findOccurrences(closest);
 
