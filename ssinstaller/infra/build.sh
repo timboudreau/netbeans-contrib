@@ -133,7 +133,7 @@ run() {
     # run the build
     ant build \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
-	    \"-Dss.name=sunstudio 12\"\
+	    \"-Dss.name=sunstudio X\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \

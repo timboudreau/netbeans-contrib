@@ -15,13 +15,14 @@ on_exit() {
    cd /
    if [ -d "$TMPDIR" ]; then
       rm -fr $TMPDIR;
+      rm -rf $PWD/servicetag
    fi
 }
 
 
 if [ `uname` != "__os_name" ]
 then
-  echo "The incorrect platform. Should be `uname`. Exiting." 
+  echo "The incorrect platform. Should be __os_name. Exiting." 
   exit 1
 fi
 
@@ -46,6 +47,11 @@ REGISTRATION_DIR="${SUNSTUDIO_DIR}/registration"
 
 # REGISTRATION_PAGE - location of a generated registration page
 REGISTRATION_PAGE=`pwd`/"${REGISTRATION_DIR}/register-sunstudio.html"
+
+HOME_SUNSTUDIO_DIR=$HOME/.sunstudio
+HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/registration/register-sunstudio.html"
+
+
 
 # INSTANCES_REGISTRY - file that stores UIDs of already registered
 #      instances of a product
@@ -513,9 +519,9 @@ EOF
 
 find_browser() {
    for i in ${BROWSERS_LIST}; do
-      which $i >/dev/null 2>&1
+      which $i >/dev/null 2>&1      
       if [ $? -eq 0 ]; then
-         echo $i
+         echo `which $i`
          return 0
       fi
    done
@@ -539,7 +545,7 @@ browse() {
       echo "No browser was found. Registration page has been generated."
       echo "Please open following link with your browser to proceed with registration."
       echo "${URL}"
-   else 
+   else
       OUT=`${BROWSER} $URL 2>&1`
       if [ $? -ne 0 ]; then
          echo "\nThere were problems with launching ${BROWSER}:"
@@ -572,10 +578,10 @@ COMPONENTS=${ALLCOMPONENTS}
 DOINSTALL=1
 DOREGISTER=1
 
-ISLOCAL=`isLocalyInstalled`
-if [ $DOUNINSTALL -eq 1 -a "$ISLOCAL" = "no" -o $DOINSTALL -eq 1 -a "$ISLOCAL" = "no" ]; then
-   exit 1
-fi
+#ISLOCAL=`isLocalyInstalled`
+#if [ $DOUNINSTALL -eq 1 -a "$ISLOCAL" = "no" -o $DOINSTALL -eq 1 -a "$ISLOCAL" = "no" ]; then
+#   exit 1
+#fi
 
 for i in $COMPONENTS; do
    ParseSWData $i    
@@ -587,10 +593,11 @@ done
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
    generateRegistrationHTML 1>/dev/null 2>/dev/null
-   browse "file://${REGISTRATION_PAGE_FILE}"
+   mkdir -p $HOME_SUNSTUDIO_DIR
+   cp -r $REGISTRATION_DIR $HOME_SUNSTUDIO_DIR 
+   browse "file://$HOME_REGISTRATION_PAGE"
 fi
 
-rm -rf servicetag
 exit 0;
 
 }
