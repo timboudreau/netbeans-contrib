@@ -43,6 +43,7 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 
@@ -100,4 +101,11 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
     public List<TypeParam> getParams() {
         return params == null ? Collections.<TypeParam>emptyList() : params;
     }
+    
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        /** @Todo */
+        formatter.appendText(getSimpleName().toString());
+    }
+    
 }

@@ -440,7 +440,6 @@ public class ScalaIndex {
                 CompilationInfo newInfo = ScalaUtils.getCompilationInfoForScalaFile(fo);
                 List<Template> templates = ScalaUtils.resolveTemplate(newInfo, qName);
 
-                //List<Template> templates = ScalaParser.resolve(fo, elementName);
                 for (Template tmpl : templates) {
                     for (AstElement element : tmpl.getEnclosedElements()) {
                         if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
@@ -574,7 +573,7 @@ public class ScalaIndex {
 
                 int lastDot = qName.lastIndexOf('.');
                 if (lastDot == -1) {
-                    // should be class, under default package
+                    // should be class, under empty package
                     element = IndexedElement.create(qName, sName, "", attrs, map.getPersistentUrl(), this, false);
                 } else {
                     String pkgName = qName.substring(0, lastDot);

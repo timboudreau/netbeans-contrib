@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.ImageIcon;
@@ -276,6 +277,26 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             }
             if (strike) {
                 formatter.deprecated(false);
+            }
+            List<? extends TypeParameterElement> typeParams = function.getTypeParameters();
+            if (!typeParams.isEmpty()) {
+                formatter.appendHtml("[");
+                
+                Iterator<? extends TypeParameterElement> itr = typeParams.iterator();
+                while (itr.hasNext()) {
+                    formatter.parameters(true);
+                    
+                    TypeParameterElement typeParam = itr.next();
+                    /** @todo */
+                    formatter.appendText(typeParam.getSimpleName().toString());
+                    
+                    formatter.parameters(false);
+                    
+                    if (itr.hasNext()) {
+                        formatter.appendText(", "); // NOI18N
+                    }
+                }
+                formatter.appendHtml("]");
             }
 
 
