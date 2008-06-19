@@ -104,7 +104,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.27</specification-version>
+                        <!-- Uncomment this later to compile it on NB 6.5 -->
+                        <!--specification-version>1.27</specification-version -->
+                        <specification-version>1.9.12.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -293,7 +295,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                         <specification-version>6.5.1</specification-version>
                     </run-dependency>
                 </dependency>
-            <dependency>
+                <!-- Uncomment follwing section to compile it against NB 6.5
+                <dependency>
                     <code-name-base>org.netbeans.modules.editor.deprecated.pre61settings</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -302,6 +305,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
+                -->
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
