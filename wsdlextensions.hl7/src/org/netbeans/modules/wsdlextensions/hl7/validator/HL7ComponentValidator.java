@@ -287,16 +287,22 @@ public class HL7ComponentValidator implements Validator, HL7Component.Visitor {
         // check the values and relations of/between all the attributes
         Collection<ResultItem> results = mValidationResult.getValidationResult();
         String use = target.getUse();
-        if (!nonEmptyString(use) && !use.equals("encoded")) {
+        if (!nonEmptyString(use)) {
             results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target,
                     mMessages.getString("HL7Message.INVALID_HL7_USE")));
-
         }
         String hl7encoderStyle = target.getEncodingStyle();
-        if (hl7encoderStyle == null || hl7encoderStyle.length() < 0 || !hl7encoderStyle.equals("hl7encoder-1.0")) {
-            results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target,
-                    mMessages.getString("HL7Message.INVALID_HL7_ENCODINGSTYLE")));
-        }
+        if (nonEmptyString(hl7encoderStyle)){
+			if(use.equals("encoded") && !hl7encoderStyle.equals("hl7encoder-1.0")) {
+				results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target,
+					 mMessages.getString("HL7Message.INVALID_HL7_ENCODINGSTYLE")));
+			}
+		}else{
+			if(use.equals("encoded")) {
+				results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target,
+					 mMessages.getString("HL7Message.INVALID_HL7_ENCODINGSTYLE")));
+			}
+		}
 
     }
 

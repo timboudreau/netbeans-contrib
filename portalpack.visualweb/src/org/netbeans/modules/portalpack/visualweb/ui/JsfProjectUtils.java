@@ -307,7 +307,15 @@ public class JsfProjectUtils {
 
     public static boolean supportProjectProperty(Project project) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            
+            //Comment the following section to compile against NB 6.5
+            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
+            if (ac == null) {
+                return false;
+            } 
+            //Uncomment the following line to compile against NB 6.5
+            //AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement != null) {
                 return true;
@@ -335,7 +343,15 @@ public class JsfProjectUtils {
 
     public static String getProjectProperty(Project project, String propName) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            
+            //Comment the following line to compile against NB 6.5
+            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
+            if (ac == null) {
+                return "";
+            } 
+            //Uncomment following line to compile against NB 6.5
+            //AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {  // Creator 2 project
 
@@ -428,7 +444,14 @@ public class JsfProjectUtils {
 
     private static void putProjectProperty(Project project, String propName, String value, String oldval) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            //Comment the following line to compile against NB 6.5
+            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
+            if (ac == null) {
+                return;
+            } 
+            //Uncomment following line to compile against NB 6.5
+            //AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
+            
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
