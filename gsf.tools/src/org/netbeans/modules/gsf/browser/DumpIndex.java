@@ -14,22 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JFileChooser;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
+import org.netbeans.modules.gsf.tools.IndexUtils.IndexedClass;
+import org.netbeans.modules.gsf.tools.IndexUtils.IndexedElement;
+import org.netbeans.modules.gsf.tools.IndexUtils.IndexedField;
+import org.netbeans.modules.gsf.tools.IndexUtils.IndexedMethod;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.netbeans.modules.gsfret.source.usages.PersistentClassIndex;
-import org.netbeans.modules.ruby.RubyIndexer;
-import org.netbeans.modules.ruby.elements.IndexedClass;
-import org.netbeans.modules.ruby.elements.IndexedElement;
-import org.netbeans.modules.ruby.elements.IndexedField;
-import org.netbeans.modules.ruby.elements.IndexedMethod;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
