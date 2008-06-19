@@ -668,9 +668,15 @@ public final class J2SEProject implements Project, AntProjectListener {
                 //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, new ClassPath[]{coreLibsCp});
             }
 
+            /** 
+             * Why unreister COMPILE/BOOT classpath will cause:
+             * java.lang.IllegalArgumentException: Attempt to remove nonexistent path ClassPath[Entry[file:/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scala/scala-2.7.1.final/src/META-INF/], Entry[file:/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scala/scala-2.7.1.final/src/sbaz/], Entry[file:/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scala/scala-2.7.1.final/src/scala/], Entry[file:/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scalastubs/]]
+             * This never happen on Java classpath
+             * Anyway, we can keep COMPILE/BOOT classpath there, since they are shared by all scala projects.
+             */
             //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
             GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
-            GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
+            //GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
             if (mainClassUpdater != null) {
                 mainClassUpdater.unregister();
                 mainClassUpdater = null;

@@ -202,7 +202,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
 
             /** 
              * @Note
-             * We should add scalaStubsFo to compileTimeClassPath to get index query includes it, 
+             * We should add scalaStubsFo to compileTimeClassPath to get index query including it, 
              * that's GSF's implementation 
              */
             FileObject scalaStubsFo = ScalaLanguage.getScalaStubFo();
