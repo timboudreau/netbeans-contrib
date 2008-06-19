@@ -457,7 +457,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
         <!-- C/C++ bundles -->
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-instel-S2.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>            
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            

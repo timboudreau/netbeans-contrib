@@ -1,4 +1,6 @@
 #!/bin/sh -v
+############################################################################
+# This file is temporary used by nightly.
 ################################################################################
 BUILD_NUMBER=200711261600
 NB_HOME=`cd ../../../..; pwd`
@@ -18,5 +20,5 @@ JDK_HOME=/usr/java
 NB_FILES_PREFIX=netbeans-6.1
 
 BUNDLES_ULR=http://endif.russia.sun.com/installer/packaged
-SS_VERSION=X
+SS_VERSION=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
 
