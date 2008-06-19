@@ -340,6 +340,11 @@ public class Type extends AstMirror implements TypeMirror {
         }
     }
 
+    @Override
+    public String toString() {
+        return "TypeMirror(sName=" + getSimpleName() + ")";
+    }        
+
     /**
      * Used for remote type, which has qualifiedName field only, without AstNode information
      * 

@@ -56,8 +56,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
-import org.netbeans.modules.scala.editing.GsfElement;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
+import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.openide.util.Exceptions;
 
 /**
@@ -284,13 +284,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                 
                 Iterator<? extends TypeParameterElement> itr = typeParams.iterator();
                 while (itr.hasNext()) {
-                    formatter.parameters(true);
-                    
                     TypeParameterElement typeParam = itr.next();
-                    /** @todo */
-                    formatter.appendText(typeParam.getSimpleName().toString());
-                    
-                    formatter.parameters(false);
+                    TypeParam.htmlFormat(typeParam, formatter);
                     
                     if (itr.hasNext()) {
                         formatter.appendText(", "); // NOI18N

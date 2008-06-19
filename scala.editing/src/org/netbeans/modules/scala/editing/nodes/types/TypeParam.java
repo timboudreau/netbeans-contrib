@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeParameterElement;
@@ -68,8 +69,8 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
 
     public Element getGenericElement() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }    
-    
+    }
+
     public void setBound(String bound) {
         this.bound = bound;
     }
@@ -80,12 +81,12 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
 
     public void setBoundType(Type boundType) {
         this.boundType = boundType;
-    } 
-    
+    }
+
     public Type getBoundType() {
         return boundType;
     }
-    
+
     public void setVariant(String variant) {
         this.variant = variant;
     }
@@ -93,19 +94,37 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
     public String getVariant() {
         return variant;
     }
-    
+
     public void setParams(List<TypeParam> params) {
         this.params = params;
     }
-    
+
     public List<TypeParam> getParams() {
         return params == null ? Collections.<TypeParam>emptyList() : params;
     }
-    
+
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        /** @Todo */
-        formatter.appendText(getSimpleName().toString());
+        htmlFormat(this, formatter);
     }
-    
+
+    public static void htmlFormat(TypeParameterElement typeParam, HtmlFormatter formatter) {
+        formatter.appendText(typeParam.getSimpleName().toString());
+        if (typeParam instanceof TypeParam) {
+            if (!((TypeParam) typeParam).getParams().isEmpty()) {
+                Iterator<TypeParam> itr = ((TypeParam) typeParam).getParams().iterator();
+                formatter.appendText("[");
+                while (itr.hasNext()) {
+                    htmlFormat(itr.next(), formatter);
+                    
+                    if (itr.hasNext()) {
+                        formatter.appendText(", ");
+                    }
+                }
+                formatter.appendText("]");
+            }
+        } else {
+            /** @todo */
+        }
+    }
 }
