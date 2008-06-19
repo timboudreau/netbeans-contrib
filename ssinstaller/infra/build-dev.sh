@@ -74,7 +74,6 @@ cd ${DIRNAME}
 source build-private.sh
 source ../../../../build-private.sh 
 
-
 ################################################################################
 # define the temp file location
 TEMP_FILE=${WORK_DIR}/temp.sh.tmp
@@ -92,7 +91,7 @@ export ANT_OPTS
 run() {
     ################################################################################
     # run the build
-    ant build \
+    ant build-engine \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\
