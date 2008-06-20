@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Mutex;
@@ -184,7 +185,8 @@ public class Runner {
         private Runnable r;
 
         public StopAction() {
-            putValue(Action.SMALL_ICON, ImageUtilities.image2Icon(ImageUtilities.loadImage("org/netbeans/modules/debugger/resources/actions/Kill.gif", true)));
+            setEnabledEQ(this, false); // initially, until ready
+            putValue(Action.SMALL_ICON, new ImageIcon(ImageUtilities.loadImage("org/apache/tools/ant/module/resources/stop.png", true)));
             putValue(Action.SHORT_DESCRIPTION, "Stop"); // XXX I18N
         }
 
