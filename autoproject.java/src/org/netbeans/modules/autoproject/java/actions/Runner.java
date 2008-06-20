@@ -57,6 +57,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Mutex;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -169,6 +170,14 @@ public class Runner {
         }
     }
 
+    private static void setEnabledEQ(final Action a, final boolean enabled) { // #133025
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                a.setEnabled(enabled);
+            }
+        });
+    }
+
     private static final class StopAction extends AbstractAction {
 
         private Process p;
@@ -181,13 +190,13 @@ public class Runner {
 
         public void actionPerformed(ActionEvent e) {
             p.destroy();
-            setEnabled(false);
+            setEnabledEQ(this, false);
             r.run();
         }
 
         public void setProcess(Process p) {
             this.p = p;
-            setEnabled(true);
+            setEnabledEQ(this, true);
         }
 
         public void setListener(Runnable r) {
@@ -197,7 +206,7 @@ public class Runner {
         public void clear() {
             p = null;
             r = null;
-            setEnabled(false);
+            setEnabledEQ(this, false);
         }
 
     }
