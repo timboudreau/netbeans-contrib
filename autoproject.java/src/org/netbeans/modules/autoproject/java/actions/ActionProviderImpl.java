@@ -51,6 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
@@ -251,6 +252,10 @@ public class ActionProviderImpl implements ActionProvider {
             // XXX might be better to get this from BuildSniffer:
             options.add("-target");
             options.add(sourceLevel);
+        } else {
+            // Set up to be runnable from default JDK!
+            options.add("-target");
+            options.add(JavaPlatformManager.getDefault().getDefaultPlatform().getSpecification().getVersion().toString());
         }
         String encoding = Cache.get(srcdir + Cache.ENCODING);
         if (encoding != null) {
@@ -320,7 +325,8 @@ public class ActionProviderImpl implements ActionProvider {
                     // XXX could add source path to pick up noncopied resources?
                     // XXX may in general be necessary to add other entries to run CP, TBD how to guess this...
                     options.add(clazz + File.pathSeparator + cp);
-                    final String name = f.getAbsolutePath().substring(src.length() + File.separator.length()).replace('/', '.').replaceAll("[.]java$", "");
+                    final String name = f.getAbsolutePath().substring(src.length() + File.separator.length()).
+                            replace('/', '.').replaceAll("^[.]|[.]java$", "");
                     if (block) {
                         // We can block waiting for parse, and figure out whether to run as a test.
                         try {
