@@ -622,9 +622,15 @@ public class AstNodeVisitor extends AstVisitor {
         }
 
         List<Type> parents = visitClassTemplateOpt(that.getGeneric(5));
-        classTmpl.setExtendsWith(parents);
-        for (Type parent : parents) {
-            scopeStack.peek().addMirror(parent);
+        if (!parents.isEmpty()) {
+            for (Type parent : parents) {
+                scopeStack.peek().addMirror(parent);
+            }
+            // first element is super class
+            classTmpl.setSuperClass(parents.get(0));
+            // others are traits
+            parents.remove(0);
+            classTmpl.setWithTraits(parents);
         }
 
         scopeStack.pop();
@@ -653,9 +659,15 @@ public class AstNodeVisitor extends AstVisitor {
         }
 
         List<Type> parents = visitTraitTemplateOpt(that.getGeneric(2));
-        traitTmpl.setExtendsWith(parents);
-        for (Type parent : parents) {
-            scopeStack.peek().addMirror(parent);
+        if (!parents.isEmpty()) {
+            for (Type parent : parents) {
+                scopeStack.peek().addMirror(parent);
+            }
+            // first element is super class
+            traitTmpl.setSuperClass(parents.get(0));
+            // others are traits
+            parents.remove(0);
+            traitTmpl.setWithTraits(parents);
         }
 
         scopeStack.pop();
@@ -713,6 +725,9 @@ public class AstNodeVisitor extends AstVisitor {
         return parents;
     }
 
+    /**
+     * @return list of Types, the first one is super class, others are 'with' traits 
+     */
     public List<Type> visitClassParents(GNode that) {
         enter(that);
 

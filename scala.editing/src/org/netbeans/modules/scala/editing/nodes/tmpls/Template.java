@@ -43,7 +43,6 @@ import java.util.List;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -59,27 +58,25 @@ import org.netbeans.modules.scala.editing.nodes.types.Type;
 public abstract class Template extends AstElement implements TypeElement {
 
     private boolean caseOne;
-    private List<Type> extendsWith;
+    private Type superClass;
+    private List<Type> withTraits;
     private List<TypeParam> typeParameters;
 
     protected Template(AstId id, AstScope bindingScope, ElementKind kind) {
         super(id.getSimpleName(), id.getPickToken(), bindingScope, kind);
     }
 
-    public List<? extends TypeMirror> getInterfaces() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<Type> getInterfaces() {
+        return withTraits == null ? Collections.<Type>emptyList() : withTraits;
     }
 
     public NestingKind getNestingKind() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public TypeMirror getSuperclass() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setTypeParameters(List<TypeParam> typeParameters) {
-        this.typeParameters = typeParameters;
+    public Type getSuperclass() {
+        /** @todo if superClass is null, return "java.lang.Object" ? or just null */
+        return superClass;
     }
 
     public List<? extends TypeParam> getTypeParameters() {
@@ -104,14 +101,18 @@ public abstract class Template extends AstElement implements TypeElement {
         return caseOne;
     }
 
-    public void setExtendsWith(List<Type> extendsWith) {
-        this.extendsWith = extendsWith;
+    public void setSuperClass(Type superClass) {
+        this.superClass = superClass;
+    }
+    
+    public void setWithTraits(List<Type> withTraits) {
+        this.withTraits = withTraits;
     }
 
-    public List<Type> getExtendsWith() {
-        return extendsWith == null ? Collections.<Type>emptyList() : extendsWith;
-    }
-
+    public void setTypeParameters(List<TypeParam> typeParameters) {
+        this.typeParameters = typeParameters;
+    }    
+    
     @Override
     public boolean isMirroredBy(AstMirror mirror) {
         if (mirror instanceof Type) {
