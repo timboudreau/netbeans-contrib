@@ -41,14 +41,13 @@ package org.netbeans.modules.autoproject.java;
 
 import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
 import org.w3c.dom.Document;
 
 /**
@@ -84,7 +83,7 @@ class ProjectInformationImpl implements ProjectInformation {
     }
 
     public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/ant/freeform/resources/freeform-project.png", true)); // NOI18N
+        return ImageUtilities.image2Icon(ImageUtilities.loadImage("org/netbeans/modules/ant/freeform/resources/freeform-project.png", true)); // NOI18N
     }
 
     public Project getProject() {

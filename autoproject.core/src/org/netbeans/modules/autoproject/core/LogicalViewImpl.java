@@ -54,6 +54,7 @@ import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.actions.FindAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -99,7 +100,7 @@ class LogicalViewImpl implements LogicalViewProvider {
 
         @Override
         public Image getIcon(int type) {
-            return Utilities.icon2Image(ProjectUtils.getInformation(p).getIcon());
+            return ImageUtilities.icon2Image(ProjectUtils.getInformation(p).getIcon());
         }
 
         @Override

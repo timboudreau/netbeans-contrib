@@ -57,7 +57,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import org.openide.util.Exceptions;
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
+import org.openide.util.Mutex;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -170,25 +171,34 @@ public class Runner {
         }
     }
 
+    private static void setEnabledEQ(final Action a, final boolean enabled) { // #133025
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                a.setEnabled(enabled);
+            }
+        });
+    }
+
     private static final class StopAction extends AbstractAction {
 
         private Process p;
         private Runnable r;
 
         public StopAction() {
-            putValue(Action.SMALL_ICON, new ImageIcon(Utilities.loadImage("org/netbeans/modules/debugger/resources/actions/Kill.gif", true)));
+            setEnabledEQ(this, false); // initially, until ready
+            putValue(Action.SMALL_ICON, new ImageIcon(ImageUtilities.loadImage("org/apache/tools/ant/module/resources/stop.png", true)));
             putValue(Action.SHORT_DESCRIPTION, "Stop"); // XXX I18N
         }
 
         public void actionPerformed(ActionEvent e) {
             p.destroy();
-            setEnabled(false);
+            setEnabledEQ(this, false);
             r.run();
         }
 
         public void setProcess(Process p) {
             this.p = p;
-            setEnabled(true);
+            setEnabledEQ(this, true);
         }
 
         public void setListener(Runnable r) {
@@ -198,7 +208,7 @@ public class Runner {
         public void clear() {
             p = null;
             r = null;
-            setEnabled(false);
+            setEnabledEQ(this, false);
         }
 
     }

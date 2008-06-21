@@ -47,7 +47,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.queries.AccessibilityQuery;
 import org.netbeans.api.java.queries.BinaryForSourceQuery;
 import org.netbeans.api.java.queries.JavadocForBinaryQuery;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
@@ -229,9 +228,6 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                 pw.println("  \"" + g.getDisplayName() + "\" (" + g.getName() + "): " + FileUtil.getFileDisplayName(r));
                 pw.println("    source level: " + SourceLevelQuery.getSourceLevel(r));
                 pw.println("    encoding: " + FileEncodingQuery.getEncoding(r).displayName());
-                if (AccessibilityQuery.isPubliclyAccessible(r) != null) {
-                    pw.println("    accessible: " + AccessibilityQuery.isPubliclyAccessible(r));
-                }
                 URL[] builtTo = BinaryForSourceQuery.findBinaryRoots(r.getURL()).getRoots();
                 if (builtTo.length > 0) {
                     pw.print("    binaries:");
