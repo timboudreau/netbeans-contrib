@@ -41,6 +41,7 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.io.IOException;
+import javax.swing.Action;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
 import org.openide.nodes.Children;
@@ -79,6 +80,11 @@ public class FlatPropertyNode extends BundlePropertyNode implements Comparable<F
 
     @Override
     public void destroy() throws IOException {
-        treeItem.getValue().deleteProperty();
+        treeItem.getValue().delete();
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        return new Action[0];
     }
 }

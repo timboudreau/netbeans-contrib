@@ -1,9 +1,47 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s): Denis Stepanov
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.properties.rbe.model.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,10 +60,11 @@ import org.netbeans.modules.properties.Util;
 import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.spi.ResourceBundleEditorBridge;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.MultiDataObject.Entry;
 
 /**
- *
- * @author denis
+ * The Resource Bundle Editor Bridge
+ * @author @author Denis Stepanov <denis.stepanov at gmail.com>
  */
 public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridge {
 
@@ -45,34 +84,13 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
             }
         });
 
-        initLocales();
-    }
-//    public BundlePropertyValue createPropertyBundleValue(Locale locale, BundleProperty bundleProperty) {
-//        createNewItemElem(locale, bundleProperty.getKey(), "", "");
-//        return getBundlePropertyValue(locale, bundleProperty, true);
-//    }
-//    public LocaleProperty getLocaleProperty(Locale locale, BundleProperty bundleProperty, boolean createIfNotExists) {
-//        ItemElem itemElem = getItemElem(locale, bundleProperty.getKey());
-//        LocaleProperty localeProperty = null;
-//        if (itemElem != null) {
-//            localeProperty = new LocaleProperty(bundleProperty, locale, itemElem.getValue(), itemElem.getComment());
-//        } else if (createIfNotExists) {
-//            createNewItemElem(locale, bundleProperty.getKey(), "", "");
-//            localeProperty = new LocaleProperty(bundleProperty, locale, "", ""); //Not created yet
-//        }
-//        return localeProperty;
-//    }
+        propertiesDataObject.addPropertyChangeListener(new PropertyChangeListener() {
 
-    public Property getLocaleProperty(Locale locale, String key, boolean createIfNotExists) {
-        ItemElem itemElem = getItemElem(locale, key);
-        Property property = null;
-        if (itemElem != null) {
-            property = new Property(locale, key, itemElem.getValue(), itemElem.getComment());
-        } else if (createIfNotExists) {
-            createNewItemElem(locale, key, "", "");
-            property = new Property(locale, key, "", "");
-        }
-        return property;
+            public void propertyChange(PropertyChangeEvent evt) {
+            }
+        });
+
+        initLocales();
     }
 
     public Collection<String> getKeys() {
@@ -83,23 +101,17 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         return locale2file.keySet();
     }
 
-    public String getPropertyValue(Locale locale, String key) {
+    public String getLocalePropertyValue(Locale locale, String key) {
         ItemElem itemElem = getItemElem(locale, key);
-        if (itemElem == null) {
-            throw new IllegalArgumentException("Cannot find properties file for locale: " + locale.toString());
-        }
-        return itemElem.getValue();
+        return itemElem == null ? null : itemElem.getValue();
     }
 
-    public String getPropertyComment(Locale locale, String key) {
+    public String getLocalePropertyComment(Locale locale, String key) {
         ItemElem itemElem = getItemElem(locale, key);
-        if (itemElem == null) {
-            throw new IllegalArgumentException("Cannot find properties file for locale: " + locale.toString());
-        }
-        return itemElem.getComment();
+        return itemElem == null ? null : itemElem.getComment();
     }
 
-    public void setPropertyValue(Locale locale, String key, String value) {
+    public void setLocalePropertyValue(Locale locale, String key, String value) {
         ItemElem itemElem = getItemElem(locale, key);
         if (itemElem == null) {
             createNewItemElem(locale, key, value, "");
@@ -108,7 +120,7 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         }
     }
 
-    public void setPropertyComment(Locale locale, String key, String comment) {
+    public void setLocalePropertyComment(Locale locale, String key, String comment) {
         ItemElem itemElem = getItemElem(locale, key);
         if (itemElem == null) {
             createNewItemElem(locale, key, "", comment);
@@ -117,19 +129,39 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         }
     }
 
-    public void deleteProperty(String key) {
-        bundleStructure.removeItem(key);
+    public void createLocaleProperty(Locale locale, String key, String value, String comment) {
+        createNewItemElem(locale, key, value, comment);
     }
 
-    public boolean isPropertyExists(Locale locale, String key) {
+    public boolean isPropertyExists(String key) {
+        for (Locale locale : getLocales()) {
+            PropertiesFileEntry entry = locale2file.get(locale);
+            if (entry != null && entry.getHandler().getStructure().getItem(key) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void deleteProperty(String key) {
+        for (Locale locale : getLocales()) {
+            PropertiesFileEntry entry = locale2file.get(locale);
+            if (entry != null) {
+                entry.getHandler().getStructure().deleteItem(key);
+            }
+        }
+    }
+
+    public boolean isLocalePropertyExists(Locale locale, String key) {
         return getItemElem(locale, key) != null;
     }
 
     private void initLocales() {
-        for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-            PropertiesFileEntry entry = bundleStructure.getNthEntry(e);
-            Locale locale = getLocaleFromPropertiesFileEntry(entry);
-            locale2file.put(locale, entry);
+        PropertiesFileEntry entry = (PropertiesFileEntry) propertiesDataObject.getPrimaryEntry();
+        locale2file.put(getLocaleFromPropertiesFileEntry(entry), entry);
+        for (Entry e : propertiesDataObject.secondaryEntries()) {
+            entry = (PropertiesFileEntry) e;
+            locale2file.put(getLocaleFromPropertiesFileEntry(entry), entry);
         }
     }
 
@@ -138,10 +170,18 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         return localeSuffix.length() == 0 ? Bundle.DEFAULT_LOCALE : new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
     }
 
-    private ItemElem getItemElem(Locale locale, String key) {
+    private PropertiesStructure getPropertiesStructure(Locale locale) {
         PropertiesFileEntry entry = locale2file.get(locale);
         if (entry != null) {
-            return entry.getHandler().getStructure().getItem(key);
+            return entry.getHandler().getStructure();
+        }
+        return null;
+    }
+
+    private ItemElem getItemElem(Locale locale, String key) {
+        PropertiesStructure propertiesStructure = getPropertiesStructure(locale);
+        if (propertiesStructure != null) {
+            return propertiesStructure.getItem(key);
         }
         return null;
     }
@@ -165,25 +205,11 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
             Locale locale = getLocaleFromPropertiesFileEntry(entry);
             ItemElem item = entry.getHandler().getStructure().getItem(e.getItemName());
             firePropertyChangedEvent(locale, item.getKey(), item.getValue(), item.getComment());
-//            PropertiesFileEntry entry = bundleStructure.getEntryByFileName(e.getEntryName());
-//            Locale locale = getLocaleFromPropertiesFileEntry(entry);
-//            BundleProperty property = bundle.getProperty(e.getItemName());
-//            if (property != null) {
-//                ItemElem newItem = entry.getHandler().getStructure().getItem(e.getItemName());
-//                LocaleProperty value = property.getLocalProperty(locale);
-//                if (value == null) {
-//                    property.addLocaleProperty(locale, new LocaleProperty(property, locale, newItem.getValue(), newItem.getComment()));
-//                } else {
-//                    value.updateValue(newItem.getValue());
-//                    value.updateComment(newItem.getComment());
-//                }
-//            }
         }
     }
 
     protected void firePropertyChangedEvent(Locale locale, String key, String value, String comment) {
         BridgeBundleEvent event = new BridgeBundleEvent(this, EventType.PROPERTY_CHANGED, locale, key, value, comment);
-
         for (BridgeEventListener l : listeners) {
             l.bundleChanged(event);
         }
