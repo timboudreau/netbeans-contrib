@@ -40,19 +40,21 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
+import java.util.List;
+import org.netbeans.modules.properties.rbe.ResourceBundleEditorOptions;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
+import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVisitor;
 import org.netbeans.modules.properties.rbe.model.visitor.TreeVisitor;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeTransfer;
+import org.openide.util.datatransfer.ExTransferable;
+import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -71,6 +73,10 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
     public BundleProperty getProperty() {
         return treeItem.getValue();
+    }
+
+    public TreeItem<BundleProperty> getTreeItem() {
+        return treeItem;
     }
 
     @Override
@@ -94,18 +100,97 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
     }
 
     @Override
+    public boolean canCopy() {
+        return true;
+    }
+
+    @Override
+    public boolean canCut() {
+        return true;
+    }
+
+    @Override
     public void destroy() throws IOException {
+        treeItem.getParent().removeChild(treeItem);
         treeItem.accept(new TreeVisitor<BundleProperty>() {
 
             public void visit(TreeItem<BundleProperty> t) {
                 for (TreeItem<BundleProperty> tree : t.getChildren()) {
                     tree.accept(this);
-                    tree.getValue().deleteProperty();
+                    tree.getValue().delete();
                 }
             }
         });
-        treeItem.getValue().deleteProperty();
-        treeItem.getParent().removeChild(treeItem);
+        treeItem.getValue().delete();
+    }
+
+    @Override
+    protected void createPasteTypes(Transferable t, List<PasteType> s) {
+        super.createPasteTypes(t, s);
+        Node node = NodeTransfer.node(t, NodeTransfer.CLIPBOARD_COPY);
+        if (node != null && node instanceof BundlePropertyNode) {
+            s.add(new TransferAction(((TreeItemPropertyNode) node).getTreeItem(), NodeTransfer.CLIPBOARD_COPY));
+        } else {
+            node = NodeTransfer.node(t, NodeTransfer.CLIPBOARD_CUT);
+            if (node != null && node instanceof TreeItemPropertyNode) {
+                s.add(new TransferAction(((TreeItemPropertyNode) node).getTreeItem(), NodeTransfer.CLIPBOARD_CUT));
+            }
+        }
+    }
+
+    /**
+     * Transfer action
+     * @param tree
+     * @param action
+     * @return true if paste type should be removed from the memory
+     */
+    protected boolean transferAction(TreeItem<BundleProperty> tree, final int action) {
+        final boolean isMoveAction = (action & NodeTransfer.MOVE) > 0;
+        if (tree.isSubtree(treeItem)) { // Don't move to the current tree
+            return false;
+        }
+        if (isMoveAction) {
+            // Remove reference from the root node to prevent CME
+            tree.getParent().removeChild(tree);
+        }
+        if (!tree.getParent().equals(treeItem)) { //Don't do anything when copy/cut to the same node
+            tree.accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
+
+                private StringBuilder nodeKey = new StringBuilder(treeItem.getValue().getKey());
+
+                @Override
+                protected void preVisit(TreeItem<BundleProperty> t) {
+                    nodeKey.append(ResourceBundleEditorOptions.getSeparator());
+                    nodeKey.append(t.getValue().getName());
+                    treeItem.getValue().getBundle().createPropertyFromExisting(nodeKey.toString(), t.getValue(), true);
+                }
+
+                @Override
+                protected void postVisit(TreeItem<BundleProperty> t) {
+                    if (isMoveAction) {
+                        t.getValue().delete();
+                    }
+                    nodeKey.setLength(nodeKey.length() - ResourceBundleEditorOptions.getSeparator().length() - t.getValue().getName().length());
+                }
+            });
+        }
+        return isMoveAction;
+    }
+
+    private class TransferAction extends PasteType {
+
+        private final TreeItem<BundleProperty> tree;
+        private final int type;
+
+        public TransferAction(TreeItem<BundleProperty> tree, int type) {
+            this.tree = tree;
+            this.type = type;
+        }
+
+        @Override
+        public Transferable paste() throws IOException {
+            return transferAction(tree, type) ? ExTransferable.EMPTY : null;
+        }
     }
 
     private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {

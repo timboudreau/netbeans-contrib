@@ -107,6 +107,18 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<T>, Comp
         firePropertyChangeEvent(PROPERTY_CHILDREN, null, null);
     }
 
+    public boolean isSubtree(TreeItem<T> subtree) {
+        if (equals(subtree)) {
+            return true;
+        }
+        for (TreeItem<T> child : getChildren()) {
+            if (child.isSubtree(subtree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isLeaf() {
         return children.isEmpty();
     }

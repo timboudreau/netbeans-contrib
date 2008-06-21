@@ -99,7 +99,7 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
     }
 
     public boolean isCreated() {
-        return property.getBundle().isPropertyExists(locale, getKey());
+        return property.getBundle().isLocalePropertyExists(locale, getKey());
     }
 
     public int compareTo(LocaleProperty o) {
