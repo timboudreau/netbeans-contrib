@@ -86,24 +86,26 @@ public class BundleProperty implements Comparable<BundleProperty> {
         return localeProperties.get(locale);
     }
 
-    public boolean isEmpty() {
-        return localeProperties.isEmpty();
+    public boolean isExists() {
+        return getBundle().isPropertyExists(key);
     }
 
-    public void deleteProperty() {
-        localeProperties.clear();
+    public void delete() {
         bundle.deleteProperty(key);
-    }
-
-    void addLocaleProperty(Locale locale, LocaleProperty value) {
-        localeProperties.put(locale, value);
-    }
-
-    void removeLocaleProperty(Locale locale) {
-        localeProperties.remove(locale);
     }
 
     public int compareTo(BundleProperty o) {
         return this.key.compareTo(o.key);
+    }
+
+    public void addLocaleProperty(Locale locale, LocaleProperty value) {
+        if (!getBundle().isLocalePropertyExists(locale, key)) {
+            getBundle().createLocaleProperty(locale, key, value.getValue() == null ? "" : value.getValue(), value.getComment());
+        }
+        localeProperties.put(locale, value);
+    }
+
+    public void removeLocaleProperty(Locale locale) {
+        localeProperties.remove(locale);
     }
 }
