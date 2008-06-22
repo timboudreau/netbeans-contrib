@@ -343,7 +343,7 @@ public class Type extends AstMirror implements DeclaredType {
         } else {
             return type.getKind() == TypeKind.DECLARED
                     ? ((DeclaredType) type).asElement().getSimpleName().toString()
-                    : type.getKind().name();
+                    : type.getKind().name().toLowerCase();
         }
     }
 
