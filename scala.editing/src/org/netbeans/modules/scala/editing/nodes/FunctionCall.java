@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
@@ -53,6 +54,7 @@ public class FunctionCall extends AstMirror {
 
     /** base may be AstExpression, FunctionCall, FieldCall, IdCall etc */
     private AstNode base;
+    private TypeMirror baseType;
     private AstId call;
     private List<? extends AstNode> args;
     private boolean apply;
@@ -67,6 +69,22 @@ public class FunctionCall extends AstMirror {
 
     public AstNode getBase() {
         return base;
+    }
+    
+    public void setBaseType(TypeMirror baseType) {
+        this.baseType = baseType;
+    }
+    
+    public TypeMirror getBaseType() {
+        if (baseType != null) {
+            return baseType;
+        } else {
+            if (base != null) {
+                return base.asType();
+            }
+        }
+        
+        return null;
     }
 
     public void setCall(AstId call) {
@@ -101,9 +119,9 @@ public class FunctionCall extends AstMirror {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
-            Type baseType = base.asType();
+            TypeMirror baseType = base.asType();
             if (baseType != null) {
-                sb.append(" :").append(baseType.getSimpleName());
+                sb.append(" :").append(Type.simpleNameOf(baseType));
             }
         }
         sb.append('.').append(call.getSimpleName());
@@ -126,12 +144,12 @@ public class FunctionCall extends AstMirror {
         
         @Override
         public int getPickOffset(TokenHierarchy th) {
-            return getBase().getPickOffset(th);
+            return getBase().getPickOffset(th);            
         }
 
         @Override
         public int getPickEndOffset(TokenHierarchy th) {
-            return getBase().getPickEndOffset(th);
+            return getBase().getPickEndOffset(th);            
         }
     }
 }

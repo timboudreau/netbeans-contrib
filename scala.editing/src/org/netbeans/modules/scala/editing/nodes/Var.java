@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -93,7 +94,7 @@ public class Var extends AstElement implements VariableElement {
     }
 
     @Override
-    public Type asType() {
+    public TypeMirror asType() {
         if (type != null) {
             return type;
         }
@@ -120,11 +121,13 @@ public class Var extends AstElement implements VariableElement {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        Type myType = asType();
+        TypeMirror myType = asType();
         if (myType != null) {
             formatter.type(true);
             formatter.appendHtml(" :");
-            myType.htmlFormat(formatter);
+            if (myType instanceof Type) {
+                ((Type) myType).htmlFormat(formatter);
+            }
             formatter.type(false);
         }
     }

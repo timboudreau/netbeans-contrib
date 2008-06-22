@@ -53,6 +53,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  */
 public class Packaging extends AstElement implements PackageElement {
 
+    private Name qualifiedName;
     private List<AstId> ids;
     private boolean top;
 
@@ -74,7 +75,6 @@ public class Packaging extends AstElement implements PackageElement {
         return super.getSimpleName();
     }    
     
-    @Override
     public Name getQualifiedName() {
         if (qualifiedName == null) {
             StringBuilder sb = new StringBuilder();

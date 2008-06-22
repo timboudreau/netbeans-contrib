@@ -43,13 +43,13 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -69,8 +69,7 @@ public abstract class AstNode {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private Name simpleName;
-    protected Type type;
-    protected Name qualifiedName;
+    protected TypeMirror type;
 
     protected AstNode() {
         this(null, null);
@@ -142,40 +141,19 @@ public abstract class AstNode {
         return getSimpleName().toString();
     }
 
-    public void setQualifiedName(CharSequence qName) {
-        if (qName != null) {
-            if (qName instanceof Name) {
-                this.qualifiedName = (Name) qName;
-            } else {
-                this.qualifiedName = new AstName(qName);
-            }
-        } else {
-            this.qualifiedName = null;
-        }
-    }
-
-    public Name getQualifiedName() {
-        if (qualifiedName == null) {
-            Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getSimpleName() : new AstName(packaging.getQualifiedName() + "." + getSimpleName());
-        }
-
-        return qualifiedName;
-    }
-
     public Packaging getPackageElement() {
-        return getEnclosingDef(Packaging.class);
+        return getEnclosingElement(Packaging.class);
     }
 
-    public void setType(Type type) {
+    public void setType(TypeMirror type) {
         this.type = type;
     }
 
-    public Type asType() {
+    public TypeMirror asType() {
         return type;
     }
 
-    public <T extends AstElement> T getEnclosingDef(Class<T> clazz) {
+    public <T extends AstElement> T getEnclosingElement(Class<T> clazz) {
         return getEnclosingScope().getEnclosingElement(clazz);
     }
 
@@ -228,7 +206,7 @@ public abstract class AstNode {
     }
 
     public String getIn() {
-        Template enclosingTemplate = getEnclosingDef(Template.class);
+        Template enclosingTemplate = getEnclosingElement(Template.class);
         if (enclosingTemplate != null) {
             return enclosingTemplate.getQualifiedName().toString();
         } else {
@@ -236,7 +214,7 @@ public abstract class AstNode {
         }
     }
 
-    protected static class AstName implements Name {
+    public static class AstName implements Name {
 
         private CharSequence name;
 

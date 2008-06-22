@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  * Refernece/Mirror of an Id
@@ -54,7 +54,7 @@ public class IdCall extends AstMirror {
     }
 
     @Override
-    public Type asType() {
+    public TypeMirror asType() {
         if (type != null) {
             return type;
         }

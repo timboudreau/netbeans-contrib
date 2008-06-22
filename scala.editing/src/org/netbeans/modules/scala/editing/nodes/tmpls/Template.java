@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
@@ -48,6 +49,7 @@ import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
+import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 
@@ -58,6 +60,7 @@ import org.netbeans.modules.scala.editing.nodes.types.Type;
 public abstract class Template extends AstElement implements TypeElement {
 
     private boolean caseOne;
+    private Name qualifiedName;
     private Type superClass;
     private List<Type> withTraits;
     private List<TypeParam> typeParameters;
@@ -83,6 +86,27 @@ public abstract class Template extends AstElement implements TypeElement {
         return typeParameters == null ? Collections.<TypeParam>emptyList() : typeParameters;
     }
 
+    public void setQualifiedName(CharSequence qName) {
+        if (qName != null) {
+            if (qName instanceof Name) {
+                this.qualifiedName = (Name) qName;
+            } else {
+                this.qualifiedName = new AstName(qName);
+            }
+        } else {
+            this.qualifiedName = null;
+        }
+    }
+
+    public Name getQualifiedName() {
+        if (qualifiedName == null) {
+            Packaging packaging = getPackageElement();
+            qualifiedName = packaging == null ? getSimpleName() : new AstName(packaging.getQualifiedName() + "." + getSimpleName());
+        }
+
+        return qualifiedName;
+    }
+
     public void assignTypeParams(List<Type> typeArgs) {
         assert getTypeParameters().size() == typeArgs.size();
         List<? extends TypeParam> _typeParams = getTypeParameters();
@@ -104,15 +128,15 @@ public abstract class Template extends AstElement implements TypeElement {
     public void setSuperClass(Type superClass) {
         this.superClass = superClass;
     }
-    
+
     public void setWithTraits(List<Type> withTraits) {
         this.withTraits = withTraits;
     }
 
     public void setTypeParameters(List<TypeParam> typeParameters) {
         this.typeParameters = typeParameters;
-    }    
-    
+    }
+
     @Override
     public boolean isMirroredBy(AstMirror mirror) {
         if (mirror instanceof Type) {
