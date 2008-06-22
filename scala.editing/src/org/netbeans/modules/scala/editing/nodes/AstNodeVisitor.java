@@ -66,6 +66,7 @@ import org.netbeans.modules.scala.editing.nodes.types.SimpleTupleType;
 import org.netbeans.modules.scala.editing.nodes.types.SimpleIdType;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.types.FunType;
+import org.netbeans.modules.scala.editing.nodes.types.PredefinedTypes;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -489,19 +490,19 @@ public class AstNodeVisitor extends AstVisitor {
         }
 
         if (literalNode.getName().equals("FloatingPointLiteral")) {
-            literal.setType(Type.Float);
+            literal.setType(PredefinedTypes.FloatType);
         } else if (literalNode.getName().equals("IntegerLiteral")) {
-            literal.setType(Type.Int);
+            literal.setType(PredefinedTypes.IntType);
         } else if (literalNode.getName().equals("BooleanLiteral")) {
-            literal.setType(Type.Boolean);
+            literal.setType(PredefinedTypes.BooleanType);
         } else if (literalNode.getName().equals("NullLiteral")) {
-            literal.setType(Type.Null);
+            literal.setType(PredefinedTypes.NullType);
         } else if (literalNode.getName().equals("CharacterLiteral")) {
-            literal.setType(Type.Char);
+            literal.setType(PredefinedTypes.CharType);
         } else if (literalNode.getName().equals("StringLiteral")) {
-            literal.setType(Type.String);
+            literal.setType(PredefinedTypes.StringType);
         } else if (literalNode.getName().equals("SymbolLiteral")) {
-            literal.setType(Type.Symbol);
+            literal.setType(PredefinedTypes.SymbolType);
         }
 
         exit(that);

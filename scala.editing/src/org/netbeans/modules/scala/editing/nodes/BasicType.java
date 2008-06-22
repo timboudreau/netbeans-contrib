@@ -9,7 +9,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
-import org.netbeans.modules.scala.editing.nodes.BasicName;
 
 /**
  * DeclaredType implementation without AstNode infomation
@@ -22,7 +21,6 @@ import org.netbeans.modules.scala.editing.nodes.BasicName;
 public class BasicType implements DeclaredType {
 
     private Name simpleName;
-    private Name qualifiedName;
     private TypeKind kind;
     private List<? extends TypeMirror> typeArguments;
     private TypeElement element;
@@ -33,6 +31,11 @@ public class BasicType implements DeclaredType {
 
     public BasicType(TypeElement element) {
         this.kind = TypeKind.DECLARED;
+        this.element = element;
+    }
+
+    public BasicType(TypeElement element, TypeKind kind) {
+        this.kind = kind;
         this.element = element;
     }
 

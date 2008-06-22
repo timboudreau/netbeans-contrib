@@ -38,12 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import org.netbeans.modules.scala.editing.nodes.BasicType;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -54,6 +51,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.BasicName;
+import org.netbeans.modules.scala.editing.nodes.BasicType;
 import org.netbeans.modules.scala.editing.nodes.BasicTypeElement;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 
@@ -63,132 +61,6 @@ import org.netbeans.modules.scala.editing.nodes.Importing;
  */
 public class Type extends AstMirror implements DeclaredType {
 
-    // ----- Predefined Type
-    public static final Type Any = new Type("Any", null, TypeKind.NONE) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Any;
-        }
-    };
-    public static final Type AnyRef = new Type("AnyRef", null, TypeKind.NONE) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.AnyRef;
-        }
-    };
-    public static final Type AnyVal = new Type("AnyVal", null, TypeKind.NONE) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.AnyVal;
-        }
-    };
-    public static final Type Double = new Type("Double", null, TypeKind.DOUBLE) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Double;
-        }
-    };
-    public static final Type Float = new Type("Float", null, TypeKind.FLOAT) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Float;
-        }
-    };
-    public static final Type Long = new Type("Long", null, TypeKind.LONG) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Long;
-        }
-    };
-    public static final Type Int = new Type("Int", null, TypeKind.INT) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Int;
-        }
-    };
-    public static final Type Short = new Type("Short", null, TypeKind.SHORT) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Short;
-        }
-    };
-    public static final Type Byte = new Type("Byte", null, TypeKind.BYTE) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Byte;
-        }
-    };
-    public static final Type Boolean = new Type("Boolean", null, TypeKind.BOOLEAN) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Boolean;
-        }
-    };
-    public static final Type Null = new Type("Unit", null, TypeKind.NULL) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Null;
-        }
-    };
-    public static final Type Char = new Type("Char", null, TypeKind.CHAR) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Char;
-        }
-    };
-    public static final Type String = new Type("String", null, TypeKind.DECLARED) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.String;
-        }
-    };
-    public static final Type Symbol = new Type("Symbol", null, TypeKind.OTHER) {
-
-        @Override
-        public TypeElement asElement() {
-            return BasicTypeElement.Symbol;
-        }
-    };
-    public static Map<String, Type> PRED_TYPES = new HashMap<String, Type>();
-    
-
-    static {
-        PRED_TYPES.put("Any", Any);
-        PRED_TYPES.put("AnyRef", AnyRef);
-        PRED_TYPES.put("AnyVal", AnyVal);
-        PRED_TYPES.put("Double", Double);
-        PRED_TYPES.put("double", Double);
-        PRED_TYPES.put("Float", Float);
-        PRED_TYPES.put("float", Float);
-        PRED_TYPES.put("Long", Long);
-        PRED_TYPES.put("long", Long);
-        PRED_TYPES.put("Int", Int);
-        PRED_TYPES.put("int", Int);
-        PRED_TYPES.put("Short", Short);
-        PRED_TYPES.put("short", Short);
-        PRED_TYPES.put("Byte", Byte);
-        PRED_TYPES.put("byte", Byte);
-        PRED_TYPES.put("Boolean", Boolean);
-        PRED_TYPES.put("boolean", Boolean);
-        PRED_TYPES.put("Unit", Null);
-        PRED_TYPES.put("unit", Null);
-        PRED_TYPES.put("Char", Char);
-        PRED_TYPES.put("char", Char);
-        PRED_TYPES.put("String", String);
-    }
     private List<String> annotations;
     private List<? extends TypeMirror> typeArgs;
     private TypeKind kind;
@@ -262,7 +134,7 @@ public class Type extends AstMirror implements DeclaredType {
             return element;
         }
 
-        Type predType = PRED_TYPES.get(getSimpleName().toString());
+        DeclaredType predType = PredefinedTypes.PRED_TYPES.get(getSimpleName().toString());
         if (predType != null) {
             element = (TypeElement) predType.asElement();
         }
@@ -380,7 +252,7 @@ public class Type extends AstMirror implements DeclaredType {
         } else {
             String typeSName = type.getKind().name();
             // convert to Scala's declared type
-            return (TypeElement) PRED_TYPES.get(typeSName.toLowerCase()).asElement();
+            return (TypeElement) PredefinedTypes.PRED_TYPES.get(typeSName.toLowerCase()).asElement();
         }
     }
 

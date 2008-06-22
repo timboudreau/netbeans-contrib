@@ -70,6 +70,7 @@ import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.BasicType;
+import org.netbeans.modules.scala.editing.nodes.types.PredefinedTypes;
 
 /**
  *
@@ -287,7 +288,7 @@ public class ScalaTypeInferencer {
                     }
 
                     if (mRetTypeSName.equals("void")) {
-                        functionCall.setType(Type.Null);
+                        functionCall.setType(PredefinedTypes.NullType);
                         break;
                     }
 
@@ -423,7 +424,7 @@ public class ScalaTypeInferencer {
                     mRetTypeSName = "Unit";
                 }
                 if (mRetTypeSName.equals("Unit")) {
-                    fieldCall.setType(Type.Null);
+                    fieldCall.setType(PredefinedTypes.NullType);
                     break;
                 }
 

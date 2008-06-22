@@ -51,43 +51,12 @@ import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.modules.scala.editing.nodes.BasicName;
 
 /**
  *
  * @author Caoyuan Deng
  */
 public class BasicTypeElement implements TypeElement {
-    // ----- Prededined Name
-    protected static final Name SCALA_ANY = new BasicName("scala.Any");
-    protected static final Name SCALA_ANYREF = new BasicName("scala.AnyRef");
-    protected static final Name SCALA_ANYVAL = new BasicName("scala.AnyVal");
-    protected static final Name SCALA_DOUBLE = new BasicName("scala.Double");
-    protected static final Name SCALA_FLOAT = new BasicName("scala.Float");
-    protected static final Name SCALA_LONG = new BasicName("scala.Long");
-    protected static final Name SCALA_INT = new BasicName("scala.Int");
-    protected static final Name SCALA_SHORT = new BasicName("scala.Short");
-    protected static final Name SCALA_BYTE = new BasicName("scala.Byte");
-    protected static final Name SCALA_BOOLEAN = new BasicName("scala.Boolean");
-    protected static final Name SCALA_UNIT = new BasicName("scala.Unit");
-    protected static final Name SCALA_CHAR = new BasicName("scala.Char");
-    protected static final Name JAVA_LANG_STRING = new BasicName("java.lang.String");
-    protected static final Name SCALA_SYMBOL = new BasicName("scala.AnyRef");    
-    // ----- Predefined TypeElement
-    public static final TypeElement Any = new BasicTypeElement("Any", SCALA_ANY);
-    public static final TypeElement AnyRef = new BasicTypeElement("AnyRef", SCALA_ANYREF);
-    public static final TypeElement AnyVal = new BasicTypeElement("AnyVal", SCALA_ANYVAL);
-    public static final TypeElement Double = new BasicTypeElement("Double", SCALA_DOUBLE);
-    public static final TypeElement Float = new BasicTypeElement("Float", SCALA_FLOAT);
-    public static final TypeElement Long = new BasicTypeElement("Long", SCALA_LONG);
-    public static final TypeElement Int = new BasicTypeElement("Int", SCALA_INT);
-    public static final TypeElement Short = new BasicTypeElement("Short", SCALA_SHORT);
-    public static final TypeElement Byte = new BasicTypeElement("Byte", SCALA_BYTE);
-    public static final TypeElement Boolean = new BasicTypeElement("Boolean", SCALA_BOOLEAN);
-    public static final TypeElement Null = new BasicTypeElement("Unit", SCALA_UNIT);
-    public static final TypeElement Char = new BasicTypeElement("Char", SCALA_CHAR);
-    public static final TypeElement String = new BasicTypeElement("String", JAVA_LANG_STRING);
-    public static final TypeElement Symbol = new BasicTypeElement("Symbol", SCALA_ANYREF);
     private Name simpleName;
     private Name qualifiedName;
 
