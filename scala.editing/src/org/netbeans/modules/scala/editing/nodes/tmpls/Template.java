@@ -48,6 +48,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
@@ -91,7 +92,7 @@ public abstract class Template extends AstElement implements TypeElement {
             if (qName instanceof Name) {
                 this.qualifiedName = (Name) qName;
             } else {
-                this.qualifiedName = new AstName(qName);
+                this.qualifiedName = new BasicName(qName);
             }
         } else {
             this.qualifiedName = null;
@@ -101,7 +102,7 @@ public abstract class Template extends AstElement implements TypeElement {
     public Name getQualifiedName() {
         if (qualifiedName == null) {
             Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getSimpleName() : new AstName(packaging.getQualifiedName() + "." + getSimpleName());
+            qualifiedName = packaging == null ? getSimpleName() : new BasicName(packaging.getQualifiedName() + "." + getSimpleName());
         }
 
         return qualifiedName;

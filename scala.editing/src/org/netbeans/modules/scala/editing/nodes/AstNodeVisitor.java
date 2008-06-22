@@ -2180,7 +2180,7 @@ public class AstNodeVisitor extends AstVisitor {
 
                 @Override
                 public Name getSimpleName() {
-                    return new AstName("todo");
+                    return new BasicName("todo");
                 }
             };
 
@@ -2448,7 +2448,7 @@ public class AstNodeVisitor extends AstVisitor {
 
                 @Override
                 public Name getSimpleName() {
-                    return new AstName("{...}");
+                    return new BasicName("{...}");
                 }
             };
         }

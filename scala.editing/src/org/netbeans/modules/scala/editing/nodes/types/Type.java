@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -54,6 +53,7 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 import org.netbeans.modules.scala.editing.nodes.BasicTypeElement;
 import org.netbeans.modules.scala.editing.nodes.Importing;
 
@@ -189,7 +189,6 @@ public class Type extends AstMirror implements DeclaredType {
         PRED_TYPES.put("char", Char);
         PRED_TYPES.put("String", String);
     }
-    public static final Name UNRESOLVED = new AstName("-1");
     private List<String> annotations;
     private List<? extends TypeMirror> typeArgs;
     private TypeKind kind;
@@ -294,7 +293,7 @@ public class Type extends AstMirror implements DeclaredType {
                 if (importedType.element == null) { // don't call importedType.asElement() here, which causes cycled calling
                     String sName = importedType.getSimpleName().toString();
                     String qName = importing.getPackageName() + "." + sName;
-                    importedType.setElement(new BasicTypeElement(sName, new AstName(qName)));
+                    importedType.setElement(new BasicTypeElement(sName, new BasicName(qName)));
                 }
                 
                 if (importedType.getSimpleName().toString().equals(getSimpleName().toString())) {

@@ -63,6 +63,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
@@ -152,7 +153,7 @@ public class IndexedElement extends AstElement {
 
     IndexedElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
         super(sName, null, null, kind);
-        this.qualifiedName = new AstName(qName);
+        this.qualifiedName = new BasicName(qName);
         this.fqn = qName;
         this.name = sName;
         this.in = in;
@@ -228,7 +229,7 @@ public class IndexedElement extends AstElement {
 
     @Override
     public Name getSimpleName() {
-        return new AstName(name);
+        return new BasicName(name);
     }
 
     @Override

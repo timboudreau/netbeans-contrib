@@ -139,7 +139,7 @@ public class FunctionCall extends AstMirror {
 
         @Override
         public Name getSimpleName() {
-            return new AstName("apply");
+            return new BasicName("apply");
         }        
         
         @Override

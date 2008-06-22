@@ -51,7 +51,7 @@ import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.modules.scala.editing.nodes.AstNode.AstName;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 
 /**
  *
@@ -59,20 +59,20 @@ import org.netbeans.modules.scala.editing.nodes.AstNode.AstName;
  */
 public class BasicTypeElement implements TypeElement {
     // ----- Prededined Name
-    protected static final Name SCALA_ANY = new AstName("scala.Any");
-    protected static final Name SCALA_ANYREF = new AstName("scala.AnyRef");
-    protected static final Name SCALA_ANYVAL = new AstName("scala.AnyVal");
-    protected static final Name SCALA_DOUBLE = new AstName("scala.Double");
-    protected static final Name SCALA_FLOAT = new AstName("scala.Float");
-    protected static final Name SCALA_LONG = new AstName("scala.Long");
-    protected static final Name SCALA_INT = new AstName("scala.Int");
-    protected static final Name SCALA_SHORT = new AstName("scala.Short");
-    protected static final Name SCALA_BYTE = new AstName("scala.Byte");
-    protected static final Name SCALA_BOOLEAN = new AstName("scala.Boolean");
-    protected static final Name SCALA_UNIT = new AstName("scala.Unit");
-    protected static final Name SCALA_CHAR = new AstName("scala.Char");
-    protected static final Name JAVA_LANG_STRING = new AstName("java.lang.String");
-    protected static final Name SCALA_SYMBOL = new AstName("scala.AnyRef");    
+    protected static final Name SCALA_ANY = new BasicName("scala.Any");
+    protected static final Name SCALA_ANYREF = new BasicName("scala.AnyRef");
+    protected static final Name SCALA_ANYVAL = new BasicName("scala.AnyVal");
+    protected static final Name SCALA_DOUBLE = new BasicName("scala.Double");
+    protected static final Name SCALA_FLOAT = new BasicName("scala.Float");
+    protected static final Name SCALA_LONG = new BasicName("scala.Long");
+    protected static final Name SCALA_INT = new BasicName("scala.Int");
+    protected static final Name SCALA_SHORT = new BasicName("scala.Short");
+    protected static final Name SCALA_BYTE = new BasicName("scala.Byte");
+    protected static final Name SCALA_BOOLEAN = new BasicName("scala.Boolean");
+    protected static final Name SCALA_UNIT = new BasicName("scala.Unit");
+    protected static final Name SCALA_CHAR = new BasicName("scala.Char");
+    protected static final Name JAVA_LANG_STRING = new BasicName("java.lang.String");
+    protected static final Name SCALA_SYMBOL = new BasicName("scala.AnyRef");    
     // ----- Predefined TypeElement
     public static final TypeElement Any = new BasicTypeElement("Any", SCALA_ANY);
     public static final TypeElement AnyRef = new BasicTypeElement("AnyRef", SCALA_ANYREF);
@@ -92,7 +92,7 @@ public class BasicTypeElement implements TypeElement {
     private Name qualifiedName;
 
     public BasicTypeElement(String sName, Name qualifiedName) {
-        this.simpleName = new AstName(sName);
+        this.simpleName = new BasicName(sName);
         this.qualifiedName = qualifiedName;
     }
 

@@ -9,7 +9,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
-import org.netbeans.modules.scala.editing.nodes.AstNode.AstName;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 
 /**
  * DeclaredType implementation without AstNode infomation
@@ -37,7 +37,7 @@ public class BasicType implements DeclaredType {
     }
 
     public void setSimpleName(CharSequence sName) {
-        simpleName = new AstName(sName);
+        simpleName = new BasicName(sName);
     }
 
     public Name getSimpleName() {

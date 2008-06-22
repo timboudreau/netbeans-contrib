@@ -93,7 +93,7 @@ public abstract class AstNode {
             if (sName instanceof Name) {
                 this.simpleName = (Name) sName;
             } else {
-                this.simpleName = new AstName(sName);
+                this.simpleName = new BasicName(sName);
             }
         } else {
             this.simpleName = null;
@@ -211,55 +211,6 @@ public abstract class AstNode {
             return enclosingTemplate.getQualifiedName().toString();
         } else {
             return "";
-        }
-    }
-
-    public static class AstName implements Name {
-
-        private CharSequence name;
-
-        public AstName(CharSequence name) {
-            assert name != null : "AstName should not be null";
-            this.name = name;
-        }
-
-        public char charAt(int index) {
-            return name.charAt(index);
-        }
-
-        public boolean contentEquals(CharSequence arg0) {
-            return name.toString().contentEquals(arg0.toString());
-        }
-
-        public int length() {
-            return name.length();
-        }
-
-        public CharSequence subSequence(int start, int end) {
-            return name.subSequence(start, end);
-        }
-
-        /** 
-         * @Notice it work for AstName.equals(Name), but we can not sure Name.equals(AstName), 
-         * so, we should use Name.toString().equals(Name) instead */
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Name) {
-                return contentEquals((Name) obj);
-            } else if (obj instanceof CharSequence) {
-                return contentEquals((CharSequence) obj);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return name.toString().hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return name.toString();
         }
     }
 }

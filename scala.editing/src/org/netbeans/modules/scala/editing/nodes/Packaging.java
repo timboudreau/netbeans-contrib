@@ -84,7 +84,7 @@ public class Packaging extends AstElement implements PackageElement {
                     sb.append(".");
                 }
             }
-            qualifiedName = new AstName(sb);
+            qualifiedName = new BasicName(sb);
         }
 
         return qualifiedName;
