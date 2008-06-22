@@ -52,17 +52,17 @@ public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> impl
 
     public void visit(TreeItem<T> t) {
         if (!isDone()) {
+            preVisit(t); /* Pre-visit */
+            if (isDone()) {
+                return;
+            }
             for (TreeItem<T> tree : t.getChildren()) {
-                preVisit(tree); /* Pre-visit */
-                if (isDone()) {
-                    return;
-                }
                 tree.accept(this);
-                postVisit(tree); /* Post-visit */
                 if (isDone()) {
                     return;
                 }
             }
+            postVisit(t); /* Post-visit */
         }
     }
 
@@ -70,13 +70,15 @@ public abstract class AbstractTraversalTreeVisitor<T extends Comparable<T>> impl
      * Pre-visit the tree
      * @param t tree
      */
-    protected abstract void preVisit(TreeItem<T> t);
+    protected void preVisit(TreeItem<T> t) {
+    }
 
     /**
      * Post-visit the tree
      * @param t
      */
-    protected abstract void postVisit(TreeItem<T> t);
+    protected void postVisit(TreeItem<T> t) {
+    }
 
     /**
      * Is done?

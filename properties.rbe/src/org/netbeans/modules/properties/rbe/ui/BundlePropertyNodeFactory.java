@@ -69,7 +69,7 @@ public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundlePrope
                 rbe.getBundle().getPropertyTree().accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
 
                     public void preVisit(TreeItem<BundleProperty> tree) {
-                        if (tree.getValue() != null && !tree.getValue().isEmpty()) {
+                        if (tree.getValue() != null && tree.getValue().isExists()) {
                             toPopulate.add(tree);
                         }
                     }
