@@ -104,7 +104,12 @@ public class FunctionCall extends AstMirror {
     }
 
     public boolean isLocal() {
-        return base == null;
+        /**
+         * @Note:
+         * in case of "apply" call (remove call), after type inference, baseType
+         * may be set without base.
+         */
+        return base == null && baseType == null;
     }
 
     public void setApply() {
@@ -119,9 +124,9 @@ public class FunctionCall extends AstMirror {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
-            TypeMirror baseType = base.asType();
-            if (baseType != null) {
-                sb.append(" :").append(Type.simpleNameOf(baseType));
+            TypeMirror _baseType = base.asType();
+            if (_baseType != null) {
+                sb.append(" :").append(Type.simpleNameOf(_baseType));
             }
         }
         sb.append('.').append(call.getSimpleName());

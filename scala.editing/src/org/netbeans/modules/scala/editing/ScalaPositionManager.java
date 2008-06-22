@@ -71,6 +71,8 @@ public class ScalaPositionManager implements PositionManager {
             Element element = ((GsfElement) eHandle).getElement();
             if (element instanceof AstElement) {
                 range = ScalaLexUtilities.getRangeOfToken(th, ((AstElement) element).getPickToken());
+            } else if (element instanceof IndexedElement) {
+                range = ((IndexedElement) element).getRange(th);
             }
         }
 

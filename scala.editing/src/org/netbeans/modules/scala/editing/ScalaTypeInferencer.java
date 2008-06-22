@@ -161,16 +161,14 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        String baseTypeTmpl = null;
         String baseTypeQName = null;
         String callName = null;
 
-        TypeMirror baseType = functionCall.getBaseType();
-        if (baseType == null) {
-            // resolve return type of funRef:
-            AstNode base = functionCall.getBase();
-            if (base != null) {
-
+        // resolve return type of funRef:
+        AstNode base = functionCall.getBase();
+        if (base != null) {
+            TypeMirror baseType = functionCall.getBaseType();
+            if (baseType == null) {
                 if (base instanceof PathId) {
                     // shoudl convert it to FieldCall first
                     List<AstId> paths = ((PathId) base).getPaths();
@@ -248,7 +246,7 @@ public class ScalaTypeInferencer {
 
                 TypeElement typeElement = globalInferType(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
                 if (typeElement != null) {
-                    baseType = new BasicType(typeElement);
+                    TypeMirror baseType = new BasicType(typeElement);
                     baseTypeQName = Type.qualifiedNameOf(baseType);
 
                     functionCall.setBaseType(baseType);
@@ -256,7 +254,7 @@ public class ScalaTypeInferencer {
 
                     functionCall.setApply();
                     callName = "apply";
-                    baseTypeTmpl = "object";
+                    //String baseTypeTmpl = "object";
                 }
 
             }
@@ -327,10 +325,10 @@ public class ScalaTypeInferencer {
 
         // resolve return type of fieldRef:
         String baseTypeQName = null;
-        TypeMirror baseType = fieldCall.getBaseType();
-        if (baseType == null) {
-            AstNode base = fieldCall.getBase();
-            if (base != null) {
+        AstNode base = fieldCall.getBase();
+        if (base != null) {
+            TypeMirror baseType = fieldCall.getBaseType();
+            if (baseType == null) {
                 if (base instanceof PathId) {
                     List<AstId> paths = ((PathId) base).getPaths();
                     assert !paths.isEmpty();
@@ -366,23 +364,24 @@ public class ScalaTypeInferencer {
 
                 baseType = base.asType();
             }
-        }
 
-        if (baseType != null) {
-            if (!Type.isResolved(baseType)) {
-                globalInferType(index, baseType);
+            if (baseType != null) {
+                if (!Type.isResolved(baseType)) {
+                    globalInferType(index, baseType);
+                }
+
+                if (Type.isResolved(baseType)) {
+                    baseTypeQName = Type.qualifiedNameOf(baseType);
+                } else {
+                    // @todo resolve it first
+                }
             }
 
-            if (Type.isResolved(baseType)) {
-                baseTypeQName = Type.qualifiedNameOf(baseType);
-            } else {
-                // @todo resolve it first
-                }
+            if (baseTypeQName == null) {
+                return;
+            }
         }
 
-        if (baseTypeQName == null) {
-            return;
-        }
 
         AstId field = fieldCall.getField();
         String fieldName = field.getSimpleName().toString();
