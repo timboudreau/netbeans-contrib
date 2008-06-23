@@ -69,7 +69,7 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandTaskSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
@@ -167,32 +167,55 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     private VcsCommandExecutor createExecutor() {
-        VcsFileSystem fileSystem;
+        VcsProvider provider;
         CommandExecutionContext executionContext = cmdSupport.getExecutionContext();
-        if (executionContext instanceof VcsFileSystem) {
-            fileSystem = (VcsFileSystem) executionContext;
+        if (executionContext instanceof VcsProvider) {
+            provider = (VcsProvider) executionContext;
         } else {
-            fileSystem = null;
+            provider = null;
         }
-        Hashtable vars = executionContext.getVariablesAsHashtable();
+        Map vars = executionContext.getVariableValuesMap();
         Map additionalVariables = cmd.getAdditionalVariables();
         if (additionalVariables != null) vars.putAll(additionalVariables);
         UserCommand uCmd = (UserCommand) cmd.getVcsCommand();
         VcsCommandExecutor vce;
-        if (fileSystem != null && (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
-                                   (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
+        if (provider != null && (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
+                                 (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
                 
-            vce = createRefresh(fileSystem, vars, uCmd);
-        } else if (fileSystem != null && (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) ||
-                                          (VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
-            vce = createRecursiveRefresh(fileSystem, vars, uCmd);
+            vce = createRefresh(provider, vars, uCmd);
+        } else if (provider != null && (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName()) ||
+                                        (VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName()))) {
+            vce = createRecursiveRefresh(provider, vars, uCmd);
         } else {
             vce = new ExecuteCommand(executionContext, uCmd, vars, cmd.getPreferredExec());
         }
         return vce;
     }
     
-    private File getRefreshDir(VcsFileSystem fileSystem, Hashtable vars) {
+    private String getRefreshPath(VcsProvider provider, Hashtable vars) {
+        String path = null;
+        FileObject[] fos = cmd.getFiles();
+        if (fos != null && fos.length > 0) {
+            path = fos[0].getPath();
+            int i = path.lastIndexOf('.');
+            if (i != -1 && i > path.lastIndexOf('/')) {
+                path = path.substring(0, i);
+            }
+        } else {
+            File[] diskFiles = cmd.getDiskFiles();
+            if (diskFiles != null && diskFiles.length > 0) {
+                path = diskFiles[0].getAbsolutePath();
+                String root = provider.getRootDirectory().getAbsolutePath();
+                if (path.indexOf(root) == 0) {
+                    path = path.substring(root.length());
+                    while (path.startsWith(File.separator)) path = path.substring(1);
+                }
+            }
+        }
+        return path;
+    }
+
+    private File getRefreshDir(VcsProvider provider, Map vars) {
         File dir = null;
         FileObject[] fos = cmd.getFiles();
         boolean isDir = true;
@@ -210,8 +233,8 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return dir;
     }
     
-    private VcsCommandExecutor createRefresh(VcsFileSystem fileSystem,
-                                             Hashtable vars, UserCommand uCmd) {
+    private VcsCommandExecutor createRefresh(VcsProvider provider,
+                                             Map vars, UserCommand uCmd) {
         //FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         //FileCacheProvider cache = fileSystem.getCacheProvider();
         //if (statusProvider == null) return null;
@@ -228,16 +251,16 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             vars.put("DIR", dir);
             this.cmd.setAdditionalVariables(vars);
             //System.out.println("\n\ncreateRefresh(), MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
-            return new CommandLineVcsDirReader(dirListener, fileSystem, uCmd, vars);
+            return new CommandLineVcsDirReader(dirListener, provider, uCmd, vars);
         } else {
-            spawnRefreshFile = createDirProbe(getRefreshDir(fileSystem, vars));
+            spawnRefreshFile = createDirProbe(getRefreshDir(provider, vars));
             spawnRefreshRecursively = false;
             return null;
         }
     }
     
-    private VcsCommandExecutor createRecursiveRefresh(VcsFileSystem fileSystem,
-                                                      Hashtable vars, UserCommand uCmd) {
+    private VcsCommandExecutor createRecursiveRefresh(VcsProvider provider,
+                                                      Map vars, UserCommand uCmd) {
         //FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         //FileCacheProvider cache = fileSystem.getCacheProvider();
         //if (statusProvider == null) return null;
@@ -253,9 +276,9 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             vars.put("FILE", "");
             vars.put("DIR", dir);
             this.cmd.setAdditionalVariables(vars);
-            return new CommandLineVcsDirReaderRecursive(dirListener, fileSystem, uCmd, vars);
+            return new CommandLineVcsDirReaderRecursive(dirListener, provider, uCmd, vars);
         } else {
-            spawnRefreshFile = createDirProbe(getRefreshDir(fileSystem, vars));
+            spawnRefreshFile = createDirProbe(getRefreshDir(provider, vars));
             spawnRefreshRecursively = true;
             return null;
         }
@@ -273,7 +296,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     /** Spawn the refresh task. */
-    void spawnRefresh(VcsFileSystem fileSystem) {
+    void spawnRefresh(VcsProvider provider) {
         assert spawnRefreshFile != null;
         final FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
         assert fo != null : "Missing fileobject for " + spawnRefreshFile.getAbsolutePath(); // NOI18N
@@ -308,18 +331,18 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         if (files == null) {
             // XXX assert false : "can cause issues such as #53337, but we are not sure if it can be removed during stabilization";
             if (executor != null) {
-                VcsFileSystem fileSystem = null;
+                VcsProvider provider = null;
                 CommandExecutionContext executionContext = cmdSupport.getExecutionContext();
-                if (executionContext instanceof VcsFileSystem) {
-                    fileSystem = (VcsFileSystem) executionContext;
+                if (executionContext instanceof VcsProvider) {
+                    provider = (VcsProvider) executionContext;
                 }
-                if (fileSystem != null) {
+                if (provider != null) {
                     Collection fileNames = ExecuteCommand.createProcessingFiles(executionContext, executor.getVariables());
                     Collection fileObjs = new ArrayList();
                     for (Iterator it = fileNames.iterator(); it.hasNext(); ) {
                         String fileName = (String) it.next();
                         if (".".equals(fileName)) fileName = ""; // NOI18N
-                        FileObject fo = fileSystem.findFileObject(fileName);
+                        FileObject fo = provider.findResource(fileName);
                         if (fo != null) {
                             fileObjs.add(fo);
                         }

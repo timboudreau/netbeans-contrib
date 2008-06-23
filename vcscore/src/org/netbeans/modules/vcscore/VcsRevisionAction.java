@@ -46,6 +46,9 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.openide.ErrorManager;
 
 import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
@@ -58,7 +61,6 @@ import org.openide.util.actions.*;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.*;
@@ -73,7 +75,7 @@ import org.netbeans.modules.vcscore.versioning.RevisionItem;
  */
 public class VcsRevisionAction extends NodeAction implements ActionListener, Runnable {
 
-    protected WeakReference fileSystem = new WeakReference(null);
+    protected WeakReference provider = new WeakReference(null);
     protected WeakReference fileObject = new WeakReference(null);
     protected Collection selectedRevisionItems = null;
     private String commandName;
@@ -105,8 +107,8 @@ public class VcsRevisionAction extends NodeAction implements ActionListener, Run
     }
      */
 
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = new WeakReference(fileSystem);
+    public void setProvider(VcsProvider provider) {
+        this.provider = new WeakReference(provider);
     }
     
     public void setFileObject(FileObject fileObject) {
@@ -235,9 +237,9 @@ public class VcsRevisionAction extends NodeAction implements ActionListener, Run
         }
         if (rList == null) return null;
          */
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        if (fileSystem == null) return null;
-        CommandsTree commands = fileSystem.getCommands();
+        VcsProvider provider = (VcsProvider) this.provider.get();
+        if (provider == null) return null;
+        CommandsTree commands = provider.getCommands();
         //Node commands = fileSystem.getCommands();
         //Children children = commands.getChildren();
         CommandsTree[] commandRoots = commands.children();
@@ -294,14 +296,13 @@ public class VcsRevisionAction extends NodeAction implements ActionListener, Run
      */
     public void run() {
         if (this.commandName == null) return ;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        VcsProvider provider = (VcsProvider) this.provider.get();
         FileObject fo = (FileObject) this.fileObject.get();
-        if (fileSystem == null || fo == null) return ;
+        if (provider == null || fo == null) return ;
         RevisionItem[] items = (RevisionItem[]) selectedRevisionItems.toArray(new RevisionItem[0]);
-        Table files = new Table();
+        FileObject[] files = new FileObject[] { fo };
         String mimeType = fo.getMIMEType();
         String fileName = fo.getPath();
-        files.put(fileName, fo);
         Hashtable additionalVars = new Hashtable();
         if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N
         if (items.length > 0) {
@@ -315,7 +316,20 @@ public class VcsRevisionAction extends NodeAction implements ActionListener, Run
         //D.deb("files="+files); // NOI18N
 
         //doCommand (files, cmd, fileSystem);
-        VcsAction.doCommand(files, fileSystem.getCommand(commandName), additionalVars, fileSystem);
+        CommandSupport supp = provider.getCommandSupport(commandName);
+        if (supp == null) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalStateException("Command '"+commandName+"' does not exist."));
+            return ;
+        }
+        Command cmd = supp.createCommand();
+        ((VcsDescribedCommand) cmd).setAdditionalVariables(additionalVars);
+        files = cmd.getApplicableFiles(files);
+        if (files != null) {
+            cmd.setFiles(files);
+            if (VcsManager.getDefault().showCustomizer(cmd)) {
+                cmd.execute();
+            }
+        }
     }
     
 }

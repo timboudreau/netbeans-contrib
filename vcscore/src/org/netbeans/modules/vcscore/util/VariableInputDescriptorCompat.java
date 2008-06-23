@@ -79,7 +79,7 @@ public final class VariableInputDescriptorCompat extends Object {
      * create the input descriptor from its execution string and put the appropriate
      * variables to the execution string instead of old keywords.
      */
-    public static void createInputDescriptorFormExec(Hashtable commandsByName) {
+    public static void createInputDescriptorFormExec(Map commandsByName) {
         Iterator cmdIt = commandsByName.values().iterator();
         while (cmdIt.hasNext()) {
             UserCommandSupport cmdSupport = (UserCommandSupport) cmdIt.next();

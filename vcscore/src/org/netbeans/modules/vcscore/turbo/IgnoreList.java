@@ -40,13 +40,13 @@
  */
 package org.netbeans.modules.vcscore.turbo;
 
+import org.netbeans.modules.vcscore.VcsProvider;
+import org.netbeans.modules.vcscore.caching.IgnoreListSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.ErrorManager;
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 
 import java.util.regex.Pattern;
@@ -153,11 +153,11 @@ public final class IgnoreList {
 
         // compute new value and cache it
 
-        VcsFileSystem fs = (VcsFileSystem) folder.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        if (fs == null) {
-            throw new FileStateInvalidException("Can not find VCS filesystem for folder "+folder); // NOI18N
+        VcsProvider provider = VcsProvider.getProvider(folder);
+        if (provider == null) {
+            throw new FileStateInvalidException("Can not find VCS provider for folder "+folder); // NOI18N
         }
-        VcsFileSystem.IgnoreListSupport ignSupport = fs.getIgnoreListSupport();
+        IgnoreListSupport ignSupport = provider.getIgnoreListSupport();
 
         List globalList = ignSupport.createInitialIgnoreList();
 

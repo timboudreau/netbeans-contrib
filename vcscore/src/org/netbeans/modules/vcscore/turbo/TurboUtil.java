@@ -41,11 +41,11 @@
 package org.netbeans.modules.vcscore.turbo;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.VcsDirContainer;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -64,11 +64,11 @@ import org.openide.util.NbBundle;
  * @author Petr Kuzel
  */
 public final class TurboUtil {
-    
+
     /** A synchronization object for refresh requests. It helps to synchronize
         only refreshes of hierarchically dependent folders. */
     private static final Object SYNCHRON_REFRESH = new Object();
-    
+
     /** The FileObjects currently being refreshed. */
     private static Set refreshingFileObjects = new HashSet();
 
@@ -99,7 +99,7 @@ public final class TurboUtil {
         }
         return (FileObject[]) ret.toArray(new FileObject[ret.size()]);
     }
-    
+
     /** MUST be called under a lock on SYNCHRON_REFRESH object */
     private static void waitForParentRefreshes(FileObject folder) {
         boolean needsWait;
@@ -170,26 +170,26 @@ public final class TurboUtil {
     /**
      * Populates cache by command output ({@link VcsCache#readDirFinished}).
      *
-     * @param fileSystem filesystem that allows to properly match command
+     * @param provider provider that allows to properly match command
      *   output to fileobjects
-     * @param path directory that was read by VcsDirReader relative to the filesystem root
+     * @param path directory that was read by VcsDirReader relative to the provider root
      * @param rawData vector of <CODE>String[]</CODE> that describes files and subdirectories excluding local files
      * @param success whether the refresh command succeeded.
      * @param complete true means that all folder files on repository were reported and it's safe to guess local files
      */
-    private static void populateCache(FileSystem fileSystem, String path, Collection rawData, boolean success, boolean complete) {
+    private static void populateCache(VcsProvider provider, String path, Collection rawData, boolean success, boolean complete) {
 
         if (success == false) return;
 
         // path is folder relative to FS root then raw data contains children
-        FileObject fileObject = fileSystem.findResource(path);    // "" denotes root
+        FileObject fileObject = provider.findResource(path);    // "" denotes root
 
         if (fileObject == null) {
 
             // try to locate first live parent fileobject then refresh fs children
 
             String[] atoms = path.split("/"); // NOI18N
-            FileObject lastLive = fileSystem.getRoot();
+            FileObject lastLive = provider.findResource(""); // NOI18N
             for (int i = 0; i<atoms.length; i++) {
                 String atom = atoms[i];
                 if ("".equals(atom)) continue; // NOI18N
@@ -223,7 +223,7 @@ public final class TurboUtil {
 
         if (fileObject == null) {
             assert false : "Unexpected FS root path pointing to nowhere: " + path;  // NOI18N
-            populateVirtuals(path, fileSystem, fileObject);
+            populateVirtuals(path, provider, fileObject);
         } else if (fileObject.isFolder()) {
             populateFolder(fileObject, rawData, complete);
 
@@ -260,7 +260,7 @@ public final class TurboUtil {
         }
 
         Iterator it = rawData.iterator();
-        
+
         // update virtual files if listing is complete
         if (folderListing != null) {
             while (it.hasNext()) {
@@ -296,7 +296,7 @@ public final class TurboUtil {
             }
             folderProps.setComplete(complete);
             faq.writeAttribute(folder, FolderProperties.ID, folderProps);
-            
+
             // Initialize the iterator again
             it = rawData.iterator();
         }
@@ -329,7 +329,7 @@ public final class TurboUtil {
                 // commit deleted file command
                 // invalidate values
                 FileObject fo = folder.getFileObject(name);
-                RepositoryFiles.forFolder(folder).removeFileObject(name);                
+                RepositoryFiles.forFolder(folder).removeFileObject(name);
                 if (fo != null) {
                     // If the file happens to exist, mark it as [local], otherwise do not care - the file is gone
                     FileProperties deleted = null;
@@ -390,7 +390,7 @@ public final class TurboUtil {
                 Turbo.setMeta(fo, fprops);
             }
         }
-        
+
         it = extraFiles.iterator();
         while (it.hasNext()) {
             String next = (String) it.next();
@@ -403,7 +403,7 @@ public final class TurboUtil {
         }
     }
 
-    private static void populateVirtuals(String path, FileSystem fileSystem, FileObject fileObject) {
+    private static void populateVirtuals(String path, VcsProvider provider, FileObject fileObject) {
 //        Stack fileNames = new Stack();
 //        String fileName = null;
 //        while (path.length() > 0) {
@@ -449,10 +449,10 @@ public final class TurboUtil {
      * <p>
      * It's used by e.g. LIST command.
      *
-     * @param fs filesystem that allows to properly match command
+     * @param fs provider that allows to properly match command
      *   output to fileobjects
      */
-    public static FileReaderListener fileReaderListener(FileSystem fs) {
+    public static FileReaderListener fileReaderListener(VcsProvider fs) {
         return new FileReaderListenerImpl(fs);
     }
 
@@ -461,10 +461,10 @@ public final class TurboUtil {
      * Returns DirReaderListener implementation that populates
      * the cache from the command data execuded over given FS.
      *
-     * @param fs filesystem that allows to properly match command
+     * @param fs provider that allows to properly match command
      *   output to fileobjects
      */
-    public static DirReaderListener dirReaderListener(FileSystem fs) {
+    public static DirReaderListener dirReaderListener(VcsProvider fs) {
         return new DirReaderListenerImpl(fs);
     }
 
@@ -473,28 +473,28 @@ public final class TurboUtil {
      */
     static final class FileReaderListenerImpl implements FileReaderListener {
 
-        private final FileSystem fileSystem;
+        private final VcsProvider provider;
 
-        private FileReaderListenerImpl(FileSystem fileSystem) {
-            this.fileSystem = fileSystem;
+        private FileReaderListenerImpl(VcsProvider provider) {
+            this.provider = provider;
         }
 
         public void readFileFinished(String path, Collection rawData) {
-            populateCache(fileSystem, path, rawData, true, false);
+            populateCache(provider, path, rawData, true, false);
         }
 
     }
 
     static final class DirReaderListenerImpl implements DirReaderListener {
 
-        private final FileSystem fileSystem;
+        private final VcsProvider provider;
 
-        private DirReaderListenerImpl(FileSystem fileSystem) {
-            this.fileSystem = fileSystem;
+        private DirReaderListenerImpl(VcsProvider provider) {
+            this.provider = provider;
         }
 
         public void readDirFinished(String path, Collection rawData, boolean success) {
-            populateCache(fileSystem, path, rawData, success, true);
+            populateCache(provider, path, rawData, success, true);
         }
 
         // it's typically comming from refresh recursively command all other commands
@@ -506,7 +506,7 @@ public final class TurboUtil {
             // path is folder relative to FS root then raw data contains children
             String path = rawData.getPath();
             /*
-            FileObject folder = fileSystem.findResource(path);    // "" denotes root
+            FileObject folder = provider.findResource(path);    // "" denotes root
             assert folder != null: "Non-existing path : '"+path+"'";
             assert folder.isFolder();
              *
@@ -517,7 +517,7 @@ public final class TurboUtil {
             Map fileToRawData = (Map) rawData.getElement(); // it's a hashmap<name, rawData.element>
             if (fileToRawData == null) return;
             Collection extractedRawData = fileToRawData.values();
-            populateCache(fileSystem, path, extractedRawData, success, true);
+            populateCache(provider, path, extractedRawData, success, true);
 
             VcsDirContainer subdirs[] = rawData.getSubdirContainers();
             Set processedNames = new HashSet();
@@ -528,16 +528,16 @@ public final class TurboUtil {
             }
             populateUnreportedLocals(path, processedNames, success);
         }
-        
+
         /** Mark as local files that exist, but were not reported by refresh. */
         private void populateUnreportedLocals(String path, Collection processedNames, boolean success) {
-            FileObject fo = fileSystem.findResource(path);
+            FileObject fo = provider.findResource(path);
             if (fo == null) return ;
             FileObject[] kids = fo.getChildren();
             for (int i = 0; i < kids.length; i++) {
                 if (!processedNames.contains(kids[i].getNameExt()) && kids[i].isFolder()) {
                     String kidPath = (path.length() > 0) ? path + "/" + kids[i].getNameExt() : kids[i].getNameExt();
-                    populateCache(fileSystem, kidPath, Collections.EMPTY_SET, success, true);
+                    populateCache(provider, kidPath, Collections.EMPTY_SET, success, true);
                     populateUnreportedLocals(kidPath, Collections.EMPTY_SET, success);
                 }
             }

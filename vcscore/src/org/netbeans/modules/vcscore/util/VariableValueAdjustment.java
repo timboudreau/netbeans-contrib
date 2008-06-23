@@ -43,12 +43,13 @@ package org.netbeans.modules.vcscore.util;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -74,12 +75,12 @@ public class VariableValueAdjustment implements Serializable {
     private HashSet adjustedChars = null;
     private HashSet adjustedVars = null;
     private String quoting = null;
-    
+
     static final long serialVersionUID = 2773459026157834845L;
     /** Creates new VariableValueAdjustment */
     public VariableValueAdjustment() {
     }
-    
+
     /** Adjusts "${" and "$[" strings so that they are not interpreted by the expansion method. */
     private static String adjustVarRef(String str) {
         str = org.openide.util.Utilities.replaceString(str, "${", "\\${"); // NOI18N
@@ -94,7 +95,7 @@ public class VariableValueAdjustment implements Serializable {
         return str;
     }
 
-    public synchronized void setAdjust(Hashtable vars) {
+    public synchronized void setAdjust(Map vars) {
         String adjustCharsStr = (String) vars.get(VAR_ADJUST_CHARS);
         if (adjustCharsStr == null) return ;
         this.adjustingChar = adjustCharsStr.charAt(0);
@@ -106,12 +107,12 @@ public class VariableValueAdjustment implements Serializable {
         if (adjustVarsStr == null) return ;
         String[] adjustVars = VcsUtilities.getQuotedStrings(adjustVarsStr);
         this.adjustedVars = new HashSet(Arrays.asList(adjustVars));
-        quoting = (String) vars.get(org.netbeans.modules.vcscore.VcsFileSystem.VAR_QUOTING);
+        quoting = (String) vars.get(Variables.VAR_QUOTING);
         if (quoting != null && quoting.length() == 1 && adjustedChars.contains(new Character(quoting.charAt(0)))) {
             quoting = null; // The quoting is already excaped.
         }
     }
-    
+
     /**
      * Get the set of variable names, that are adjusted.
      */
@@ -122,12 +123,12 @@ public class VariableValueAdjustment implements Serializable {
             return Collections.unmodifiableSet(adjustedVars);
         }
     }
-    
+
     /**
      * Adjust the variable values for the command-line execution.
      * @param vars the map of variable names and their values
      */
-    public void adjustVarValues(Hashtable vars) {
+    public void adjustVarValues(Map vars) {
         if (adjustedVars == null) return ;
         for (Iterator it = adjustedVars.iterator(); it.hasNext(); ) {
             String var = (String) it.next();
@@ -158,7 +159,7 @@ public class VariableValueAdjustment implements Serializable {
         value = adjustVarRef(value);
         return value;
     }
-    
+
     private String adjustCharsInValue(String value) {
         if (adjustedChars == null) return value;
         for (int i = 0; i < value.length(); i++) {
@@ -175,7 +176,7 @@ public class VariableValueAdjustment implements Serializable {
      * Revert the adjusted variable values.
      * @param vars the map of variable names and their values
      */
-    public void revertAdjustedVarValues(Hashtable vars) {
+    public void revertAdjustedVarValues(Map vars) {
         if (adjustedVars == null) return ;
         for (Iterator it = adjustedVars.iterator(); it.hasNext(); ) {
             String var = (String) it.next();
@@ -206,7 +207,7 @@ public class VariableValueAdjustment implements Serializable {
         }
         return value;
     }
-    
+
     private String revertAdjustedCharsInValue(String value) {
         if (adjustedChars == null) return value;
         int index = value.indexOf(adjustingChar);

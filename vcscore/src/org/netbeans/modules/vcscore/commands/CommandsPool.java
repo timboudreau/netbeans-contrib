@@ -49,7 +49,6 @@ import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 
 /**
@@ -128,8 +127,7 @@ public class CommandsPool extends Object {
      * @param vce the command to preprocess
      * @return the preprocessing status, one of <code>CommandExecutorSupport.PREPROCESS_*</code> constants
      */
-    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
-                                 VcsFileSystem fileSystem) {
+    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars) {
         //return preprocessCommand(vce, vars, fileSystem, null);
         if (vce instanceof ExecuteCommand) {
             Command cmd = ((ExecuteCommand) vce).getDescribedCommand();
@@ -143,16 +141,6 @@ public class CommandsPool extends Object {
      * @param vce the executor
      */
     public void startExecutor(final VcsCommandExecutor vce) {
-        startExecutor(vce, null);
-    }
-    
-    /**
-     * Start the executor. The method starts the executor in a separate thread.
-     * @param vce the executor
-     * @param fileSystem the file system associated with the command. Can be <code>null</code>.
-     */
-    public void startExecutor(final VcsCommandExecutor vce,
-                              final VcsFileSystem fileSystem) {
         // Do not start for cancelled executors !!
         if (cancelledCommandExecutors.contains(vce)) return ;
         if (!(vce instanceof ExecuteCommand)) return ;

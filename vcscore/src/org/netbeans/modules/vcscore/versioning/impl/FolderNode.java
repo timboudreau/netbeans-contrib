@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.vcscore.versioning.impl;
 
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataFolder;
@@ -68,7 +69,6 @@ import java.beans.BeanInfo;
 import java.util.Set;
 import java.util.Collections;
 
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
@@ -122,25 +122,22 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         this(new FolderChildren(folder), folder);
         setIconBase(FOLDER_ICON_BASE);
     }
-    
+
     FolderNode(Children ch, FileObject file) {
         this(ch, file, new InstanceContent());
     }
 
-    private FolderNode(Children ch, FileObject file, InstanceContent content) {
+    private FolderNode(Children ch, final FileObject file, InstanceContent content) {
         super(ch, new AbstractLookup(content));
 
         // setup lookup content
-        
-        final FileObject masterFile = VcsUtilities.getMainFileObject(file);
 
-
-        content.add(masterFile);
+        content.add(file);
         content.add(this);
         InstanceContent.Convertor lazyDataObject = new InstanceContent.Convertor() {
             public Object convert(Object obj) {
                 try {
-                    return DataObject.find(masterFile);
+                    return DataObject.find(file);
                 } catch (DataObjectNotFoundException e) {
                     // ignore, call super later on
                 }
@@ -197,7 +194,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         }
         return s;
     }
-    
+
     public String getHtmlDisplayName() {
         try {
             Set target = Collections.singleton(file);
@@ -211,7 +208,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         // we cannot provide HTNL status, framework will ask us for plain display name
         return null;
     }
-    
+
     protected Image getBlankIcon(int type) {
         return super.getIcon(type);
     }
@@ -308,7 +305,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     public boolean canRename() {
         return false;
     }
-    
+
     /**
      * Create the property sheet.
      *
@@ -426,7 +423,9 @@ class FolderNode extends AbstractNode implements Node.Cookie {
             } catch (FileStateInvalidException e) {
             }
             if (ev.hasChanged(file)) {
-                String name = (String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                VcsProvider provider = VcsProvider.getProvider(file);
+                //String name = (String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                String name = FileUtil.getRelativePath(provider.getRoot(), file);
                 String newState;
                 String oldState;
                 FileStatusProvider statusProvider = null;
@@ -488,7 +487,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         /**
          * Do not run from AWT to get more accurate status.
          * If invoked on "Yet Unknown" and obtaining some status
-         * it means missing event (typical for speculative result). 
+         * it means missing event (typical for speculative result).
          */
         protected boolean asynchronous() {
             return true;

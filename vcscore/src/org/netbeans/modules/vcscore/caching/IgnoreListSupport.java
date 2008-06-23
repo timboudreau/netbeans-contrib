@@ -38,50 +38,33 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.vcscore.turbo;
+package org.netbeans.modules.vcscore.caching;
 
-import org.netbeans.modules.vcscore.VcsProvider;
-import org.netbeans.modules.vcscore.registry.FSRegistry;
-import org.netbeans.modules.vcscore.registry.FSInfo;
-import org.netbeans.api.vcs.FileStatusInfo;
-
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Access profile specifics data, such as possible statuses,
- * abstract Statuses to VCS statuses mapping and cache
- * file relative path.
- * <p>
- * The implementation forwards to FS that should be hopefully
- * CommandLineVCSFS that knows it's profile.
+ * Profile entry point to plug-in specifics
+ * ignore list implementation (here commands CMD_CREATE_FOLDER_IGNORE_LIST, CMD_CREATE_INITIAL_IGNORE_LIST).
+ * TODO why is it so complicated - why the generic
+ * merges two lists without possibility to customize?
  *
- * @author Petr Kuzel
+ * @author Martin Entlicher
  */
-final class Profiles {
+public interface IgnoreListSupport {
+
+    /** Creates folder context independent ignore list. */
+    public ArrayList createInitialIgnoreList ();
 
     /**
-     * Consults profile to get proper cache file for given folder (content).
+     * Creates folder context ignore list.
      *
-     * @param folder directory for which a cache file is searched
-     * @return <code>null</code> if disk caching cannot be used.
+     * @param fileName '/' delimited folder path from FS root
+     * @param parentIgnoreList contains {@link #createInitialIgnoreList()} results
+     *
+     * @todo This contract is ackward. It cannot catch CVS 1.11.18 niffy that "-I list" is overridden
+     * by "folder/.cvsignore".
      */
-    public static File cacheForFolder(File folder) {
-        try {
-            FileObject fo = FileUtil.toFileObject(folder);
-            VcsProvider provider = VcsProvider.getProvider(fo);
-            if (provider == null) return null;
-            String root = provider.getRootDirectory().getAbsolutePath();
-            String path = folder.getAbsolutePath().substring(root.length());
-            path = path.replaceAll(File.separator, "/");
-            File ret = provider.getCacheFile(path);
-            assert path.length() == 0 || path.indexOf("/") != 0 || ret != null : "Root " + root + " path " + path;
-            return ret;
-        } catch (IllegalArgumentException iaex) {
-            return null;
-        }
-    }
-
+    public List createIgnoreList (String fileName, List parentIgnoreList);
+    
 }

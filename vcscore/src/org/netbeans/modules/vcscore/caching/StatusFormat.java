@@ -45,8 +45,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.VcsAttributes;
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.turbo.Turbo;
@@ -304,11 +302,11 @@ public final class StatusFormat {
 
         String status;
         FileProperties fprops = null;
-        FileObject vfo = (FileObject) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
-        if (vfo != null && vfo.isRoot()) {
+        //FileObject vfo = (FileObject) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+        //if (vfo != null && vfo.isRoot()) {
             // in favourites view mark versioned workspace roots
-            status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
-        } else {
+        //    status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
+        //} else {
             Turbo.prepareMeta(fileObject);
             fprops = Turbo.getMemoryMeta(fileObject);
             status = FileProperties.getStatus(fprops);
@@ -322,7 +320,7 @@ public final class StatusFormat {
                 }
                 status = statusInfo.getDisplayName();
             }
-        }
+        //}
         return substitute(pattern, status, fprops, vars);
 
     }
@@ -518,12 +516,12 @@ public final class StatusFormat {
 
         String status;
         FileProperties fprops = null;
-        FileObject vfo = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
-        if (vfo != null && vfo.isRoot()) {
+        //FileObject vfo = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+        //if (vfo != null && vfo.isRoot()) {
             // in favourites view mark versioned workspace roots
-            status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
-            status = escapeSpecialHTMLCharacters(status);
-        } else {
+        //    status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
+        //    status = escapeSpecialHTMLCharacters(status);
+        //} else {
             Turbo.prepareMeta(fo);
             fprops = Turbo.getMemoryMeta(fo);
             status = FileProperties.getStatus(fprops);
@@ -542,7 +540,7 @@ public final class StatusFormat {
             } else {
                 status = escapeSpecialHTMLCharacters(status);
             }
-        }
+        //}
 
         return substitute(annotationPattern, status, fprops, vars);
     }

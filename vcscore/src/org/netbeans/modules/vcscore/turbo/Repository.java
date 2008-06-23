@@ -46,8 +46,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.WeakSet;
 import org.openide.util.RequestProcessor;
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
@@ -87,7 +86,7 @@ final class Repository {
         if (refreshFolderContent(parent)) {
             // it was loaded by dirReaderListener
             FileProperties fprops = (FileProperties) FileAttributeQuery.getDefault().readAttribute(fileObject, FileProperties.ID);
-            
+
             assert attributeMatchesFile(fprops, fileObject) : "Bad properties for FileObject "+fileObject+": "+fprops;  // NOI18N
             return fprops;
         } else {
@@ -118,21 +117,21 @@ final class Repository {
 
         IgnoreList.invalidate(fileObject);
 
-        VcsFileSystem fsystem = (VcsFileSystem) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        if (fsystem != null) {
+        VcsProvider provider = VcsProvider.getProvider(fileObject);
+        if (provider != null) {
             CommandSupport engine;
-            boolean offLine = fsystem.isOffLine();
+            boolean offLine = ((VcsProvider) provider).isOffLine();
             if (offLine) {
-                engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE);
+                engine = ((VcsProvider) provider).getCommandSupport(VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE);
                 if (engine == null) {
-                    engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH);
+                    engine = ((VcsProvider) provider).getCommandSupport(VcsCommand.NAME_REFRESH);
                 }
             } else {
-                engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH);
+                engine = ((VcsProvider) provider).getCommandSupport(VcsCommand.NAME_REFRESH);
             }
-            
+
             if (engine == null) {
-                throw new IllegalStateException("Command "+VcsCommand.NAME_REFRESH+" is not defined in "+fsystem);
+                throw new IllegalStateException("Command "+VcsCommand.NAME_REFRESH+" is not defined in "+provider);
             }
 
             Command cmd = engine.createCommand();
@@ -143,7 +142,7 @@ final class Repository {
                 cmd.setGUIMode(false);
 
 
-                ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(fsystem));
+                ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(provider));
                 if (VcsManager.getDefault().showCustomizer(cmd)) {
                     CommandTask task = cmd.execute();
                     try {
@@ -180,14 +179,14 @@ final class Repository {
 
         IgnoreList.invalidate(fileObject);
 
-        VcsFileSystem fsystem = (VcsFileSystem) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        if (fsystem != null) {
+        VcsProvider provider = VcsProvider.getProvider(fileObject);
+        if (provider != null) {
             CommandSupport engine;
-            boolean offLine = ((VcsFileSystem)fsystem).isOffLine();
+            boolean offLine = ((VcsProvider) provider).isOffLine();
             if (offLine) {
-                engine = ((VcsFileSystem)fsystem).getCommandSupport(VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE);
+                engine = ((VcsProvider) provider).getCommandSupport(VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE);
             } else {
-                engine = ((VcsFileSystem)fsystem).getCommandSupport(VcsCommand.NAME_REFRESH_RECURSIVELY);
+                engine = ((VcsProvider) provider).getCommandSupport(VcsCommand.NAME_REFRESH_RECURSIVELY);
             }
 
             if (engine == null) {
@@ -201,7 +200,7 @@ final class Repository {
                     cmd.setFiles(applicable);
                     cmd.setGUIMode(false);
 
-                    ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(fsystem));
+                    ((VcsDescribedCommand) cmd).addDirReaderListener(TurboUtil.dirReaderListener(provider));
                     if (VcsManager.getDefault().showCustomizer(cmd)) {
                         CommandTask task = cmd.execute();
                         try {

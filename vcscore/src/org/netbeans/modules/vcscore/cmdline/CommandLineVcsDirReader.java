@@ -65,9 +65,9 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
 
 
     //-------------------------------------------
-    public CommandLineVcsDirReader(DirReaderListener listener, VcsFileSystem fileSystem,
-                                   UserCommand list, Hashtable vars) {
-        super(fileSystem, list, vars);
+    public CommandLineVcsDirReader(DirReaderListener listener, VcsProvider provider,
+                                   UserCommand list, Map vars) {
+        super(provider, list, vars);
         //super("VCS-DirReader-"+((String)vars.get("DIR"))); // NOI18N
         this.listener = listener;
     }
@@ -141,8 +141,8 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         Hashtable filesByName = new Hashtable();
         UserCommand list = (UserCommand) getCommand();
         if (success) {
-            Hashtable vars = getVariables();
-            ExecuteCommand.setAdditionalParams(listCommand, getFileSystem());
+            Map vars = getVariables();
+            ExecuteCommand.setAdditionalParams(listCommand, getProvider());
             String dataRegex = (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             if (dataRegex == null) dataRegex = ExecuteCommand.DEFAULT_REGEX;
             vars.put("DATAREGEX", dataRegex); // NOI18N
@@ -154,7 +154,8 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
             //vars.put("TIMEOUT", new Long(list.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
             try {
-                success = listCommand.list(vars, args, filesByName,
+                Hashtable varsHashtable = new Hashtable(vars); // For compatibility reasons
+                success = listCommand.list(varsHashtable, args, filesByName,
                                        new CommandOutputListener() {
                                            public void outputLine(String line) {
                                                printOutput(line);
@@ -227,8 +228,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
             } catch (Throwable t) {
                 ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
             }
-            // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
-            getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
         }
     }
 

@@ -67,6 +67,7 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
     public VcsCollocationQueryImpl() {}
     
     public boolean areCollocated(File file1, File file2) {
+        // TODO: From registry grab the working directories and test whether the files are on them
         FileObject fo1 = FileUtil.toFileObject(file1);
         FileObject fo2 = FileUtil.toFileObject(file2);
         
@@ -78,12 +79,13 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
             return false;
         }
         
-        Object vcsFS1 = fo1.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        Object vcsFS2 = fo2.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        Object vcsFS1 = VcsProvider.getProvider(fo1);
+        Object vcsFS2 = VcsProvider.getProvider(fo2);
         return vcsFS1 != null && vcsFS2 != null && vcsFS1.equals(vcsFS2);
     }
     
     public File findRoot(File f) {
+        // TODO : use the registry
         FileObject fo = FileUtil.toFileObject(f);
         
         // NPE HOTFIX: see above
@@ -91,9 +93,9 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
             return null;
         }
         
-        VcsFileSystem vcsFS = (VcsFileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        if (vcsFS == null) return null;
-        else return vcsFS.getRootDirectory();
+        VcsProvider p = VcsProvider.getProvider(fo);
+        if (p == null) return null;
+        else return p.getRootDirectory();
     }
     
 }

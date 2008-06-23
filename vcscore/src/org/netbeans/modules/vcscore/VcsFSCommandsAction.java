@@ -232,11 +232,11 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
         if (files.size() == 1) {
             dest.add(primary);
         } else {
-            FileSystem primaryFS = (FileSystem) primary.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+            VcsProvider primaryProvider = VcsProvider.getProvider(primary);
             for (Iterator it = files.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                FileSystem fs = (FileSystem) fo.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
-                if (primaryFS != null && !primaryFS.equals(fs)) {
+                VcsProvider provider = VcsProvider.getProvider(fo);
+                if (primaryProvider != null && !primaryProvider.equals(provider)) {
                     // We have a secondary file on another filesystem!
                     continue;
                 }

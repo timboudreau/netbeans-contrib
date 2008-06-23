@@ -42,13 +42,9 @@
 package org.netbeans.modules.vcscore;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.masterfs.providers.FileSystemProvider;
 import org.netbeans.modules.vcscore.actions.VcsManagerAction;
-import org.netbeans.modules.vcscore.registry.VcsFSProvider;
+//import org.netbeans.modules.vcscore.registry.VcsFSProvider;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
@@ -56,7 +52,6 @@ import org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction;
 import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.openide.ErrorManager;
 import org.openide.modules.ModuleInstall;
-import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
 /**
@@ -96,6 +91,7 @@ public final class VcsModule extends ModuleInstall {
         }
         FileAttributeQuery.getDefault().cancel();
         // Unmount FS
+        /*
         final Lookup.Result providerResult =
                 Lookup.getDefault().lookup(new Lookup.Template(FileSystemProvider.class));
         for (Iterator it = providerResult.allInstances().iterator(); it.hasNext(); ) {
@@ -104,6 +100,7 @@ public final class VcsModule extends ModuleInstall {
                 ((VcsFSProvider) provider).shutdown();
             }
         }
+         */
     }
 
     private void close(TopComponent component) {
