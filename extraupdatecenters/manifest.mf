@@ -1,5 +1,5 @@
 OpenIDE-Module: org.netbeans.modules.extraupdatecenters
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/extraupdatecenters/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.14
+OpenIDE-Module-Specification-Version: 1.15
 OpenIDE-Module-Layer: org/netbeans/modules/extraupdatecenters/layer.xml
 
