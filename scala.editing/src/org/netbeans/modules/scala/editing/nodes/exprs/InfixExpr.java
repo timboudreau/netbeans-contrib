@@ -39,8 +39,8 @@
 package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 import java.util.List;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 
 /**
@@ -91,7 +91,7 @@ public class InfixExpr extends AstExpression implements Postfixable {
     }
     
     @Override
-    public Type asType() {
+    public TypeMirror asType() {
         return topFunRef.asType(); // @todo
     }
 

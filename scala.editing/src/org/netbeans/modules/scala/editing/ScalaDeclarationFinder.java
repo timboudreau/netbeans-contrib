@@ -42,6 +42,7 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.DeclarationFinder;
@@ -197,9 +198,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = funRef.getBase();
         if (base != null) {
-            Type baseType = base.asType();
+            TypeMirror baseType = base.asType();
             if (baseType != null) {
-                in = baseType.getQualifiedName().toString();
+                in = Type.qualifiedNameOf(baseType);
             }
 
             if (in != null) {
@@ -229,9 +230,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         String in = null;
         AstNode base = field.getBase();
         if (base != null) {
-            Type baseType = base.asType();
+            TypeMirror baseType = base.asType();
             if (baseType != null) {
-                in = baseType.getQualifiedName().toString();
+                in = Type.qualifiedNameOf(baseType);
             }
 
             if (in != null) {
@@ -265,7 +266,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         GsfElement candidate = null;
 
-        String qName = type.getQualifiedName().toString();
+        String qName = type.asElement().getQualifiedName().toString();
 
         int lastDot = qName.lastIndexOf('.');
         if (lastDot != -1) {
@@ -274,7 +275,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             String sName = qName.substring(lastDot + 1, qName.length());
             Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
             for (IndexedElement idxType : idxTypes) {
-                if (idxType instanceof IndexedType) {
+                if (idxType instanceof IndexedTypeElement) {
                     if (idxType.getSimpleName().toString().equals(sName)) {
                         candidate = new GsfElement(idxType, idxType.getFileObject(), info);
                     }

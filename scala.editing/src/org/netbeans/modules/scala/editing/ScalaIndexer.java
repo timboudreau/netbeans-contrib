@@ -341,13 +341,13 @@ public class ScalaIndexer implements Indexer {
 
                 Type superClass = template.getSuperclass();
                 if (superClass != null) {
-                    String superClz = superClass.getQualifiedName().toString();
+                    String superClz = superClass.getSimpleName().toString();
                     document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
                 }
                 List<Type> withTraits = template.getInterfaces();
                 if (withTraits.size() > 0) {
                     for (Type withTrait : withTraits) {
-                        String superClz = withTrait.getQualifiedName().toString();
+                        String superClz = withTrait.getSimpleName().toString();
                         document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
                     }
 

@@ -48,6 +48,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -84,8 +85,8 @@ import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.Var;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -1213,13 +1214,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             Set<GsfElement> elements = Collections.emptySet();
 
-            String typeQname = call.getType();
+            String typeQName = call.getType();
             String lhs = call.getLhs();
 
-            if (typeQname == null) {
+            if (typeQName == null) {
                 if (closest != null) {
-                    Type type = null;
-
+                    TypeMirror type = null;
                     if (closest instanceof FieldCall) {
                         // dog.tal|
                         type = closest.asType();
@@ -1234,7 +1234,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     if (type != null) {
-                        typeQname = type.getQualifiedName().toString();
+                        typeQName = Type.qualifiedNameOf(type);
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1249,7 +1249,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             //} 
             }
 
-            if (typeQname == null && call.getPrevCallParenPos() != -1) {
+            if (typeQName == null && call.getPrevCallParenPos() != -1) {
                 // It's some sort of call
                 assert call.getType() == null;
                 assert call.getLhs() == null;
@@ -1282,7 +1282,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                        }
 //                    }
                 }
-            } else if (typeQname == null && lhs != null && closest != null) {
+            } else if (typeQName == null && lhs != null && closest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1291,7 +1291,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                }
             }
 
-            if ((typeQname == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
+            if ((typeQName == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1304,9 +1304,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             // I'm not doing any data flow analysis at this point, so
             // I can't do anything with a LHS like "foo.". Only actual types.
-            if (typeQname != null && typeQname.length() > 0) {
+            if (typeQName != null && typeQName.length() > 0) {
                 if ("this".equals(lhs)) {
-                    typeQname = fqn;
+                    typeQName = fqn;
                     skipPrivate = false;
 //                } else if ("super".equals(lhs)) {
 //                    skipPrivate = false;
@@ -1328,13 +1328,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                    }
                 }
 
-                if (typeQname != null && typeQname.length() > 0) {
+                if (typeQName != null && typeQName.length() > 0) {
                     // Possibly a class on the left hand side: try searching with the class as a qualifier.
                     // Try with the LHS + current FQN recursively. E.g. if we're in
                     // Test::Unit when there's a call to Foo.x, we'll try
                     // Test::Unit::Foo, and Test::Foo
-                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeQname)) {
-                        elements = index.getMembers(prefix, fqn + "." + typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
+                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeQName)) {
+                        elements = index.getMembers(prefix, fqn + "." + typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                         int f = fqn.lastIndexOf("::");
 
@@ -1346,7 +1346,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     // Add methods in the class (without an FQN)
-                    Set<GsfElement> m = index.getMembers(prefix, typeQname, kind, ScalaIndex.ALL_SCOPE, result, false);
+                    Set<GsfElement> m = index.getMembers(prefix, typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                     if (m.size() > 0) {
                         elements = m;
@@ -1363,7 +1363,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             // Try just the method call (e.g. across all classes). This is ignoring the 
             // left hand side because we can't resolve it.
-            if ((elements.size() == 0) && (prefix.length() > 0 || typeQname == null)) {
+            if ((elements.size() == 0) && (prefix.length() > 0 || typeQName == null)) {
 //                if (prefix.length() == 0) {
 //                    proposals.clear();
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
@@ -1570,7 +1570,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         for (IndexedElement element : request.index.getPackagesAndContent(fqnPrefix, request.kind, ScalaIndex.ALL_SCOPE)) {
             if (element.getKind() == ElementKind.PACKAGE) {
                 proposals.add(new PackageItem(new GsfElement(element, request.fileObject, request.info), request));
-            } else if (element instanceof IndexedType) {
+            } else if (element instanceof IndexedTypeElement) {
                 proposals.add(new TypeItem(request, element));
             }
         }
