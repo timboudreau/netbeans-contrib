@@ -64,7 +64,7 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
-import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /** Miscelaneous stuff.
  * 
@@ -889,6 +889,43 @@ public class VcsUtilities {
     }
 
     /**
+     * Test whether the current user has locked file with given locker attribute.
+     * @param lockerAttribute The file locker attribute. It can contain more
+     *                        lockers separated by commas.
+     * @param lockerUserName The locker user name, or <code>null</code> when
+     *                       the system user name should be taken.
+     * @return Whether there is the locker user name one of the lockers in the
+     *         locker attribute.
+     */
+    public static boolean lockerMatch(String lockerAttribute, String lockerUserName) {
+        if (lockerAttribute != null) {
+            if (lockerUserName == null || lockerUserName.length() == 0) {
+                lockerUserName = System.getProperty("user.name");
+            }
+            int comma = lockerAttribute.indexOf(',');
+            if (comma < 0) {
+                if (lockerAttribute.equals(lockerUserName)) {
+                    return true;
+                }
+            } else {
+                int begin = 0;
+                do {
+                    if (lockerAttribute.substring(begin, comma).trim().equals(lockerUserName)) {
+                        return true;
+                    }
+                    begin = comma + 1;
+                    if (begin > lockerAttribute.length()) {
+                        break;
+                    }
+                    comma = lockerAttribute.indexOf(',', begin);
+                    if (comma < 0) comma = lockerAttribute.length();
+                } while (true);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the top level ancestor of a component which is a Frame or Dialog.
      * If no such ancestor is found a new JFrame is returned.
      * @param c The component
@@ -999,9 +1036,9 @@ public class VcsUtilities {
      * @param varEnvPrefix the prefix of variables, which are considered as environmental
      * @return the map of all environment variables
      */
-    public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix) {
-        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
-            String key = (String) en.nextElement();
+    public static Map addEnvVars(Map envVars, Map vars, String varEnvPrefix) {
+        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+            String key = (String) it.next();
             if (key.startsWith(varEnvPrefix)) {
                 String value = (String) vars.get(key);
                 if (value != null) {
@@ -1025,16 +1062,16 @@ public class VcsUtilities {
               environment.
      * @return the map of all environment variables
      */
-    public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix,
+    public static Map addEnvVars(Map envVars, Map vars, String varEnvPrefix,
                                  String varEnvRemovePrefix) {
-        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
-            String key = (String) en.nextElement();
+        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+            String key = (String) it.next();
             if (key.startsWith(varEnvRemovePrefix)) {
                 envVars.remove(key.substring(varEnvRemovePrefix.length()));
             }
         }
-        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
-            String key = (String) en.nextElement();
+        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+            String key = (String) it.next();
             if (key.startsWith(varEnvPrefix)) {
                 String value = (String) vars.get(key);
                 if (value != null) {
@@ -1103,7 +1140,7 @@ public class VcsUtilities {
      * the action needs to work with the fileobjects of the versioning fs.
      * That is nessesary when the nodes come from  the MultiFilesystem layer,
      * otherwise we'll get the wrong set of fileobjects and commands will behave strangely.
-     */
+     *
     public static FileObject[] convertFileObjects(FileObject[] originals) {
         if (originals == null || originals.length == 0) {
             return originals;
@@ -1131,11 +1168,12 @@ public class VcsUtilities {
         }
         return originals;
     }
+     */
     
     /**
      * Get the main FileObject that resides on MasterFS for the given FileObject that can be
      * on some delegate FS.
-     */
+     *
     public static FileObject getMainFileObject(FileObject fo) {
         File file = FileUtil.toFile(fo);
         if (file != null) {
@@ -1151,6 +1189,7 @@ public class VcsUtilities {
         }
         return fo;
     }
+     */
 
     /**
      * Encodes Object into String encoded in HEX format

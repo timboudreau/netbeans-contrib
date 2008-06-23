@@ -193,7 +193,7 @@ public class GroupUtils {
     public static DataShadow findDOInGroups(DataObject dataObj) {
         FileObject file = dataObj.getPrimaryFile();
         FileObject[] originals = new FileObject[] { file };
-        VcsUtilities.convertFileObjects(originals);
+        //VcsUtilities.convertFileObjects(originals);
         file = originals[0];
         //System.out.println("findDOInGroups("+dataObj+")");
         //System.out.println(" primaryFile = "+dataObj.getPrimaryFile());
@@ -218,7 +218,7 @@ public class GroupUtils {
                     //System.out.println("  original's primaryFile = "+shadow.getOriginal().getPrimaryFile());
                     FileObject origFile = shadow.getOriginal().getPrimaryFile();
                     originals[0] = origFile;
-                    VcsUtilities.convertFileObjects(originals);
+                    //VcsUtilities.convertFileObjects(originals);
                     origFile = originals[0];
                     //System.out.println("  original's original primary file = "+origFile+", equals = "+origFile.equals(file));
                     if (origFile.equals(file)) {

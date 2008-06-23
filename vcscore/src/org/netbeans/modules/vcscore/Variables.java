@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -59,6 +60,11 @@ import org.netbeans.modules.vcscore.util.*;
 
 //-------------------------------------------
 public class Variables {
+
+    /**
+     * The value of this variable is used to quote the file names.
+     */
+    public static final String VAR_QUOTING = "QUOTE"; // NOI18N
 
     /**
      * Automatically set context-specific variables.
@@ -112,6 +118,17 @@ public class Variables {
      * Variables with special functionality.
      */
     
+    /** The user name of current user, that locks files.
+     *  It's supposed that LOCK command will lock files with that user name.
+     *  If empty, System.getProperty("user.name") is used instead. */
+    public static final String VAR_LOCKER_USER_NAME = "LOCKER_USER_NAME"; // NOI18N
+
+    /**
+     * If Expert mode is off, this variable carries information that Ctrl was pressed down when
+     * displaying the vcs action - user requested to have the advanced options displayed.
+     */
+    public static final String VAR_CTRL_DOWN_IN_ACTION = "CTRL_DOWN_IN_ACTION"; // NOI18N
+
     /**
      * This variable is defined only when used in the execution string
      * and is filled with the full path to a temporary file, that is created
@@ -704,13 +721,42 @@ public class Variables {
                     return null;
                 }
                 if (begin == 0) value = svalue;
-                else value = VcsFileSystem.substractRootDir(value, svalue);
+                else value = substractFiles(value, svalue);
                 begin = substr + SUBSTRACT.length();
             }
             if (begin == 0) value = (String) tab.get(name);
-            else value = VcsFileSystem.substractRootDir(value, getReplaceVarValue(tab, name.substring(begin).trim()));
+            else value = substractFiles(value, getReplaceVarValue(tab, name.substring(begin).trim()));
         }
         return value;
+    }
+
+    public static String substractFiles(String rDir, String module) {
+        if (module == null || module.length() == 0) return rDir;
+        String m;
+        if (module.charAt(module.length() - 1) == File.separatorChar)
+            m = module.substring(0, module.length() - 1);
+        else
+            m = module.substring(0);
+        String rDirSlashes;
+        boolean chRDir = false;
+        if (File.separatorChar != '/' && rDir.indexOf(File.separatorChar) > 0) {
+            rDirSlashes = rDir.replace(File.separatorChar, '/');
+            chRDir = true;
+        } else rDirSlashes = rDir;
+        String moduleSlashes;
+        if (File.separatorChar != '/' && m.indexOf(File.separatorChar) > 0) {
+            moduleSlashes = m.replace(File.separatorChar, '/');
+        } else moduleSlashes = m;
+        int i = rDirSlashes.lastIndexOf(moduleSlashes);
+        if (i > 0) {
+            if (chRDir) rDir = rDir.substring(0, i-1).replace('/', File.separatorChar);
+            else rDir = rDir.substring(0, i-1); // I have to remove the slash also.
+        }
+        if (org.openide.util.Utilities.isWindows() && rDir.length() == 2 &&
+            Character.isLetter(rDir.charAt(0)) && ':' == rDir.charAt(1)) {
+            rDir += "\\"; // A special case for C:\
+        }
+        return rDir;
     }
 
     /*

@@ -51,7 +51,6 @@ import java.util.*;
 import java.io.File;
 
 import org.netbeans.api.queries.*;
-import org.netbeans.modules.vcscore.VcsAttributes;
 
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
@@ -237,7 +236,7 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
 
             VersioningFileSystem versioningFS;
             boolean visibleByFS  = true;
-            versioningFS = VersioningFileSystem.findFor((FileSystem) file.getAttribute(VcsAttributes.VCS_NATIVE_FS));
+            versioningFS = VersioningFileSystem.findFor(file);
             if (versioningFS != null) {
                 File iofile = FileUtil.toFile(file);
                 visibleByFS = versioningFS.getFileFilter().accept(iofile.getParentFile(), iofile.getName());

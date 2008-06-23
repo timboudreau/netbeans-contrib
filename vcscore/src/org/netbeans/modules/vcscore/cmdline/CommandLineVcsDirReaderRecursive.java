@@ -68,9 +68,9 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
 
 
     /** Creates new CommandLineVcsDirReaderRecursive */
-    public CommandLineVcsDirReaderRecursive(DirReaderListener listener, VcsFileSystem fileSystem,
-                                            UserCommand listSub, Hashtable vars) {
-        super(fileSystem, listSub, vars);
+    public CommandLineVcsDirReaderRecursive(DirReaderListener listener, VcsProvider provider,
+                                            UserCommand listSub, Map vars) {
+        super(provider, listSub, vars);
         this.listener = listener;
         String commonParent = (String) vars.get("COMMON_PARENT");
         String dir = (String) vars.get("DIR"); // NOI18N
@@ -137,8 +137,8 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         VcsDirContainer filesByName = new VcsDirContainer(path);
         UserCommand listSub = (UserCommand) getCommand();
         if (success) {
-            Hashtable vars = getVariables();
-            ExecuteCommand.setAdditionalParams(listCommand, getFileSystem());
+            Map vars = getVariables();
+            ExecuteCommand.setAdditionalParams(listCommand, getProvider());
             String dataRegex = (String) listSub.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             if (dataRegex == null) dataRegex = ExecuteCommand.DEFAULT_REGEX;
             vars.put("DATAREGEX", dataRegex); // NOI18N
@@ -150,7 +150,8 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             //vars.put("TIMEOUT", new Long(listSub.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", listSub.getName()));
             try {
-                success = listCommand.listRecursively(vars, args, filesByName,
+                Hashtable varsHashtable = new Hashtable(vars); // For compatibility reasons
+                success = listCommand.listRecursively(varsHashtable, args, filesByName,
                                            new CommandOutputListener() {
                                                public void outputLine(String line) {
                                                    printOutput(line);
@@ -215,7 +216,7 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
     }
 
     public void run() {
-        Hashtable vars = getVariables();
+        Map vars = getVariables();
         String commonParent = (String) vars.get("COMMON_PARENT");
         String dir = (String) vars.get("DIR"); // NOI18N
         if (commonParent != null && commonParent.length() > 0) {
@@ -226,7 +227,7 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         if (exec == null || exec.trim().length() == 0) {
             //String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
 
-            FileObject folder = getFileSystem().findResource(path);
+            FileObject folder = getProvider().findResource(path);
             doRefreshRecursively(folder);
             exitStatus = VcsCommandExecutor.SUCCEEDED;
             return;
@@ -242,8 +243,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
                 } catch (Throwable t) {
                     ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
                 }
-                // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
-                getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
             }
         }
     }

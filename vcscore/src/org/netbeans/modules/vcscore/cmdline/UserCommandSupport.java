@@ -87,7 +87,7 @@ import org.netbeans.spi.vcs.commands.CommandTaskSupport;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
@@ -211,7 +211,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         String label = cmd.getDisplayName();
         if (label != null) {
             if (Variables.needFurtherExpansion(label)) {
-                Hashtable variableMap = executionContext.getVariablesAsHashtable();
+                Map variableMap = executionContext.getVariableValuesMap();
                 label = Variables.expand(variableMap, label, false);
             }
             String mnemonic = (String) cmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
@@ -334,7 +334,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (!(task instanceof UserCommandTask)) return task.STATUS_FAILED;
         UserCommandTask userTask = (UserCommandTask) task;
         if (userTask.willSpawnRefresh()) {
-            userTask.spawnRefresh((VcsFileSystem) executionContext);
+            userTask.spawnRefresh((VcsProvider) executionContext);
             return task.STATUS_SUCCEEDED;
         }
         VcsDescribedCommand dCommand = (VcsDescribedCommand) command;
@@ -371,7 +371,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             }
         }
         Map additionalVariables = dCommand.getAdditionalVariables();
-        Hashtable vars = ec.getVariables();
+        Map vars = ec.getVariables();
         if (additionalVariables != null) {
             vars.putAll(additionalVariables);
         }
@@ -453,9 +453,9 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 return null;
             }
         }
-        if (executionContext instanceof VcsFileSystem) {
-            files = VcsUtilities.convertFileObjects(files);
-        }
+        //if (executionContext instanceof VcsProvider) {
+        //    files = VcsUtilities.convertFileObjects(files);
+        //}
         FileObject[] appFiles = CommandCustomizationSupport.getApplicableFiles(executionContext, cmd, files);
         //System.out.println("getApplicableFiles("+cmd+", "+new ArrayList(Arrays.asList(files))+") = "+
         //                   ((appFiles == null) ? null : new ArrayList(Arrays.asList(appFiles))));
@@ -485,8 +485,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
         vcmd.setVcsCommand(this.cmd);
         cmd.setExpertMode(executionContext.isExpertMode());
-        if (executionContext instanceof VcsFileSystem) {
-            vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsFileSystem)executionContext));
+        if (executionContext instanceof VcsProvider) {
+            vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsProvider)executionContext));
         }
     }
     
@@ -530,18 +530,18 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             // fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
             files = null;
         }
-        VcsFileSystem fileSystem = null;
-        if (executionContext instanceof VcsFileSystem) fileSystem = (VcsFileSystem) executionContext;
-        if ("LIST".equals(cmd.getName()) && fileSystem != null && fileSystem.isOffLine() &&
-            fileSystem.getCommand(org.netbeans.modules.vcscore.commands.VcsCommand.NAME_REFRESH +
-                                  org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
+        VcsProvider provider = null;
+        if (executionContext instanceof VcsProvider) provider = (VcsProvider) executionContext;
+        if ("LIST".equals(cmd.getName()) && provider != null && provider.isOffLine() &&
+            provider.getCommand(org.netbeans.modules.vcscore.commands.VcsCommand.NAME_REFRESH +
+                                org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
 
             // TODO move to VcsUtilities, DLG_RefreshCommandDisabled is used from two packages
             if (doCreateCustomizer && NotifyDescriptor.Confirmation.YES_OPTION.equals (
                 DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (
                     NbBundle.getMessage(UserCommandSupport.class,
                                         "DLG_RefreshCommandDisabled"), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
-                fileSystem.setOffLine(false);
+                provider.setOffLine(false);
             } else {
                 return new UserCancelException();
             }
@@ -572,19 +572,19 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                    boolean cmdCanRunOnMultipleFilesInFolder) {
         //System.out.println("\ndoCustomization("+doCreateCustomizer+", "+customizer+", "+cmd+", "+files+", "+cmdCanRunOnMultipleFiles+", "+cmdCanRunOnMultipleFilesInFolder+")");
         boolean forEachFile[] = null;
-        Hashtable vars = executionContext.getVariablesAsHashtable();
+        Map vars = executionContext.getVariableValuesMap();
         Map additionalVars = cmd.getAdditionalVariables();
         if (additionalVars != null) vars.putAll(additionalVars);
         setVariablesFromCommandInterfaces(cmd, vars);
         if (cmd.isExpertMode()) {
-            vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE.toString());
+            vars.put(Variables.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE.toString());
         }
         if (files != null && files.size() > 1) {
             forEachFile = new boolean[] { true };
         }
         return doCustomizationWithVars(doCreateCustomizer, customizer, cmd, files,
-                               valueAdjustment, vars, forEachFile,
-                               cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
+                                       valueAdjustment, vars, forEachFile,
+                                       cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
     }
 
     private Object doCustomizationWithVars(boolean doCreateCustomizer,
@@ -592,7 +592,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                    VcsDescribedCommand cmd,
                                    Table files,
                                    VariableValueAdjustment valueAdjustment,
-                                   Hashtable vars, boolean[] forEachFile,
+                                   Map vars, boolean[] forEachFile,
                                    boolean cmdCanRunOnMultipleFiles,
                                    boolean cmdCanRunOnMultipleFilesInFolder) {
         //System.out.println("\ndoCustomization("+doCreateCustomizer+", "+customizer+", "+cmd+", "+files+", "+forEachFile+", "+cmdCanRunOnMultipleFiles+", "+cmdCanRunOnMultipleFilesInFolder+")");
@@ -602,8 +602,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (files != null) {
             subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
             setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment,
-                         (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
-                         true);
+                         "", true);
         } else {
             subFiles = null;
         }
@@ -691,15 +690,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     private VcsDescribedCommand createNextCustomizedCommand(VcsDescribedCommand cmd,
                                                             Table files,
                                                             VariableValueAdjustment valueAdjustment,
-                                                            Hashtable vars,
+                                                            Map vars,
                                                             boolean cmdCanRunOnMultipleFiles,
                                                             boolean cmdCanRunOnMultipleFilesInFolder) {
         //System.out.println("createNextCustomizedCommand("+cmd+", "+files+")");
         Table subFiles = setupRestrictedFileMap(files, cmdCanRunOnMultipleFiles,
                                                 cmdCanRunOnMultipleFilesInFolder);
         setVariables(cmd.getVcsCommand(), subFiles, vars, valueAdjustment,
-                     (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
-                     true);
+                     "", true);
         cmd.setAdditionalVariables(vars);
         boolean anyWereSet = setCommandFilesFromTable(cmd, subFiles, executionContext);
         if (!anyWereSet) return cmd;
@@ -803,14 +801,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return file2.getAbsolutePath();
     }
     
-    /** Return the table of file names relative to filesystem and associated
+    /** Return the table of file names relative to provider root and associated
      * FileObjects.
      */
     private Table getFilesToActOn(Command cmd) {
         Table files = new Table();
         FileObject[] fos = cmd.getFiles();
         if (fos != null) {
-            if (executionContext instanceof VcsFileSystem) {
+            if (executionContext instanceof VcsProvider) {
                 for (int i = 0; i < fos.length; i++) {
                     files.put(fos[i].getPath(), fos[i]);
                 }
@@ -826,8 +824,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (cmd instanceof VcsDescribedCommand) {
             java.io.File[] diskFiles = ((VcsDescribedCommand) cmd).getDiskFiles();
             if (diskFiles != null) {
-                if (executionContext instanceof VcsFileSystem) {
-                    String root = ((VcsFileSystem) executionContext).getFile("").getAbsolutePath();
+                if (executionContext instanceof VcsProvider) {
+                    String root = ((VcsProvider) executionContext).getRootDirectory().getAbsolutePath();
                     for (int i = 0; i < diskFiles.length; i++) {
                         String path = FileUtil.normalizeFile(diskFiles[0]).getAbsolutePath();
                         if (path.indexOf(root) == 0) {
@@ -851,7 +849,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @return Panel or Exception
      */
     private Object createCustomizer(UserCommandCustomizer customizer,
-                                    String newExec, final Hashtable vars,
+                                    String newExec, final Map vars,
                                     final boolean[] forEachFile,
                                     final VcsDescribedCommand command,
                                     final Table files,
@@ -884,8 +882,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Table subFiles = new Table();
                     subFiles.put(singleFile, files.get(singleFile));
                     setVariables(command.getVcsCommand(), subFiles, vars, valueAdjustment,
-                                 (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
-                                 true);
+                                 "", true);
                     command.setAdditionalVariables(vars);
                     //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+command.getAdditionalVariables().get("MODULE")+", DIR = "+command.getAdditionalVariables().get("DIR"));
                     //System.out.println("\nVARS for cmd = "+command+" ARE:"+vars+"\n");
@@ -1006,11 +1003,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     /**
      * Set the files as arguments to the command. All FileObjects from the table
      * are set via setFiles() method, all other are converted to java.io.Files
-     * through fileSystem.getFile(name) and set to the command via setDiskFiles()
+     * through provider.getFile(name) and set to the command via setDiskFiles()
      * method.
      * @param command The command to set the files on.
      * @param files The table of file names and associated FileObjects.
-     * @param fileSystem The filesystem to get the java.io.Files from.
+     * @param provider The provider to get the java.io.Files from.
      *        Can be <code>null</code>, in which case java.io.Files are created
      *        directly from the file name.
      * @return true when the files were successfully set, false when there are no
@@ -1025,8 +1022,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (fo != null) {
                 foFiles.add(fo);
             } else {
-                if (executionContext instanceof VcsFileSystem) {
-                    diskFiles.add(((VcsFileSystem) executionContext).getFile(name));
+                if (executionContext instanceof VcsProvider) {
+                    diskFiles.add(((VcsProvider) executionContext).getFile(name));
                 } else {
                     diskFiles.add(new java.io.File(name));
                 }
@@ -1085,7 +1082,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return subFiles;
     }
 
-    private static Table setupRestrictedFileMap(Table files, Hashtable vars, VcsCommand cmd) {
+    private static Table setupRestrictedFileMap(Table files, Map vars, VcsCommand cmd) {
         String[] attrsToVars = (String[]) cmd.getProperty(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS);
         if (attrsToVars != null) {
             files = getAttributeRestrictedFileMap(files, vars, cmd, attrsToVars);
@@ -1096,7 +1093,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return files;
     }
     
-    private static Table getAttributeRestrictedFileMap(Table files, Hashtable vars, VcsCommand cmd, String[] attrsToVars) {
+    private static Table getAttributeRestrictedFileMap(Table files, Map vars, VcsCommand cmd, String[] attrsToVars) {
         String[] attrNames;
         Map attrNonNullVars = null;
         Map attrValueVars = null;
@@ -1145,7 +1142,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return attrNames;
     }
     
-    private static Table getBinaryRestrictedFileMap(Table files, Hashtable vars, VcsCommand cmd) {
+    private static Table getBinaryRestrictedFileMap(Table files, Map vars, VcsCommand cmd) {
         Table restrictedFiles = new Table();
         boolean isBinary;
         Iterator it = files.keySet().iterator();
@@ -1187,7 +1184,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @return the files for which the attributes were successfully converted
      * to variable values and the values were the same for all of them.
      */
-    private static Table setVarsFromAttrs(Table files, Hashtable vars, String[] attrNames,
+    private static Table setVarsFromAttrs(Table files, Map vars, String[] attrNames,
                                           Map attrNonNullVars, Map attrValueVars) {
         if (attrNames.length == 0) return files;
         Table result = new Table();
@@ -1246,18 +1243,18 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     /**
      * Add files specific variables. Turbo compatible.
      * The following variables are added:
-     * <br>PATH - the full path to the first file from the filesystem root
+     * <br>PATH - the full path to the first file from the provider root
      * <br>ABSPATH - the absolute path to the first file
-     * <br>DIR - the directory of the first file from the filesystem root
+     * <br>DIR - the directory of the first file from the provider root
      * <br>FILE - the first file
      * <br>QFILE - the first file quoted
      * <br>MIMETYPE - the MIME type of the first file
      * <br>
      * <br>FILES - all files delimeted by the system file separator
-     * <br>QFILES - all files quoted by filesystem quotation string and delimeted by spaces
+     * <br>QFILES - all files quoted by provider quotation string and delimeted by spaces
      * <br>PATHS - full paths to all files delimeted by two system file separators
-     * <br>QPATHS - full paths to all files quoted by filesystem quotation string and delimeted by spaces
-     * <br>QABSPATHS - absolute paths to all files quoted by filesystem quotation string and delimeted by spaces
+     * <br>QPATHS - full paths to all files quoted by provider quotation string and delimeted by spaces
+     * <br>QABSPATHS - absolute paths to all files quoted by provider quotation string and delimeted by spaces
      * <br>NUM_FILES - the number of files
      * <br>MULTIPLE_FILES - "true" when more than one file is to be processed, "" otherwise
      * <br>CACHED_ISLOCAL - "true" when file is local
@@ -1273,7 +1270,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @param useGreatestParentPaths whether to define COMMON_PARENT variable and
      *        change the file paths to be relative to this greatest common parent
      */
-    public static void setVariables(VcsCommand command, Table files, Hashtable vars,
+    public static void setVariables(VcsCommand command, Table files, Map vars,
                                     VariableValueAdjustment valueAdjustment,
                                     String relativeMountPoint,
                                     boolean useGreatestParentPaths) {
@@ -1510,12 +1507,12 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return greatestParent;
     }
     
-    private static void setVariablesFromCommandInterfaces(Command cmd, Hashtable vars) {
+    private static void setVariablesFromCommandInterfaces(Command cmd, Map vars) {
         Class[] interfaces = cmd.getClass().getInterfaces();
         setVariablesFromCommandInterfaces(cmd, interfaces, vars);
     }
     
-    private static void setVariablesFromCommandInterfaces(Command cmd, Class[] interfaces, Hashtable vars) {
+private static void setVariablesFromCommandInterfaces(Command cmd, Class[] interfaces, Map vars) {
         for (int i = 0; i < interfaces.length; i++) {
             if (Command.class.equals(interfaces[i]) ||
                 VcsDescribedCommand.class.equals(interfaces[i]) ||

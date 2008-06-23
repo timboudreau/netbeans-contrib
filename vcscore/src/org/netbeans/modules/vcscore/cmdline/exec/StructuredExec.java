@@ -42,7 +42,7 @@
 package org.netbeans.modules.vcscore.cmdline.exec;
 
 import java.io.File;
-import java.util.Hashtable;
+import java.util.Map;
 import org.netbeans.modules.vcscore.Variables;
 
 /**
@@ -143,7 +143,7 @@ public class StructuredExec extends Object {
         args = newArgs;
     }
     
-    public StructuredExec getExpanded(Hashtable vars, boolean warnUndefVars) {
+    public StructuredExec getExpanded(Map vars, boolean warnUndefVars) {
         String ew = null;
         if (getWorking() != null) {
             ew = getWorking().getPath();

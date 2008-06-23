@@ -130,7 +130,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private Object docIdentif = null;
     
     private CommandExecutionContext executionContext = null;
-    private Hashtable vars = null;
+    private Map vars = null;
     private boolean expert = false;
 
     private VariableInputDescriptor inputDescriptor;
@@ -891,7 +891,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         return executionContext;
     }
 
-    Hashtable getCommandHashtable() {
+    Map getVariablesMap() {
         return vars;
     }
 
@@ -901,7 +901,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * the constructor with "dynamicVarChanges" field, where you should
      * pass "true". Otherwise some components might not be updated correctly.
      */
-    public void updateVariableValues(Hashtable vars) {
+    public void updateVariableValues(Map vars) {
         if (!dynamicVarChanges) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
                 new IllegalStateException("updateVariableValues() called in non-dynamic mode. Read Javadoc for more details on how to fix this.")); // NOI18N
@@ -918,7 +918,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * the constructor with "dynamicVarChanges" field, where you should
      * pass "true". Otherwise some components might not be updated correctly.
      */
-    public void updateVariableValuesSubset(Hashtable vars) {
+    public void updateVariableValuesSubset(Map vars) {
         if (!dynamicVarChanges) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
                 new IllegalStateException("updateVariableValues() called in non-dynamic mode. Read Javadoc for more details on how to fix this.")); // NOI18N
@@ -929,10 +929,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
     /**
      * Use this method to supply new variable values to the components.
      */
-    private void updateVariableValues(Hashtable vars, boolean resetVars, boolean subset) {
+    private void updateVariableValues(Map vars, boolean resetVars, boolean subset) {
         List propertyChangeEvents = new ArrayList(); // The list of properties that needs to be fired
         Set eventsToAdjust = new HashSet(); // The set of properties that needs to be adjusted
-        Hashtable varsAll;
+        Map varsAll;
         if (subset) {
             varsAll = new Hashtable(vars);
             Hashtable missingVars = new Hashtable(this.vars);
@@ -1096,7 +1096,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
     }
     
-    private void enableSelectors(Hashtable vars) {
+    private void enableSelectors(Map vars) {
         for (Iterator it = awtSelectorsByConditions.keySet().iterator(); it.hasNext(); ) {
             String[] selectorVarConditions = (String[]) it.next();
             java.awt.Component selectorComponent = (Component) awtSelectorsByConditions.get(selectorVarConditions);
@@ -1631,7 +1631,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (!(command instanceof VcsDescribedCommand)) return null;
         VcsDescribedCommand cmd = (VcsDescribedCommand) command;
         // Remember the original variables for a while
-        Hashtable origVars = vars;
+        Map origVars = vars;
         try {
             vars = new Hashtable(origVars);
             // Apply all actions to the copy of the original variables
@@ -2935,7 +2935,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
           
         }*/
         public void run() {                      
-            Hashtable origVars = vars;
+            Map origVars = vars;
             try {
                 vars = new Hashtable(origVars);
                 // Apply all actions to the copy of the original variables

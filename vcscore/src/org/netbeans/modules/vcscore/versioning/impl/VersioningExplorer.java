@@ -122,6 +122,10 @@ public final class VersioningExplorer {
     
         static final long serialVersionUID =-264310566346550916L;
 
+        public Panel() {
+            setToolTipText(org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "VcsExplorer_tltp"));
+        }
+
         public void open(Workspace workspace) {
             Mode mode = WindowManager.getDefault().findMode(this);
             if (mode == null) {

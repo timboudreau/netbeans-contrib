@@ -146,11 +146,9 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 Map.Entry entry = (Map.Entry)entrySetIt.next();
                 RevisionList list = (RevisionList) entry.getKey();
                 Set itemSet = (Set) entry.getValue();
-                try {
-                    VersioningFileSystem vs = VersioningFileSystem.findFor(list.getFileObject().getFileSystem());
+                VersioningFileSystem vs = VersioningFileSystem.findFor(list.getFileObject());
+                if (vs != null) {
                     result.addAll (Arrays.asList (vs.getRevisionActions(list.getFileObject(), itemSet)));
-                } catch (FileStateInvalidException exc) {
-                    continue;
                 }
             }
             return createMenu(Collections.enumeration (result), popUp);

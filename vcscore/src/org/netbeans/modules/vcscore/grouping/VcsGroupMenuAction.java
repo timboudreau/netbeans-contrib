@@ -141,6 +141,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             getAccessibleContext().setAccessibleDescription(
                 org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
             setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/vcs_groups.png"));
+            setToolTipText(org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "GroupExplorerPanel_tltp"));
         }
         
         public static synchronized GroupExplorerPanel getDefault() {

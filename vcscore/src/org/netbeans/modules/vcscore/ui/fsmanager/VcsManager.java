@@ -51,6 +51,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -380,7 +381,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
             FSInfo info = (FSInfo)((FSInfoBeanNode) selectedNodes[0]).getInfo();
             if(info == null)
                 return;
-            FileSystem vcsFs = info.getFileSystem();  
+            VcsProvider vcsFs = info.getProvider();
             if (vcsFs == null) {
                 return ;
             }

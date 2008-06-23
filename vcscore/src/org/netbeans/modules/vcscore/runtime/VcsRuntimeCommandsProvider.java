@@ -43,6 +43,8 @@ package org.netbeans.modules.vcscore.runtime;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +60,7 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.commands.CommandProcessListener;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
@@ -70,8 +72,8 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
  * @author  Martin Entlicher
  */
 public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
-    
-    private VcsFileSystem fs;
+
+    private VcsProvider provider;
     private RuntimeCommandsListener rcl;
     private int numOfCommandsToKeep = RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     //private List runningCommands = new ArrayList();//Collections.synchronizedList(new ArrayList());
@@ -80,37 +82,38 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
     private Map runtimeCommandsForExecutors = new HashMap();//new Hashtable();
     private Map finishedExecutorsForCommands = new HashMap();
     private CommandProcessor processor = CommandProcessor.getInstance();
-    
-    public VcsRuntimeCommandsProvider(VcsFileSystem fs) {
-        this.fs = fs;
-        rcl = new RuntimeCommandsListener();
+
+    public VcsRuntimeCommandsProvider(VcsProvider provider) {
+        this.provider = provider;
+        rcl = new RuntimeCommandsListener(this);
         processor.addCommandProcessListener((CommandProcessListener) WeakListeners.create(CommandProcessListener.class, rcl, processor));
-        //processor.removeFinishedCommandsUponRequest(true, fs);
-        fs.addPropertyChangeListener(WeakListeners.propertyChange(rcl, fs));
-        numOfCommandsToKeep = fs.getNumberOfFinishedCmdsToCollect();
+        //processor.addCommandProcessListener(rcl);
+        //processor.removeFinishedCommandsUponRequest(true, provider);
+        provider.addPropertyChangeListener(WeakListeners.propertyChange(rcl, provider));
+        numOfCommandsToKeep = provider.getNumberOfFinishedCmdsToCollect();
     }
-    
+
     protected Node createNodeDelegate() {
-        RuntimeFolderNode fsRuntime = new RuntimeFolderNode(new RuntimeFolderChildren(this));
-        fsRuntime.setName(fs.getSystemName());
-        fsRuntime.setDisplayName(fs.getDisplayName());
-        fsRuntime.setNumOfFinishedCmdsToCollect(numOfCommandsToKeep);
-        java.beans.BeanDescriptor bd = getFsBeanDescriptor(fs);
+        RuntimeFolderNode providerRuntime = new RuntimeFolderNode(new RuntimeFolderChildren(this));
+        providerRuntime.setName(provider.getName());
+        providerRuntime.setDisplayName(provider.getDisplayName());
+        providerRuntime.setNumOfFinishedCmdsToCollect(numOfCommandsToKeep);
+        java.beans.BeanDescriptor bd = getFsBeanDescriptor(provider);
         if (bd != null) {
-            String str = (String)bd.getValue(org.netbeans.modules.vcscore.VcsFileSystem.VCS_FILESYSTEM_ICON_BASE);
+            String str = (String)bd.getValue(org.netbeans.modules.vcscore.VcsProvider.VCS_PROVIDER_ICON_BASE);
             if (str != null) {
-                fsRuntime.setIconBase(str);
+                providerRuntime.setIconBase(str);
             }
         }
-        fsRuntime.addPropertyChangeListener(WeakListeners.propertyChange(rcl, fsRuntime));
-        //attachListeners(fsRuntime);
-        return fsRuntime;
+        providerRuntime.addPropertyChangeListener(WeakListeners.propertyChange(rcl, providerRuntime));
+        //attachListeners(providerRuntime);
+        return providerRuntime;
     }
-    
-    private static java.beans.BeanDescriptor getFsBeanDescriptor(VcsFileSystem fs) {
+
+    private static java.beans.BeanDescriptor getFsBeanDescriptor(VcsProvider provider) {
         java.beans.BeanInfo info;
         try {
-            info = org.openide.util.Utilities.getBeanInfo(fs.getClass());
+            info = org.openide.util.Utilities.getBeanInfo(provider.getClass());
         } catch (java.beans.IntrospectionException intrExc) {
             return null;
         }
@@ -119,11 +122,11 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
         }
         return null;
     }
-    
+
     public RuntimeCommand[] children() {
         return (RuntimeCommand[]) commands.toArray(new RuntimeCommand[commands.size()]);
     }
-    
+
     public boolean cutCommandsToMaxToKeep() {
         boolean cutted = false;
         //ArrayList finishedToRemove = new ArrayList();
@@ -146,31 +149,63 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
          */
         return cutted;
     }
-    
+
     protected void notifyAdded() {
         //processor.addCommandProcessListener(rcl);
         // We use a weak listener instead for the case when this is not added at all
     }
-    
+
     protected void notifyRemoved() {
         //processor.removeCommandProcessListener(rcl);
         // We use a weak listener instead for the case when this is not added at all
         //processor.removeFinishedCommandsUponRequest(false, fs);
     }
-    
-    private class RuntimeCommandsListener extends Object implements CommandProcessListener, PropertyChangeListener {
-        
-        private VcsCommandsProvider provider = fs.getCommandsProvider();
-        
+
+    /*
+    public void register() {
+        System.out.println("VcsRuntimeCommandsProvider.register()");
+        super.register();
+        rcl = new RuntimeCommandsListener();
+        processor.addCommandProcessListener(rcl);
+        fs.addPropertyChangeListener(rcl);
+    }
+
+    public void unregister() {
+        System.out.println("VcsRuntimeCommandsProvider.unregister()");
+        super.unregister();
+        processor.removeCommandProcessListener(rcl);
+        fs.removePropertyChangeListener(rcl);
+        rcl = null;
+        commands.clear();
+        finishedCommands.clear();
+        runtimeCommandsForExecutors.clear();
+        finishedExecutorsForCommands.clear();
+        //fs = null;
+    }
+     */
+
+    private static class RuntimeCommandsListener extends Object implements CommandProcessListener, PropertyChangeListener {
+
+        //private VcsCommandsProvider provider = fs.getCommandsProvider();
+        private Reference runtimeProviderRef;
+
+        public RuntimeCommandsListener(VcsRuntimeCommandsProvider runtimeProvider) {
+            runtimeProviderRef = new WeakReference(runtimeProvider);
+        }
+
         /**
          * Get the commands provider. The listener gets events only from commands,
          * that are instances of ProvidedCommand and their provider equals to this
          * provider.
          */
         public VcsCommandsProvider getProvider() {
-            return provider;
+            VcsRuntimeCommandsProvider runtimeProvider = (VcsRuntimeCommandsProvider) runtimeProviderRef.get();
+            if (runtimeProvider != null) {
+                return runtimeProvider.provider.getCommandsProvider();
+            }
+            return null;
         }
-        
+
         /**
          * Called when the command is just to be preprocessed.
          */
@@ -186,7 +221,7 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
             firePropertyChange(PROP_CHILDREN, null, null);
              */
         }
-        
+
         /**
          * Called when the preprocessing of the command finished.
          * @param cmd The command which was preprocessed.
@@ -204,64 +239,70 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
             }
              */
         }
-        
+
         /**
          * This method is called when the command is just to be started.
          */
         public void commandStarting(CommandTaskInfo info) {
-            RuntimeCommand cmd = (RuntimeCommand) runtimeCommandsForExecutors.get(info);
+            VcsRuntimeCommandsProvider runtimeProvider = (VcsRuntimeCommandsProvider) runtimeProviderRef.get();
+            if (runtimeProvider == null) return ;
+            RuntimeCommand cmd = (RuntimeCommand) runtimeProvider.runtimeCommandsForExecutors.get(info);
             if (cmd == null) {
                 CommandTask task = info.getTask();
                 if (!(task instanceof RuntimeCommandTask)) return ;
                 cmd = ((RuntimeCommandTask) task).getRuntimeCommand(info);
                 if (cmd == null) return ;
                 //cmd = new VcsRuntimeCommand(info);
-                synchronized (VcsRuntimeCommandsProvider.this) {
-                    commands.add(cmd);
-                    runtimeCommandsForExecutors.put(info, cmd);
-                    cutCommandsToMaxToKeep();
+                synchronized (runtimeProvider) {
+                    runtimeProvider.commands.add(cmd);
+                    runtimeProvider.runtimeCommandsForExecutors.put(info, cmd);
+                    runtimeProvider.cutCommandsToMaxToKeep();
                 }
-                firePropertyChange(PROP_CHILDREN, null, null);
+                runtimeProvider.firePropertyChange(PROP_CHILDREN, null, null);
             }
             cmd.setState(RuntimeCommand.STATE_RUNNING);
         }
-        
+
         /**
          * This method is called when the command is done.
          */
         public void commandDone(CommandTaskInfo info) {
-            RuntimeCommand cmd = (RuntimeCommand) runtimeCommandsForExecutors.get(info);
+            VcsRuntimeCommandsProvider runtimeProvider = (VcsRuntimeCommandsProvider) runtimeProviderRef.get();
+            if (runtimeProvider == null) return ;
+            RuntimeCommand cmd = (RuntimeCommand) runtimeProvider.runtimeCommandsForExecutors.get(info);
             if (cmd != null) {
-                synchronized (VcsRuntimeCommandsProvider.this) {
+                synchronized (runtimeProvider) {
                     //commands.remove(cmd);
-                    runtimeCommandsForExecutors.remove(info);
-                    finishedExecutorsForCommands.put(cmd, info);
-                    finishedCommands.add(cmd);
-                    cutCommandsToMaxToKeep();
+                    runtimeProvider.runtimeCommandsForExecutors.remove(info);
+                    runtimeProvider.finishedExecutorsForCommands.put(cmd, info);
+                    runtimeProvider.finishedCommands.add(cmd);
+                    runtimeProvider.cutCommandsToMaxToKeep();
                 }
                 cmd.setState(RuntimeCommand.STATE_DONE);
-                firePropertyChange(PROP_CHILDREN, null, null);
+                runtimeProvider.firePropertyChange(PROP_CHILDREN, null, null);
             }
         }
-        
+
         public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+            VcsRuntimeCommandsProvider runtimeProvider = (VcsRuntimeCommandsProvider) runtimeProviderRef.get();
+            if (runtimeProvider == null) return ;
             Object source = propertyChangeEvent.getSource();
             String propertyName = propertyChangeEvent.getPropertyName();
-            if (source == fs) { // The change is comming from the FileSystem
+            if (source == runtimeProvider.provider) { // The change is comming from the FileSystem
                 if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(propertyName)) {
-                    int newNumOfCommandsToKeep = fs.getNumberOfFinishedCmdsToCollect();
+                    int newNumOfCommandsToKeep = runtimeProvider.provider.getNumberOfFinishedCmdsToCollect();
                     //System.out.println("newNumOfCommandsToKeep = "+newNumOfCommandsToKeep+", numOfCommandsToKeep = "+numOfCommandsToKeep);
-                    if (numOfCommandsToKeep == newNumOfCommandsToKeep) return ;
-                    numOfCommandsToKeep = newNumOfCommandsToKeep;
-                    RuntimeFolderNode node = (RuntimeFolderNode) getExistingNodeDelegate();
+                    if (runtimeProvider.numOfCommandsToKeep == newNumOfCommandsToKeep) return ;
+                    runtimeProvider.numOfCommandsToKeep = newNumOfCommandsToKeep;
+                    RuntimeFolderNode node = (RuntimeFolderNode) runtimeProvider.getExistingNodeDelegate();
                     if (node != null) {
-                        node.setNumOfFinishedCmdsToCollect(numOfCommandsToKeep);
+                        node.setNumOfFinishedCmdsToCollect(runtimeProvider.numOfCommandsToKeep);
                     }
-                    if (cutCommandsToMaxToKeep()) firePropertyChange(PROP_CHILDREN, null, null);
-                } else if (VcsFileSystem.PROP_DISPLAY_NAME.equals(propertyName)) {
-                    RuntimeFolderNode node = (RuntimeFolderNode) getExistingNodeDelegate();
+                    if (runtimeProvider.cutCommandsToMaxToKeep()) runtimeProvider.firePropertyChange(PROP_CHILDREN, null, null);
+                } else if (VcsProvider.PROP_DISPLAY_NAME.equals(propertyName)) {
+                    RuntimeFolderNode node = (RuntimeFolderNode) runtimeProvider.getExistingNodeDelegate();
                     if (node != null) {
-                        node.setDisplayName(fs.getDisplayName());
+                        node.setDisplayName(runtimeProvider.provider.getDisplayName());
                     }
                 }
             } else if (source instanceof RuntimeFolderNode) { // The change is comming from the Node
@@ -269,13 +310,13 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
                 if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(propertyName)) {
                     int newNumOfCommandsToKeep = node.getNumOfFinishedCmdsToCollect();
                     //System.out.println("newNumOfCommandsToKeep = "+newNumOfCommandsToKeep+", numOfCommandsToKeep = "+numOfCommandsToKeep);
-                    if (numOfCommandsToKeep == newNumOfCommandsToKeep) return ;
-                    numOfCommandsToKeep = newNumOfCommandsToKeep;
-                    fs.setNumberOfFinishedCmdsToCollect(numOfCommandsToKeep);
-                    if (cutCommandsToMaxToKeep()) firePropertyChange(PROP_CHILDREN, null, null);
+                    if (runtimeProvider.numOfCommandsToKeep == newNumOfCommandsToKeep) return ;
+                    runtimeProvider.numOfCommandsToKeep = newNumOfCommandsToKeep;
+                    runtimeProvider.provider.setNumberOfFinishedCmdsToCollect(runtimeProvider.numOfCommandsToKeep);
+                    if (runtimeProvider.cutCommandsToMaxToKeep()) runtimeProvider.firePropertyChange(PROP_CHILDREN, null, null);
                 }
             }
         }
-        
+
     }
 }

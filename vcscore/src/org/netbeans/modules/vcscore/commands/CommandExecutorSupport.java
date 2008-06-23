@@ -51,8 +51,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import org.netbeans.api.queries.SharabilityQuery;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.RequestProcessor;
 
@@ -61,7 +63,7 @@ import org.netbeans.api.vcs.commands.Command;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
@@ -76,103 +78,97 @@ import org.netbeans.modules.vcscore.versioning.RevisionEvent;
  * @author  Martin Entlicher
  */
 public class CommandExecutorSupport extends Object {
-    
+
     private static RequestProcessor REFRESH_REQUEST_PROCESSOR;
-    
+
     /** Creates new CommandExecutorSupport */
     private CommandExecutorSupport() {
     }
-    
+
     private static synchronized void checkRefreshRequestProcessorCreated() {
         if (REFRESH_REQUEST_PROCESSOR == null) {
             REFRESH_REQUEST_PROCESSOR = new RequestProcessor("Post-command Refresh Request Processor", 1); // NOI18N
         }
     }
-    
+
     /**
      * Postprocess the command after it's execution.
      */
     public static void postprocessCommand(CommandExecutionContext executionContext, final VcsCommandExecutor vce) {
         int exit = vce.getExitStatus();
         final VcsCommand cmd = vce.getCommand();
-        final VcsFileSystem fileSystem;
-        if (executionContext instanceof VcsFileSystem) {
-            fileSystem = (VcsFileSystem) executionContext;
+        final VcsProvider provider;
+        if (executionContext instanceof VcsProvider) {
+            provider = (VcsProvider) executionContext;
         } else {
-            fileSystem = null;
+            provider = null;
         }
         if (VcsCommandExecutor.SUCCEEDED == exit) {
             checkForModifications(executionContext, vce);
         }
-        if (fileSystem != null) {
+        if (provider != null) {
             //String name = vce.getCommand().getDisplayName();
             if (VcsCommandExecutor.SUCCEEDED == exit) {
-                doRefresh(fileSystem, vce);
+                doRefresh(provider, vce);
                 RequestProcessor.getDefault().post(new Runnable() {
                     // do that lazily, revision reload is waiting for the command,
                     // this can cause deadlock if the command can not run in parallel with this one.
                     public void run() {
-                        checkRevisionChanges(fileSystem, vce);
+                        checkRevisionChanges(provider, vce);
                         if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS)) {
-                            deleteUnimportantFiles(fileSystem, vce.getFiles());
+                            deleteUnimportantFiles(provider, vce.getFiles());
                         }
                     }
                 });
             } else {
                 Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
                 if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
-                    doRefresh(fileSystem, vce);
+                    doRefresh(provider, vce);
                 } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
-                    doRefresh(fileSystem, vce, true);
+                    doRefresh(provider, vce, true);
                 }
             }
         }
         issuePostCommands(cmd, vce.getVariables(),
                           VcsCommandExecutor.SUCCEEDED == exit, executionContext);
     }
-    
-    private static Collection getAllFilesAssociatedWith(VcsFileSystem fileSystem, Collection fileNames) {
+
+    private static Collection getAllFilesAssociatedWith(VcsProvider provider, Collection fileNames) {
         java.util.HashSet files = new java.util.HashSet();
         for (Iterator filesIt = fileNames.iterator(); filesIt.hasNext(); ) {
             String name = (String) filesIt.next();
-            org.openide.filesystems.FileObject fo = fileSystem.findResource(name);
+            org.openide.filesystems.FileObject fo = provider.findResource(name);
             if (fo == null) continue;
             try {
-                DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
+                DataObject dobj = DataObject.find(fo);
                 FileObject[] allFOs = (FileObject[]) dobj.files().toArray(new FileObject[0]);
-                allFOs = VcsUtilities.convertFileObjects(allFOs);
+                //allFOs = VcsUtilities.convertFileObjects(allFOs);
                 files.addAll(java.util.Arrays.asList(allFOs));
             } catch (org.openide.loaders.DataObjectNotFoundException donfexc) {}
         }
         return files;
     }
-    
-    private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
+
+    private static void deleteUnimportantFiles(VcsProvider provider, Collection processedFiles) {
 
         String localFileStatus = Statuses.getLocalStatus();
         String ignoredFileStatus = Statuses.STATUS_IGNORED;
-        for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
+        for (Iterator filesIt = getAllFilesAssociatedWith(provider, processedFiles).iterator(); filesIt.hasNext(); ) {
             org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-            String name = fo.getPath();
-            if (!fileSystem.isImportant(name)) {
+            int sharability = SharabilityQuery.getSharability(FileUtil.toFile(fo));
+            if (sharability == SharabilityQuery.NOT_SHARABLE) {
                 FileProperties fprops = Turbo.getMeta(fo);
                 String status = FileProperties.getStatus(fprops);  // XXX this status is VCS specific
                 // Do not delete unimportant files, that are version controled.
                 if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
-                if (fo != null) {
-                    try {
-                        fo.delete(fo.lock());
-                    } catch (java.io.IOException ioexc) {}
-                } else {
-                    try {
-                        fileSystem.delete(name);
-                    } catch (java.io.IOException ioexc) {}
-                }
+                try {
+                    fo.delete(fo.lock());
+                } catch (java.io.IOException ioexc) {}
             }
         }
     }
-    
-    private static void issuePostCommands(VcsCommand cmd, Hashtable vars,
+
+    private static void issuePostCommands(VcsCommand cmd, Map vars,
                                           boolean success, CommandExecutionContext executionContext) {
         String commands;
         if (success) {
@@ -202,22 +198,13 @@ public class CommandExecutorSupport extends Object {
                     }
                 });
             }
-            /*
-            VcsCommand c = executionContext.getCommand(cmdNames[i]);
-            if (c != null) {
-                Hashtable cVars = new Hashtable(vars);
-                VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(c, cVars);
-                fileSystem.getCommandsPool().preprocessCommand(vce, cVars, fileSystem);
-                fileSystem.getCommandsPool().startExecutor(vce);
-            }
-             */
         }
     }
-    
+
     private static void checkForModifications(CommandExecutionContext executionContext, VcsCommandExecutor vce) {
         if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
             Collection files = vce.getFiles();
-            if (files.size() == 0 && !(executionContext instanceof VcsFileSystem)) {
+            if (files.size() == 0 && !(executionContext instanceof VcsProvider)) {
                 // When there are no files, check for ROOTDIR. Necessary for global commands.
                 // TODO Global commands should define the processed files somehow.
                 String root = (String) vce.getVariables().get("ROOTDIR");
@@ -232,24 +219,24 @@ public class CommandExecutorSupport extends Object {
         }
     }
 
-    
+
     /**
      * Performs an automatic refresh after the command finishes.
      */
-    private static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
-        doRefresh(fileSystem, vce, false);
+    private static void doRefresh(VcsProvider provider, VcsCommandExecutor vce) {
+        doRefresh(provider, vce, false);
     }
-    
+
     /** The map of filesystems weakly referenced and correponding map of
      * folders which are to be refreshed later. */
     private static final Map foldersToRefreshByFilesystems = new WeakHashMap();
-    
+
     /**
      * Performs an automatic refresh after the command finishes.
      */
-    private static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
+    private static void doRefresh(VcsProvider provider, VcsCommandExecutor vce, boolean foldersOnly) {
         //System.out.println("doRefresh("+vce+", "+foldersOnly+")");
-        Map foldersToRefresh = getFoldersToRefresh(fileSystem, vce, foldersOnly);
+        Map foldersToRefresh = getFoldersToRefresh(provider, vce, foldersOnly);
         //System.out.println("  have folders = "+foldersToRefresh);
 
         // TODO commented out block causes race conditions forgeting to
@@ -294,9 +281,9 @@ public class CommandExecutorSupport extends Object {
 //                }
 //            }
 //        }
-        doRefresh(fileSystem, foldersToRefresh);
+        doRefresh(provider, foldersToRefresh);
     }
-    
+
     private static void copyFoldersToRefresh(Map src, Map dest) {
         for (Iterator it = src.keySet().iterator(); it.hasNext(); ) {
             String folderName = (String) it.next();
@@ -309,25 +296,25 @@ public class CommandExecutorSupport extends Object {
     }
 
     /** Refreshes all files (keys) in map according to recursion (value). Turbo compatible. */
-    private static void doRefresh(VcsFileSystem fileSystem, Map foldersToRefresh) {
+    private static void doRefresh(VcsProvider provider, Map foldersToRefresh) {
         //System.out.println("doRefresh("+foldersToRefresh+")");
         for (Iterator it = foldersToRefresh.keySet().iterator(); it.hasNext(); ) {
             String folderName = (String) it.next();
             Boolean rec = (Boolean) foldersToRefresh.get(folderName);
             //System.out.println("Calling doRefresh("+folderName+", "+rec.booleanValue()+")");
-            doRefresh(fileSystem, folderName, rec.booleanValue());
+            doRefresh(provider, folderName, rec.booleanValue());
         }
     }
-    
+
     /**
      * Perform the refresh of a folder. Turbo compatible.
-     * @param fileSystem the file system to use
+     * @param provider the vcs provider to use
      * @param refreshPath the folder to refresh
      * @param recursive whether to do the refresh recursively
      */
-    public static void doRefresh(VcsFileSystem fileSystem, String refreshPath, final boolean recursive) {
+    public static void doRefresh(VcsProvider provider, String refreshPath, final boolean recursive) {
 
-        final FileObject fo = fileSystem.findResource(refreshPath);
+        final FileObject fo = provider.findResource(refreshPath);
         // Spawn the refresh asynchronously, like the original implementation.
         // XXX it potentionaly spawns many threads. Requests should be
         // queued and merged
@@ -344,18 +331,18 @@ public class CommandExecutorSupport extends Object {
             }
         });
     }
-    
+
     /**
      * Get the map of names of folders, that need to be refreshed as keys and
      * a Boolean value of whether the refresh should be recursive or not as values.
      */
-    private static Map getFoldersToRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
+    private static Map getFoldersToRefresh(VcsProvider provider, VcsCommandExecutor vce, boolean foldersOnly) {
         Map foldersToRefresh = new TreeMap();
         VcsCommand cmd = vce.getCommand();
         boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
         boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
         boolean doRefreshParentOfCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_OF_CURRENT_FOLDER);
-        //System.out.println("getFoldersToRefresh("+fileSystem+", "+vce+", "+foldersOnly+"), current = "+doRefreshCurrent+", parent = "+doRefreshParent);
+        //System.out.println("getFoldersToRefresh("+provider+", "+vce+", "+foldersOnly+"), current = "+doRefreshCurrent+", parent = "+doRefreshParent);
         if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) {
             Collection files = vce.getFiles();
             //System.out.println("  files = "+files);
@@ -365,7 +352,7 @@ public class CommandExecutorSupport extends Object {
                 String file = VcsUtilities.getFileNamePart(fullPath);
                 //System.out.println("  fullPath = "+fullPath+", dir = "+dir+", file = "+file);
                 Boolean recursively[] = { Boolean.FALSE };
-                String[] folderNames = getFolderToRefresh(fileSystem, vce.getExec(),
+                String[] folderNames = getFolderToRefresh(provider, vce.getExec(),
                                                           cmd, dir, file, foldersOnly,
                                                           doRefreshCurrent, doRefreshParent,
                                                           doRefreshParentOfCurrent, recursively);
@@ -394,7 +381,7 @@ public class CommandExecutorSupport extends Object {
      * @param recursively [0] is filled by the method
      * @return dir[+file] converted to FS path or <code>null</code>
      */
-    private static String[] getFolderToRefresh(VcsFileSystem fileSystem, String exec,
+    private static String[] getFolderToRefresh(VcsProvider provider, String exec,
                                                VcsCommand cmd, String dir, String file,
                                                boolean foldersOnly, boolean doRefreshCurrent,
                                                boolean doRefreshParent, boolean doRefreshParentOfCurrent,
@@ -402,7 +389,6 @@ public class CommandExecutorSupport extends Object {
 
         if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) { // NOI18N
             //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-            //fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile;
@@ -413,7 +399,7 @@ public class CommandExecutorSupport extends Object {
             }
             String currentFolder;
             String parentFolder;
-            if (fileSystem.folder(refreshPathFile)) { // folder is selected
+            if (provider.getFile(refreshPathFile).isDirectory()) { // folder is selected
                 currentFolder = refreshPathFile;
                 parentFolder = refreshPath;
             } else { // file is selected
@@ -446,8 +432,8 @@ public class CommandExecutorSupport extends Object {
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
             String innerRefreshFolder = (String) refreshPaths.get(refreshPaths.size() - 1);
             boolean rec = (exec != null
-                && ( !(fileSystem.folder(innerRefreshFolder) == false
-                                       || (!fileSystem.folder(innerRefreshFolder))))
+                && ( !(provider.getFile(innerRefreshFolder).isDirectory() == false
+                                       || (!provider.getFile(innerRefreshFolder).isDirectory())))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;
@@ -457,8 +443,8 @@ public class CommandExecutorSupport extends Object {
             return null;
         }
     }
-    
-    public static void checkRevisionChanges(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+
+    public static void checkRevisionChanges(VcsProvider provider, VcsCommandExecutor vce) {
         int whatChanged = RevisionEvent.REVISION_NO_CHANGE;
         String changedRevision = null;
         VcsCommand cmd = vce.getCommand();
@@ -474,12 +460,12 @@ public class CommandExecutorSupport extends Object {
         if (whatChanged != RevisionEvent.REVISION_NO_CHANGE) {
             String[] files = (String[]) vce.getFiles().toArray(new String[0]);
             for (int i = 0; i < files.length; i++) {
-                Object fo = fileSystem.findResource(files[i]);
+                Object fo = provider.findResource(files[i]);
                 if (fo != null) {
                     RevisionEvent event = new RevisionEvent(fo);
                     event.setRevisionChangeID(whatChanged);
                     event.setChangedRevision(changedRevision);
-                    fileSystem.fireRevisionsChanged(event);
+                    provider.fireRevisionsChanged(event);
                 }
             }
         }
@@ -488,5 +474,5 @@ public class CommandExecutorSupport extends Object {
     private static String g(String s) {
         return org.openide.util.NbBundle.getBundle(CommandExecutorSupport.class).getString(s);
     }
-    
+
 }

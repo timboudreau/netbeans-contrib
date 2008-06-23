@@ -46,6 +46,7 @@ import java.io.FilenameFilter;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.*;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -54,7 +55,6 @@ import org.openide.util.actions.SystemAction;
 
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /**
@@ -71,22 +71,22 @@ public abstract class VersioningFileSystem {
 
     private static final SystemAction[] NO_ACTIONS = new SystemAction[0];
 
-    /** wrapped filesystem */
-    private final AbstractFileSystem fileSystem;
-
     /** Keeps trace of supported filesystems. */
     private static final Map fs2versiong = new WeakHashMap(10);
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    public VersioningFileSystem(AbstractFileSystem underlyingFs) {
-        fileSystem = underlyingFs;
-        fs2versiong.put(fileSystem, this);
+    public VersioningFileSystem() {
     }
 
     /** Finds existing versioning support for file system or null. */
-    public static VersioningFileSystem findFor(FileSystem fileSystem) {
-        return (VersioningFileSystem) fs2versiong.get(fileSystem);
+    public static VersioningFileSystem findFor(FileObject fo) {
+        VcsProvider p = VcsProvider.getProvider(fo);
+        if (p != null) {
+            return p.getVersioningSystem();
+        } else {
+            return null;
+        }
     }
 
     /** Support for versioned access to file streams. */
@@ -101,13 +101,9 @@ public abstract class VersioningFileSystem {
     }
 
     /** @deprecated for identity purposes use VersionFileSytem directly. */
-    public String getSystemName() {
-        return fileSystem.getSystemName();
-    }
+    public abstract String getSystemName();
 
-    public FileObject getRoot() {
-        return fileSystem.getRoot();
-    }
+    public abstract FileObject getRoot();
 
     /** Callback called on adding to VersioningRepository. */
     protected void addNotify() {
@@ -148,11 +144,10 @@ public abstract class VersioningFileSystem {
         firePropertyChange(e);
     }
 
-    public String getDisplayName() {
-        return fileSystem.getDisplayName();
-    }
+    public abstract String getDisplayName();
 
-    // unused or called by reflection?
+    /* Was called by the filesystem before it's extension was removed
+     * This filters the VersioningExplorerAction.
     public SystemAction[] getActions(Set vfoSet) {
         SystemAction[] actions = fileSystem.getActions(vfoSet);
         SystemAction myAction = SystemAction.get(VersioningExplorerAction.class);
@@ -172,27 +167,15 @@ public abstract class VersioningFileSystem {
         }
         return actions;
     }
-    
+     */
+
     public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {
         return NO_ACTIONS;
     }
 
-    protected final FileObject findResource(String name) {
-        return fileSystem.findResource(name);
-    }
-
-    protected void refreshExistingFolders() {
-        // TODO require extended contract of FS passed in constructor
-        // anyway I'm uncertain if it;s necessary at all
-        if (fileSystem instanceof VcsFileSystem) {
-            VcsFileSystem fs = (VcsFileSystem) fileSystem;
-            fs.refreshExistingFolders();
-        }
-    }
-    
     /**
      * The filter of file names that should not be presented in GUI, redefining visibilityquery.
      */
     public abstract FilenameFilter getFileFilter();
-    
+
 }
