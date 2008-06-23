@@ -67,18 +67,14 @@ import javax.swing.text.Caret;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.extexecution.api.ExecutionDescriptor;
-import org.netbeans.modules.extexecution.api.ExecutionDescriptorBuilder;
 import org.netbeans.modules.extexecution.api.ExecutionService;
 import org.netbeans.modules.extexecution.api.ExternalProcessBuilder;
-import org.netbeans.modules.extexecution.api.input.InputProcessor;
 import org.netbeans.modules.languages.execution.console.TextAreaReadline;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.util.Task;
-import org.openide.util.TaskListener;
 import org.openide.windows.OutputListener;
 import org.openide.windows.OutputWriter;
 import org.openide.windows.TopComponent;
@@ -317,7 +313,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
         builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
         builder.pwd(pwd);
 
-        ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
+        ExecutionDescriptor.Builder execBuilder = new ExecutionDescriptor.Builder();
         execBuilder.frontWindow(true).inputVisible(true);
         execBuilder.inputOutput(new CustomInputOutput(in, out, err));
         execBuilder.postExecution(new Runnable() {
