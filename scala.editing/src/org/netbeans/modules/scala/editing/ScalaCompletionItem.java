@@ -137,7 +137,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         if (indexedElement != null) {
-            Type type = indexedElement.asType();
+            TypeMirror type = indexedElement.asType();
             if (type != null) {
                 formatter.appendHtml(" :"); // NOI18N
                 formatter.type(true);

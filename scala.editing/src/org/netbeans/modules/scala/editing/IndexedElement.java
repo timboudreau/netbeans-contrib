@@ -53,7 +53,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -61,6 +63,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.BasicName;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
@@ -68,7 +71,7 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
-import org.netbeans.modules.scala.editing.nodes.types.Type.PseudoTypeRef;
+import org.netbeans.modules.scala.editing.nodes.BasicType;
 import org.netbeans.modules.scala.editing.nodes.types.WithTypeParams;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -130,6 +133,7 @@ public class IndexedElement extends AstElement {
     public static final int FIELD = 1 << 15;
     public static final int PACKAGE = 1 << 16;
     public static final int JAVA = 1 << 17;
+    protected Name qualifiedName;
     protected String fqn;
     protected String name;
     protected String in;
@@ -149,6 +153,7 @@ public class IndexedElement extends AstElement {
 
     IndexedElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
         super(sName, null, null, kind);
+        this.qualifiedName = new BasicName(qName);
         this.fqn = qName;
         this.name = sName;
         this.in = in;
@@ -170,12 +175,12 @@ public class IndexedElement extends AstElement {
             ElementKind kind = (flags & CONSTRUCTOR) != 0 ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
             return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, kind);
         } else if ((flags & CLASS) != 0) {
-            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
         } else if ((flags & OBJECT) != 0) {
-            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
         } else if ((flags & TRAIT) != 0) {
-            return new IndexedType(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.INTERFACE);
-        } else if ((flags & PACKAGE) != 0){
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.INTERFACE);
+        } else if ((flags & PACKAGE) != 0) {
             return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.PACKAGE);
         } else {
             return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.OTHER);
@@ -224,7 +229,7 @@ public class IndexedElement extends AstElement {
 
     @Override
     public Name getSimpleName() {
-        return new AstName(name);
+        return new BasicName(name);
     }
 
     @Override
@@ -364,7 +369,7 @@ public class IndexedElement extends AstElement {
     @Override
     public int getPickOffset(TokenHierarchy th) {
         return getOffset();
-    }   
+    }
 
     OffsetRange getDocRange() {
         int docOffsetIndex = getAttributeSection(DOC_START_INDEX);
@@ -410,7 +415,7 @@ public class IndexedElement extends AstElement {
     }
 
     @Override
-    public Type asType() {
+    public TypeMirror asType() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
@@ -420,7 +425,7 @@ public class IndexedElement extends AstElement {
         if (endIdx > typeIdx) {
             String typeAttribute = attributes.substring(typeIdx, endIdx);
             int[] posAndLevel = new int[]{0, 0};
-            Type typeName = decodeType(typeAttribute, posAndLevel, null);
+            TypeMirror typeName = decodeType(typeAttribute, posAndLevel, null);
 
             return typeName;
         }
@@ -670,9 +675,9 @@ public class IndexedElement extends AstElement {
                         sb.append(',');
                     }
                     sb.append(paramName);
-                    Type paramType = param.asType();
+                    TypeMirror paramType = param.asType();
                     if (paramType != null) {
-                        String typeName = paramType.getSimpleName().toString();
+                        String typeName = Type.simpleNameOf(paramType);
                         if (typeName != null) {
                             sb.append(':');
                             sb.append(typeName);
@@ -717,7 +722,7 @@ public class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == TYPE_INDEX;
-        Type type = element.asType();
+        TypeMirror type = element.asType();
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -737,30 +742,32 @@ public class IndexedElement extends AstElement {
      * @param type to be encoded
      * @param StringBuilder for attributes
      */
-    private static void encodeType(Type type, StringBuilder sb) {
-        if (type.isResolved()) {
-            sb.append(type.getQualifiedName());
+    private static void encodeType(TypeMirror type, StringBuilder sb) {
+        if (type instanceof Type && ((Type) type).isResolved()) {
+            sb.append(((Type) type).asElement().getQualifiedName());
         } else {
-            sb.append(type.getSimpleName());
+            sb.append(Type.simpleNameOf(type));
         }
 
-        List<Type> typeArgs = type.getTypeArgs();
-        if (typeArgs.size() > 0) {
-            sb.append("<");
-            for (Iterator<Type> itr = typeArgs.iterator(); itr.hasNext();) {
-                Type typeArg = itr.next();
-                encodeType(typeArg, sb);
-                if (itr.hasNext()) {
-                    sb.append(",");
+        if (type.getKind() == TypeKind.DECLARED) {
+            List<? extends TypeMirror> typeArgs = ((DeclaredType) type).getTypeArguments();
+            if (typeArgs.size() > 0) {
+                sb.append("<");
+                for (Iterator<? extends TypeMirror> itr = typeArgs.iterator(); itr.hasNext();) {
+                    TypeMirror typeArg = itr.next();
+                    encodeType(typeArg, sb);
+                    if (itr.hasNext()) {
+                        sb.append(",");
+                    }
                 }
+                sb.append(">");
             }
-            sb.append(">");
         }
     }
 
     /** @todo decode tuple type, function type etc */
-    private Type decodeType(String typeAttr, int[] posAndLevel, List<Type> typeArgs) {
-        PseudoTypeRef curr = new PseudoTypeRef();
+    private TypeMirror decodeType(String typeAttr, int[] posAndLevel, List<TypeMirror> typeArgs) {
+        BasicType curr = new BasicType();
         StringBuilder sb = new StringBuilder();
         while (posAndLevel[0] < typeAttr.length()) {
             char c = typeAttr.charAt(posAndLevel[0]);
@@ -768,15 +775,15 @@ public class IndexedElement extends AstElement {
             if (c == '<') {
                 posAndLevel[1]++;
                 curr.setSimpleName(sb.toString());
-                typeArgs = new ArrayList<Type>();
-                curr.setTypeArgs(typeArgs);
+                typeArgs = new ArrayList<TypeMirror>();
+                curr.setTypeArguments(typeArgs);
 
-                Type typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                TypeMirror typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 typeArgs.add(typeArg);
             } else if (c == '>') {
                 posAndLevel[1]--;
             } else if (c == ',') {
-                Type typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                TypeMirror typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
                 if (typeArgs != null) {
                     typeArgs.add(typeArg);
                 } else {
@@ -794,8 +801,8 @@ public class IndexedElement extends AstElement {
         }
 
         return curr;
-    }    
-    
+    }
+
     private static void encodeTypeParams(List<? extends TypeParam> typeParams, StringBuilder sb) {
         if (!typeParams.isEmpty()) {
             sb.append("[");
@@ -809,7 +816,7 @@ public class IndexedElement extends AstElement {
                     sb.append(typeParam.getBound());
                     encodeType(typeParam.getBoundType(), sb);
                 }
-                                
+
                 encodeTypeParams(typeParam.getParams(), sb);
                 if (itr.hasNext()) {
                     sb.append(",");
@@ -818,7 +825,7 @@ public class IndexedElement extends AstElement {
             sb.append("]");
         }
     }
-        
+
     public static String encodeAttributes(javax.lang.model.element.Element jelement) {
         OffsetRange docRange = OffsetRange.NONE;
 
@@ -1154,54 +1161,54 @@ public class IndexedElement extends AstElement {
 
         /*
         if (element instanceof IndexedFunction) {
-            IndexedFunction function = (IndexedFunction) element;
-            Collection<String> args = function.getArgs();
-
-            if (!function.isNullArgs()) {
-                sb.append("("); // NOI18N
-                if ((args != null) && (args.size() > 0)) {
-
-                    for (Iterator<String> it = args.iterator(); it.hasNext();) {
-                        String ve = it.next();
-                        int typeIndex = ve.indexOf(':');
-                        if (typeIndex != -1) {
-                            sb.append("<font color=\"#808080\">"); // NOI18N
-                            for (int i = typeIndex + 1, n = ve.length(); i < n; i++) {
-                                char c = ve.charAt(i);
-                                if (c == '<') { // Handle types... Array<String> etc
-                                    sb.append("&lt;");
-                                } else if (c == '>') {
-                                    sb.append("&gt;");
-                                } else {
-                                    sb.append(c);
-                                }
-                            }
-                            //sb.append(ve, typeIndex+1, ve.length());
-                            sb.append("</font>"); // NOI18N
-                            sb.append(" ");
-                            sb.append("<font color=\"#a06001\">"); // NOI18N
-                            sb.append(ve, 0, typeIndex);
-                            sb.append("</font>"); // NOI18N
-                        } else {
-                            sb.append("<font color=\"#a06001\">"); // NOI18N
-                            sb.append(ve);
-                            sb.append("</font>"); // NOI18N
-                        }
-
-                        if (it.hasNext()) {
-                            sb.append(", "); // NOI18N
-                        }
-                    }
-
-                }
-                sb.append(")"); // NOI18N
-            }
-
-            Type retType = function.asType();
-
-            if (retType != null) {
-                sb.append(" :").append(function.asType().toString());
-            }
+        IndexedFunction function = (IndexedFunction) element;
+        Collection<String> args = function.getArgs();
+        
+        if (!function.isNullArgs()) {
+        sb.append("("); // NOI18N
+        if ((args != null) && (args.size() > 0)) {
+        
+        for (Iterator<String> it = args.iterator(); it.hasNext();) {
+        String ve = it.next();
+        int typeIndex = ve.indexOf(':');
+        if (typeIndex != -1) {
+        sb.append("<font color=\"#808080\">"); // NOI18N
+        for (int i = typeIndex + 1, n = ve.length(); i < n; i++) {
+        char c = ve.charAt(i);
+        if (c == '<') { // Handle types... Array<String> etc
+        sb.append("&lt;");
+        } else if (c == '>') {
+        sb.append("&gt;");
+        } else {
+        sb.append(c);
+        }
+        }
+        //sb.append(ve, typeIndex+1, ve.length());
+        sb.append("</font>"); // NOI18N
+        sb.append(" ");
+        sb.append("<font color=\"#a06001\">"); // NOI18N
+        sb.append(ve, 0, typeIndex);
+        sb.append("</font>"); // NOI18N
+        } else {
+        sb.append("<font color=\"#a06001\">"); // NOI18N
+        sb.append(ve);
+        sb.append("</font>"); // NOI18N
+        }
+        
+        if (it.hasNext()) {
+        sb.append(", "); // NOI18N
+        }
+        }
+        
+        }
+        sb.append(")"); // NOI18N
+        }
+        
+        Type retType = function.asType();
+        
+        if (retType != null) {
+        sb.append(" :").append(function.asType().toString());
+        }
         } */
 
         sb.append("</td>\n"); // NOI18N

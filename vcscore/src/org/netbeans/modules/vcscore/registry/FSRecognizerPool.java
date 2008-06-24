@@ -42,6 +42,7 @@
 package org.netbeans.modules.vcscore.registry;
 
 import java.io.File;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.filesystems.FileSystem;
 import org.openide.util.Lookup;
@@ -95,10 +96,10 @@ class FSRecognizerPool extends Object implements LookupListener {
     /**
      * Find a filesystem, that is recognized at the given folder.
      */
-    public FileSystem findFilesystem(File folder) {
+    public VcsProvider findFilesystem(File folder) {
         FSInfo fsInfo = findFilesystemInfo(folder);
         if (fsInfo != null) {
-            return fsInfo.getFileSystem();
+            return fsInfo.getProvider();
         } else {
             return null;
         }

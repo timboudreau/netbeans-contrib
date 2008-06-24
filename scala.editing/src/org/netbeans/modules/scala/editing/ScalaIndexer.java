@@ -339,12 +339,16 @@ public class ScalaIndexer implements Indexer {
                 signature.append(';');
                 signature.append(attrs);
 
-                List<Type> extendsWith = template.getExtendsWith();
-                String clz = template.getQualifiedName().toString();
-                if (extendsWith.size() > 0) {
-                    for (Type parent : extendsWith) {
-                        String superClz = parent.getQualifiedName().toString();
-                        document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
+                Type superClass = template.getSuperclass();
+                if (superClass != null) {
+                    String superClz = superClass.getSimpleName().toString();
+                    document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
+                }
+                List<Type> withTraits = template.getInterfaces();
+                if (withTraits.size() > 0) {
+                    for (Type withTrait : withTraits) {
+                        String superClz = withTrait.getSimpleName().toString();
+                        document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
                     }
 
                     ClassCache.INSTANCE.refresh();
@@ -357,23 +361,23 @@ public class ScalaIndexer implements Indexer {
                     for (Importing importExpr : imports) {
                         String pkgName = importExpr.getPackageName();
                         StringBuilder importAttr = new StringBuilder();
-                        importAttr.append(clz.toLowerCase()).append(";").append(clz).append(";").append(pkgName).append(";");
+                        importAttr.append(qName.toLowerCase()).append(";").append(qName).append(";").append(pkgName).append(";");
                         if (importExpr.isWild()) {
                             importAttr.append("_").append(";");
-                            
+
                             importPkgs.add(pkgName);
                             document.addPair(FIELD_IMPORT, importAttr.toString(), true);
                         } else {
                             List<Type> importedTypes = importExpr.getImportedTypes();
                             for (Type type : importedTypes) {
                                 importAttr.append(type.getSimpleName()).append(";");
-                                
+
                                 importPkgs.add(pkgName);
                                 document.addPair(FIELD_IMPORT, importAttr.toString(), true);
                             }
                         }
                     }
-                    
+
                     ScalaTypeInferencer.updateClassToImportPkgsCache(qName, importPkgs);
                 }
 

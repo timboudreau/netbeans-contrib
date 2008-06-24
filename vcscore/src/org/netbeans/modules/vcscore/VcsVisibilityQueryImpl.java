@@ -71,16 +71,16 @@ public class VcsVisibilityQueryImpl implements VisibilityQueryImplementation, Pr
     public VcsVisibilityQueryImpl() {}
     
     public boolean isVisible(FileObject fo) {
-        VcsFileSystem vcsFS = (VcsFileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        if (vcsFS == null) return true;
+        VcsProvider vcsP = VcsProvider.getProvider(fo);
+        if (vcsP == null) return true;
         synchronized (listenedVFSs) {
-            if (!listenedVFSs.contains(vcsFS)) {
-                listenedVFSs.add(vcsFS);
-                vcsFS.addPropertyChangeListener(WeakListeners.propertyChange(this, vcsFS));
+            if (!listenedVFSs.contains(vcsP)) {
+                listenedVFSs.add(vcsP);
+                vcsP.addPropertyChangeListener(WeakListeners.propertyChange(this, vcsP));
             }
         }
         File file = FileUtil.toFile(fo);
-        return vcsFS.getFileFilter().accept(file.getParentFile(), file.getName());
+        return vcsP.getFileFilter().accept(file.getParentFile(), file.getName());
     }
     
     public void addChangeListener(ChangeListener l) {
@@ -100,7 +100,7 @@ public class VcsVisibilityQueryImpl implements VisibilityQueryImplementation, Pr
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
-        if (VcsFileSystem.PROP_FILE_FILTER.equals(evt.getPropertyName())) {
+        if (VcsProvider.PROP_FILE_FILTER.equals(evt.getPropertyName())) {
             fireChangeEvent();
         }
     }

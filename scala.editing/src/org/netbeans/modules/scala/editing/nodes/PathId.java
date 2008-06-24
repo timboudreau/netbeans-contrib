@@ -41,8 +41,8 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -79,14 +79,14 @@ public class PathId extends AstId {
     }
 
     @Override
-    public void setType(Type type) {
+    public void setType(TypeMirror type) {
         this.type = type;
         // @Todo
         paths.get(paths.size() - 1).setType(type);
     }        
 
     @Override
-    public Type asType() {
+    public TypeMirror asType() {
         if (type != null) {
             return type;
         }

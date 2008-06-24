@@ -43,13 +43,13 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -69,8 +69,7 @@ public abstract class AstNode {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private Name simpleName;
-    protected Type type;
-    protected Name qualifiedName;
+    protected TypeMirror type;
 
     protected AstNode() {
         this(null, null);
@@ -94,21 +93,24 @@ public abstract class AstNode {
             if (sName instanceof Name) {
                 this.simpleName = (Name) sName;
             } else {
-                this.simpleName = new AstName(sName);
+                this.simpleName = new BasicName(sName);
             }
         } else {
             this.simpleName = null;
         }
     }
 
-    /** @Todo Importing, Packaging are with null simpleName, any better solution? */
+    /** 
+     * @Note: Importing, Packaging are with null simpleName field, should override
+     * this method
+     */
     public Name getSimpleName() {
         return simpleName;
 //        if (name == null) {
 //            assert false : "Should implement getSimpleName()";
 //            throw new UnsupportedOperationException();
 //        } else {
-//            return name;
+//            return simpleName;
 //        }
     }
 
@@ -142,40 +144,19 @@ public abstract class AstNode {
         return getSimpleName().toString();
     }
 
-    public void setQualifiedName(CharSequence qName) {
-        if (qName != null) {
-            if (qName instanceof Name) {
-                this.qualifiedName = (Name) qName;
-            } else {
-                this.qualifiedName = new AstName(qName);
-            }
-        } else {
-            this.qualifiedName = null;
-        }
-    }
-
-    public Name getQualifiedName() {
-        if (qualifiedName == null) {
-            Packaging packaging = getPackageElement();
-            qualifiedName = packaging == null ? getSimpleName() : new AstName(packaging.getQualifiedName() + "." + getSimpleName());
-        }
-
-        return qualifiedName;
-    }
-
     public Packaging getPackageElement() {
-        return getEnclosingDef(Packaging.class);
+        return getEnclosingElement(Packaging.class);
     }
 
-    public void setType(Type type) {
+    public void setType(TypeMirror type) {
         this.type = type;
     }
 
-    public Type asType() {
+    public TypeMirror asType() {
         return type;
     }
 
-    public <T extends AstElement> T getEnclosingDef(Class<T> clazz) {
+    public <T extends AstElement> T getEnclosingElement(Class<T> clazz) {
         return getEnclosingScope().getEnclosingElement(clazz);
     }
 
@@ -228,60 +209,11 @@ public abstract class AstNode {
     }
 
     public String getIn() {
-        Template enclosingTemplate = getEnclosingDef(Template.class);
+        Template enclosingTemplate = getEnclosingElement(Template.class);
         if (enclosingTemplate != null) {
             return enclosingTemplate.getQualifiedName().toString();
         } else {
             return "";
-        }
-    }
-
-    protected static class AstName implements Name {
-
-        private CharSequence name;
-
-        public AstName(CharSequence name) {
-            assert name != null : "AstName should not be null";
-            this.name = name;
-        }
-
-        public char charAt(int index) {
-            return name.charAt(index);
-        }
-
-        public boolean contentEquals(CharSequence arg0) {
-            return name.toString().contentEquals(arg0.toString());
-        }
-
-        public int length() {
-            return name.length();
-        }
-
-        public CharSequence subSequence(int start, int end) {
-            return name.subSequence(start, end);
-        }
-
-        /** 
-         * @Notice it work for AstName.equals(Name), but we can not sure Name.equals(AstName), 
-         * so, we should use Name.toString().equals(Name) instead */
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Name) {
-                return contentEquals((Name) obj);
-            } else if (obj instanceof CharSequence) {
-                return contentEquals((CharSequence) obj);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return name.toString().hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return name.toString();
         }
     }
 }

@@ -240,21 +240,10 @@
              value="${nb.files.prefix}-${build.number}${nb.build.suffix}"/>
 
         <set property="ss.bundle.files.prefix"
-             value="${ss.name}"/>
+             value="${ss.name}-${ss.version}"/>
 
         <set property="jdk.bundle.files.suffix"
              value="${nb.files.prefix}-${build.number}${nb.build.suffix}"/>
-
-        <set property="glassfish.milestone.number" value="09"/>
-        <set property="glassfish.milestone.number.real" value="09d"/>
-        <set property="glassfish.build.type" value="fcs"/>
-        <set property="glassfish.build.number" value="20071206"/>
-
-	<set property="sjsas.milestone.number" value="09"/>
-        <set property="sjsas.milestone.number.real" value="09d"/>
-        <set property="sjsas.build.type" value="fcs"/>
-        <set property="sjsas.build.number" value="20071206"/>
-        
         
         <delete file="${temp.file}" failonerror="false"/>
     </target>
@@ -284,34 +273,18 @@ build.engine=false
 engine.dist.file.name=nbi-engine.jar
 engine.dist.file=${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar
 
-release.url=http://${glassfish.host}:${glassfish.http.port}${context.path}/admin
-release.registry=NetBeans
-
 packaged.data.dir=${nbi.cache.dir}/packaged
 packaged.data.dir.release=${output.dir}/packaged
 downloads.cache.dir=${nbi.cache.dir}/raw
 
 binary.cache.host=${binary.cache.host}
 nb.builds.host=${nb.builds.host}
-glassfish.builds.host=${glassfish.builds.host}
-openesb.builds.host=${openesb.builds.host}
+installed.bits.dir=${installed.bits.dir}
 remote.work.dir=~/.${ss.bundle.files.prefix}
 	</echo>
 
 	<!-- NetBeans Build properties -->
         <echo file="${environment.properties}" append="true">
-glassfish.milestone.number=${glassfish.milestone.number}
-glassfish.milestone.number.real=${glassfish.milestone.number.real}
-glassfish.build.type=${glassfish.build.type}
-glassfish.build.number=${glassfish.build.number}
-
-sjsas.milestone.number=${sjsas.milestone.number}
-sjsas.milestone.number.real=${sjsas.milestone.number.real}
-sjsas.build.type=${sjsas.build.type}
-sjsas.build.number=${sjsas.build.number}
-
-#openesb.build.number=${openesb.build.number}
-#openesb.build.number.real=${openesb.build.number.real}
 
 nb.full.version=${nb.full.version}
 nb.build.suffix=${nb.build.suffix}
@@ -319,43 +292,7 @@ nb.zip.files.prefix=${nb.zip.files.prefix}
 ss.bundle.files.prefix=${ss.bundle.files.prefix}
 	</echo>
 
-	<!-- SJSAS Image properties -->
-         <echo file="${environment.properties}" append="true">
-remote.host.windows=${remote.host.windows}
-remote.port.windows=${remote.port.windows}
-remote.user.windows=${remote.user.windows}
 
-remote.host.linux=${remote.host.linux}
-remote.port.linux=${remote.port.linux}
-remote.user.linux=${remote.user.linux}
-
-remote.host.solaris-x86=${remote.host.solaris-x86}
-remote.port.solaris-x86=${remote.port.solaris-x86}
-remote.user.solaris-x86=${remote.user.solaris-x86}
-
-remote.host.solaris-sparc=${remote.host.solaris-sparc}
-remote.port.solaris-sparc=${remote.port.solaris-sparc}
-remote.user.solaris-sparc=${remote.user.solaris-sparc}
-
-remote.host.macosx=${remote.host.macosx}
-remote.port.macosx=${remote.port.macosx}
-remote.user.macosx=${remote.user.macosx}
-
-sjsas.image.token.hostname.windows=${sjsas.image.token.hostname.windows}
-sjsas.image.token.hostname.linux=${sjsas.image.token.hostname.linux}
-sjsas.image.token.hostname.solaris-x86=${sjsas.image.token.hostname.solaris-x86}
-sjsas.image.token.hostname.solaris-sparc=${sjsas.image.token.hostname.solaris-sparc}
-sjsas.image.token.hostname.macosx=${sjsas.image.token.hostname.macosx}
-        </echo>
-
-        <!-- Jar singing properties -->
-	<if property="jarsigner.enabled" value="true">
-	    <echo file="${environment.properties}" append="true">
-jarsigner.keystore=${jarsigner.keystore}
-jarsigner.alias=${jarsigner.alias}
-jarsigner.storepass=${jarsigner.storepass}
-            </echo>
-	</if>
         
         <replace file="${environment.properties}" token="\" value="/"/>
     </target>
@@ -365,65 +302,16 @@ jarsigner.storepass=${jarsigner.storepass}
         <delete failonerror="false">
             <fileset dir="${nbi.cache.dir}/packaged">
                 <!-- nb components -->
-                <exclude name="**/nb*${build.number}*"/>
-                
-                <!-- glassfish -->
-                <exclude name="**/glassfish*${glassfish.milestone.number}.${glassfish.build.number}*"/>
-                
-                <!-- openesb -->
-                <exclude name="**/openesb*${glassfish.milestone.number}.${openesb.build.number}*"/>
-                
-                <!-- sjsam -->
-                <!--
-		<exclude name="**/sjsam*${glassfish.milestone.number}.${sjsam.build.number}*"/>
-		-->
-                
-                <!-- tomcat -->
-                <exclude name="**/tomcat*"/>
-
-		<!-- wtk -->
-                <exclude name="**/wtk*"/>
-
-
-
-                <!-- JDK -->
-                <exclude name="**/jdk*"/>
+                <exclude name="**/nb*${build.number}*"/>                          
 
             </fileset>
         </delete>
     </target>
 
     <target name="build-netbeans">
-    <antcall target="build-tools-group"/>
-    <antcall target="build-ide-group"/>
-    <antcall target="build-other-group"/>
-         <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value="tools-group"/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
-
- 
-	<build-product dir="C_Compiler"/>
-        <build-product dir="C++_Compiler"/>
-        <echo message="BUILDING NB-BASE =========================================="/>
+    	<antcall target="build-tools-group"/>
+    	<antcall target="build-ide-group"/>
+    	<antcall target="build-other-group"/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
                 name="basedir" 
@@ -446,9 +334,11 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
+ 
 
         
-
+	<build-product dir="C_Compiler"/>
+        <build-product dir="C++_Compiler"/>
         <build-product dir="C++_Compiler"/>
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
@@ -457,7 +347,6 @@ jarsigner.storepass=${jarsigner.storepass}
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library" group="other-group"/>
         <build-product dir="Third-party_Source" group="other-group"/>
-		
 	<!--<build-product dir="demos"/>
         -->
      </target>
@@ -563,29 +452,29 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
          </sequential>
      </macrodef>
-    <target name="generate-netbeans-cpp-bundles">
+
+    <target name="generate-bundles">
         <!-- C/C++ bundles -->
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>            
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>	   
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-	    
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
 
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86-external.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-intel-S2.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
             
 	    <component uid="nb-base" version="${nb.full.version}"/>
@@ -597,14 +486,14 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
         
 	<create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-Linux.sh">
             <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
@@ -621,7 +510,7 @@ jarsigner.storepass=${jarsigner.storepass}
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux-external.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-linux-Linux.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>
@@ -632,14 +521,14 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
 
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-sparc-S2.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
@@ -656,7 +545,7 @@ jarsigner.storepass=${jarsigner.storepass}
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc-external.sh">            
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-sparc-S2.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
@@ -667,7 +556,7 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
 	
@@ -696,7 +585,7 @@ jarsigner.storepass=${jarsigner.storepass}
                 value="${core.module.name}"/>
         </ant>
         
-        <echo message="BUILDING NETBEANS ENGINE =================================="/>
+        <echo message="BUILDING SUN STUDIO INSTALLER ENGINE =================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/engine" target="release-all">
             <property 
                 name="basedir" 
@@ -708,7 +597,7 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="core.engine.dist.file" 
                 value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
         </ant>
-	 <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
+	<ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
             <property 
                 name="basedir" 
                 value="${nbi.netbeans.dir}/infra/products/ss-base"/>
@@ -730,29 +619,7 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value="ide-group"/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
- 
+
     </target>
 
     <target name="prepare-output-dir">
@@ -760,30 +627,13 @@ jarsigner.storepass=${jarsigner.storepass}
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${output.dir}/bundles"/>
         <mkdir dir="${output.dir}/components"/>    
-        <!-- Added by Igor Nikiforov -->
-        <mkdir dir="${output.dir}/packaged"/>        
-        <!-- End of addition -->    
+        <mkdir dir="${output.dir}/packaged"/>
     </target>
-
-    <target name="generate-bundles">
-        <antcall target="generate-netbeans-cpp-bundles"/>
-        <!--
-	<antcall target="generate-netbeans-full-bundles"/>
-        -->
-    </target>
-
 
     <target name="-build">     
         <antcall target="prepare-output-dir"/>
         <antcall target="build-engine"/>
-
         <antcall target="build-netbeans"/>
-            <!--
-	<antcall target="generate-bundles"/>
-	    
-	<delete dir="${output.dir}/registry-temp"/>        
-        <delete dir="${output.dir}/components"/>
-        -->
     </target>
 
     <target name="replace">

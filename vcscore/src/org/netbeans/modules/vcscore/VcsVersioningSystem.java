@@ -51,6 +51,7 @@ import java.util.Set;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
@@ -87,7 +88,7 @@ import org.openide.ErrorManager;
  */
 class VcsVersioningSystem extends VersioningFileSystem {
 
-    private VcsFileSystem fileSystem;
+    private VcsProvider provider;
     //private VersioningFileSystem.Status status;
     private VersioningFileSystem.Versions versions;
     //private FileStatusListener fileStatus;
@@ -111,9 +112,9 @@ class VcsVersioningSystem extends VersioningFileSystem {
     public static final String PROP_SHOW_LOCAL_FILES = "showLocalFiles"; // NOI18N
 
     /** Creates new VcsVersioningSystem */
-    VcsVersioningSystem(VcsFileSystem fileSystem) {
-        super(fileSystem);
-        this.fileSystem = fileSystem;
+    VcsVersioningSystem(VcsProvider provider) {
+        super();
+        this.provider = provider;
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
         localFilenameFilter = new LocalFilenameFilter();
@@ -124,57 +125,23 @@ class VcsVersioningSystem extends VersioningFileSystem {
         showUnimportantFiles = ((Boolean)loadProperty(PROP_SHOW_UNIMPORTANT_FILES, Boolean.valueOf(showUnimportantFiles))).booleanValue();
     }
     
-    /**
-     * Get the delegated file system.
-     * Just to be able to access this method in this package.
-     */
-    protected FileSystem getFileSystem() {
-        return fileSystem;
+    public String getDisplayName() {
+        return provider.getDisplayName();
     }
-    
+
+    /** @deprecated for identity purposes use VersionFileSytem directly. */
+    public String getSystemName() {
+        return provider.getName();
+    }
+
+    public FileObject getRoot() {
+        return FileUtil.toFileObject(provider.getRootDirectory());
+    }
+
     public VersioningFileSystem.Versions getVersions() {
         return versions;
     }
     
-    public FileSystem.Status getStatus() {
-        return fileSystem.getStatus();
-    }        
-    
-    public boolean isShowDeadFiles() {
-        return fileSystem.isShowDeadFiles();
-    }
-
-    public void setShowDeadFiles(boolean showDeadFiles) {
-        fileSystem.setShowDeadFiles(showDeadFiles);
-        firePropertyChange(PROP_SHOW_DEAD_FILES, !showDeadFiles ? Boolean.TRUE : Boolean.FALSE, showDeadFiles ? Boolean.TRUE : Boolean.FALSE);
-    }
-    
-    public boolean isShowUnimportantFiles() {
-        return showUnimportantFiles;
-    }
-    
-    public void setShowUnimportantFiles(boolean showUnimportantFiles) {
-        if (this.showUnimportantFiles != showUnimportantFiles) {
-            this.showUnimportantFiles = showUnimportantFiles;
-            storeProperty(PROP_SHOW_UNIMPORTANT_FILES, Boolean.valueOf(showUnimportantFiles));
-            firePropertyChange(PROP_SHOW_UNIMPORTANT_FILES, !showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE, showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE);
-            refreshExistingFolders();
-        }
-    }
-
-    public boolean isShowLocalFiles() {
-        return showLocalFiles;
-    }
-    
-    public void setShowLocalFiles(boolean showLocalFiles) {
-        if (this.showLocalFiles != showLocalFiles) {
-            this.showLocalFiles = showLocalFiles;
-            storeProperty(PROP_SHOW_LOCAL_FILES, Boolean.valueOf(showLocalFiles));
-            firePropertyChange(PROP_SHOW_LOCAL_FILES, !showLocalFiles ? Boolean.TRUE : Boolean.FALSE, showLocalFiles ? Boolean.TRUE : Boolean.FALSE);
-            refreshExistingFolders();
-        }
-    }
-
     /** Getter for property showMessages.
      * @return Value of property showMessages.
      */
@@ -258,7 +225,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
     public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {
         VcsRevisionAction action = (VcsRevisionAction) SystemAction.get(VcsRevisionAction.class);
         synchronized (vsActionAccessLock) {
-            action.setFileSystem(fileSystem);
+            action.setProvider(provider);
             action.setFileObject(fo);
             action.setSelectedRevisionItems(revisionItems);
         }
@@ -272,7 +239,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
     private class LocalFilenameFilter extends Object implements FilenameFilter {
         
         public boolean accept(File dir, String name) {
-            if (!fileSystem.getFileFilter().accept(dir, name)) {
+            if (!provider.getFileFilter().accept(dir, name)) {
                 return false;
             }
             return true;
@@ -304,7 +271,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
         private static final long serialVersionUID = -8842749866809190554L;
         
         public VersioningVersions() {
-            fileSystem.addRevisionListener(new RevisionListener() {
+            provider.addRevisionListener(new RevisionListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent ev) {
                     //System.out.println("revision state changed:"+ev);
                     if (!(ev instanceof RevisionEvent)) return ;
@@ -327,7 +294,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
                             //System.out.println("ADDING new revisions: "+workNew);
                             oldList.removeAll(workOld); // remove all old revisions (some VCS may perhaps allow removing revisions)
 
-                            FileObject fo = findResource(name);
+                            FileObject fo = provider.findResource(name);
                             FileProperties fprops = Turbo.getMeta(fo);
                             String revision = fprops != null ? fprops.getRevision() : null;
                             if (revision != null) {
@@ -361,12 +328,11 @@ class VcsVersioningSystem extends VersioningFileSystem {
         
         private RevisionList createRevisionList(final String name) {
             //System.out.println("createRevisionList("+name+")");
-            CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_LIST);
+            CommandSupport cmdSupport = provider.getCommandSupport(VcsCommand.NAME_REVISION_LIST);
             if (cmdSupport == null) return null;
             Command cmd = cmdSupport.createCommand();
             if (cmd == null || !(cmd instanceof RegexOutputCommand)) return null;
-            FileObject fo = fileSystem.findFileObject(name);
-            if (fo == null) fo = VcsVersioningSystem.this.findResource(name);
+            FileObject fo = provider.findResource(name);
             if (fo != null) {
                 FileObject[] files = new FileObject[] { fo };
                 files = cmd.getApplicableFiles(files);
@@ -378,7 +344,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
                 cmd.setFiles(files);
             } else if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setDiskFiles(new java.io.File[] {
-                    fileSystem.getFile(name)
+                    provider.getFile(name)
                 });
             }
             final StringBuffer dataBuffer = new StringBuffer();
@@ -394,18 +360,6 @@ class VcsVersioningSystem extends VersioningFileSystem {
             cmd.execute().waitFinished();
             RevisionList list = getEncodedRevisionList(name, dataBuffer.toString());
             if (list != null) displayRevisions(list);
-            /*
-            if (vces.length > 0) {
-                final VcsCommandExecutor vce = vces[0];
-                try {
-                    fileSystem.getCommandsPool().waitToFinish(vce);
-                } catch (InterruptedException iexc) {
-                    return null;
-                }
-                list = getEncodedRevisionList(name, dataBuffer.toString());
-                if (list != null) displayRevisions(list);
-            }
-             */
             return list;//(RevisionList) revisionListsByName.get(name);
         }
 
@@ -420,28 +374,10 @@ class VcsVersioningSystem extends VersioningFileSystem {
                 list = null;
             }
             return list;
-            /*
-            if (list != null) {
-                /*
-                addRevisionListener(new RevisionListener() {
-                    public void revisionsChanged(int whatChanged, FileObject fo, Object info) {
-                        RevisionList newList = createRevisionList(name);
-                        RevisionList oldList = (RevisionList) revisionListsByName.get(name);
-                        if (oldList != null) {
-                            oldList.clear();
-                            oldList.addAll(newList);
-                        }
-                    }
-                });
-                 *
-                revisionListsByName.put(name, list);
-            }
-             */
-            //versioningSystem.fireRevisionChange(name, new RevisionEvent());
         }
         
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
-            CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_OPEN);
+            CommandSupport cmdSupport = provider.getCommandSupport(VcsCommand.NAME_REVISION_OPEN);
             if (cmdSupport == null) return null;
             Command command = cmdSupport.createCommand();
             if (command == null || !(command instanceof VcsDescribedCommand)) return null;
@@ -450,7 +386,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
             additionalVars.put("REVISION", revision);
             cmd.setAdditionalVariables(additionalVars);
 
-            FileObject resource = findResource(name);
+            FileObject resource = provider.findResource(name);
             if (resource == null) {
                 throw (java.io.FileNotFoundException)
                         ErrorManager.getDefault().annotate(new java.io.FileNotFoundException(name),
@@ -477,17 +413,6 @@ class VcsVersioningSystem extends VersioningFileSystem {
             CommandTask task = cmd.execute();
             task.waitFinished();
             boolean success = task.getExitStatus() == task.STATUS_SUCCEEDED;
-            /*
-            for (int i = 0; i < vces.length; i++) {
-                try {
-                    fileSystem.getCommandsPool().waitToFinish(vces[i]);
-                } catch (InterruptedException iexc) {
-                    throw (java.io.FileNotFoundException)
-                        TopManager.getDefault().getErrorManager().annotate(new java.io.FileNotFoundException(), iexc);
-                }
-                success = success && (vces[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
-            }
-             */
             if (VcsCommandIO.getBooleanProperty(cmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;
             if (!success) {
                 throw (java.io.FileNotFoundException) ErrorManager.getDefault().annotate(

@@ -40,10 +40,12 @@
  */
 package org.netbeans.modules.vcscore.turbo;
 
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.registry.FSInfo;
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.api.vcs.FileStatusInfo;
+
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 import java.io.File;
@@ -67,44 +69,19 @@ final class Profiles {
      * @return <code>null</code> if disk caching cannot be used.
      */
     public static File cacheForFolder(File folder) {
-        VcsFileSystem fs = findVcsFileSystem(folder);
-        if (fs != null) {
-            String root = FileUtil.toFile(fs.getRoot()).getAbsolutePath();
+        try {
+            FileObject fo = FileUtil.toFileObject(folder);
+            VcsProvider provider = VcsProvider.getProvider(fo);
+            if (provider == null) return null;
+            String root = provider.getRootDirectory().getAbsolutePath();
             String path = folder.getAbsolutePath().substring(root.length());
-            File ret = fs.getCacheFileName(folder, path);
-            // assert that it does not return null for FS root subdirs
-            // it's allowed to return null for files like "path/CVS/Root"
-            assert path.length() == 0 || path.indexOf(File.separatorChar) != 0 || ret != null : "Root " + root + " path " + path;
+            path = path.replaceAll(File.separator, "/");
+            File ret = provider.getCacheFile(path);
+            assert path.length() == 0 || path.indexOf("/") != 0 || ret != null : "Root " + root + " path " + path;
             return ret;
+        } catch (IllegalArgumentException iaex) {
+            return null;
         }
-        return null;
-    }
-
-    /**
-     * Locates VCSFs that cover given file.
-     */
-    private static VcsFileSystem findVcsFileSystem(File file) {
-        String path = file.getAbsolutePath();
-        FSRegistry registry = FSRegistry.getDefault();
-        FSInfo[] infos = registry.getRegistered();
-        for (int i = 0; i<infos.length; i++) {
-            FSInfo info = infos[i];
-            if (info.isControl() == false) continue;
-            File root = info.getFSRoot();
-            String rootPath = root.getAbsolutePath();
-            if (path.startsWith(rootPath)) {
-                return (VcsFileSystem) info.getFileSystem();  // assuming here that VCSFSs cannot overlap
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Translates VCS specific statuc to abstract one.
-     */
-    public static FileStatusInfo toStatusInfo(File file, FileProperties fprops) {
-        // TODO implement
-        return null;
     }
 
 }

@@ -59,46 +59,6 @@
 #
 #CVS_ROOT=
 #
-#GLASSFISH_HOME=
-#GLASSFISH_ASADMIN=
-#GLASSFISH_HTTP_PORT=
-#GLASSFISH_ADMIN_PORT=
-#GLASSFISH_HOST=
-#GLASSFISH_USER=
-#GLASSFISH_PASSWORD=
-#
-#REGISTRIES_HOME=
-#
-#USE_JARSIGNER=
-#JARSIGNER_KEYSTORE=
-#JARSIGNER_ALIAS=
-#JARSIGNER_STOREPASS=
-#
-#REMOTE_HOST_WINDOWS=
-#REMOTE_PORT_WINDOWS=
-#REMOTE_USER_WINDOWS=
-#
-#REMOTE_HOST_LINUX=
-#REMOTE_PORT_LINUX=
-#REMOTE_USER_LINUX=
-#
-#REMOTE_HOST_SOLARIS_X86=
-#REMOTE_PORT_SOLARIS_X86=
-#REMOTE_USER_SOLARIS_X86=
-#
-#REMOTE_HOST_SOLARIS_SPARC=
-#REMOTE_PORT_SOLARIS_SPARC=
-#REMOTE_USER_SOLARIS_SPARC=
-#
-#REMOTE_HOST_MACOSX=
-#REMOTE_PORT_MACOSX=
-#REMOTE_USER_MACOSX=
-#
-#SJSAS_IMAGE_HOSTNAME_WINDOWS=
-#SJSAS_IMAGE_HOSTNAME_LINUX=
-#SJSAS_IMAGE_HOSTNAME_SOLARIS_X86=
-#SJSAS_IMAGE_HOSTNAME_SOLARIS_SPARC=
-#SJSAS_IMAGE_HOSTNAME_MACOSX=
 #
 #ADDITIONAL_PARAMETERS=
 #
@@ -113,6 +73,7 @@ cd ${DIRNAME}
 # load the properties
 source build-private.sh
 source ../../../../build-private.sh 
+
 
 ################################################################################
 # define the temp file location
@@ -133,60 +94,25 @@ run() {
     # run the build
     ant build \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
-	    \"-Dss.name=sunstudio X\"\
+	    \"-Dss.name=sunstudio\"\
+	    \"-Dss.version=${SS_VERSION}\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
+            \"-Dinstalled.bits.dir=${INSTALLED_BITS}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
             \"-Dnb.files.prefix=${NB_FILES_PREFIX}\" \
             \"-Dnb.locales=${LOCALES}\" \
             \"-Dnb.build.type=${NB_BUILD_TYPE}\" \
-            \"-Dglassfish.builds.host=${GLASSFISH_BUILDS_HOST}\" \
-            \"-Dopenesb.builds.host=${OPENESB_BUILDS_HOST}\" \
-            \"-Dsjsam.builds.host=${SJSAM_BUILDS_HOST}\" \
-            \"-Dportalpack.builds.host=${PORTALPACK_BUILDS_HOST}\" \
-    	    \"-Dwtk.builds.host=${WTK_BUILDS_HOST}\" \
             \"-Djdk.home=${JDK_HOME}\" \
             \"-Dcvs.root=${CVS_ROOT}\" \
-            \"-Dcvs.timestamp=${CVS_STAMP}\" \
-            \"-Dcvs.branch=${CVS_BRANCH}\" \
-            \"-Dglassfish.home=${GLASSFISH_HOME}\" \
-            \"-Dglassfish.asadmin=${GLASSFISH_ASADMIN}\" \
-            \"-Dglassfish.http.port=${GLASSFISH_HTTP_PORT}\" \
-            \"-Dglassfish.admin.port=${GLASSFISH_ADMIN_PORT}\" \
-            \"-Dglassfish.host=${GLASSFISH_HOST}\" \
-            \"-Dglassfish.user=${GLASSFISH_USER}\" \
-            \"-Dglassfish.password=${GLASSFISH_PASSWORD}\" \
+            \"-Dcvs.timestamp=${CVS_STAMP}\"\
+            \"-Dcvs.branch=${CVS_BRANCH}\"\
             \"-Dregistries.home=${REGISTRIES_HOME}\" \
             \"-Djarsigner.enabled=${USE_JARSIGNER}\" \
             \"-Djarsigner.keystore=${JARSIGNER_KEYSTORE}\" \
             \"-Djarsigner.alias=${JARSIGNER_ALIAS}\" \
             \"-Djarsigner.storepass=${JARSIGNER_STOREPASS}\" \
             \"-Dpack200.enabled=${USE_PACK200}\" \
-            \"-Dremote.host.windows=${REMOTE_HOST_WINDOWS}\" \
-            \"-Dremote.port.windows=${REMOTE_PORT_WINDOWS}\" \
-            \"-Dremote.user.windows=${REMOTE_USER_WINDOWS}\" \
-            \"-Dremote.host.linux=${REMOTE_HOST_LINUX}\" \
-            \"-Dremote.port.linux=${REMOTE_PORT_LINUX}\" \
-            \"-Dremote.user.linux=${REMOTE_USER_LINUX}\" \
-            \"-Dremote.host.solaris-x86=${REMOTE_HOST_SOLARIS_X86}\" \
-            \"-Dremote.port.solaris-x86=${REMOTE_PORT_SOLARIS_X86}\" \
-            \"-Dremote.user.solaris-x86=${REMOTE_USER_SOLARIS_X86}\" \
-            \"-Dremote.host.solaris-sparc=${REMOTE_HOST_SOLARIS_SPARC}\" \
-            \"-Dremote.port.solaris-sparc=${REMOTE_PORT_SOLARIS_SPARC}\" \
-            \"-Dremote.user.solaris-sparc=${REMOTE_USER_SOLARIS_SPARC}\" \
-            \"-Dremote.host.macosx=${REMOTE_HOST_MACOSX}\" \
-            \"-Dremote.port.macosx=${REMOTE_PORT_MACOSX}\" \
-            \"-Dremote.user.macosx=${REMOTE_USER_MACOSX}\" \
-            \"-Dsjsas.image.token.hostname.windows=${SJSAS_IMAGE_HOSTNAME_WINDOWS}\" \
-            \"-Dsjsas.image.token.hostname.linux=${SJSAS_IMAGE_HOSTNAME_LINUX}\" \
-            \"-Dsjsas.image.token.hostname.solaris-x86=${SJSAS_IMAGE_HOSTNAME_SOLARIS_X86}\" \
-            \"-Dsjsas.image.token.hostname.solaris-sparc=${SJSAS_IMAGE_HOSTNAME_SOLARIS_SPARC}\" \
-            \"-Dsjsas.image.token.hostname.macosx=${SJSAS_IMAGE_HOSTNAME_MACOSX}\" \
-	    \"-Dmakedmg.remote.port=${MAKEDMG_MACOSX_SYSTEM_PORT}\" \
-	    \"-Dmakedmg.remote.host=${MAKEDMG_MACOSX_SYSTEM_HOST}\" \
-	    \"-Dmakedmg.remote.user=${MAKEDMG_MACOSX_SYSTEM_USER}\" \
-	    \"-Dmakedmg.ssh.keyfile=${MAKEDMG_MACOSX_SYSTEM_SSH_KEYFILE}\" \
-	    \"-Dmakedmg.ssh.keypass=${MAKEDMG_MACOSX_SYSTEM_SSH_PASSPHRASE}\" \
             \"-Dnbi.cache.dir=${CACHE_DIR}\" \
             ${ADDITIONAL_PARAMETERS} \
             $*
@@ -200,60 +126,25 @@ run() {
 
     ant bundle \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
-	    \"-Dss.name=sunstudio 12\"\
+	    \"-Dss.name=sunstudio\"\
+	    \"-Dss.version=${SS_VERSION}\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
+            \"-Dbundles.url=${BUNDLES_ULR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
             \"-Dnb.files.prefix=${NB_FILES_PREFIX}\" \
             \"-Dnb.locales=${LOCALES}\" \
             \"-Dnb.build.type=${NB_BUILD_TYPE}\" \
-            \"-Dglassfish.builds.host=${GLASSFISH_BUILDS_HOST}\" \
-            \"-Dopenesb.builds.host=${OPENESB_BUILDS_HOST}\" \
-            \"-Dsjsam.builds.host=${SJSAM_BUILDS_HOST}\" \
-            \"-Dportalpack.builds.host=${PORTALPACK_BUILDS_HOST}\" \
-    	    \"-Dwtk.builds.host=${WTK_BUILDS_HOST}\" \
             \"-Djdk.home=${JDK_HOME}\" \
             \"-Dcvs.root=${CVS_ROOT}\" \
             \"-Dcvs.timestamp=${CVS_STAMP}\" \
-            \"-Dcvs.branch=${CVS_BRANCH}\" \
-            \"-Dglassfish.home=${GLASSFISH_HOME}\" \
-            \"-Dglassfish.asadmin=${GLASSFISH_ASADMIN}\" \
-            \"-Dglassfish.http.port=${GLASSFISH_HTTP_PORT}\" \
-            \"-Dglassfish.admin.port=${GLASSFISH_ADMIN_PORT}\" \
-            \"-Dglassfish.host=${GLASSFISH_HOST}\" \
-            \"-Dglassfish.user=${GLASSFISH_USER}\" \
-            \"-Dglassfish.password=${GLASSFISH_PASSWORD}\" \
+            \"-Dcvs.branch=${CVS_BRANCH}\"\
             \"-Dregistries.home=${REGISTRIES_HOME}\" \
             \"-Djarsigner.enabled=${USE_JARSIGNER}\" \
             \"-Djarsigner.keystore=${JARSIGNER_KEYSTORE}\" \
             \"-Djarsigner.alias=${JARSIGNER_ALIAS}\" \
             \"-Djarsigner.storepass=${JARSIGNER_STOREPASS}\" \
             \"-Dpack200.enabled=${USE_PACK200}\" \
-            \"-Dremote.host.windows=${REMOTE_HOST_WINDOWS}\" \
-            \"-Dremote.port.windows=${REMOTE_PORT_WINDOWS}\" \
-            \"-Dremote.user.windows=${REMOTE_USER_WINDOWS}\" \
-            \"-Dremote.host.linux=${REMOTE_HOST_LINUX}\" \
-            \"-Dremote.port.linux=${REMOTE_PORT_LINUX}\" \
-            \"-Dremote.user.linux=${REMOTE_USER_LINUX}\" \
-            \"-Dremote.host.solaris-x86=${REMOTE_HOST_SOLARIS_X86}\" \
-            \"-Dremote.port.solaris-x86=${REMOTE_PORT_SOLARIS_X86}\" \
-            \"-Dremote.user.solaris-x86=${REMOTE_USER_SOLARIS_X86}\" \
-            \"-Dremote.host.solaris-sparc=${REMOTE_HOST_SOLARIS_SPARC}\" \
-            \"-Dremote.port.solaris-sparc=${REMOTE_PORT_SOLARIS_SPARC}\" \
-            \"-Dremote.user.solaris-sparc=${REMOTE_USER_SOLARIS_SPARC}\" \
-            \"-Dremote.host.macosx=${REMOTE_HOST_MACOSX}\" \
-            \"-Dremote.port.macosx=${REMOTE_PORT_MACOSX}\" \
-            \"-Dremote.user.macosx=${REMOTE_USER_MACOSX}\" \
-            \"-Dsjsas.image.token.hostname.windows=${SJSAS_IMAGE_HOSTNAME_WINDOWS}\" \
-            \"-Dsjsas.image.token.hostname.linux=${SJSAS_IMAGE_HOSTNAME_LINUX}\" \
-            \"-Dsjsas.image.token.hostname.solaris-x86=${SJSAS_IMAGE_HOSTNAME_SOLARIS_X86}\" \
-            \"-Dsjsas.image.token.hostname.solaris-sparc=${SJSAS_IMAGE_HOSTNAME_SOLARIS_SPARC}\" \
-            \"-Dsjsas.image.token.hostname.macosx=${SJSAS_IMAGE_HOSTNAME_MACOSX}\" \
-	    \"-Dmakedmg.remote.port=${MAKEDMG_MACOSX_SYSTEM_PORT}\" \
-	    \"-Dmakedmg.remote.host=${MAKEDMG_MACOSX_SYSTEM_HOST}\" \
-	    \"-Dmakedmg.remote.user=${MAKEDMG_MACOSX_SYSTEM_USER}\" \
-	    \"-Dmakedmg.ssh.keyfile=${MAKEDMG_MACOSX_SYSTEM_SSH_KEYFILE}\" \
-	    \"-Dmakedmg.ssh.keypass=${MAKEDMG_MACOSX_SYSTEM_SSH_PASSPHRASE}\" \
             \"-Dnbi.cache.dir=${CACHE_DIR}\" \
             ${ADDITIONAL_PARAMETERS} \
             $*
@@ -266,22 +157,6 @@ run() {
             fi
 }
 
-setNetBeansBuildsHost() {
-    if [ -n "$1" ] && [ 1 == $1 ] && [ -n "${NB_BUILDS_HOST_ML}" ] ; then
-        NB_BUILDS_HOST=${NB_BUILDS_HOST_ML}
-    else 
-        NB_BUILDS_HOST=${NB_BUILDS_HOST_EN}
-    fi
-}
-
 run $*
 
-if [ 1 == "$ML_BUILD" ] ; then
-	setNetBeansBuildsHost $ML_BUILD
-	NB_BUILD_TYPE=ml
-	OUTPUT_DIR=${OUTPUT_DIR}/${NB_BUILD_TYPE}
-	run $*
-fi
 
-
-################################################################################

@@ -57,10 +57,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
@@ -79,8 +79,8 @@ public final class IntegritySupportMaintainer extends Object
     public static final String DB_FILE_NAME = ".nbintdb"; // NOI18N
     private static Map VOISMap = new WeakHashMap();
     private static final int SAVER_SCHEDULE_TIME = 500;
-    
-    private FileSystem fileSystem;
+
+    private VcsProvider provider;
     private VcsOISActivator objectIntegrityActivator;
     private VcsObjectIntegritySupport objectIntegritySupport;
     private PropertyChangeListener vOISChangeListener;
@@ -93,34 +93,34 @@ public final class IntegritySupportMaintainer extends Object
      * @param fileSystem The FileSystem
      * @param objectIntegrityActivator The activator of VcsObjectIntegritySupport.
      */
-    public IntegritySupportMaintainer(FileSystem fileSystem,
+    public IntegritySupportMaintainer(VcsProvider provider,
                                       VcsOISActivator objectIntegrityActivator) {
-        this.fileSystem = fileSystem;
+        this.provider = provider;
         this.objectIntegrityActivator = objectIntegrityActivator;
         this.saverTask = RequestProcessor.createRequest(this);
         saverTask.setPriority(Thread.MIN_PRIORITY);
         this.voisToSave = new HashMap();
         initVOIS();
-        fileSystem.addVetoableChangeListener(WeakListeners.vetoableChange(this, fileSystem));
-        fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this, fileSystem));
+        provider.addVetoableChangeListener(WeakListeners.vetoableChange(this, provider));
+        provider.addPropertyChangeListener(WeakListeners.propertyChange(this, provider));
     }
 
     private synchronized void initVOIS() {
-        objectIntegritySupport = new VcsObjectIntegritySupport(new IntegritySupportMaintainer.VOISInitializer(fileSystem.getRoot()));
+        objectIntegritySupport = new VcsObjectIntegritySupport(new IntegritySupportMaintainer.VOISInitializer(provider.getRoot()));
         vOISChangeListener = WeakListeners.propertyChange(this, objectIntegritySupport);
         objectIntegrityActivator.activate(objectIntegritySupport);
         objectIntegritySupport.addPropertyChangeListener(vOISChangeListener);
         synchronized (VOISMap) {
-            VOISMap.put(fileSystem, objectIntegritySupport);
+            VOISMap.put(provider, objectIntegritySupport);
         }
     }
-    
+
     /**
      * Return the active VCS object integrity support for the given file system.
      */
-    public static VcsObjectIntegritySupport findObjectIntegritySupport(FileSystem fileSystem) {
+    public static VcsObjectIntegritySupport findObjectIntegritySupport(VcsProvider provider) {
         synchronized (VOISMap) {
-            return (VcsObjectIntegritySupport) VOISMap.get(fileSystem);
+            return (VcsObjectIntegritySupport) VOISMap.get(provider);
         }
     }
 
@@ -130,12 +130,12 @@ public final class IntegritySupportMaintainer extends Object
      */
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
-        if (FileSystem.PROP_ROOT.equals(propertyName)) {
+        if (VcsProvider.PROP_ROOT.equals(propertyName)) {
             initVOIS();
         } else if (VcsObjectIntegritySupport.PROPERTY_FILES_CHANGED.equals(propertyName)) {
             //System.out.println("IntegritySupportMaintainer.propertyChange("+propertyName+"), SAVING "+evt.getSource());
             synchronized (voisToSave) {
-                voisToSave.put(fileSystem.getRoot(), evt.getSource());
+                voisToSave.put(provider.getRoot(), evt.getSource());
                 saverTask.schedule(saverScheduleTime);
                 //System.out.println("                                        Saver Scheduled At: "+new java.text.SimpleDateFormat("HH:mm:ss:SSS").format(new java.util.Date(System.currentTimeMillis())));
             }
@@ -150,11 +150,11 @@ public final class IntegritySupportMaintainer extends Object
      *              change to be rolled back.
      */
     public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
-        if (FileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
+        if (VcsProvider.PROP_ROOT.equals(evt.getPropertyName())) {
             synchronized (this) {
                 if (objectIntegritySupport == null) return ;
                 synchronized (VOISMap) {
-                    VOISMap.remove(fileSystem);
+                    VOISMap.remove(provider);
                 }
                 objectIntegritySupport.removePropertyChangeListener(vOISChangeListener);
                 objectIntegritySupport.deactivate();
@@ -170,7 +170,7 @@ public final class IntegritySupportMaintainer extends Object
             }
         }
     }
-    
+
     /**
      * Save the VcsObjectIntegritySupport as an attribute of a FileObject.
      *
@@ -221,15 +221,15 @@ public final class IntegritySupportMaintainer extends Object
         saverScheduleTime = Math.max(SAVER_SCHEDULE_TIME, (int) (end - start));
         //System.out.println("           END  : "+new java.text.SimpleDateFormat("HH:mm:ss:SSS").format(new java.util.Date(System.currentTimeMillis())));
     }
-    
+
     private static final class VOISInitializer extends Object implements java.security.PrivilegedAction {
-        
+
         private FileObject rootFO;
-        
+
         public VOISInitializer(FileObject rootFO) {
             this.rootFO = rootFO;
         }
-        
+
         public Object run() {
             File folder = FileUtil.toFile(rootFO);
             if (folder != null) {
@@ -262,7 +262,7 @@ public final class IntegritySupportMaintainer extends Object
             return null;
             //return rootFO.getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
         }
-        
+
     }
-    
+
 }

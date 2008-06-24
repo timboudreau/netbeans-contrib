@@ -65,6 +65,7 @@ import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.AddCommand;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.openide.filesystems.FileObject;
@@ -81,7 +82,6 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.FileObjectExistence;
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboListener;
 import org.netbeans.modules.vcscore.turbo.TurboEvent;
@@ -97,22 +97,22 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
 public class VcsObjectIntegritySupport extends OperationAdapter implements Runnable,
                                                                            TurboListener,
                                                                            Serializable {
-    
+
     /**
      * The name of the FileObject attribute under which this object integrity
      * support is stored.
      */
     public static final String ATTRIBUTE_NAME = VcsObjectIntegritySupport.class.getName();
-    
+
     /**
      * This property is fired when the file names change.
      */
     public static final String PROPERTY_FILES_CHANGED = "filesChanged"; // NOI18N
-    
+
     private static final int ANALYZER_SCHEDULE_TIME = 200;
     private static final RequestProcessor analyzerRequestProcessor = new RequestProcessor("VCS Object Integrity Analyzer", 1);
-    
-    private transient FileSystem fileSystem;
+
+    private transient VcsProvider provider;
     private transient String fsRootPath;
     private transient FileObjectExistence foExistence;
     /** The DataObjects which need to be analyzed for objects integrity. */
@@ -123,14 +123,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient boolean activated = false;
     private transient java.security.PrivilegedAction initializer;
     private transient Object initializeLock = new Object();
-    
+
     private transient OperationListener operationListener;
     private transient TurboListener turboListener;
     private transient PropertyChangeSupport propertyChangeSupport;
     private transient PropertyChangeListener doFileChangeListener;
-    
+
     private transient boolean filesStorageLocked = false;
-    
+
     //private List localFileNames = new ArrayList();
     /** A map of set of names of local secondary files by names of primary files. */
     private Map objectsWithLocalFiles = new HashMap();
@@ -140,7 +140,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private Set primaryLocalFiles = new HashSet();
     /** The set of names of secondary files, that are local, but ignored. */
     private Set ignoredSecondaryLocalFiles = Collections.synchronizedSet(new HashSet());
-    
+
     private static final long serialVersionUID = 7128452018671390570L;
     /** Creates a new instance of VcsObjectIntegritySupport.
      * It's unusable until it's activated.
@@ -148,7 +148,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     public VcsObjectIntegritySupport() {
         //System.out.println("VOIS Created.");
     }
-    
+
     /** Creates a new instance of VcsObjectIntegritySupport and sets the initializer
      * process. The initialized object is obtained from run() method and
      * non-transient fields are copied from it.
@@ -156,7 +156,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     public VcsObjectIntegritySupport(java.security.PrivilegedAction initializer) {
         this.initializer = initializer;
     }
-    
+
     private void initialize() {
         synchronized (initializeLock) {
             if (initializer != null) {
@@ -166,7 +166,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             }
         }
     }
-    
+
     private void copyDataFrom(VcsObjectIntegritySupport vois) {
         synchronized (objectsWithLocalFiles) {
             if (filesStorageLocked) {
@@ -187,28 +187,28 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         ignoredSecondaryLocalFiles.addAll(vois.ignoredSecondaryLocalFiles);
     }
-    
+
     /**
      * Tells whether this object integrity support was already activated.
      */
     public synchronized boolean isActivated() {
         return activated;
     }
-    
+
     /**
      * Activate this object integrity support.
-     * @param fileSystem The VCS FileSystem on which the object integrity is kept.
+     * @param process The VCS provider on which the object integrity is kept.
      * @param cache The status cache, that is used to check the files status information.
      * @param fsRootPath The path of the filesystem root.
      */
-    public synchronized void activate(FileSystem fileSystem,
+    public synchronized void activate(VcsProvider provider,
                                       String fsRootPath,
                                       FileObjectExistence foExistence) {
 
         turboListener = (TurboListener) WeakListeners.create(TurboListener.class, this, Turbo.singleton());
         Turbo.singleton().addTurboListener(turboListener);
 
-        this.fileSystem = fileSystem;
+        this.provider = provider;
         this.fsRootPath = fsRootPath;
         this.foExistence = foExistence;
         this.objectsToAnalyze = new HashSet();
@@ -221,9 +221,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         propertyChangeSupport = new PropertyChangeSupport(this);
         doFileChangeListener = new DOFileChangeListener();
         this.activated = true;
-        //System.out.println("VOIS Activated for ("+fsRootPath+"):"+fileSystem);
+        //System.out.println("VOIS Activated for ("+fsRootPath+"):"+provider);
     }
-    
+
     /**
      * Deactivate this object integrity support.
      */
@@ -244,9 +244,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             propertyChangeSupport = null;
             activated = false;
         }
-        //System.out.println("VOID DEActivated for ("+fsRootPath+"):"+fileSystem);
+        //System.out.println("VOID DEActivated for ("+fsRootPath+"):"+provider);
     }
-    
+
     /**
      * Suspend the changes in the internal database. This is necessary to be
      * called e.g. before serialization or any other processes, that access
@@ -259,7 +259,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             }
         }
     }
-    
+
     /**
      * Resume the changes in the internal database. This must be called after
      * suspendChanges() and after the access to internal data is finished.
@@ -273,21 +273,21 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             objectsWithLocalFiles.notifyAll();
         }
     }
-    
+
     public synchronized void addPropertyChangeListener(PropertyChangeListener l) {
         if (propertyChangeSupport != null) {
             //System.out.println(this+"addPropertyChangeListener("+l+")");
             propertyChangeSupport.addPropertyChangeListener(l);
         }
     }
-    
+
     public synchronized void removePropertyChangeListener(PropertyChangeListener l) {
         if (propertyChangeSupport != null) {
             //System.out.println(this+"removePropertyChangeListener("+l+")");
             propertyChangeSupport.removePropertyChangeListener(l);
         }
     }
-    
+
     private void firePropertyChange() {
         //System.out.println("VcsObjectIntegritySupport.firePropertyChange("+(propertyChangeSupport != null)+")");
         PropertyChangeSupport propertyChangeSupport;
@@ -299,7 +299,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             propertyChangeSupport.firePropertyChange(PROPERTY_FILES_CHANGED, null, null);
         }
     }
-    
+
     /**
      * Called after a DataObject is recognized. Do not call this directly!
      */
@@ -311,7 +311,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
     }
-    
+
     /**
      * Get the created DataObject from the queue, analyze their files and
      * add the file names into the integrity list if necessary.
@@ -334,7 +334,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 FileObject fo = (FileObject) existingEnum.nextElement();
                 if (paths.remove(fo.getPath())) {
                     try {
-                        DataObject dobj = DataObject.find(VcsUtilities.getMainFileObject(fo));
+                        DataObject dobj = DataObject.find(fo);
                         objects.add(dobj);
                     } catch (DataObjectNotFoundException donfex) {
                         // Ignored. If the DO does not exist, it can not be analyzed.
@@ -346,10 +346,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
             DataObject dobj = (DataObject) objIt.next();
             FileObject primary = dobj.getPrimaryFile();
-            primary = (FileObject) primary.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
-            if (primary == null) continue;
-            FileSystem fs = (FileSystem) primary.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-            if (primary.isFolder() || !fileSystem.equals(fs)) {
+            VcsProvider provider = VcsProvider.getProvider(primary);
+            if (provider == null) {
+                continue;
+            }
+            if (primary.isFolder() || !this.provider.equals(provider)) {
                 //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
                 continue;
             }
@@ -362,7 +363,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 initialize(); // Assure, that we're initialized.
                 initialized = true;
             }
-            //fileSystem.getCacheProvider().
             FileProperties fprops = Turbo.getCachedMeta(primary);
             if (fprops == null || fprops.isLocal()) {
                 synchronized (primaryLocalFiles) {
@@ -395,16 +395,16 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             Set fileSet = dobj.files();
             for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
                 FileObject fo = (FileObject) fileIt.next();
-                fo = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
                 if (fo == null || primary.equals(fo)) continue;
+
+                provider = VcsProvider.getProvider(fo);
                 String filePath = fo.getPath();
-                fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
                 File file = FileUtil.toFile(fo);
                 if (file == null) {
                     filesToRemove.add(filePath);
                     continue;
                 }
-                if (fo.isFolder() || !fileSystem.equals(fs) ||
+                if (fo.isFolder() || !this.provider.equals(provider) ||
                     SharabilityQuery.getSharability(file) == SharabilityQuery.NOT_SHARABLE ||
                     ignoredSecondaryLocalFiles.contains(filePath)) {
 
@@ -457,14 +457,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             return Collections.unmodifiableMap(new HashMap(objectsWithLocalFiles));
         }
     }
-    
+
     public String getPrimaryFileForSecondary(String secondary) {
         initialize(); // Assure, that we're initialized.
         synchronized (objectsWithLocalFiles) {
             return (String) filesMap.get(secondary);
         }
     }
-    
+
     public void addIgnoredFiles(String[] ignoredFilePaths) {
         initialize(); // Assure, that we're initialized.
         ignoredSecondaryLocalFiles.addAll(Arrays.asList(ignoredFilePaths));
@@ -494,14 +494,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         if (changed) firePropertyChange();
     }
-    
+
     /**
      * Find a FileObject for the given file path on the associated filesystem.
      */
     public FileObject findFileObject(String name) {
-        return fileSystem.findResource(name);
+        return provider.findResource(name);
     }
-    
+
     public void turboChanged(TurboEvent e) {
         FileObject fo = e.getFileObject();
         FileProperties props = e.getFileProperties();
@@ -536,7 +536,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 // it can be too performance expensive to find the
                 // appropriate primary file. It is supposed, that this
                 // does occur very rearly.
-            } 
+            }
         } else {
             synchronized (objectsWithLocalFiles) {
                 if (filesStorageLocked && filesMap.containsKey(path)) {
@@ -574,7 +574,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         if (changed) firePropertyChange();
     }
-    
+
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         in.defaultReadObject();
         if (ignoredSecondaryLocalFiles == null) {
@@ -583,7 +583,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         initializeLock = new Object();
         filesStorageLocked = false;
     }
-    
+
     /**
      * Provides the String representation. Mainly for debug purposes.
      *
@@ -630,13 +630,13 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             ((ignored.length() > 0) ? ignored.toString()+"\n" : "");
     }
      */
-    
-    
+
+
     /**
      * It's necessary to catch the changes of files in versioned DataObjects.
      */
     private class DOFileChangeListener extends Object implements PropertyChangeListener {
-        
+
         /** This method gets called when a bound property is changed.
          * @param evt A PropertyChangeEvent object describing the event source
          *   	and the property that has changed.
@@ -652,11 +652,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
             }
         }
-        
+
     }
-    
+
     // Utility static stuff:
-    
+
     /**
      * Returns a map of providers and the associated files. The associated
      * files are an array of FileObjects.
@@ -687,7 +687,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         return providers;
     }
-    
+
     /**
      * Run the add command of files, that are necessary to add to keep the integrity
      * of objects.
@@ -710,14 +710,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 FileObject[] cmdFiles = (FileObject[]) providersForFiles.get(provider);
                 //System.out.println("  cmdFiles = "+java.util.Arrays.asList(cmdFiles));
                 VcsObjectIntegritySupport objectIntegritySupport = null;
-                FileSystem fs = (FileSystem) cmdFiles[0].getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                if (fs != null) {
-                    objectIntegritySupport = IntegritySupportMaintainer.findObjectIntegritySupport(fs);
+                VcsProvider vcsProvider = VcsProvider.getProvider(cmdFiles[0]);
+                if (vcsProvider != null) {
+                    objectIntegritySupport = IntegritySupportMaintainer.findObjectIntegritySupport(vcsProvider);
                 }
                 //System.out.println("  objectIntegritySupport = "+objectIntegritySupport);
                 if (objectIntegritySupport == null) continue;
                 ObjectIntegrityCommandSupport integrityCmdSupport = new ObjectIntegrityCommandSupport();
-                ObjectIntegrityCommand integrityCmd = 
+                ObjectIntegrityCommand integrityCmd =
                     (ObjectIntegrityCommand) integrityCmdSupport.createCommand();
                 integrityCmd.setAddCommand(addCmd);
                 integrityCmd.setObjectIntegritySupport(objectIntegritySupport);
@@ -739,5 +739,5 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         return customized;
     }
-    
+
 }

@@ -48,18 +48,19 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.explorer.ExplorerPanel;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -128,8 +129,8 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         }
         explorer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         RequestProcessor.getDefault().post(new Runnable(){
-        public void run(){
-            selectVersioningFiles(explorer,filesByFS);
+            public void run(){
+                selectVersioningFiles(explorer,filesByFS);
             }
         });
         if(nodeFound)
@@ -144,29 +145,25 @@ public class VersioningExplorerAction extends GeneralCommandAction {
      * @return Task.EMPTY on failure.
      */
     public final Task showFileObject(FileObject fo) {
-        FileObject nativeFileObject = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
-        if (nativeFileObject != null) fo = nativeFileObject;
         final VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
         explorer.open();
-        explorer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        final Map filesByFS = new  HashMap();
-        try {
-            filesByFS.put(fo.getPath(), fo.getFileSystem().getSystemName());
-            return RequestProcessor.getDefault().post(new Runnable(){
-                public void run() {
-                    selectVersioningFiles(explorer,filesByFS);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            explorer.requestActive();
-                        }
-                    });
-                }
-            });
-        } catch (FileStateInvalidException e) {
-            ErrorManager err = ErrorManager.getDefault();
-            err.notify(e);
+        VcsProvider provider = VcsProvider.getProvider(fo);
+        if (provider == null) {
+            return Task.EMPTY;
         }
-        return Task.EMPTY;
+        final Map filesByFS = new  HashMap();
+        filesByFS.put(provider.getRelativePath(fo), provider.getVersioningSystem().getSystemName());
+        explorer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        return RequestProcessor.getDefault().post(new Runnable(){
+            public void run() {
+                selectVersioningFiles(explorer,filesByFS);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        explorer.requestActive();
+                    }
+                });
+            }
+        });
     }
 
     private HashMap getFilesByFS(Node[] nodes) {
@@ -180,16 +177,16 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 continue;
             }
             origFos = (FileObject[])foSet.toArray(origFos);
-            FileObject[] correctFos = VcsUtilities.convertFileObjects(origFos);
-            for (int i = 0; i < correctFos.length; i++) {
-                FileObject fo = correctFos[i];
-                try {
-                    FileSystem fs = fo.getFileSystem();
-                    if (fs != null) {
-                        filesByFS.put(fo.getPath(), fs.getSystemName());
+            //FileObject[] correctFos = VcsUtilities.convertFileObjects(origFos);
+            for (int i = 0; i < origFos.length; i++) {
+                FileObject fo = origFos[i];
+                VcsProvider provider = VcsProvider.getProvider(fo);
+                if (provider != null) {
+                    VersioningFileSystem versioningSystem = provider.getVersioningSystem();
+                    if (versioningSystem == null) {
+                        continue;
                     }
-                } catch (FileStateInvalidException exc) {
-                    continue;
+                    filesByFS.put(provider.getRelativePath(fo), versioningSystem.getSystemName());
                 }
             }
         }

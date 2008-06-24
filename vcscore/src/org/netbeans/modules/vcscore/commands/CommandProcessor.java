@@ -86,20 +86,20 @@ public class CommandProcessor extends Object /*implements CommandListener */{
      * The preprocessing of the command was cancelled. The command will not be executed.
      */
     public static final int PREPROCESS_CANCELLED = 0;
-    
+
     /**
      * When there are more files selected, the preprocessing needs to be done for
      * next files again. The command will run on the first file, preprocessing will be
      * done for the rest.
      */
     public static final int PREPROCESS_NEXT_FILE = 1;
-    
+
     /**
      * The preprocessing is done. When more files are selected, the command
      * will not be preprocessed for the rest of them.
      */
     public static final int PREPROCESS_DONE = 2;
-    
+
     /** The maximum number of running commands in the system. This prevents overwhelming
      * the system with too many commands running concurrently */
     private static final int MAX_NUM_RUNNING_COMMANDS = 15;
@@ -110,9 +110,9 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     /** The maximum number of running commands with a normal priority.
      * This is necessary to leave some space for high-priority commands. */
     private static final int MAX_NORMAL_PRIORITY = 10;
-    
+
     private static CommandProcessor instance = null;
-    
+
     /** Contains instances of Command, which are to be preprocessed.  */
     private ArrayList commandsToPreprocess;
     /** The table of instances of CommandTask and associated CommandTaskInfo */
@@ -136,20 +136,20 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     //private ArrayList commandsFinished;
     private int numRunningListCommands;
     private int numRunningNormalPriority;
-    
+
     /**
      * The threads pool that is used to execute commands.
      */
     private RequestProcessor threadsPool;
-    
+
     private ThreadLocal threadTaskInfo;
-    
+
     /** Map of instances of VcsCommandProvider and associated list of command
      * process listeners. */
     private Map commandListenersByProviders = new HashMap();
     /** List of listeners registered for all providers */
     private List commandListenersForAllProviders = new ArrayList();
-    
+
     private boolean execStarterLoopStarted = false;
     private boolean execStarterLoopRunning = true;
 
@@ -169,7 +169,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         threadsPool = RequestProcessor.getDefault();
         threadTaskInfo = new ThreadLocal();
     }
-    
+
     /**
      * Get the instance of CommandProcessor.
      */
@@ -179,11 +179,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return instance;
     }
-    
+
     protected void finalize () {
         cleanup();
     }
-    
+
     /**
      * This stops the execution starter loop.
      * You will not be able to execute any command by CommandProcessor after this method finishes !
@@ -196,7 +196,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             // */
         }
     }
-    
+
     /**
      * Get the task's ID. It's a unique task identification number.
      * @param task The task
@@ -207,7 +207,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (cw != null) return cw.getCommandID();
         else return -1;
     }
-    
+
     /**
      * Get the parent task if any. Parent task is the task that executed
      * the child task.
@@ -224,7 +224,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return null;
     }
-    
+
     /**
      * Pre-process the task. This will show the command's customizer (if any)
      * and return the status. This method will block until the customization process
@@ -237,7 +237,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return doPreprocess2(cmd);
     }
-    
+
     /**
      * Pre-process the task. This will do the preprocess in the background.
      * It will show the command's customizer, if any.
@@ -270,7 +270,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             runExecutorStarterLoop();
         }
     }
-    
+
     private synchronized void doPreprocess(final Command cmd) {
         // Use a different RP for commands customization from the RP that is
         // used for commands execution. This is necessary so that commands
@@ -282,7 +282,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         });
     }
-    
+
     /** Do not call directly unless from a known thread. Read the comment in doPreprocess(). */
     private boolean doPreprocess2(Command cmd) {
         List commandListeners;
@@ -311,7 +311,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return status;
     }
-    
+
     private List getCommandListenersForProvider(Object provider) {
         if (provider == null) return null;
         List commandListeners = null;
@@ -446,7 +446,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 if (NotifyDescriptor.CANCEL_OPTION.equals(option) ||
                     NotifyDescriptor.CLOSED_OPTION.equals(option) ||
                     NotifyDescriptor.NO_OPTION.equals(option)) {
-                    
+
                     status = false;
                 } else {
                     status = true;
@@ -525,10 +525,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
 
             final boolean [] statusContainer = new boolean[1];
-            
+
             if (addActionListenerMethod != null) {
                 dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
-                
+
                 final JButton setAsDefault0 = btnStoreAsDefault;
                 ActionListener actionListener = new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
@@ -545,7 +545,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                         }
                     }
                 };
-                
+
                 try {
                     //final boolean [] statusContainer = new boolean[1];
                     addActionListenerMethod.invoke(cust, new Object[] { actionListener });
@@ -574,10 +574,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     }
 
     private void commandStarted(final CommandTaskInfo cw) {
-        //final VcsCommandExecutor vce = cw.getExecutor();
-        //setCommandID(vce);
-        //final VcsFileSystem fileSystem = cw.getFileSystem();
-        //if (fileSystem == null) return ;
         final CommandTask cmdTask = cw.getTask();
         //waitToRun(cmd, vce.getFiles());
         // Assure that the files we'll be acting on are saved.
@@ -592,11 +588,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (i >= 0) cmdName = name.substring(0, i) + name.substring(i + 1);
             else cmdName = name;
             StatusDisplayer.getDefault().setStatusText(g("MSG_Command_name_running", cmdName));
-            /*
-            if (fileSystem != null) {
-                fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
-            }
-             */
         }
         //System.out.println("command "+cmdTask.getName()+" STARTED.");
         //Command cmd = cmdTask.getCommand();
@@ -617,14 +608,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         cw.setStartTime(System.currentTimeMillis());
     }
-    
+
     private void commandDone(CommandTaskInfo cw) {
         cw.setFinishTime(System.currentTimeMillis());
         CommandTask cmdTask = cw.getTask();
-        //VcsCommandExecutor vce = cw.getExecutor();
         //System.out.println("commandDone("+cw.getExecutor().getCommand().getName()+")");
-        //VcsFileSystem fileSystem = cw.getFileSystem();
-        //VcsCommand cmd = vce.getCommand();
         String name = cmdTask.getDisplayName();
         //if (name == null || name.length() == 0) name = cmd.getName();
         synchronized (this) {
@@ -654,11 +642,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             // This is necessary for custom canRun() implementation is tasks,
             // which can listen on tasks via CommandListener
         }
-        /*
-        if (fileSystem != null) {
-            CommandExecutorSupport.postprocessCommand(fileSystem, vce);
-        }
-         */
         //System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
         //System.out.println("command "+cmdTask.getName()+" DONE, LISTENERS DONE.");
         if (name != null) {
@@ -733,7 +716,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //}).start();
         });
     }
-    
+
     private synchronized void executorStarterLoop() {
         do {
             try {
@@ -783,11 +766,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         } while(execStarterLoopRunning);
     }
-    
+
     private boolean canPreprocess(Command cmd) {
         return true;
     }
-    
+
     private void runExecutorStarterLoop() {
         Thread starterLoopThread = new Thread(new Runnable() {
             public void run() {
@@ -806,7 +789,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     public synchronized boolean isSomeRunning() {
         return (tasksRunning.size() > 0);
     }
-    
+
     /**
      * Tells whether a task is waiting. It can either wait till preprocessing
      * finishes or till other commands which can not run in parallel with it finish.
@@ -817,7 +800,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (cw == null) return false;
         return /*commandsToRun.contains(cw) ||*/ taskWaitQueue.contains(cw);
     }
-    
+
     /**
      * Tells whether the executor is still running.
      * @param task The task
@@ -826,7 +809,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         CommandTaskInfo cw = (CommandTaskInfo) taskInfos.get(task);
         return (cw != null && tasksRunning.contains(cw));
     }
-    
+
     /**
      * Get display names of running commands.
      */
@@ -840,7 +823,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return (String[]) names.toArray(new String[0]);
     }
-    
+
     synchronized CommandTask[] getRunningCommandTasks() {
         LinkedList tasks = new LinkedList();
         for(Iterator it = tasksRunning.iterator(); it.hasNext(); ) {
@@ -849,11 +832,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return (CommandTask[]) tasks.toArray(new CommandTask[tasks.size()]);
     }
-    
+
     private boolean isListCommandTask(CommandTask task) {
         return task.getName().startsWith("LIST");
     }
-    
+
     /**
      * Returns true iff all exceptionally running commands are
      * predecessors of the given command.
@@ -876,7 +859,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         } while (is);
         return exceptionallyRunning.size() == 0;
     }
-    
+
     /**
      * Say whether the command executor can be run now or not. It should be called
      * with a monitor lock on this object.
@@ -890,7 +873,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (tasksRunning.size() >= MAX_NUM_RUNNING_COMMANDS ||
             task.getPriority() == 0 && numRunningNormalPriority >= MAX_NORMAL_PRIORITY ||
             isListCommandTask(task) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) {
-            
+
             //System.out.println("canRun("+task.getName()+") - limit reached.");
             CommandTaskInfo submitter = cw.getSubmittingInfo();
             //System.out.println("  submitter = "+submitter);
@@ -916,7 +899,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                  */
                 if ((tasksExceptionallyRunning.size() == 0 || areExcRunningPredecessorsOf(cw))
                     && cw.canRun()) {
-                    
+
                     tasksExceptionallyRunning.add(cw);
                     //System.out.println("      can run EXCEPTIONALLY");
                     return true;
@@ -931,7 +914,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //System.out.println("canRun("+task.getName()+") = "+canRun);
         return canRun;
     }
-    
+
     private synchronized void addExecutorsOfCommand(ArrayList executors, Command cmd) {
         String name = cmd.getName();
         /*
@@ -962,7 +945,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         //addExecutorsOfCommandFromIterator(executors, cmd, commands.iterator());
     }
-    
+
     /**
      * Wait to finish the execution of command on a set of files.
      * This methods blocks the current thread untill no task of the command is running on
@@ -997,7 +980,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         } while (haveToWait);
     }
-    
+
     /**
      * Wait to finish the task.
      * This methods blocks the current thread untill the task finishes.
@@ -1028,7 +1011,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
          */
     }
-    
+
     /**
      * Wait to finish the task of a specific ID.
      * This methods blocks the current thread untill the task finishes.
@@ -1049,7 +1032,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             waitToFinish(task);
         }
     }
-    
+
     /**
      * Kill all running executors. It tries to interrupt them, it is up to
      * executor implementations if they will terminate or not.
@@ -1065,7 +1048,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             //i--;
         }
     }
-    
+
     /**
      * Kill the executor if it is running. It tries to interrupt it, it is up to
      * executor implementation if it will terminate or not.
@@ -1083,7 +1066,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         }
     }
-    
+
     /**
      * Add a command listener.
      */
@@ -1104,7 +1087,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         }
     }
-    
+
     /**
      * Remove a command listener.
      */
@@ -1131,7 +1114,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         }
     }
-    
+
     /** The start time of the command or zero, when the command was not started yet
      * or can not be found.
      */
@@ -1140,7 +1123,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (cw == null) return 0;
         return cw.getStartTime();
     }
-    
+
     /** The finish time of the command or zero, when the command did not finish yet
      * or can not be found.
      */
@@ -1149,7 +1132,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (cw == null) return 0;
         return cw.getFinishTime();
     }
-    
+
     /** The execution time of the command or zero, when the command did not finish yet
      * or can not be found.
      */
@@ -1158,7 +1141,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (cw == null) return 0;
         return cw.getExecutionTime();
     }
-    
+
     /**
      * Get the localized string representation of the command exit status.
      * @param exit the exit status, that will be converted to the string.
@@ -1177,7 +1160,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return status;
     }
 
-    
+
     private static String  g(String s, Object obj) {
         return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s, obj);
     }
@@ -1185,7 +1168,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     //private static String  g(String s, Object obj, Object obj2) {
     //    return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s, obj, obj2);
     //}
-    
+
 
 }
 

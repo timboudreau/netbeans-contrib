@@ -117,7 +117,7 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
      */
     public BeanDescriptor getBeanDescriptor() {
         BeanDescriptor beanDescriptor = new BeanDescriptor(VcsVersioningSystem.class, null);
-        beanDescriptor.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, Boolean.TRUE);
+        //beanDescriptor.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, Boolean.TRUE);
 	return beanDescriptor;
     }
 

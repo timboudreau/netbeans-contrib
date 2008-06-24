@@ -87,14 +87,14 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
 
     private CommandExecutionContext executionContext;
     //private VcsCommand cmd;
-    private Hashtable vars;
+    private Map vars;
 
     private volatile Vector[] preCommandOutput;
     private volatile Vector[] preCommandError;
     //private volatile int preCommandExecuting = 0;
 
     /** Creates new CommandPerformer */
-    public PreCommandPerformer(CommandExecutionContext executionContext, Hashtable vars) {
+    public PreCommandPerformer(CommandExecutionContext executionContext, Map vars) {
         this.executionContext = executionContext;
         //this.cmd = cmd;
         this.vars = vars;

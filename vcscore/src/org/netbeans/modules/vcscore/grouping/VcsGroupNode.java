@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.vcscore.grouping;
 
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
@@ -51,7 +52,6 @@ import java.io.*;
 import java.util.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.openide.actions.PropertiesAction;
 import org.openide.ErrorManager;
 
@@ -130,13 +130,13 @@ public class VcsGroupNode extends AbstractNode {
                 try {
                     DataObject dob = (DataObject)childs[i].getCookie(DataObject.class);
                     if (dob != null) {
-                        FileSystem fs = (FileSystem) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                        if (fs == null) {
+                        FileObject fo = dob.getPrimaryFile();
+                        VcsProvider provider = VcsProvider.getProvider(fo);
+                        if (provider == null) {
                             continue;
                         }
-                        String path = (String) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
-                        FileObject fo = fs.findResource(path);
-                        if (fo == null) continue;
+                        //String path = (String) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                        //FileObject fo = fs.findResource(path);
                         Set foset = new HashSet();
                         foset.add(fo);
                         SystemAction[] acts = fo.getFileSystem().getActions(foset);

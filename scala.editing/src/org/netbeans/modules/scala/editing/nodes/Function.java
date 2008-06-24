@@ -80,9 +80,9 @@ public class Function extends AstElement implements WithTypeParams, ExecutableEl
         boolean containsVariableLengthArg = false;
         for (Var param : params) {
             String paramSName = param.getSimpleName().toString();
-            Type paramType = param.asType();
+            TypeMirror paramType = param.asType();
             if (paramType != null) {
-                String paramTypeSName = paramType.getSimpleName().toString();
+                String paramTypeSName = Type.simpleNameOf(paramType);
                 if (paramTypeSName.endsWith("*")) {
                     containsVariableLengthArg = true;
                     break;
@@ -93,7 +93,7 @@ public class Function extends AstElement implements WithTypeParams, ExecutableEl
         return containsVariableLengthArg;
     }
 
-    public Type getReturnType() {
+    public TypeMirror getReturnType() {
         return type;
     }
 
@@ -174,10 +174,14 @@ public class Function extends AstElement implements WithTypeParams, ExecutableEl
             }
             formatter.appendHtml(")");
         }
+        
+        TypeMirror retType = getReturnType();
 
-        if (asType() != null) {
+        if (retType != null) {
             formatter.appendHtml(" :");
-            asType().htmlFormat(formatter);
+            if (type instanceof Type) {
+                ((Type) retType).htmlFormat(formatter);
+            }
         }
     }
 }

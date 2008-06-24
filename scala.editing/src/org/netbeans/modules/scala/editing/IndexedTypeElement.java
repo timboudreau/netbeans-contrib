@@ -39,18 +39,45 @@
 
 package org.netbeans.modules.scala.editing;
 
+import java.util.List;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 
 
 /**
  *
- * @author Tor Norbye
+ * @author Caoyuan Deng
  */
-public class IndexedType extends IndexedElement {
+public class IndexedTypeElement extends IndexedElement implements TypeElement {
     
-    IndexedType(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
+    IndexedTypeElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
         super(qName, sName, in, attributes, flags, fileUrl, index, kind);
     }
+
+    public Name getQualifiedName() {
+        return qualifiedName;
+    }
+        
+    public List<? extends TypeParameterElement> getTypeParameters() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends TypeMirror> getInterfaces() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public TypeMirror getSuperclass() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public NestingKind getNestingKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+        
     
     @Override
     public String getSignature() {

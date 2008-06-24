@@ -86,7 +86,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     
     /** Creates new VcsActionSupporter */
     public VcsActionSupporter() {
-        //fileSystem = new WeakReference(filesystem);
         commandMap = new HashMap();
     }
     
@@ -98,7 +97,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             commandMap.put(actionClass, commandsNamesSet);
         }
         commandsNamesSet.add(commandSupp);
-        //commandMap.put(actionClass, commandName);
     }
     
     public void removeSupportForAction(Class actionClass) {
@@ -119,7 +117,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (cmdSet == null) {
             return false;
         }
-        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
+        //fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
             CommandSupport cmdSupp = (CommandSupport) it.next();
             if (enabledFileObjects(cmdSupp, fileObjects) != null) return true;
@@ -144,10 +142,9 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         // Leave AWT Event Queue ASAP. This also prevents deadlock with VcsManager.showCustomizer().
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
-                FileObject[] fos = VcsUtilities.convertFileObjects(fileObjects);
                 for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
                     CommandSupport cmdSupport = (CommandSupport) it.next();
-                    FileObject[] applicableFOs = enabledFileObjects(cmdSupport, fos);
+                    FileObject[] applicableFOs = enabledFileObjects(cmdSupport, fileObjects);
                     if (applicableFOs != null) {
                         Command cmd = cmdSupport.createCommand();
                         cmd.setFiles(applicableFOs);
@@ -169,91 +166,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     }
 
     
-    /** Remove the files for which the command is disabled *
-    private static Table removeDisabled(FileStatusProvider statusProvider, Table files, VcsCommand cmd) {
-        if (statusProvider == null) return files;
-        String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
-        if (disabledStatus == null) return files;
-        Table remaining = new Table();
-        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-            String name = (String) enum.nextElement();
-            String status = statusProvider.getFileStatus(name);
-            boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-                disabledStatus, Collections.singleton(status));
-            if (!disabled) {
-                remaining.put(name, files.get(name));
-            }
-        }
-        return remaining;
-    }
-            */
-    /**
-     * Test if some of the selected nodes are directories.
-     * @return <code>true</code> if some of the selected nodes are directories,
-     *         <code>false</code> otherwise.
-     *
-    protected boolean isOnDirectory(Collection fos) {
-        boolean is = false;
-        if (fos != null) {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo.isFolder()) is = true;
-            }
-            //return false;
-        }
-        return is && !isOnRoot(fos);
-    }
-
-    /**
-     * Test if some of the selected nodes are files.
-     * @return <code>true</code> if some of the selected nodes are files,
-     *         <code>false</code> otherwise.
-     *
-    protected boolean isOnFile(Collection fos) {
-        if (fos != null) {
-            for (Iterator it = fos.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                //System.out.println("  fo = "+fo);
-                if (!fo.isFolder()) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Test if one of the selected nodes is the root node.
-     * @return <code>true</code> if at least one of the selected nodes is the root node,
-     *         <code>false</code> otherwise.
-     *
-    protected boolean isOnRoot(Collection fos) {
-        if (fos != null) {
-           for (Iterator it = fos.iterator(); it.hasNext(); ) {
-           FileObject fo = (FileObject) it.next();
-                if (fo.getPackageNameExt('/', '.').length() == 0) return true;
-           }
-        }
-       return false;
-    }
-
-    private Set getSelectedFileStatusAttributes(Set fileObjects) {
-        Set statuses = new HashSet();
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        FileStatusProvider statusProv = fileSystem.getStatusProvider();
-        boolean processAll = fileSystem.isProcessUnimportantFiles();
-        if (statusProv != null) {
-            for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                String path = fo.getPackageNameExt('/', '.');
-                if (processAll || fileSystem.isImportant(path)) {
-                    String status = statusProv.getFileStatus(path);
-                    if (status != null) statuses.add(status);
-                }
-            }
-        }
-        return statuses;
-    }
-     */
-    
     private String getCommandActionDisplayName(GeneralCommandAction action) {
         HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
         if (cmdSet == null) {
@@ -266,16 +178,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             if (cmdSupp instanceof ActionCommandSupport) {
                 return ((ActionCommandSupport) cmdSupp).getActionDisplayName();
             }
-            /*
-                VcsCommand cmd = ((VcsFileSystem) fileSystem.get()).getCommand(cmdName);
-                if (cmd != null) {
-                    String name = (String) cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME);
-                    if (name != null) {
-                        return name;
-                    }
-                }
-             */
-            //}
         }
         return null;
     }

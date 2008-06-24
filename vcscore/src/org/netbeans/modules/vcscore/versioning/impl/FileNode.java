@@ -41,11 +41,11 @@
 
 package org.netbeans.modules.vcscore.versioning.impl;
 
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.openide.filesystems.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.RequestProcessor;
 
-import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.versioning.*;
 
 import javax.swing.*;
@@ -74,7 +74,7 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
         RevisionChildren children = (RevisionChildren) getChildren();
         RevisionChildren.NotificationListener childrenNotificationListener = new ChildrenNotificationListener();
         children.addNotificationListener(childrenNotificationListener);
-        
+
         propListener = new PropertyListenerImpl();
         this.addPropertyChangeListener(propListener);
     }
@@ -117,11 +117,14 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
     public java.awt.Image getOpenedIcon (int type) {
         return this.getIcon(type);
     }
-    
+
     private RevisionList getRevisionList(boolean refresh) {
         VersioningFileSystem vfs;
-        vfs = VersioningFileSystem.findFor((FileSystem) getFile().getAttribute(VcsAttributes.VCS_NATIVE_FS));
-        return vfs.getVersions().getRevisions((String) getFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT), refresh);
+        vfs = VersioningFileSystem.findFor(getFile());
+        FileObject fo = getFile();
+        VcsProvider provider = VcsProvider.getProvider(fo);
+        String path = FileUtil.getRelativePath(provider.getRoot(), fo);
+        return vfs.getVersions().getRevisions(path, refresh);
     }
 
     private final Object childrenRefreshingLock = new Object();

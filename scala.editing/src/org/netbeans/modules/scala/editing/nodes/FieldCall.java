@@ -39,17 +39,18 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
- *
  * @author Caoyuan Deng
  */
 public class FieldCall extends AstMirror {
 
     /** base may be AstExpression, FunctionCall, FieldCall, IdCall etc */
     private AstNode base;
+    private TypeMirror baseType;
     private AstId field;
 
     public FieldCall(Token pickToken) {
@@ -64,6 +65,22 @@ public class FieldCall extends AstMirror {
         return base;
     }
 
+    public void setBaseType(TypeMirror baseType) {
+        this.baseType = baseType;
+    }
+    
+    public TypeMirror getBaseType() {
+        if (baseType != null) {
+            return baseType;
+        } else {
+            if (base != null) {
+                return base.asType();
+            }
+        }
+        
+        return null;
+    }    
+    
     public void setField(AstId field) {
         this.field = field;
     }
@@ -76,9 +93,9 @@ public class FieldCall extends AstMirror {
     public Name getSimpleName() {
         StringBuilder sb = new StringBuilder();
         if (base != null) {
-            Type baseType = base.asType();
+            TypeMirror baseType = base.asType();
             if (baseType != null) {
-                sb.append(baseType.getSimpleName());
+                sb.append(Type.simpleNameOf(baseType));
             }
         }
         sb.append(field.getSimpleName());

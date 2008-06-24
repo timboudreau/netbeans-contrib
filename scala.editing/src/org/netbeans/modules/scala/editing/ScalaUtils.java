@@ -689,7 +689,7 @@ public class ScalaUtils {
 
     private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
         for (AstElement element : scope.getElements()) {
-            if (element instanceof Template && element.getQualifiedName().toString().equals(qName)) {
+            if (element instanceof Template && ((Template) element).getQualifiedName().toString().equals(qName)) {
                 templates.add((Template) element);
             }
 

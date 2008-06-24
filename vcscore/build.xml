@@ -43,32 +43,6 @@ made subject to such option by the copyright holder.
 
 <project name="contrib/vcscore" default="netbeans" basedir=".">
 
-    <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="check-for-jdk-1.5">
-      <available property="have-jdk-1.5" classname="java.lang.ProcessBuilder"/>
-    </target>
-
-    <target name="compile" depends="init,check-for-jdk-1.5">
-        <mkdir dir="${build.classes.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" includeantruntime="false">
-            <classpath refid="cp"/>
-            <exclude name="org/netbeans/modules/vcscore/cmdline/exec/CommandExecutor1_5.java" unless="have-jdk-1.5"/>
-        </javac>
-        <copy todir="${build.classes.dir}">
-          <fileset dir="${src.dir}" includes="**/*.properties"/>
-          <filterchain>
-            <filterreader classname="org.apache.tools.ant.filters.StripLineComments">
-              <param type="comment" value="#"/>
-            </filterreader>
-          </filterchain>
-        </copy>
-        <copy todir="${build.classes.dir}">
-            <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
-            <fileset dir="classes_1_5">
-                 <exclude name="**" if="have-jdk-1.5"/>
-            </fileset>
-        </copy>
-    </target>
+    <import file="nbproject/build-impl.xml"/>
 
 </project>

@@ -43,59 +43,45 @@ package org.netbeans.modules.vcscore.cmdline.exec;
 
 import java.io.File;
 import java.io.IOException;
-import org.openide.ErrorManager;
+import java.util.Map;
 
 /**
- * The command executor.
+ * The command executor that uses ProcessBuilder.
+ * Can be used only on JDK 1.5 and higher.
  *
  * @author Martin Entlicher
  */
 public class CommandExecutor {
 
-    private static CommandExecutor executor;
-
     /** Creates a new instance of CommandExecutor */
-    protected CommandExecutor() {
+    public CommandExecutor() {
     }
 
-    /**
-     * Get the default instance of command executor.
-     */
-    public static synchronized CommandExecutor getDefault() {
-        if (executor == null) {
-            String version = System.getProperty("java.version"); // NOI18N
-            if (version.startsWith("1.4")) {                     // NOI18N
-                executor = new CommandExecutor();
-            } else {
-                try {
-                    Class execClass = Class.forName("org.netbeans.modules.vcscore.cmdline.exec.CommandExecutor1_5"); // NOI18N
-                    executor = (CommandExecutor) execClass.newInstance();
-                } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ex);
-                    executor = new CommandExecutor();
+    public Process createProcess(String[] cmdArr, String[] envp, File work,
+                                 boolean mergeStreams) throws IOException {
+
+        ProcessBuilder pb = new ProcessBuilder(java.util.Arrays.asList(cmdArr));
+        if (envp != null) {
+            Map env = pb.environment();
+            env.clear();
+            for (int i = 0; i < envp.length; i++) {
+                int index = envp[i].indexOf('=');
+                if (index > 0) {
+                    String name = envp[i].substring(0, index);
+                    String value;
+                    index++;
+                    if (index < envp[i].length()) {
+                        value = envp[i].substring(index);
+                    } else {
+                        value = ""; // NOI18N
+                    }
+                    env.put(name, value);
                 }
             }
         }
-        return executor;
+        pb.directory(work);
+        pb.redirectErrorStream(mergeStreams);
+        return pb.start();
     }
-    
-    /**
-     * Create the process that is executing the command.
-     * @param cmdArr array containing the command to call and it's arguments
-     * @param envp environment - array of strings of the format <code>name=value</code>.
-     * @param work the working directory
-     * @param mergeStreams whether to merge error output with the standard output.
-     *                     This should not be set when running on JDK 1.4.x (a warning is provided).
-     * @return The process.
-     */
-    public Process createProcess(String[] cmdArr, String[] envp, File work,
-                                 boolean mergeStreams) throws IOException {
-        if (mergeStreams && Boolean.getBoolean("netbeans.vcsdebug")) { // NOI18N
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ErrorManager.getDefault().annotate(
-                    new IllegalArgumentException(java.util.Arrays.asList(cmdArr).toString()),
-                    "Warning: can not merge standard and error streams on JDK 1.4.x"));
-        }
-        return Runtime.getRuntime().exec(cmdArr, envp, work);
-    }
-    
+
 }

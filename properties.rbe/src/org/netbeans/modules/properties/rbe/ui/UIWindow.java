@@ -66,6 +66,8 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     private ImprovedBeanTreeView treeView;
     private ExplorerManager explorer;
     private RBE rbe;
+    /** The selected property node */
+    private BundlePropertyNode selectedPropertyNode = null;
 
     /** Creates new form NewJPanel */
     public UIWindow(RBE rbe) {
@@ -137,10 +139,13 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
         if (bundlePropertyNode != null) {
+            selectedPropertyNode = bundlePropertyNode;
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
                 LocaleProperty value = bundlePropertyNode.getProperty().getLocalProperty(locale);
                 rightPanel.add(new UIPropertyPanel(locale, value));
             }
+        } else {
+            selectedPropertyNode = null;
         }
         rightPanel.updateUI();
     }
@@ -277,9 +282,13 @@ private void collapseAllButtonActionPerformed(java.awt.event.ActionEvent evt) {/
     treeView.collapseAll();
 }//GEN-LAST:event_collapseAllButtonActionPerformed
 
-    private void searchTextFieldTextChanged(DocumentEvent e) {
-        if (searchTextField.getText().length() > 0) {
-            Node node = getNode(explorer.getRootContext(), searchTextField.getText());
+    protected void searchTextFieldTextChanged(DocumentEvent e) {
+        selectNode(searchTextField.getText());
+    }
+
+    protected void selectNode(String key) {
+        if (key.length() > 0) {
+            Node node = getNode(explorer.getRootContext(), key);
             try {
                 explorer.removePropertyChangeListener(this);
                 explorer.setSelectedNodes(new Node[]{node});
@@ -306,12 +315,15 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         expandAllButton.setEnabled(false);
     }
     updateBeanTree();
+    if (selectedPropertyNode != null) {
+        //because factory is running asyn. its works randomly :-/
+        selectNode(selectedPropertyNode.getProperty().getKey());
+    }
 }//GEN-LAST:event_changeModeButtonActionPerformed
 
 private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
     rbe.getBundle().createProperty(searchTextField.getText());
-    updateSelectedProperty();
-//    rbe.getBundle().save();
+    selectNode(searchTextField.getText());
 }//GEN-LAST:event_createButtonActionPerformed
 
     protected Node getNode(Node root, String prefix) {

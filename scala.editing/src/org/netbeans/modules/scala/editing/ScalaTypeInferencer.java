@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -67,7 +69,8 @@ import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
-import org.netbeans.modules.scala.editing.nodes.types.Type.PseudoTypeRef;
+import org.netbeans.modules.scala.editing.nodes.BasicType;
+import org.netbeans.modules.scala.editing.nodes.types.PredefinedTypes;
 
 /**
  *
@@ -89,7 +92,7 @@ public class ScalaTypeInferencer {
     // ----- private used vars:
     private AstScope rootScope;
     private TokenHierarchy th;
-    private Map<AstMirror, AstScope> newResolvedRefs = new HashMap<AstMirror, AstScope>();
+    private Map<AstMirror, AstScope> newResolvedMirrors = new HashMap<AstMirror, AstScope>();
 
     public ScalaTypeInferencer(AstScope rootScope, TokenHierarchy th) {
         this.rootScope = rootScope;
@@ -103,9 +106,9 @@ public class ScalaTypeInferencer {
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
 
-        newResolvedRefs.clear();
+        newResolvedMirrors.clear();
         globalInferRecursively(index, rootScope);
-        for (Entry<AstMirror, AstScope> entry : newResolvedRefs.entrySet()) {
+        for (Entry<AstMirror, AstScope> entry : newResolvedMirrors.entrySet()) {
             entry.getValue().addMirror(entry.getKey());
         }
 
@@ -114,9 +117,9 @@ public class ScalaTypeInferencer {
          * the proper inference order. To resolve dependencies, the simplest way 
          * here is doing it twice:
          */
-        newResolvedRefs.clear();
+        newResolvedMirrors.clear();
         globalInferRecursively(index, rootScope);
-        for (Entry<AstMirror, AstScope> entry : newResolvedRefs.entrySet()) {
+        for (Entry<AstMirror, AstScope> entry : newResolvedMirrors.entrySet()) {
             entry.getValue().addMirror(entry.getKey());
         }
 
@@ -128,24 +131,24 @@ public class ScalaTypeInferencer {
         }
 
         for (AstMirror mirror : scope.getMirrors()) {
-            Type toResolve = null;
+            TypeMirror toResolve = null;
             if (mirror instanceof FunctionCall) {
-                globalInferFunRef(index, (FunctionCall) mirror);
+                globalInferFunctionCall(index, (FunctionCall) mirror);
                 continue;
             } else if (mirror instanceof FieldCall) {
-                globalInferFieldRef(index, (FieldCall) mirror);
+                globalInferFieldCall(index, (FieldCall) mirror);
                 continue;
-            } else if (mirror instanceof Type) {
-                toResolve = (Type) mirror;
+            } else if (mirror instanceof TypeMirror) {
+                toResolve = (TypeMirror) mirror;
             } else {
                 toResolve = mirror.asType();
             }
 
-            if (toResolve == null || toResolve != null && toResolve.isResolved()) {
+            if (toResolve == null || toResolve != null && Type.isResolved(toResolve)) {
                 continue;
             }
 
-            globalInferTypeRef(index, toResolve);
+            globalInferType(index, toResolve);
         }
 
         for (AstScope subScope : scope.getScopes()) {
@@ -153,64 +156,69 @@ public class ScalaTypeInferencer {
         }
     }
 
-    private void globalInferFunRef(ScalaIndex index, FunctionCall funRef) {
-        Type retType = funRef.asType();
-        if (retType != null && retType.isResolved()) {
+    private void globalInferFunctionCall(ScalaIndex index, FunctionCall functionCall) {
+        TypeMirror retType = functionCall.asType();
+        if (retType != null && Type.isResolved(retType)) {
             return;
         }
 
-        String baseTypeTmpl = null;
         String baseTypeQName = null;
         String callName = null;
 
         // resolve return type of funRef:
-        AstNode base = funRef.getBase();
-
+        AstNode base = functionCall.getBase();
         if (base != null) {
-            Type baseType = null;
+            TypeMirror baseType = functionCall.getBaseType();
+            if (baseType == null) {
+                if (base instanceof PathId) {
+                    // shoudl convert it to FieldCall first
+                    List<AstId> paths = ((PathId) base).getPaths();
+                    assert !paths.isEmpty();
+                    // Is this a qualifiered name or member chain?
+                    // let's try member chain first
+                    Iterator<AstId> itr = paths.iterator();
+                    AstId firstId = itr.next();
+                    IdCall idCall = new IdCall(firstId.getSimpleName(), firstId.getPickToken());
+                    idCall.setEnclosingScope(functionCall.getEnclosingScope());
+                    newResolvedMirrors.put(idCall, functionCall.getEnclosingScope());
+                    AstMirror currBase = idCall;
+                    while (itr.hasNext()) {
+                        AstId field = itr.next();
+                        FieldCall aFieldCall = new FieldCall(field.getPickToken());
+                        aFieldCall.setBase(currBase);
+                        aFieldCall.setField(field);
+                        globalInferFieldCall(index, aFieldCall);
+                        TypeMirror aFieldRefType = aFieldCall.asType();
+                        if (aFieldRefType != null && Type.isResolved(aFieldRefType)) {
+                            newResolvedMirrors.put(aFieldCall, functionCall.getEnclosingScope());
 
-            if (base instanceof PathId) {
-                // shoudl convert it to FieldCall first
-                List<AstId> paths = ((PathId) base).getPaths();
-                assert paths.isEmpty() == false;
-                // Is this a qualifiered name or member chain?
-                // let's try member chain first
-                Iterator<AstId> itr = paths.iterator();
-                AstId firstId = itr.next();
-                IdCall idRef = new IdCall(firstId.getSimpleName(), firstId.getPickToken());
-                idRef.setEnclosingScope(funRef.getEnclosingScope());
-                newResolvedRefs.put(idRef, funRef.getEnclosingScope());
-                AstMirror currBase = idRef;
-                while (itr.hasNext()) {
-                    AstId field = itr.next();
-                    FieldCall aFieldRef = new FieldCall(field.getPickToken());
-                    aFieldRef.setBase(currBase);
-                    aFieldRef.setField(field);
-                    globalInferFieldRef(index, aFieldRef);
-                    Type aFieldRefType = aFieldRef.asType();
-                    if (aFieldRefType != null && aFieldRefType.isResolved()) {
-                        newResolvedRefs.put(aFieldRef, funRef.getEnclosingScope());
+                            currBase = aFieldCall;
+                        } else {
+                            // @Todo cannot be resolved, should be qualifiered name?
+                            break;
+                        }
+                    }
 
-                        currBase = aFieldRef;
+                    functionCall.setBase(currBase);
+
+                    base = currBase;
+                }
+
+                baseType = base.asType();
+            }
+
+            if (baseType != null) {
+                if (!Type.isResolved(baseType)) {
+                    if (baseType instanceof BasicType && ((BasicType) baseType).getSimpleName() == null) {
+                        /** @todo */
+                        System.out.println("A BasicType has no simpleName");
                     } else {
-                        // @Todo cannot be resolved, should be qualifiered name?
-                        break;
+                        globalInferType(index, baseType);
                     }
                 }
 
-                funRef.setBase(currBase);
-
-                base = currBase;
-            }
-
-            baseType = base.asType();
-            if (baseType != null) {
-                if (!baseType.isResolved()) {
-                    globalInferTypeRef(index, baseType);
-                }
-
-                if (baseType.isResolved()) {
-                    baseTypeQName = baseType.getQualifiedName().toString();
+                if (Type.isResolved(baseType)) {
+                    baseTypeQName = Type.qualifiedNameOf(baseType);
                 } else {
                     // @todo resolve it first
                 }
@@ -220,37 +228,39 @@ public class ScalaTypeInferencer {
                 return;
             }
 
-            AstId call = funRef.getCall();
+            AstId call = functionCall.getCall();
             callName = call == null ? "apply" : call.getSimpleName().toString();
 
         } else {
             // it's a local call or Object's apply
-            Type type = funRef.asType();
-            if (type != null && type.isResolved()) {
+            TypeMirror type = functionCall.asType();
+            if (type != null && Type.isResolved(type)) {
                 // a local call, should has been resolved
                 return;
             } else {
-                AstId objectName = funRef.getCall();
+                AstId objectName = functionCall.getCall();
 
-                List<Importing> importings = funRef.getEnclosingScope().getVisibleElements(Importing.class);
+                List<Importing> importings = functionCall.getEnclosingScope().getVisibleElements(Importing.class);
                 List<String> importPkgs = new ArrayList<String>();
                 for (Importing importing : importings) {
                     if (importing.isWild()) {
                         importPkgs.add(importing.getPackageName());
                     }
                 }
-                Packaging packaging = funRef.getPackageElement();
+                Packaging packaging = functionCall.getPackageElement();
                 String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
 
-                String qualifiedName = globalInferTypeRef(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
-                if (qualifiedName != null) {
-                    baseTypeQName = qualifiedName;
-                    funRef.setBase(new PseudoTypeRef(qualifiedName));
-                    funRef.setCall(new AstId("apply", objectName.getPickToken()));
+                TypeElement typeElement = globalInferType(index, objectName.getSimpleName().toString(), ofPackage, importPkgs);
+                if (typeElement != null) {
+                    TypeMirror baseType = new BasicType(typeElement);
+                    baseTypeQName = Type.qualifiedNameOf(baseType);
 
-                    funRef.setApply();
+                    functionCall.setBaseType(baseType);
+                    functionCall.setCall(new AstId("apply", objectName.getPickToken()));
+
+                    functionCall.setApply();
                     callName = "apply";
-                    baseTypeTmpl = "object";
+                    //String baseTypeTmpl = "object";
                 }
 
             }
@@ -269,96 +279,105 @@ public class ScalaTypeInferencer {
             if (gsfElement.getElement() instanceof ExecutableElement) {
                 ExecutableElement mFunction = (ExecutableElement) gsfElement.getElement();
 
-                if (AstElement.isMirroredBy(mFunction, funRef)) {
+                if (AstElement.isMirroredBy(mFunction, functionCall)) {
                     TypeMirror mRetType = mFunction.getReturnType();
+                    if (mRetType != null && Type.isResolved(mRetType)) {
+                        TypeElement mRetTe = Type.asElement(mRetType);
+                        functionCall.setType(new BasicType(mRetTe));
+                        break;
+                    }
+
                     String mRetTypeSName = mRetType == null ? null : Type.simpleNameOf(mRetType);
                     if (mRetTypeSName == null) {
                         mRetTypeSName = "void";
                     }
+
                     if (mRetTypeSName.equals("void")) {
-                        funRef.setType(new PseudoTypeRef("void"));
+                        functionCall.setType(PredefinedTypes.NullType);
                         break;
                     }
 
-                    int lastDot = mRetTypeSName.lastIndexOf('.');
-                    if (lastDot == -1) {
-                        /** try to find pkg of idxRetTypeStr */
-                        String itsIn = gsfElement.getIn();
-                        if (itsIn != null) {
-                            int pkgNameEnd = itsIn.lastIndexOf('.');
-                            if (pkgNameEnd != -1) {
-                                String hisPkgName = itsIn.substring(0, pkgNameEnd);
-                                Set<String> importPkgs = getImportPkgs(index, itsIn);
-                                mRetTypeSName = globalInferTypeRef(index, mRetTypeSName, hisPkgName, importPkgs);
-                            } else {
-                                System.out.println("found idx function without package: " + mFunction.getSimpleName().toString());
-                            }
+                    /** try to find pkg of mRetType from gsfElement */
+                    TypeElement mRetTe = null;
+                    String itsIn = gsfElement.getIn();
+                    if (itsIn != null) {
+                        int pkgNameEnd = itsIn.lastIndexOf('.');
+                        if (pkgNameEnd != -1) {
+                            String itsPkgName = itsIn.substring(0, pkgNameEnd);
+                            Set<String> importPkgs = getImportPkgs(index, itsIn);
+                            mRetTe = globalInferType(index, mRetTypeSName, itsPkgName, importPkgs);
+
                         } else {
-                            // @todo
-                            }
+                            System.out.println("found idx function without package: " + mFunction.getSimpleName().toString());
+                        }
+                    } else {
+                        // @todo
                     }
 
-                    funRef.setType(new PseudoTypeRef(mRetTypeSName));
-                    break;
+                    if (mRetTe != null) {
+                        functionCall.setType(new BasicType(mRetTe));
+                        break;
+                    }
                 }
             }
         }
     }
 
-    private void globalInferFieldRef(ScalaIndex index, FieldCall fieldRef) {
-        Type retType = fieldRef.asType();
-        if (retType != null && retType.isResolved()) {
+    private void globalInferFieldCall(ScalaIndex index, FieldCall fieldCall) {
+        TypeMirror retType = fieldCall.asType();
+        if (retType != null && Type.isResolved(retType)) {
             return;
         }
 
         // resolve return type of fieldRef:
-        AstNode base = fieldRef.getBase();
+        String baseTypeQName = null;
+        AstNode base = fieldCall.getBase();
         if (base != null) {
+            TypeMirror baseType = fieldCall.getBaseType();
+            if (baseType == null) {
+                if (base instanceof PathId) {
+                    List<AstId> paths = ((PathId) base).getPaths();
+                    assert !paths.isEmpty();
+                    // Is this a qualifiered name or member chain?
+                    // let's try member chain first
+                    Iterator<AstId> itr = paths.iterator();
+                    AstId firstId = itr.next();
+                    IdCall idCall = new IdCall(firstId.getSimpleName(), firstId.getPickToken());
+                    idCall.setEnclosingScope(fieldCall.getEnclosingScope());
+                    newResolvedMirrors.put(idCall, fieldCall.getEnclosingScope());
+                    AstMirror currBase = idCall;
+                    while (itr.hasNext()) {
+                        AstId field = itr.next();
+                        FieldCall aFieldCall = new FieldCall(field.getPickToken());
+                        aFieldCall.setBase(currBase);
+                        aFieldCall.setField(field);
+                        globalInferFieldCall(index, aFieldCall);
+                        TypeMirror aFieldRefType = aFieldCall.asType();
+                        if (aFieldRefType != null && Type.isResolved(aFieldRefType)) {
+                            newResolvedMirrors.put(aFieldCall, fieldCall.getEnclosingScope());
 
-            String baseTypeQName = null;
-            Type baseType = base.asType();
-
-            if (base instanceof PathId) {
-                List<AstId> paths = ((PathId) base).getPaths();
-                assert paths.isEmpty() == false;
-                // Is this a qualifiered name or member chain?
-                // let's try member chain first
-                Iterator<AstId> itr = paths.iterator();
-                AstId firstId = itr.next();
-                IdCall idRef = new IdCall(firstId.getSimpleName(), firstId.getPickToken());
-                idRef.setEnclosingScope(fieldRef.getEnclosingScope());
-                newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
-                AstMirror currBase = idRef;
-                while (itr.hasNext()) {
-                    AstId field = itr.next();
-                    FieldCall aFieldRef = new FieldCall(field.getPickToken());
-                    aFieldRef.setBase(currBase);
-                    aFieldRef.setField(field);
-                    globalInferFieldRef(index, aFieldRef);
-                    Type aFieldRefType = aFieldRef.asType();
-                    if (aFieldRefType != null && aFieldRefType.isResolved()) {
-                        newResolvedRefs.put(aFieldRef, fieldRef.getEnclosingScope());
-
-                        currBase = aFieldRef;
-                    } else {
-                        // @Todo cannot be resolved, should be qualifiered name?
-                        break;
+                            currBase = aFieldCall;
+                        } else {
+                            // @Todo cannot be resolved, should be qualifiered name?
+                            break;
+                        }
                     }
+
+                    fieldCall.setBase(currBase);
+
+                    base = currBase;
                 }
 
-                fieldRef.setBase(currBase);
-
-                base = currBase;
+                baseType = base.asType();
             }
 
-            baseType = base.asType();
             if (baseType != null) {
-                if (!baseType.isResolved()) {
-                    globalInferTypeRef(index, baseType);
+                if (!Type.isResolved(baseType)) {
+                    globalInferType(index, baseType);
                 }
 
-                if (baseType.isResolved()) {
-                    baseTypeQName = baseType.getQualifiedName().toString();
+                if (Type.isResolved(baseType)) {
+                    baseTypeQName = Type.qualifiedNameOf(baseType);
                 } else {
                     // @todo resolve it first
                 }
@@ -367,93 +386,114 @@ public class ScalaTypeInferencer {
             if (baseTypeQName == null) {
                 return;
             }
+        }
 
-            AstId field = fieldRef.getField();
-            String fieldName = field.getSimpleName().toString();
 
-            Set<GsfElement> gsfElements = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-            for (GsfElement gsfElement : gsfElements) {
-                if (!gsfElement.getElement().getSimpleName().toString().equals(fieldName)) {
-                    continue;
-                }
+        AstId field = fieldCall.getField();
+        String fieldName = field.getSimpleName().toString();
 
-                boolean isCandicate = false;
-                String mRetTypeSName = null;
+        Set<GsfElement> gsfElements = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        for (GsfElement gsfElement : gsfElements) {
+            if (!gsfElement.getElement().getSimpleName().toString().equals(fieldName)) {
+                continue;
+            }
 
-                if (gsfElement.getElement() instanceof ExecutableElement) {
-                    ExecutableElement mfunction = (ExecutableElement) gsfElement.getElement();
-                    if (mfunction.getParameters().size() == 0) {
-                        isCandicate = true;
-                        TypeMirror mRetType = mfunction.asType();
-                        if (mRetType != null) {
-                            mRetTypeSName = Type.simpleNameOf(mRetType);
-                        }
-                    }
-                } else if (gsfElement.getElement() instanceof VariableElement) {
-                    VariableElement mField = (VariableElement) gsfElement.getElement();
+            boolean isCandicate = false;
+            TypeMirror mRetType = null;
+
+            if (gsfElement.getElement() instanceof ExecutableElement) {
+                ExecutableElement mFunction = (ExecutableElement) gsfElement.getElement();
+                if (mFunction.getParameters().size() == 0) {
                     isCandicate = true;
-                    TypeMirror mRetType = mField.asType();
-                    if (mRetType != null) {
-                        mRetTypeSName = Type.simpleNameOf(mRetType);
-                    }
-                }
-
-                if (isCandicate) {
-                    if (mRetTypeSName == null) {
-                        mRetTypeSName = "Unit";
-                    }
-                    if (mRetTypeSName.equals("Unit")) {
-                        fieldRef.setType(new PseudoTypeRef("Unit"));
+                    mRetType = mFunction.asType();
+                    if (mRetType != null && Type.isResolved(mRetType)) {
+                        TypeElement mRetTe = Type.asElement(mRetType);
+                        fieldCall.setType(new BasicType(mRetTe));
                         break;
                     }
-
-                    int lastDot = mRetTypeSName.lastIndexOf('.');
-                    if (lastDot == -1) {
-                        /** try to find pkg of idxRetTypeStr */
-                        String hisIn = gsfElement.getIn();
-                        if (hisIn != null) {
-                            int pkgNameEnd = hisIn.lastIndexOf('.');
-                            if (pkgNameEnd != -1) {
-                                String hisPkgName = hisIn.substring(0, pkgNameEnd);
-                                Set<String> importPkgs = getImportPkgs(index, hisIn);
-                                mRetTypeSName = globalInferTypeRef(index, mRetTypeSName, hisPkgName, importPkgs);
-                            } else {
-                                System.out.println("found idx element without package: " + gsfElement.toString());
-                            }
-                        } else {
-                            // @todo
-                        }
-                    }
-
-                    fieldRef.setType(new PseudoTypeRef(mRetTypeSName));
+                }
+            } else if (gsfElement.getElement() instanceof VariableElement) {
+                VariableElement mField = (VariableElement) gsfElement.getElement();
+                isCandicate = true;
+                mRetType = mField.asType();
+                if (mRetType != null && Type.isResolved(mRetType)) {
+                    TypeElement mRetTe = Type.asElement(mRetType);
+                    fieldCall.setType(new BasicType(mRetTe));
                     break;
                 }
             }
-        }
-    }
 
-    private String globalInferTypeRef(ScalaIndex index, Type type) {
-        List<Importing> importings = type.getEnclosingScope().getVisibleElements(Importing.class);
-        List<String> importedPkgs = new ArrayList<String>();
-        for (Importing importing : importings) {
-            if (importing.isWild()) {
-                importedPkgs.add(importing.getPackageName());
+            String mRetTypeSName = mRetType == null ? null : Type.simpleNameOf(mRetType);
+            if (isCandicate) {
+                if (mRetTypeSName == null) {
+                    mRetTypeSName = "Unit";
+                }
+                if (mRetTypeSName.equals("Unit")) {
+                    fieldCall.setType(PredefinedTypes.NullType);
+                    break;
+                }
+
+                /** try to find pkg of mRetType from gsfElement */
+                TypeElement mRetTe = null;
+                String itsIn = gsfElement.getIn();
+                if (itsIn != null) {
+                    int pkgNameEnd = itsIn.lastIndexOf('.');
+                    if (pkgNameEnd != -1) {
+                        String hisPkgName = itsIn.substring(0, pkgNameEnd);
+                        Set<String> importPkgs = getImportPkgs(index, itsIn);
+                        mRetTe = globalInferType(index, mRetTypeSName, hisPkgName, importPkgs);
+                    } else {
+                        System.out.println("found idx element without package: " + gsfElement.toString());
+                    }
+                } else {
+                    // @todo
+                }
+
+                if (mRetTe != null) {
+                    fieldCall.setType(new BasicType(mRetTe));
+                }
+                break;
             }
         }
-        Packaging packaging = type.getPackageElement();
-        String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
-        String qualifiedName = globalInferTypeRef(index, type.getSimpleName().toString(), ofPackage, importedPkgs);
-        if (qualifiedName != null) {
-            type.setQualifiedName(qualifiedName);
+
+    }
+
+    private TypeElement globalInferType(ScalaIndex index, TypeMirror type) {
+        String sName = Type.simpleNameOf(type);
+        if (type instanceof Type) {
+            Type astType = (Type) type;
+            List<Importing> importings = astType.getEnclosingScope().getVisibleElements(Importing.class);
+            List<String> importedPkgs = new ArrayList<String>();
+            for (Importing importing : importings) {
+                if (importing.isWild()) {
+                    importedPkgs.add(importing.getPackageName());
+                }
+            }
+
+            Packaging packaging = astType.getPackageElement();
+            String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
+            TypeElement typeElement = globalInferType(index, sName, ofPackage, importedPkgs);
+            if (typeElement != null) {
+                astType.setElement(typeElement);
+            }
+            return typeElement;
+        } else if (type instanceof BasicType) {
+            BasicType basicType = (BasicType) type;
+            TypeElement typeElement = globalInferType(index, sName, null, Collections.<String>emptyList());
+            if (typeElement != null) {
+                basicType.setElement(typeElement);
+            }
+            return typeElement;
         }
-        return qualifiedName;
+
+        return null;
     }
 
     /**
      * 
      * @return null or full qualifier type name 
      */
-    private String globalInferTypeRef(ScalaIndex index, String sName, String ofPackage, Collection<String> importedPkgs) {
+    private TypeElement globalInferType(ScalaIndex index, String sName, String ofPackage, Collection<String> importedPkgs) {
         // 1. search imported types first
         for (String pkgName : importedPkgs) {
             pkgName = pkgName + ".";
@@ -462,9 +502,9 @@ public class ScalaTypeInferencer {
             }
 
             for (IndexedElement element : getImportedTypes(index, pkgName)) {
-                if (element instanceof IndexedType) {
+                if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
-                        return pkgName + sName;
+                        return (IndexedTypeElement) element;
                     }
                 }
             }
@@ -481,9 +521,9 @@ public class ScalaTypeInferencer {
                 /* package name with the same preceding of current packaging can omit packaging name */
                 pkgName = ofPackage + "." + pkgName;
                 for (IndexedElement element : getImportedTypes(index, pkgName)) {
-                    if (element instanceof IndexedType) {
+                    if (element instanceof IndexedTypeElement) {
                         if (element.getSimpleName().toString().equals(sName)) {
-                            return pkgName + sName;
+                            return (IndexedTypeElement) element;
                         }
                     }
                 }
@@ -501,9 +541,9 @@ public class ScalaTypeInferencer {
             /* package name starts with "scala" can omit "scala" */
             pkgName = "scala." + pkgName;
             for (IndexedElement element : getScalaPrecedingPackageTypes(index, pkgName)) {
-                if (element instanceof IndexedType) {
+                if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
-                        return pkgName + sName;
+                        return (IndexedTypeElement) element;
                     }
                 }
             }
@@ -514,9 +554,9 @@ public class ScalaTypeInferencer {
         if (ofPackage != null) {
             String pkgName = ofPackage + ".";
             for (IndexedElement element : getPackageTypes(index, pkgName)) {
-                if (element instanceof IndexedType) {
+                if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
-                        return pkgName + sName;
+                        return (IndexedTypeElement) element;
                     }
                 }
             }
@@ -524,18 +564,20 @@ public class ScalaTypeInferencer {
 
         // 5. search auto-imported "scala." package
         for (IndexedElement element : getScalaPackageTypes(index)) {
-            if (element instanceof IndexedType) {
+            if (element instanceof IndexedTypeElement) {
                 if (element.getSimpleName().toString().equals(sName)) {
-                    return "scala." + sName;
+                    //return "scala." + sName;
+                    return (IndexedTypeElement) element;
                 }
             }
         }
 
         // 6. search auto-imported "java.lang." package
         for (IndexedElement element : getJavaLangPackageTypes(index)) {
-            if (element instanceof IndexedType) {
+            if (element instanceof IndexedTypeElement) {
                 if (element.getSimpleName().toString().equals(sName)) {
-                    return "java.lang." + sName;
+                    return (IndexedTypeElement) element;
+                //return "java.lang." + sName;
                 }
             }
         }
@@ -543,7 +585,7 @@ public class ScalaTypeInferencer {
         return null;
     }
 
-    private void globalInferExpr(AstExpression expr, Type knownExprType) {
+    private void globalInferExpr(AstExpression expr, TypeMirror knownExprType) {
         if (knownExprType != null) {
             expr.setType(knownExprType);
         }
@@ -556,14 +598,14 @@ public class ScalaTypeInferencer {
     }
 
     private void globalInferSimpleExpr(SimpleExpr expr) {
-        Type exprType = expr.asType();
+        TypeMirror exprType = expr.asType();
         if (exprType == null) {
             return;
         }
 
         AstNode base = expr.getBase();
-        Type baseType = base.asType();
-        if (baseType != null && baseType.isResolved()) {
+        TypeMirror baseType = base.asType();
+        if (baseType != null && Type.isResolved(baseType)) {
             return;
         }
 
@@ -571,7 +613,7 @@ public class ScalaTypeInferencer {
             // resolve its element's type.
             AstElement element = rootScope.findElementOf(base);
             if (element != null) {
-                Type type = element.asType();
+                TypeMirror type = element.asType();
                 if (type != null) {
                     // @Todo check type of def with expr's type 
                 } else {
