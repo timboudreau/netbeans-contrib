@@ -43,8 +43,10 @@ import org.netbeans.modules.autoproject.spi.Cache;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.spi.AntEvent;
@@ -111,7 +113,14 @@ public class BuildSniffer extends AntLogger {
          * with different includes using a different classpath each time.
          * The IDE cannot really model this, but it can offer the union of those classpaths.
          */
-        final Map<String,List<String>> writtenKeys = new HashMap<String,List<String>>();
+        final Map<String,Set<String>> writtenKeys = new HashMap<String,Set<String>>();
+
+        /**
+         * Binary destination dirs mapped back to source dirs.
+         * If more than one source root gets mapped to a given binary dir,
+         * we consolidate them into one compilation unit for Retouche's benefit.
+         */
+        final Map<String,Set<String>> sourceForBinary = new HashMap<String,Set<String>>();
 
     }
 
@@ -123,9 +132,12 @@ public class BuildSniffer extends AntLogger {
         }
         List<String> sources = new ArrayList<String>();
         List<String> classpath = new ArrayList<String>();
-        List<String> destdir = new ArrayList<String>();
         appendPath(task.getAttribute("srcdir"), event, sources, true);
-        appendPath(task.getAttribute("destdir"), event, destdir, false);
+        // XXX consider includes/excludes too?
+        List<String> _destdir = new ArrayList<String>();
+        appendPath(task.getAttribute("destdir"), event, _destdir, false);
+        assert _destdir.size() <= 1;
+        String destdir = _destdir.isEmpty() ? null : _destdir.get(0);
         appendPath(task.getAttribute("classpath"), event, classpath, true);
         String cpref = task.getAttribute("classpathref");
         if (cpref != null) {
@@ -143,6 +155,16 @@ public class BuildSniffer extends AntLogger {
             state = new State();
             event.getSession().putCustomData(this, state);
         }
+        if (destdir != null) {
+            Set<String> otherSourceRoots = state.sourceForBinary.get(destdir);
+            if (otherSourceRoots != null) {
+                otherSourceRoots.addAll(sources);
+                sources = new ArrayList<String>(otherSourceRoots);
+            } else {
+                otherSourceRoots = new LinkedHashSet<String>(sources);
+                state.sourceForBinary.put(destdir, otherSourceRoots);
+            }
+        }
         for (String s : sources) {
             // Check to see if this is a real root. srcdir on <javac> is sometimes wrong.
             File origRoot = new File(s);
@@ -153,9 +175,8 @@ public class BuildSniffer extends AntLogger {
             }
             writePath(s + JavaCacheConstants.SOURCE, sources, state);
             writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
-            if (!destdir.isEmpty()) {
-                assert destdir.size() == 1;
-                Cache.put(s + JavaCacheConstants.BINARY, destdir.get(0));
+            if (destdir != null) {
+                Cache.put(s + JavaCacheConstants.BINARY, destdir);
             }
             // XXX could also sniff JavaCacheConstants.BOOTCLASSPATH if specified
             String sourceLevel = task.getAttribute("source");
@@ -170,18 +191,14 @@ public class BuildSniffer extends AntLogger {
     }
     
     private static void writePath(String key, List<String> path, State state) {
-        List<String> writtenPath;
+        Set<String> writtenPath;
         synchronized (state.writtenKeys) {
             writtenPath = state.writtenKeys.get(key);
             if (writtenPath == null) {
-                writtenPath = new ArrayList<String>();
+                writtenPath = new LinkedHashSet<String>();
+                state.writtenKeys.put(key, writtenPath);
             }
-            for (String piece : path) {
-                if (!writtenPath.contains(piece)) {
-                    writtenPath.add(piece);
-                }
-            }
-            state.writtenKeys.put(key, writtenPath);
+            writtenPath.addAll(path);
         }
         Cache.put(key, join(writtenPath));
     }
@@ -195,13 +212,23 @@ public class BuildSniffer extends AntLogger {
             if (piece.contains("${") || piece.length() == 0) {
                 continue;
             }
-            // XXX would be nice if AntEvent had a handy method to resolve relative file paths against basedir...
-            File f = new File(piece);
-            if (!f.isAbsolute()) {
-                f = new File(event.evaluate("${basedir}/" + piece));
-            }
-            entries.add(FileUtil.normalizeFile(f).getAbsolutePath());
+            entries.add(resolve(event, piece).getAbsolutePath());
         }
+    }
+
+    /**
+     * Try to resolve a file path.
+     * XXX would preferably be a method in AntEvent itself.
+     * @param event an event for context
+     * @param file an <em>evaluated</em> file path, relative or absolute
+     * @return the normalized, absolute file
+     */
+    private static File resolve(AntEvent event, String file) {
+        File f = new File(file);
+        if (!f.isAbsolute()) {
+            f = new File(event.getProperty("basedir"), file);
+        }
+        return FileUtil.normalizeFile(f);
     }
 
     private static void appendPathStructure(TaskStructure s, AntEvent event, List<String> entries) {
@@ -214,12 +241,12 @@ public class BuildSniffer extends AntLogger {
             if (c.getName().equals("path")) {
                 appendPathStructure(c, event, entries);
             } else if (c.getName().equals("pathelement")) {
-                appendPath(s.getAttribute("path"), event, entries, true);
-                appendPath(s.getAttribute("location"), event, entries, false);
+                appendPath(c.getAttribute("path"), event, entries, true);
+                appendPath(c.getAttribute("location"), event, entries, false);
             } else if (c.getName().equals("fileset")) {
                 String dir = c.getAttribute("dir");
                 if (dir != null) {
-                    File d = FileUtil.normalizeFile(new File(event.evaluate(dir)));
+                    File d = resolve(event, event.evaluate(dir));
                     String includes = "";
                     String excludes = "";
                     String a = c.getAttribute("includes");
@@ -251,13 +278,25 @@ public class BuildSniffer extends AntLogger {
                     PathMatcher m = new PathMatcher(includes, excludes, d);
                     scanPath(d, "", m, entries);
                 }
+            } else if (c.getName().equals("dirset")) {
+                // OpenDS uses the silly construct:
+                // <classpath><dirset dir="${classes.dir}"/></classpath>
+                // Of course this is bogus - you do NOT want to add every subpackage to the CP! - but that is what it does.
+                // What it MEANT to do was:
+                // <classpath><pathelement location="${classes.dir}"/></classpath>
+                // so pretend that is what they actually wrote.
+                appendPath(c.getAttribute("dir"), event, entries, false);
             } else {
                 LOG.warning("Ignoring unknown path-like structure child <" + c.getName() + "> in " + event.getScriptLocation());
             }
         }
     }
     private static void scanPath(File dir, String prefix, PathMatcher m, List<String> entries) {
-        for (String n : dir.list()) {
+        String[] kids = dir.list();
+        if (kids == null) {
+            return;
+        }
+        for (String n : kids) {
             File f = new File(dir, n);
             if (f.isDirectory()) {
                 scanPath(f, prefix + n + "/", m, entries);
@@ -267,7 +306,7 @@ public class BuildSniffer extends AntLogger {
         }
     }
 
-    private static String join(List<String> path) {
+    private static String join(Iterable<String> path) {
         StringBuilder b = new StringBuilder();
         for (String p : path) {
             if (b.length() > 0) {
