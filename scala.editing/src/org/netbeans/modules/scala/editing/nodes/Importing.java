@@ -60,6 +60,14 @@ public class Importing extends AstElement {
         super(null, idToken, bindingScope, ElementKind.OTHER);
     }
 
+    @Override
+    public Name getSimpleName() {
+        if (super.getSimpleName() == null) {
+            setSimpleName(NO_MEANING_NAME);
+        }
+        return super.getSimpleName();
+    }
+
     public void setPaths(List<AstId> paths) {
         this.paths = paths;
     }

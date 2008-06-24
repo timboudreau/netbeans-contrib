@@ -100,14 +100,17 @@ public abstract class AstNode {
         }
     }
 
-    /** @Todo Importing, Packaging are with null simpleName, any better solution? */
+    /** 
+     * @Note: Importing, Packaging are with null simpleName field, should override
+     * this method
+     */
     public Name getSimpleName() {
         return simpleName;
 //        if (name == null) {
 //            assert false : "Should implement getSimpleName()";
 //            throw new UnsupportedOperationException();
 //        } else {
-//            return name;
+//            return simpleName;
 //        }
     }
 

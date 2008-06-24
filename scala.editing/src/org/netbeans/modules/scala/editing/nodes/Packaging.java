@@ -71,7 +71,9 @@ public class Packaging extends AstElement implements PackageElement {
 
     @Override
     public Name getSimpleName() {
-        setSimpleName(getQualifiedName());
+        if (super.getSimpleName() == null) {
+            setSimpleName(getQualifiedName());
+        }
         return super.getSimpleName();
     }    
     
