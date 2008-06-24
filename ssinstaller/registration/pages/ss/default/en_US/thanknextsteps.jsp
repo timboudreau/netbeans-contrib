@@ -18,6 +18,5 @@
                 <ol>
                     <li>Visit <a href="http://developers.sun.com/">developers.sun.com</a>, the source for information about development.</li>
                     <li>View information about all your products at the <a href="<%=inventoryUrl%>" onClick="javascript:urchinTracker('/RegistrationWeb/inventoryLink');">Sun Inventory site</a>.</li>
->
                 </ol>
             </div>

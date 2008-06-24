@@ -9,14 +9,19 @@ trap "on_exit; exit" 1 2 15 EXIT
 PID=$$
 TMPDIR=/tmp/ssregister.${PID}
 mkdir -p ${TMPDIR}
-
+CWD=`pwd`
 # on exit remove all temporary data
 on_exit() {
    cd /
    if [ -d "$TMPDIR" ]; then
       rm -fr $TMPDIR;
-      rm -rf $PWD/servicetag
+      
    fi
+   
+   if [ -d "$CWD/servicetag" ]; then
+      rm -rf $CWD/servicetag
+   fi   
+   
 }
 
 
@@ -46,7 +51,7 @@ NETBEANS_DIR="netbeans-6.1"
 REGISTRATION_DIR="${SUNSTUDIO_DIR}/registration"
 
 # REGISTRATION_PAGE - location of a generated registration page
-REGISTRATION_PAGE=`pwd`/"${REGISTRATION_DIR}/register-sunstudio.html"
+REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
 
 HOME_SUNSTUDIO_DIR=$HOME/.sunstudio
 HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/registration/register-sunstudio.html"
@@ -74,8 +79,7 @@ STDIR="./servicetag"
 
 
 #cd `dirname "$0"`
-PWD=`pwd`
-PATH=/usr/bin:/usr/sbin:/bin:$PWD/${SUNSTUDIO_DIR}/bin
+PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:$CWD/${SUNSTUDIO_DIR}/bin
 MYNAME=`basename "$0"`
 
 
@@ -184,7 +188,7 @@ validate_locale() {
 # servicetag/registration variables
 
 init() {
-   BINDIR=${PWD}
+   BINDIR=${CWD}
    BASEDIR="$BINDIR"
    if [ -f /bin/gawk ]; then
       AWK="gawk"
@@ -219,7 +223,7 @@ init() {
    validate_locale ${LANG}
 
    STSUPPORTED=0
-   if [ -f /bin/stclient ]; then
+   if [ -f `which stclient` ]; then
       STSUPPORTED=1
    fi
 }
