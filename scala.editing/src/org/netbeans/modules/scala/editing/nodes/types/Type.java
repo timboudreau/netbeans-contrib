@@ -252,7 +252,13 @@ public class Type extends AstMirror implements DeclaredType {
         } else {
             String typeSName = type.getKind().name();
             // convert to Scala's declared type
-            return (TypeElement) PredefinedTypes.PRED_TYPES.get(typeSName.toLowerCase()).asElement();
+            BasicType predType = PredefinedTypes.PRED_TYPES.get(typeSName.toLowerCase());
+            if (predType == null) {
+                System.out.println("typeSName: " + typeSName + "is not predefined");
+                return null;
+            } else {
+                return (TypeElement) predType.asElement();
+            }
         }
     }
 
