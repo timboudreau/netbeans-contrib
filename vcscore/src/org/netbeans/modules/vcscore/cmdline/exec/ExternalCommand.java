@@ -360,7 +360,7 @@ public class ExternalCommand implements TextInput {
         try{
             String[] commandArr = null;
             try {
-                CommandExecutor executor = CommandExecutor.getDefault();
+                CommandExecutor executor = new CommandExecutor();
                 if (scommand != null) {
                     commandArr = parseParameters(scommand);
                     //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", w = '"+scommand.getWorking()+"')");

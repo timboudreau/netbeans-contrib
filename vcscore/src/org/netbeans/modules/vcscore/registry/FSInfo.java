@@ -46,6 +46,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.Serializable;
+import org.netbeans.modules.vcscore.VcsProvider;
 
 import org.openide.filesystems.FileSystem;
 
@@ -60,63 +61,76 @@ public interface FSInfo extends Serializable {
     public static final String PROP_TYPE = "displayType"; // NOI18N
     public static final String PROP_ICON = "icon"; // NOI18N
     public static final String PROP_CONTROL="control";//NOI18N
-    
+
     /**
      * Get the root of the filesystem.
      */
     public File getFSRoot();
-    
+
     /**
      * Get the type of the filesystem, that can be displayed as an additional
      * information.
      */
     public String getDisplayType();
-    
+
     /**
      * Get the icon, that can be used to visually present the filesystem.
      */
     public Image getIcon();
-    
+
     /**
      * Get the control state. True when filesystem is under vcs control.
      */
-    public boolean isControl();    
-    
+    public boolean isControl();
+
     /**
      * Determine whether filesystem should be under vcs control or not.
      * @throws IllegalStateException when the filesystem can not be enabled
      *         (e.g. it's module is disabled/not present).
      */
     public void setControl(boolean value) throws IllegalStateException;
-   
+
     /**
      * Get the filesystem instance. This method should create the filesystem
      * if necessary. If the filesystem is still in use, return the same instance.
      * When null is returned, this FS info is discarded.
      * @return The filesystem instance or <code>null</code>, when the filesystem
      *         can not be retrieved or is no longer valid (e.g. it's setting was lost).
-     */
+     *
     public FileSystem getFileSystem();
-    
+
     /**
      * Get the existing filesystem instance. No instances are created, the existing
      * filesystem instance is retunted, if any, otherwise <code>null</code>.
-     */
+     *
     public FileSystem getExistingFileSystem();
-    
+     */
+
+    /**
+     * Get the vcs provider instance. This method should create the vcs provider
+     * if necessary. If the provider is still in use, return the same instance.
+     */
+    public VcsProvider getProvider();
+
+    /**
+     * Get the existing vcs provider instance. No instances are created, the existing
+     * provider instance is retunted, if any, otherwise <code>null</code>.
+     */
+    public VcsProvider getExistingProvider();
+
     /**
      * Destroy this filesystem info. This method is called when it's known
      * that the FSInfo is no longer needed and will be discarded.
      * This method should cleanup the filesystem, if necessary.
      */
     public void destroy();
-    
+
     public void addVetoableChangeListener(VetoableChangeListener l);
-    
+
     public void removeVetoableChangeListener(VetoableChangeListener l);
-    
+
     public void addPropertyChangeListener(PropertyChangeListener l);
-    
+
     public void removePropertyChangeListener(PropertyChangeListener l);
 
 }

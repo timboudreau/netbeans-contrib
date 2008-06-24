@@ -90,9 +90,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public static final String STATUS_USE_REG_EXP_PARSE_OUTPUT = "REG_EXP_PARSE_OUTPUT"; // Use the output of the parsing as the status
     
     private CommandExecutionContext executionContext = null;
-    private VcsFileSystem fileSystem = null;
+    private VcsProvider provider = null;
     private UserCommand cmd = null;
-    private Hashtable vars = null;
+    private Map vars = null;
     /**
      * The preferred execution string, that should be used instead of the
      * execution string defined by the command. This is usually pre-processed
@@ -178,17 +178,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     //private ArrayList commandListeners = new ArrayList();
 
     //-------------------------------------------
-    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Hashtable vars) {
+    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Map vars) {
         this(executionContext, cmd, vars, null);
     }
 
-    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Hashtable vars, String preferredExec) {
+    public ExecuteCommand(CommandExecutionContext executionContext, UserCommand cmd, Map vars, String preferredExec) {
         //super("VCS-ExecuteCommand-"+cmd.getName()); // NOI18N
         this.executionContext = executionContext;
-        if (executionContext instanceof VcsFileSystem) {
-            this.fileSystem = (VcsFileSystem) executionContext;
+        if (executionContext instanceof VcsProvider) {
+            this.provider = (VcsProvider) executionContext;
         } else {
-            this.fileSystem = null;
+            this.provider = null;
         }
         this.cmd = cmd;
         this.vars = vars;
@@ -197,10 +197,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         this.preferredExec = preferredExec;
         this.doFileRefresh =
-            (fileSystem != null) &&
+            (provider != null) &&
             VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME) >= 0;
         this.doPostExecutionRefresh =
-            (fileSystem != null) &&
+            (provider != null) &&
             VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES);
         if (doFileRefresh) {
             refreshInfoElements = new ArrayList();
@@ -384,7 +384,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Get the variables used by this command execution.
      */
-    public final Hashtable getVariables() {
+    public final Map getVariables() {
         return vars;
     }
 
@@ -491,7 +491,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec, StructuredExec sexec) {
+    public String preprocessCommand(VcsCommand vc, Map vars, String exec, StructuredExec sexec) {
         this.preferredExec = exec;
         this.preferredStructuredExec = sexec;
         executionContext.getVarValueAdjustment().adjustVarValues(vars);
@@ -534,8 +534,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         return preferredExecExpanded;
     }
     
-    protected final VcsFileSystem getFileSystem() {
-        return fileSystem;
+    protected final VcsProvider getProvider() {
+        return provider;
     }
     
     /**
@@ -729,7 +729,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
             commandFinished(preferredExecExpanded, false);
-            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             break;
         }
 
@@ -779,7 +778,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
             commandFinished(preferredExecExpanded, false);
-            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             break;
         }
 
@@ -813,11 +811,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
-    private static String[] getEnvironmentFromVars(Hashtable vars) {
+    private static String[] getEnvironmentFromVars(Map vars) {
         Map systemEnv = VcsUtilities.getSystemEnvVars();
         Map env = VcsUtilities.addEnvVars(systemEnv, vars,
-                                          VcsFileSystem.VAR_ENVIRONMENT_PREFIX,
-                                          VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX);
+                                          VcsProvider.VAR_ENVIRONMENT_PREFIX,
+                                          VcsProvider.VAR_ENVIRONMENT_REMOVE_PREFIX);
         return VcsUtilities.getEnvString(env);
     }
     
@@ -920,7 +918,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         }
         if (success) {
-            ExecuteCommand.setAdditionalParams(execCommand, fileSystem, executionContext);
+            ExecuteCommand.setAdditionalParams(execCommand, provider, executionContext);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
             String input = (String) cmd.getProperty(UserCommand.PROPERTY_INPUT);
@@ -946,7 +944,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         io.addImmediateTextErrorListener((TextOutputListener) it.next());
                     }
                 }
-                success = execCommand.exec(vars, args,
+                Hashtable varsHashtable = new Hashtable(vars); // For compatibility reasons
+                success = execCommand.exec(varsHashtable, args,
                                        new CommandOutputListener() {
                                            public void outputLine(String line) {
                                                printOutput(line);
@@ -968,6 +967,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                            }
                                        }, errorRegex
                                       );
+                vars.clear();
+                vars.putAll(varsHashtable); // Transfer the variables back
             } catch (ThreadDeath td) {
                 throw td; // re-throw the ThreadDeath
             } catch (Throwable thr) { // Something bad has happened in the called class!
@@ -980,7 +981,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (Thread.interrupted()) {
             exitStatus = VcsCommandExecutor.INTERRUPTED;
             commandFinished(exec, false);
-            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
         } else {
             if (success) {
                 exitStatus = VcsCommandExecutor.SUCCEEDED;
@@ -988,7 +988,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             } else {
                 exitStatus = VcsCommandExecutor.FAILED;
                 commandFinished(exec, false);
-                if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             }
         }
     }
@@ -1045,13 +1044,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         mergeOutputStreams = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_MERGE_ERROR_TO_STANDARD_OUTPUT);
         
         boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)
-                                       && (fileSystem != null);
+                                       && (provider != null);
         Collection processingFiles = null;
         if (checkForModification) {
             processingFiles = getFiles();
-            fileSystem.disableRefresh();
+            //fileSystem.disableRefresh();
             for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
-                fileSystem.lockFilesToBeModified((String) it.next(), true);
+                VcsFSUtils.getDefault().lockFilesToBeModified((String) it.next(), true);
             }
         }
         try {
@@ -1060,7 +1059,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 // after we have locked them.
                 List fileObjects = new ArrayList(processingFiles.size());
                 for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
-                    FileObject fo = fileSystem.findResource((String) it.next());
+                    FileObject fo = provider.findResource((String) it.next());
                     if (fo != null) {
                         fileObjects.add(fo);
                     }
@@ -1090,9 +1089,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         } finally {
             if (checkForModification) {
-                fileSystem.enableRefresh();
+                //fileSystem.enableRefresh();
                 for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
-                    fileSystem.unlockFilesToBeModified((String) it.next(), true);
+                    VcsFSUtils.getDefault().unlockFilesToBeModified((String) it.next(), true);
                 }
             }
             String tempFilePath = (String) vars.get(Variables.TEMPORARY_FILE);
@@ -1214,26 +1213,26 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Search for optional methods and set additional parameters.
      */
-    protected static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem) {
-        setAdditionalParams(execCommand, fileSystem, fileSystem);
+    protected static void setAdditionalParams(Object execCommand, VcsProvider provider) {
+        setAdditionalParams(execCommand, provider, provider);
     }
     
     /**
      * Search for optional methods and set additional parameters.
      */
-    protected static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem,
+    protected static void setAdditionalParams(Object execCommand, VcsProvider provider,
                                               CommandExecutionContext executionContext) {
         Class clazz = execCommand.getClass();
-        if (fileSystem != null) {
-            Class[] paramClasses = new Class[] { VcsFileSystem.class };
+        if (provider != null) {
+            Class[] paramClasses = new Class[] { VcsProvider.class };
             Method setFileSystemMethod = null;
             try {
-                setFileSystemMethod = clazz.getDeclaredMethod("setFileSystem", paramClasses);
+                setFileSystemMethod = clazz.getDeclaredMethod("setProvider", paramClasses);
             } catch (Exception exc) {
                 setFileSystemMethod = null;
             }
             if (setFileSystemMethod != null) {
-                Object[] args = new Object[] { fileSystem };
+                Object[] args = new Object[] { provider };
                 try {
                     setFileSystemMethod.invoke(execCommand, args);
                 } catch (Exception iae) {
@@ -1275,7 +1274,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @return the set of files of type <code>String</code> relative
      * to the file system root.
      */
-    public static Collection createProcessingFiles(CommandExecutionContext executionContext, Hashtable vars) {
+    public static Collection createProcessingFiles(CommandExecutionContext executionContext, Map vars) {
         VariableValueAdjustment valueAdjustment = executionContext.getVarValueAdjustment();
         String separator = (String) vars.get("PS");
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
@@ -1333,7 +1332,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             refreshFilesMustStartWith = null;
         } else {
             refreshFilesBase = Variables.expand(vars, refreshFilesBase, false);
-            String relMountPoint = fileSystem.getRelativeMountPoint();
+            String relMountPoint = "";
             //System.out.println("createRefreshFilesBase(): base = '"+refreshFilesBase+"', rel. M. = '"+relMountPoint+"'");
             if (refreshFilesBase.length() <= relMountPoint.length()) {
                 if (!relMountPoint.startsWith(refreshFilesBase)) {
@@ -1518,7 +1517,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     }
                 }
                 fileName = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
-                if (!fileName.endsWith("/") && fileSystem.folder(fileDir+"/"+fileName)) {
+                if (!fileName.endsWith("/") && provider.getFile(fileDir+"/"+fileName).isDirectory()) {
                     fileName += "/";
                     elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
@@ -1609,16 +1608,16 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private void refreshRemainingFiles() {
         if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {  // Do not refresh files of file refresh
             if (filesToRefresh != null && filesToRefresh.size() > 0) {
-                doRefreshFiles(fileSystem, filesToRefresh);
+                doRefreshFiles(provider, filesToRefresh);
             } else if (filesToRefresh == null && VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
-                doRefreshFiles(fileSystem, getFiles());
+                doRefreshFiles(provider, getFiles());
             }
         }
     }
     
-    private void doRefreshFiles(VcsFileSystem fileSystem, Collection filesPaths) {
+    private void doRefreshFiles(VcsProvider provider, Collection filesPaths) {
         List foldersToRefresh = new ArrayList(filesPaths.size());
-        CommandSupport cmdSupp = fileSystem.getCommandSupport(UserCommand.NAME_REFRESH_FILE);
+        CommandSupport cmdSupp = provider.getCommandSupport(UserCommand.NAME_REFRESH_FILE);
         if (cmdSupp != null) {
             Command cmd = cmdSupp.createCommand();
             List foFiles = new ArrayList();
@@ -1627,11 +1626,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
                 String file = (String) it.next();
                 if (".".equals(file)) file = ""; // NOI18N
-                FileObject fo = fileSystem.findFileObject(file);
+                FileObject fo = provider.findResource(file);
                 if (fo != null) {
                     foFiles.add(fo);
                 } else {
-                    diskFiles.add(fileSystem.getFile(file));
+                    diskFiles.add(provider.getFile(file));
                 }
                 //files.put(file, fileSystem.findFileObject(file));
             }
@@ -1667,7 +1666,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else {
             for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
                 String file = (String) it.next();
-                FileObject fo = fileSystem.findFileObject(file);
+                FileObject fo = provider.findResource(file);
                 if (fo != null) {
                     if (fo.isData()) {
                         String path = fo.getParent().getPath();
@@ -1694,7 +1693,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             for (Iterator it = foldersToRefresh.iterator(); it.hasNext(); ) {
                 String file = (String) it.next();
-                CommandExecutorSupport.doRefresh(fileSystem, file, rec); // Asynch refresh
+                CommandExecutorSupport.doRefresh(provider, file, rec); // Asynch refresh
             }
         }
     }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,50 +38,38 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.vcscore.turbo;
 
-import org.netbeans.modules.vcscore.VcsProvider;
-import org.netbeans.modules.vcscore.registry.FSRegistry;
-import org.netbeans.modules.vcscore.registry.FSInfo;
-import org.netbeans.api.vcs.FileStatusInfo;
+package org.netbeans.modules.vcscore;
 
+import org.netbeans.modules.masterfs.providers.InterceptionListener;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-
-import java.io.File;
 
 /**
- * Access profile specifics data, such as possible statuses,
- * abstract Statuses to VCS statuses mapping and cache
- * file relative path.
- * <p>
- * The implementation forwards to FS that should be hopefully
- * CommandLineVCSFS that knows it's profile.
  *
- * @author Petr Kuzel
+ * @author Martin Entlicher
  */
-final class Profiles {
-
-    /**
-     * Consults profile to get proper cache file for given folder (content).
-     *
-     * @param folder directory for which a cache file is searched
-     * @return <code>null</code> if disk caching cannot be used.
-     */
-    public static File cacheForFolder(File folder) {
-        try {
-            FileObject fo = FileUtil.toFileObject(folder);
-            VcsProvider provider = VcsProvider.getProvider(fo);
-            if (provider == null) return null;
-            String root = provider.getRootDirectory().getAbsolutePath();
-            String path = folder.getAbsolutePath().substring(root.length());
-            path = path.replaceAll(File.separator, "/");
-            File ret = provider.getCacheFile(path);
-            assert path.length() == 0 || path.indexOf("/") != 0 || ret != null : "Root " + root + " path " + path;
-            return ret;
-        } catch (IllegalArgumentException iaex) {
-            return null;
-        }
+public class VcsInterception implements InterceptionListener {
+    
+    /** Creates a new instance of VcsInterception */
+    VcsInterception() {
     }
 
+    public void beforeCreate(FileObject parent, String name, boolean isFolder) {
+    }
+
+    public void createSuccess(FileObject fo) {
+    }
+
+    public void createFailure(FileObject parent, String name, boolean isFolder) {
+    }
+
+    public void beforeDelete(FileObject fo) {
+    }
+
+    public void deleteSuccess(FileObject fo) {
+    }
+
+    public void deleteFailure(FileObject fo) {
+    }
+    
 }

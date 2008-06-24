@@ -102,8 +102,7 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
         // mimics DataNode because some actions heavily depends on DataObject cookie existence
         if (type.isAssignableFrom(DataObject.class) || type.isAssignableFrom(DataFolder.class)) {
             try {
-                FileObject masterRoot = VcsUtilities.getMainFileObject(root);
-                return DataObject.find(masterRoot);
+                return DataObject.find(root);
             } catch (DataObjectNotFoundException e) {
                 // ignore, call super later on
             }

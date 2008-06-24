@@ -293,36 +293,16 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         }
     }
     
-    public VersioningFileSystem getVersioningFileSystem() {
-        org.openide.filesystems.FileSystem fs;
-        try {
-            fs = list.getFileObject().getFileSystem();
-        } catch (org.openide.filesystems.FileStateInvalidException exc) {
-            fs = null;
-        }
-        return VersioningFileSystem.findFor(fs);
-    }
-    
     public FileObject getFileObject() {
         return list.getFileObject();        
     }
     
     public SystemAction [] getActions() {
         ArrayList actions = new ArrayList();
-        VersioningFileSystem vs = getVersioningFileSystem();
-        //SystemAction[] revActions = vs.getRevisionActions(list.getFileObject());
         if (getCookie(ViewCookie.class) != null) {
             actions.add(SystemAction.get(ViewAction.class));
         }
         actions.add(SystemAction.get(VSRevisionAction.class));
-        /*
-        if (revActions != null && revActions.length > 0) {
-            actions.add(null);
-            actions.addAll(Arrays.asList(revActions));
-        }
-         */
-        //actions.add(SystemAction.get(org.netbeans.modules.vcscore.revision.RevisionAction.class)); //new RevisionAction(fs, list.getFileObject()));
-        //actions.add(null);
         actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);

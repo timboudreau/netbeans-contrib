@@ -83,20 +83,20 @@ public final class VersioningRepository extends Object implements java.io.Serial
             };
 
     private static final long serialVersionUID = 8047724018983158285L;
-    
+
     /** Creates new VersioningRepository */
     private VersioningRepository() {
         verSystems = new ArrayList();
         names = new Hashtable();
     }
-    
+
     public static synchronized VersioningRepository getRepository() {
         if (repository == null) {
             initRepository();
         }
         return repository;
     }
-    
+
     private static synchronized void initRepository() {
         if (repository != null) return;
         Lookup l = Lookup.getDefault();
@@ -105,9 +105,8 @@ public final class VersioningRepository extends Object implements java.io.Serial
             repository = new VersioningRepository();
         }
     }
-    
+
     public final void addVersioningFileSystem(VersioningFileSystem vfs) {
-        boolean fireIt;
         synchronized (this) {
             String systemName = vfs.getSystemName();
             if (!names.containsKey(systemName)) {
@@ -116,17 +115,15 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 // mark as a listener on changes in the file system
                 vfs.addPropertyChangeListener (propListener);
                 names.put(systemName, vfs);
-                fireIt = true;
                 vfs.addNotify();
-            } else fireIt = false;
+            } else {
+                throw new IllegalArgumentException("VersioningFileSystem of name '"+systemName+"' is already registered.");
+            }
         }
-        if (fireIt) {
-            fireVerSystem(vfs, true);
-        }
+        fireVerSystem(vfs, true);
     }
-    
+
     public final void removeVersioningFileSystem(VersioningFileSystem vfs) {
-        boolean fireIt;
         synchronized (this) {
             String systemName = vfs.getSystemName();
             if (names.containsKey(systemName)) {
@@ -134,36 +131,35 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 verSystemsCopy = new ArrayList(verSystems);
                 vfs.removePropertyChangeListener (propListener);
                 names.remove(systemName);
-                fireIt = true;
                 vfs.removeNotify();
-            } else fireIt = false;
+            } else {
+                throw new IllegalArgumentException("VersioningFileSystem of name '"+systemName+"' is not registered.");
+            }
         }
-        if (fireIt) {
-            fireVerSystem(vfs, false);
-        }
+        fireVerSystem(vfs, false);
     }
-    
+
     public final List getVersioningFileSystems() {
         ArrayList vfsl = new ArrayList(verSystems);
         return vfsl;
     }
-    
+
     public final synchronized VersioningFileSystem getSystem(String systemName) {
         return (VersioningFileSystem) names.get(systemName);
     }
-    
+
     public void addRepositoryListener(VersioningRepositoryListener listener) {
         synchronized (listenerList) {
             listenerList.add(VersioningRepositoryListener.class, listener);
         }
     }
-    
+
     public void removeRepositoryListener(VersioningRepositoryListener listener) {
         synchronized (listenerList) {
             listenerList.remove(VersioningRepositoryListener.class, listener);
         }
     }
-    
+
     private void fireVerSystem(VersioningFileSystem vfs, boolean added) {
         VersioningRepositoryListener[] listeners;
         synchronized (listenerList) {
@@ -180,7 +176,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
             }
         }
     }
-    
+
     public String toString() {
         StringBuffer str;
         synchronized (this) {

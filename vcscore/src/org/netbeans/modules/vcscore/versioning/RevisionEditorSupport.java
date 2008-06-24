@@ -298,7 +298,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         * @exception IOException if an I/O error occures
         */
         public InputStream inputStream() throws IOException {
-            VersioningFileSystem vfs = VersioningFileSystem.findFor(fileObject.getFileSystem());
+            VersioningFileSystem vfs = VersioningFileSystem.findFor(fileObject);
             InputStream is = vfs.getVersions().inputStream(fileObject.getPath(), revision);
             return is;
         }

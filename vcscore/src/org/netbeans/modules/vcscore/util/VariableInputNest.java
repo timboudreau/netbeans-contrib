@@ -41,9 +41,9 @@
 
 package org.netbeans.modules.vcscore.util;
 
-import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
+import java.util.Map;
 
-import java.util.Hashtable;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 
 /**
  * Provides services for embedded JCOMPONENT
@@ -88,7 +88,7 @@ public final class VariableInputNest {
     }
 
     /** If customizing command returns it's variables */
-    public Hashtable getCommandHashtable() {
-        return peer.getCommandHashtable();
+    public Map getVariablesMap() {
+        return peer.getVariablesMap();
     }
 }

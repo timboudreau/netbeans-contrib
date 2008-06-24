@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Enumeration;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import org.netbeans.modules.vcscore.VcsProvider;
 import org.openide.actions.FileSystemAction;
 
 import org.openide.filesystems.FileObject;
@@ -395,7 +396,8 @@ public class GeneralCommandAction extends NodeAction {
             return false;
         }
         if (!isFSAction && fileOb.isFolder()) return false;
-        FileSystem primaryFS = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+        VcsProvider primaryProvider = VcsProvider.getProvider(fileOb);
+        //FileSystem primaryFS = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
         CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
         if (supp != null) {
             Iterator it = dataObj.files().iterator();
@@ -403,9 +405,10 @@ public class GeneralCommandAction extends NodeAction {
                 FileObject fo = (FileObject)it.next();
                 supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);                
                 if (supp != null) {
-                    if (primaryFS != null) {
-                        FileSystem fs = (FileSystem) fo.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
-                        if (!primaryFS.equals(fs)) {
+                    if (primaryProvider != null) {
+                        //FileSystem fs = (FileSystem) fo.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+                        VcsProvider provider = VcsProvider.getProvider(fo);
+                        if (!primaryProvider.equals(provider)) {
                             // We have a secondary file on another filesystem!
                             continue;
                         }
@@ -423,15 +426,16 @@ public class GeneralCommandAction extends NodeAction {
     }
     
     private boolean checkFileObjects(Collection fileObjects, boolean isFSAction) {
-        FileSystem primaryFS = null;
+        VcsProvider primaryProvider = null;
         boolean addedSomething = false;
         for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
             FileObject fileOb = (FileObject) it.next();
             if (!isFSAction && fileOb.isFolder()) return false;
-            FileSystem fs = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
-            if (fs == null) continue;
-            if (primaryFS == null) primaryFS = fs;
-            else if (!primaryFS.equals(fs)) {
+            //FileSystem fs = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+            VcsProvider provider = VcsProvider.getProvider(fileOb);
+            if (provider == null) continue;
+            if (primaryProvider == null) primaryProvider = provider;
+            else if (!primaryProvider.equals(provider)) {
                 // We have a secondary file on another filesystem!
                 continue;
             }

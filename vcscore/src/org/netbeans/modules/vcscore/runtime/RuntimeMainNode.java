@@ -49,8 +49,6 @@ import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.*;
 import org.openide.util.NbBundle;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
-
 /**
  * The folder node, which contains RuntimeFolderNodes nodes.
  *

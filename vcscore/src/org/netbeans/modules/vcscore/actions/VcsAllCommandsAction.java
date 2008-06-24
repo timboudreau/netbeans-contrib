@@ -347,13 +347,13 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
             setMnemonic(m1.getMnemonic());
         }
         
-        public MergedMenuItem(String text, int mnemonic, JMenu m2) {            
+        public MergedMenuItem(String text, int mnemonic, JMenu m2) {
             this.m1 = null;
             this.m2 = m2;
             setText(text);
             setMnemonic(mnemonic);
         }
-        
+
         /** Overrides superclass method. Adds lazy popup menu creation
           * if it is necessary. */
         public JPopupMenu getPopupMenu() {
