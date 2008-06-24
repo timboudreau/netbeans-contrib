@@ -43,8 +43,10 @@ import org.netbeans.modules.autoproject.spi.Cache;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.spi.AntEvent;
@@ -111,7 +113,14 @@ public class BuildSniffer extends AntLogger {
          * with different includes using a different classpath each time.
          * The IDE cannot really model this, but it can offer the union of those classpaths.
          */
-        final Map<String,List<String>> writtenKeys = new HashMap<String,List<String>>();
+        final Map<String,Set<String>> writtenKeys = new HashMap<String,Set<String>>();
+
+        /**
+         * Binary destination dirs mapped back to source dirs.
+         * If more than one source root gets mapped to a given binary dir,
+         * we consolidate them into one compilation unit for Retouche's benefit.
+         */
+        final Map<String,Set<String>> sourceForBinary = new HashMap<String,Set<String>>();
 
     }
 
@@ -123,9 +132,11 @@ public class BuildSniffer extends AntLogger {
         }
         List<String> sources = new ArrayList<String>();
         List<String> classpath = new ArrayList<String>();
-        List<String> destdir = new ArrayList<String>();
         appendPath(task.getAttribute("srcdir"), event, sources, true);
-        appendPath(task.getAttribute("destdir"), event, destdir, false);
+        List<String> _destdir = new ArrayList<String>();
+        appendPath(task.getAttribute("destdir"), event, _destdir, false);
+        assert _destdir.size() <= 1;
+        String destdir = _destdir.isEmpty() ? null : _destdir.get(0);
         appendPath(task.getAttribute("classpath"), event, classpath, true);
         String cpref = task.getAttribute("classpathref");
         if (cpref != null) {
@@ -143,6 +154,16 @@ public class BuildSniffer extends AntLogger {
             state = new State();
             event.getSession().putCustomData(this, state);
         }
+        if (destdir != null) {
+            Set<String> otherSourceRoots = state.sourceForBinary.get(destdir);
+            if (otherSourceRoots != null) {
+                otherSourceRoots.addAll(sources);
+                sources = new ArrayList<String>(otherSourceRoots);
+            } else {
+                otherSourceRoots = new LinkedHashSet<String>(sources);
+                state.sourceForBinary.put(destdir, otherSourceRoots);
+            }
+        }
         for (String s : sources) {
             // Check to see if this is a real root. srcdir on <javac> is sometimes wrong.
             File origRoot = new File(s);
@@ -153,9 +174,8 @@ public class BuildSniffer extends AntLogger {
             }
             writePath(s + JavaCacheConstants.SOURCE, sources, state);
             writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
-            if (!destdir.isEmpty()) {
-                assert destdir.size() == 1;
-                Cache.put(s + JavaCacheConstants.BINARY, destdir.get(0));
+            if (destdir != null) {
+                Cache.put(s + JavaCacheConstants.BINARY, destdir);
             }
             // XXX could also sniff JavaCacheConstants.BOOTCLASSPATH if specified
             String sourceLevel = task.getAttribute("source");
@@ -170,18 +190,14 @@ public class BuildSniffer extends AntLogger {
     }
     
     private static void writePath(String key, List<String> path, State state) {
-        List<String> writtenPath;
+        Set<String> writtenPath;
         synchronized (state.writtenKeys) {
             writtenPath = state.writtenKeys.get(key);
             if (writtenPath == null) {
-                writtenPath = new ArrayList<String>();
+                writtenPath = new LinkedHashSet<String>();
+                state.writtenKeys.put(key, writtenPath);
             }
-            for (String piece : path) {
-                if (!writtenPath.contains(piece)) {
-                    writtenPath.add(piece);
-                }
-            }
-            state.writtenKeys.put(key, writtenPath);
+            writtenPath.addAll(path);
         }
         Cache.put(key, join(writtenPath));
     }
@@ -267,7 +283,7 @@ public class BuildSniffer extends AntLogger {
         }
     }
 
-    private static String join(List<String> path) {
+    private static String join(Iterable<String> path) {
         StringBuilder b = new StringBuilder();
         for (String p : path) {
             if (b.length() > 0) {

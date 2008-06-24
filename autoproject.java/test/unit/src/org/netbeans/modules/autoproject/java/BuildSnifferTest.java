@@ -95,7 +95,6 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "x.jar" + File.pathSeparator + prefix + "y.jar", Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
     }
 
-    /* XXX
     public void testDestDirUsedMultiply() throws Exception { // #137861
         write("build.xml",
                 "<project default='c'>\n" +
@@ -116,7 +115,6 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "x.jar" + File.pathSeparator + prefix + "y.jar", Cache.get(prefix + "s1" + JavaCacheConstants.CLASSPATH));
         assertEquals(prefix + "x.jar" + File.pathSeparator + prefix + "y.jar", Cache.get(prefix + "s2" + JavaCacheConstants.CLASSPATH));
     }
-     */
 
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
