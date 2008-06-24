@@ -116,6 +116,51 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "x.jar" + File.pathSeparator + prefix + "y.jar", Cache.get(prefix + "s2" + JavaCacheConstants.CLASSPATH));
     }
 
+    public void testComplexClasspath() throws Exception {
+        File lib = new File(getWorkDir(), "lib");
+        lib.mkdir();
+        for (String jar : new String[] {"aw", "ax", "ay", "b", "c"}) {
+            TestFileUtils.writeZipFile(new File(lib, jar + ".jar"), "META-INF/MANIFEST.MF:Manifest-Version: 1.0\n\n");
+        }
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <path id='p1'><pathelement location='from-p1.jar'/></path>\n" +
+                "  <path id='p2'><pathelement location='from-p2.jar'/></path>\n" +
+                "  <javac srcdir='s' destdir='c' classpath='direct1.jar:direct2.jar' classpathref='p1'>\n" +
+                "   <classpath>\n" +
+                "    <path refid='p2'/>\n" +
+                "    <pathelement location='pe-loc.jar'/>\n" +
+                "    <pathelement path='pe-path-1.jar:pe-path-2.jar'/>\n" +
+                "    <path>\n" +
+                "     <fileset dir='lib' includes='a*.jar' excludes='*x.jar'>\n" +
+                "       <include name='b*.jar'/>\n" +
+                "       <exclude name='*y.jar'/>\n" +
+                "     </fileset>\n" +
+                "    </path>\n" +
+                "    <dirset dir='c'/>\n" +
+                "   </classpath>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        String prefix = getWorkDirPath() + File.separator;
+        StringBuilder cp = new StringBuilder();
+        for (String entry : new String[] {
+            "direct1.jar", "direct2.jar", "from-p1.jar", "from-p2.jar",
+            "pe-loc.jar", "pe-path-1.jar", "pe-path-2.jar",
+            "lib/aw.jar", "lib/b.jar", "c",
+        }) {
+            if (cp.length() > 0) {
+                cp.append(File.pathSeparatorChar);
+            }
+            cp.append(prefix + entry);
+        }
+        assertEquals(cp.toString(), Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
+    }
+
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
     }
