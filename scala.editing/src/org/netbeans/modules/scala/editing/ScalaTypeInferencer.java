@@ -209,7 +209,12 @@ public class ScalaTypeInferencer {
 
             if (baseType != null) {
                 if (!Type.isResolved(baseType)) {
-                    globalInferType(index, baseType);
+                    if (baseType instanceof BasicType && ((BasicType) baseType).getSimpleName() == null) {
+                        /** @todo */
+                        System.out.println("A BasicType has no simpleName");
+                    } else {
+                        globalInferType(index, baseType);
+                    }
                 }
 
                 if (Type.isResolved(baseType)) {

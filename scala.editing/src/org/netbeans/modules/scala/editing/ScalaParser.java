@@ -131,8 +131,8 @@ public class ScalaParser implements Parser {
             long time = System.currentTimeMillis() - start;
             profile[0] += time / 1000.0f;
             profile[1] += 1.0f;
-            System.out.println("Parsing time: " + time / 1000.0f + "s");
-            System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
+            //System.out.println("Parsing time: " + time / 1000.0f + "s");
+            //System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
         }
     }
 

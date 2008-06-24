@@ -47,6 +47,9 @@ public class BasicType implements DeclaredType {
         if (element != null) {
             simpleName = element.getSimpleName();
         }
+        if (simpleName == null) {
+            System.out.println("Hei!");
+        }
 
         return simpleName;
     }
@@ -62,7 +65,7 @@ public class BasicType implements DeclaredType {
     public TypeKind getKind() {
         return kind;
     }
-    
+
     public void setElement(TypeElement element) {
         this.element = element;
     }
