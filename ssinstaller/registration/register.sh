@@ -598,8 +598,13 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
    generateRegistrationHTML 1>/dev/null 2>/dev/null
    mkdir -p $HOME_SUNSTUDIO_DIR
-   cp -r $REGISTRATION_DIR $HOME_SUNSTUDIO_DIR 
-   browse "file://$HOME_REGISTRATION_PAGE"
+   if [ `whoami` = 'root' ]
+   then
+	browse "file://$REGISTRATION_PAGE"
+   else
+	cp -r $REGISTRATION_DIR $HOME_SUNSTUDIO_DIR 
+	browse "file://$HOME_REGISTRATION_PAGE"
+   fi
 fi
 
 exit 0;
