@@ -2504,7 +2504,7 @@ public class AstNodeVisitor extends AstVisitor {
         GNode typeArgsNode = that.getGeneric(1);
         if (typeArgsNode != null) {
             List<Type> typeArgs = visitTypeArgs((GNode) typeArgsNode);
-            type.setTypeArgs(typeArgs);
+            type.setTypeArguments(typeArgs);
         }
 
         exit(that);

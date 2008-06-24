@@ -62,7 +62,7 @@ import org.netbeans.modules.scala.editing.nodes.Importing;
 public class Type extends AstMirror implements DeclaredType {
 
     private List<String> annotations;
-    private List<? extends TypeMirror> typeArgs;
+    private List<? extends TypeMirror> typeArguments;
     private TypeKind kind;
     private TypeElement element;
 
@@ -87,12 +87,12 @@ public class Type extends AstMirror implements DeclaredType {
         return annotations;
     }
 
-    public void setTypeArgs(List<? extends TypeMirror> typeArgs) {
-        this.typeArgs = typeArgs;
+    public void setTypeArguments(List<? extends TypeMirror> typeArguments) {
+        this.typeArguments = typeArguments;
     }
 
     public List<? extends TypeMirror> getTypeArguments() {
-        return typeArgs == null ? Collections.<Type>emptyList() : typeArgs;
+        return typeArguments == null ? Collections.<Type>emptyList() : typeArguments;
     }
 
     public String getTypeArgsName() {
@@ -187,15 +187,15 @@ public class Type extends AstMirror implements DeclaredType {
     }
 
     public void htmlFormatTypeArgs(HtmlFormatter formatter) {
-        if (typeArgs != null) {
+        if (typeArguments != null) {
             formatter.appendText("[");
-            if (typeArgs.isEmpty()) {
+            if (typeArguments.isEmpty()) {
                 // wildcard
                 formatter.appendText("_");
             } else {
-                for (Iterator<? extends TypeMirror> itr = typeArgs.iterator(); itr.hasNext();) {
+                for (Iterator<? extends TypeMirror> itr = typeArguments.iterator(); itr.hasNext();) {
                     TypeMirror typeArg = itr.next();
-                    if (typeArgs instanceof Type) {
+                    if (typeArguments instanceof Type) {
                         ((Type) typeArg).htmlFormat(formatter);
                     }
                     if (itr.hasNext()) {
