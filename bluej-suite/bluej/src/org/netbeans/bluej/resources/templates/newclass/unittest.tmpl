@@ -1,16 +1,24 @@
-package Templates.Bluej;
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+
+<#if package?? && package != "">
+package ${package};
+
+</#if>
 
 /**
- * The test class __NAME__.
+ * The test class ${name}.
  *
- * @author  __USER__
+ * @author  ${user}
  * @version (a version number or a date)
  */
-public class $CLASSNAME extends junit.framework.TestCase {
+public class ${name} extends junit.framework.TestCase {
     /**
-     * Default constructor for test class __NAME__
+     * Default constructor for test class ${name}
      */
-    public $CLASSNAME() {
+    public ${name}() {
     }
 
     /**
