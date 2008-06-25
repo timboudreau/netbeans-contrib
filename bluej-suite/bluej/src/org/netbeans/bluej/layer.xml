@@ -23,6 +23,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="Enum.java" url="resources/templates/newclass/enum.tmpl">
@@ -30,6 +31,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="200"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="Interface.java" url="resources/templates/newclass/interface.tmpl">
@@ -37,6 +39,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="300"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="MainClass.java" url="resources/templates/newclass/mainclass.tmpl">
@@ -44,6 +47,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="StdClass.java" url="resources/templates/newclass/stdclass.tmpl">
@@ -51,6 +55,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="UnitTest.java" url="resources/templates/newclass/unittest.tmpl">
@@ -58,6 +63,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
                 <attr name="position" intvalue="600"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateCategory" stringvalue="bluej"/>
             </file>
             <file name="Package.shadow">
