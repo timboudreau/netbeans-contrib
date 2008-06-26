@@ -40,7 +40,10 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -60,6 +63,7 @@ import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 
@@ -69,24 +73,25 @@ import org.openide.util.Exceptions;
  */
 public class JavaIndex {
 
+    public static final Map<String, List<? extends Element>> TypeQNameToMemebersCache = new HashMap<String, List<? extends Element>>();
     public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private final ClassIndex index;
     private final CompilationInfo info;
     private final ScalaIndex scalaIndex;
 
-    private JavaIndex(ClassIndex index, CompilationInfo info, ScalaIndex scalaIndex) {
-        this.index = index;
-        this.info = info;
-        this.scalaIndex = scalaIndex;
-    }
-
-    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo gsfInfo, ScalaIndex scalaIndex) {
-        CompilationInfo info = JavaUtilities.getCompilationInfoForScalaFile(gsfInfo.getFileObject());
+    public static JavaIndex get(FileObject fo, ScalaIndex scalaIndex) {
+        CompilationInfo info = JavaUtilities.getCompilationInfoForScalaFile(fo);
 
         ClassIndex index = info.getClasspathInfo().getClassIndex();
 
         return new JavaIndex(index, info, scalaIndex);
+    }
+
+    private JavaIndex(ClassIndex index, CompilationInfo info, ScalaIndex scalaIndex) {
+        this.index = index;
+        this.info = info;
+        this.scalaIndex = scalaIndex;
     }
 
     public Set<IndexedElement> getPackages(String fqnPrefix) {
@@ -144,14 +149,16 @@ public class JavaIndex {
                                 scalaElementNames.add(sName + "$class");
                                 break;
                             case Object:
-                                int dollor = sName.lastIndexOf('$');
-                                if (dollor != -1) {
-                                    scalaElementNames.add(sName.substring(0, dollor));
-                                }
+                                // This class should be end with '$', and there should be a compain class without '$'
+                                scalaElementNames.add(sName);
+                                //int dollor = sName.lastIndexOf('$');
+                                //if (dollor != -1) {
+                                //    scalaElementNames.add(sName.substring(0, dollor));
+                                //}
                                 break;
                         }
                         
-                        continue;
+                        //continue;
                     }
                 }
 
@@ -247,7 +254,7 @@ public class JavaIndex {
     }
     
     
-    public Set<GsfElement> getMembers(String name, String type, NameKind kind,
+    public Set<GsfElement> getMembers(String name, String typeSName, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context,
             boolean onlyConstructors, boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
 
@@ -280,24 +287,24 @@ public class JavaIndex {
         }
 
         Set<String> seenTypes = new HashSet<String>();
-        seenTypes.add(type);
+        seenTypes.add(typeSName);
         boolean haveRedirected = false;
-        boolean inherited = type == null;
+        boolean inherited = typeSName == null;
 
-        if (type == null || type.length() == 0) {
-            type = "Object";
+        if (typeSName == null || typeSName.length() == 0) {
+            typeSName = "Object";
         }
 
         String pkgName = "";
         String fqn;
-        if (type != null && type.length() > 0) {
-            int lastDot = type.lastIndexOf('.');
+        if (typeSName != null && typeSName.length() > 0) {
+            int lastDot = typeSName.lastIndexOf('.');
             if (lastDot > 0) {
-                pkgName = type.substring(0, lastDot);
-                type = type.substring(lastDot + 1, type.length());
+                pkgName = typeSName.substring(0, lastDot);
+                typeSName = typeSName.substring(lastDot + 1, typeSName.length());
             }
 
-            fqn = type + "." + name;
+            fqn = typeSName + "." + name;
         } else {
             fqn = name;
         }
@@ -310,12 +317,22 @@ public class JavaIndex {
         Elements theElements = info.getElements();
         Types theTypes = info.getTypes();
 
-        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
+        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(typeSName, kind, scope);
 
         for (ElementHandle<TypeElement> teHandle : dclTypes) {
             GsfElement gsfElement = null;
 
             TypeElement te = teHandle.resolve(info);
+            if (te == null) {
+                /** @Note: will this happen? if happens, why? */
+                continue;
+            }
+            String typeQName = te.getQualifiedName().toString();
+
+            List<? extends Element> elements = TypeQNameToMemebersCache.get(typeQName);
+            if (elements == null) {
+
+            }
 
             PackageElement pe = theElements.getPackageOf(te);
             if (pe != null) {
@@ -329,13 +346,18 @@ public class JavaIndex {
             boolean isScala = JavaScalaMapping.isScala(te);
 
             if (isScala) {
-                continue;
+                //continue;
             }
 
             TypeMirror tm = te.asType();
             TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
             
             if (te != null) {
+                elements = theElements.getAllMembers(te);
+                TypeQNameToMemebersCache.put(typeQName, elements);
+            }
+
+            if (elements != null) {
                 for (Element e : theElements.getAllMembers(te)) {
 
                     if (e.getModifiers().contains(Modifier.PRIVATE)) {

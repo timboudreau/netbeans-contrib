@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -211,7 +212,12 @@ public class Type extends AstMirror implements DeclaredType {
         if (type instanceof Type) {
             return ((Type) type).getSimpleName().toString();
         } else if (type instanceof BasicType) {
-            return ((BasicType) type).getSimpleName().toString();
+            Name sName = ((BasicType) type).getSimpleName();
+            if (sName == null) {
+                return null;
+            } else {
+                return sName.toString();
+            }
         } else {
             return type.getKind() == TypeKind.DECLARED
                     ? ((DeclaredType) type).asElement().getSimpleName().toString()

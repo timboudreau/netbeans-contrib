@@ -52,7 +52,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
@@ -87,8 +86,9 @@ public class ScalaTypeInferencer {
     private static Set<IndexedElement> scalaPackageTypes;
     /* package name starts with "scala" can omit "scala" */
     private static Map<String, Set<IndexedElement>> scalaPrecedingPackageTypes;
-    private Map<String, Set<IndexedElement>> importedTypesCache;
-    private Map<String, Set<IndexedElement>> packageTypesCache;
+    /** @Todo should the following not be static ? */
+    private static Map<String, Set<IndexedElement>> importedTypesCache;
+    private static Map<String, Set<IndexedElement>> packageTypesCache;
     // ----- private used vars:
     private AstScope rootScope;
     private TokenHierarchy th;
@@ -103,8 +103,8 @@ public class ScalaTypeInferencer {
         // anything can do? should all inder global?
     }
 
-    public void globalInfer(CompilationInfo info) {
-        ScalaIndex index = ScalaIndex.get(info);
+    public void globalInfer(ScalaIndex index) {
+        long start = System.currentTimeMillis();
 
         newResolvedMirrors.clear();
         globalInferRecursively(index, rootScope);
@@ -123,6 +123,8 @@ public class ScalaTypeInferencer {
             entry.getValue().addMirror(entry.getKey());
         }
 
+        long time = System.currentTimeMillis() - start;
+        System.out.println("Infer time: " + time / 1000.0f + "s");
     }
 
     private void globalInferRecursively(ScalaIndex index, AstScope scope) {
@@ -458,8 +460,12 @@ public class ScalaTypeInferencer {
 
     }
 
-    private TypeElement globalInferType(ScalaIndex index, TypeMirror type) {
+    private static TypeElement globalInferType(ScalaIndex index, TypeMirror type) {
         String sName = Type.simpleNameOf(type);
+        if (sName == null) {
+            return null;
+        }
+
         if (type instanceof Type) {
             Type astType = (Type) type;
             List<Importing> importings = astType.getEnclosingScope().getVisibleElements(Importing.class);
@@ -493,7 +499,7 @@ public class ScalaTypeInferencer {
      * 
      * @return null or full qualifier type name 
      */
-    private TypeElement globalInferType(ScalaIndex index, String sName, String ofPackage, Collection<String> importedPkgs) {
+    public static TypeElement globalInferType(ScalaIndex index, String sName, String ofPackage, Collection<String> importedPkgs) {
         // 1. search imported types first
         for (String pkgName : importedPkgs) {
             pkgName = pkgName + ".";
@@ -630,6 +636,26 @@ public class ScalaTypeInferencer {
         globalInferExpr(lhs, rhs.asType());
     }
 
+    public static TypeElement resolveType(Type type, ScalaIndex index) {
+        String sName = type.getSimpleName().toString();
+
+        List<Importing> importings = type.getEnclosingScope().getVisibleElements(Importing.class);
+        List<String> importedPkgs = new ArrayList<String>();
+        for (Importing importing : importings) {
+            if (importing.isWild()) {
+                importedPkgs.add(importing.getPackageName());
+            }
+        }
+
+        Packaging packaging = type.getPackageElement();
+        String ofPackage = packaging == null ? null : packaging.getQualifiedName().toString();
+
+        TypeElement te = ScalaTypeInferencer.globalInferType(index, sName, ofPackage, importedPkgs);
+
+        return te;
+    }
+
+
     /**
      * @Note: need to be updated when class is modified   
      */
@@ -685,7 +711,7 @@ public class ScalaTypeInferencer {
         return idxElements;
     }
 
-    private Set<IndexedElement> getImportedTypes(ScalaIndex index, String pkgName) {
+    private static Set<IndexedElement> getImportedTypes(ScalaIndex index, String pkgName) {
         if (importedTypesCache == null) {
             importedTypesCache = new HashMap<String, Set<IndexedElement>>();
         }
@@ -700,7 +726,7 @@ public class ScalaTypeInferencer {
         return idxElements;
     }
 
-    private Set<IndexedElement> getPackageTypes(ScalaIndex index, String pkgName) {
+    private static Set<IndexedElement> getPackageTypes(ScalaIndex index, String pkgName) {
         if (packageTypesCache == null) {
             packageTypesCache = new HashMap<String, Set<IndexedElement>>();
         }

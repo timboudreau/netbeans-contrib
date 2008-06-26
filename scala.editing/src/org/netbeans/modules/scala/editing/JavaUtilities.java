@@ -60,7 +60,6 @@ import com.sun.source.util.Trees;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -721,7 +720,7 @@ public class JavaUtilities {
     private static Map<FileObject, Reference<CompilationInfo>> scalaFileToJavaCompilationInfo =
             new WeakHashMap<FileObject, Reference<CompilationInfo>>();
 
-    public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
+    public static CompilationInfo getCompilationInfoForScalaFile(final FileObject fo) {
         Reference<CompilationInfo> infoRef = scalaFileToJavaCompilationInfo.get(fo);
         CompilationInfo info = infoRef != null ? infoRef.get() : null;
 
@@ -742,7 +741,7 @@ public class JavaUtilities {
             }
 
             info = javaControllers[0];
-            scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
+            //scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
         }
 
         return info;
@@ -752,6 +751,11 @@ public class JavaUtilities {
      * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
      * does not support virtual source yet (only ".java" and ".class" files 
      * are supported), but we can create js via JavaSource.create(cpInfo);
+     *
+     * @Note: Do not cache javaSource, becuase javaSource here doesn't binding to fo,
+     * so, when fo is changed, there won't be any respond for related CompilationInfo,
+     * and ElementHandle#resolve(info) in JavaIndex won't refect to the any file changes
+     * under classpaths
      */
     private static JavaSource getJavaSourceForScalaFile(FileObject fo) {
         Reference<JavaSource> sourceRef = scalaFileToJavaSource.get(fo);
@@ -760,7 +764,7 @@ public class JavaUtilities {
         if (source == null) {
             ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
             source = JavaSource.create(javaCpInfo);
-            scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+            //scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
 
         }
 

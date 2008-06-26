@@ -528,15 +528,15 @@ public final class J2SEProject implements Project, AntProjectListener {
              * 
              * GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
              */            
-            FileObject scalaStubsFo = ScalaLanguage.getScalaStubFo();
-            if (scalaStubsFo != null) {
-                coreLibsCp = ClassPathSupport.createClassPath(new FileObject[]{scalaStubsFo});
-                GlobalPathRegistry.getDefault().register(ClassPath.BOOT, new ClassPath[]{coreLibsCp});
-            }
-
-            GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectSourcesClassPaths(ClassPath.BOOT));
-            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectSourcesClassPaths(ClassPath.SOURCE));
-            GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectSourcesClassPaths(ClassPath.COMPILE));
+//            FileObject scalaStubsFo = ScalaLanguage.getScalaStubFo();
+//            if (scalaStubsFo != null) {
+//                coreLibsCp = ClassPathSupport.createClassPath(new FileObject[]{scalaStubsFo});
+//                GlobalPathRegistry.getDefault().register(ClassPath.BOOT, new ClassPath[]{coreLibsCp});
+//            }
+//
+//            GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectSourcesClassPaths(ClassPath.BOOT));
+//            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectSourcesClassPaths(ClassPath.SOURCE));
+//            GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectSourcesClassPaths(ClassPath.COMPILE));
 
             //register updater of main.class
             //the updater is active only on the opened projects
@@ -675,7 +675,7 @@ public final class J2SEProject implements Project, AntProjectListener {
              * Anyway, we can keep COMPILE/BOOT classpath there, since they are shared by all scala projects.
              */
             //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
-            GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
+//            GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
             //GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
             if (mainClassUpdater != null) {
                 mainClassUpdater.unregister();

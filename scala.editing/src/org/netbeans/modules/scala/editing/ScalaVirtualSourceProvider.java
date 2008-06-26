@@ -48,7 +48,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.Parser;
@@ -60,15 +64,18 @@ import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
+import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.util.NbUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
- * Vitual java source 
+ * Virtual java source
  *
  * @author Caoyuan Deng
  */
@@ -80,7 +87,6 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
     }
 
     public void translate(Iterable<File> files, File sourceRoot, Result result) {
-        JavaStubGenerator generator = new JavaStubGenerator();
         FileObject rootFO = FileUtil.toFileObject(sourceRoot);
         Iterator<File> it = files.iterator();
         while (it.hasNext()) {
@@ -103,6 +109,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
+                FileObject fo = FileUtil.toFileObject(file);
+                ScalaIndex index = ScalaIndex.get(fo);
+                JavaStubGenerator generator = new JavaStubGenerator(index);
                 for (Template template : templates) {
                     try {
                         CharSequence javaStub = generator.generateClass(template);
@@ -125,6 +134,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         final FileObject fo = FileUtil.toFileObject(file);
         ParserFile parserFile = new DefaultParserFile(fo, null, false);
         if (parserFile != null) {
+            /** @Note: do not use CompilationInfo to parse it? which may cause "refershing workspace" */
             List<ParserFile> files = Collections.singletonList(parserFile);
             SourceFileReader reader =
                     new SourceFileReader() {
@@ -152,18 +162,19 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
             DefaultParseListener listener = new DefaultParseListener();
 
-            TranslatedSource translatedSource = null; // TODO - determine this here?                
+            TranslatedSource translatedSource = null; // TODO - determine this here?
             Parser.Job job = new Parser.Job(files, listener, reader, translatedSource);
             new ScalaParser().parseFiles(job);
 
             ScalaParserResult pResult = (ScalaParserResult) listener.getParserResult();
-
             if (pResult != null) {
+                //ScalaIndex index = ScalaIndex.get(fo);
+                //pResult.toGlobalPhase(index);
                 AstScope rootScope = pResult.getRootScope();
                 if (rootScope != null) {
                     List<Template> templates = new ArrayList<Template>();
                     scan(rootScope, templates);
-                    
+
                     resultList.addAll(templates);
                 }
             } else {
@@ -192,14 +203,16 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         private boolean java5 = false;
         private boolean requireSuperResolved = false;
         private List toCompile = new ArrayList();
+        private ScalaIndex index;
 
-        public JavaStubGenerator(final boolean requireSuperResolved, final boolean java5) {
+        public JavaStubGenerator(final boolean requireSuperResolved, final boolean java5, ScalaIndex index) {
             this.requireSuperResolved = requireSuperResolved;
             this.java5 = java5;
+            this.index = index;
         }
 
-        public JavaStubGenerator() {
-            this(false, false);
+        public JavaStubGenerator(ScalaIndex index) {
+            this(false, false, index);
         }
 
         public CharSequence generateClass(Template template) throws FileNotFoundException {
@@ -213,31 +226,84 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             try {
                 Packaging packaging = template.getPackageElement();
                 if (packaging != null) {
-                    out.println("package " + packaging.getQualifiedName() + ";\n");
+                    out.print("package ");
+                    out.print(packaging.getQualifiedName());
+                    out.println(";");
                 }
 
                 //genImports(template, out);
 
                 //out.println("@NetBeansVirtualSource(11, 12)");
-                
-                printModifiers(out, template.getModifiers());                
-                out.print("class ");
+
+                printModifiers(out, template.getModifiers());
+                out.print(" class ");
                 out.print(template.getSimpleName());
-                out.print(" implements scala.ScalaObject");
+                Type superClass = template.getSuperclass();
+                if (superClass != null) {
+                    out.print(" extends ");
+                    if (Type.isResolved(superClass)) {
+                        out.print(Type.qualifiedNameOf(superClass));
+                    } else {
+                        out.print(Type.simpleNameOf(superClass));
+                    }
+                }
+                out.print(" implements scala.ScalaObject ");
 
-//                List<SimpleType> parents = template.getExtendsWith();
-//
-//                out.print("  extends ");
-//                for (SimpleType parent : parents) {
-//                    out.print(parent.getSimpleName());
-//                    out.print(" ");
-//                    break;
-//                }
+                for (Type trait : template.getInterfaces()) {
+                    if (Type.isResolved(trait)) {
+                        out.print(Type.qualifiedNameOf(trait));
+                    } else {
+                        out.print(Type.simpleNameOf(trait));
+                    }
+                }
 
+                out.println(" {");
 
-                out.println("{");
-                
-                out.println("public " + template.getSimpleName() + "() {};");
+                List<? extends AstElement> elements = template.getEnclosedElements();
+                for (AstElement element : elements) {
+                    if (element instanceof Function) {
+                        Function function = (Function) element;
+                        printModifiers(out, function.getModifiers());
+                        out.print(" ");
+
+                        if (element.getKind() != ElementKind.CONSTRUCTOR) {
+                            TypeMirror retType = function.getReturnType();
+                            printType(out, retType, index);
+                            out.print(" ");
+                        }
+
+                        out.print(function.getSimpleName());
+                        out.print("(");
+
+                        Iterator<? extends VariableElement> itr = function.getParameters().iterator();
+                        while (itr.hasNext()) {
+                            VariableElement param = itr.next();
+
+                            TypeMirror paramType = param.asType();
+                            printType(out, paramType, index);
+                            out.print(" ");
+                            out.print(param.getSimpleName());
+
+                            if (itr.hasNext()) {
+                                out.print(",");
+                            }
+                        }
+                        out.println(") {return null;}");
+                    } else if (element instanceof Var) {
+                        Var var = (Var) element;
+                        if (var.getKind() == ElementKind.FIELD) {
+                            printModifiers(out, var.getModifiers());
+                            out.print(" ");
+
+                            TypeMirror varType = var.asType();
+                            printType(out, varType, index);
+                            out.print(" ");
+
+                            out.print(var.getSimpleName());
+                            out.println(";");
+                        }
+                    }
+                }
 
                 out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
 
@@ -245,12 +311,12 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             } finally {
                 try {
                     out.close();
-                } catch (Exception e) {
+                } catch (Exception ex) {
                     // ignore
                 }
                 try {
                     sw.close();
-                } catch (IOException e) {
+                } catch (IOException ex) {
                     // ignore
                 }
             }
@@ -259,12 +325,37 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
         private void printModifiers(PrintWriter out, Set<Modifier> modifiers) {
             if (modifiers.contains(Modifier.PRIVATE)) {
-                out.print("private ");
+                out.print("private");
             } else if (modifiers.contains(Modifier.PROTECTED)) {
-                out.print("protected ");
+                out.print("protected");
             } else {
-                out.print("public ");
+                out.print("public");
             }
         }
+
+        private void printType(PrintWriter out, TypeMirror type, ScalaIndex index) {
+            String typeName = null;
+            if (type != null) {
+                if (Type.isResolved(type)) {
+                    typeName = Type.qualifiedNameOf(type);
+                } else {
+                    if (type instanceof Type) {
+                        TypeElement te = ScalaTypeInferencer.resolveType((Type) type, index);
+                        if (te != null) {
+                            typeName = te.getQualifiedName().toString();
+                        }
+                    }
+
+                    if (typeName == null) {
+                        typeName = Type.simpleNameOf(type);
+                    }
+                }
+            } else {
+                typeName = "Object"; //@todo "Unit"?
+            }
+
+            out.print(typeName);
+        }
     }
+
 }

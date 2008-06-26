@@ -57,6 +57,7 @@ public class JavaScalaMapping {
         Object,
         Trait
     }
+
     private static final String SCALA_OBJECT = "scala.ScalaObject";
     private static final String SCALA_OBJECT_MODULE = "MODULE$";
 

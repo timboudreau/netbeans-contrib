@@ -38,6 +38,10 @@
  */
 package org.netbeans.modules.scala.editing.nodes.tmpls;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
@@ -58,7 +62,7 @@ import org.netbeans.modules.scala.editing.nodes.types.Type;
  *
  * @author Caoyuan Deng
  */
-public abstract class Template extends AstElement implements TypeElement {
+public abstract class Template extends AstElement implements TypeElement, Externalizable {
 
     private boolean caseOne;
     private Name qualifiedName;
@@ -150,4 +154,13 @@ public abstract class Template extends AstElement implements TypeElement {
 
         return false;
     }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

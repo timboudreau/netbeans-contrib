@@ -146,11 +146,23 @@ public class ScalaParserResult extends ParserResult {
         }
         
         if (this.phase != Phase.GLOBAL_RESOLVED) {
-            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(info);
+            ScalaIndex index = ScalaIndex.get(info);
+            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
             this.phase = Phase.GLOBAL_RESOLVED;
         }
     }
     
+    public void toGlobalPhase(ScalaIndex index) {
+        if (rootScope == null) {
+            return;
+        }
+
+        if (this.phase != Phase.GLOBAL_RESOLVED) {
+            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
+            this.phase = Phase.GLOBAL_RESOLVED;
+        }
+    }
+
     @Override
     public String toString() {
         return "ParserResult(file=" + getFile() + ",rootScope=" + rootScope +",phase=" + phase + ")";

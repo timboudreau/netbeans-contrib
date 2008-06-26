@@ -466,10 +466,10 @@ public class ScalaParser implements Parser {
 
         if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult r = createParseResult(context.file, rootScope, null, context.th);
-            r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
-            r.setSource(source);
-            return r;
+            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th);
+            pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
+            pResult.setSource(source);
+            return pResult;
         } else {
             return sanitize(context, sanitizing);
         }
