@@ -109,10 +109,10 @@ public class Cache {
         }
     });
 
-    public static synchronized String get(String key) {
+    private static void initData() {
         if (data == null) {
             data = new EditableProperties(true);
-            if (CACHE.isFile()) {
+            if (CACHE != null && CACHE.isFile()) {
                 try {
                     InputStream is = new FileInputStream(CACHE);
                     try {
@@ -125,6 +125,10 @@ public class Cache {
                 }
             }
         }
+    }
+
+    public static synchronized String get(String key) {
+        initData();
         return data.get(key);
     }
 
@@ -138,6 +142,7 @@ public class Cache {
         LOG.log(Level.FINE, "put({0}, {1})", new Object[] {key, value});
         String oldValue;
         synchronized (Cache.class) {
+            initData();
             if (Utilities.compareObjects(value, oldValue = data.get(key))) {
                 return;
             }
@@ -152,8 +157,15 @@ public class Cache {
                 data.remove(key);
             }
         }
-        writeTask.schedule(5000);
+        if (CACHE != null) {
+            writeTask.schedule(5000);
+        }
         pcs.firePropertyChange(key, oldValue, value);
+    }
+
+    /** For use from unit tests only! */
+    public static void clear() {
+        data = null;
     }
 
     public static void addPropertyChangeListener(PropertyChangeListener l) {

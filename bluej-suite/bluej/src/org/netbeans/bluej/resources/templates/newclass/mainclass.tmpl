@@ -1,17 +1,26 @@
-package Templates.Bluej;
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+
+<#if package?? && package != "">
+package ${package};
+
+</#if>
+
 
 /**
- * Write a description of class __NAME__ here.
+ * Write a description of class ${name} here.
  * 
- * @author __USER__
+ * @author ${user}
  * @version (a version number or a date)
  */
-public class $CLASSNAME {
+public class ${name} {
 
     /**
-     * Constructor for objects of class __NAME__
+     * Constructor for objects of class ${name}
      */
-    public $CLASSNAME() {
+    public ${name}() {
     }
 
     /**

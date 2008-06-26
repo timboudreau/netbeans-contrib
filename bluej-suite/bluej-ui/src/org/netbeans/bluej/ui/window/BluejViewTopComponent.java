@@ -165,6 +165,7 @@ public final class BluejViewTopComponent extends TopComponent implements Explore
             BluejLogicalViewProvider provider = (BluejLogicalViewProvider) project.getLookup().lookup(BluejLogicalViewProvider.class);
             manager.setRootContext(provider.getBigIconRootNode());
             Project np = (Project)getLookup().lookup(Project.class);
+            OpenProjects.getDefault().setMainProject(np);
         } else {
             lookProvider.setLookup(Lookup.EMPTY);
             manager.setRootContext(new AbstractNode(Children.LEAF));

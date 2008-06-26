@@ -95,6 +95,7 @@ public class MainClassChooser extends JPanel {
         dialogSubtitle = subtitle;
         initComponents();
         initClassesView (sourcesRoots);
+        jMainClassList.setCellRenderer(new MainClassRenderer());
     }
     
     private void initClassesView (final FileObject[] sourcesRoots) {
@@ -169,7 +170,7 @@ public class MainClassChooser extends JPanel {
      */    
     public String getSelectedMainClass () {
         if (isValidMainClassName (jMainClassList.getSelectedValue ())) {
-            return (String)jMainClassList.getSelectedValue ();
+            return ((ElementHandle)jMainClassList.getSelectedValue ()).getQualifiedName();
         } else {
             return null;
         }
@@ -279,11 +280,10 @@ public class MainClassChooser extends JPanel {
     }
     
     private static final class MainClassRenderer extends DefaultListCellRenderer {
+        @Override
         public Component getListCellRendererComponent (JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             String displayName;
-            if (value instanceof String) {
-                displayName = (String) value;
-            } if (value instanceof ElementHandle) {
+            if (value instanceof ElementHandle) {
                 displayName = ((ElementHandle)value).getQualifiedName();
             } else {
                 displayName = value.toString ();

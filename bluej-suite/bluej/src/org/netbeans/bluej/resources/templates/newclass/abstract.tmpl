@@ -1,11 +1,19 @@
-package Templates.Bluej;
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+
+<#if package?? && package != "">
+package ${package};
+
+</#if>
 /**
- * Abstract class __NAME__ - write a description of the class here
+ * Abstract class ${name} - write a description of the class here
  * 
- * @author __USER__
+ * @author ${user}
  * @version (version number or date here)
  */
-public abstract class $CLASSNAME {
+public abstract class ${name} {
 	// instance variables - replace the example below with your own
 	private int x;
 

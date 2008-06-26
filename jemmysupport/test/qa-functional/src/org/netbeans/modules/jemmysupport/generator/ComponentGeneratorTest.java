@@ -41,29 +41,13 @@
 
 package org.netbeans.modules.jemmysupport.generator;
 
-/*
- * ComponentGeneratorTest.java
- *
- * Created on July 11, 2002, 2:27 PM
- */
-
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
 import java.io.*;
 
 import junit.framework.*;
 import org.netbeans.junit.*;
 
-import org.netbeans.jemmy.*;
-import org.netbeans.jemmy.operators.*;
 import org.netbeans.jellytools.*;
-import org.netbeans.jellytools.modules.jemmysupport.*;
-import org.netbeans.jellytools.nodes.FilesystemNode;
-import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.JemmyProperties;
-import org.netbeans.jemmy.drivers.input.KeyRobotDriver;
-import org.netbeans.modules.jemmysupport.generator.data.TestPanel;
 
 /** JUnit test suite with Jemmy/Jelly2 support
  *
@@ -95,25 +79,8 @@ public class ComponentGeneratorTest extends JellyTestCase {
         return suite;
     }
     
-    /** method called before each testcase
-     */
-    protected void setUp() throws IOException {
-    }
-    
-    /** method called after each testcase
-     */
-    protected void tearDown() {
-    }
-    
-    /** Use for internal test execution inside IDE
-     * @param args command line arguments
-     */
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-    
     /** simple test case
-     */
+     * /
     public void testPrepareFS() throws Exception {
         ExplorerOperator.invoke().repositoryTab().mountLocalDirectoryAPI(getWorkDir().getParentFile().getAbsolutePath());
         File files[] = getWorkDir().getParentFile().listFiles();
@@ -123,7 +90,7 @@ public class ComponentGeneratorTest extends JellyTestCase {
     }
     
     /** simple test case
-     */
+     * /
     public void testRemoveFS() throws Exception {
         File files[] = getWorkDir().getParentFile().listFiles();
         for (int i=0; i<files.length; i++) 
@@ -133,7 +100,7 @@ public class ComponentGeneratorTest extends JellyTestCase {
     }
                 
     /** simple test case
-     */
+     * /
     public void testGrabFrame() throws Exception {
         closeAllModal=true;
         ComponentGeneratorOperator gen = ComponentGeneratorOperator.invoke();
@@ -182,7 +149,7 @@ public class ComponentGeneratorTest extends JellyTestCase {
     }
                 
     /** simple test case
-     */
+     * /
     public void testGrabDialog() throws Exception {
         closeAllModal=true;
         ComponentGeneratorOperator gen = ComponentGeneratorOperator.invoke();
@@ -232,7 +199,7 @@ public class ComponentGeneratorTest extends JellyTestCase {
     }
 
     /** test case with golden file
-     */
+     * /
     public void testComponentsEditor() throws Exception {
         closeAllModal=true;
         ComponentGeneratorOperator gen = ComponentGeneratorOperator.invoke();
