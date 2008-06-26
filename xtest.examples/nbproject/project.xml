@@ -47,9 +47,9 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.modules.xtest.examples</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.jemmy.idemodule</code-name-base>
+                    <code-name-base>org.netbeans.modules.jemmy</code-name-base>
                     <run-dependency>
-                        <release-version>2</release-version>
+                        <release-version>3</release-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
