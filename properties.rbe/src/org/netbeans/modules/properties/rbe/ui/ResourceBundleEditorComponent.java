@@ -41,21 +41,27 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultEditorKit;
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.PropertiesEditorSupport;
-import org.netbeans.modules.properties.PropertiesFileEntry;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.lookup.Lookups;
+import org.openide.util.WeakListeners;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
@@ -63,18 +69,33 @@ import org.openide.windows.CloneableTopComponent;
  * The Resourcebundle editor top component
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorComponent extends CloneableTopComponent implements ExplorerManager.Provider {
+public class ResourceBundleEditorComponent extends CloneableTopComponent implements SaveCookie,
+        ExplorerManager.Provider, PropertyChangeListener {
 
-    public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
+    public final static String PREFERRED_ID = "ResourceBundleEditorComponent";
+    public final static String PROPERTIES_EXT = ".properties";
     /** Properties data object */
-    private final PropertiesDataObject dataObject;
+    private PropertiesDataObject dataObject;
     /** The explorer manager */
     private ExplorerManager explorerManager;
+    /** The lookup instance content */
+    private InstanceContent ic;
+
+//    public ResourceBundleEditorComponent() {
+//    }
 
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
+        initialize();
+    }
+
+    protected void initialize() {
+        dataObject.addPropertyChangeListener(WeakListeners.propertyChange(this, dataObject));
+
         explorerManager = new ExplorerManager();
+        ic = new InstanceContent();
+        ic.add(dataObject);
 
         ActionMap actionMap = getActionMap();
         actionMap.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(explorerManager));
@@ -82,17 +103,23 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
         actionMap.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(explorerManager));
         actionMap.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
 
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, actionMap), Lookups.singleton(dataObject)));
+        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, actionMap), new AbstractLookup(ic)));
 
-        setName(dataObject.getName() + ".properties");
+        updateName();
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(new UIWindow(new RBE(dataObject)));
     }
 
-    @Override
-    public boolean canClose() {
-        // TODO: add some save interaction
+    protected void updateName() {
+        if (dataObject.isModified()) {
+            setName(dataObject.getName() + PROPERTIES_EXT + " *");
+        } else {
+            setName(dataObject.getName() + PROPERTIES_EXT);
+        }
+    }
+
+    public void save() throws IOException {
         SaveCookie saveCookie = dataObject.getLookup().lookup(SaveCookie.class);
         if (saveCookie != null) {
             try {
@@ -101,18 +128,58 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
                 Exceptions.printStackTrace(ex);
             }
         }
-
-        closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
-        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
-            closeEntry((PropertiesFileEntry) it.next());
-        }
-        return true;
     }
 
-    /** Helper method. Closes entry. */
-    private void closeEntry(PropertiesFileEntry entry) {
-        PropertiesEditorSupport editorSupport = entry.getCookie(PropertiesEditorSupport.class);
-        editorSupport.close();
+    @Override
+    public boolean canClose() {
+//
+//        closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
+//        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
+//            closeEntry((PropertiesFileEntry) it.next());
+//        }
+//        PropertiesEditorSupport editorSupport = dataObject.getCookie(PropertiesEditorSupport.class);
+//        if(editorSupport != null){
+//            return editorSupport.close();
+//        }
+
+        if (dataObject != null && !dataObject.isModified()) {
+            return true;
+        }
+
+        //TODO: move to the bundle
+        String title = "Close?";
+        String question = "Do you want to close?";
+        String optionSave = "Save";
+        String optionDiscard = "Discard";
+
+        NotifyDescriptor descr = new DialogDescriptor(
+                question,
+                title,
+                true,
+                new Object[]{
+                    optionSave,
+                    optionDiscard,
+                    NotifyDescriptor.CANCEL_OPTION
+                },
+                optionSave,
+                DialogDescriptor.DEFAULT_ALIGN,
+                null,
+                null);
+
+        descr.setMessageType(NotifyDescriptor.QUESTION_MESSAGE);
+
+
+        Object answer = DialogDisplayer.getDefault().notify(descr);
+        if (optionSave.equals(answer)) {
+            try {
+                save();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+
+        return optionSave.equals(answer) || optionDiscard.equals(answer);
     }
 
     @Override
@@ -134,4 +201,39 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     public ExplorerManager getExplorerManager() {
         return explorerManager;
     }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (dataObject == evt.getSource() && DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+            if ((Boolean) evt.getNewValue()) {
+                ic.add(this);
+            } else {
+                ic.remove(this);
+            }
+            SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
+                    updateName();
+                }
+            });
+        }
+    }
+
+    @Override
+    protected CloneableTopComponent createClonedObject() {
+        return new ResourceBundleEditorComponent(dataObject);
+    }
+
+//    @Override
+//    public void writeExternal(ObjectOutput oo) throws IOException {
+//        super.writeExternal(oo);
+//        oo.writeObject(dataObject);
+//
+//    }
+//
+//    @Override
+//    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+//        super.readExternal(oi);
+//        dataObject = (PropertiesDataObject) oi.readObject();
+//        initialize();
+//    }
 }

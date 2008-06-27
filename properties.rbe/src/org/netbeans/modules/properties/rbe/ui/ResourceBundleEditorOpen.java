@@ -41,6 +41,7 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.openide.cookies.OpenCookie;
 import org.openide.windows.CloneableOpenSupport;
 import org.openide.windows.CloneableTopComponent;
 
@@ -48,7 +49,7 @@ import org.openide.windows.CloneableTopComponent;
  * The RBE Open support
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorOpen extends CloneableOpenSupport {
+public class ResourceBundleEditorOpen extends CloneableOpenSupport implements OpenCookie {
 
     private final PropertiesDataObject dataObject;
 
