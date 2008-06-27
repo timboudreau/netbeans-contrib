@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,47 +31,56 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.gsf.api;
 
-import java.util.List;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
+import java.util.Collection;
 import org.netbeans.modules.gsf.api.annotations.NonNull;
 
-
 /**
- * Interface for a Parser registered with GSF. A parser takes a parse request
- * and fires parsing events including the parse result at the end of parsing
- * each file.
- * 
+ * Implementations of this interface are EmbeddingModels that support
+ * incremental updates. When it does, then the GSF infrastructure will keep its
+ * most recent TranslatedSource collection and will pass it along with
+ * an editing history object to perform incremental updates.
+ *
  * @author Tor Norbye
  */
-public interface Parser {
-    /** Parse the given set of files, and notify the parse listener for each transition 
-     * (compilation results are attached to the events). The SourceFileReader can be used
-     * to get the contents of the files to be parsed.
-     */
-    void parseFiles(@NonNull Job request);
-    
-    public final class Job {
-        @NonNull public final List<ParserFile> files;
-        @NonNull public final ParseListener listener;
-        @NonNull public final SourceFileReader reader;
-        @CheckForNull public final TranslatedSource translatedSource;
+public interface IncrementalEmbeddingModel extends EmbeddingModel {
 
-        public Job(@NonNull List<ParserFile> files, 
-                @NonNull ParseListener listener,
-                @NonNull SourceFileReader reader, 
-                @NonNull TranslatedSource translatedSource) {
-            this.files = files;
-            this.listener = listener;
-            this.reader = reader;
-            this.translatedSource = translatedSource;
-        }
-    }
-    
+    public enum UpdateState {
+
+        /**
+         * Updating the virtual source failed for some reason or other.
+         * The infrastructure should generate a new virtual source instead.
+         */
+        FAILED,
+
+        /**
+         * The update succeeded, and the virtual source was not affected by
+         * the change. This means that the parse tree for the virtual source does
+         * not have to be regenerated (or the results analyzed again).
+         * (The offset mapping for the translated source source-to-generated
+         * conversion functions have been updated.)
+         */
+        COMPLETED,
+
+        /**
+         * The update succeeded, and the virtual source code generated was affected
+         * by the edits. The virtual source should be regenerated.
+         * (The offset mapping for the translated source source-to-generated
+         * conversion functions have been updated.)
+         */
+        UPDATED
+    };
+
     /**
-     * Return an object capable of providing source offsets for objects produced by the parser
+     * Update the collection of {@link TranslatedSource} objects given a series of edits.
+     * The objects in the collection are allowed to change.
      */
-    @NonNull PositionManager getPositionManager();
+    @NonNull
+    UpdateState update(@NonNull EditHistory history, @NonNull Collection<? extends TranslatedSource> previousTranslation);
 }
