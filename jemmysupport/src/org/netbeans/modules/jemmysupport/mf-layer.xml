@@ -113,7 +113,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
     </folder>
     <folder name="Templates">
         <folder name="TestingTools">
-            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/testingToolsCategory.html" />
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
             <file name="JellyTestCaseTest.java" url="JellyTestCase.java.template">
                 <attr name="template" boolvalue="true"/>

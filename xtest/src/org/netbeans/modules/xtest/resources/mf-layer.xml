@@ -45,7 +45,6 @@ made subject to such option by the copyright holder.
 <filesystem>
     <folder name="Templates">
         <folder name="TestingTools">
-            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/xtest/resources/testingToolsCategory.html" />
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.xtest.resources.Bundle"/>
 
             <!-- Templates for NB modules. -->
@@ -68,7 +67,7 @@ made subject to such option by the copyright holder.
                      e.g. for SuiteProject it is not enabled. -->
                 <attr name="templateCategory" stringvalue="junit"/>
             </file>
-            <attr name="position" intvalue="3000"/>
+            <attr name="position" intvalue="2062"/>
         </folder>
     </folder>
     <folder name="Projects" >
