@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
@@ -66,7 +67,7 @@ public class BasicTypeElement implements TypeElement {
     }
 
     public NestingKind getNestingKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
     public Name getQualifiedName() {
@@ -94,7 +95,7 @@ public class BasicTypeElement implements TypeElement {
     }
 
     public List<? extends AnnotationMirror> getAnnotationMirrors() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Collections.<AnnotationMirror>emptyList();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> arg0) {
@@ -110,14 +111,14 @@ public class BasicTypeElement implements TypeElement {
     }
 
     public Element getEnclosingElement() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
     public List<? extends Element> getEnclosedElements() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Collections.<Element>emptyList();
     }
 
     public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return arg0.visit(this, arg1);
     }
 }

@@ -272,7 +272,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                             out.print(" ");
                         }
 
-                        out.print(function.getSimpleName());
+                        String opName = function.getSimpleName().toString();
+                        out.print(JavaScalaMapping.scalaOpNameToJava(opName));
                         out.print("(");
 
                         Iterator<? extends VariableElement> itr = function.getParameters().iterator();

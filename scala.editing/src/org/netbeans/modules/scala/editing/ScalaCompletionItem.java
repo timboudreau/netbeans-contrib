@@ -55,6 +55,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
@@ -86,7 +87,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     }
 
     public String getName() {
-        return element.getElement().getSimpleName().toString();
+        return element.getName();
     }
 
     public String getInsertPrefix() {
@@ -255,6 +256,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml() {
+            JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
@@ -335,6 +338,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                 formatter.type(false);
             }
 
+            JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+            
             return formatter.getText();
         }
 

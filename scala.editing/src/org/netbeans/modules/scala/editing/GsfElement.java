@@ -66,6 +66,7 @@ public class GsfElement implements ElementHandle {
     private boolean deprecated;
     private boolean inherited;
     private boolean smart;
+    private boolean scalaFromClass;
 
     public static ElementKind getGsfKind(Element element) {
         switch (element.getKind()) {
@@ -140,6 +141,14 @@ public class GsfElement implements ElementHandle {
         return element;
     }
 
+    public void setScalaFromClass() {
+        scalaFromClass = true;
+    }
+
+    public boolean isScalaFromClass() {
+        return scalaFromClass;
+    }
+
     public FileObject getFileObject() {
         if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
             return fileObject;
@@ -184,7 +193,12 @@ public class GsfElement implements ElementHandle {
     }
 
     public String getName() {
-        return element.getSimpleName().toString();
+        String name = element.getSimpleName().toString();
+        if (isScalaFromClass() && element.getKind() == javax.lang.model.element.ElementKind.METHOD) {
+            return JavaScalaMapping.javaOpNameToScala(name);
+        } else {
+            return name;
+        }
     }
 
     public boolean signatureEquals(ElementHandle handle) {

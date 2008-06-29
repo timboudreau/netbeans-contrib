@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
@@ -57,7 +59,47 @@ public class JavaScalaMapping {
         Object,
         Trait
     }
+    private static Map<Character, String> ScalaToJavaOpName = new HashMap<Character, String>();
+    private static Map<String, Character> JavaToScalaOpName = new HashMap<String, Character>();
 
+
+    static {
+        ScalaToJavaOpName.put('$', "$");
+        ScalaToJavaOpName.put('~', "$tilde");
+        ScalaToJavaOpName.put('=', "$eq");
+        ScalaToJavaOpName.put('<', "$less");
+        ScalaToJavaOpName.put('>', "$greater");
+        ScalaToJavaOpName.put('!', "$bang");
+        ScalaToJavaOpName.put('#', "$hash");
+        ScalaToJavaOpName.put('%', "$percent");
+        ScalaToJavaOpName.put('^', "$up");
+        ScalaToJavaOpName.put('&', "$amp");
+        ScalaToJavaOpName.put('|', "$bar");
+        ScalaToJavaOpName.put('*', "$times");
+        ScalaToJavaOpName.put('/', "$div");
+        ScalaToJavaOpName.put('\\', "$bslash");
+        ScalaToJavaOpName.put('+', "$plus");
+        ScalaToJavaOpName.put('-', "$minus");
+        ScalaToJavaOpName.put(':', "$colon");
+
+        JavaToScalaOpName.put("$", '$');
+        JavaToScalaOpName.put("$tilde", '~');
+        JavaToScalaOpName.put("$eq", '=');
+        JavaToScalaOpName.put("$less", '<');
+        JavaToScalaOpName.put("$greater", '>');
+        JavaToScalaOpName.put("$bang", '!');
+        JavaToScalaOpName.put("$hash", '#');
+        JavaToScalaOpName.put("$percent", '%');
+        JavaToScalaOpName.put("$up", '^');
+        JavaToScalaOpName.put("$amp", '&');
+        JavaToScalaOpName.put("$bar", '|');
+        JavaToScalaOpName.put("$times", '*');
+        JavaToScalaOpName.put("$div", '/');
+        JavaToScalaOpName.put("$bslash", '\\');
+        JavaToScalaOpName.put("$plus", '+');
+        JavaToScalaOpName.put("$minus", '-');
+        JavaToScalaOpName.put("$colon", ':');
+    }
     private static final String SCALA_OBJECT = "scala.ScalaObject";
     private static final String SCALA_OBJECT_MODULE = "MODULE$";
 
@@ -122,5 +164,53 @@ public class JavaScalaMapping {
         }
 
         return false;
+    }
+
+    public static String scalaOpNameToJava(String name) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            String s = ScalaToJavaOpName.get(c);
+            if (s != null) {
+                sb.append(s);
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String javaOpNameToScala(String name) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (c == '$') {
+                int j;
+                for (j = i + 1; j < name.length(); j++) {
+                    if (name.charAt(j) == '$') {
+                        break;
+                    }
+                }
+
+                if (j > i) {
+                    String seg = name.substring(i, j);
+                    Character c1 = JavaToScalaOpName.get(seg);
+                    if (c1 != null) {
+                        sb.append(c1);
+                    } else {
+                        sb.append(seg);
+                    }
+                } else {
+                    sb.append(c);
+                }
+
+                i = j - 1;
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
     }
 }

@@ -100,7 +100,7 @@ public class JavaIndex {
         int flags = 0 | IndexedElement.PACKAGE;
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
-                
+
                 IndexedElement idxElement = new IndexedElement(pkgName, pkgName, "", "", flags, null, scalaIndex, ElementKind.PACKAGE);
                 idxElements.add(idxElement);
             }
@@ -135,7 +135,7 @@ public class JavaIndex {
 
             for (Element e : pe.getEnclosedElements()) {
                 String sName = e.getSimpleName().toString();
-                
+
                 TypeMirror tm = e.asType();
                 TypeElement te = tm.getKind() == TypeKind.DECLARED
                         ? (TypeElement) ((DeclaredType) tm).asElement()
@@ -157,8 +157,8 @@ public class JavaIndex {
                                 //}
                                 break;
                         }
-                        
-                        //continue;
+
+                    //continue;
                     }
                 }
 
@@ -174,7 +174,7 @@ public class JavaIndex {
             for (Element e : foundElements) {
                 String sName = e.getSimpleName().toString();
                 String qName = pkgName + "." + sName;
-                
+
                 if (scalaElementNames.contains(sName)) {
                     continue;
                 }
@@ -191,7 +191,7 @@ public class JavaIndex {
         }
         return Collections.<IndexedElement>emptySet();
     }
- 
+
     public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context) {
 
@@ -240,7 +240,7 @@ public class JavaIndex {
 
             TypeMirror tm = te.asType();
             TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
-            
+
             if (te != null) {
                 GsfElement gsfElement = new GsfElement(typeElem, null, info);
                 gsfElements.add(gsfElement);
@@ -252,16 +252,13 @@ public class JavaIndex {
         JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return gsfElements;
     }
-    
-    
-    public Set<GsfElement> getMembers(String name, String typeSName, NameKind kind,
+
+    public Set<GsfElement> getMembers(String memberName, String typeQName, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context,
-            boolean onlyConstructors, boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
+            boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
         final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
         //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
-
-        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
         NameKind originalKind = kind;
         if (kind == NameKind.SIMPLE_NAME) {
@@ -286,182 +283,160 @@ public class JavaIndex {
             }
         }
 
-        Set<String> seenTypes = new HashSet<String>();
-        seenTypes.add(typeSName);
         boolean haveRedirected = false;
-        boolean inherited = typeSName == null;
+        boolean inherited = typeQName == null;
 
-        if (typeSName == null || typeSName.length() == 0) {
-            typeSName = "Object";
+        if (typeQName == null || typeQName.length() == 0) {
+            typeQName = "java.lang.Object";
         }
 
-        String pkgName = "";
-        String fqn;
-        if (typeSName != null && typeSName.length() > 0) {
-            int lastDot = typeSName.lastIndexOf('.');
-            if (lastDot > 0) {
-                pkgName = typeSName.substring(0, lastDot);
-                typeSName = typeSName.substring(lastDot + 1, typeSName.length());
-            }
-
-            fqn = typeSName + "." + name;
-        } else {
-            fqn = name;
-        }
-
-        String lcfqn = fqn.toLowerCase();
-
-        /** always use NameKind.SIMPLE_NAME search index.getDeclaredTypes */
         kind = NameKind.SIMPLE_NAME;
 
         Elements theElements = info.getElements();
         Types theTypes = info.getTypes();
 
-        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(typeSName, kind, scope);
+        boolean isScala = false;
 
-        for (ElementHandle<TypeElement> teHandle : dclTypes) {
-            GsfElement gsfElement = null;
-
-            TypeElement te = teHandle.resolve(info);
-            if (te == null) {
-                /** @Note: will this happen? if happens, why? */
-                continue;
-            }
-            String typeQName = te.getQualifiedName().toString();
-
-            List<? extends Element> elements = TypeQNameToMemebersCache.get(typeQName);
-            if (elements == null) {
-
-            }
-
-            PackageElement pe = theElements.getPackageOf(te);
-            if (pe != null) {
-                if (!pkgName.equals("")) {
-                    if (!pe.getQualifiedName().toString().equals(pkgName)) {
-                        continue;
-                    }
-                }
-            }
-
-            boolean isScala = JavaScalaMapping.isScala(te);
-
-            if (isScala) {
-                //continue;
-            }
-
-            TypeMirror tm = te.asType();
-            TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
-            
-            if (te != null) {
-                elements = theElements.getAllMembers(te);
-                TypeQNameToMemebersCache.put(typeQName, elements);
-            }
-
-            if (elements != null) {
-                for (Element e : theElements.getAllMembers(te)) {
-
-                    if (e.getModifiers().contains(Modifier.PRIVATE)) {
-                        continue;
-                    }
-
-                    String simpleName = e.getSimpleName().toString();
-                    if (!JavaUtilities.startsWith(simpleName, name)) {
-                        continue;
-                    }
-
-                    String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
-
-                    switch (e.getKind()) {
-                        case EXCEPTION_PARAMETER:
-                        case LOCAL_VARIABLE:
-                        case PARAMETER:
-                            break;
-                        case ENUM_CONSTANT:
-                        case FIELD: {
-                            if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
-                                //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
-                            } else {
-                                TypeMirror tm1 = tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType();
-                            //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
-                            }
-
-                            StringBuilder base = new StringBuilder();
-                            base.append(simpleName.toLowerCase());
-                            base.append(';');
-                            if (in != null) {
-                                base.append(in);
-                            }
-                            base.append(';');
-                            base.append(simpleName);
-                            base.append(';');
-
-                            String attrs = IndexedElement.encodeAttributes(e);
-                            base.append(attrs);
-
-                            gsfElement = new GsfElement(e, null, info);
-                            //idxElement.setJavaInfo(e, info);
-                            break;
-                        }
-                        case CONSTRUCTOR:
-                            simpleName = e.getEnclosingElement().getSimpleName().toString();
-                        case METHOD: {
-                            ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
-                            
-                            StringBuilder base = new StringBuilder();
-                            base.append(simpleName.toLowerCase());
-                            base.append(';');
-                            if (in != null) {
-                                base.append(in);
-                            }
-                            base.append(';');
-                            base.append(simpleName);
-                            base.append(';');
-
-                            String attrs = IndexedElement.encodeAttributes(e);
-                            base.append(attrs);
-
-                            gsfElement = new GsfElement(e, null, info);
-                            break;
-                        }
-                        case CLASS:
-                        case ENUM:
-                        case INTERFACE:
-                        case ANNOTATION_TYPE:
-                            DeclaredType dt = (DeclaredType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
-                            //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
-                            break;
-                    }
-
-                    if (gsfElement == null) {
-                        continue;
-                    }
-                    boolean isMethod = gsfElement.getElement() instanceof ExecutableElement;
-                    if (isMethod && !includeMethods) {
-                        continue;
-                    } else if (!isMethod && !includeProperties) {
-                        continue;
-                    }
-
-                    if (onlyConstructors && !gsfElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
-                        continue;
-                    }
-
-                    if (!haveRedirected) {
-                        gsfElement.setSmart(true);
-                    }
-
-                    inherited = typeElem != e.getEnclosingElement();
-                    if (!inherited) {
-                        gsfElement.setInherited(false);
-                    }
-                    gsfElements.add(gsfElement);
-                }
-            }
-
+        TypeElement te = null;
+        TypeElement namedTe = theElements.getTypeElement(typeQName);
+        if (namedTe != null) {
+            te = ElementHandle.<TypeElement>create(namedTe).resolve(info);
+        }
+        
+        if (te != null) {
+            isScala = JavaScalaMapping.isScala(te);
         }
 
+        TypeElement companionTe = null;
+        TypeElement namedCompanionTe = theElements.getTypeElement(typeQName + "$");
+        if (namedCompanionTe != null) {
+            companionTe = ElementHandle.<TypeElement>create(namedCompanionTe).resolve(info);
+        }
+        
+        if (companionTe != null) {
+            isScala = isScala || JavaScalaMapping.isScala(companionTe);
+        }
 
-        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+        if (te == null) {
+            return gsfElements;
+        }
+
+        TypeMirror tm = te.asType();
+        TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
+
+        List<? extends Element> elements = null;
+        if (te != null) {
+            elements = theElements.getAllMembers(te);
+        }
+
+        if (elements != null) {
+            for (Element e : theElements.getAllMembers(te)) {
+
+                if (e.getModifiers().contains(Modifier.PRIVATE)) {
+                    continue;
+                }
+
+                String simpleName = e.getSimpleName().toString();
+                if (!JavaUtilities.startsWith(simpleName, memberName)) {
+                    continue;
+                }
+
+                GsfElement gsfElement = null;
+
+                //String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
+
+                switch (e.getKind()) {
+                    case EXCEPTION_PARAMETER:
+                    case LOCAL_VARIABLE:
+                    case PARAMETER:
+                        break;
+                    case ENUM_CONSTANT:
+                    case FIELD: {
+                        if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
+                            //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
+                            } else {
+                            TypeMirror tm1 = tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType();
+                        //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
+                        }
+
+//                            StringBuilder base = new StringBuilder();
+//                            base.append(simpleName.toLowerCase());
+//                            base.append(';');
+//                            if (in != null) {
+//                                base.append(in);
+//                            }
+//                            base.append(';');
+//                            base.append(simpleName);
+//                            base.append(';');
+//
+//                            String attrs = IndexedElement.encodeAttributes(e);
+//                            base.append(attrs);
+
+                        gsfElement = new GsfElement(e, null, info);
+                        //idxElement.setJavaInfo(e, info);
+                        break;
+                    }
+                    case CONSTRUCTOR:
+                        simpleName = e.getEnclosingElement().getSimpleName().toString();
+                    case METHOD: {
+                        ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
+
+//                            StringBuilder base = new StringBuilder();
+//                            base.append(simpleName.toLowerCase());
+//                            base.append(';');
+//                            if (in != null) {
+//                                base.append(in);
+//                            }
+//                            base.append(';');
+//                            base.append(simpleName);
+//                            base.append(';');
+//
+//                            String attrs = IndexedElement.encodeAttributes(e);
+//                            base.append(attrs);
+
+                        gsfElement = new GsfElement(e, null, info);
+                        break;
+                    }
+                    case CLASS:
+                    case ENUM:
+                    case INTERFACE:
+                    case ANNOTATION_TYPE:
+                        DeclaredType dt = (DeclaredType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
+                        //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
+                        break;
+                }
+
+                if (gsfElement == null) {
+                    continue;
+                }
+
+                if (isScala) {
+                    gsfElement.setScalaFromClass();
+                }
+
+                boolean isMethod = gsfElement.getElement() instanceof ExecutableElement;
+                if (isMethod && !includeMethods) {
+                    continue;
+                } else if (!isMethod && !includeFields) {
+                    continue;
+                }
+
+                if (onlyConstructors && te.getKind() != ElementKind.CONSTRUCTOR) {
+                    continue;
+                }
+
+                if (!haveRedirected) {
+                    gsfElement.setSmart(true);
+                }
+
+                inherited = typeElem != e.getEnclosingElement();
+                if (inherited) {
+                    gsfElement.setInherited(true);
+                }
+                gsfElements.add(gsfElement);
+            }
+        }
+
         return gsfElements;
-    }    
+    }
 }
