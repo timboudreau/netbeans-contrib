@@ -81,14 +81,14 @@ public class ScalaTypeInferencer {
     private static Map<String, String> globalTypeRefsCache;
     private static Map<String, Set<String>> classToImportPkgsCache;
     /* types of "java.lang." will be automatically imported */
-    private static Set<IndexedElement> javaLangPackageTypes;
+    private static Set<GsfElement> javaLangPackageTypes;
     /* types of "scala." will be automatically imported */
-    private static Set<IndexedElement> scalaPackageTypes;
+    private static Set<GsfElement> scalaPackageTypes;
     /* package name starts with "scala" can omit "scala" */
-    private static Map<String, Set<IndexedElement>> scalaPrecedingPackageTypes;
+    private static Map<String, Set<GsfElement>> scalaPrecedingPackageTypes;
     /** @Todo should the following not be static ? */
-    private static Map<String, Set<IndexedElement>> importedTypesCache;
-    private static Map<String, Set<IndexedElement>> packageTypesCache;
+    private static Map<String, Set<GsfElement>> importedTypesCache;
+    private static Map<String, Set<GsfElement>> packageTypesCache;
     // ----- private used vars:
     private AstScope rootScope;
     private TokenHierarchy th;
@@ -507,7 +507,8 @@ public class ScalaTypeInferencer {
                 pkgName = pkgName.substring(7, pkgName.length());
             }
 
-            for (IndexedElement element : getImportedTypes(index, pkgName)) {
+            for (GsfElement gsfElement : getImportedTypes(index, pkgName)) {
+                IndexedElement element = (IndexedElement) gsfElement.getElement();
                 if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
                         return (IndexedTypeElement) element;
@@ -526,7 +527,8 @@ public class ScalaTypeInferencer {
 
                 /* package name with the same preceding of current packaging can omit packaging name */
                 pkgName = ofPackage + "." + pkgName;
-                for (IndexedElement element : getImportedTypes(index, pkgName)) {
+                for (GsfElement gsfElement : getImportedTypes(index, pkgName)) {
+                    IndexedElement element = (IndexedElement) gsfElement.getElement();
                     if (element instanceof IndexedTypeElement) {
                         if (element.getSimpleName().toString().equals(sName)) {
                             return (IndexedTypeElement) element;
@@ -546,7 +548,8 @@ public class ScalaTypeInferencer {
 
             /* package name starts with "scala" can omit "scala" */
             pkgName = "scala." + pkgName;
-            for (IndexedElement element : getScalaPrecedingPackageTypes(index, pkgName)) {
+            for (GsfElement gsfElement : getScalaPrecedingPackageTypes(index, pkgName)) {
+                IndexedElement element = (IndexedElement) gsfElement.getElement();
                 if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
                         return (IndexedTypeElement) element;
@@ -559,7 +562,8 @@ public class ScalaTypeInferencer {
         // 4. then search types under the same package
         if (ofPackage != null) {
             String pkgName = ofPackage + ".";
-            for (IndexedElement element : getPackageTypes(index, pkgName)) {
+            for (GsfElement gsfElement : getPackageTypes(index, pkgName)) {
+                IndexedElement element = (IndexedElement) gsfElement.getElement();
                 if (element instanceof IndexedTypeElement) {
                     if (element.getSimpleName().toString().equals(sName)) {
                         return (IndexedTypeElement) element;
@@ -569,7 +573,8 @@ public class ScalaTypeInferencer {
         }
 
         // 5. search auto-imported "scala." package
-        for (IndexedElement element : getScalaPackageTypes(index)) {
+        for (GsfElement gsfElement : getScalaPackageTypes(index)) {
+            IndexedElement element = (IndexedElement) gsfElement.getElement();
             if (element instanceof IndexedTypeElement) {
                 if (element.getSimpleName().toString().equals(sName)) {
                     //return "scala." + sName;
@@ -579,7 +584,8 @@ public class ScalaTypeInferencer {
         }
 
         // 6. search auto-imported "java.lang." package
-        for (IndexedElement element : getJavaLangPackageTypes(index)) {
+        for (GsfElement gsfElement : getJavaLangPackageTypes(index)) {
+            IndexedElement element = (IndexedElement) gsfElement.getElement();
             if (element instanceof IndexedTypeElement) {
                 if (element.getSimpleName().toString().equals(sName)) {
                     return (IndexedTypeElement) element;
@@ -680,7 +686,7 @@ public class ScalaTypeInferencer {
         }
     }
 
-    private static Set<IndexedElement> getJavaLangPackageTypes(ScalaIndex index) {
+    private static Set<GsfElement> getJavaLangPackageTypes(ScalaIndex index) {
         if (javaLangPackageTypes == null) {
             javaLangPackageTypes = index.getPackageContent("java.lang.", NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
         }
@@ -688,7 +694,7 @@ public class ScalaTypeInferencer {
         return javaLangPackageTypes;
     }
 
-    private static Set<IndexedElement> getScalaPackageTypes(ScalaIndex index) {
+    private static Set<GsfElement> getScalaPackageTypes(ScalaIndex index) {
         if (scalaPackageTypes == null) {
             scalaPackageTypes = index.getPackageContent("scala.", NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
         }
@@ -696,27 +702,27 @@ public class ScalaTypeInferencer {
         return scalaPackageTypes;
     }
 
-    private static Set<IndexedElement> getScalaPrecedingPackageTypes(ScalaIndex index, String pkgName) {
+    private static Set<GsfElement> getScalaPrecedingPackageTypes(ScalaIndex index, String pkgName) {
         if (scalaPrecedingPackageTypes == null) {
-            scalaPrecedingPackageTypes = new HashMap<String, Set<IndexedElement>>();
+            scalaPrecedingPackageTypes = new HashMap<String, Set<GsfElement>>();
         }
 
-        Set<IndexedElement> idxElements = scalaPrecedingPackageTypes.get(pkgName);
-        if (idxElements == null) {
-            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+        Set<GsfElement> gsfElements = scalaPrecedingPackageTypes.get(pkgName);
+        if (gsfElements == null) {
+            gsfElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 
-            scalaPrecedingPackageTypes.put(pkgName, idxElements);
+            scalaPrecedingPackageTypes.put(pkgName, gsfElements);
         }
 
-        return idxElements;
+        return gsfElements;
     }
 
-    private static Set<IndexedElement> getImportedTypes(ScalaIndex index, String pkgName) {
+    private static Set<GsfElement> getImportedTypes(ScalaIndex index, String pkgName) {
         if (importedTypesCache == null) {
-            importedTypesCache = new HashMap<String, Set<IndexedElement>>();
+            importedTypesCache = new HashMap<String, Set<GsfElement>>();
         }
 
-        Set<IndexedElement> idxElements = importedTypesCache.get(pkgName);
+        Set<GsfElement> idxElements = importedTypesCache.get(pkgName);
         if (idxElements == null) {
             idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 
@@ -726,12 +732,12 @@ public class ScalaTypeInferencer {
         return idxElements;
     }
 
-    private static Set<IndexedElement> getPackageTypes(ScalaIndex index, String pkgName) {
+    private static Set<GsfElement> getPackageTypes(ScalaIndex index, String pkgName) {
         if (packageTypesCache == null) {
-            packageTypesCache = new HashMap<String, Set<IndexedElement>>();
+            packageTypesCache = new HashMap<String, Set<GsfElement>>();
         }
 
-        Set<IndexedElement> idxElements = packageTypesCache.get(pkgName);
+        Set<GsfElement> idxElements = packageTypesCache.get(pkgName);
         if (idxElements == null) {
             idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 

@@ -273,8 +273,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             // should include "." to narrow the search result?
             String pkgName = qName.substring(0, lastDot + 1);
             String sName = qName.substring(lastDot + 1, qName.length());
-            Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
-            for (IndexedElement idxType : idxTypes) {
+            Set<GsfElement> gsfTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            for (GsfElement gsfType : gsfTypes) {
+                IndexedElement idxType = (IndexedElement) gsfType.getElement();
                 if (idxType instanceof IndexedTypeElement) {
                     if (idxType.getSimpleName().toString().equals(sName)) {
                         candidate = new GsfElement(idxType, idxType.getFileObject(), info);

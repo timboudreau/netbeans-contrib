@@ -126,7 +126,6 @@ public class ScalaIndex {
         return scalaIndex;
     }
 
-
     /** Creates a new instance of ScalaIndex */
     private ScalaIndex(Index index, JavaIndex javaIndex, CompilationInfo info) {
         this.info = info;
@@ -322,23 +321,23 @@ public class ScalaIndex {
         return gsfElements;
     }
 
-    public Set<IndexedElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+    public Set<GsfElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
 
-        Set<IndexedElement> idxElements = getTypesByQualifiedName(fqnPrefix, kind, scope, null, false, false, true);
+        Set<GsfElement> gsfElements = getTypesByQualifiedName(fqnPrefix, kind, scope, null, false, false, true);
 
-        idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
+        gsfElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
-        return idxElements;
+        return gsfElements;
     }
 
-    public Set<IndexedElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+    public Set<GsfElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
 
         //Set<IndexedElement> idxElements = getTypesByQualifiedName(fqnPrefix, kind, scope, null, false, false, false);
-        Set<IndexedElement> idxElements = javaIndex.getPackages(fqnPrefix);
+        Set<GsfElement> gsfElements = javaIndex.getPackages(fqnPrefix);
         //idxElements.addAll(javaIndex.getPackages(fqnPrefix));
-        idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
+        gsfElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
-        return idxElements;
+        return gsfElements;
     }
 
     public Set<IndexedElement> getImportedTypes(List<String> importedPkg, String ofPackage) {
@@ -499,7 +498,7 @@ public class ScalaIndex {
         return gsfElements;
     }
 
-    private Set<IndexedElement> getTypesByQualifiedName(String fqnPrefix, NameKind kind,
+    private Set<GsfElement> getTypesByQualifiedName(String fqnPrefix, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context,
             boolean onlyConstructors, boolean includeDuplicates, boolean onlyContent) {
 
@@ -522,7 +521,7 @@ public class ScalaIndex {
             //terms = FQN_BASE_LOWER;
         }
 
-        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+        final Set<GsfElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
         String searchUrl = null;
         if (context != null) {
             try {
@@ -583,6 +582,10 @@ public class ScalaIndex {
                 if (!IndexedElement.isTemplate(flags)) {
                     continue;
                 }
+                
+                String fileUrl = map.getPersistentUrl();
+
+                FileObject fo = ScalaIndex.getFileObject(fileUrl);
 
                 IndexedElement element = null;
 
@@ -610,8 +613,10 @@ public class ScalaIndex {
                     }
                 }
 
+                map.getPersistentUrl();
                 if (element != null) {
-                    elements.add(element);
+                    GsfElement gsfElement = new GsfElement(element, fo, null);
+                    elements.add(gsfElement);
                 }
 
             }
@@ -645,7 +650,7 @@ public class ScalaIndex {
             // TODO - do some heuristics to deal with relative paths here,
             // e.g.   <script src="../../foo.js"></script>
 
-            for (int i = 0,  n = imports.size(); i <
+            for (int i = 0,   n = imports.size(); i <
                     n; i++) {
                 String imp = imports.get(i);
                 if (imp.indexOf("../") != -1) {

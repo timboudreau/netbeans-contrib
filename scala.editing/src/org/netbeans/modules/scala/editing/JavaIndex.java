@@ -94,21 +94,22 @@ public class JavaIndex {
         this.scalaIndex = scalaIndex;
     }
 
-    public Set<IndexedElement> getPackages(String fqnPrefix) {
+    public Set<GsfElement> getPackages(String fqnPrefix) {
         Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, ALL_SCOPE);
-        Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
+        Set<GsfElement> gsfElements = new HashSet<GsfElement>();
         int flags = 0 | IndexedElement.PACKAGE;
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
 
                 IndexedElement idxElement = new IndexedElement(pkgName, pkgName, "", "", flags, null, scalaIndex, ElementKind.PACKAGE);
-                idxElements.add(idxElement);
+                GsfElement gsfElement = new GsfElement(idxElement, null, info);
+                gsfElements.add(gsfElement);
             }
         }
-        return idxElements;
+        return gsfElements;
     }
 
-    public Set<IndexedElement> getPackageContent(String fqnPrefix) {
+    public Set<GsfElement> getPackageContent(String fqnPrefix) {
         String pkgName = null;
         String prefix = null;
 
@@ -131,7 +132,7 @@ public class JavaIndex {
             Set<Element> foundElements = new HashSet<Element>();
             Set<String> scalaElementNames = new HashSet<String>();
 
-            Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
+            Set<GsfElement> gsfElements = new HashSet<GsfElement>();
 
             for (Element e : pe.getEnclosedElements()) {
                 String sName = e.getSimpleName().toString();
@@ -184,18 +185,18 @@ public class JavaIndex {
 
                 IndexedElement idxElement = IndexedElement.create(qName, sName, in, attrs, null, scalaIndex, false);
                 idxElement.setJavaInfo(e, info);
-                idxElements.add(idxElement);
+                GsfElement gsfElement = new GsfElement(idxElement, null, info);
+                gsfElements.add(gsfElement);
             }
 
-            return idxElements;
+            return gsfElements;
         }
-        return Collections.<IndexedElement>emptySet();
+        return Collections.<GsfElement>emptySet();
     }
 
     public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context) {
 
-        //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
         final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
 
         JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
@@ -257,8 +258,7 @@ public class JavaIndex {
             Set<SearchScope> scope, ScalaParserResult context,
             boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
-        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
-        //final Set<GsfElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
+        final Set<GsfElement> gsfElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
 
         NameKind originalKind = kind;
         if (kind == NameKind.SIMPLE_NAME) {
@@ -336,8 +336,8 @@ public class JavaIndex {
                     continue;
                 }
 
-                String simpleName = e.getSimpleName().toString();
-                if (!JavaUtilities.startsWith(simpleName, memberName)) {
+                String sName = e.getSimpleName().toString();
+                if (!JavaUtilities.startsWith(sName, memberName)) {
                     continue;
                 }
 
@@ -352,7 +352,7 @@ public class JavaIndex {
                         break;
                     case ENUM_CONSTANT:
                     case FIELD: {
-                        if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
+                        if ("this".equals(sName) || "class".equals(sName) || "super".equals(sName)) {
                             //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
                             } else {
                             TypeMirror tm1 = tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType();
@@ -377,7 +377,7 @@ public class JavaIndex {
                         break;
                     }
                     case CONSTRUCTOR:
-                        simpleName = e.getEnclosingElement().getSimpleName().toString();
+                        sName = e.getEnclosingElement().getSimpleName().toString();
                     case METHOD: {
                         ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
 

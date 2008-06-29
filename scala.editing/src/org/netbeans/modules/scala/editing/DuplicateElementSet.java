@@ -51,8 +51,8 @@ import java.util.Set;
  * 
  * @author Tor Norbye
  */
-public class DuplicateElementSet implements Set<IndexedElement> {
-    private List<IndexedElement> elements = new ArrayList<IndexedElement>();
+public class DuplicateElementSet implements Set<GsfElement> {
+    private List<GsfElement> elements = new ArrayList<GsfElement>();
 
     public DuplicateElementSet() {
     }
@@ -69,7 +69,7 @@ public class DuplicateElementSet implements Set<IndexedElement> {
         return elements.contains(o);
     }
 
-    public Iterator<IndexedElement> iterator() {
+    public Iterator<GsfElement> iterator() {
         return elements.iterator();
     }
 
@@ -81,7 +81,7 @@ public class DuplicateElementSet implements Set<IndexedElement> {
         return elements.toArray(a);
     }
 
-    public boolean add(IndexedElement o) {
+    public boolean add(GsfElement o) {
         return elements.add(o);
     }
 
@@ -93,7 +93,7 @@ public class DuplicateElementSet implements Set<IndexedElement> {
         return elements.containsAll(c);
     }
 
-    public boolean addAll(Collection<? extends IndexedElement> c) {
+    public boolean addAll(Collection<? extends GsfElement> c) {
         return elements.addAll(c);
     }
 
