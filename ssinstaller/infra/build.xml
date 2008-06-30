@@ -565,7 +565,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     
     <target name="build-engine" depends="-init">
 	<property name="engine.dist.file.name" value="nbi-engine.jar"/>
-        
+<!--        
         <echo message="BUILDING CORE ENGINE ======================================"/>
         <ant dir="${nbi.core.dir}/infra/build/engine" target="build-all">
             <property 
@@ -612,6 +612,29 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <property
                 name="release.parent.uid"
                 value="tools-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+-->
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
