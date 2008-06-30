@@ -335,7 +335,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 value=""/>
         </ant>
  
-
         
 	<build-product dir="C_Compiler"/>
         <build-product dir="C++_Compiler"/>
@@ -612,6 +611,29 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <property
                 name="release.parent.uid"
                 value="tools-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
