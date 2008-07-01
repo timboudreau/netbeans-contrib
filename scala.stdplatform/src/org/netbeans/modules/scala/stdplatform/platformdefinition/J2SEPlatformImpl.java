@@ -71,7 +71,7 @@ public class J2SEPlatformImpl extends ScalaPlatform {
     protected static final String PLAT_PROP_ANT_NAME="scala.platform.ant.name";             //NOI18N
     protected static final String PLAT_PROP_ARCH_FOLDER="scala.platform.arch.folder";       //NOI18N
     protected static final String SYSPROP_BOOT_CLASSPATH = "scala.boot.class.path";     // NOI18N
-    protected static final String SYSPROP_JAVA_CLASS_PATH = "scala.class.path";        // NOI18N
+    protected static final String SYSPROP_SCALA_CLASS_PATH = "scala.class.path";        // NOI18N
     protected static final String SYSPROP_JAVA_EXT_PATH = "scala.ext.dirs";            //NOI18N
     protected static final String SYSPROP_USER_DIR = "user.dir";                      //NOI18N
 
@@ -228,7 +228,7 @@ public class J2SEPlatformImpl extends ScalaPlatform {
             ClassPath cp = (standardLibs == null ? null : standardLibs.get());
             if (cp != null)
                 return cp;
-            String pathSpec = getSystemProperties().get(SYSPROP_JAVA_CLASS_PATH);
+            String pathSpec = getSystemProperties().get(SYSPROP_SCALA_CLASS_PATH);
             cp = Util.createClassPath (pathSpec);
             standardLibs = new WeakReference<ClassPath>(cp);
             return cp;
@@ -344,9 +344,9 @@ public class J2SEPlatformImpl extends ScalaPlatform {
     
     private static Map<String,String> filterProbe (final Map<String,String> p) {
         if (p!=null) {
-            final String val = p.get(SYSPROP_JAVA_CLASS_PATH);
+            final String val = p.get(SYSPROP_SCALA_CLASS_PATH);
             if (val != null) {
-                p.put(SYSPROP_JAVA_CLASS_PATH, filterProbe(val, null));
+                p.put(SYSPROP_SCALA_CLASS_PATH, filterProbe(val, null));
             }
         }
         return p;

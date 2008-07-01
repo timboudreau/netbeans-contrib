@@ -56,7 +56,7 @@ import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.util.WeakListeners;
 
-final class BootClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
+final public class BootClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
 
     private static final String PLATFORM_ACTIVE = "platform.active";        //NOI18N
 

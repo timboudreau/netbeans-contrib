@@ -64,6 +64,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
 
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
 
+
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
     static ScalaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
         if (properties == null) {
@@ -83,6 +84,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
         if (javadoc == null) {
             javadoc = getJavadoc(scalaHome);
         }
+        properties.put(J2SEPlatformImpl.SYSPROP_SCALA_CLASS_PATH, getScalaClassPath());
         return new DefaultPlatformImpl(installFolders, properties, new HashMap(System.getProperties()), sources, javadoc);
     }
 
@@ -174,14 +176,8 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
         if (cp != null) {
             return cp;
         }
-        File scalaHome = getScalaHome();
-        String s = "";  //NOI18N
-        if (scalaHome.exists() && scalaHome.canRead()) {
-            File scalaLib = new File(scalaHome, "lib");  //NOI18N
-            if (scalaLib.exists() && scalaLib.canRead()) {
-                s = computeScalaClassPath(null, scalaLib);
-            }
-        }
+        String s = getScalaClassPath();
+        System.setProperty(J2SEPlatformImpl.SYSPROP_SCALA_CLASS_PATH, s);
         //String s = System.getProperty(SYSPROP_JAVA_CLASS_PATH);       //NOI18N
 //        if (s == null) {
 //            s = ""; // NOI18N
@@ -191,7 +187,19 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
         return cp;
     }
 
-    private String computeScalaClassPath(String extraCp, final File scalaLib) {
+    private static String getScalaClassPath() {
+        File scalaHome = getScalaHome();
+        String s = "";  //NOI18N
+        if (scalaHome.exists() && scalaHome.canRead()) {
+            File scalaLib = new File(scalaHome, "lib");  //NOI18N
+            if (scalaLib.exists() && scalaLib.canRead()) {
+                s = computeScalaClassPath(null, scalaLib);
+            }
+        }
+        return s;
+    }
+
+    private static String computeScalaClassPath(String extraCp, final File scalaLib) {
         StringBuilder cp = new StringBuilder();
         File[] libs = scalaLib.listFiles();
 

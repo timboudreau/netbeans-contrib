@@ -99,7 +99,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         this.evaluator = evaluator;
         this.sourceRoots = sourceRoots;
         this.testSourceRoots = testSourceRoots;
-        bootClassPathImpl = new BootClassPathImplementation(evaluator);
+        this.bootClassPathImpl = new BootClassPathImplementation(evaluator);
         evaluator.addPropertyChangeListener(WeakListeners.propertyChange(this, evaluator));
     }
 
