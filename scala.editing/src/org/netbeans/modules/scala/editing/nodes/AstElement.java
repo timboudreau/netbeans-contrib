@@ -154,7 +154,7 @@ public abstract class AstElement extends AstNode implements Element {
                         params != null &&
                         params.size() == funCall.getArgs().size();
             } else {
-                boolean containsVariableLengthArg = function.isVarArgs();
+                boolean containsVariableLengthArg = Function.isVarArgs(function);
                 if (element.getSimpleName().toString().equals(funCall.getCall().getSimpleName().toString()) || element.getSimpleName().toString().equals("apply") && funCall.isLocal()) {
                     if (params.size() == funCall.getArgs().size() || containsVariableLengthArg) {
                         return true;

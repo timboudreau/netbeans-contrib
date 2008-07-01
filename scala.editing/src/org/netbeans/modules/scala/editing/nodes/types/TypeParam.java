@@ -111,19 +111,20 @@ public class TypeParam extends TypeDef implements TypeParameterElement {
     public static void htmlFormat(TypeParameterElement typeParam, HtmlFormatter formatter) {
         formatter.appendText(typeParam.getSimpleName().toString());
         if (typeParam instanceof TypeParam) {
-            if (!((TypeParam) typeParam).getParams().isEmpty()) {
-                Iterator<TypeParam> itr = ((TypeParam) typeParam).getParams().iterator();
+            if (!((TypeParam) typeParam).getParams().isEmpty()) {                
                 formatter.appendText("[");
-                while (itr.hasNext()) {
+                
+                for (Iterator<TypeParam> itr = ((TypeParam) typeParam).getParams().iterator(); itr.hasNext();) {
                     htmlFormat(itr.next(), formatter);
                     
                     if (itr.hasNext()) {
                         formatter.appendText(", ");
                     }
                 }
+                
                 formatter.appendText("]");
             }
-        } else {
+        } else {            
             /** @todo */
         }
     }

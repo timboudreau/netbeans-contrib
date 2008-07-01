@@ -44,6 +44,7 @@ import java.util.List;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -181,6 +182,26 @@ public class Function extends AstElement implements WithTypeParams, ExecutableEl
             formatter.appendHtml(" :");
             if (type instanceof Type) {
                 ((Type) retType).htmlFormat(formatter);
+            }
+        }
+    }
+
+    public static boolean isVarArgs(ExecutableElement function) {
+        if (function instanceof Function) {
+            return ((Function) function).isVarArgs();
+        } else {
+            if (function.isVarArgs()) {
+                return true;
+            } else {
+                for (VariableElement param : function.getParameters()) {
+                    TypeMirror paramType = param.asType();
+                    String qName = Type.qualifiedNameOf(paramType);
+                    if (qName != null && qName.equals("scala.Seq")) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
     }

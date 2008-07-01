@@ -315,6 +315,7 @@ public class JavaIndex {
         
         if (companionTe != null) {
             isScala = isScala || JavaScalaMapping.isScala(companionTe);
+            te = companionTe;
         }
 
         if (te == null) {
@@ -330,7 +331,7 @@ public class JavaIndex {
         }
 
         if (elements != null) {
-            for (Element e : theElements.getAllMembers(te)) {
+            for (Element e : elements) {
 
                 if (e.getModifiers().contains(Modifier.PRIVATE)) {
                     continue;

@@ -284,9 +284,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             List<? extends TypeParameterElement> typeParams = function.getTypeParameters();
             if (!typeParams.isEmpty()) {
                 formatter.appendHtml("[");
-                
-                Iterator<? extends TypeParameterElement> itr = typeParams.iterator();
-                while (itr.hasNext()) {
+                                
+                for (Iterator<? extends TypeParameterElement> itr = typeParams.iterator(); itr.hasNext();) {
                     TypeParameterElement typeParam = itr.next();
                     TypeParam.htmlFormat(typeParam, formatter);
                     
@@ -294,6 +293,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                         formatter.appendText(", "); // NOI18N
                     }
                 }
+                
                 formatter.appendHtml("]");
             }
 
@@ -301,9 +301,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             List<? extends VariableElement> params = function.getParameters();
             if (!params.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
-
-                Iterator<? extends VariableElement> itr = params.iterator();
-                while (itr.hasNext()) { // && tIt.hasNext()) {
+                
+                for (Iterator<? extends VariableElement> itr = params.iterator(); itr.hasNext();) { // && tIt.hasNext()) {
                     formatter.parameters(true);
 
                     VariableElement param = itr.next();
@@ -314,9 +313,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                         formatter.parameters(true);
 
                         formatter.type(true);
-                        TypeMirror type = param.asType();
-                        String typeSName = Type.simpleNameOf(type);
-                        formatter.appendText(typeSName);
+                        Type.htmlFormat(formatter, param.asType(), true);
                         formatter.type(false);
                     }
 
@@ -334,7 +331,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(Type.simpleNameOf(retType));
+                Type.htmlFormat(formatter, retType, true);
                 formatter.type(false);
             }
 
