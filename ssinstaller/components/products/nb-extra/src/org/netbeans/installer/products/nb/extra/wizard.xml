@@ -35,10 +35,6 @@
   holder.
 -->
 
-<wizard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="wizard-components.xsd">
-    <component class="org.netbeans.installer.wizard.components.actions.SetInstallationLocationAction">
-        <properties>
-            <property name="source.component">nb-extra</property>
-        </properties>
-    </component>
+<wizard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="wizard-components.xsd">    
+    <component class="org.netbeans.installer.products.nb.extra.wizard.panels.NbLocationPanel"/>    
 </wizard>
