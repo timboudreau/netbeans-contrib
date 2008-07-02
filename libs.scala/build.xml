@@ -43,7 +43,7 @@ made subject to such option by the copyright holder.
 <project name="contrib/libs.scala" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="release" depends="init">
+    <target name="unziplibs" depends="init">
         <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.1.final.tar.gz"/>
         
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-library-src.jar"/>
@@ -55,5 +55,7 @@ made subject to such option by the copyright holder.
             <fileset dir="${scala.dir}/src" includes="*.jar"/>
         </delete>
     </target>    
-    
+
+    <target name="netbeans-extra" depends="unziplibs"/>
+
 </project>
