@@ -39,7 +39,7 @@ fi
 PRODUCT="Sun Studio"
 
 # PRODUCTID - id that is used for identifying registration page on SysNet.
-PRODUCTID="nb"
+PRODUCTID="ss"
 
 # REGISTRATION_DIR - a directory to store UIDs for
 #      already registered instances of product
@@ -69,7 +69,7 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inv-ws-staging.central.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
 
 # STDIR - directory that contains swordfish.data and templates for
 #      registration page generating (relative to sunstudio installation dir)
@@ -223,7 +223,7 @@ init() {
    validate_locale ${LANG}
 
    STSUPPORTED=0
-   if [ -f `which stclient` ]; then
+   if [ -f `which stclient 2>/dev/null` ]; then
       STSUPPORTED=1
    fi
 }
@@ -598,7 +598,7 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
    generateRegistrationHTML 1>/dev/null 2>/dev/null
    mkdir -p $HOME_SUNSTUDIO_DIR
-   if [ `whoami` = 'root' ]
+   if [ `id -g` = '0' ]
    then
 	browse "file://$REGISTRATION_PAGE"
    else
