@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="contrib/scala.editing">
+<project basedir="." default="netbeans" name="contrib/scala.editing" xmlns:scalaProject1="http://www.netbeans.org/ns/scala-project/1">
     <description>Builds, tests, and runs the project org.netbeans.modules.scala.editing</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <import file="nbproject/build-scala.xml"/>
+
+    <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
+    
+    <target name="compile" depends="init,scala.compile,projectized-common.compile"/>
+    <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build,scala.do-test-build"/>
     
     <target name="rats" depends="init" description="Scala Scanner">
        <echo message="Rebuilding token scanner... ${rats.package.dir}"/>

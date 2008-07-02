@@ -39,13 +39,17 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *
@@ -208,6 +212,58 @@ public class JavaScalaMapping {
                 i = j - 1;
             } else {
                 sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static int isFunctionType(TypeMirror functionType) {
+        int paramNum = -1;
+        String funQName = Type.qualifiedNameOf(functionType);
+        int lastDot = funQName.lastIndexOf('.');
+        if (lastDot != -1) {
+            String pkgName = funQName.substring(0, lastDot);
+            String funSName = funQName.substring(lastDot + 1, funQName.length());
+            if (pkgName.equals("scala")) {
+                if (funSName.startsWith("Function")) {
+                    String paramNumStr = funSName.substring(8, funSName.length());
+                    try {
+                        paramNum = Integer.parseInt(paramNumStr);
+                    } catch (Exception ex) {
+                        paramNum = -1;
+                    }
+                }
+            }
+        }
+
+        return paramNum;
+    }
+
+    public static String classFunctionToScalaSName(TypeMirror type, int paramNum, List<VariableElement> params) {
+        StringBuilder sb = new StringBuilder();
+
+        if (paramNum != -1) {
+            // last one is return type
+            assert paramNum == params.size();
+            DeclaredType declType = (DeclaredType) type;
+            List<? extends TypeMirror> retType = declType.getTypeArguments();
+            List<? extends TypeParameterElement> paramsTe = ((TypeElement) declType.asElement()).getTypeParameters();
+            if (paramNum == 0) {
+            } else if (paramNum == 1) {
+                sb.append("=> ");
+                sb.append(Type.simpleNameOf(params.get(0).asType()));
+            } else {
+                sb.append("(");
+                for (int i = 0; i < params.size() - 1; i++) {
+                    sb.append(Type.simpleNameOf(params.get(i).asType()));
+                    if (i < params.size() - 2) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append(")");
+                sb.append(" => ");
+                sb.append(Type.simpleNameOf(params.get(params.size() - 1).asType()));
             }
         }
 

@@ -10,19 +10,19 @@ class ClassExample {
     var number :Int = 123;
     val str = "String";
     
-    def getElement(element) = {
+    def getElement(index: Int) = {
         var targetLeft = 0;
         
-        while (element) {
-            if (element.offsetParent) {
-                targetLeft += element.offsetLeft;
-            } else if (element.x) {
-                targetLeft += element.x;
+        while (index > 0) {
+            if (index > 0) {
+                targetLeft += index;
+            } else if (index < 0) {
+                targetLeft += index;
             }
-            element = element.offsetParent;
+            targetLeft = index;
         }
         
-        return this.number + '_' + str; // line comment
+        targetLeft; // line comment
     }
 } 
 

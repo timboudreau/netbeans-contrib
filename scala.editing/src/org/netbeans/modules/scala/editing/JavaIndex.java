@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -62,10 +64,16 @@ import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.modules.classfile.AttributeMap;
+import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
+import org.netbeans.modules.scala.editing.scalasig.ByteArrayReader;
+import org.netbeans.modules.scala.editing.scalasig.Entity;
+import org.netbeans.modules.scala.editing.scalasig.EntityTable;
+import org.netbeans.modules.scala.editing.scalasig.ScalaAttribute;
 
 /**
  *
@@ -302,7 +310,7 @@ public class JavaIndex {
         if (namedTe != null) {
             te = ElementHandle.<TypeElement>create(namedTe).resolve(info);
         }
-        
+
         if (te != null) {
             isScala = JavaScalaMapping.isScala(te);
         }
@@ -312,7 +320,7 @@ public class JavaIndex {
         if (namedCompanionTe != null) {
             companionTe = ElementHandle.<TypeElement>create(namedCompanionTe).resolve(info);
         }
-        
+
         if (companionTe != null) {
             isScala = isScala || JavaScalaMapping.isScala(companionTe);
             te = companionTe;
@@ -321,6 +329,76 @@ public class JavaIndex {
         if (te == null) {
             return gsfElements;
         }
+
+        File f = new File("/Users/dcaoyuan/my-project/scala-test/Foo.class");
+
+
+//        try {
+//            byte[] data = ClassFile.getBytesFromFile(f);
+//            // construct a reader for the classfile content
+//            ByteArrayReader reader = new ByteArrayReader(data);
+//            // parse the classfile
+//            scala.tools.scalap.Classfile clazz = new scala.tools.scalap.Classfile(reader);
+//            // check if there is a Scala signature attribute
+//            scala.List attrs = clazz.attribs();
+//            for (scala.tools.scalap.Classfile.Attribute h = (scala.tools.scalap.Classfile.Attribute) attrs.head(); attrs.tail() != null; attrs = attrs.tail()) {
+//                if (h.toString().equals("ScalaSig")) {
+//                    ScalaAttribute scalaAttrs = new ScalaAttribute(h.reader());
+//                    EntityTable symtab = new EntityTable(scalaAttrs);
+//                    Entity[] entitys = symtab.table();
+//                    for (Entity en : entitys) {
+//                        System.out.println(en.toString());
+//                    }
+//                }
+//
+//            }
+//        } catch (IOException ex) {
+//            Exceptions.printStackTrace(ex);
+//        }
+//        Object h = attrs.head();
+//        val attrib = clazz.attribs.find(a => a.toString() == "ScalaSignature")
+//      attrib match {
+//        // if the attribute is found, we have to extract the scope
+//        // from the attribute
+//        case Some(a) =>
+//          processScalaAttribute(args, a.reader)
+//        // It must be a Java class
+//        case None =>
+//          processJavaClassFile(clazz)
+//      }
+
+
+        ClassFile cFile;
+        try {
+            cFile = new ClassFile("/Users/dcaoyuan/my-project/scala-test/Foo.class", false);
+            AttributeMap am = cFile.getAttributes();
+            byte[] scalaSig = am.get("ScalaSig");
+            if (scalaSig != null) {
+                ScalaAttribute scalaAttr = null;
+                try {
+                    scalaAttr = new ScalaAttribute(new ByteArrayReader(scalaSig));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (scalaAttr != null) {
+                    EntityTable symtab = new EntityTable(scalaAttr);
+                    Entity[] entitys = symtab.table();
+                    for (Entity en : entitys) {
+                        System.out.println(en.toString());
+                    }
+                }
+
+                System.out.println("here");
+            }
+
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        //index.getResources(element, searchKind, scope)
+        //FileObject classFo = org.netbeans.api.java.source.SourceUtils.getFile(ElementHandle.create(te), info.getClasspathInfo());
+
+        //Set<FileObject> fos = index.getResources(ElementHandle.create(te), Collections.singleton(ClassIndex.SearchKind.IMPLEMENTORS), scope);
 
         TypeMirror tm = te.asType();
         TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
