@@ -38,15 +38,12 @@ package org.netbeans.installer.wizard.components.panels.sunstudio;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.swing.border.EmptyBorder;
 import org.netbeans.installer.Installer;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.RegistryNode;
@@ -58,12 +55,9 @@ import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.applications.NetBeansUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.utils.helper.Dependency;
-import org.netbeans.installer.utils.helper.Status;
-import org.netbeans.installer.utils.helper.swing.NbiCheckBox;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
@@ -95,8 +89,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 DEFAULT_DOWNLOAD_SIZE);
         setProperty(NB_ADDONS_LOCATION_TEXT_PROPERTY,
                 DEFAULT_NB_ADDONS_LOCATION_TEXT);
-        setProperty(GF_ADDONS_LOCATION_TEXT_PROPERTY,
-                DEFAULT_GF_ADDONS_LOCATION_TEXT);
+        setProperty(SS_ADDONS_LOCATION_TEXT_PROPERTY,
+                DEFAULT_SS_ADDONS_LOCATION_TEXT);
         
         setProperty(NEXT_BUTTON_TEXT_PROPERTY,
                 DEFAULT_NEXT_BUTTON_TEXT);
@@ -167,20 +161,17 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
         private NbiLabel uninstallListLabel;
         private NbiTextPane uninstallListPane;
         
-        private NbiLabel installationSizeLabel;
-        private NbiLabel installationSizeValue;
+        private NbiLabel installationSSSummary;
+        private NbiLabel installationSSSize;
+                  
+        private NbiLabel installationSSComponenets;
+        private NbiLabel installationNBSummary;
         
         private NbiLabel downloadSizeLabel;
         private NbiLabel downloadSizeValue;
         
         private NbiPanel spacer;
-        
-      //  private NbiCheckBox gfCheckbox;
-      //  private NbiCheckBox tomcatCheckbox;
-      //  private Product glassfishProduct;
-       // private Product tomcatProduct;
-        
-       // private NbiLabel runtimesToRemove;
+           
         
         public SSPreInstallSummaryPanelSwingUi(
                 final PreInstallSummaryPanel component,
@@ -194,8 +185,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
         // protected ////////////////////////////////////////////////////////////////
         @Override
         protected void initializeContainer() {
-            super.initializeContainer();
-            
+            super.initializeContainer();            
             container.getNextButton().setText(
                     panel.getProperty(NEXT_BUTTON_TEXT_PROPERTY));
         }
@@ -205,119 +195,53 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             final Registry registry = Registry.getInstance();
             
             final StringBuilder text = new StringBuilder();
-            long installationSize = 0;
+            long installationSizeSS = 0;
+            long installationSizeNb = 0;
             long downloadSize = 0;
             
             final List<Product> dependentOnNb = new LinkedList<Product>();
-            final List<Product> dependentOnGf = new LinkedList<Product>();
-            boolean nbBasePresent = false;
+            final List<Product> dependentOnSS = new LinkedList<Product>();            
             
-            for (Product product: registry.getProductsToInstall()) {
-                installationSize += product.getRequiredDiskSpace();
-                downloadSize += product.getDownloadSize();
-                
-                try {
-                    if (product.getLogic().registerInSystem() || product.getUid().equals("jdk")) {
-                        nbBasePresent = product.getUid().equals("nb-base") ? true : nbBasePresent;
+            for (Product product: registry.getProductsToInstall()) {                
+                downloadSize += product.getDownloadSize();                
+                    // TODO change to real dependency checking ....
+                    if (product.getUid().startsWith("nb-")) {
+                        dependentOnNb.add(product);
+                        installationSizeNb += product.getRequiredDiskSpace();
                     } else {
-                        if (product.getUid().startsWith("nb-")) {
-                            dependentOnNb.add(product);
-                        } else {
-                            dependentOnGf.add(product);
-                        }
-                    }
-                } catch (InitializationException e) {
-                    ErrorManager.notifyError(
-                            panel.getProperty(ERROR_LOGIC_ACCESS_PROPERTY),e);
-                }
+                        dependentOnSS.add(product);
+                        installationSizeSS += product.getRequiredDiskSpace();
+                    }               
             }
             
-            
-            File nbLocation = null;
-            Product base = null;
-            // If there are several packs to be installed but Base is already installed
-            // then search it and the corresponding record to text
-            if (dependentOnNb.size() > 0 && !nbBasePresent) {
-                for(Product product : dependentOnNb) {
-                    List <Dependency> bases = product.getDependencyByUid("nb-base");
-                    if(!bases.isEmpty()) {
-                        // dependency is already resolved at this point
-                        base = Registry.getInstance().getProducts(bases.get(0)).get(0);
+            Product ssProduct = registry.getProducts("ss-base").get(0);
+            dependentOnSS.remove(ssProduct);
+          //  Product nbProduct = registry.getProducts("nb-extra").get(0);
 
-                        if(base!=null) {
-                            nbLocation = base.getInstallationLocation();
-                            try {
-                                if(base.getLogic().wrapForMacOs() && SystemUtils.isMacOS()) {
-                                    final File app = nbLocation.getParentFile().getParentFile().getParentFile();
-                                    nbLocation = app;
-                                }
-                            } catch (InitializationException e){
-                                LogManager.log(".. cannot get logic for " + base.getDisplayName() + " (" + base.getVersion() + ")", e);
-                            } catch (NullPointerException e){
-                                LogManager.log(".. cannot get app directory for " + nbLocation);
-                            }
-                            if(nbLocation!=null) {
-                                text.append(StringUtils.LF);
-                                text.append(StringUtils.format(
-                                        panel.getProperty(INSTALLATION_FOLDER_NETBEANS_PROPERTY),
-                                        base.getDisplayName()));
-                                text.append(StringUtils.LF);
-                                text.append("    " + nbLocation);
-                                text.append(StringUtils.LF);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            // add top-level components like nb-base, glassfish, tomcat, jdk
-            for (Product product: registry.getProductsToInstall()) {
-                try {
-                    if (product.getLogic().registerInSystem() || product.getUid().equals("jdk")) {
-                        String property = panel.getProperty(
-                                product.getUid().equals("nb-base") ?
-                                    INSTALLATION_FOLDER_NETBEANS_PROPERTY :
-                                    INSTALLATION_FOLDER_PROPERTY);
-                        text.append(StringUtils.format(property,
-                                product.getDisplayName()));
-                        text.append(StringUtils.LF);
-                        text.append("    " + product.getInstallationLocation());
-                        text.append(StringUtils.LF);
-                    }
-                } catch (InitializationException e) {
-                    ErrorManager.notifyError(
-                            panel.getProperty(ERROR_LOGIC_ACCESS_PROPERTY),e);
-                }
-            }
-            // if we could not find nb-base location (very rare case) just mention all the packs to be installed
-            if(!nbBasePresent && nbLocation == null && dependentOnNb.size() > 0) {
-                text.append(StringUtils.LF);
-                text.append(StringUtils.format(
-                        panel.getProperty(NB_ADDONS_LOCATION_TEXT_PROPERTY),
-                        StringUtils.asString(dependentOnNb)));
-                text.append(StringUtils.LF);
-            }
-            // at the end add glassfish components record
-            if (dependentOnGf.size() > 0) {
-                text.append(StringUtils.LF);
-                text.append(StringUtils.format(
-                        panel.getProperty(GF_ADDONS_LOCATION_TEXT_PROPERTY),
-                        StringUtils.asString(dependentOnGf)));
-                text.append(StringUtils.LF);
-            }
-            
-            locationsPane.setText(text);
-            
             uninstallListLabel.setText(
                     panel.getProperty(UNINSTALL_LIST_LABEL_TEXT_PROPERTY));
             uninstallListPane.setText(
                     StringUtils.asString(registry.getProductsToUninstall()));
             
-            installationSizeLabel.setText(
-                    panel.getProperty(INSTALLATION_SIZE_PROPERTY));
-            installationSizeValue.setText(StringUtils.formatSize(
-                    installationSize));
+            installationSSSummary.setText(
+               //     StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY), 
+                 //   Registry.getInstance().getProducts("ss-base").get(0)));
+                    "Sun Studio will be installed in folder: " 
+                    + ssProduct.getInstallationLocation().getAbsolutePath());
+            installationSSSize.setText("Required Size: "+  StringUtils.formatSize(
+                    installationSizeSS));
+            
+            
+            installationSSComponenets.setText(
+                    //StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY), 
+                    //Registry.getInstance().getProducts("nb-base").get(0)))
+                    "Installed components: " + StringUtils.asString(dependentOnSS));
+            if (dependentOnNb.size() > 0) {
+                installationNBSummary.setText("NetBeans will be updated.");
+            } else {
+                installationNBSummary.setText("");
+            }
+            
             
             downloadSizeLabel.setText(
                     panel.getProperty(DOWNLOAD_SIZE_PROPERTY));
@@ -326,13 +250,18 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             
             if (registry.getProductsToInstall().size() == 0) {
                 locationsPane.setVisible(false);
-                installationSizeLabel.setVisible(false);
-                installationSizeValue.setVisible(false);
+                installationSSSummary.setVisible(false);
+                installationSSSize.setVisible(false);   
+                installationSSComponenets.setVisible(false);
+                installationNBSummary.setVisible(false);
             } else {
                 locationsPane.setVisible(true);
-                installationSizeLabel.setVisible(true);
-                installationSizeValue.setVisible(true);
+                installationSSSummary.setVisible(true);
+                installationSSSize.setVisible(true);
+                installationSSComponenets.setVisible(true);
+                installationNBSummary.setVisible(true);
             }
+            
             
             if (registry.getProductsToUninstall().size() == 0) {
                 uninstallListLabel.setVisible(false);
@@ -350,12 +279,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     downloadSizeValue.setVisible(true);
                 }
             }
-            //if(gfCheckbox!=null) {
-            //    gfCheckbox.doClick();
-            //}
-            //if(tomcatCheckbox!=null) {
-            //    tomcatCheckbox.doClick();
-            //}
+            
             super.initialize();
         }
         
@@ -382,7 +306,9 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     spaceMap.put(downloadDataDirRoot, new Long(downloadSize));
                     long lastDataSize = 0;
                     for (Product product: toInstall) {
+                                                
                         final File installLocation = product.getInstallationLocation();
+                      //  LogManager.log("   Prouct [" + product. + "] <- " + installLocation);
                         final File root = FileUtils.getRoot(installLocation, roots);
                         final long productSize = product.getRequiredDiskSpace();
                         
@@ -460,14 +386,21 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             uninstallListLabel = new NbiLabel();
             uninstallListLabel.setLabelFor(uninstallListPane);
             
-            // installationSizeValue ////////////////////////////////////////////////
-            installationSizeValue = new NbiLabel();
-            installationSizeValue.setFocusable(true);
+            // installationSSSize ////////////////////////////////////////////////
+            installationSSSize = new NbiLabel();
+            installationSSSize.setFocusable(true);
             
-            // installationSizeLabel ////////////////////////////////////////////////
-            installationSizeLabel = new NbiLabel();
-            installationSizeLabel.setLabelFor(installationSizeValue);
+            // installationSSSummary ////////////////////////////////////////////////
+            installationSSSummary = new NbiLabel();
+            installationSSSummary.setLabelFor(installationSSSize);
+                     
+            // installationSSSize ////////////////////////////////////////////////
+            installationNBSummary = new NbiLabel();
+            installationNBSummary.setFocusable(true);
             
+            // installationSSSummary ////////////////////////////////////////////////
+            installationSSComponenets = new NbiLabel();
+            installationSSComponenets.setLabelFor(installationNBSummary);
             // downloadSizeValue ////////////////////////////////////////////////////
             downloadSizeValue = new NbiLabel();
             downloadSizeValue.setFocusable(true);
@@ -480,14 +413,6 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             spacer = new NbiPanel();
             
             // this /////////////////////////////////////////////////////////////////
-            add(locationsPane, new GridBagConstraints(
-                    0, 0,                             // x, y
-                    1, 1,                             // width, height
-                    1.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.PAGE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(11, 11, 0, 11),        // padding
-                    0, 0));                           // padx, pady - ???
             add(uninstallListLabel, new GridBagConstraints(
                     0, 1,                             // x, y
                     1, 1,                             // width, height
@@ -504,151 +429,37 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     GridBagConstraints.HORIZONTAL,    // fill
                     new Insets(0, 11, 0, 11),         // padding
                     0, 0));                           // padx, pady - ???
-            int index = 3;
-           /* 
-            final String runtimesToRemoveText = ADDITIONAL_RUNTIMES_TO_DELETE;
-            //final String removeSpecificRuntime = "<html>{0}";
-            //final String removeSpecificRuntimeIncluding = "<html>{0} (including {1})";
-            
-            for(Product product : Registry.getInstance().getProductsToUninstall()) {
-                if(product.getUid().equals("nb-base")) {
-                    try {
-                        File installLocation = product.getInstallationLocation();
-                        
-                        String gfLocation = NetBeansUtils.getJvmOption(
-                                installLocation, GLASSFISH_JVM_OPTION_NAME);
-                        String tomcatLocation = NetBeansUtils.getJvmOption(
-                                installLocation, TOMCAT_JVM_OPTION_NAME_HOME);
-                        if(gfLocation!=null) {
-                            for(final Product gfProduct : Registry.getInstance().getProducts("glassfish")) {
-                                if(gfProduct.getStatus() == Status.INSTALLED &&
-                                        new File(gfLocation).equals(gfProduct.getInstallationLocation()))    {
-                                    glassfishProduct = gfProduct;
-                                    gfCheckbox = new NbiCheckBox();
-                                    //List <Product> alsoRemoving = Registry.getInstance().getInavoidableDependents(gfProduct);
-                                    //for(Product toUninstall : Registry.getInstance().getProductsToUninstall()) {
-                                    //    alsoRemoving.remove(toUninstall);
-                                    //}
-                                    //final String text = (alsoRemoving.isEmpty()) ?
-                                    //    StringUtils.format(removeSpecificRuntime, gfProduct.getDisplayName()) :
-                                    //    StringUtils.format(removeSpecificRuntimeIncluding, gfProduct.getDisplayName(),
-                                    //       StringUtils.asString(alsoRemoving));
-                                    //gfCheckbox.setText(text);
-                                    gfCheckbox.setText(gfProduct.getDisplayName());
-                                    gfCheckbox.setBorder(new EmptyBorder(0,0,0,0));
-                                    runtimesToRemove = new NbiLabel();
-                                    runtimesToRemove.setText(StringUtils.format(runtimesToRemoveText,
-                                            product.getLogic().getSystemDisplayName()));
-                                    gfCheckbox.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            if(gfCheckbox.isSelected()) {
-                                                gfProduct.setStatus(Status.TO_BE_UNINSTALLED);
-                                            } else {
-                                                gfProduct.setStatus(Status.INSTALLED);
-                                            }
-                                        }
-                                    });
-                                    
-                                    add(runtimesToRemove, new GridBagConstraints(
-                                            0, index++,                        // x, y
-                                            1, 1,                             // width, height
-                                            1.0, 0.0,                         // weight-x, weight-y
-                                            GridBagConstraints.PAGE_START,    // anchor
-                                            GridBagConstraints.HORIZONTAL,    // fill
-                                            new Insets(0, 11, 0, 11),         // padding
-                                            0, 0));                           // padx, pady - ???
-                                    add(gfCheckbox, new GridBagConstraints(
-                                            0, index++,                        // x, y
-                                            1, 1,                             // width, height
-                                            1.0, 0.0,                         // weight-x, weight-y
-                                            GridBagConstraints.PAGE_START,    // anchor
-                                            GridBagConstraints.HORIZONTAL,    // fill
-                                            new Insets(0, 20, 0, 11),         // padding
-                                            0, 0));                           // padx, pady - ???
-                                    break;
-                                }
-                            }
-                        }
-                        if(tomcatLocation!=null) {
-                            for(final Product ttProduct : Registry.getInstance().getProducts("tomcat")) {
-                                if(ttProduct.getStatus() == Status.INSTALLED &&
-                                        new File(tomcatLocation).equals(ttProduct.getInstallationLocation()))    {
-                                    tomcatProduct = ttProduct;
-                                    tomcatCheckbox = new NbiCheckBox();
-                                    
-                                    //List <Product> alsoRemoving = Registry.getInstance().getInavoidableDependents(tomcatProduct);
-                                    //for(Product toUninstall : Registry.getInstance().getProductsToUninstall()) {
-                                    //alsoRemoving.remove(toUninstall);
-                                    //}
-                                    //final String text = (alsoRemoving.isEmpty()) ?
-                                    //    StringUtils.format(removeSpecificRuntime, tomcatProduct.getDisplayName()) :
-                                    //    StringUtils.format(removeSpecificRuntimeIncluding, tomcatProduct.getDisplayName(),
-                                    //        StringUtils.asString(alsoRemoving));
-                                    //tomcatCheckbox.setText(text);
-                                    tomcatCheckbox.setText(tomcatProduct.getDisplayName());
-                                    
-                                    tomcatCheckbox.setBorder(new EmptyBorder(0,0,0,0));
-                                    if(runtimesToRemove==null) {
-                                        runtimesToRemove = new NbiLabel();
-                                        runtimesToRemove.setText(StringUtils.format(runtimesToRemoveText,
-                                                product.getLogic().getSystemDisplayName()));
-                                        
-                                        add(runtimesToRemove, new GridBagConstraints(
-                                                0, index++,                        // x, y
-                                                1, 1,                             // width, height
-                                                1.0, 0.0,                         // weight-x, weight-y
-                                                GridBagConstraints.PAGE_START,    // anchor
-                                                GridBagConstraints.HORIZONTAL,    // fill
-                                                new Insets(0, 11, 0, 11),         // padding
-                                                0, 0));                           // padx, pady - ???
-                                    }
-                                    
-                                    tomcatCheckbox.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            if(tomcatCheckbox.isSelected()) {
-                                                tomcatProduct.setStatus(Status.TO_BE_UNINSTALLED);
-                                            } else {
-                                                tomcatProduct.setStatus(Status.INSTALLED);
-                                            }
-                                        }
-                                    });
-                                    
-                                    add(tomcatCheckbox, new GridBagConstraints(
-                                            0, index++,                        // x, y
-                                            1, 1,                             // width, height
-                                            1.0, 0.0,                         // weight-x, weight-y
-                                            GridBagConstraints.PAGE_START,    // anchor
-                                            GridBagConstraints.HORIZONTAL,    // fill
-                                            new Insets(0, 20, 0, 11),         // padding
-                                            0, 0));                           // padx, pady - ???
-                                    break;
-                                }
-                            }
-                        }
-                        
-                    } catch (IOException e) {
-                        LogManager.log(e);
-                    }  catch (InitializationException e) {
-                        LogManager.log(e);
-                    }
-                }
-            }*/
-            
-            add(installationSizeLabel, new GridBagConstraints(
-                    0, 6,                             // x, y
+             add(installationSSSummary, new GridBagConstraints(
+                    0, 3,                             // x, y
                     1, 1,                             // width, height
                     1.0, 0.0,                         // weight-x, weight-y
                     GridBagConstraints.LINE_START,    // anchor
                     GridBagConstraints.HORIZONTAL,    // fill
                     new Insets(22, 11, 0, 11),        // padding
                     0, 0));                           // padx, pady - ???
-            add(installationSizeValue, new GridBagConstraints(
-                    0, 7,                             // x, y
+            add(installationSSSize, new GridBagConstraints(
+                    0, 4,                             // x, y
                     1, 1,                             // width, height
                     1.0, 0.0,                         // weight-x, weight-y
                     GridBagConstraints.LINE_START,    // anchor
                     GridBagConstraints.HORIZONTAL,    // fill
                     new Insets(4, 22, 0, 11),         // padding
+                    0, 0));                           // padx, pady - ???            
+            add(installationSSComponenets, new GridBagConstraints(
+                    0, 5,                             // x, y
+                    1, 1,                             // width, height
+                    1.0, 0.0,                         // weight-x, weight-y
+                    GridBagConstraints.LINE_START,    // anchor
+                    GridBagConstraints.HORIZONTAL,    // fill
+                    new Insets(4, 22, 0, 11),        // padding
+                    0, 0));                           // padx, pady - ???
+            add(installationNBSummary, new GridBagConstraints(
+                    0, 7,                             // x, y
+                    1, 1,                             // width, height
+                    1.0, 0.0,                         // weight-x, weight-y
+                    GridBagConstraints.LINE_START,    // anchor
+                    GridBagConstraints.HORIZONTAL,    // fill
+                    new Insets(22, 11, 0, 11),         // padding
                     0, 0));                           // padx, pady - ???
             add(downloadSizeLabel, new GridBagConstraints(
                     0, 8,                             // x, y
@@ -677,25 +488,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
         }
         
         @Override
-        public void evaluateNextButtonClick() {
-            /*if(glassfishProduct!=null &&
-                    glassfishProduct.getStatus()==Status.TO_BE_UNINSTALLED) {
-                glassfishProduct.setStatus(Status.INSTALLED);
-                List <Product> others = Registry.getInstance().getInavoidableDependents(glassfishProduct);
-                for(Product pr : others) {
-                    pr.setStatus(Status.TO_BE_UNINSTALLED);
-                }
-                glassfishProduct.setStatus(Status.TO_BE_UNINSTALLED);
-            }
-            if(tomcatProduct!=null &&
-                    tomcatProduct.getStatus()==Status.TO_BE_UNINSTALLED) {
-                tomcatProduct.setStatus(Status.INSTALLED);
-                List <Product> others = Registry.getInstance().getInavoidableDependents(tomcatProduct);
-                for(Product pr : others) {
-                    pr.setStatus(Status.TO_BE_UNINSTALLED);
-                }
-                tomcatProduct.setStatus(Status.TO_BE_UNINSTALLED);
-            }*/
+        public void evaluateNextButtonClick() {           
             super.evaluateNextButtonClick();
         }
         
@@ -715,8 +508,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             "download.size"; // NOI18N
     public static final String NB_ADDONS_LOCATION_TEXT_PROPERTY =
             "addons.nb.install.location.text"; // NOI18N
-    public static final String GF_ADDONS_LOCATION_TEXT_PROPERTY =
-            "addons.gf.install.location.text"; // NOI18N
+    public static final String SS_ADDONS_LOCATION_TEXT_PROPERTY =
+            "addons.ss.install.location.text"; // NOI18N
     
     public static final String ERROR_NOT_ENOUGH_SPACE_PROPERTY =
             "error.not.enough.space"; // NOI18N
@@ -756,9 +549,9 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
     public static final String DEFAULT_DOWNLOAD_SIZE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.download.size"); // NOI18N
-    public static final String DEFAULT_GF_ADDONS_LOCATION_TEXT =
+    public static final String DEFAULT_SS_ADDONS_LOCATION_TEXT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.addons.gf.install.location.text"); // NOI18N
+            "NPrISP.addons.ss.install.location.text"); // NOI18N
     public static final String DEFAULT_NB_ADDONS_LOCATION_TEXT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.addons.nb.install.location.text"); // NOI18N
@@ -793,8 +586,4 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
     
     public static final long REQUIRED_SPACE_ADDITION =
             10L * 1024L * 1024L; // 10MB
-    public static final String GLASSFISH_JVM_OPTION_NAME =
-            "-Dcom.sun.aas.installRoot"; // NOI18N
-    public static final String TOMCAT_JVM_OPTION_NAME_HOME =
-            "-Dorg.netbeans.modules.tomcat.autoregister.catalinaHome"; // NOI18N
 }

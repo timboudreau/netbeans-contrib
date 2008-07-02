@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.products.nb.base.wizard.panels;
+package org.netbeans.installer.products.nb.extra.wizard.panels;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -46,26 +46,31 @@ import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.wizard.components.panels.ApplicationLocationPanel;
-import org.netbeans.installer.wizard.components.panels.DestinationPanel;
+import org.netbeans.installer.wizard.components.panels.sunstudio.PreInstallSummaryPanel;
 
 /**
  *
- * @author Kirill Sorokin
+ * @author Leonid Mesnik
  */
 
-public class NbBasePanel extends ApplicationLocationPanel {
-
+public class NbLocationPanel extends ApplicationLocationPanel {
+   
     private File selectedLocation;
     private List<File> locations;
     private List<String> labels;
 
-    public NbBasePanel() {        
+    public NbLocationPanel() {        
         setProperty(LOCATION_LABEL_TEXT_PROPERTY, 
                 LOCATION_LABEL_TEXT);        
         setProperty(LIST_LABEL_TEXT_PROPERTY, 
                 LIST_LABEL_TEXT);                
        // setProperty(ERROR_FAILED_VERIFY_INPUT_PROPERTY,
       ///          ERROR_FAILED_VERIFY_INPUT_TEXT);
+               
+        setProperty(TITLE_PROPERTY,
+                DEFAULT_TITLE);
+        setProperty(DESCRIPTION_PROPERTY,
+                DEFAULT_DESCRIPTION);
         
         locations = new ArrayList();
         labels = new ArrayList<String>();
@@ -96,18 +101,82 @@ public class NbBasePanel extends ApplicationLocationPanel {
     public File getSelectedLocation() {        
         return selectedLocation;
     }
+    
+        
+    public static final String DEFAULT_TITLE =
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
+            "NPrISP.title"); // NOI18N
+    public static final String DEFAULT_DESCRIPTION =
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
+            "NPrISP.description"); // NOI18N
+    
+    private String validateNetBeansLocation(File nbRoot) {
+        if (nbRoot.getName().equals("netbeans")) {
+            return "Don install here, I'm working";
+        }
+        if (!nbRoot.isDirectory()) {
+            return "NetBeans location is not directory";
+        }
+        
+        if (nbRoot.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.equals(NB_DIR);
+            }
+        }).length == 0) {
+            return "NB directroy does not contain nb61";
+        }
+               
+        if (nbRoot.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.equals(NB_CND_DIR);
+            }
+        }).length == 0) {
+            return "NB directroy does not contain cnd2";
+        }
+         
+        Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
+        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setInstallationLocation(nbRoot);
+        nbProduct.setStatus(Status.NOT_INSTALLED);
+        nbProduct.setInstallationLocation(nbRoot);
+        
+        nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        // install CND pack if needed
+        /*
+        if (nbRoot.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.equals(NB_CND_DIR);
+            }
+        }).length == 0) {
+            Registry.getInstance().getProducts(NB_CND_UID).get(0)
+                    .setStatus(Status.TO_BE_INSTALLED);
+        } else {
+            Registry.getInstance().getProducts(NB_CND_UID).get(0)
+                    .setStatus(Status.NOT_INSTALLED);
+        }*/
+        return null;
+    }
 
     @Override
     public String validateLocation(String value) {
-        File file = new File(value);
+        File file = new File(value);        
         if (locations.contains(file)) {
-            Product nbProduct = Registry.getInstance().getProducts("nb-base").get(0);
-            nbProduct.setStatus(Status.NOT_INSTALLED);
-            return null;        
-        }        
+            return validateNetBeansLocation(file);
+        }       
+                 
+        Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
+        nbProduct.setStatus(Status.TO_BE_INSTALLED);
+        nbProduct.setInstallationLocation(file);
+        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setInstallationLocation(file);
+            nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setParent(Registry.getInstance().getProducts("ss-base").get(0));
+    
+        
+           
         // TODO : create correct checks       
         return null;
     }
+    
 
     @Override
     public void setLocation(File location) {
@@ -133,21 +202,27 @@ public class NbBasePanel extends ApplicationLocationPanel {
                     return name.startsWith(NB_DIRECTORY_NAME);
                 }
             });        
-            
-            locations.addAll(Arrays.asList(candidates)); 
-        }
-    }
-    
-    private void fetchLocationsFromRegistry(final List<File> locations) {
-        for (Product jdk: Registry.getInstance().getProducts(NB_PRODUCT_UID)) {
-            if (jdk.getStatus() == Status.INSTALLED) {
-                if (!locations.contains(jdk.getInstallationLocation())) {
-                    locations.add(jdk.getInstallationLocation());
+            for (File location : candidates) {
+                if (!locations.contains(location)) {
+                    locations.add(location);
                 }
             }
         }
     }
+    
+    private void fetchLocationsFromRegistry(final List<File> locations) {
+        for (Product nbBase: Registry.getInstance().getProducts(NB_PRODUCT_UID)) {
+            if (nbBase.getStatus() == Status.INSTALLED) {
+                if (!locations.contains(nbBase.getInstallationLocation())) {
+                    locations.add(nbBase.getInstallationLocation());
+                }
+            }
+        }
+    }
+    
     static final String NB_PRODUCT_UID = "nb-base";
+    static final String NB_CND_UID = "nb-cnd";
+    static final String NB_EXTRA_UID = "nb-extra";
      
     public static final String[] NB_FILESYSTEM_LOCATIONS = new String[] {
         "/usr", // NOI18N        
@@ -156,28 +231,31 @@ public class NbBasePanel extends ApplicationLocationPanel {
         "/opt", // NOI18N
     };
     final static String NB_DIRECTORY_NAME = "netbeans";
+    final static String NB_CND_DIR = "cnd2";
+    final static String NB_DIR = "nb6.1";
     
     public static final String LOCATION_LABEL_TEXT = 
-            ResourceUtils.getString(NbBasePanel.class, 
+            ResourceUtils.getString(NbLocationPanel.class, 
             "NBP.location.label.text"); // NOI18N
     public static final String LIST_LABEL_TEXT = 
-            ResourceUtils.getString(NbBasePanel.class, 
+            ResourceUtils.getString(NbLocationPanel.class, 
             "NBP.list.label.text"); // NOI18N
     public static final String DEFAULT_LOCATION = 
-            ResourceUtils.getString(NbBasePanel.class, 
+            ResourceUtils.getString(NbLocationPanel.class, 
             "NBP.default.location"); // NOI18N
 
       // public static final String ERROR_FAILED_VERIFY_INPUT_TEXT =
-        //    ResourceUtils.getString(NbBasePanel.class,
+        //    ResourceUtils.getString(NbLocationPanel.class,
           //  "NBP.error.failed.input.verify");//NOI18N
 }
+
 /*
-public class NbBasePanel extends DestinationPanel {
+public class NbLocationPanel extends DestinationPanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
     private JdkLocationPanel jdkLocationPanel;
     
-    public NbBasePanel() {
+    public NbLocationPanel() {
         jdkLocationPanel = new JdkLocationPanel();
         
         setProperty(TITLE_PROPERTY,
@@ -258,9 +336,9 @@ public class NbBasePanel extends DestinationPanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
     public static class NbBaseDestinationPanelUi extends DestinationPanelUi {
-        protected NbBasePanel panel;
+        protected NbLocationPanel panel;
         
-        public NbBaseDestinationPanelUi(NbBasePanel panel) {
+        public NbBaseDestinationPanelUi(NbLocationPanel panel) {
             super(panel);
             
             
@@ -277,7 +355,7 @@ public class NbBasePanel extends DestinationPanel {
     }
     
     public static class NbBaseDestinationPanelSwingUi extends DestinationPanelSwingUi {
-        protected NbBasePanel panel;
+        protected NbLocationPanel panel;
         
         private NbiLabel jdkLocationLabel;
         private NbiComboBox jdkLocationComboBox;
@@ -289,7 +367,7 @@ public class NbBasePanel extends DestinationPanel {
         private NbiDirectoryChooser fileChooser;
         
         public NbBaseDestinationPanelSwingUi(
-                final NbBasePanel panel,
+                final NbLocationPanel panel,
                 final SwingContainer container) {
             super(panel, container);
             
@@ -473,37 +551,37 @@ public class NbBasePanel extends DestinationPanel {
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
     public static final String JDK_LOCATION_LABEL_TEXT_PROPERTY =
-            "jdk.location.label.text"; // NOI18N
+            "nbBase.location.label.text"; // NOI18N
     public static final String BROWSE_BUTTON_TEXT_PROPERTY =
             "browse.button.text"; // NOI18N
     
     public static final String DEFAULT_TITLE =
-            ResourceUtils.getString(NbBasePanel.class,
+            ResourceUtils.getString(NbLocationPanel.class,
             "NBP.title"); // NOI18N
     public static final String DEFAULT_DESCRIPTION =
-            ResourceUtils.getString(NbBasePanel.class,
+            ResourceUtils.getString(NbLocationPanel.class,
             "NBP.description"); // NOI18N
     
     public static final String DEFAULT_DESTINATION_LABEL_TEXT =
-            ResourceUtils.getString(NbBasePanel.class,
+            ResourceUtils.getString(NbLocationPanel.class,
             "NBP.destination.label.text"); // NOI18N
     public static final String DEFAULT_DESTINATION_BUTTON_TEXT =
-            ResourceUtils.getString(NbBasePanel.class,
+            ResourceUtils.getString(NbLocationPanel.class,
             "NBP.destination.button.text"); // NOI18N
     
     public static final String DEFAULT_JDK_LOCATION_LABEL_TEXT =
-            ResourceUtils.getString(NbBasePanel.class,
-            "NBP.jdk.location.label.text"); // NOI18N
+            ResourceUtils.getString(NbLocationPanel.class,
+            "NBP.nbBase.location.label.text"); // NOI18N
     public static final String DEFAULT_BROWSE_BUTTON_TEXT =
-            ResourceUtils.getString(NbBasePanel.class,
+            ResourceUtils.getString(NbLocationPanel.class,
             "NBP.browse.button.text"); // NOI18N
     
     public static final String DEFAULT_MINIMUM_JDK_VERSION =
-            ResourceUtils.getString(NbBasePanel.class,
-            "NBP.minimum.jdk.version"); // NOI18N
+            ResourceUtils.getString(NbLocationPanel.class,
+            "NBP.minimum.nbBase.version"); // NOI18N
     public static final String DEFAULT_MAXIMUM_JDK_VERSION =
-            ResourceUtils.getString(NbBasePanel.class,
-            "NBP.maximum.jdk.version"); // NOI18N
+            ResourceUtils.getString(NbLocationPanel.class,
+            "NBP.maximum.nbBase.version"); // NOI18N
 }
 
 */

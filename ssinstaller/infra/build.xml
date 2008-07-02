@@ -312,28 +312,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     	<antcall target="build-tools-group"/>
     	<antcall target="build-ide-group"/>
     	<antcall target="build-other-group"/>
-        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value="ide-group"/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
  
         
 	<build-product dir="C_Compiler"/>
@@ -459,8 +437,9 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>            
 	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="nb-extra" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>	   
+	   <component uid="cpp" version="1.0.0.0.0"/>	   
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
@@ -564,8 +543,8 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     
     <target name="build-engine" depends="-init">
 	<property name="engine.dist.file.name" value="nbi-engine.jar"/>
-        
         <echo message="BUILDING CORE ENGINE ======================================"/>
+
         <ant dir="${nbi.core.dir}/infra/build/engine" target="build-all">
             <property 
                 name="basedir" 
@@ -583,7 +562,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="cvs.module" 
                 value="${core.module.name}"/>
         </ant>
-        
+       
         <echo message="BUILDING SUN STUDIO INSTALLER ENGINE =================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/engine" target="release-all">
             <property 
@@ -596,6 +575,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="core.engine.dist.file" 
                 value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
         </ant>
+
 	<ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
             <property 
                 name="basedir" 
@@ -618,8 +598,56 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-extra" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-extra"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
 
-        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+<!--
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-cnd" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-cnd"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+	
+-->    
+    
+    <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
                 name="basedir" 
                 value="${nbi.netbeans.dir}/infra/products/nb-base"/>

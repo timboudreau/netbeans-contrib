@@ -238,6 +238,7 @@ public class WelcomePanel extends ErrorMessagePanel {
             }
         }      
         defaultRegistry.getProducts("ss-base").get(0).setVisible(false);
+        defaultRegistry.getProducts("nb-base").get(0).setVisible(false);
         registriesFiltered = true;
     }
     
