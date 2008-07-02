@@ -48,7 +48,7 @@ SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
 
 NETBEANS_DIR="netbeans-6.1"
 
-REGISTRATION_DIR="${SUNSTUDIO_DIR}/registration"
+REGISTRATION_DIR="${SUNSTUDIO_DIR}/prod/lib/condev"
 
 # REGISTRATION_PAGE - location of a generated registration page
 REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
@@ -223,8 +223,8 @@ init() {
    validate_locale ${LANG}
 
    STSUPPORTED=0
-   if [ -f `which stclient 2>/dev/null` ]; then
-      STSUPPORTED=1
+   if [ -f "`which stclient 2>/dev/null`" ]; then
+	STSUPPORTED=1
    fi
 }
 
@@ -439,7 +439,7 @@ EOF
 createRegistrationDocument() {
    agentInfoFile="${TMPDIR}/environment.xml"
 
-   if [ ${STSUPPORTED} -eq 1 ] && [ -f /usr/bin/curl ]; then
+   if [ ${STSUPPORTED} -eq 1 ] && [ -f "/usr/bin/curl" ]; then
       initEnvironmentFromSystemRegistry
    else 
       initEnvironment
@@ -597,11 +597,15 @@ done
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
    generateRegistrationHTML 1>/dev/null 2>/dev/null
-   mkdir -p $HOME_SUNSTUDIO_DIR
-   if [ `id -g` = '0' ]
+   # 
+   # The HTML page is loaded from users home to be correctly shown if firefox is already run.
+   # The '/root' on Linux could not be read by other users page from Sun Studio is used.
+   #
+   if [ `uname` = "Linux" -a `id -u` -eq 0 ]
    then
 	browse "file://$REGISTRATION_PAGE"
    else
+        mkdir -p $HOME_SUNSTUDIO_DIR
 	cp -r $REGISTRATION_DIR $HOME_SUNSTUDIO_DIR 
 	browse "file://$HOME_REGISTRATION_PAGE"
    fi
