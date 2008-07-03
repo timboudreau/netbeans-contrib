@@ -4,7 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.bluej</code-name-base>
-            <suite-component/>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
@@ -33,16 +32,15 @@
                         <specification-version>1.10</specification-version>
                     </run-dependency>
                 </dependency>
-                <!--we still want to run in 6.1
-                dependency>
+                <dependency>
                     <code-name-base>org.netbeans.api.java.classpath</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.0</specification-version>
+                        <specification-version>1.18</specification-version>
                     </run-dependency>
-                </dependency-->
+                </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.api.progress</code-name-base>
                     <build-prerequisite/>
