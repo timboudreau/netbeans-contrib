@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+   <folder name="Editors">
+       <folder name="text">
+           <folder name="x-java">
+               <file name="PaletteFactory.instance">
+                   <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
+                   <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.cms.palette.Factory.getPalette"/>                                            
+               </file>
+           </folder>
+       </folder> 
+    </folder>
+    <folder name="JSPPalette">
+        <folder name="CMS">
+            <file name="AuthContext.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/AuthContext.xml"/>
+            <file name="Category.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/Category.xml"/>
+           <file name="ContentType.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentType.xml"/>
+            <file name="Content.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/Content.xml"/>
+            <file name="ContentView.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentView.xml"/>
+             <file name="ContentVersions.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentVersions.xml"/>
+            <file name="ContentsByType.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentsByType.xml"/>
+            <file name="ContentByNames.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentByNames.xml"/>
+        </folder>
+    </folder>
+ 
+ 
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="portalJCR1.0.xml" url="portalJCR1.0.xml"/>    
+            <file name="portalJCRTagLib1.0.xml" url="portalJCRTagLib1.0.xml"/>
+        </folder>
+    </folder>
+
+ 
+    <folder name="j2ee">
+        <folder name="webtier">
+            <folder name="framework">
+                <file name="org-netbeans-modules-portalpack-cms-CMSFrameworkProvider.instance"/>
+            </folder>
+        </folder>
+    </folder>
+    
+      
+</filesystem>
