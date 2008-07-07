@@ -51,6 +51,7 @@ made subject to such option by the copyright holder.
     </target>
 
     <target name="mail-zips">
+        <echo>Sending mail from ${mail_from} to ${to_addr}...</echo>
         <mail from="${mail_from}"
             subject="${mail_subject}"
             message="${mail_body}"
