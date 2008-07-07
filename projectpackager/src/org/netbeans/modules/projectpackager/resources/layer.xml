@@ -59,30 +59,20 @@ made subject to such option by the copyright holder.
                 <file name="org-netbeans-modules-projectpackager-exporter-ExportZip.instance"/>
             </folder>
             <file name="ImporterSeparator1.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="1430"/>
             </file>
         </folder>
     </folder>
-
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-projectpackager-tools-ProjectPackagerAdvancedOption.instance"/>
+        </folder>
+    </folder>
     <folder name="Services">
-    	<file name="org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.settings" url="ProjectPackagerSettings.xml" />
         <folder name="ProjectPackager">
             <file name="export_script.xml" url="export_script.xml"/>
             <file name="import_script.xml" url="import_script.xml"/>
         </folder>
     </folder>
-
-    <folder name="UI">
-        <folder name="Services">
-          <folder name="IDEConfiguration">
-            <folder name="ServerAndExternalToolSettings">
-              <file name="org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.shadow">
-                <attr name="originalFile" stringvalue="Services/org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.settings"/>
-              </file>
-            </folder>
-          </folder>
-        </folder>
-      </folder>
-
 </filesystem>

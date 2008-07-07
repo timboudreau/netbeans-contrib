@@ -104,35 +104,29 @@ public class ExportZipUITools {
         ExportPackageInfo.setSendMail(zpd.isMailSelected());
         ExportPackageInfo.setEmail(zpd.getMail());
         ExportPackageInfo.setDeleteZip(zpd.isDeleteSelected());
-        ProjectPackagerSettings pps = ProjectPackagerSettings.getDefault();
-        String smtpServer = pps.getSmtpServer();
+        String smtpServer = ProjectPackagerSettings.getSmtpServer();
         if (smtpServer!=null && !smtpServer.equals("")) {
             ExportPackageInfo.setSmtpServer(smtpServer);
         } else {
             smtpServer = System.getProperty("smtp_server");
             if (smtpServer!=null && !smtpServer.equals("")) ExportPackageInfo.setSmtpServer(smtpServer);
         }
-        String smtpUsername = pps.getSmtpUsername();
+        String smtpUsername = ProjectPackagerSettings.getSmtpUsername();
         if (smtpUsername!=null && !smtpUsername.equals("")) {
             ExportPackageInfo.setSmtpUsername(smtpUsername);
         } else {
             smtpUsername = System.getProperty("smtp_username");
             if (smtpUsername!=null && !smtpUsername.equals("")) ExportPackageInfo.setSmtpUsername(smtpUsername);
         }
-        String smtpPassword = pps.getSmtpPassword();
+        String smtpPassword = ProjectPackagerSettings.getSmtpPassword();
         if (smtpPassword!=null && !smtpPassword.equals("")) {
             ExportPackageInfo.setSmtpPassword(smtpPassword);
         } else {
             smtpPassword = System.getProperty("smtp_password");
             if (smtpPassword!=null && !smtpPassword.equals("")) ExportPackageInfo.setSmtpPassword(smtpPassword);
         }
-        Boolean smtpUseSSL = pps.getSmtpUseSSL();
-        if (smtpUseSSL!=null) {
-            ExportPackageInfo.setSmtpUseSSL(smtpUseSSL.booleanValue());
-        } else {
-            smtpUseSSL = Boolean.valueOf(System.getProperty("smtp_use_ssl"));
-            if (smtpUseSSL!=null && !smtpUseSSL.equals("")) ExportPackageInfo.setSmtpUseSSL(smtpUseSSL.booleanValue());
-        }        
+        boolean smtpUseSSL = ProjectPackagerSettings.getSmtpUseSSL();
+        ExportPackageInfo.setSmtpUseSSL(smtpUseSSL);
         if (!ExportPackageValidator.validate()) {
             zpd.requestFocus();
             return;

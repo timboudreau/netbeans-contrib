@@ -97,8 +97,6 @@ public class ExportPackageValidator {
             return false;                        
         }
 
-        ProjectPackagerSettings pps = ProjectPackagerSettings.getDefault();                
-        
         if (ExportPackageInfo.isSendMail()) {
             if (ExportPackageInfo.getSmtpServer().equals("")) {
                 NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_server:"), NbBundle.getBundle(Constants.BUNDLE).getString("Please_specify_a_SMTP_server"));
@@ -106,13 +104,13 @@ public class ExportPackageValidator {
                 if (d.getInputText().equals("")) {
                     return false;
                 } else {
-                    pps.setSmtpServer(d.getInputText());
+                    ProjectPackagerSettings.setSmtpServer(d.getInputText());
                 }
                 ExportPackageInfo.setSmtpServer(d.getInputText());
                 NotifyDescriptor.InputLine d2 = new NotifyDescriptor.InputLine(NbBundle.getBundle(Constants.BUNDLE).getString("Username_(optional):"), NbBundle.getBundle(Constants.BUNDLE).getString("Please_enter_username_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d2);
                 ExportPackageInfo.setSmtpUsername(d2.getInputText());
-                pps.setSmtpUsername(d2.getInputText());
+                ProjectPackagerSettings.setSmtpUsername(d2.getInputText());
                 NotifyDescriptorInputPassword d3 = new NotifyDescriptorInputPassword(NbBundle.getBundle(Constants.BUNDLE).getString("Password_(optional):"), NbBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d3);
                 ExportPackageInfo.setSmtpPassword(d3.getInputText());
@@ -123,7 +121,7 @@ public class ExportPackageValidator {
                 NotifyDescriptor.InputLine d2 = new NotifyDescriptor.InputLine(NbBundle.getBundle(Constants.BUNDLE).getString("Username_(optional):"), NbBundle.getBundle(Constants.BUNDLE).getString("Please_enter_username_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d2);
                 ExportPackageInfo.setSmtpUsername(d2.getInputText());
-                pps.setSmtpUsername(d2.getInputText());
+                ProjectPackagerSettings.setSmtpUsername(d2.getInputText());
                 NotifyDescriptorInputPassword d = new NotifyDescriptorInputPassword(NbBundle.getBundle(Constants.BUNDLE).getString("SMTP_password:"), NbBundle.getBundle(Constants.BUNDLE).getString("Please_enter_password_for_SMTP_server"));
                 DialogDisplayer.getDefault().notify(d);
                 ExportPackageInfo.setSmtpPassword(d.getInputText());

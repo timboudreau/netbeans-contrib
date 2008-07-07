@@ -40,6 +40,7 @@
  */
 
 package org.netbeans.modules.projectpackager.exporter;
+
 import org.netbeans.modules.projectpackager.tools.ProjectPackagerSettings;
 
 /**
@@ -71,15 +72,20 @@ esd = aesd;
      * Processes the Ok button - saves the settings
      */
     public static void processOkButton() {
-        final ProjectPackagerSettings pps = ProjectPackagerSettings.getDefault();
         ExportPackageInfo.setSmtpServer(esd.getSmtpServer());
         ExportPackageInfo.setSmtpUsername(esd.getSmtpUsername());
         ExportPackageInfo.setSmtpPassword(esd.getSmtpPassword());
         ExportPackageInfo.setSmtpUseSSL(esd.getSmtpUseSSL());
-        pps.setSmtpServer(esd.getSmtpServer());
-        pps.setSmtpUsername(esd.getSmtpUsername());
-        pps.setSmtpPassword(esd.getSmtpPassword());
-        pps.setSmtpUseSSL(new Boolean(esd.getSmtpUseSSL()));
+        ExportPackageInfo.mailFrom = esd.getMailFrom();
+        ExportPackageInfo.mailSubject = esd.getMailSubject();
+        ExportPackageInfo.mailBody = esd.getMailBody();
+        ProjectPackagerSettings.setSmtpServer(esd.getSmtpServer());
+        ProjectPackagerSettings.setSmtpUsername(esd.getSmtpUsername());
+        ProjectPackagerSettings.setSmtpPassword(esd.getSmtpPassword());
+        ProjectPackagerSettings.setSmtpUseSSL(esd.getSmtpUseSSL());
+        ProjectPackagerSettings.setMailFrom(esd.getMailFrom());
+        ProjectPackagerSettings.setMailSubject(esd.getMailSubject());
+        ProjectPackagerSettings.setMailBody(esd.getMailBody());
         esd.dispose();
     }
 }
