@@ -601,7 +601,7 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    # The HTML page is loaded from users home to be correctly shown if firefox is already run.
    # The '/root' on Linux could not be read by other users page from Sun Studio is used.
    #
-   if [ `uname` = "Linux" -a `id -u` -eq 0 ]
+   if [ `uname` = "Linux" -a "$UID" -eq 0 ]
    then
 	browse "file://$REGISTRATION_PAGE"
    else
