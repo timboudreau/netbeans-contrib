@@ -86,8 +86,7 @@
         </wsdlElement>
         <wsdlElement name="ServicePort">
             <extensionElement name="address" >
-                <extensionAttr name="imsServer" defaultValue="&lt;Provide the value for IMS Server&gt;"/>
-				<extensionAttr name="imsPort" defaultValue="&lt;Provide the value for IMS Port&gt;"/>
+                <extensionAttr name="imsServerLocation" defaultValue="&lt;Provide the value for IMS Server Location URL. For ex. ims:\\&lt;imsservername &gt;:&lt;port&gt;&gt;"/>
             </extensionElement>
         </wsdlElement>
     </template>

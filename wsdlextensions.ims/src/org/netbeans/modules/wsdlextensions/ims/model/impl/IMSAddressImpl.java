@@ -40,19 +40,11 @@ public class IMSAddressImpl extends IMSComponentImpl implements IMSAddress {
         visitor.visit(this);
     }
 
-    public void setImsServer(String server) {
-        setAttribute(IMSAddress.IMS_SERVER, IMSAttribute.IMS_HOST, server);
+    public void setImsServerLocation(String url){
+        setAttribute(IMSAddress.IMS_SERVER_LOCATION, IMSAttribute.IMS_SERVER_LOCATION, url);
     }
 
-    public String getImsServer() {
-        return getAttribute(IMSAttribute.IMS_HOST);
-    }
-
-	public void setImsPort(int port) {
-        setAttribute(IMSAddress.IMS_PORT, IMSAttribute.IMS_PORT, String.valueOf(port));
-    }
-
-    public int getImsPort() {
-        return Integer.parseInt(getAttribute(IMSAttribute.IMS_PORT));
+    public String getImsServerLocation(){
+        return getAttribute(IMSAttribute.IMS_SERVER_LOCATION);
     }
 }

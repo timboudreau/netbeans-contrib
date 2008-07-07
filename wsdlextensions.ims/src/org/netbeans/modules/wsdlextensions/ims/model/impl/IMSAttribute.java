@@ -24,8 +24,7 @@ import java.util.Collection;
 import org.netbeans.modules.xml.xam.dom.Attribute;
 
 public enum IMSAttribute implements Attribute {
-    IMS_HOST("imsServer"),
-	IMS_PORT("imsPort"),
+    IMS_SERVER_LOCATION("imsServerLocation"),
     IRM_LEN("irmLen"),
 	IRM_ID("irmId"),
 	IRM_TIMER("irmTimer"),

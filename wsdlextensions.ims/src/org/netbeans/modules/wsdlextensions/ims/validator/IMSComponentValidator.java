@@ -243,7 +243,18 @@ public class IMSComponentValidator
     }
 
     public void visit(IMSAddress target) {
-        // for ims address tag - nothing to validate at this point
+        Collection<ResultItem> results =
+                mValidationResult.getValidationResult();
+        String[] stArr = target.getImsServerLocation().split(":");
+        // Address url has to be in the form <ims://Server_Name:Port_Number>
+        if(!(stArr.length == 3 && stArr[0].equals("ims") && stArr[1].indexOf("//") 
+                == 0 && Integer.parseInt(stArr[2])<= 65535)){
+            target.setImsServerLocation(null);
+            results.add(new Validator.ResultItem(this,
+						Validator.ResultType.ERROR,
+						target,
+						mMessages.getString("IMSAddress.IMS_INVALID_URL")));
+        }
     }
 
 	public void visit(IMSBinding target) {

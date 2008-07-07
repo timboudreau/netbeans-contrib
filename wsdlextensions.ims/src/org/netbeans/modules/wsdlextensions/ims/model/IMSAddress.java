@@ -27,16 +27,10 @@ package org.netbeans.modules.wsdlextensions.ims.model;
 */
 public interface IMSAddress extends IMSComponent {
 
-    public static final String IMS_SERVER = "imsServer";
-
-	public static final String IMS_PORT = "imsPort";
+    public static final String IMS_SERVER_LOCATION = "imsServerLocation";
     
-    public String getImsServer();
+    public String getImsServerLocation();
 
-    public void setImsServer(String url);
-
-	public int getImsPort();
-
-	public void setImsPort(int port);
+    public void setImsServerLocation(String url);
 
 }

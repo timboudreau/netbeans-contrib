@@ -245,14 +245,9 @@
 	<xs:complexType name="tAddress">
 		<xs:complexContent>
 			<xs:extension base="wsdl:tExtensibilityElement">
-				<xs:attribute name="imsServer" type="xs:string" use="required">
+				<xs:attribute name="imsServerLocation" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>DESC_Attribute_imsServer</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="imsPort" type="xs:int" use="required">
-					<xs:annotation>
-						<xs:documentation>DESC_Attribute_imsPort</xs:documentation>
+						<xs:documentation>DESC_Attribute_imsServerLocation</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
