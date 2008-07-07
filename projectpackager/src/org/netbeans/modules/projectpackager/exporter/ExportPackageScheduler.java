@@ -79,8 +79,7 @@ public class ExportPackageScheduler {
      */
     public static ExportExecutorThread init() {
         try {
-            // XXX this string should not be internationalized!
-            script = ExecutionTools.initScript(NbBundle.getBundle(Constants.BUNDLE).getString("Services/ProjectPackager/export_script.xml"));
+            script = ExecutionTools.initScript("Services/ProjectPackager/export_script.xml");
             et = new ExportExecutorThread();
             initialized = true;
         } catch (IOException e) {
