@@ -40,41 +40,6 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-
 <project name="contrib/projectpackager" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="netbeans-extra" depends="release"/>
-
-    <target name="release" depends="init">
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy todir="${cluster}/modules/ext">
-            <fileset dir="external">
-                <include name="mail-1.3.2.jar"/>
-                <include name="activation-1.0.2.jar"/>
-            </fileset>
-        </copy>
-    </target>
-
-    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">  
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="http://${dist.base}/${nbm}"
-                 needsrestart="${nbm.needs.restart}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}">
-            <license>
-                <text>For the projectpackager module itself:</text>
-                <file location="${license.file}"/>
-                <text>For the JavaMail library:</text>
-                <file location="external/mail-license.txt"/>
-                <text>For the Activation library:</text>
-                <file location="external/activation-license.txt"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>        
-    </target>    
-    
 </project>
