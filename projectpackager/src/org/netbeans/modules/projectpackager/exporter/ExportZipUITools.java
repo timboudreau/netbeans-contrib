@@ -127,6 +127,18 @@ public class ExportZipUITools {
         }
         boolean smtpUseSSL = ProjectPackagerSettings.getSmtpUseSSL();
         ExportPackageInfo.setSmtpUseSSL(smtpUseSSL);
+        String mailFrom = ProjectPackagerSettings.getMailFrom();
+        if (mailFrom != null && mailFrom.length() > 0) {
+            ExportPackageInfo.mailFrom = mailFrom;
+        }
+        String mailSubject = ProjectPackagerSettings.getMailSubject();
+        if (mailSubject != null && mailSubject.length() > 0) {
+            ExportPackageInfo.mailSubject = mailSubject;
+        }
+        String mailBody = ProjectPackagerSettings.getMailBody();
+        if (mailBody != null && mailBody.length() > 0) {
+            ExportPackageInfo.mailBody = mailBody;
+        }
         if (!ExportPackageValidator.validate()) {
             zpd.requestFocus();
             return;
