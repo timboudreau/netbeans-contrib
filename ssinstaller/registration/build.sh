@@ -10,30 +10,35 @@ LENGTH=`expr $LENGTH + 1`
 DISTRS="intel-S2 sparc-S2 intel-Linux"
 
 # The images of Sun Studio to create distribution
-IMAGES_DIR=/shared/dp/sstrunk/biweekly/inst
 BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
+IMAGES_DIR=/shared/dp/sstrunk/biweekly/inst
+BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
 
 rm -rf build
 mkdir -p $RESDIR
 mkdir -p $TARDIR
 for distr in $DISTRS
 do
-    DISTR_NAME="$RESDIR/sunstudio-$BUILD_NUMBER-express-$distr.sh"   
-    echo Generating $DISTR_NAME
     case $distr in
     intel-S2)
 	TARGET_OS=SunOS
+	TARGET_PLATFORM=x86
 	IMAGE_SUB=opt
     ;;
     sparc-S2)
 	TARGET_OS=SunOS
+	TARGET_PLATFORM=sparc
 	IMAGE_SUB=opt
     ;;
     intel-Linux)
 	TARGET_OS=Linux
+	TARGET_PLATFORM=x86
 	IMAGE_SUB=opt/sun
     ;;
     esac
+
+    DISTR_NAME="$RESDIR/StudioExpress-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}-ii.sh"   
+    echo Generating $DISTR_NAME
     
     DIRS=`ls $IMAGES_DIR/$distr.inst/$IMAGE_SUB`
     ARGS=""
