@@ -146,10 +146,10 @@ is divided into following sections:
                                     <fileset dir="${{module.install.dir}}"><include name="*.jar" /></fileset>
                                     <fileset dir="${{module.install.dir}}/ext/edmpro"><include name="*.jar" /></fileset>                                          
                                     <fileset dir="${{module.install.dir}}/ext"><include name="*.jar" /></fileset>
-                                    <fileset dir="${{netbeans.home}}/../ide8/modules"><include name="*.jar" /></fileset>
-                                    <fileset dir="${{netbeans.home}}/../platform7/modules"><include name="*.jar" /></fileset>
-                                    <fileset dir="${{netbeans.home}}/../platform7/core"><include name="*.jar" /></fileset>
-                                    <fileset dir="${{netbeans.home}}/../platform7/lib"><include name="*.jar" /></fileset>
+                                    <fileset dir="${{netbeans.home}}/../ide9/modules"><include name="*.jar" /></fileset>
+                                    <fileset dir="${{netbeans.home}}/../platform8/modules"><include name="*.jar" /></fileset>
+                                    <fileset dir="${{netbeans.home}}/../platform8/core"><include name="*.jar" /></fileset>
+                                    <fileset dir="${{netbeans.home}}/../platform8/lib"><include name="*.jar" /></fileset>
                         </classpath>
                         </taskdef>
             </target>
