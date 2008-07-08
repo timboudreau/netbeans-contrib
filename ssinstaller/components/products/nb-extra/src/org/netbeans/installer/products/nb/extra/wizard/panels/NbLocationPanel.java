@@ -140,14 +140,14 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         }).length == 0) {
             return "NB directroy does not contain cnd2";
         }
-         
-        Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
-        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setInstallationLocation(nbRoot);
-        nbProduct.setStatus(Status.NOT_INSTALLED);
-        nbProduct.setInstallationLocation(nbRoot);
         
+        Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
+        Product nbExtra = Registry.getInstance().getProducts(NB_EXTRA_UID).get(0);
+        nbExtra.setInstallationLocation(nbRoot);
+        nbProduct.setStatus(Status.NOT_INSTALLED);
+        nbProduct.setInstallationLocation(nbRoot);        
         nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
-        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        nbExtra.setParent(Registry.getInstance().getProducts("ss-base").get(0));
         // install CND pack if needed
         /*
         if (nbRoot.listFiles(new FilenameFilter() {
@@ -172,14 +172,13 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         }       
                  
         Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
+        Product nbExtra = Registry.getInstance().getProducts(NB_EXTRA_UID).get(0);
         nbProduct.setStatus(Status.TO_BE_INSTALLED);
         nbProduct.setInstallationLocation(file);
-        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setInstallationLocation(file);
-            nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
-        Registry.getInstance().getProducts(NB_EXTRA_UID).get(0).setParent(Registry.getInstance().getProducts("ss-base").get(0));
-    
-        
-           
+        nbExtra.setInstallationLocation(file);
+        nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        nbExtra.setParent(Registry.getInstance().getProducts("ss-base").get(0));
+          
         // TODO : create correct checks       
         return null;
     }

@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.products.sample;
+package org.netbeans.installer.products.sunstudio;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import java.util.Map;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
-import org.netbeans.installer.products.sample.panels.SSBasePanel;
+import org.netbeans.installer.products.sunstudio.panels.SSBasePanel;
 import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.exceptions.InitializationException;
@@ -90,15 +90,15 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         progress.synchronizeFrom(compositeProgress);
         
         for (Product product : products) {
-            try {
+          //  try {
                 Progress innerProgress = new Progress();
                 compositeProgress.addChild(innerProgress, percents.get(product));                
-                product.getLogic().uninstall(innerProgress);
+                product.uninstall(innerProgress);
                 product.getParent().removeChild(product);
-            } catch (InitializationException ex) {
-                LogManager.log("Unexpected exception during removal of " 
-                        + product.getDisplayName(), ex);
-            }
+         //   } catch (InitializationException ex) {
+          //      LogManager.log("Unexpected exception during removal of " 
+           //             + product.getDisplayName(), ex);
+           // }
         }       
         File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
         try {

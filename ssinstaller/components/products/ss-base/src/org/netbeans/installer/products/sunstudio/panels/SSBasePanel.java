@@ -34,7 +34,7 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.products.sample.panels;
+package org.netbeans.installer.products.sunstudio.panels;
 
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.ResourceUtils;
