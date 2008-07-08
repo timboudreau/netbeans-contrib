@@ -114,19 +114,9 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     }
     
     public void uninstall(final Progress progress) throws UninstallationException {
-        final Product product = getProduct();
-        final File installLocation = product.getInstallationLocation();
-        LogManager.log("uninstalling NB from " + installLocation.getAbsolutePath());
-        NetBeansUtils.warnNetbeansRunning(installLocation);
-                
-        try {
-            FileUtils.deleteFile(installLocation, true);
-        } catch (IOException ex) {
-            Logger.getLogger(ConfigurationLogic.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        /////////////////////////////////////////////////////////////////////////////
-        progress.setPercentage(Progress.COMPLETE);
+      
     }
+   
          
     @Override
     public Text getLicense() {

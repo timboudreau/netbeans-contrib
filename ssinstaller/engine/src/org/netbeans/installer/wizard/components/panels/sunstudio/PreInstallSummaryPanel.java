@@ -165,7 +165,9 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
         private NbiLabel installationSSSize;
                   
         private NbiLabel installationSSComponenets;
+        
         private NbiLabel installationNBSummary;
+        private NbiLabel installationNBSize;
         
         private NbiLabel downloadSizeLabel;
         private NbiLabel downloadSizeValue;
@@ -237,7 +239,13 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     //Registry.getInstance().getProducts("nb-base").get(0)))
                     "Installed components: " + StringUtils.asString(dependentOnSS));
             if (dependentOnNb.size() > 0) {
-                installationNBSummary.setText("NetBeans will be updated.");
+                Product nbProduct = registry.getProducts("nb-base").get(0);
+                String action = dependentOnNb.contains(nbProduct) ? "installed" : "updated";
+                installationNBSummary.setText("NetBeans will be " + action + " in folder: "
+                        + registry.getProducts("nb-extra").get(0).getInstallationLocation()
+                        .getAbsolutePath());
+                installationNBSize.setText("Required Size: "+  StringUtils.formatSize(
+                    installationSizeNb));
             } else {
                 installationNBSummary.setText("");
             }
@@ -254,12 +262,14 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 installationSSSize.setVisible(false);   
                 installationSSComponenets.setVisible(false);
                 installationNBSummary.setVisible(false);
+                installationNBSize.setVisible(false);   
             } else {
                 locationsPane.setVisible(true);
                 installationSSSummary.setVisible(true);
                 installationSSSize.setVisible(true);
                 installationSSComponenets.setVisible(true);
                 installationNBSummary.setVisible(true);
+                installationNBSize.setVisible(true);
             }
             
             
@@ -398,6 +408,9 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             installationNBSummary = new NbiLabel();
             installationNBSummary.setFocusable(true);
             
+            installationNBSize = new NbiLabel();
+            installationNBSize.setFocusable(true);
+            
             // installationSSSummary ////////////////////////////////////////////////
             installationSSComponenets = new NbiLabel();
             installationSSComponenets.setLabelFor(installationNBSummary);
@@ -461,6 +474,14 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     GridBagConstraints.HORIZONTAL,    // fill
                     new Insets(22, 11, 0, 11),         // padding
                     0, 0));                           // padx, pady - ???
+            add(installationNBSize, new GridBagConstraints(
+                    0, 8,                             // x, y
+                    1, 1,                             // width, height
+                    1.0, 0.0,                         // weight-x, weight-y
+                    GridBagConstraints.LINE_START,    // anchor
+                    GridBagConstraints.HORIZONTAL,    // fill
+                    new Insets(4, 22, 0, 11),         // padding
+                    0, 0));                           // padx, pady - ???            
             add(downloadSizeLabel, new GridBagConstraints(
                     0, 8,                             // x, y
                     1, 1,                             // width, height

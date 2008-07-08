@@ -90,15 +90,15 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         progress.synchronizeFrom(compositeProgress);
         
         for (Product product : products) {
-            try {
+          //  try {
                 Progress innerProgress = new Progress();
                 compositeProgress.addChild(innerProgress, percents.get(product));                
-                product.getLogic().uninstall(innerProgress);
+                product.uninstall(innerProgress);
                 product.getParent().removeChild(product);
-            } catch (InitializationException ex) {
-                LogManager.log("Unexpected exception during removal of " 
-                        + product.getDisplayName(), ex);
-            }
+         //   } catch (InitializationException ex) {
+          //      LogManager.log("Unexpected exception during removal of " 
+           //             + product.getDisplayName(), ex);
+           // }
         }       
         File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
         try {
