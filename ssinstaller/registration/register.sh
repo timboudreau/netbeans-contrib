@@ -56,6 +56,9 @@ REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
 HOME_SUNSTUDIO_DIR=$HOME/.sunstudio/condev
 HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
 
+TMP_SUNSTUDIO_DIR=/tmp/.sunstudio/condev
+TMP_REGISTRATION_PAGE="$TMP_SUNSTUDIO_DIR/register-sunstudio.html"
+
 
 
 # INSTANCES_REGISTRY - file that stores UIDs of already registered
@@ -603,10 +606,14 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    #
    if [ `uname` = "Linux" -a "$UID" -eq 0 ]
    then
-	browse "file://$REGISTRATION_PAGE"
+        mkdir -p $TMP_SUNSTUDIO_DIR
+	cp -r $REGISTRATION_PAGE $TMP_SUNSTUDIO_DIR 
+	rm -rf $REGISTRATION_DIR
+	browse "file://$TMP_REGISTRATION_PAGE"
    else
         mkdir -p $HOME_SUNSTUDIO_DIR
 	cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 
+	rm -rf $REGISTRATION_DIR
 	browse "file://$HOME_REGISTRATION_PAGE"
    fi
 fi
