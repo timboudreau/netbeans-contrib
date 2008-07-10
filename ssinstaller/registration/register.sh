@@ -448,6 +448,11 @@ createRegistrationDocument() {
       initEnvironment
    fi
 
+   # if by any reason we could not use Service Tags 
+   if [ "${HOST}" = "" ]; then
+      initEnvironment
+   fi
+
    cat << EOF > $REGISTRATION_DATAFILE
 <?xml version="1.0" encoding="UTF-8"?>
 <registration_data version="1.0">
@@ -553,14 +558,14 @@ browse() {
       echo "Please open following link with your browser to proceed with registration."
       echo "${URL}"
    else
-      OUT=`${BROWSER} $URL 2>&1`
-      if [ $? -ne 0 ]; then
-         echo "\nThere were problems with launching ${BROWSER}:"
-         echo "${OUT} \n"
-         echo "Still, registration page has been generated."
-         echo "Please open following link with your browser to proceed with registration."
-         echo "${URL} \n"
-      fi
+      ${BROWSER} $URL 2>&1 &
+      #if [ $? -ne 0 ]; then
+      #     echo "There were problems with launching ${BROWSER}:"
+      #     echo "${OUT}"
+      #     echo "Still, registration page has been generated."
+      #     echo "Please open following link with your browser to proceed with registration."
+      #     echo "${URL}"
+      #fi
    fi
 }
 
