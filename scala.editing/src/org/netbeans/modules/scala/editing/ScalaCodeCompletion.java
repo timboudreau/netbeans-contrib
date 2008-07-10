@@ -96,8 +96,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.symtab.Symbols.Symbol;
-import scala.tools.nsc.symtab.Types.MethodType;
-import scala.tools.nsc.symtab.Types.PolyType;
 
 /**
  * Code completion handler for JavaScript
@@ -2040,18 +2038,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
                 if (member.isMethod()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
-                    if (type instanceof MethodType) {
-                        element = new ScalaElement(member, request.global);
-                        proposal = new FunctionProposal(element, request);
-                    } else if (type instanceof PolyType) {
-                        
-                    }
+                    element = new ScalaElement(member, request.global);
+                    proposal = new FunctionProposal(element, request);
                 } else if (member.isVariable()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
-
                 } else if (member.isValue()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
                     element = new ScalaElement(member, request.global);
                     proposal = new PlainProposal(element, request);
                 }

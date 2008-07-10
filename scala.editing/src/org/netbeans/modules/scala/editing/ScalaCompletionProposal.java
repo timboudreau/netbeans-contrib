@@ -53,7 +53,7 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.symtab.Symbols.Symbol;
-import scala.tools.nsc.symtab.Types.MethodType;
+import scala.tools.nsc.symtab.Symbols.TypeSymbol;
 import scala.tools.nsc.symtab.Types.Type;
 
 /**
@@ -173,12 +173,12 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
     protected static class FunctionProposal extends ScalaCompletionProposal {
 
-        private MethodType function;
+        private Type functionType;
 
         FunctionProposal(ScalaElement element, CompletionRequest request) {
             super(element, request);
             Symbol symbol = element.getSymbol();
-            function = (MethodType) symbol.info();
+            functionType = symbol.tpe();
         }
 
         @Override
@@ -217,13 +217,13 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.deprecated(false);
             }
 
-            scala.List typeParams = function.typeParams();
+            scala.List typeParams = functionType.typeParams();
             if (!typeParams.isEmpty()) {
                 formatter.appendHtml("[");
                 int size = typeParams.size();
                 for (int i = 0; i < size; i++) {
-                    Type typeParam = (Type) typeParams.apply(i);
-                    formatter.appendText(typeParam.typeSymbol().nameString());
+                    TypeSymbol typeParam = (TypeSymbol) typeParams.apply(i);
+                    formatter.appendText(typeParam.nameString());
 
                     if (i < size - 1) {
                         formatter.appendText(", "); // NOI18N
@@ -233,7 +233,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.appendHtml("]");
             }
 
-            scala.List paramTypes = function.paramTypes();
+            scala.List paramTypes = functionType.paramTypes();
 
             if (!paramTypes.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
@@ -263,7 +263,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
         @Override
         public List<String> getInsertParams() {
-            scala.List paramTypes = function.paramTypes();
+            scala.List paramTypes = functionType.paramTypes();
             if (!paramTypes.isEmpty()) {
                 int size = paramTypes.size();
                 List<String> result = new ArrayList<String>(size);
@@ -284,7 +284,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
             final String insertPrefix = getInsertPrefix();
             sb.append(insertPrefix);
 
-            if (function.paramTypes().isEmpty()) {
+            if (functionType.paramTypes().isEmpty()) {
                 return sb.toString();
             }
 
