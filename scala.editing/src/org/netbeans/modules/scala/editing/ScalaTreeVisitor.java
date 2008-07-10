@@ -42,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.Option;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
@@ -105,7 +107,7 @@ public class ScalaTreeVisitor {
         visit(tree);
         Collections.sort(trees, new TreeComparator());
         Collections.sort(symbols, new SymbolComparator());
-        //printTrees();
+        printTrees();
     }
 
     public <T extends Tree> T findTreeAt(Class<T> clazz, int offset) {
@@ -128,7 +130,7 @@ public class ScalaTreeVisitor {
         return null;
     }
 
-    public Symbol findSymbolAt(int offset, String name) {
+    public Symbol findSymbolAt(int offset, String name, TokenId tokenId) {
         int low = 0;
         int high = trees.size() - 1;
         while (low <= high) {
@@ -140,16 +142,27 @@ public class ScalaTreeVisitor {
                 low = mid + 1;
             } else {
                 low = mid + 1;
-                Symbol sym = midOne.symbol();
-                if (sym != null && sym.nameString().equals(name)) {
-                    return sym;
+                Symbol symbol = midOne.symbol();
+                if (symbol != null) {
+                    if (tokenId == ScalaTokenId.This) {
+                        if (midOne instanceof This) {
+                            return symbol;
+                        }
+                    } else if (tokenId == ScalaTokenId.Super) {
+                        if (midOne instanceof Super) {
+                            return symbol;
+                        }
+                    } else {
+                        if (symbol.nameString().equals(name)) {
+                            return symbol;
+                        }
+                    }
                 }
             }
         }
 
         return null;
     }
-    
 
     private int offset(Tree tree) {
         Option offsetOpt = tree.pos().offset();
@@ -362,12 +375,15 @@ public class ScalaTreeVisitor {
         if (pos.offset() != null) {
             Type type = tree.tpe();
             String name = "";
+            String symTypeName = "";
             Symbol sym = tree.symbol();
             if (sym != null) {
                 name = sym.nameString();
+                symTypeName = sym.tpe().termSymbol().nameString();
             }
 
-            System.out.println("(" + pos.line() + ":" + pos.column() + ") " + name + " :" + type + " tree: " + tree.getClass().getCanonicalName());
+
+            System.out.println("(" + pos.line() + ":" + pos.column() + ") name=" + name + ", symTypeName=" + symTypeName + ", type=" + type + " tree: " + tree.getClass().getCanonicalName());
         }
     }
 

@@ -169,7 +169,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                     }
                     Token token = ts.token();
                     if (token.id() == ScalaTokenId.Identifier) {
-                        Symbol symbol = treeVisitor.findSymbolAt(token.offset(th), token.text().toString());
+                        Symbol symbol = treeVisitor.findSymbolAt(token.offset(th), token.text().toString(), token.id());
                         if (symbol != null) {
                             foundElement = new ScalaElement(symbol, global);
                         }

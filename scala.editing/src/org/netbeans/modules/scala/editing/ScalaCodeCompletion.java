@@ -421,7 +421,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         completeImport(proposals, request);
                         return completionResult;
                     }
-                    /** @Note Keep following code for reference */
+                /** @Note Keep following code for reference */
 //                    else if (closest instanceof IdCall) {
 //                        // test if it's an arg of funRef ?
 //                        FunctionCall funRef = null;
@@ -2021,7 +2021,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         } else {
             resType = symbol.info();
         }
-        
+
         scala.List members = resType.members();
         int size = members.size();
         for (int i = 0; i < size; i++) {
@@ -2073,6 +2073,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             ScalaTokenId.Class);
 
     private Symbol findCallSymbol(ScalaTreeVisitor treeVisitor, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
+        assert treeVisitor != null;
+
         Token idToken = null;
         Token closest = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
         if (closest.id() == ScalaTokenId.Dot) {
@@ -2091,17 +2093,15 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         if (idToken != null) {
             int idOffset = idToken.offset(th);
             String idName = idToken.text().toString();
-            if (treeVisitor != null) {
-                Symbol symbol = treeVisitor.findSymbolAt(idOffset, idName);
-                if (symbol != null) {
-                    return symbol;
-                } else {
-                    if (tryTwice) {
-                        Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
-                        if (dot != null) {
-                            request.prefix = idToken.text().toString();
-                            return findCallSymbol(treeVisitor, ts, th, request, false);
-                        }
+            Symbol symbol = treeVisitor.findSymbolAt(idOffset, idName, idToken.id());
+            if (symbol != null) {
+                return symbol;
+            } else {
+                if (tryTwice) {
+                    Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
+                    if (dot != null) {
+                        request.prefix = idToken.text().toString();
+                        return findCallSymbol(treeVisitor, ts, th, request, false);
                     }
                 }
             }
