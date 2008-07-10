@@ -44,7 +44,6 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -245,10 +244,8 @@ public class JavaScalaMapping {
 
         if (paramNum != -1) {
             // last one is return type
-            assert paramNum == params.size();
+            //assert paramNum == params.size();
             DeclaredType declType = (DeclaredType) type;
-            List<? extends TypeMirror> retType = declType.getTypeArguments();
-            List<? extends TypeParameterElement> paramsTe = ((TypeElement) declType.asElement()).getTypeParameters();
             if (paramNum == 0) {
             } else if (paramNum == 1) {
                 sb.append("=> ");
@@ -262,8 +259,8 @@ public class JavaScalaMapping {
                     }
                 }
                 sb.append(")");
-                sb.append(" => ");
-                sb.append(Type.simpleNameOf(params.get(params.size() - 1).asType()));
+                sb.append(" => _");
+                //sb.append(Type.simpleNameOf(params.get(params.size() - 1).asType()));
             }
         }
 

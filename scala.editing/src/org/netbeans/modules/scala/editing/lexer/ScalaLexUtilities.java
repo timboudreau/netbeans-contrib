@@ -336,7 +336,9 @@ public class ScalaLexUtilities {
     }
 
     public static Token<ScalaTokenId> findPreviousIncluding(TokenSequence<ScalaTokenId> ts, List<ScalaTokenId> includes) {
-        while (ts.movePrevious() && !includes.contains(ts.token().id())) {
+        if (!includes.contains(ts.token().id())) {
+            while (ts.movePrevious() && !includes.contains(ts.token().id())) {
+            }
         }
         return ts.token();
     }
@@ -358,16 +360,13 @@ public class ScalaLexUtilities {
 
         TokenId id = token.id();
 
-//        // skip whitespaces
-//        if (id == ScalaTokenId.WHITESPACE) {
-//            while (ts.moveNext() && ts.token().id() == ScalaTokenId.WHITESPACE) {}
-//        }
-        if (id == ScalaTokenId.Ws || id == ScalaTokenId.Nl) {
-            while ((back ? ts.movePrevious() : ts.moveNext()) && (ts.token().id() == ScalaTokenId.Ws || ts.token().id() == ScalaTokenId.Nl)) {
+        // skip whitespace and comment
+        if (isWsComment(id)) {
+            while ((back ? ts.movePrevious() : ts.moveNext()) && isWsComment(id)) {
             }
         }
 
-        // if current token is not left parenthesis
+        // if current token is not parenthesis
         if (ts.token().id() != (back ? ScalaTokenId.RParen : ScalaTokenId.LParen)) {
             return false;
         }
@@ -382,7 +381,6 @@ public class ScalaLexUtilities {
                 if (balance == 0) {
                     return false;
                 } else if (balance == 1) {
-                    int length = ts.offset() + token.length();
                     if (back) {
                         ts.movePrevious();
                     } else {

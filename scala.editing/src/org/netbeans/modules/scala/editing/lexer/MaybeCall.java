@@ -160,8 +160,6 @@ public class MaybeCall {
 
         ts.move(offset);
 
-        boolean methodExpected = false;
-
         if (!ts.moveNext() && !ts.movePrevious()) {
             return MaybeCall.NONE;
         }
@@ -173,7 +171,9 @@ public class MaybeCall {
             ts.movePrevious();
         }
 
-        Token<?extends ScalaTokenId> token = ts.token();
+        boolean methodExpected = false;
+
+        Token<? extends ScalaTokenId> token = ts.token();
 
         if (token != null) {
             ScalaTokenId id = token.id();
@@ -202,7 +202,7 @@ public class MaybeCall {
             // match a keyword, such as "next"
             // However, if we're at the end of the document, x. will lex . as an
             // identifier of text ".", so handle this case specially
-            if ((id == ScalaTokenId.Identifier) || (id == ScalaTokenId.CONSTANT) ||
+            if (id == ScalaTokenId.Identifier || id == ScalaTokenId.CONSTANT ||
                     id.primaryCategory().equals("keyword")) {
                 String tokenText = token.text().toString();
 

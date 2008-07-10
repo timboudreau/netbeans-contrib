@@ -455,6 +455,14 @@ public class ScalaUtils {
         "static"
     };
 
+    public static int getOffset(scala.tools.nsc.util.Position pos) {
+        if (pos.offset().isDefined()) {
+            return ((Integer) pos.offset().get()).intValue();
+        } else {
+            return -1;
+        }
+    }
+
     public static boolean isRowWhite(String text, int offset) throws BadLocationException {
         try {
             // Search forwards
@@ -726,6 +734,32 @@ public class ScalaUtils {
             }
         }
         
+        return null;
+    }
+
+    public static String getDocComment(FileObject fo, int symbolOffset) {
+        BaseDocument doc = NbUtilities.getDocument(fo, true);
+        if (doc == null) {
+            return null;
+        }
+
+        TokenHierarchy th =  TokenHierarchy.get(doc);
+        if (th == null) {
+            return null;
+        }
+
+        doc.readLock(); // Read-lock due to token hierarchy use
+        OffsetRange range = ScalaLexUtilities.getDocCommentRangeBefore(th, symbolOffset);
+        doc.readUnlock();
+
+        if (range != OffsetRange.NONE && range.getEnd() < doc.getLength()) {
+            try {
+                return doc.getText(range.getStart(), range.getLength());
+            } catch (BadLocationException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
         return null;
     }
 

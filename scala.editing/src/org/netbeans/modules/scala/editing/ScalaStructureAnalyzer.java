@@ -77,7 +77,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyList();
         }
 
-        pResult.toGlobalPhase(info);
+        //pResult.toGlobalPhase(info);
 
         AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {

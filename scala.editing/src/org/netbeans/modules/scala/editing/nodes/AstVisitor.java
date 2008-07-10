@@ -175,7 +175,7 @@ public abstract class AstVisitor extends Visitor {
         }
 
         String name = idNode.getString(0).trim();
-        Token token = null;
+        Token token;
         if (name.equals("this")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
         } else if (name.equals("super")) {

@@ -54,7 +54,6 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
-import org.netbeans.modules.scala.editing.nodes.types.TypeParam;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
@@ -97,8 +96,8 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         if (isCancelled()) {
             return;
         }
-
-        pResult.toGlobalPhase(info);
+        
+        //pResult.toGlobalPhase(info);
 
         AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
@@ -179,12 +178,12 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     continue;
                 }
                 
-                if (!((Type) mirror).isResolved()) {
-                    AstElement element = scope.findElementOf(mirror);
-                    if (!(element instanceof TypeParam)) {
-                        highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
-                    }
-                }
+//                if (!((Type) mirror).isResolved()) {
+//                    AstElement element = scope.findElementOf(mirror);
+//                    if (!(element instanceof TypeParam)) {
+//                        highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
+//                    }
+//                }
             }
         }
 

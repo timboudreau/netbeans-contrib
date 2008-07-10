@@ -39,7 +39,6 @@
 package org.netbeans.modules.scala.editing;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -64,17 +63,10 @@ import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.modules.classfile.AttributeMap;
-import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
-import org.netbeans.modules.scala.editing.scalasig.ByteArrayReader;
-import org.netbeans.modules.scala.editing.scalasig.Entity;
-import org.netbeans.modules.scala.editing.scalasig.EntityTable;
-import org.netbeans.modules.scala.editing.scalasig.ScalaAttribute;
-
 /**
  *
  * @author Caoyuan Deng
@@ -330,7 +322,7 @@ public class JavaIndex {
             return gsfElements;
         }
 
-        File f = new File("/Users/dcaoyuan/my-project/scala-test/Foo.class");
+//        File f = new File("/Users/dcaoyuan/my-project/scala-test/Foo.class");
 
 
 //        try {
@@ -368,32 +360,67 @@ public class JavaIndex {
 //      }
 
 
-        ClassFile cFile;
-        try {
-            cFile = new ClassFile("/Users/dcaoyuan/my-project/scala-test/Foo.class", false);
-            AttributeMap am = cFile.getAttributes();
-            byte[] scalaSig = am.get("ScalaSig");
-            if (scalaSig != null) {
-                ScalaAttribute scalaAttr = null;
-                try {
-                    scalaAttr = new ScalaAttribute(new ByteArrayReader(scalaSig));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                if (scalaAttr != null) {
-                    EntityTable symtab = new EntityTable(scalaAttr);
-                    Entity[] entitys = symtab.table();
-                    for (Entity en : entitys) {
-                        System.out.println(en.toString());
-                    }
-                }
-
-                System.out.println("here");
-            }
-
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+//        try {
+//            final Global global = new Global(new Settings());
+//            UnPickler unpickler = new UnPickler() {
+//                @Override
+//                public Global global() {
+//                    return global;
+//                }
+//            };
+//
+//            ClassfileParser cfParser = new ClassfileParser() {
+//
+//                @Override
+//                public Global global() {
+//                    return global;
+//                }
+//            };
+//
+//            Global.Run run = global.new Run();
+//
+//
+//            AbstractFile file = AbstractFile$.MODULE$.getFile("/Users/dcaoyuan/my-project/scala-test/Foo.class");
+//
+//
+//
+//
+//            ClassFile cFile = new ClassFile("/Users/dcaoyuan/my-project/scala-test/Foo.class", false);
+//            AttributeMap am = cFile.getAttributes();
+//            byte[] scalaSig = am.get("ScalaSig");
+            //SymbolL
+//            Symbol NO_SYMBOL = new Symbol(null, NoPosition, ) {
+//
+//                @Override
+//                public Symbol cloneSymbolImpl(Symbol arg0) {
+//                    throw new UnsupportedOperationException("Not supported yet.");
+//                }
+//            }
+//            if (scalaSig != null) {
+//                unpickler.unpickle(scalaSig, 0, global.NoSymbol(), global.NoSymbol(), "");
+//                global.reporter();
+//                ScalaAttribute scalaAttr = null;
+//                try {
+//                    scalaAttr = new ScalaAttribute(new ByteArrayReader(scalaSig));
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                }
+//                if (scalaAttr != null) {
+//                    AttribEntry[] attrs = scalaAttr.readTable();
+//
+//                    //EntityTable symtab = new EntityTable(scalaAttr);
+//                    //Entity[] entitys = symtab.table();
+//                    //for (Entity en : entitys) {
+//                    //    System.out.println(en.toString());
+//                    //}
+//                }
+//
+//                System.out.println("here");
+//            }
+//
+//        } catch (Exception ex) {
+//            Exceptions.printStackTrace(ex);
+//        }
 
         //index.getResources(element, searchKind, scope)
         //FileObject classFo = org.netbeans.api.java.source.SourceUtils.getFile(ElementHandle.create(te), info.getClasspathInfo());

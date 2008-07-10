@@ -314,24 +314,24 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                     formatter.parameters(true);
                     
                     TypeMirror paramType = param.asType();
-                    int funParamNum = JavaScalaMapping.isFunctionType(paramType);
-                    if (funParamNum != -1) {
-                        List<? extends AnnotationMirror> annots = function.getAnnotationMirrors();
-
-                        List<VariableElement> funParams = new ArrayList<VariableElement>(funParamNum);
-                        for (int i = 0; i < funParamNum; i++) {
-                            if (itr.hasNext()) {
-                                funParams.add(itr.next());
-                            }
-                        }
-                        formatter.appendText(JavaScalaMapping.classFunctionToScalaSName(paramType, funParamNum, funParams));
-                    } else {
+//                    int funParamNum = JavaScalaMapping.isFunctionType(paramType);
+//                    if (funParamNum != -1) {
+//                        List<? extends AnnotationMirror> annots = function.getAnnotationMirrors();
+//
+//                        List<VariableElement> funParams = new ArrayList<VariableElement>(funParamNum);
+//                        for (int i = 0; i < funParamNum; i++) {
+//                            if (itr.hasNext()) {
+//                                funParams.add(itr.next());
+//                            }
+//                        }
+//                        formatter.appendText(JavaScalaMapping.classFunctionToScalaSName(paramType, funParamNum, funParams));
+//                    } else {
                         if (param.asType() != null) {
                             formatter.type(true);
                             Type.htmlFormat(formatter, paramType, true);
                             formatter.type(false);
                         }
-                    }
+//                    }
 
                     formatter.parameters(false);
 
@@ -685,4 +685,5 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             return formatter.getText();
         }
     }
+
 }

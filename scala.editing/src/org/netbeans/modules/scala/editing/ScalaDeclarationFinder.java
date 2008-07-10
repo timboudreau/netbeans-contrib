@@ -52,6 +52,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
@@ -60,8 +61,11 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldCall;
 import org.netbeans.modules.scala.editing.nodes.FunctionCall;
+import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
+import scala.tools.nsc.Global;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  * 
@@ -124,6 +128,80 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
+
+        final BaseDocument doc = (BaseDocument) info.getDocument();
+        if (doc == null) {
+            return DeclarationLocation.NONE;
+        }
+
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        Global global = ((ScalaParser) pResult.getParser()).getGlobal();
+
+        doc.readLock();
+        try {
+            AstScope root = pResult.getRootScope();
+            if (root == null) {
+                return DeclarationLocation.NONE;
+            }
+
+            final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
+            if (astOffset == -1) {
+                return DeclarationLocation.NONE;
+            }
+
+            final TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
+
+            ElementHandle foundElement = null;
+            boolean isLocal = false;
+
+            AstNode closest = root.findElementOrMirror(th, astOffset);
+            AstElement element = root.findElementOf(closest);
+            if (element != null) {
+                foundElement = new GsfElement(element, info.getFileObject(), info);
+                isLocal = true;
+            } else {
+                ScalaTreeVisitor treeVisitor = pResult.getTreeVisitor();
+                if (treeVisitor != null) {
+                    TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+                    ts.move(lexOffset);
+                    if (!ts.moveNext() && !ts.movePrevious()) {
+                        return DeclarationLocation.NONE;
+                    }
+                    Token token = ts.token();
+                    if (token.id() == ScalaTokenId.Identifier) {
+                        Symbol symbol = treeVisitor.findSymbolAt(token.offset(th), token.text().toString());
+                        if (symbol != null) {
+                            foundElement = new ScalaElement(symbol, global);
+                        }
+                    }
+
+                }
+            }
+
+            if (foundElement != null) {
+                int offset = 0;
+                if (isLocal) {
+                    offset = ((AstNode) ((GsfElement) foundElement).getElement()).getPickOffset(th);
+                } else {
+                    if (foundElement instanceof ScalaElement) {
+                        offset = ((ScalaElement) foundElement).getOffset();
+                    }                   
+                }
+
+                FileObject fo = foundElement.getFileObject();
+                if (fo != null) {
+                    return new DeclarationLocation(fo, offset, foundElement);
+                }
+            }
+
+            return DeclarationLocation.NONE;
+
+        } finally {
+            doc.readUnlock();
+        }
+    }
+
+    public DeclarationLocation findDeclaration_old(CompilationInfo info, int lexOffset) {
 
         final BaseDocument doc = (BaseDocument) info.getDocument();
         if (doc == null) {

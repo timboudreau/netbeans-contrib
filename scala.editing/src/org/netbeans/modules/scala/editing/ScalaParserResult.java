@@ -47,18 +47,21 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
+import scala.tools.nsc.Global;
 
 /**
  *
  * @author Caoyuan Deng
  */
 public class ScalaParserResult extends ParserResult {
+
     public enum Phase {
+
         Modified,
         Parsed,
         GLOBAL_RESOLVED
     }
-
     private AstTreeNode ast;
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
@@ -67,13 +70,16 @@ public class ScalaParserResult extends ParserResult {
     private boolean commentsAdded;
     private AstScope rootScope;
     private TokenHierarchy<Document> tokenHierarchy;
+    private ScalaTreeVisitor treeVisitor;
     private Phase phase;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
+    public ScalaParserResult(ScalaParser parser, ParserFile file,
+            AstScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th, ScalaTreeVisitor treeVisitor) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.rootScope = rootScope;
         this.ast = ast;
         this.tokenHierarchy = th;
+        this.treeVisitor = treeVisitor;
         this.phase = Phase.Parsed;
     }
 
@@ -83,6 +89,10 @@ public class ScalaParserResult extends ParserResult {
 
     public void setAst(AstTreeNode ast) {
         this.ast = ast;
+    }
+
+    public ScalaTreeVisitor getTreeVisitor() {
+        return treeVisitor;
     }
 
     public String getSource() {
@@ -131,27 +141,27 @@ public class ScalaParserResult extends ParserResult {
     public AstScope getRootScope() {
         return rootScope;
     }
-    
+
     public TokenHierarchy<Document> getTokenHierarchy() {
         return tokenHierarchy;
     }
-    
+
     public Phase getPhase() {
         return phase == null ? Phase.Modified : phase;
     }
-    
+
     public void toGlobalPhase(CompilationInfo info) {
         if (rootScope == null) {
             return;
         }
-        
+
         if (this.phase != Phase.GLOBAL_RESOLVED) {
             ScalaIndex index = ScalaIndex.get(info);
             new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
             this.phase = Phase.GLOBAL_RESOLVED;
         }
     }
-    
+
     public void toGlobalPhase(ScalaIndex index) {
         if (rootScope == null) {
             return;
@@ -165,6 +175,6 @@ public class ScalaParserResult extends ParserResult {
 
     @Override
     public String toString() {
-        return "ParserResult(file=" + getFile() + ",rootScope=" + rootScope +",phase=" + phase + ")";
+        return "ParserResult(file=" + getFile() + ",rootScope=" + rootScope + ",phase=" + phase + ")";
     }
 }

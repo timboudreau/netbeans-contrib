@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,8 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionProposal.FunctionProposal;
+import org.netbeans.modules.scala.editing.ScalaCompletionProposal.PlainProposal;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -85,12 +88,16 @@ import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.Importing;
+import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import scala.tools.nsc.Global;
+import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.MethodType;
 
 /**
  * Code completion handler for JavaScript
@@ -317,7 +324,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         DefaultCompletionResult completionResult = new DefaultCompletionResult(proposals, false);
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        pResult.toGlobalPhase(info);
+        Global global = ((ScalaParser) pResult.getParser()).getGlobal();
+        //pResult.toGlobalPhase(info);
 
         // Read-lock due to Token hierarchy use
         doc.readLock();
@@ -337,6 +345,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             CompletionRequest request = new CompletionRequest();
             request.completionResult = completionResult;
             request.result = pResult;
+            request.global = global;
             request.formatter = formatter;
             request.lexOffset = lexOffset;
             request.astOffset = astOffset;
@@ -396,10 +405,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     offset = sanitizedRange.getStart();
                 }
 
-                //final AstPath path = new AstPath(root, offset);
-                //request.path = path;
-                //request.fqn = AstUtilities.getFqn(path, null, null);
-
                 AstNode closest = root.findElementOrMirror(th, offset);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
@@ -415,46 +420,58 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         request.prefix = prefix1;
                         completeImport(proposals, request);
                         return completionResult;
-                    } else if (closest instanceof IdCall) {
-                        // test if it's an arg of funRef ?
-                        FunctionCall funRef = null;
-                        while (funRef == null && closestOffset > 0) {
-                            funRef = root.findMirrorAt(FunctionCall.class, th, closestOffset--);
-                        }
-
-                        if (funRef != null) {
-                            boolean isHisArg = false;
-                            int argOffset = closest.getPickOffset(th);
-                            for (AstNode arg : funRef.getArgs()) {
-                                if (arg.getPickOffset(th) >= argOffset && argOffset <= arg.getPickEndOffset(th)) {
-                                    isHisArg = true;
-                                    break;
-                                }
-                            }
-
-                            if (isHisArg) {
-                                closest = funRef;
-                            }
-                        }
                     }
-
-                    if (closest instanceof FunctionCall || closest instanceof FieldCall) {
-                        if (!request.prefix.equals("")) {
-                            // dog.ta|
-                            if (closest instanceof FunctionCall && !((FunctionCall) closest).isLocal()) {
-                                closest = ((FunctionCall) closest).getBase();
-                            } else {
-                                closest = ((FieldCall) closest).getBase();
-                            }
-                        } else {
-                            // dog.|
-                        }
-                    }
+                    /** @Note Keep following code for reference */
+//                    else if (closest instanceof IdCall) {
+//                        // test if it's an arg of funRef ?
+//                        FunctionCall funRef = null;
+//                        while (funRef == null && closestOffset > 0) {
+//                            funRef = root.findMirrorAt(FunctionCall.class, th, closestOffset--);
+//                        }
+//
+//                        if (funRef != null) {
+//                            boolean isHisArg = false;
+//                            int argOffset = closest.getPickOffset(th);
+//                            for (AstNode arg : funRef.getArgs()) {
+//                                if (arg.getPickOffset(th) >= argOffset && argOffset <= arg.getPickEndOffset(th)) {
+//                                    isHisArg = true;
+//                                    break;
+//                                }
+//                            }
+//
+//                            if (isHisArg) {
+//                                closest = funRef;
+//                            }
+//                        }
+//                    }
+//
+//                    if (closest instanceof FunctionCall || closest instanceof FieldCall) {
+//                        if (!request.prefix.equals("")) {
+//                            // dog.ta|
+//                            if (closest instanceof FunctionCall && !((FunctionCall) closest).isLocal()) {
+//                                closest = ((FunctionCall) closest).getBase();
+//                            } else {
+//                                closest = ((FieldCall) closest).getBase();
+//                            }
+//                        } else {
+//                            // dog.|
+//                        }
+//                    }
                 }
 
                 request.root = root;
                 request.node = closest;
             }
+
+            ScalaTreeVisitor treeVisitor = pResult.getTreeVisitor();
+            if (treeVisitor != null) {
+                Symbol symbol = findCallSymbol(treeVisitor, ts, th, request, true);
+                if (symbol != null) {
+                    completeSymbolMembers(symbol, proposals, request);
+                    return completionResult;
+                }
+            }
+
 
             if (root == null) {
                 completeKeywords(proposals, request);
@@ -466,18 +483,19 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 return completionResult;
             }
 
-            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
-                completeTemplateMembers(proposals, request);
-                return completionResult;
-            }
+
+//            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
+//                completeTemplateMembers(proposals, request);
+//                return completionResult;
+//            }
 
             completeKeywords(proposals, request);
 
             addLocals(proposals, request);
 
-            if (completeTemplateMembers(proposals, request)) {
-                return completionResult;
-            }
+//            if (completeTemplateMembers(proposals, request)) {
+//                return completionResult;
+//            }
 
         // @todo Try to complete methods inheried and predef's methods 
 //            if (completeFunctions(proposals, request)) {
@@ -501,6 +519,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         }
 
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
+        if (closestScope == null) {
+            return;
+        }
 
         List<Var> localVars = closestScope.getVisibleElements(Var.class);
         for (Var var : localVars) {
@@ -1476,42 +1497,40 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                         /** @todo return imported types */
                         return false;
                     }
-                    
+
                     /** 
                      * @Todo : we should implement completion for "new" in two phase:
                      * 1. get Type name
                      * 2. get constructors of this type when use pressed enter
                      */
-                    
                     Set<GsfElement> gsdElements = index.getDeclaredTypes(prefix, kind, ScalaIndex.ALL_SCOPE, request.result);
                     String lhs = request.call == null ? null : request.call.getLhs();
                     /**
                     if (lhs != null && lhs.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
-                        if (m.size() > 0) {
-                            if (gsdElements.size() == 0) {
-                                gsdElements = new HashSet<GsfElement>();
-                            }
-                            for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
-                                    gsdElements.add(f);
-                                }
-                            }
-                        }
+                    Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
+                    if (m.size() > 0) {
+                    if (gsdElements.size() == 0) {
+                    gsdElements = new HashSet<GsfElement>();
+                    }
+                    for (IndexedElement f : m) {
+                    if (f.getKind() == ElementKind.CONSTRUCTOR) {
+                    gsdElements.add(f);
+                    }
+                    }
+                    }
                     } else if (prefix.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
-                        if (m.size() > 0) {
-                            if (gsdElements.size() == 0) {
-                                gsdElements = new HashSet<GsfElement>();
-                            }
-                            for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
-                                    gsdElements.add(f);
-                                }
-                            }
-                        }
+                    Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
+                    if (m.size() > 0) {
+                    if (gsdElements.size() == 0) {
+                    gsdElements = new HashSet<GsfElement>();
+                    }
+                    for (IndexedElement f : m) {
+                    if (f.getKind() == ElementKind.CONSTRUCTOR) {
+                    gsdElements.add(f);
+                    }
+                    }
+                    }
                     } */
-
                     for (GsfElement gsfElement : gsdElements) {
                         // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
                         if (!gsfElement.getName().startsWith(prefix)) {
@@ -1675,10 +1694,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     }
 
     public String document(CompilationInfo info, ElementHandle element) {
-        HtmlFormatter htmlSignature = new SignatureHtmlFormatter();
+        HtmlFormatter signatureFormatter = new SignatureHtmlFormatter();
         String comment = null;
         if (element instanceof IndexedElement) {
-            htmlSignature.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
+            signatureFormatter.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
             IndexedElement ie = (IndexedElement) element;
             if (ie.isDocumented() || ie.isJava()) {
                 comment = ie.getComment();
@@ -1689,15 +1708,17 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                }
             }
         } else if (element instanceof GsfElement) {
-            ((GsfElement) element).htmlFormat(htmlSignature);
+            ((GsfElement) element).htmlFormat(signatureFormatter);
             comment = ((GsfElement) element).getDocComment();
+        } else if (element instanceof ScalaElement) {
+            comment = ((ScalaElement) element).getDocComment();
         }
 
         StringBuilder html = new StringBuilder();
 
         //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
-            html.append(htmlSignature).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
+            html.append(signatureFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
 
             return html.toString();
         }
@@ -1708,7 +1729,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             formatter.setSeqName(name);
         }
 
-        html.append(htmlSignature).append("\n<hr>\n").append(formatter.toHtml());
+        html.append(signatureFormatter).append("\n<hr>\n").append(formatter.toHtml());
 
         return html.toString();
 
@@ -1992,6 +2013,103 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         return null;
     }
 
+    private boolean completeSymbolMembers(Symbol symbol, List<CompletionProposal> proposals, CompletionRequest request) {
+        String prefix = request.prefix;
+        scala.tools.nsc.symtab.Types.Type resType;
+        if (symbol.isMethod()) {
+            resType = symbol.info().resultType();
+        } else {
+            resType = symbol.info();
+        }
+        
+        scala.List members = resType.members();
+        int size = members.size();
+        for (int i = 0; i < size; i++) {
+            Symbol member = (Symbol) members.apply(i);
+
+            if (!JavaUtilities.startsWith(member.nameString(), prefix)) {
+                continue;
+            }
+
+            ScalaElement element = null;
+            CompletionProposal proposal = null;
+            if (member.isPublic() || member.isProtectedLocal() || member.isPrivateLocal()) {
+                if (member.isMethod() && !member.isConstructor()) {
+                    scala.tools.nsc.symtab.Types.Type type = member.info();
+                    if (type instanceof MethodType) {
+                        element = new ScalaElement(member, request.global);
+
+                        proposal = new FunctionProposal(element, request);
+                    }
+                } else if (member.isVariable()) {
+                    scala.tools.nsc.symtab.Types.Type type = member.info();
+
+                } else if (member.isValue()) {
+                    scala.tools.nsc.symtab.Types.Type type = member.info();
+                    element = new ScalaElement(member, request.global);
+                    proposal = new PlainProposal(element, request);
+                }
+            }
+
+            if (proposal != null) {
+                if (element != null) {
+                    if (resType != element.getSymbol().enclClass().info()) {
+                        element.setInherited(true);
+                    }
+                }
+
+                proposals.add(proposal);
+            }
+
+            System.out.println("member: " + member + " info: " + member.info().getClass());
+        }
+
+        return true;
+    }
+    private static final List<ScalaTokenId> CALL_ID = Arrays.asList(
+            ScalaTokenId.Identifier,
+            ScalaTokenId.This,
+            ScalaTokenId.Super,
+            ScalaTokenId.Class);
+
+    private Symbol findCallSymbol(ScalaTreeVisitor treeVisitor, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
+        Token idToken = null;
+        Token closest = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
+        if (closest.id() == ScalaTokenId.Dot) {
+            if (ts.movePrevious()) {
+                Token prev = ScalaLexUtilities.findPreviousNonWs(ts);
+                if (prev != null && prev.id() == ScalaTokenId.RParen) {
+                    ScalaLexUtilities.skipParenthesis(ts, true);
+                }
+
+            }
+            idToken = ScalaLexUtilities.findPreviousIncluding(ts, CALL_ID);
+        } else if (CALL_ID.contains(closest.id())) {
+            idToken = closest;
+        }
+
+        if (idToken != null) {
+            int idOffset = idToken.offset(th);
+            String idName = idToken.text().toString();
+            if (treeVisitor != null) {
+                Symbol symbol = treeVisitor.findSymbolAt(idOffset, idName);
+                if (symbol != null) {
+                    return symbol;
+                } else {
+                    if (tryTwice) {
+                        Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
+                        if (dot != null) {
+                            request.prefix = idToken.text().toString();
+                            return findCallSymbol(treeVisitor, ts, th, request, false);
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     protected static class CompletionRequest {
 
         private DefaultCompletionResult completionResult;
@@ -2007,6 +2125,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         protected ScalaIndex index;
         protected NameKind kind;
         protected ScalaParserResult result;
+        protected Global global;
         protected QueryType queryType;
         protected FileObject fileObject;
         protected HtmlFormatter formatter;
