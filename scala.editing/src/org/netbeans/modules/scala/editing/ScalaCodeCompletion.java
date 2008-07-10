@@ -88,7 +88,6 @@ import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.IdCall;
 import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -98,6 +97,7 @@ import org.openide.util.NbBundle;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.MethodType;
+import scala.tools.nsc.symtab.Types.PolyType;
 
 /**
  * Code completion handler for JavaScript
@@ -2015,11 +2015,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
     private boolean completeSymbolMembers(Symbol symbol, List<CompletionProposal> proposals, CompletionRequest request) {
         String prefix = request.prefix;
+        symbol.info(); // force to load(complete) all info;
         scala.tools.nsc.symtab.Types.Type resType;
         if (symbol.isMethod()) {
-            resType = symbol.info().resultType();
+            resType = symbol.tpe().resultType();
         } else {
-            resType = symbol.info();
+            resType = symbol.tpe();
         }
 
         scala.List members = resType.members();
@@ -2034,34 +2035,42 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             ScalaElement element = null;
             CompletionProposal proposal = null;
             if (member.isPublic() || member.isProtectedLocal() || member.isPrivateLocal()) {
-                if (member.isMethod() && !member.isConstructor()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.info();
+                if (member.isConstructor()) {
+                    continue;
+                }
+
+                if (member.isMethod()) {
+                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
                     if (type instanceof MethodType) {
                         element = new ScalaElement(member, request.global);
-
                         proposal = new FunctionProposal(element, request);
+                    } else if (type instanceof PolyType) {
+                        
                     }
                 } else if (member.isVariable()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.info();
+                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
 
                 } else if (member.isValue()) {
-                    scala.tools.nsc.symtab.Types.Type type = member.info();
+                    scala.tools.nsc.symtab.Types.Type type = member.tpe();
                     element = new ScalaElement(member, request.global);
                     proposal = new PlainProposal(element, request);
                 }
             }
 
             if (proposal != null) {
-                if (element != null) {
-                    if (resType != element.getSymbol().enclClass().info()) {
-                        element.setInherited(true);
-                    }
+                boolean inherited = true;
+                Symbol resTypeSymbol = resType.typeSymbol();
+                Symbol enclClassSymbol = element.getSymbol().enclClass();
+                if (resTypeSymbol.nameString().equals(enclClassSymbol.nameString()) &&
+                        resTypeSymbol.enclosingPackage() == enclClassSymbol.enclosingPackage()) {
+                    inherited = false;
                 }
+                element.setInherited(inherited);
 
                 proposals.add(proposal);
             }
 
-            System.out.println("member: " + member + " info: " + member.info().getClass());
+        //System.out.println("member: " + member + " info: " + member.info().getClass());
         }
 
         return true;
