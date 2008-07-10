@@ -17,9 +17,12 @@ The Original Software is NetBeans. The Initial Developer of the Original
 Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-
-<project name="contrib/scala.core" default="netbeans" basedir=".">
-
+<project name="contrib/scala.core" default="netbeans" basedir="." xmlns:scalaProject1="http://www.netbeans.org/ns/scala-project/1">
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <import file="nbproject/build-scala.xml"/>
 
+    <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
+    <target name="compile" depends="init,projectized-common.compile,scala.compile"/>
+    <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build,scala.do-test-build"/>
+    
 </project>
