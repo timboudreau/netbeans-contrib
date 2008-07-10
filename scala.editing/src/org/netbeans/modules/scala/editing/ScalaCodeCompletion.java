@@ -1692,10 +1692,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     }
 
     public String document(CompilationInfo info, ElementHandle element) {
-        HtmlFormatter signatureFormatter = new SignatureHtmlFormatter();
+        HtmlFormatter sigFormatter = new SignatureHtmlFormatter();
         String comment = null;
         if (element instanceof IndexedElement) {
-            signatureFormatter.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
+            sigFormatter.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
             IndexedElement ie = (IndexedElement) element;
             if (ie.isDocumented() || ie.isJava()) {
                 comment = ie.getComment();
@@ -1706,17 +1706,20 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                }
             }
         } else if (element instanceof GsfElement) {
-            ((GsfElement) element).htmlFormat(signatureFormatter);
+            ((GsfElement) element).htmlFormat(sigFormatter);
             comment = ((GsfElement) element).getDocComment();
         } else if (element instanceof ScalaElement) {
-            comment = ((ScalaElement) element).getDocComment();
+            ScalaElement element1 = (ScalaElement) element;
+            sigFormatter.appendText(element1.getSymbol().nameString());
+            sigFormatter.appendText(element1.getSymbol().infoString(element1.getSymbol().tpe()));
+            comment = element1.getDocComment();
         }
 
         StringBuilder html = new StringBuilder();
 
         //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
-            html.append(signatureFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
+            html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
 
             return html.toString();
         }
@@ -1727,7 +1730,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             formatter.setSeqName(name);
         }
 
-        html.append(signatureFormatter).append("\n<hr>\n").append(formatter.toHtml());
+        html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml());
 
         return html.toString();
 
@@ -2051,8 +2054,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 boolean inherited = true;
                 Symbol resTypeSymbol = resType.typeSymbol();
                 Symbol enclClassSymbol = element.getSymbol().enclClass();
-                if (resTypeSymbol.nameString().equals(enclClassSymbol.nameString()) &&
-                        resTypeSymbol.enclosingPackage() == enclClassSymbol.enclosingPackage()) {
+                if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
                     inherited = false;
                 }
                 element.setInherited(inherited);
