@@ -107,7 +107,7 @@ public class ScalaTreeVisitor {
         visit(tree);
         Collections.sort(trees, new TreeComparator());
         Collections.sort(symbols, new SymbolComparator());
-        printTrees();
+        //printTrees();
     }
 
     public <T extends Tree> T findTreeAt(Class<T> clazz, int offset) {
