@@ -39,7 +39,7 @@ fi
 PRODUCT="Sun Studio"
 
 # PRODUCTID - id that is used for identifying registration page on SysNet.
-PRODUCTID="nb"
+PRODUCTID="ss"
 
 # REGISTRATION_DIR - a directory to store UIDs for
 #      already registered instances of product
@@ -48,13 +48,16 @@ SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
 
 NETBEANS_DIR="netbeans-6.1"
 
-REGISTRATION_DIR="${SUNSTUDIO_DIR}/registration"
+REGISTRATION_DIR="${SUNSTUDIO_DIR}/prod/lib/condev"
 
 # REGISTRATION_PAGE - location of a generated registration page
 REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
 
-HOME_SUNSTUDIO_DIR=$HOME/.sunstudio
-HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/registration/register-sunstudio.html"
+HOME_SUNSTUDIO_DIR=$HOME/.sunstudio/condev
+HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
+
+TMP_SUNSTUDIO_DIR=/tmp/.sunstudio/condev
+TMP_REGISTRATION_PAGE="$TMP_SUNSTUDIO_DIR/register-sunstudio.html"
 
 
 
@@ -69,7 +72,7 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inv-ws-staging.central.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
 
 # STDIR - directory that contains swordfish.data and templates for
 #      registration page generating (relative to sunstudio installation dir)
@@ -223,8 +226,8 @@ init() {
    validate_locale ${LANG}
 
    STSUPPORTED=0
-   if [ -f `which stclient` ]; then
-      STSUPPORTED=1
+   if [ -f "`which stclient 2>/dev/null`" ]; then
+	STSUPPORTED=1
    fi
 }
 
@@ -439,9 +442,14 @@ EOF
 createRegistrationDocument() {
    agentInfoFile="${TMPDIR}/environment.xml"
 
-   if [ ${STSUPPORTED} -eq 1 ] && [ -f /usr/bin/curl ]; then
+   if [ ${STSUPPORTED} -eq 1 ] && [ -f "/usr/bin/curl" ]; then
       initEnvironmentFromSystemRegistry
    else 
+      initEnvironment
+   fi
+
+   # if by any reason we could not use Service Tags 
+   if [ "${HOST}" = "" ]; then
       initEnvironment
    fi
 
@@ -550,14 +558,14 @@ browse() {
       echo "Please open following link with your browser to proceed with registration."
       echo "${URL}"
    else
-      OUT=`${BROWSER} $URL 2>&1`
-      if [ $? -ne 0 ]; then
-         echo "\nThere were problems with launching ${BROWSER}:"
-         echo "${OUT} \n"
-         echo "Still, registration page has been generated."
-         echo "Please open following link with your browser to proceed with registration."
-         echo "${URL} \n"
-      fi
+      ${BROWSER} $URL 2>&1 &
+      #if [ $? -ne 0 ]; then
+      #     echo "There were problems with launching ${BROWSER}:"
+      #     echo "${OUT}"
+      #     echo "Still, registration page has been generated."
+      #     echo "Please open following link with your browser to proceed with registration."
+      #     echo "${URL}"
+      #fi
    fi
 }
 
@@ -597,12 +605,20 @@ done
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
    generateRegistrationHTML 1>/dev/null 2>/dev/null
-   mkdir -p $HOME_SUNSTUDIO_DIR
-   if [ `whoami` = 'root' ]
+   # 
+   # The HTML page is loaded from users home to be correctly shown if firefox is already run.
+   # The '/root' on Linux could not be read by other users page from Sun Studio is used.
+   #
+   if [ `uname` = "Linux" -a "$UID" -eq 0 ]
    then
-	browse "file://$REGISTRATION_PAGE"
+        mkdir -p $TMP_SUNSTUDIO_DIR
+	cp -r $REGISTRATION_PAGE $TMP_SUNSTUDIO_DIR 
+	rm -rf $REGISTRATION_DIR
+	browse "file://$TMP_REGISTRATION_PAGE"
    else
-	cp -r $REGISTRATION_DIR $HOME_SUNSTUDIO_DIR 
+        mkdir -p $HOME_SUNSTUDIO_DIR
+	cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 
+	rm -rf $REGISTRATION_DIR
 	browse "file://$HOME_REGISTRATION_PAGE"
    fi
 fi

@@ -106,14 +106,14 @@ public class JsfProjectUtils {
      * Check for Creator project
      * @param project Project to be checked
      */
-    public static boolean isJsfProject(Project project) {
+ /*   public static boolean isJsfProject(Project project) {
         if (project == null) {
             return false;
         }
 
-        String version = getProjectVersion(project);
-        return version != null && version.length() > 0;
-    }
+//////        String version = getProjectVersion(project);
+//////        return version != null && version.length() > 0;
+    }*/
 
     public static boolean isJsfFramework(WebFrameworkProvider framework) {
         if (framework == null) {
@@ -216,7 +216,7 @@ public class JsfProjectUtils {
      * @param project the Project object
      * @return the FileObject of the page bean root folder
      */
-    public static FileObject getPageBeanRoot(Project project) {
+    /*public static FileObject getPageBeanRoot(Project project) {
         if (project == null) {
             return null;
         }
@@ -247,7 +247,7 @@ public class JsfProjectUtils {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
             return null;
         }
-    }
+    }*/
     
     /** J2EE platform version - one of the constants {@link #J2EE_13_LEVEL}, {@link #J2EE_14_LEVEL}.
      * @param project
@@ -283,36 +283,8 @@ public class JsfProjectUtils {
 
         return slq.getSourceLevel(srcRoot);
     }
-
-    public static boolean supportProjectProperty(Project project) {
-        if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
-            Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
-            if (auxElement != null) {
-                return true;
-            }
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            try {
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document xmlDoc = builder.newDocument();
-                auxElement = xmlDoc.createElementNS(JsfProjectConstants.RAVE_AUX_NAMESPACE, JsfProjectConstants.RAVE_AUX_NAME);
-            } catch (ParserConfigurationException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                return false;
-            }
-
-            ac.putConfigurationFragment(auxElement, true);
-            auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
-            if (auxElement != null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
     
-    public static String getProjectProperty(Project project, String propName) {
+   /* public static String getProjectProperty(Project project, String propName) {
         if (isWebProject(project)) {
             AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
@@ -326,17 +298,11 @@ public class JsfProjectUtils {
             return value;
         } else
             return "";
-    }
+    }*/
     
-    private static String getCreatorProperty(final Project project, String propName) {
+    /*private static String getCreatorProperty(final Project project, String propName) {
         EditableProperties props;
-        /* XXX WebPropertyEvaluator in org.netbeans.modules.web.project is not accessible; need friend-package
-        WebPropertyEvaluator wpe = (WebPropertyEvaluator) project.getLookup().lookup(WebPropertyEvaluator.class);
-        if (wpe != null) {
-            PropertyEvaluator pe = wpe.evaluator();
-            props = new EditableProperties(pe.getProperties());
-        } else {
-        */
+    
         props = NetbeansUtil.getWebProperties(project);
         if (props == null) {
             // Can't find anything, try to read the project.properties file directly. Shouldn't be here.
@@ -387,17 +353,17 @@ public class JsfProjectUtils {
         }
 
         return ret;
-    }
+    }*/
 
-    public static void createProjectProperty(Project project, String propName, String value) {
+   /* public static void createProjectProperty(Project project, String propName, String value) {
         putProjectProperty(project, propName, value, ""); // NOI18N
-    }
+    }*/
     
-    public static void putProjectProperty(Project project, String propName, String value) {
+/*    public static void putProjectProperty(Project project, String propName, String value) {
         putProjectProperty(project, propName, value, getProjectProperty(project, propName));
-    }
+    }*/
     
-    private static void putProjectProperty(Project project, String propName, String value, String oldval) {
+   /* private static void putProjectProperty(Project project, String propName, String value, String oldval) {
         if (isWebProject(project)) {
             AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
@@ -415,15 +381,15 @@ public class JsfProjectUtils {
             auxElement.setAttribute(propName, value);
             ac.putConfigurationFragment(auxElement, true);
         }
-    }
+    }*/
 
-    public static String getProjectVersion(Project project) {
+  /*  public static String getProjectVersion(Project project) {
         return getProjectProperty(project, JsfProjectConstants.PROP_JSF_PROJECT_VERSION);
     }
 
     public static void setProjectVersion(Project project, String version) {
         putProjectProperty(project, JsfProjectConstants.PROP_JSF_PROJECT_VERSION, version);
-    }
+    }*/
 
     /**
      * Add an array of library references to a project, qualified for both the design-time classpath or deployed with the application

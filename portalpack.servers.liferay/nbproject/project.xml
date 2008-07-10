@@ -51,9 +51,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.18</specification-version>
+                        <specification-version>1.10.1</specification-version>
+                        <!-- Uncomment this section for NB 6.5 
+                        <specification-version>1.18</specification-version> -->
                     </run-dependency>
                 </dependency>
+                <!-- Uncomment this section to compile it with netbeans 6.5 
                 <dependency>
                     <code-name-base>org.netbeans.api.java.classpath</code-name-base>
                     <build-prerequisite/>
@@ -62,7 +65,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                         <release-version>1</release-version>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
-                </dependency>
+                </dependency> -->
+                
                 <dependency>
                     <code-name-base>org.netbeans.api.web.webmodule</code-name-base>
                     <build-prerequisite/>
@@ -136,7 +140,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.17</specification-version>
+                        <!-- Uncomment this section to compile against NB 6.5
+                        <specification-version>1.17</specification-version> -->
                     </run-dependency>
                 </dependency>
                 <dependency>

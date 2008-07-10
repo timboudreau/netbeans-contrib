@@ -79,11 +79,11 @@ public class BrowseSubmenu implements Presenter.Menu {
         {"Source (Hg)", "@REPO@/raw-file/tip/@FILEPATH@"},
         {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@FILEPATH@"},
         {"Javadoc (official)", "http://bits.netbeans.org/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
-        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.netbeans.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
+        {"Javadoc (Hudson nbms-and-javadoc)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
     };
     private static final String[][] LINKS_PRJ = {
         {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/"},
-        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.netbeans.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/"},
+        {"Javadoc (Hudson nbms-and-javadoc)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/"},
     };
 
     /** Default constructor for layer */

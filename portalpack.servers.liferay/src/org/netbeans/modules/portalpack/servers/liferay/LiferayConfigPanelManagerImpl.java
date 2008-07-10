@@ -23,6 +23,7 @@ import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConfigPanel;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.ClasspathConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.DefaultServerConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
@@ -60,7 +61,7 @@ public class LiferayConfigPanelManagerImpl implements PSConfigPanelManager, Serv
     {
         DefaultServerConfigPanel serverConfigPanel = new DefaultServerConfigPanel();
         serverConfigPanel.registerServerConfigPanel(new SunAppServerConfigPanel(),SUN_APP_SERVER_9,org.openide.util.NbBundle.getMessage(LiferayConfigPanelManagerImpl.class, "Sun_Java_System_AppServer_9"));
-        //serverConfigPanel.registerServerConfigPanel(new TomcatConfigPanel(),TOMCAT_5_X,"Tomcat 5.x");
+        serverConfigPanel.registerServerConfigPanel(new TomcatConfigPanel(),TOMCAT_5_X,org.openide.util.NbBundle.getMessage(LiferayConfigPanelManagerImpl.class, "Tomcat_5_x"));
         return serverConfigPanel;
     }
 }

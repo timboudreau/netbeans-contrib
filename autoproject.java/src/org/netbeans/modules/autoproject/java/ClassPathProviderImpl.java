@@ -207,6 +207,9 @@ class ClassPathProviderImpl implements ClassPathProvider {
                 }
                 if (path != null) {
                     for (String piece : path.split("[:;]")) {
+                        if (piece.length() == 0) {
+                            continue;
+                        }
                         URL u = FileUtil.urlForArchiveOrDir(new File(piece));
                         if (u != null) {
                             newurls.add(u);

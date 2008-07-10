@@ -51,7 +51,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl{
     protected List getCustomLibraries() {
          List classPath = new ArrayList();
          
-         String[] libFiles = {"portal-service.jar"};
+         String[] libFiles = {"portal-service.jar","portal-kernel.jar"};
          //PSConfigObject psconfig = psconfig.getPSConfig();
          
          for(int i=0;i<libFiles.length;i++)

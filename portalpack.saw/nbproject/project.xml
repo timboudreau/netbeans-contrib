@@ -20,22 +20,9 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                          <specification-version>1.13</specification-version>
-                        <!-- specification-version>1.18</specification-version -->
+                        <specification-version>1.13</specification-version>
                     </run-dependency>
                 </dependency>
-                <!--Commented to compile it against NB6.1. To compile against 6.5 
-                please uncomment the following block
-                <dependency>
-                    <code-name-base>org.netbeans.api.java.classpath</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                -->
                 <dependency>
                     <code-name-base>org.netbeans.api.web.webmodule</code-name-base>
                     <build-prerequisite/>
@@ -53,14 +40,21 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.libs.jsr223</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.8</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.editor</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>3</release-version>
                         <specification-version>1.32.0.1.2</specification-version>
-                        <!-- Uncomment this line for NB 6.5
-                        <specification-version>1.41</specification-version> -->
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -69,9 +63,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                         <specification-version>1.12.0.1.2</specification-version>
-                        <!-- Uncomment this line for NB 6.5
-                        <specification-version>1.27</specification-version> -->
+                        <specification-version>1.12.0.1.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -125,6 +117,15 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.12</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.queries</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.13</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -209,16 +210,6 @@
                         <specification-version>6.14</specification-version>
                     </run-dependency>
                 </dependency>
-                <!-- Uncomment the following section for NB 6.5
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.deprecated.pre61settings</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>0-1</release-version>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency> -->
             </module-dependencies>
             <public-packages/>
         </data>

@@ -49,6 +49,14 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
        
          </copy>
      </target>
+	 
+	 <target name="copyL10n">
+		 <echo message="${l10n.src.dir}"/>
+		 <copy todir=".">
+			<fileset dir="${l10n.src.dir}"/>			
+			<mapper type="glob" from="src" to="l10n/${locale}"/>
+		 </copy>
+	 </target>
 
       
 </project>

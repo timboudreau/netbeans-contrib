@@ -42,9 +42,11 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
+import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
 import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
+import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
@@ -116,9 +118,76 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         //writeErrorToOutput(uri,e);
         throw e;
         }*/
-        copy(warfile, System.getProperty("user.home") + File.separator + "liferay" + File.separator + "deploy");
+        String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        File deployDirFile = new File(deployDir);
+        if(!deployDirFile.exists())
+            deployDirFile.mkdirs();
+        //copy(warfile, System.getProperty("user.home") + File.separator + "liferay" + File.separator + "deploy");
+        long baseTime = System.currentTimeMillis();
+        copy(warfile,deployDir);
         showServerLog();
-        return org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployed_Successfully");
+        return getDeploymentMessage(warfile,baseTime);
+        //return org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
+    }
+    
+    
+    public String getDeploymentMessage(String warfile,long baseTime) throws Exception
+    {
+        File warFile = new File(warfile);
+        String warName = warFile.getName();
+        if(!psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
+            org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
+        
+        String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        
+        File warInLRAutoDeployDir = new File(deployDir + File.separator +warName);
+        int counter = 0;
+        while(warInLRAutoDeployDir.exists())
+        {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter ++;
+            if(counter >= 50)
+                return "Deployment done. Check server log for the status.";
+        }
+        
+        File appServerAutoDeployDir = new File(psconfig.getDomainDir() + File.separator + "autodeploy");
+        File warFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir,warName + "_deployed");
+        File deployFailFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir,warName + "_deployFailed");
+        
+        counter = 0;
+        while(true)
+        {
+            if(warFileInAppServerAutoDeployDir.exists())
+            {
+                if(warFileInAppServerAutoDeployDir.lastModified() >= baseTime)
+                {
+                    return warName + " deployed successfully. Check log for more message.";
+                }
+            }
+            
+            if(deployFailFileInAppServerAutoDeployDir.exists())
+            {
+                if(deployFailFileInAppServerAutoDeployDir.lastModified() >= baseTime)
+                {
+                    throw new DeploymentException(warName + " deployment failed. For more into check log message. ");
+                    //return warName + " deployment failed. For more into check log message. ";
+                }
+            }
+            try {
+
+                Thread.sleep(300);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter ++;
+            if(counter >= 50)
+                return "Deployment done. Check server log for the status.";
+        }
+        
     }
 
     /*protected void _deployOnPC(final String warfile) throws Exception {
@@ -589,7 +658,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
                 try {
                     from.close();
                 } catch (IOException e) {
-                    ;
+                    
                 }
             }
             if (to != null) {

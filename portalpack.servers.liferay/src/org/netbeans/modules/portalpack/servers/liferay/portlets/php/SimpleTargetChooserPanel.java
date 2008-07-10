@@ -42,6 +42,7 @@
 // <RAVE> Copy from projects/projectui/src/org/netbeans/modules/project/ui
 package org.netbeans.modules.portalpack.servers.liferay.portlets.php;
 
+import org.netbeans.modules.portalpack.servers.liferay.portlets.php.util.PortletProjectUtils;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,28 +140,28 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         }
 
         // no support for non-web project
-        if (!JsfProjectUtils.isWebProject(project)) {
+        if (!PortletProjectUtils.isWebProject(project)) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_NotInWebProject")); // NOI18N
             return false;
         }
         
-        FileObject webInf = JsfProjectUtils.getWebInf(project);
+        FileObject webInf = PortletProjectUtils.getWebInf(project);
         
         // Check to make sure that the target name is not illegal
         String targetName = gui.getTargetName();
-        if (!JsfProjectUtils.isValidJavaFileName(targetName)) {
+        if (!PortletProjectUtils.isValidJavaFileName(targetName)) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_InvalidJavaFileName", targetName)); // NOI18N
             return false;
         }
 
         // Check to make sure there is valid Source Package Folder
-        if (JsfProjectUtils.getSourceRoot(project) == null) {
+        if (PortletProjectUtils.getSourceRoot(project) == null) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_NoSourceRoot")); // NOI18N
             return false;
         }
 
 
-        FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
+        FileObject docRoot = PortletProjectUtils.getDocumentRoot(project);
         String folderPath = getFolderPath(FileUtil.getFileDisplayName(docRoot));
         if (folderPath == null) {
             return false;
@@ -174,7 +175,7 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         // Check to make sure that the backing file doesn't already exist.
         String jspName = targetName + ".php";
         String javaName = targetName + ".java";
-        FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
+        FileObject javaDir = PortletProjectUtils.getPageBeanRoot(project);
         String javaPath = folderPath + javaName;
         if (javaPath.startsWith("/")) {
             javaPath = javaPath.substring(1);
@@ -225,7 +226,7 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         String[] folderTokens = relativePath.split("/");
         for (int i = 0; i < folderTokens.length; i++) {
             String token = folderTokens[i];
-            if (!"".equals(token) && !JsfProjectUtils.isValidJavaFileName(token)) {
+            if (!"".equals(token) && !PortletProjectUtils.isValidJavaFileName(token)) {
                 wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_InvalidJavaFolderName", token)); // NOI18N
                 return null;
             }

@@ -31,6 +31,7 @@ import org.netbeans.modules.portalpack.saw.palette.Utilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.openide.text.ActiveEditorDrop;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -40,6 +41,7 @@ public class GetTaskById implements ActiveEditorDrop {
 
     /** Creates a new instance of GetTaskById */
     public GetTaskById() {
+        
     }
 
     private String createBody() {
@@ -49,6 +51,13 @@ public class GetTaskById implements ActiveEditorDrop {
 
     public boolean handleTransfer(JTextComponent targetComponent) {
         String body = createBody();
+        String wfs = "<%@ taglib uri=\"http://java.sun.com/saw\" prefix=\"saw\"%>";
+        try {
+            Utilities.insertLibraryDefinition(wfs, targetComponent);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        
         try {
             Utilities.insert(body, targetComponent);
         } catch (BadLocationException ble) {

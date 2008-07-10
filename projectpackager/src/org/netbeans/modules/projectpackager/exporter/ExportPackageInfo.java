@@ -56,6 +56,9 @@ public class ExportPackageInfo {
     private static String smtpUsername = "";
     private static String smtpPassword = "";
     private static boolean smtpUseSSL = false;
+    static String mailFrom = "";
+    static String mailSubject = "";
+    static String mailBody = "";
     private static boolean processed = false;
     
     /** Creates a new instance of PackageInfo */
