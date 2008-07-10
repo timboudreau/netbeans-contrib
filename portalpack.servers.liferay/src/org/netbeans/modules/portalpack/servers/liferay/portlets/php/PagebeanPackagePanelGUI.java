@@ -46,6 +46,7 @@ package org.netbeans.modules.portalpack.servers.liferay.portlets.php;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
+import org.netbeans.modules.portalpack.servers.liferay.portlets.php.util.PortletProjectUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -75,13 +76,13 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
     }
 
     public void initValues(Project project) {
-        String packageName = JsfProjectUtils.getProjectProperty(project, JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
+        String packageName = PortletProjectUtils.getProjectProperty(project, PhpProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
         if (packageName == null || packageName.length() == 0) {
-            packageName = JsfProjectUtils.deriveSafeName(project.getProjectDirectory().getName());
+            packageName = PortletProjectUtils.deriveSafeName(project.getProjectDirectory().getName());
         }
         packageTextField.setText(packageName);
 
-        packageTextField.setEditable(!JsfProjectUtils.isJsfProject(project));
+        //packageTextField.setEditable(!JsfProjectUtils.isJsfProject(project));
     }
 
     public String getPackageName() {

@@ -206,7 +206,7 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         t.addType("portlets");
         pluginPackage.setTypes(t);
         LiferayVersions lv = pluginPackage.newLiferayVersions();
-        lv.addLiferayVersion("4.4.0");
+        lv.addLiferayVersion("5.0");
         pluginPackage.setLiferayVersions(lv);
         
         Licenses licenses = pluginPackage.newLicenses();
@@ -228,6 +228,7 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         props.setProperty("module-group-id", "liferay"); //NOI18N
         props.setProperty("module-incremental-version", "1"); //NOI18N
         props.setProperty("tags", "portlet");
+        props.setProperty("portal.dependency.jars","commons-logging.jar");
         try{
             OutputStream out = new FileOutputStream(pluginPackageProp);
             props.store(out, name);

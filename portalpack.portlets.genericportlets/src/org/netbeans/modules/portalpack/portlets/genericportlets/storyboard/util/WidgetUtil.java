@@ -23,9 +23,14 @@ import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.ImageWidget;
+import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.CustomVMDGraphScene;
@@ -55,9 +60,11 @@ public class WidgetUtil {
         widget.setKey(pinID);
         widget.setNodeKey(nodeID);     
         List list = new ArrayList();
-        list.add(image);
+        ///list.add(image);
         widget.setProperties(name, list);
         
+        DefaultAnchorWidget cWidget = new DefaultAnchorWidget(scene, image);
+        widget.addChild(cWidget);
         return widget;
         
     }
@@ -79,4 +86,20 @@ public class WidgetUtil {
         return false;
     }
      
+     private static class DefaultAnchorWidget extends ImageWidget {
+
+        public DefaultAnchorWidget(Scene scene, Image image) {
+            super(scene, image);
+        }
+
+        @Override
+        protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
+            Border BORDER_HOVERED = javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK);
+            Border BORDER = BorderFactory.createEmptyBorder();
+            if (previousState.isHovered() == state.isHovered()) {
+                return;
+            }
+            setBorder(state.isHovered() ? BORDER_HOVERED : BORDER);
+        }
+    }
 }

@@ -85,4 +85,29 @@ public class Utilities {
         }catch(BadLocationException ble){}
         return start;
     }
+    
+     public  static void insertLibraryDefinition(String libName, JTextComponent target)
+    throws BadLocationException {
+        Document doc = target.getDocument();
+        if (doc == null)
+            return;
+        if (doc instanceof BaseDocument){
+            BaseDocument bd=  (BaseDocument)doc;
+            
+            bd.atomicLock();
+            Caret caret = target.getCaret();
+            char c[]= bd.getChars(0,bd.getLength());
+            
+            String s = new String(c);
+            // getting substring -7 to allow for the JSF taglib def to work 
+            String lName = libName;
+            if (libName.length() > 7) lName = libName.substring(0, libName.length() -7);
+            if (s.indexOf(lName) ==-1){
+              bd.insertString(0, libName+"\n", null);                
+            }
+            
+            bd.atomicUnlock();
+        }
+        return ;
+    }    
 }

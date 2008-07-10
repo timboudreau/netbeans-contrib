@@ -31,4 +31,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="release" depends="init">
 
     </target>
+    <target name="create-l10n-kit">
+         <property name="l10nkit-name" value="build/l10n-kit.zip"/>
+         <delete file= "${l10nkit-name}"/>
+         <zip destfile="${l10nkit-name}"
+           basedir="src"
+           includes="**/Bundle.properties"
+         />
+    </target>
 </project>

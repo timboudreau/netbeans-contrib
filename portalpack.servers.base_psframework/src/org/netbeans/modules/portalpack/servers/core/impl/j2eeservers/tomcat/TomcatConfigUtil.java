@@ -27,8 +27,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
+import org.openide.util.Exceptions;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -71,6 +78,7 @@ public class TomcatConfigUtil {
     
       public String getDomainName()
     {
+          
        /* commented as this is not currently being used   
         String domain = "";
         if(doc == null)
@@ -96,18 +104,20 @@ public class TomcatConfigUtil {
     
     public static Document createDocumentFromXml(File file) throws IOException
     {
-        /* commented as not being used
-        SAXBuilder saxBuilder = new SAXBuilder(false);
-        saxBuilder.setEntityResolver(new EntityResolver(){
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                return new InputSource(new StringBufferInputStream(""));
-            }
-            
-        });
-     
-        org.jdom.Document jdomDocument = saxBuilder.build(file);
-        return jdomDocument;*/
-        return null; //dummy return
+       
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
+        
+        try {
+            docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(file);
+            return doc;
+        } catch (ParserConfigurationException ex) {
+            logger.log(Level.SEVERE, "Parse Error", ex);
+        } catch(SAXException e) {
+            logger.log(Level.SEVERE,"SAX ERROR",e);
+        }
+        return null;
     }
     
     
@@ -134,36 +144,37 @@ public class TomcatConfigUtil {
     }
      
     public String getHttpPort(){
-      /* commented as not being used currently
+     
         String port = "";
         int defCon = -1;
         if(doc == null) return "";
-        Element service = doc.getRootElement().getChild("Service");
+        NodeList services = doc.getElementsByTagName("Service");
         
-        if(service == null) return "";
+        if(services == null || services.getLength() == 0) return "";
 
-        List list = service.getChildren("Connector");
-        for (int i=0; i<list.size(); i++) {
-            Element connector = (Element)list.get(i);
-            String protocol = connector.getAttributeValue(ATTR_PROTOCOL);
-            String scheme = connector.getAttributeValue(ATTR_SCHEME);
-            String secure = connector.getAttributeValue(ATTR_SECURE);
+        NodeList list = ((Element)services.item(0)).getElementsByTagName("Connector");
+        if(list == null || list.getLength() == 0)
+            return "";
+        int size = list.getLength();
+        for (int i=0; i<size; i++) {
+            Element connector = (Element)list.item(i);
+            String protocol = connector.getAttribute(ATTR_PROTOCOL);
+            String scheme = connector.getAttribute(ATTR_SCHEME);
+            String secure = connector.getAttribute(ATTR_SECURE);
             if (isHttpConnector(protocol, scheme, secure)) {
                 defCon = i;
                 break;
             }
         }
         
-        if (defCon==-1 && list.size() > 0) {
+        if (defCon==-1 && size > 0) {
             defCon=0;
         }
         
-        port = ((Element)list.get(defCon)).getAttributeValue(ATTR_PORT);
+        port = ((Element)list.item(defCon)).getAttribute(ATTR_PORT);
       
         if(port == null) return "0";
-        return port; */
-       
-        return ""; //dummy return
+        return port;
     }
     
     

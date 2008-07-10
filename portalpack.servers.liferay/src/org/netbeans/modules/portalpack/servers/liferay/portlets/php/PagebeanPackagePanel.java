@@ -46,6 +46,7 @@ package org.netbeans.modules.portalpack.servers.liferay.portlets.php;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
+import org.netbeans.modules.portalpack.servers.liferay.portlets.php.util.PortletProjectUtils;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -93,7 +94,7 @@ final class PagebeanPackagePanel implements WizardDescriptor.Panel, ChangeListen
 
         // Check to make sure that the package name is valid
         String packageName = gui.getPackageName();
-        if (!JsfProjectUtils.isValidJavaPackageName(packageName)) {
+        if (!PortletProjectUtils.isValidJavaPackageName(packageName)) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(PagebeanPackagePanel.class, "MSG_InvalidPackageName", packageName)); // NOI18N
             return false;
         }
@@ -137,13 +138,13 @@ final class PagebeanPackagePanel implements WizardDescriptor.Panel, ChangeListen
         }
 
         if (isValid()) {
-            ((WizardDescriptor) settings).putProperty(JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, gui.getPackageName());
+            ((WizardDescriptor) settings).putProperty(PhpProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, gui.getPackageName());
         }
     }
 
     public void stateChanged(ChangeEvent e) {        
         if (wizard != null && isValid()) {
-            wizard.putProperty(JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, gui.getPackageName());
+            wizard.putProperty(PhpProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, gui.getPackageName());
         }
 
         fireChange();
