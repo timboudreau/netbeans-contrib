@@ -23,6 +23,14 @@
             <file name="ContentByNames.xml" url="/org/netbeans/modules/portalpack/cms/palette/items/resources/ContentByNames.xml"/>
         </folder>
     </folder>
+	
+	<folder name="portalpack">
+		  <folder name="palette">
+			  <folder name="cms">
+				  <!-- add templates here -->
+			  </folder>
+		  </folder>
+	  </folder>
  
  
     <folder name="org-netbeans-api-project-libraries">

@@ -17,7 +17,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 /*
- * Factory.java
+ * DropDefault.java
  *
  * Created on March 8, 2007, 10:31 AM
  *
@@ -27,28 +27,37 @@
 
 package org.netbeans.modules.portalpack.cms.palette;
 
-import java.io.IOException;
-import org.netbeans.spi.palette.PaletteController;
-import org.netbeans.spi.palette.PaletteFactory;
+import java.util.Map;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import org.netbeans.modules.portalpack.commons.palette.jsp.AbstractActiveEditorDrop;
+import org.netbeans.modules.portalpack.commons.palette.jsp.PaletteUtilities;
 
 /**
  *
- * @author root
+ * @author Satya
  */
-public class Factory {
-    public static final String TEST_PALETTE_FOLDER = "CMSPalette";
-    private static PaletteController palette = null;
-    
-    /** Creates a new instance of TestDDPaletteFactory */
-    public Factory() {
-    }
-    
-    public static PaletteController getPalette() throws IOException {
-        
-        if(palette == null){
-            palette = PaletteFactory.createPalette(TEST_PALETTE_FOLDER, new Actions());
+public abstract class TagLibDropDefault extends AbstractActiveEditorDrop{
+
+    @Override
+    public void preHandleTransfer(JTextComponent targetComponent, Map map) {
+        try {
+            String wfs = "<%@ taglib uri=\"http://java.sun.com/saw\" prefix=\"saw\"%>";
+            PaletteUtilities.insertLibraryDefinition(wfs, targetComponent);
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+            //do nothing.
         }
-        return palette;
     }
+
+    @Override
+    public void postHandleTransfer(JTextComponent targetComponent, Map map) {
+        super.postHandleTransfer(targetComponent, map);
+    }
+
+    @Override
+    public String getTemplateFolder() {
+        return "cms";
+    } 
     
 }
