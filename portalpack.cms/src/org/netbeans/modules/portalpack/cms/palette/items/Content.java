@@ -5,20 +5,20 @@
 
 package org.netbeans.modules.portalpack.cms.palette.items;
 
-
 import org.netbeans.modules.portalpack.cms.palette.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.portalpack.cms.CMSPaletteUtilities;
-import org.openide.text.ActiveEditorDrop;
 
 /**
  *
  * @author Joshna
  */
-public class Content implements ActiveEditorDrop {
+public class Content extends TagLibDropDefault {
+
+    @Override
+    public String getTemplateName() {
+        return "content.template";
+    }
     
-   
+   /*
     public Content() {
     }
     
@@ -42,8 +42,9 @@ public class Content implements ActiveEditorDrop {
             return false;
         }
        return true;
-    }
+    }*/
  
+    
     
 }
 
