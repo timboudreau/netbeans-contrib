@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.portalpack.commons
+OpenIDE-Module-Install: org/netbeans/modules/portalpack/commons/Installer.class
+OpenIDE-Module-Layer: org/netbeans/modules/portalpack/commons/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/commons/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

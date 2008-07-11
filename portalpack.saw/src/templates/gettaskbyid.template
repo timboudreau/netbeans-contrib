@@ -1,0 +1,1 @@
+<saw:getTaskById filterTaskVO="${sessionScope.portalTaskVO}" returnvalue="task"/>

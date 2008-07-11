@@ -27,37 +27,37 @@
 
 package org.netbeans.modules.portalpack.saw.palette;
 
+import java.util.Map;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-import org.openide.text.ActiveEditorDrop;
+import org.netbeans.modules.portalpack.commons.palette.jsp.AbstractActiveEditorDrop;
+import org.netbeans.modules.portalpack.commons.palette.jsp.PaletteUtilities;
 
 /**
  *
- * @author root
+ * @author Satya
  */
-public class DropDefault implements ActiveEditorDrop{
-    
-    String body;
-    /** Creates a new instance of TestDDPaletteDropDefault */
-    public DropDefault(String body) {
-        this.body=body;
-    }
-    
-    public boolean handleTransfer(JTextComponent targetComponent) {
+public abstract class TagLibDropDefault extends AbstractActiveEditorDrop{
 
-        if (targetComponent == null)
-            return false;
-
+    @Override
+    public void preHandleTransfer(JTextComponent targetComponent, Map map) {
         try {
-            Utilities.insert(body, (JTextComponent)targetComponent);
+            String wfs = "<%@ taglib uri=\"http://java.sun.com/saw\" prefix=\"saw\"%>";
+            PaletteUtilities.insertLibraryDefinition(wfs, targetComponent);
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+            //do nothing.
         }
-        catch (BadLocationException ble) {
-            return false;
-        }
-        
-        return true;
     }
 
-    
+    @Override
+    public void postHandleTransfer(JTextComponent targetComponent, Map map) {
+        super.postHandleTransfer(targetComponent, map);
+    }
+
+    @Override
+    public String getTemplateFolder() {
+        return "saw";
+    } 
     
 }
