@@ -48,6 +48,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.scala.platform.ScalaPlatform;
@@ -69,8 +71,8 @@ import org.openide.util.WeakListeners;
  * Defines the various class paths for a J2SE project.
  */
 public final class JavaClassPathProviderImpl implements ClassPathProvider, PropertyChangeListener {
-    private static final String SCALA_BOOT_CLASSPATH = "scala.boot.class.path";     // NOI18N
-    private static final String SCALAC_CLASS_PATH = "scala.class.path";        // NOI18N
+    private static final String SCALA_BOOT_CLASSPATH = "scala.boot.classpath";     // NOI18N
+    private static final String SCALAC_CLASS_PATH = "scala.classpath";        // NOI18N
     private static final String SCALAC_EXT_PATH = "scala.ext.dirs";            //NOI18N
     private static final String BUILD_CLASSES_DIR = "build.classes.dir"; // NOI18N
     private static final String DIST_JAR = "dist.jar"; // NOI18N
@@ -197,18 +199,22 @@ public final class JavaClassPathProviderImpl implements ClassPathProvider, Prope
         if (cp == null) {
             List<PathResourceImplementation> resources = new ArrayList<PathResourceImplementation>();
 
+            /**@TODO
+             * hacking for get scala platform's classpath and source path,
+             * should get them from project's classpath or properties.
+             */
             ScalaPlatform scalaPlatform = bootClassPathImpl.findActivePlatform();
             if (scalaPlatform != null) {
                 /**
                  * we are not sure the initial order of gsf classpath and java classpath,
                  * we here just call scalaPlatform.getStandardLibraries() to initial SCALAC_CLASS_PATH
                  */
-                org.netbeans.modules.gsfpath.api.classpath.ClassPath scalaStdLibsCp = scalaPlatform.getStandardLibraries();
-                for (org.netbeans.modules.gsfpath.api.classpath.ClassPath.Entry entry : scalaStdLibsCp.entries()) {
+                org.netbeans.modules.gsfpath.api.classpath.ClassPath scalaStdCp = scalaPlatform.getStandardLibraries();
+                for (org.netbeans.modules.gsfpath.api.classpath.ClassPath.Entry entry : scalaStdCp.entries()) {
                     resources.add(ClassPathSupport.createResource(entry.getURL()));
                 }
             }
-            
+
             if (type == 0) {
                 cp = ClassPathFactory.createClassPath(
                         ProjectClassPathSupport.createPropertyBasedClassPathImplementation(

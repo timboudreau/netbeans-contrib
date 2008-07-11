@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
@@ -83,6 +85,11 @@ public class ScalaGlobal {
             }
 
         }
+        
+        Properties sysProps = System.getProperties();
+        printProperties(sysProps);
+        String scalaClzPath = (String) sysProps.get("scala.class.path");
+        String scalaSrcPath = (String) sysProps.get("scala.source.path");
 
         final boolean onlyPresentation = false;
 
@@ -101,10 +108,10 @@ public class ScalaGlobal {
 
                 @Override
                 public void logError(String msg, Throwable t) {
-                    Exceptions.printStackTrace(t);
+                    //Exceptions.printStackTrace(t);
                 }
             };
-            
+
             projectToGlobal.put(project, new WeakReference<Global>(global));
         }
 
@@ -145,7 +152,6 @@ public class ScalaGlobal {
             if (cpp != null) {
                 addToGlobalClassPath(global, cpp.findClassPath(fo, ClassPath.BOOT));
                 addToGlobalClassPath(global, cpp.findClassPath(fo, ClassPath.COMPILE));
-                addToGlobalClassPath(global, cpp.findClassPath(fo, ClassPath.EXECUTE));
             }
         }
 
@@ -174,6 +180,16 @@ public class ScalaGlobal {
                 String path = rootFile.getAbsolutePath();
                 global.classPath().library(path, sources);
             }
+        }
+    }
+
+    private static void printProperties(Properties props) {
+        System.out.println("===========================");
+        Enumeration keys = props.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            String value = (String) props.get(key);
+            System.out.println(key + ": " + value);
         }
     }
 }
