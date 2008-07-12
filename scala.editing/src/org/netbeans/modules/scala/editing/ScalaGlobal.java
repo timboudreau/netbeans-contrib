@@ -91,7 +91,7 @@ public class ScalaGlobal {
         String scalaClzPath = (String) sysProps.get("scala.class.path");
         String scalaSrcPath = (String) sysProps.get("scala.source.path");
 
-        final boolean onlyPresentation = false;
+        final boolean onlyPresentation = true;
 
         final Settings settings = new Settings(null);
         settings.verbose().value_$eq(false);
@@ -159,8 +159,9 @@ public class ScalaGlobal {
     }
 
     private static void addToGlobalClassPath(Global global, ClassPath cp) {
-        String sources = "";
         for (ClassPath.Entry entry : cp.entries()) {
+            String sources = "/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home/";
+            //String sources = "/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scala/scala-2.7.1.final";
             File rootFile = null;
             try {
                 FileObject entryRoot = entry.getRoot();
