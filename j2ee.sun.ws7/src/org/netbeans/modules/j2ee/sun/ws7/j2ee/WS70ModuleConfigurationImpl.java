@@ -56,7 +56,6 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfig
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.MappingConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.DeploymentPlanConfiguration;
-import org.netbeans.modules.j2ee.sun.share.configbean.EjbJarRoot;
 import org.netbeans.modules.j2ee.sun.share.configbean.SunONEDeploymentConfiguration;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
@@ -72,7 +71,9 @@ import org.openide.util.lookup.Lookups;
  */
 public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
         ContextRootConfiguration, MappingConfiguration, ModuleConfiguration, MessageDestinationConfiguration {
-    
+
+    private static final String SUN_WS_DD_FILENAME = "sun-web.xml"; // NOI18N
+
     private SunONEDeploymentConfiguration config;
     private J2eeModule module;
     private Lookup lookup;
@@ -80,18 +81,9 @@ public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
     
     WS70ModuleConfigurationImpl(J2eeModule module) throws ConfigurationException {
         this.module = module;
-        this.config = new SunONEDeploymentConfiguration(module);
-        Object type = module.getModuleType();        
-        
-        if (module.WAR.equals(type)) {
-            sunWebDescriptor = module.getDeploymentConfigurationFile("sun-web.xml");
-        }
-        
-        try {
-            File dds[] = new File[] { sunWebDescriptor };
-            config.init(dds, module.getResourceDirectory(), true);
-        } catch (javax.enterprise.deploy.spi.exceptions.ConfigurationException ex) {
-            throw new ConfigurationException("", ex);
+        this.config = new SunONEDeploymentConfiguration(module, SUN_WS_DD_FILENAME);
+        if (J2eeModule.WAR.equals(module.getModuleType())) {
+            this.sunWebDescriptor = module.getDeploymentConfigurationFile(SUN_WS_DD_FILENAME);
         }
     }
     
@@ -112,7 +104,7 @@ public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
      */
     public void dispose() {
         checkConfiguration(config);
-        ((SunONEDeploymentConfiguration)config).dispose();
+        config.dispose();
     }
     
     
@@ -141,19 +133,17 @@ public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
     /** Retrieves the context root field from sun-web.xml for this module, if the module is a
      *  web application.  Otherwise, returns null.
      */
-    public String getContextRoot() {
+    public String getContextRoot() throws ConfigurationException {
         checkConfiguration(config);
-        return ((SunONEDeploymentConfiguration)config).getContextRoot();
+        return config.getContextRoot();
     }
 
-    
     /** Sets the context root field in sun-web.xml for this module.
      */
-    public void setContextRoot(String contextRoot) {
+    public void setContextRoot(String contextRoot) throws ConfigurationException {
         checkConfiguration(config);
-        ((SunONEDeploymentConfiguration)config).setContextRoot(contextRoot);
-    }    
-    
+        config.setContextRoot(contextRoot);
+    }
     
     /** Utility method to validate the configuration object being passed to the
      *  other methods in this class.
@@ -228,7 +218,6 @@ public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
     
     private SunONEDeploymentConfiguration getSunConfig(){
         checkConfiguration(config);
-        SunONEDeploymentConfiguration sunConfig = ((SunONEDeploymentConfiguration)config);
-        return sunConfig;
+        return config;
     }
 }   
