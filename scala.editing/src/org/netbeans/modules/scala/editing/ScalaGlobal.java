@@ -141,9 +141,10 @@ public class ScalaGlobal {
 
                 String srcPath = srcFo == null ? "" : FileUtil.toFile(srcFo).getAbsolutePath();
                 if (outFo != null) {
-                    String outFoPath = FileUtil.toFile(outFo).getAbsolutePath();
-                    settings.outdir().tryToSet(Nil.$colon$colon(outFoPath).$colon$colon("-d"));
-                    global.classPath().library(outFoPath, srcPath);
+                    String outPath = FileUtil.toFile(outFo).getAbsolutePath();
+                    settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
+                    global.classPath().output(outPath, srcPath);
+                    //global.classPath().library(outPath, srcPath);
                 }
             }
 
