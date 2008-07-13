@@ -174,6 +174,7 @@ public class GenerateWSDL extends Task {
             fw.writeJBI();
             
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BuildException(e.getMessage());
         }
     }

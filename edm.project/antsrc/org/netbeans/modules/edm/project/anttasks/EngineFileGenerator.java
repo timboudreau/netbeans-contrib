@@ -144,7 +144,7 @@ public class EngineFileGenerator  {
         SQLDefinition sqlDefinition = def.getSQLDefinition();
         populateConnectionDefinitions(sqlDefinition);
         DBConnectionDefinition tgtConnDef = ((SQLDBModel)
-                sqlDefinition.getTargetDatabaseModels().get(0)).getConnectionDefinition();
+                sqlDefinition.getSourceDatabaseModels().get(0)).getConnectionDefinition();
                
         StatementContext joinContext = new StatementContext();
         linkTableMap.clear();
@@ -189,7 +189,7 @@ public class EngineFileGenerator  {
     
     private void populateConnectionDefinitions(SQLDefinition def) {
         
-        List trgDbmodels = def.getTargetDatabaseModels();
+        List trgDbmodels = def.getSourceDatabaseModels();
         Iterator iterator = trgDbmodels.iterator();
         while (iterator.hasNext()) {
             SQLDBModel element = (SQLDBModel) iterator.next();
@@ -204,7 +204,7 @@ public class EngineFileGenerator  {
         if(sqlDefn.getSourceDatabaseModels().size() == 1) {
             Iterator srcIt = sqlDefn.getSourceDatabaseModels().iterator();
             SQLDBModel dbModel = (SQLDBModel) srcIt.next();
-            Iterator tgtIt = sqlDefn.getTargetDatabaseModels().iterator();
+            Iterator tgtIt = sqlDefn.getSourceDatabaseModels().iterator();
             if(tgtIt.hasNext()) {
                 SQLDBModel tgtModel = (SQLDBModel) tgtIt.next();
                 if(tgtModel.getConnectionDefinition().getConnectionURL().equals(
