@@ -137,7 +137,7 @@ public final class ChooseTablesVisualPanel extends JPanel {
             for(int i = 0; i < db.length; i++) {
                 String ver = null;
                 try {
-                    ver = db[i].getCanonicalPath() + "\\" + db[i].getName().toUpperCase() + ".VER";
+                    ver = db[i].getCanonicalPath() + File.separator + db[i].getName().toUpperCase() + ".VER";
                     File version = new File(ver);
                     if(version.exists()) {
                         String url = "jdbc:axiondb:" + db[i].getName()+ ":" + 
@@ -154,9 +154,9 @@ public final class ChooseTablesVisualPanel extends JPanel {
             }
         }
         DatabaseConnection[] dbconns = ConnectionManager.getDefault().getConnections();
-        for (int i=0; i < dbconns.length; i++) {
-            if (dbconns[i].getDriverClass().equals("org.axiondb.jdbc.AxionDriver")) {
-                urls.add(dbconns[i].getDatabaseURL());
+        for (DatabaseConnection dbconn: dbconns) {
+            if (dbconn.getDriverClass().equals("org.axiondb.jdbc.AxionDriver")) {
+                urls.add(dbconn.getDatabaseURL());
             }
         }
         for(String url: urls) {
@@ -376,8 +376,8 @@ public final class ChooseTablesVisualPanel extends JPanel {
             }
         };
         SwingUtilities.invokeLater(run);
-        owner.fireChangeEvent();
-    }//GEN-LAST:event_removeButtonActionPerformed
+        owner.fireChangeEvent();//GEN-LAST:event_removeButtonActionPerformed
+    }                                            
     
     private void selectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectButtonActionPerformed
         final DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -409,14 +409,14 @@ public final class ChooseTablesVisualPanel extends JPanel {
             }
         };
         SwingUtilities.invokeLater(run);
-        owner.fireChangeEvent();
-    }//GEN-LAST:event_selectButtonActionPerformed
+        owner.fireChangeEvent();//GEN-LAST:event_selectButtonActionPerformed
+    }                                            
     
     private void schemaComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemaComboActionPerformed
         JComboBox combo = (JComboBox)evt.getSource();
         String schema = (String) combo.getSelectedItem();
-        populateTable(schema);
-    }//GEN-LAST:event_schemaComboActionPerformed
+        populateTable(schema);//GEN-LAST:event_schemaComboActionPerformed
+    }                                           
     
     private void populateTable(String schema) {
         if(conn != null) {
