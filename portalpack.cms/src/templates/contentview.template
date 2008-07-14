@@ -1,0 +1,2 @@
+<%--Give content name ,contentTypeuuid and version number or contentuuid to embed the content --%>
+<cms:getContentView contentName="" contentTypeuuid="" contentuuid="" version="" />

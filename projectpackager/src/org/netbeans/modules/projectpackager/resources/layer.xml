@@ -50,13 +50,17 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="1426"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.projectpackager.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
-                <file name="org-netbeans-modules-projectpackager-importer-ImportZip.instance"/>
+                <file name="org-netbeans-modules-projectpackager-importer-ImportZip.instance">
+                    <attr name="position" intvalue="1000"/>
+                </file>
             </folder>
             <folder name="Export">
                 <attr name="position" intvalue="1428"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.projectpackager.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
-                <file name="org-netbeans-modules-projectpackager-exporter-ExportZip.instance"/>
+                <file name="org-netbeans-modules-projectpackager-exporter-ExportZip.instance">
+                    <attr name="position" intvalue="1000"/>
+                </file>
             </folder>
             <file name="ImporterSeparator1.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>

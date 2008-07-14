@@ -18,33 +18,4 @@ public class Content extends TagLibDropDefault {
         return "content.template";
     }
     
-   /*
-    public Content() {
-    }
-    
-    
-    private String createBody() {
-        
-       
-        String contentTag = "<%--Give content name ,contentTypeuuid and version number or contentuuid   --%> \n <cms:getContent contentName=\"\" contentTypeuuid=\"\" contentuuid=\"\" version=\"\" var=\"\" />";
-               
-        return contentTag;
-    }
-    
-    public boolean handleTransfer(JTextComponent targetComponent) {
-       
-       
-       
-        String body = createBody();
-        try {
-            CMSPaletteUtilities.insert(body, targetComponent);
-        } catch (BadLocationException ble) {
-            return false;
-        }
-       return true;
-    }*/
- 
-    
-    
 }
-

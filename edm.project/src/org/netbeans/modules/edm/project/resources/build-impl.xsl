@@ -150,6 +150,7 @@ is divided into following sections:
                                     <fileset dir="${{netbeans.home}}/../platform8/modules"><include name="*.jar" /></fileset>
                                     <fileset dir="${{netbeans.home}}/../platform8/core"><include name="*.jar" /></fileset>
                                     <fileset dir="${{netbeans.home}}/../platform8/lib"><include name="*.jar" /></fileset>
+                                    <fileset dir="${{netbeans.home}}/../soa2/modules"><include name="org-netbeans-soa-libs-wsdl4j.jar"/></fileset>
                         </classpath>
                         </taskdef>
             </target>

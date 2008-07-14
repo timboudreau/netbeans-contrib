@@ -1,0 +1,2 @@
+<%--Give category name or category uuid --%> 
+<cms:getCategory categoryName="" categoryuuid="" var="" />
