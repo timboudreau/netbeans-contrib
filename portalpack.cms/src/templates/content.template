@@ -1,0 +1,2 @@
+<%--Give content name ,contentTypeuuid and version number or contentuuid   --%>
+<cms:getContent contentName="" contentTypeuuid="" contentuuid="" version="" var="" />

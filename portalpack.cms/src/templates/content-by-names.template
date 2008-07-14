@@ -1,0 +1,2 @@
+<%--Give content name ,contentTypeName and categoryName   --%>
+ <cms:getContentByNames contentName="" contentTypeName="" categoryName="" var="" />
