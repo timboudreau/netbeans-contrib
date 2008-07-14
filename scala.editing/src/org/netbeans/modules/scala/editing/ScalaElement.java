@@ -41,11 +41,15 @@ package org.netbeans.modules.scala.editing;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.text.BadLocationException;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import scala.Option;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.io.AbstractFile;
@@ -58,23 +62,30 @@ import scala.tools.nsc.symtab.Symbols.Symbol;
 public class ScalaElement implements ElementHandle {
 
     private Symbol symbol;
-    private Global global;
+    private final Global global;
+    private CompilationInfo info;
     private ElementKind kind;
     private Set<Modifier> modifiers;
     private boolean inherited;
     private boolean smart;
+    private FileObject fo;
+    private String path;
+    private BaseDocument doc;
+    private boolean loaded;
 
     /**
      * @param element, that to be wrapped
      * @param info, CompilationInfo
      */
-    public ScalaElement(Symbol symbol, Global global) {
+    public ScalaElement(Symbol symbol, CompilationInfo info, Global global) {
         this.symbol = symbol;
+        this.info = info;
         this.global = global;
     }
 
     public ScalaElement(ElementKind kind) {
         this.kind = kind;
+        this.global = null;
     }
 
     public Symbol getSymbol() {
@@ -82,19 +93,24 @@ public class ScalaElement implements ElementHandle {
     }
 
     public FileObject getFileObject() {
-        symbol.enclClass().attributes();
-        AbstractFile srcFile = symbol.sourceFile();
-        if (srcFile == null) {
-            symbol.info().complete(symbol);
-            srcFile = symbol.sourceFile();
-        }
-        if (srcFile != null) {
-            File file = srcFile.file();
-            if (file != null) {
-                return FileUtil.toFileObject(file);
+        if (fo == null) {
+            AbstractFile srcFile = symbol.sourceFile();
+            if (srcFile != null) {
+                File file = srcFile.file();
+                if (file != null) {
+                    fo = FileUtil.toFileObject(file);
+                }
+            }
+
+            if (fo == null) {
+                fo = ScalaUtils.getFileObject(info, symbol);
+            }
+
+            if (fo != null) {
+                path = fo.getPath();
             }
         }
-        return null;
+        return fo;
     }
 
     public String getIn() {
@@ -126,17 +142,13 @@ public class ScalaElement implements ElementHandle {
     }
 
     public String getDocComment() {
-        scala.collection.mutable.HashMap comments = global.comments();
-        if (comments != null) {
-            Object o = comments.get(symbol);
-        }
-        FileObject srcFo = getFileObject();
-
-        if (srcFo != null) {
-            if (srcFo.getMIMEType().equals(ScalaMimeResolver.MIME_TYPE)) {
-                return ScalaUtils.getDocComment(srcFo, getOffset());
-            } else if (srcFo.getMIMEType().equals("text/x-java")) {
-                // todo
+        BaseDocument srcDoc = getDoc();
+        if (srcDoc != null) {
+            assert path != null;
+            if (path.endsWith(".scala")) {
+                return ScalaUtils.getDocComment(srcDoc, getOffset());
+            } else if (path.endsWith(".java")) {
+                int offset = getOffset();
                 return null;
             }
         }
@@ -145,11 +157,52 @@ public class ScalaElement implements ElementHandle {
     }
 
     public int getOffset() {
+        if (!isLoaded()) {
+            load();
+        }
+
         Option offsetOpt = symbol.pos().offset();
         if (offsetOpt.isDefined()) {
             return (Integer) offsetOpt.get();
+        }
+
+        return 0;
+    }
+
+    public BaseDocument getDoc() {
+        FileObject srcFo = getFileObject();
+        if (srcFo != null) {
+            return doc = doc == null ? NbUtilities.getDocument(srcFo, true) : doc;
         } else {
-            return 0;
+            return null;
+        }
+    }
+
+    private boolean isLoaded() {
+        if (loaded) {
+            return true;
+        } else {
+            return symbol.pos().offset().isDefined();
+        }
+    }
+
+    private void load() {
+        if (!loaded) {
+            BaseDocument srcDoc = getDoc();
+            if (srcDoc != null) {
+                assert path != null;
+                try {
+                    char[] text = srcDoc.getChars(0, srcDoc.getLength());
+                    /**
+                     * @Note by compiling the related source file, this symbol will be automatically loaded
+                     */
+                    ScalaGlobal.compileSource(global, path, text);
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+            
+            loaded = true;
         }
     }
 
@@ -178,7 +231,8 @@ public class ScalaElement implements ElementHandle {
         return symbol.toString();
     }
 
-    public static ElementKind getKind(Symbol symbol) {
+    public static ElementKind getKind(
+            Symbol symbol) {
         if (symbol.isClass()) {
             return ElementKind.CLASS;
         } else if (symbol.isConstructor()) {
@@ -202,6 +256,7 @@ public class ScalaElement implements ElementHandle {
         } else {
             return ElementKind.OTHER;
         }
+
     }
 
     public static Set<Modifier> getModifiers(Symbol symbol) {
@@ -210,12 +265,15 @@ public class ScalaElement implements ElementHandle {
         if (symbol.isPublic()) {
             modifiers.add(Modifier.PUBLIC);
         }
+
         if (symbol.isPrivateLocal()) {
             modifiers.add(Modifier.PRIVATE);
         }
+
         if (symbol.isProtectedLocal()) {
             modifiers.add(Modifier.PROTECTED);
         }
+
         if (symbol.isStatic()) {
             modifiers.add(Modifier.STATIC);
         }

@@ -52,7 +52,10 @@ import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.modules.scala.stdplatform.wizard.J2SEWizardIterator;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 
@@ -71,9 +74,6 @@ import org.w3c.dom.Element;
 
 import org.xml.sax.*;
 
-import org.netbeans.api.scala.platform.*;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.scala.stdplatform.wizard.J2SEWizardIterator;
 
 /**
  * Reads and writes the standard platform format implemented by PlatformImpl2.

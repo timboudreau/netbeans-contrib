@@ -65,7 +65,6 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNodeVisitor;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -73,8 +72,6 @@ import scala.Nil$;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Tree;
-import scala.tools.nsc.io.AbstractFile;
-import scala.tools.nsc.io.PlainFile;
 import scala.tools.nsc.reporters.Reporter;
 import scala.tools.nsc.util.BatchSourceFile;
 import scala.tools.nsc.util.Position;
@@ -545,9 +542,8 @@ public class ScalaParser implements Parser {
         Global.Run run = global.new Run();
 
         scala.List srcFiles = Nil$.MODULE$;
-        AbstractFile srcFile = new PlainFile(context.file.getFile());
-        BatchSourceFile sf = new BatchSourceFile(srcFile, source.toCharArray());
-        srcFiles = srcFiles.$colon$colon(sf);
+        BatchSourceFile srcFile = new BatchSourceFile(fileName, source.toCharArray());
+        srcFiles = srcFiles.$colon$colon(srcFile);
 
         if (doc != null) {
             // Read-lock due to Token hierarchy use
@@ -588,9 +584,11 @@ public class ScalaParser implements Parser {
         scala.Iterator units = run.units();
         while (units.hasNext()) {
             CompilationUnit unit = (CompilationUnit) units.next();
-            Tree tree = unit.body();
-            treeVisitor = new ScalaTreeVisitor(tree);
-            break;
+            if (unit.source() == srcFile) {
+                Tree tree = unit.body();
+                treeVisitor = new ScalaTreeVisitor(tree);
+                break;
+            }
         }
 
         if (rootScope != null) {

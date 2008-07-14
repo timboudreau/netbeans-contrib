@@ -45,8 +45,8 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.*;
 import java.net.MalformedURLException;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.scala.platform.ScalaPlatform;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.openide.util.Exceptions;
 
 import org.openide.util.NbBundle;
@@ -63,7 +63,6 @@ import org.openide.util.Utilities;
 public class DefaultPlatformImpl extends J2SEPlatformImpl {
 
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
-
 
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
     static ScalaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
@@ -259,19 +258,16 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                 File scalaSrc;
                 scalaSrc = new File(scalaHome, "src");    //NOI18N
                 if (scalaSrc.exists() && scalaSrc.canRead()) {
-                    File[] srcs = scalaSrc.listFiles();
-
                     List<URL> srcUrls = new ArrayList<URL>();
-                    for (File src : srcs) {
+                    for (File src : scalaSrc.listFiles()) {
                         /** 
                          * @Note:
                          * GSF's indexing does not support jar, zip yet 
                          */
-                        //if (src.getName().endsWith(".jar")) { // NOI18N
-                        //    URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
-                        //    srcUrls.add(url);
-                        //}
-                        if (src.isDirectory()) { // NOI18N
+                        if (src.getName().endsWith(".jar") || src.getName().endsWith(".zip")) { // NOI18N
+                            URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
+                            srcUrls.add(url);
+                        } else if (src.isDirectory()) { // NOI18N
                             URL url = src.toURI().toURL();
                             srcUrls.add(url);
                         }

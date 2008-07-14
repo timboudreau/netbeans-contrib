@@ -56,54 +56,53 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
-import scala.Nil;
+import scala.Nil$;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
+import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class ScalaGlobal {
 
-    private static Map<Project, Reference<Global>> projectToGlobal =
-            new WeakHashMap<Project, Reference<Global>>();
+    private static Map<FileObject, Reference<Global>> projectDirToGlobal =
+            new WeakHashMap<FileObject, Reference<Global>>();
 
     public static Global getGlobal(FileObject fo) {
         Global global = null;
 
         Project project = FileOwnerQuery.getOwner(fo);
+        FileObject prjDir = null;
         if (project != null) {
-            Reference<Global> globalRef = projectToGlobal.get(project);
-            if (globalRef != null) {
-                global = globalRef.get();
-                if (global != null) {
-                    return global;
-                } else {
-                    projectToGlobal.remove(global);
+            prjDir = project.getProjectDirectory();
+            if (prjDir != null) {
+                Reference<Global> globalRef = projectDirToGlobal.get(prjDir);
+                if (globalRef != null) {
+                    global = globalRef.get();
+                    if (global != null) {
+                        return global;
+                    } else {
+                        projectDirToGlobal.remove(global);
+                    }
                 }
             }
-
         }
-        
-        Properties sysProps = System.getProperties();
-        printProperties(sysProps);
-        String scalaClzPath = (String) sysProps.get("scala.class.path");
-        String scalaSrcPath = (String) sysProps.get("scala.source.path");
-
-        final boolean onlyPresentation = true;
 
         final Settings settings = new Settings(null);
         settings.verbose().value_$eq(false);
-        settings.classpath().tryToSet(Nil.$colon$colon("").$colon$colon("-classpath"));
-        settings.bootclasspath().tryToSet(Nil.$colon$colon("").$colon$colon("-bootclasspath"));
+
+        settings.classpath().tryToSet(Nil$.MODULE$.$plus("-classpath").$plus(""));
+        settings.bootclasspath().tryToSet(Nil$.MODULE$.$plus("-bootclasspath").$plus(""));
+        settings.sourcepath().tryToSet(Nil$.MODULE$.$plus("-sourcepath").$plus(""));
 
         if (global == null) {
             global = new Global(settings) {
 
                 @Override
                 public boolean onlyPresentation() {
-                    return onlyPresentation;
+                    return true;
                 }
 
                 @Override
@@ -112,39 +111,37 @@ public class ScalaGlobal {
                 }
             };
 
-            projectToGlobal.put(project, new WeakReference<Global>(global));
+            projectDirToGlobal.put(prjDir, new WeakReference<Global>(global));
         }
 
         if (project != null) {
             // add project's src and out path
-            FileObject prjFo = project.getProjectDirectory();
-            FileObject srcFo = null;
-            FileObject outFo = null;
-            if (prjFo != null) {
+
+            FileObject srcDir = null;
+            FileObject outDir = null;
+            if (prjDir != null) {
                 try {
-                    srcFo = prjFo.getFileObject("src");
-                    if (srcFo == null) {
-                        srcFo = prjFo.createFolder("src");
+                    srcDir = prjDir.getFileObject("src");
+                    if (srcDir == null) {
+                        srcDir = prjDir.createFolder("src");
                     }
-                    FileObject buildFo = prjFo.getFileObject("build");
+                    FileObject buildFo = prjDir.getFileObject("build");
                     if (buildFo == null) {
-                        buildFo = prjFo.createFolder("build");
+                        buildFo = prjDir.createFolder("build");
                     }
                     FileObject classesFo = buildFo.getFileObject("classes");
                     if (classesFo == null) {
                         classesFo = buildFo.createFolder("classes");
                     }
-                    outFo = prjFo.getFileObject("build/classes");
+                    outDir = prjDir.getFileObject("build/classes");
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
 
-                String srcPath = srcFo == null ? "" : FileUtil.toFile(srcFo).getAbsolutePath();
-                if (outFo != null) {
-                    String outPath = FileUtil.toFile(outFo).getAbsolutePath();
-                    settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
+                String srcPath = srcDir == null ? "" : FileUtil.toFile(srcDir).getAbsolutePath();
+                if (outDir != null) {
+                    String outPath = FileUtil.toFile(outDir).getAbsolutePath();
                     global.classPath().output(outPath, srcPath);
-                    //global.classPath().library(outPath, srcPath);
                 }
             }
 
@@ -156,13 +153,17 @@ public class ScalaGlobal {
             }
         }
 
+        System.out.println(global.settings().scala$tools$nsc$Settings$$allsettings());
         return global;
     }
 
     private static void addToGlobalClassPath(Global global, ClassPath cp) {
+        if (cp == null) {
+            return;
+        }
+
         for (ClassPath.Entry entry : cp.entries()) {
-            String sources = "/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home/";
-            //String sources = "/Users/dcaoyuan/my-project/nbsrc/main/nbbuild/netbeans/extra/scala/scala-2.7.1.final";
+            String sources = "";
             File rootFile = null;
             try {
                 FileObject entryRoot = entry.getRoot();
@@ -182,6 +183,20 @@ public class ScalaGlobal {
                 String path = rootFile.getAbsolutePath();
                 global.classPath().library(path, sources);
             }
+        }
+    }
+
+    public static void compileSource(final Global global, String fileName, char[] text) {
+        Global.Run run = global.new Run();
+
+        scala.List srcFiles = Nil$.MODULE$;
+        BatchSourceFile srcFile = new BatchSourceFile(fileName, text);
+        srcFiles = srcFiles.$colon$colon(srcFile);
+
+        try {
+            run.compileSources(srcFiles);
+        } catch (Exception ex) {
+            // just ignore all ex
         }
     }
 

@@ -56,19 +56,20 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import java.util.Collections;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry;
-import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistryListener;
-import org.netbeans.modules.gsfpath.api.queries.SourceForBinaryQuery;
-import org.netbeans.modules.gsfpath.api.platform.JavaPlatform;
-import org.netbeans.modules.gsfpath.api.platform.JavaPlatformManager;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathFactory;
-import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.classpath.GlobalPathRegistryEvent;
+import org.netbeans.api.java.classpath.GlobalPathRegistryListener;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.classfile.ClassName;
-import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.ClassPathFactory;
+import org.netbeans.spi.java.classpath.ClassPathImplementation;
+import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -126,7 +127,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
         }
         if (SCALA_EXT.equalsIgnoreCase(file.getExt()) || file.isFolder()) {  //Workaround: Editor asks for package root
             if (ClassPath.BOOT.equals (type)) {
-                JavaPlatform defaultPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
+                ScalaPlatform defaultPlatform = ScalaPlatformManager.getDefault().getDefaultPlatform();
                 if (defaultPlatform != null) {
                     return defaultPlatform.getBootstrapLibraries();
                 }
@@ -184,7 +185,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
         }
         else if (CLASS_EXT.equals(file.getExt())) {
             if (ClassPath.BOOT.equals (type)) {
-                JavaPlatform defaultPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
+                ScalaPlatform defaultPlatform = ScalaPlatformManager.getDefault().getDefaultPlatform();
                 if (defaultPlatform != null) {
                     return defaultPlatform.getBootstrapLibraries();
                 }
@@ -632,7 +633,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
             this.support.removePropertyChangeListener (l);
         }
         
-        public void pathsAdded(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistryEvent event) {
+        public void pathsAdded(GlobalPathRegistryEvent event) {
             synchronized (this) {
                 if (ClassPath.COMPILE.equals(event.getId()) || ClassPath.SOURCE.equals(event.getId())) {
                     GlobalPathRegistry.getDefault().removeGlobalPathRegistryListener(this);
@@ -642,7 +643,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
             this.support.firePropertyChange(PROP_RESOURCES,null,null);
         }    
     
-        public void pathsRemoved(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistryEvent event) {
+        public void pathsRemoved(GlobalPathRegistryEvent event) {
             synchronized (this) {
                 if (ClassPath.COMPILE.equals(event.getId()) || ClassPath.SOURCE.equals(event.getId())) {
                     GlobalPathRegistry.getDefault().removeGlobalPathRegistryListener(this);

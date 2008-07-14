@@ -47,14 +47,14 @@ import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.HashMap;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.ScalaPlatform;
-import org.netbeans.modules.gsfpath.api.queries.SourceForBinaryQuery;
-import org.netbeans.modules.gsfpath.spi.queries.SourceForBinaryQueryImplementation;
+import org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.WeakListeners;
@@ -95,12 +95,22 @@ public class PlatformSourceForBinaryQuery implements SourceForBinaryQueryImpleme
                     return res;
                 }
             }
+            
+            for (ClassPath.Entry entry : platform.getStandardLibraries().entries()) {
+                if (entry.getURL().equals (binaryRoot)) {
+                    res = new Result(platform);
+                    this.cache.put (binaryRoot, res);
+                    return res;
+                }                
+            }
         }
+        
         String binaryRootS = binaryRoot.toExternalForm();
         if (binaryRootS.startsWith(JAR_FILE)) {
+            String srcZipS = null;
             if (binaryRootS.endsWith(RTJAR_PATH)) {
                 //Unregistered platform
-                String srcZipS = binaryRootS.substring(4,binaryRootS.length() - RTJAR_PATH.length()) + SRC_ZIP;
+                srcZipS = binaryRootS.substring(4,binaryRootS.length() - RTJAR_PATH.length()) + SRC_ZIP;
                 try {
                     URL srcZip = FileUtil.getArchiveRoot(new URL(srcZipS));
                     FileObject fo = URLMapper.findFileObject(srcZip);

@@ -43,14 +43,14 @@ package org.netbeans.modules.scala.platform.classpth;
 
 
 import java.util.Collections;
-import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
 import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.ScalaPlatformManager;
-import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 
 
 public class PlatformClassPathProvider implements ClassPathProvider {

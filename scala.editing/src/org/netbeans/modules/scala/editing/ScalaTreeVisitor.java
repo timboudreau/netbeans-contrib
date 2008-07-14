@@ -45,6 +45,7 @@ import java.util.List;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.Option;
+import scala.Tuple2;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -107,7 +108,7 @@ public class ScalaTreeVisitor {
         visit(tree);
         Collections.sort(trees, new TreeComparator());
         Collections.sort(symbols, new SymbolComparator());
-        //printTrees();
+    //printTrees();
     }
 
     public <T extends Tree> T findTreeAt(Class<T> clazz, int offset) {
@@ -164,6 +165,20 @@ public class ScalaTreeVisitor {
         return null;
     }
 
+    public Symbol findSymbolEqs(Symbol toMatch) {
+        String name = toMatch.nameString();
+        Type toMatchType = toMatch.tpe();
+        for (Symbol symbol : symbols) {
+            if (symbol.nameString().equals(name)) {
+                if (symbol.tpe().$eq$colon$eq(toMatchType)) {
+                    return symbol;
+                }
+            }
+        }
+
+        return null;
+    }
+
     private int offset(Tree tree) {
         Option offsetOpt = tree.pos().offset();
         return offsetOpt.isDefined() ? (Integer) offsetOpt.get() : -1;
@@ -181,8 +196,19 @@ public class ScalaTreeVisitor {
             visit((Tree) head);
         } else if (head instanceof scala.List) {
             visit((scala.List) head);
+        } else if (head instanceof Tuple2) {
+            System.out.println("Visit Tuple: " + head + " class=" + head.getClass().getCanonicalName());
+
+            Object o1 = ((Tuple2) head)._1();
+            if (o1 != null) {
+                System.out.println("Visit Tuple: " + o1 + " class=" + o1.getClass().getCanonicalName());
+            }
+            Object o2 = ((Tuple2) head)._2();
+            if (o2 != null) {
+                System.out.println("Visit Tuple: " + o2 + " class=" + o2.getClass().getCanonicalName());
+            }
         } else {
-            System.out.println("Try to visit: " + head);
+            System.out.println("Try to visit: " + head + " class=" + head.getClass().getCanonicalName());
         }
 
         visit(trees.tail());

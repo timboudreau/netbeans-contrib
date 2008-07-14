@@ -48,7 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Source;
@@ -199,7 +199,8 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                 if (roots.length > 0) {
                     ClassPath bootCp = ClassPath.getClassPath(roots[0], ClassPath.BOOT);
                     ClassPath compileCp = ClassPath.getClassPath(roots[0], ClassPath.COMPILE);
-                    final ClasspathInfo cpInfo = ClasspathInfo.create(bootCp, compileCp, sourcePath);
+
+                    final ClasspathInfo cpInfo = JavaClassPathToGsfClassPath.createGsfClassPathInfo(bootCp, compileCp, sourcePath);
                     
                     /** 
                      * @TODO ugly hacking to find mainClass's fo, this hacking 

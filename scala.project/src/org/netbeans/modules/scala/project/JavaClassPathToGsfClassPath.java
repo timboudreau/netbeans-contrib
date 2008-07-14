@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,45 +31,34 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.project.classpath;
+package org.netbeans.modules.scala.project;
 
-import java.io.File;
-import org.netbeans.spi.java.classpath.ClassPathImplementation;
-import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+import java.net.URL;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.napi.gsfret.source.ClasspathInfo;
 
 /**
- * Copyied from java.project
- * ProjectClassPathSupport is a support class for creating classpath based
- * on the list of ant properties.
- * @since org.netbeans.modules.java.project/1 1.3
- * @author Tomas Zezula
+ *
+ * @author dcaoyuan
  */
-public class ProjectClassPathSupport {
+public class JavaClassPathToGsfClassPath {
 
-    /** Creates a new instance of NewClass */
-    private ProjectClassPathSupport() {
+    public static org.netbeans.modules.gsfpath.api.classpath.ClassPath convert(ClassPath javaCp) {
+        URL[] urls = new URL[javaCp.entries().size()];
+        for (ClassPath.Entry entry : javaCp.entries()) {
+            entry.getURL();
+        }
+        return org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport.createClassPath(urls);
     }
 
-
-    /**
-     * Creates new classpath based on the ant property. The returned classpath
-     * listens on changes of property value.
-     * @param projectFolder {@link File} the project folder used to resolve relative paths
-     * @param evaluator {@link PropertyEvaluator} used for obtaining the value of
-     * given property and listening on value changes.
-     * @param propertyNames the names of ant properties the classpath will be build on,
-     * can't be or contain null. It can contain duplicates, in this case the duplicated property
-     * is used multiple times. The values of given properties are concatenated into a single path.
-     * @return an {@link ClassPathImplementation} based on the given ant properties.
-     */
-    public static ClassPathImplementation createPropertyBasedClassPathImplementation (File projectFolder,
-            PropertyEvaluator evaluator, String[] propertyNames) {
-        return new ProjectClassPathImplementation (projectFolder, propertyNames, evaluator);
+    public static ClasspathInfo createGsfClassPathInfo(ClassPath bootPath, ClassPath classPath, ClassPath sourcePath) {
+        return ClasspathInfo.create(convert(bootPath), convert(classPath), convert(sourcePath));
     }
 }
+

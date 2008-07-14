@@ -27,7 +27,9 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -38,8 +40,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -52,9 +57,11 @@ import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  *
@@ -323,7 +330,7 @@ public class ScalaUtils {
         return unicoded != null ? unicoded : typeName;
     }
     public static final Map<String, String> STD_LIB_TYPE_UNICODE = new HashMap<String, String>();
-    
+
 
     static {
         STD_LIB_TYPE_UNICODE.put("ZZ8", "\u21248");
@@ -714,14 +721,14 @@ public class ScalaUtils {
         if (pResult == null) {
             return null;
         }
-        
+
         BaseDocument doc = NbUtilities.getDocument(info.getFileObject(), true);
         if (doc == null) {
             return null;
         }
-        
+
         TokenHierarchy<Document> th = pResult.getTokenHierarchy();
-        
+
         doc.readLock(); // Read-lock due to token hierarchy use
         OffsetRange range = ScalaLexUtilities.getDocumentationRange(element, th);
         doc.readUnlock();
@@ -733,17 +740,12 @@ public class ScalaUtils {
                 Exceptions.printStackTrace(ex);
             }
         }
-        
+
         return null;
     }
 
-    public static String getDocComment(FileObject fo, int symbolOffset) {
-        BaseDocument doc = NbUtilities.getDocument(fo, true);
-        if (doc == null) {
-            return null;
-        }
-
-        TokenHierarchy th =  TokenHierarchy.get(doc);
+    public static String getDocComment(BaseDocument doc, int symbolOffset) {
+        TokenHierarchy th = TokenHierarchy.get(doc);
         if (th == null) {
             return null;
         }
@@ -768,11 +770,11 @@ public class ScalaUtils {
         if (pResult == null) {
             return -1;
         }
-        
+
         TokenHierarchy<Document> th = pResult.getTokenHierarchy();
         return element.getPickOffset(th);
     }
-    
+
     public static ScalaParserResult getParserResult(CompilationInfo info) {
         ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
 
@@ -781,5 +783,63 @@ public class ScalaUtils {
         } else {
             return (ScalaParserResult) result;
         }
+    }
+
+    public static FileObject getFileObject(CompilationInfo info, Symbol symbol) {
+        String qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
+
+        String pkgName = null;
+        int lastSep = qName.lastIndexOf(File.separatorChar);
+        if (lastSep > 0) {
+            pkgName = qName.substring(0, lastSep);
+        }
+
+        String clzName = qName + ".class";
+
+        try {
+            org.netbeans.api.java.source.CompilationInfo javaInfo = JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject());
+            org.netbeans.api.java.source.ClasspathInfo cpInfo = javaInfo.getClasspathInfo();
+            ClassPath cp = ClassPathSupport.createProxyClassPath(
+                    new ClassPath[]{
+                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.SOURCE),
+                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.BOOT),
+                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.COMPILE)
+                    });
+
+            String srcName = null;
+            FileObject clzFo = cp.findResource(clzName);
+            if (clzFo != null) {
+                InputStream in = clzFo.getInputStream();
+                try {
+                    ClassFile cFile = new ClassFile(in, false);
+                    if (cFile != null) {
+                        srcName = cFile.getSourceFileName();
+                    }
+                } finally {
+                    if (in != null) {
+                        in.close();
+                    }
+                }
+            }
+
+            if (srcName != null) {
+                if (pkgName != null) {
+                    srcName = pkgName + File.separatorChar + srcName;
+                }
+
+                FileObject root = cp.findOwnerRoot(clzFo);
+                assert root != null;
+
+                SourceForBinaryQuery.Result result = SourceForBinaryQuery.findSourceRoots(root.getURL());
+                FileObject[] srcRoots = result.getRoots();
+                ClassPath srcCp = ClassPathSupport.createClassPath(srcRoots);
+
+                return srcCp.findResource(srcName);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
     }
 }

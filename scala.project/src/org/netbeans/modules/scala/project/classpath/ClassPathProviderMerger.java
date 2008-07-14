@@ -25,7 +25,7 @@
  *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.project.javaclasspath;
+package org.netbeans.modules.scala.project.classpath;
 
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
@@ -37,11 +37,11 @@ import org.openide.util.Lookup;
  *
  * @author Tomas Zezula
  */
-public final class JavaClassPathProviderMerger implements LookupMerger<ClassPathProvider> {
+public final class ClassPathProviderMerger implements LookupMerger<ClassPathProvider> {
     
     private final ClassPathProvider defaultProvider;
     
-    public JavaClassPathProviderMerger (final ClassPathProvider defaultProvider) {
+    public ClassPathProviderMerger (final ClassPathProvider defaultProvider) {
         assert defaultProvider != null;
         this.defaultProvider = defaultProvider;
     }

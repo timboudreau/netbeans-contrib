@@ -41,8 +41,6 @@
 package org.netbeans.modules.scala.stdplatform.platformdefinition;
 
 import java.text.MessageFormat;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
@@ -50,8 +48,10 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.logging.Logger;
 import java.util.zip.ZipFile;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.scala.platform.ScalaPlatform;
-import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;

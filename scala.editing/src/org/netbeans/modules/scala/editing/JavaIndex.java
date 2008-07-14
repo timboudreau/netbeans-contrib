@@ -142,6 +142,8 @@ public class JavaIndex {
                         ? (TypeElement) ((DeclaredType) tm).asElement()
                         : null;
 
+
+
                 if (te != null) {
                     JavaScalaMapping.ScalaKind scalaKind = JavaScalaMapping.getScalaKind(te);
                     if (scalaKind != null) {

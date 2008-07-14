@@ -45,7 +45,7 @@ made subject to such option by the copyright holder.
     
     <target name="unziplibs" depends="init">
         <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.1.final.tar.gz"/>
-        
+        <!-- do not unzip these jar files, since Scala's ClassPath needs them to be jar
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-library-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-compiler-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-dbc-src.jar"/>
@@ -54,6 +54,7 @@ made subject to such option by the copyright holder.
         <delete>
             <fileset dir="${scala.dir}/src" includes="*.jar"/>
         </delete>
+        -->
     </target>    
 
     <target name="netbeans-extra" depends="unziplibs"/>

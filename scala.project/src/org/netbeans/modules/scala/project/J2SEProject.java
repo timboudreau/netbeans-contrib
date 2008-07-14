@@ -58,26 +58,22 @@ import javax.swing.ImageIcon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntArtifact;
 import org.netbeans.api.project.ant.AntBuildExtender;
-import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.java.api.common.ant.UpdateImplementation;
 import org.netbeans.modules.java.api.common.queries.QuerySupport;
-import org.netbeans.modules.scala.editing.ScalaLanguage;
 import org.netbeans.modules.scala.project.api.J2SEPropertyEvaluator;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathExtender;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathModifier;
-import org.netbeans.modules.scala.project.javaclasspath.JavaClassPathProviderImpl;
-import org.netbeans.modules.scala.project.javaclasspath.JavaClassPathProviderMerger;
 import org.netbeans.modules.scala.project.queries.BinaryForSourceQueryImpl;
 import org.netbeans.modules.scala.project.ui.J2SELogicalViewProvider;
 import org.netbeans.modules.scala.project.ui.customizer.CustomizerProviderImpl;
@@ -146,7 +142,6 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
-    private final JavaClassPathProviderImpl javaCpProvider;
     private final J2SEProjectClassPathModifier cpMod;
     private AntBuildExtender buildExtender;
 
@@ -168,7 +163,6 @@ public final class J2SEProject implements Project, AntProjectListener {
         this.updateHelper = new UpdateHelper(updateProject, helper);
 
         this.cpProvider = new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(), getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
-        this.javaCpProvider = new JavaClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(), getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
         this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         final J2SEActionProvider actionProvider = new J2SEActionProvider(this, this.updateHelper);
         lookup = createLookup(aux, actionProvider);
@@ -273,7 +267,6 @@ public final class J2SEProject implements Project, AntProjectListener {
                     // new J2SECustomizerProvider(this, this.updateHelper, evaluator(), refHelper),
                     new CustomizerProviderImpl(this, this.updateHelper, evaluator(), refHelper, this.genFilesHelper),
                     new ClassPathProviderMerger(cpProvider),
-                    new JavaClassPathProviderMerger(javaCpProvider),
                     QuerySupport.createCompiledSourceForBinaryQuery(helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
                     QuerySupport.createJavadocForBinaryQuery(helper, evaluator()),
                     new AntArtifactProviderImpl(),
@@ -508,15 +501,15 @@ public final class J2SEProject implements Project, AntProjectListener {
             // register project's classpaths to GlobalPathRegistry            
 
             /** register java classpaths, so the java's query will update it */
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().register(
-                    org.netbeans.api.java.classpath.ClassPath.BOOT, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.BOOT));
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().register(
-                    org.netbeans.api.java.classpath.ClassPath.SOURCE, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.SOURCE));
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().register(
-                    org.netbeans.api.java.classpath.ClassPath.COMPILE, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.COMPILE));
+            GlobalPathRegistry.getDefault().register(
+                    ClassPath.BOOT, 
+                    cpProvider.getProjectClassPaths(ClassPath.BOOT));
+            GlobalPathRegistry.getDefault().register(
+                    ClassPath.SOURCE, 
+                    cpProvider.getProjectClassPaths(ClassPath.SOURCE));
+            GlobalPathRegistry.getDefault().register(
+                    ClassPath.COMPILE, 
+                    cpProvider.getProjectClassPaths(ClassPath.COMPILE));
             /**
              * @Note:
              * Register classpaths to GlobalPathRegistry will cause GSF indexer to monitor and indexing them.
@@ -653,15 +646,15 @@ public final class J2SEProject implements Project, AntProjectListener {
 
             // --- unregister project's classpaths to GlobalPathRegistry            
             /** unregister java classpaths */
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().unregister(
-                    org.netbeans.api.java.classpath.ClassPath.BOOT, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.BOOT));
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().unregister(
-                    org.netbeans.api.java.classpath.ClassPath.SOURCE, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.SOURCE));
-            org.netbeans.api.java.classpath.GlobalPathRegistry.getDefault().unregister(
-                    org.netbeans.api.java.classpath.ClassPath.COMPILE, 
-                    javaCpProvider.getProjectClassPaths(org.netbeans.api.java.classpath.ClassPath.COMPILE));
+            GlobalPathRegistry.getDefault().unregister(
+                    ClassPath.BOOT, 
+                    cpProvider.getProjectClassPaths(ClassPath.BOOT));
+            GlobalPathRegistry.getDefault().unregister(
+                    ClassPath.SOURCE, 
+                    cpProvider.getProjectClassPaths(ClassPath.SOURCE));
+            GlobalPathRegistry.getDefault().unregister(
+                    ClassPath.COMPILE, 
+                    cpProvider.getProjectClassPaths(ClassPath.COMPILE));
 
             if (coreLibsCp != null) {
                 // Do we need unregister coreLibsCp?
