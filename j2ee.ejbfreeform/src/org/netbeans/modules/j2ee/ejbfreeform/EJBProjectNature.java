@@ -70,8 +70,6 @@ public class EJBProjectNature implements ProjectNature {
 
     public static final String NS_EJB = "http://www.netbeans.org/ns/freeform-project-ejb/1"; // NOI18N
     public static final String NS_EJB_2 = "http://www.netbeans.org/ns/freeform-project-ejb/2"; // NOI18N
-    private static final String SCHEMA = "nbres:/org/netbeans/modules/j2ee/ejbfreeform/resources/freeform-project-ejb.xsd"; // NOI18N
-    private static final String SCHEMA_2 = "nbres:/org/netbeans/modules/j2ee/ejbfreeform/resources/freeform-project-ejb-2.xsd"; // NOI18N
     
     public static final String EL_EJB = "ejb-data"; // NOI18N
     public static final String STYLE_CONFIG_FILES = "configFiles"; // NOI18N
@@ -90,10 +88,6 @@ public class EJBProjectNature implements ProjectNature {
         return l;
     }
     
-    public Set/*<String>*/ getSchemas() {
-        return new HashSet(Arrays.asList(new String[] { SCHEMA, SCHEMA_2 }));
-    }
-
     public Set/*<String>*/ getSourceFolderViewStyles() {
         Set resultSet = new HashSet();
         resultSet.add(STYLE_CONFIG_FILES);
