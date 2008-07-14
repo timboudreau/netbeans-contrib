@@ -18,15 +18,14 @@
   * Microsystems, Inc. All Rights Reserved.
 */ -->
 <!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">
-
 <library version="1.0">
-    <name>cmstaglib</name>
+    <name>cms</name>
     <type>j2se</type>
     <localizing-bundle>org.netbeans.modules.portalpack.cms.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/portalpack/cmstaglib/mirage-taglibs-0.1.jar!/</resource>
-        <resource>jar:nbinst:///modules/ext/portalpack/cmstaglib/usermanager-0.5.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/cms/mirage-api-0.2.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/cms/mirage-jcr-impl-0.2.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
@@ -37,3 +36,4 @@
         <resource>jar:nbinst:///modules/ext/portalpack/cms/mirage-apidocs-0.1.jar!/</resource>
     </volume>-->
 </library>
+

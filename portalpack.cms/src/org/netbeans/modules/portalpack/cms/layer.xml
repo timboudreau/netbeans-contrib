@@ -35,8 +35,8 @@
  
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-            <file name="portalJCR1.0.xml" url="portalJCR1.0.xml"/>    
-            <file name="portalJCRTagLib1.0.xml" url="portalJCRTagLib1.0.xml"/>
+            <file name="portalJCR1.0.xml" url="portalJCR.xml"/>    
+            <file name="portalJCRTagLib1.0.xml" url="portalJCRTagLib.xml"/>
         </folder>
     </folder>
 
