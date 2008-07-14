@@ -25,8 +25,8 @@
     <localizing-bundle>org.netbeans.modules.portalpack.cms.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/portalpack/cmstaglib/mirage-taglibs-0.2.jar!/</resource>
-        <resource>jar:nbinst:///modules/ext/portalpack/cmstaglib/usermanager-0.5.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/cms/mirage-taglibs-0.2.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/cms/usermanager-0.5.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>

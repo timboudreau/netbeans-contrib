@@ -42,7 +42,7 @@ public abstract class TagLibDropDefault extends AbstractActiveEditorDrop{
     @Override
     public void preHandleTransfer(JTextComponent targetComponent, Map map) {
         try {
-            String wfs = "<%@ taglib uri=\"http://java.sun.com/saw\" prefix=\"saw\"%>";
+            String wfs = "<%@ taglib uri=\"http://java.sun.com/cms\" prefix=\"cms\"%>";
             PaletteUtilities.insertLibraryDefinition(wfs, targetComponent);
         } catch (BadLocationException ex) {
             ex.printStackTrace();
