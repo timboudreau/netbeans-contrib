@@ -96,8 +96,9 @@ public class ScalaElement implements ElementHandle {
         if (fo == null) {
             AbstractFile srcFile = symbol.sourceFile();
             if (srcFile != null) {
-                File file = srcFile.file();
-                if (file != null) {
+                File file = new File(srcFile.path());
+                if (file != null && file.exists()) {
+                    // it's a real file and not archive file
                     fo = FileUtil.toFileObject(file);
                 }
             }
@@ -182,6 +183,7 @@ public class ScalaElement implements ElementHandle {
         if (loaded) {
             return true;
         } else {
+            boolean l = symbol.tpe().isComplete();
             return symbol.pos().offset().isDefined();
         }
     }
@@ -194,15 +196,17 @@ public class ScalaElement implements ElementHandle {
                 try {
                     char[] text = srcDoc.getChars(0, srcDoc.getLength());
                     /**
-                     * @Note by compiling the related source file, this symbol will be automatically loaded
+                     * @Note by compiling the related source file, this symbol will be automatically loaded next time
                      */
-                    ScalaGlobal.compileSource(global, path, text);
+                    ScalaTreeVisitor visitor = ScalaGlobal.compileSource(global, path, text, false);
+                    if (visitor != null) {
+                        symbol.info();                        
+                        loaded = true;
+                    }
                 } catch (BadLocationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
-            
-            loaded = true;
         }
     }
 

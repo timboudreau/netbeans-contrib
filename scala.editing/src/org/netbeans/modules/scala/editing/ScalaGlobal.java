@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
@@ -57,8 +58,10 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
 import scala.Nil$;
+import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
+import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
@@ -148,8 +151,14 @@ public class ScalaGlobal {
             // add boot, compiler classpath
             ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
             if (cpp != null) {
-                addToGlobalClassPath(global, cpp.findClassPath(fo, ClassPath.BOOT));
-                addToGlobalClassPath(global, cpp.findClassPath(fo, ClassPath.COMPILE));
+                ClassPath bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
+                ClassPath compileCp = cpp.findClassPath(fo, ClassPath.COMPILE);
+                if (bootCp == null || compileCp == null) {
+                    bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT);
+                    compileCp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+                }
+                addToGlobalClassPath(global, bootCp);
+                addToGlobalClassPath(global, compileCp);
             }
         }
 
@@ -186,7 +195,20 @@ public class ScalaGlobal {
         }
     }
 
-    public static void compileSource(final Global global, String fileName, char[] text) {
+    private static Map<String, ScalaTreeVisitor> fileNameToVisitor =
+            new HashMap<String, ScalaTreeVisitor>();
+
+    /** @Note used only for lib's source, which won't be changed anymore */
+    public static ScalaTreeVisitor compileSource(final Global global, String fileName, char[] text, boolean refresh) {
+        ScalaTreeVisitor visitor = fileNameToVisitor.get(fileName);
+        if (visitor != null) {
+            if (refresh) {
+                fileNameToVisitor.remove(fileName);
+            } else {
+                return visitor;
+            }
+        }
+
         Global.Run run = global.new Run();
 
         scala.List srcFiles = Nil$.MODULE$;
@@ -198,6 +220,19 @@ public class ScalaGlobal {
         } catch (Exception ex) {
             // just ignore all ex
         }
+
+        scala.Iterator units = run.units();
+        while (units.hasNext()) {
+            CompilationUnit unit = (CompilationUnit) units.next();
+            if (unit.source() == srcFile) {
+                Tree tree = unit.body();
+                visitor = new ScalaTreeVisitor(tree);
+                fileNameToVisitor.put(fileName, visitor);
+                return visitor;
+            }
+        }
+
+        return null;
     }
 
     private static void printProperties(Properties props) {

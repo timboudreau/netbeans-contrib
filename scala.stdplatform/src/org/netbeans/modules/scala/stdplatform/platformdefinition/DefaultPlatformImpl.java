@@ -46,7 +46,10 @@ import java.net.URL;
 import java.util.*;
 import java.net.MalformedURLException;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.util.Exceptions;
 
 import org.openide.util.NbBundle;
@@ -163,7 +166,25 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                     pathSpec = scalaLib.getAbsolutePath() + File.separator + "scala-library.jar";
                 }
             }
+                        
             cp = Util.createClassPath(pathSpec);
+
+            /** @todo how to deal with project's custom java platform ? */
+
+            JavaPlatform javaPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
+            if (javaPlatform != null) {
+                ClassPath javaBootstrap = javaPlatform.getBootstrapLibraries();
+                List<ClassPath.Entry> entries = javaBootstrap.entries();
+                URL[] urls = new URL[entries.size() + 1];
+                for (int i = 0; i < entries.size(); i++) {
+                    urls[i] = entries.get(i).getURL();
+                }
+                if (!cp.entries().isEmpty()) {
+                    urls[entries.size()] = cp.entries().get(0).getURL();
+                }
+                cp = ClassPathSupport.createClassPath(urls);
+            }
+            
             bootstrap = new WeakReference<ClassPath>(cp);
             return cp;
         }

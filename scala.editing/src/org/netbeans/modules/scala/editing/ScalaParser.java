@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -528,7 +529,8 @@ public class ScalaParser implements Parser {
 
         // ParserScala
         Reader in = new StringReader(source);
-        String fileName = context.file != null ? context.file.getNameExt() : "<current>";
+        File ioFile = context.file != null ? context.file.getFile() : null;
+        String fileName = ioFile != null ? ioFile.getAbsolutePath() : "<current>";
 
         ParserScala parser = new ParserScala(in, fileName);
         context.parser = parser;
