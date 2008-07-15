@@ -71,6 +71,10 @@ public class ScalaGlobal {
     private static Map<FileObject, Reference<Global>> projectDirToGlobal =
             new WeakHashMap<FileObject, Reference<Global>>();
 
+    public static void reset() {
+        projectDirToGlobal.clear();
+    }
+
     public static Global getGlobal(FileObject fo) {
         Global global = null;
 
@@ -199,7 +203,12 @@ public class ScalaGlobal {
         scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
         try {
             run.compileSources(srcFiles);
-        } catch (Exception ex) {
+        } catch (AssertionError ex) {
+            ScalaGlobal.reset();
+            // avoid scala nsc's assert error
+        } catch (java.lang.Error ex) {
+            // avoid scala nsc's Error error
+        } catch (Throwable ex) {
             // just ignore all ex
         }
 

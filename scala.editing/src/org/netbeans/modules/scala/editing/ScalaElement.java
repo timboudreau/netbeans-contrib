@@ -39,8 +39,10 @@
 package org.netbeans.modules.scala.editing;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.element.Element;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -75,6 +77,8 @@ public class ScalaElement implements ElementHandle {
     private String path;
     private BaseDocument doc;
     private int offset = 0;
+    private Element javaElement;
+    private boolean loaded;
 
     /**
      * @param element, that to be wrapped
@@ -114,6 +118,7 @@ public class ScalaElement implements ElementHandle {
                 path = fo.getPath();
             }
         }
+
         return fo;
     }
 
@@ -146,15 +151,25 @@ public class ScalaElement implements ElementHandle {
     }
 
     public String getDocComment() {
+        if (!isLoaded()) {
+            load();
+        }
+
         BaseDocument srcDoc = getDoc();
         if (srcDoc != null) {
-            assert path != null;
-            if (path.endsWith(".scala")) {
+            if (!isJava()) {
                 return ScalaUtils.getDocComment(srcDoc, getOffset());
-            } else if (path.endsWith(".java")) {
-                int _offset = getOffset();
-                // @Todo java file seems won't be complete compiled by global?
-                return null;
+            } else {
+                if (javaElement != null) {
+                    try {
+                        String docComment = JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject()), javaElement);
+                        if (docComment != null) {
+                             return new StringBuilder(docComment.length() + 5).append("/**").append(docComment).append("*/").toString();
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
             }
         }
 
@@ -166,12 +181,22 @@ public class ScalaElement implements ElementHandle {
             load();
         }
 
-        Option offsetOpt = symbol.pos().offset();
-        if (offsetOpt.isDefined()) {
-            return (Integer) offsetOpt.get();
+        if (isJava()) {
+            if (javaElement != null) {
+                try {
+                    return JavaUtilities.getOffset(JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject()), javaElement);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
         } else {
-            return offset;
+            Option offsetOpt = symbol.pos().offset();
+            if (offsetOpt.isDefined()) {
+                return (Integer) offsetOpt.get();
+            }
         }
+
+        return offset;
     }
 
     public BaseDocument getDoc() {
@@ -184,11 +209,25 @@ public class ScalaElement implements ElementHandle {
     }
 
     private boolean isLoaded() {
-        return symbol.pos().offset().isDefined();
+        if (loaded) {
+            return true;
+        }
+
+        if (isJava()) {
+            return javaElement != null;
+        } else {
+            return symbol.pos().offset().isDefined();
+        }
     }
 
     private void load() {
-        if (!isLoaded()) {
+        if (isLoaded()) {
+            return;
+        }
+
+        if (isJava()) {
+            javaElement = JavaUtilities.getJavaElement(JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject()), symbol);
+        } else {
             BaseDocument srcDoc = getDoc();
             if (srcDoc != null) {
                 assert path != null;
@@ -197,7 +236,7 @@ public class ScalaElement implements ElementHandle {
                     BatchSourceFile srcFile = new BatchSourceFile(path, text);
 
                     /**
-                     * @Note by compiling the related source file, this symbol will 
+                     * @Note by compiling the related source file, this symbol will
                      * be automatically loaded next time, but the position/sourcefile
                      * info is not updated for this symbol yet. But we can find the
                      * position via the AST Tree, or use a tree visitor to update
@@ -217,10 +256,20 @@ public class ScalaElement implements ElementHandle {
                 }
             }
         }
+
+        loaded = true;
     }
 
-    public boolean isScala() {
-        return true;
+    public boolean isJava() {
+        if (path == null) {
+            getFileObject();
+        }
+
+        if (path != null) {
+            return path.endsWith(".java");
+        }
+
+        return false;
     }
 
     public boolean isDeprecated() {

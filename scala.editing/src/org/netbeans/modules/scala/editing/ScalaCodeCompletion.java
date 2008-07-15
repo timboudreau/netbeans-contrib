@@ -1710,7 +1710,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             comment = ((GsfElement) element).getDocComment();
         } else if (element instanceof ScalaElement) {
             ScalaElement element1 = (ScalaElement) element;
-            sigFormatter.appendText(element1.getSymbol().defString());
+            try {
+                sigFormatter.appendText(element1.getSymbol().defString());
+            } catch (AssertionError ex) {
+                ScalaGlobal.reset();
+            }
             //sigFormatter.appendText(element1.getSymbol().nameString());
             //sigFormatter.appendText(element1.getSymbol().infoString(element1.getSymbol().tpe()));
             comment = element1.getDocComment();
@@ -2025,50 +2029,55 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             resType = symbol.tpe();
         }
 
-        scala.List members = resType.members();
-        int size = members.size();
-        for (int i = 0; i < size; i++) {
-            Symbol member = (Symbol) members.apply(i);
+        try {
+            scala.List members = resType.members();
+            int size = members.size();
+            for (int i = 0; i < size; i++) {
+                Symbol member = (Symbol) members.apply(i);
 
-            if (!JavaUtilities.startsWith(member.nameString(), prefix)) {
-                continue;
-            }
-
-            ScalaElement element = null;
-            CompletionProposal proposal = null;
-            if (member.isPublic() || member.isProtectedLocal()) {
-                if (member.isConstructor()) {
+                if (!JavaUtilities.startsWith(member.nameString(), prefix)) {
                     continue;
                 }
 
-                if (member.isMethod()) {
-                    element = new ScalaElement(member, request.info, request.global);
-                    proposal = new FunctionProposal(element, request);
-                } else if (member.isVariable()) {
-                } else if (member.isValue()) {
-                    element = new ScalaElement(member, request.info, request.global);
-                    proposal = new PlainProposal(element, request);
-                }
-            }
-
-            if (proposal != null) {
-                boolean inherited = true;
-                Symbol resTypeSymbol = resType.typeSymbol();
-                Symbol enclClassSymbol = element.getSymbol().enclClass();
-                try {
-                    if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
-                        inherited = false;
+                ScalaElement element = null;
+                CompletionProposal proposal = null;
+                if (member.isPublic() || member.isProtectedLocal()) {
+                    if (member.isConstructor()) {
+                        continue;
                     }
-                } catch (java.lang.Error e) {
-                    // java.lang.Error: no-symbol does not have owner
-                    //         at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+
+                    if (member.isMethod()) {
+                        element = new ScalaElement(member, request.info, request.global);
+                        proposal = new FunctionProposal(element, request);
+                    } else if (member.isVariable()) {
+                    } else if (member.isValue()) {
+                        element = new ScalaElement(member, request.info, request.global);
+                        proposal = new PlainProposal(element, request);
+                    }
                 }
-                element.setInherited(inherited);
 
-                proposals.add(proposal);
+                if (proposal != null) {
+                    boolean inherited = true;
+                    Symbol resTypeSymbol = resType.typeSymbol();
+                    Symbol enclClassSymbol = element.getSymbol().enclClass();
+                    try {
+                        if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
+                            inherited = false;
+                        }
+                    } catch (java.lang.Error e) {
+                        // java.lang.Error: no-symbol does not have owner
+                        //         at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+                    }
+                    element.setInherited(inherited);
+
+                    proposals.add(proposal);
+                }
+
+            //System.out.println("member: " + member + " info: " + member.info().getClass());
             }
-
-        //System.out.println("member: " + member + " info: " + member.info().getClass());
+        } catch (AssertionError ex) {
+            ScalaGlobal.reset();
+            // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
         }
 
         return true;

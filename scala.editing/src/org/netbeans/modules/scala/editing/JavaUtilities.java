@@ -78,6 +78,8 @@ import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.Type;
 
 /**
  *
@@ -741,7 +743,7 @@ public class JavaUtilities {
             }
 
             info = javaControllers[0];
-            //scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
+        //scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
         }
 
         return info;
@@ -764,7 +766,7 @@ public class JavaUtilities {
         if (source == null) {
             ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
             source = JavaSource.create(javaCpInfo);
-            //scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+        //scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
 
         }
 
@@ -773,7 +775,7 @@ public class JavaUtilities {
 
     public static String getDocComment(CompilationInfo info, final Element e) throws IOException {
         String docComment = null;
-        
+
         // to resolve javadoc, only needs Phase.ELEMENT_RESOLVED, and we have reached when create info
         Doc javaDoc = info.getElementUtilities().javaDocFor(e);
         if (javaDoc != null) {
@@ -830,7 +832,7 @@ public class JavaUtilities {
                         controller.toPhase(Phase.RESOLVED);
 
                         CompilationInfo newInfo = controller;
-                        
+
                         Element el = handle.resolve(newInfo);
                         FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
 
@@ -851,6 +853,50 @@ public class JavaUtilities {
         }
 
         return offset[0];
+    }
+
+    public static Element getJavaElement(CompilationInfo info, Symbol sym) {
+        Elements theElements = info.getElements();
+        String sName = sym.nameString();
+        String typeQName = sym.enclClass().fullNameString();
+        TypeElement te = null;
+        TypeElement namedTe = theElements.getTypeElement(typeQName);
+        if (namedTe != null) {
+            te = ElementHandle.<TypeElement>create(namedTe).resolve(info);
+        }
+
+        if (te == null) {
+            return null;
+        }
+
+        for (Element element : te.getEnclosedElements()) {
+            if (!element.getSimpleName().toString().equals(sName)) {
+                continue;
+            }
+
+            switch (element.getKind()) {
+                case METHOD:
+                    if (element instanceof ExecutableElement && sym.isMethod()) {
+                        List<? extends VariableElement> params1 = ((ExecutableElement) element).getParameters();
+                        scala.List params2 = sym.tpe().paramTypes();
+                        if (params1.size() != params2.size()) {
+                            continue;
+                        }
+
+                        for (int i = 0; i < params1.size(); i++) {
+                            TypeMirror param1 = params1.get(i).asType();
+                            Type param2 = (Type) params2.apply(i);
+                            // @todo compare param's type, should convert primary type between Java and Scala
+                            return element;
+                        }
+                    }
+                    break;
+                case FIELD:
+                    return element;
+            }
+        }
+
+        return null;
     }
 
     // Private innerclasses ----------------------------------------------------

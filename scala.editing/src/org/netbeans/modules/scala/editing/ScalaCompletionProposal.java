@@ -131,13 +131,19 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         HtmlFormatter formatter = request.formatter;
         formatter.reset();
         Symbol symbol = element.getSymbol();
-        Type retType = symbol.info().resultType();
-        if (retType != null && !symbol.isConstructor()) {
-            formatter.type(true);
-            formatter.appendText(retType.toString());
-            formatter.type(false);
+
+        formatter.type(true);
+        try {
+            Type retType = symbol.tpe().resultType();
+            if (retType != null && !symbol.isConstructor()) {
+                formatter.appendText(retType.toString());
+            }
+        } catch (java.lang.AssertionError ex) {
+            // ignore assert ex from scala
+            ScalaGlobal.reset();
         }
-        
+        formatter.type(false);
+
         return formatter.getText();
     }
 
@@ -155,7 +161,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
     public boolean isSmart() {
         return false;
-        //return indexedElement != null ? indexedElement.isSmart() : true;
+    //return indexedElement != null ? indexedElement.isSmart() : true;
     }
 
     public List<String> getInsertParams() {
@@ -195,7 +201,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         public String getLhsHtml() {
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
-            
+
             boolean strike = element.isDeprecated();
             boolean emphasize = !element.isInherited();
             if (strike) {
@@ -204,7 +210,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
             if (emphasize) {
                 formatter.emphasis(true);
             }
-            
+
             ElementKind kind = getKind();
             formatter.name(kind, true);
             formatter.appendText(getName());
@@ -239,7 +245,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.appendHtml("("); // NOI18N
 
                 int size = paramTypes.size();
-                for (int i = 0; i < size; i++) { // && tIt.hasNext()) {
+                for (int i = 0; i < size; i++) {
                     Type param = (Type) paramTypes.apply(i);
 
                     formatter.parameters(true);
@@ -370,7 +376,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
             formatter.name(kind, true);
             formatter.appendHtml(getName());
             formatter.name(kind, false);
-        
+
             return formatter.getText();
         }
 
@@ -579,6 +585,5 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         public String getRhsHtml() {
             return null;
         }
-
     }
 }

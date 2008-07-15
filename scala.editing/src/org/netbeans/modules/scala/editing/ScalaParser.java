@@ -567,6 +567,7 @@ public class ScalaParser implements Parser {
             run.compileSources(srcFiles);
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
+            ScalaGlobal.reset();
         } catch (java.lang.Error ex) {
             // avoid scala nsc's exceptions
         } catch (IllegalArgumentException ex) {
