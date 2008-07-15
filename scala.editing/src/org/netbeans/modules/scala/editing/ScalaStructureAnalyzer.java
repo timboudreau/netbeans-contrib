@@ -157,6 +157,10 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         return folds;
     }
 
+    public Configuration getConfiguration() {
+        return null;
+    }
+
     private class ScalaStructureItem implements StructureItem {
 
         private AstElement element;
