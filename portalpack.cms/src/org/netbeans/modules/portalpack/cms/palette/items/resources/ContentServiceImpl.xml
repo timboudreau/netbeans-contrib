@@ -31,8 +31,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.portalpack.cms.palette.items.ContentServiceImpl" />
 
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/cms/palette/items/resources/content16.PNG" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/cms/palette/items/resources/content32.PNG" />
+    <icon16 urlvalue="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/content16.PNG" />
+    <icon32 urlvalue="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/content32.PNG" />
     <description localizing-bundle="org.netbeans.modules.portalpack.cms.palette.items.resources.Bundle"
                display-name-key="NAME__Content_Service_Impl"
                tooltip-key="HINT_Content_Service_Impl" />

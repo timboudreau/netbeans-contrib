@@ -343,8 +343,8 @@ initEnvironmentFromSystemRegistry() {
 
 initEnvironment() {
    HOST=`uname -n`
-   HOSTID=""
-   if [`hostid 2> /dev/null 1> /dev/null` ]; then
+   HOSTID=`uname -n`
+   if [ -f "`which hostid 2>/dev/null`" ]; then
        HOSTID=`hostid | sed 's/[0x]*//'`
    fi
    OSNAME=`uname -s`

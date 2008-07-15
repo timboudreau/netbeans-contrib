@@ -174,6 +174,10 @@ public class FortressStructureAnalyzer implements StructureScanner {
         return folds;
     }
 
+    public Configuration getConfiguration() {
+        return null;
+    }
+
     private class FortressStructureItem implements StructureItem {
 
         private Definition definition;

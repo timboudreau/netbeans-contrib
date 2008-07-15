@@ -79,11 +79,8 @@
              <file name="checkout.template" url="nbresloc:templates/checkout.template"/>             
              <file name="checkin.template" url="nbresloc:templates/checkin.template"/>             
              <file name="complete.template" url="nbresloc:templates/complete.template"/>  
-             <file name="count.template" url="nbresloc:templates/count.template"/>             
              <file name="delete.template" url="nbresloc:templates/delete.template"/>             
              <file name="escalate.template" url="nbresloc:templates/escalate.template"/> 
-             <file name="gettaskbyid.template" url="nbresloc:templates/gettaskbyid.template"/> 
-             <file name="gettasks.template" url="nbresloc:templates/gettasks.template"/> 
              <file name="reassign.template" url="nbresloc:templates/reassign.template"/>             
              <file name="savetask.template" url="nbresloc:templates/savetask.template"/>             
              <file name="checkout-portlet.template" url="nbresloc:templates/checkout-portlet.template"/>             
@@ -99,4 +96,13 @@
              <file name="SAW" url="nbresloc:templates/SAW"/>  
         </folder>
       </folder>
+	  <folder name="portalpack">
+		  <folder name="palette">
+			  <folder name="saw">
+				  <file name="gettaskbyid.template" url="nbresloc:templates/gettaskbyid.template"/>
+				  <file name="gettasks.template" url="nbresloc:templates/gettasks.template"/>
+				  <file name="count.template" url="nbresloc:templates/count.template"/> 
+			  </folder>
+		  </folder>
+	  </folder>
 </filesystem>

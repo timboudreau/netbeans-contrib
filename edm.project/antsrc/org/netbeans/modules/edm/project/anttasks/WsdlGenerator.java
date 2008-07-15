@@ -80,6 +80,7 @@ import org.xml.sax.SAXException;
 import com.sun.sql.framework.utils.RuntimeAttribute;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.logging.Level;
 import org.netbeans.modules.etl.model.impl.ETLDefinitionImpl;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
@@ -357,7 +358,7 @@ public class WsdlGenerator {
         }
         
         // Generate Inline Schema for the outputItem from the engine file
-        addInlineOutputItemSchema(root);
+        //addInlineOutputItemSchema(root);
     }
     
     private String getAttributeType(RuntimeAttribute ra) {
@@ -549,9 +550,10 @@ public class WsdlGenerator {
     }
     
     public static void main(String[] args) {
-        File f = new File("test/xxx_engine.xml");
+        //File f = new File("test/xxx_engine.xml");
+        File f = new File(args[0]+"_engine.xml");
         
-        WsdlGenerator wg = new WsdlGenerator(f, "xxx_engine", "test");
+        WsdlGenerator wg = new WsdlGenerator(f, args[0]+"_engine", "./test");
         try {
             wg.generateWsdl();
         } catch (WsdlGenerateException e) {

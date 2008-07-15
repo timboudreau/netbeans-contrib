@@ -27,35 +27,16 @@
 
 package org.netbeans.modules.portalpack.saw.palette.items;
 
-import java.util.logging.Logger;
-import org.netbeans.modules.portalpack.saw.palette.Utilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import org.openide.text.ActiveEditorDrop;
+import org.netbeans.modules.portalpack.saw.palette.TagLibDropDefault;
 
 /**
  *
  * @author PrakashKumar
  */
-public class CountTasks implements ActiveEditorDrop{
-private static Logger logger = Logger.getLogger("SAW_Logger");
-    /** Creates a new instance of CountTasks */
-    public CountTasks() {
-    }
+public class CountTasks extends TagLibDropDefault{
 
-    private String createBody() {
-        String count = "<wfs:countTasks portalTaskVO=\"${sessionScope.portalTaskVO}\" returnvalue=\"taskCount\" subordinateCount=\"false\"/>";
-        return count;
+    @Override
+    public String getTemplateName() {
+        return "count.template";
     }
-
-    public boolean handleTransfer(JTextComponent targetComponent) {
-        String body = createBody();
-        try {
-            Utilities.insert(body, targetComponent);
-        } catch (BadLocationException ble) {
-            return false;
-        }
-        return true;
-    }
-
 }

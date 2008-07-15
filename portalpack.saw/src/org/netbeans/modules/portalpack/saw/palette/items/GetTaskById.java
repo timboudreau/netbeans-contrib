@@ -27,42 +27,16 @@
 
 package org.netbeans.modules.portalpack.saw.palette.items;
 
-import org.netbeans.modules.portalpack.saw.palette.Utilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import org.openide.text.ActiveEditorDrop;
-import org.openide.util.Exceptions;
+import org.netbeans.modules.portalpack.saw.palette.TagLibDropDefault;
 
 /**
  *
  * @author PrakashKumar
  */
-public class GetTaskById implements ActiveEditorDrop {
+public class GetTaskById extends TagLibDropDefault {
 
-    /** Creates a new instance of GetTaskById */
-    public GetTaskById() {
-        
-    }
-
-    private String createBody() {
-        String Br = "<saw:getTaskById portalTaskVO=\"${sessionScope.portalTaskVO}\" returnvalue=\"task\"/>";
-        return Br;
-    }
-
-    public boolean handleTransfer(JTextComponent targetComponent) {
-        String body = createBody();
-        String wfs = "<%@ taglib uri=\"http://java.sun.com/saw\" prefix=\"saw\"%>";
-        try {
-            Utilities.insertLibraryDefinition(wfs, targetComponent);
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        try {
-            Utilities.insert(body, targetComponent);
-        } catch (BadLocationException ble) {
-            return false;
-        }
-        return true;
+    @Override
+    public String getTemplateName() {
+        return "gettaskbyid.template";
     }
 }

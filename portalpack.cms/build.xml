@@ -3,22 +3,47 @@
 <!-- for some information on what you could do (e.g. targets to override). -->
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="org.netbeans.modules.portalpack.cms" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.cms.</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
-    
-     <target name="release" depends="init">
-        <copy file="external/mirage-api-0.1.jar"
-        todir="${cluster}/modules/ext/portalpack/cms"/>
-        <copy file="external/mirage-jcr-impl-0.1.jar"
-        todir="${cluster}/modules/ext/portalpack/cms"/>
-        
-        <copy file="external/mirage-taglibs-0.1.jar"
-        todir="${cluster}/modules/ext/portalpack/cmstaglib"/>
-        
-        <copy file="external/usermanager-0.5.jar"
-        todir="${cluster}/modules/ext/portalpack/cmstaglib"/>
-        
-        
-        
-    </target>
+	<description>Builds, tests, and runs the project org.netbeans.modules.portalpack.cms.</description>
+	<import file="../../nbbuild/templates/projectized.xml"/>
+
+	<target name="release" depends="init">
+		<mkdir dir="${cluster}/modules/ext/portalpack/cms"/>
+		<mkdir dir="libs"/>
+		<get src="${cms.api.download.url}" 
+                        dest="libs/${cms.api}" usetimestamp="true"/>
+		<copy file="libs/${cms.api}"
+	        todir="${cluster}/modules/ext/portalpack/cms"/>
+		<get src="${cms.impl.jcr.download.url}" 
+                        dest="libs/${cms.impl.jcr}" usetimestamp="true"/>
+		<copy file="libs/${cms.impl.jcr}"
+	        todir="${cluster}/modules/ext/portalpack/cms"/>
+                
+                <!-- get src="${cms.api.javadoc.download.url}" 
+                        dest="libs/${cms.api.javadoc}" usetimestamp="true"/>
+                <copy file="libs/${cms.api.javadoc}"
+	        todir="${cluster}/modules/ext/portalpack/cms"/ -->
+		<get src="${cms.taglib.download.url}" 
+                        dest="libs/${cms.taglib}" usetimestamp="true"/>
+		<copy file="libs/${cms.taglib}"
+	        todir="${cluster}/modules/ext/portalpack/cms"/>
+			
+		<get src="${usermanager.download.url}" 
+                        dest="libs/${usermanager.api}" usetimestamp="true"/>
+		<copy file="libs/${usermanager.api}"
+	        todir="${cluster}/modules/ext/portalpack/cms"/>
+	</target>
+	
+	<target name="clean" depends="projectized-common.clean">
+		<delete dir="${basedir}/download" quiet="true"/>
+	</target>
+	<target name="clean_libs">
+		<delete dir="${basedir}/libs" quiet="true"/>
+	</target>
+	
+	<target name="dist" depends="clean,nbm">
+		<mkdir dir="download"/>
+		<copy file="${basedir}/build/org-netbeans-modules-portalpack-cms.nbm"
+        		todir="${basedir}/download/"/>
+	</target>
+	
 </project>
