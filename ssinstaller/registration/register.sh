@@ -349,7 +349,8 @@ initEnvironment() {
    fi
    OSNAME=`uname -s`
    OSVERSION=`uname -r`
-   SYSTEMMODEL=`uname -m`::`uname -v`
+   PLATFORM_ARCH=`uname -p`
+   SYSTEMMODEL=`uname -i`
    SYSTEMMANUFACTURER=""
    CPUMANUFACTORER=""
    SERIALNUMBER=""
