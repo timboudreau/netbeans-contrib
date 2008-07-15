@@ -2055,8 +2055,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 boolean inherited = true;
                 Symbol resTypeSymbol = resType.typeSymbol();
                 Symbol enclClassSymbol = element.getSymbol().enclClass();
-                if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
-                    inherited = false;
+                try {
+                    if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
+                        inherited = false;
+                    }
+                } catch (java.lang.Error e) {
+                    // java.lang.Error: no-symbol does not have owner
+                    //         at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
                 }
                 element.setInherited(inherited);
 

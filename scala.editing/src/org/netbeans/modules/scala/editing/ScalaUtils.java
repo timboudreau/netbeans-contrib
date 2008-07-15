@@ -786,7 +786,19 @@ public class ScalaUtils {
     }
 
     public static FileObject getFileObject(CompilationInfo info, Symbol symbol) {
-        String qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
+        String qName = null;
+        try {
+             qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
+        } catch (java.lang.Error e) {
+            // java.lang.Error: no-symbol does not have owner
+            //        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+            //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1156)
+            //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1166)            
+        }
+        
+        if (qName == null) {
+            return null;
+        }
 
         String pkgName = null;
         int lastSep = qName.lastIndexOf(File.separatorChar);
