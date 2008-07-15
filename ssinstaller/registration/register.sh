@@ -112,7 +112,7 @@ ExtractSWValue() {
 #
 
 generateUUID() {
-if [ `uname` == "Linux" ]; then
+if [ `uname` = "Linux" ]; then
   echo `uuidgen`
 else
    cd ${TMPDIR}
@@ -349,12 +349,13 @@ initEnvironment() {
    fi
    OSNAME=`uname -s`
    OSVERSION=`uname -r`
-   SYSTEMMODEL=`uname -m`::`uname -v`
+   PLATFORM_ARCH=`uname -p`
+   SYSTEMMODEL=`uname -i`
    SYSTEMMANUFACTURER=""
    CPUMANUFACTORER=""
    SERIALNUMBER=""
 
-   if [`smbios 2> /dev/null 1>/dev/null` ]; then
+   if [ `smbios 2> /dev/null 1>/dev/null` ]; then
       SYSTEMMANUFACTURER=`smbios -t SMB_TYPE_SYSTEM | grep Manufacturer | cut -d: -f2-`
       CPUMANUFACTORER=`smbios -t SMB_TYPE_PROCESSOR | grep Manufacturer | cut -d: -f2-`
       SERIALNUMBER=`smbios -t SMB_TYPE_CHASSIS | grep "Serial Number" | cut -d: -f2-`
@@ -558,14 +559,10 @@ browse() {
       echo "Please open following link with your browser to proceed with registration."
       echo "${URL}"
    else
+      echo "The registration page has been generated it should be opened automatically now."
+      echo "If you have any problems, please open following link with your browser to proceed with registration."
+      echo "${URL}"
       ${BROWSER} $URL 2>&1 &
-      #if [ $? -ne 0 ]; then
-      #     echo "There were problems with launching ${BROWSER}:"
-      #     echo "${OUT}"
-      #     echo "Still, registration page has been generated."
-      #     echo "Please open following link with your browser to proceed with registration."
-      #     echo "${URL}"
-      #fi
    fi
 }
 
@@ -601,6 +598,16 @@ for i in $COMPONENTS; do
 	installServiceTag $i
    fi
 done
+
+#REGISTRATION_CHECK=`curl -m 20 -k https://inventory.sun.com/RegistrationWeb/ss/default/en_US/thankyou.jsp`
+#TEST=`echo X$REGISTRATION_CHECK | grep '<TITLE>Not Found</TITLE>'`
+#echo "TEST=$TEST"
+
+#if [ "$REGISTRATION_CHECK" != "" -a  "$TEST" != "X"  ]
+#then
+#    echo "NOT READY"
+#    DOREGISTER=1
+#fi 
 
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
