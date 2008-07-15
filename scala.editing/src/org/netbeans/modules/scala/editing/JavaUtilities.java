@@ -876,7 +876,7 @@ public class JavaUtilities {
 
             switch (element.getKind()) {
                 case METHOD:
-                    if (element instanceof ExecutableElement && sym.isMethod()) {
+                    if (element instanceof ExecutableElement) {
                         List<? extends VariableElement> params1 = ((ExecutableElement) element).getParameters();
                         scala.List params2 = sym.tpe().paramTypes();
                         if (params1.size() != params2.size()) {
