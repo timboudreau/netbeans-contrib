@@ -170,6 +170,7 @@
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.cms</friend>
                 <friend>org.netbeans.modules.portalpack.saw</friend>
+                <package>org.json</package>
                 <package>org.netbeans.modules.portalpack.commons</package>
                 <package>org.netbeans.modules.portalpack.commons.palette.jsp</package>
             </friend-packages>
