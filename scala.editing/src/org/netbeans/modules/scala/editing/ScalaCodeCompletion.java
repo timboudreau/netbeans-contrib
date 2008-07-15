@@ -1735,6 +1735,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             formatter.setSeqName(name);
         }
 
+        FileObject fo = element.getFileObject();
+        if (fo != null) {
+            html.append("<b>").append(fo.getNameExt()).append("</b><br>");
+        }
+
         html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml());
 
         return html.toString();
