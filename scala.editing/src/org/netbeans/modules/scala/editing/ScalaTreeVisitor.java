@@ -179,6 +179,21 @@ public class ScalaTreeVisitor {
         return null;
     }
 
+    public int findOffet(Symbol toMatch) {
+        String name = toMatch.nameString();
+        Type toMatchType = toMatch.tpe();
+        for (Tree tree : trees) {
+            Symbol symbol = tree.symbol();
+            if (symbol != null && symbol.nameString().equals(name)) {
+                if (symbol.tpe().$eq$colon$eq(toMatchType)) {
+                    return offset(tree);
+                }
+            }
+        }
+        
+        return -1;
+    }
+
     private int offset(Tree tree) {
         Option offsetOpt = tree.pos().offset();
         return offsetOpt.isDefined() ? (Integer) offsetOpt.get() : -1;

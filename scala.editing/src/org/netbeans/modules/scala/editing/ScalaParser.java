@@ -530,9 +530,10 @@ public class ScalaParser implements Parser {
         // ParserScala
         Reader in = new StringReader(source);
         File ioFile = context.file != null ? context.file.getFile() : null;
-        String fileName = ioFile != null ? ioFile.getAbsolutePath() : "<current>";
+        // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
+        String filePath = ioFile != null ? ioFile.getAbsolutePath() : "<current>";
 
-        ParserScala parser = new ParserScala(in, fileName);
+        ParserScala parser = new ParserScala(in, filePath);
         context.parser = parser;
 
         AstScope rootScope = AstScope.emptyScope();
@@ -543,9 +544,8 @@ public class ScalaParser implements Parser {
         global.reporter_$eq(reporter);
         Global.Run run = global.new Run();
 
-        scala.List srcFiles = Nil$.MODULE$;
-        BatchSourceFile srcFile = new BatchSourceFile(fileName, source.toCharArray());
-        srcFiles = srcFiles.$colon$colon(srcFile);
+        BatchSourceFile srcFile = new BatchSourceFile(filePath, source.toCharArray());
+        scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
 
         if (doc != null) {
             // Read-lock due to Token hierarchy use

@@ -51,9 +51,12 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import scala.Option;
+import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
+import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.io.AbstractFile;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  *
@@ -71,7 +74,7 @@ public class ScalaElement implements ElementHandle {
     private FileObject fo;
     private String path;
     private BaseDocument doc;
-    private boolean loaded;
+    private int offset = 0;
 
     /**
      * @param element, that to be wrapped
@@ -149,7 +152,8 @@ public class ScalaElement implements ElementHandle {
             if (path.endsWith(".scala")) {
                 return ScalaUtils.getDocComment(srcDoc, getOffset());
             } else if (path.endsWith(".java")) {
-                int offset = getOffset();
+                int _offset = getOffset();
+                // @Todo java file seems won't be complete compiled by global?
                 return null;
             }
         }
@@ -165,9 +169,9 @@ public class ScalaElement implements ElementHandle {
         Option offsetOpt = symbol.pos().offset();
         if (offsetOpt.isDefined()) {
             return (Integer) offsetOpt.get();
+        } else {
+            return offset;
         }
-
-        return 0;
     }
 
     public BaseDocument getDoc() {
@@ -180,28 +184,33 @@ public class ScalaElement implements ElementHandle {
     }
 
     private boolean isLoaded() {
-        if (loaded) {
-            return true;
-        } else {
-            boolean l = symbol.tpe().isComplete();
-            return symbol.pos().offset().isDefined();
-        }
+        return symbol.pos().offset().isDefined();
     }
 
     private void load() {
-        if (!loaded) {
+        if (!isLoaded()) {
             BaseDocument srcDoc = getDoc();
             if (srcDoc != null) {
                 assert path != null;
                 try {
                     char[] text = srcDoc.getChars(0, srcDoc.getLength());
+                    BatchSourceFile srcFile = new BatchSourceFile(path, text);
+
                     /**
-                     * @Note by compiling the related source file, this symbol will be automatically loaded next time
+                     * @Note by compiling the related source file, this symbol will 
+                     * be automatically loaded next time, but the position/sourcefile
+                     * info is not updated for this symbol yet. But we can find the
+                     * position via the AST Tree, or use a tree visitor to update
+                     * all symbols Position
                      */
-                    ScalaTreeVisitor visitor = ScalaGlobal.compileSource(global, path, text, false);
-                    if (visitor != null) {
-                        symbol.info();                        
-                        loaded = true;
+                    CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+                    if (unit != null) {
+                        final Tree tree = unit.body();
+                        ScalaTreeVisitor visitor = new ScalaTreeVisitor(tree);
+                        int _offset = visitor.findOffet(symbol);
+                        if (_offset >= 0) {
+                            offset = _offset;
+                        }
                     }
                 } catch (BadLocationException ex) {
                     Exceptions.printStackTrace(ex);

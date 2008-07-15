@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
@@ -61,7 +60,6 @@ import scala.Nil$;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
-import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
@@ -195,26 +193,10 @@ public class ScalaGlobal {
         }
     }
 
-    private static Map<String, ScalaTreeVisitor> fileNameToVisitor =
-            new HashMap<String, ScalaTreeVisitor>();
-
-    /** @Note used only for lib's source, which won't be changed anymore */
-    public static ScalaTreeVisitor compileSource(final Global global, String fileName, char[] text, boolean refresh) {
-        ScalaTreeVisitor visitor = fileNameToVisitor.get(fileName);
-        if (visitor != null) {
-            if (refresh) {
-                fileNameToVisitor.remove(fileName);
-            } else {
-                return visitor;
-            }
-        }
-
+    public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
         Global.Run run = global.new Run();
 
-        scala.List srcFiles = Nil$.MODULE$;
-        BatchSourceFile srcFile = new BatchSourceFile(fileName, text);
-        srcFiles = srcFiles.$colon$colon(srcFile);
-
+        scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
         try {
             run.compileSources(srcFiles);
         } catch (Exception ex) {
@@ -225,10 +207,7 @@ public class ScalaGlobal {
         while (units.hasNext()) {
             CompilationUnit unit = (CompilationUnit) units.next();
             if (unit.source() == srcFile) {
-                Tree tree = unit.body();
-                visitor = new ScalaTreeVisitor(tree);
-                fileNameToVisitor.put(fileName, visitor);
-                return visitor;
+                return unit;
             }
         }
 
