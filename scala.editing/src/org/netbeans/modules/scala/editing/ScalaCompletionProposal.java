@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.ast.ScalaElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -36,8 +36,9 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing;
+package org.netbeans.modules.scala.editing.ast;
 
+import org.netbeans.modules.scala.editing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;

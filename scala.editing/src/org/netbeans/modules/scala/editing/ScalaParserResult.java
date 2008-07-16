@@ -47,7 +47,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
+import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import scala.tools.nsc.Global;
 
 /**

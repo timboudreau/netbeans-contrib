@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.ast.ScalaElement;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -61,7 +62,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldCall;
 import org.netbeans.modules.scala.editing.nodes.FunctionCall;
-import org.netbeans.modules.scala.editing.ScalaTreeVisitor;
+import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
 import scala.tools.nsc.Global;

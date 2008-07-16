@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing;
+package org.netbeans.modules.scala.editing.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
