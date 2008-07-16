@@ -1,0 +1,414 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+package org.netbeans.modules.scala.editing.ast;
+
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.ElementKind;
+import scala.tools.nsc.ast.Trees.Alternative;
+import scala.tools.nsc.ast.Trees.Annotated;
+import scala.tools.nsc.ast.Trees.Annotation;
+import scala.tools.nsc.ast.Trees.AppliedTypeTree;
+import scala.tools.nsc.ast.Trees.Apply;
+import scala.tools.nsc.ast.Trees.ApplyDynamic;
+import scala.tools.nsc.ast.Trees.ArrayValue;
+import scala.tools.nsc.ast.Trees.Assign;
+import scala.tools.nsc.ast.Trees.Bind;
+import scala.tools.nsc.ast.Trees.Block;
+import scala.tools.nsc.ast.Trees.CaseDef;
+import scala.tools.nsc.ast.Trees.ClassDef;
+import scala.tools.nsc.ast.Trees.CompoundTypeTree;
+import scala.tools.nsc.ast.Trees.DefDef;
+import scala.tools.nsc.ast.Trees.ExistentialTypeTree;
+import scala.tools.nsc.ast.Trees.Function;
+import scala.tools.nsc.ast.Trees.Ident;
+import scala.tools.nsc.ast.Trees.If;
+import scala.tools.nsc.ast.Trees.Import;
+import scala.tools.nsc.ast.Trees.LabelDef;
+import scala.tools.nsc.ast.Trees.Literal;
+import scala.tools.nsc.ast.Trees.Match;
+import scala.tools.nsc.ast.Trees.ModuleDef;
+import scala.tools.nsc.ast.Trees.New;
+import scala.tools.nsc.ast.Trees.PackageDef;
+import scala.tools.nsc.ast.Trees.Return;
+import scala.tools.nsc.ast.Trees.Select;
+import scala.tools.nsc.ast.Trees.SelectFromTypeTree;
+import scala.tools.nsc.ast.Trees.Sequence;
+import scala.tools.nsc.ast.Trees.SingletonTypeTree;
+import scala.tools.nsc.ast.Trees.Star;
+import scala.tools.nsc.ast.Trees.StubTree;
+import scala.tools.nsc.ast.Trees.Super;
+import scala.tools.nsc.ast.Trees.Template;
+import scala.tools.nsc.ast.Trees.This;
+import scala.tools.nsc.ast.Trees.Throw;
+import scala.tools.nsc.ast.Trees.Tree;
+import scala.tools.nsc.ast.Trees.Try;
+import scala.tools.nsc.ast.Trees.TypeApply;
+import scala.tools.nsc.ast.Trees.TypeBoundsTree;
+import scala.tools.nsc.ast.Trees.TypeDef;
+import scala.tools.nsc.ast.Trees.TypeTree;
+import scala.tools.nsc.ast.Trees.Typed;
+import scala.tools.nsc.ast.Trees.UnApply;
+import scala.tools.nsc.ast.Trees.ValDef;
+import scala.tools.nsc.util.BatchSourceFile;
+
+/**
+ *
+ * @author dcaoyuan
+ */
+public class AstTreeVisitor extends AstVisitor {
+
+    public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
+        super(rootTree, th, sourceFile);
+    }
+
+    @Override
+    public void visitPackageDef(PackageDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE);
+        rootScope.addDef(def);
+
+        visit(tree.stats());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitClassDef(ClassDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
+        rootScope.addDef(def);
+
+        visit(tree.tparams());
+        visit(tree.impl());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitModuleDef(ModuleDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE);
+        rootScope.addDef(def);
+
+        visit(tree.impl());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitValDef(ValDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.VARIABLE);
+        rootScope.addDef(def);
+
+        visit(tree.tpt());
+        visit(tree.rhs());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitDefDef(DefDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.METHOD);
+        rootScope.addDef(def);
+
+        visit(tree.tparams());
+        visit(tree.vparamss());
+        visit(tree.tpt());
+        visit(tree.rhs());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitTypeDef(TypeDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
+        rootScope.addDef(def);
+
+        visit(tree.tparams());
+        visit(tree.rhs());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitLabelDef(LabelDef tree) {
+        visit(tree.params());
+        visit(tree.rhs());
+    }
+
+    @Override
+    public void visitImport(Import tree) {
+        visit(tree.expr());
+        visit(tree.selectors());
+    }
+
+    @Override
+    public void visitAnnotation(Annotation tree) {
+        visit(tree.constr());
+        visit(tree.elements());
+    }
+
+    @Override
+    public void visitTemplate(Template tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        visit(tree.parents());
+        visit(tree.body());
+        visit(tree.self());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitBlock(Block tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        visit(tree.stats());
+        visit(tree.expr());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitMatch(Match tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        visit(tree.cases());
+        visit(tree.selector());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitCaseDef(CaseDef tree) {
+        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
+        scopeStack.peek().addScope(scope);
+
+        visit(tree.body());
+        visit(tree.guard());
+        visit(tree.pat());
+
+        scopeStack.push(scope);
+    }
+
+    @Override
+    public void visitSequence(Sequence tree) {
+        visit(tree.trees());
+    }
+
+    @Override
+    public void visitAlternative(Alternative tree) {
+        visit(tree.trees());
+    }
+
+    @Override
+    public void visitStar(Star tree) {
+        visit(tree.elem());
+    }
+
+    @Override
+    public void visitBind(Bind tree) {
+        visit(tree.body());
+    }
+
+    @Override
+    public void visitUnApply(UnApply tree) {
+        visit(tree.args());
+        visit(tree.fun());
+    }
+
+    @Override
+    public void visitArrayValue(ArrayValue tree) {
+        visit(tree.elems());
+        visit(tree.elemtpt());
+    }
+
+    @Override
+    public void visitFunction(Function tree) {
+        visit(tree.vparams());
+        visit(tree.body());
+    }
+
+    @Override
+    public void visitAssign(Assign tree) {
+        visit(tree.lhs());
+        visit(tree.rhs());
+    }
+
+    @Override
+    public void visitIf(If tree) {
+        visit(tree.cond());
+        visit(tree.elsep());
+        visit(tree.thenp());
+    }
+
+    @Override
+    public void visitReturn(Return tree) {
+        visit(tree.expr());
+    }
+
+    @Override
+    public void visitTry(Try tree) {
+        visit(tree.block());
+        visit(tree.catches());
+        visit(tree.finalizer());
+    }
+
+    @Override
+    public void visitThrow(Throw tree) {
+        visit(tree.expr());
+    }
+
+    @Override
+    public void visitNew(New tree) {
+        visit(tree.tpt());
+    }
+
+    @Override
+    public void visitTyped(Typed tree) {
+        visit(tree.expr());
+        visit(tree.tpt());
+    }
+
+    @Override
+    public void visitTypeApply(TypeApply tree) {
+        visit(tree.args());
+        visit(tree.fun());
+    }
+
+    @Override
+    public void visitApply(Apply tree) {
+        visit(tree.args());
+        visit(tree.fun());
+    }
+
+    @Override
+    public void visitApplyDynamic(ApplyDynamic tree) {
+        visit(tree.args());
+        visit(tree.qual());
+    }
+
+    @Override
+    public void visitSuper(Super tree) {
+    }
+
+    @Override
+    public void visitThis(This tree) {
+    }
+
+    @Override
+    public void visitSelect(Select tree) {
+        visit(tree.qualifier());
+    }
+
+    @Override
+    public void visitIdent(Ident tree) {
+    }
+
+    @Override
+    public void visitLiteral(Literal tree) {
+        // none symbol
+    }
+
+    @Override
+    public void visitAnnotated(Annotated tree) {
+        visit(tree.annot());
+        visit(tree.arg());
+    }
+
+    @Override
+    public void visitTypeTree(TypeTree tree) {
+        visit(tree.original());
+    }
+
+    @Override
+    public void visitSingletonTypeTree(SingletonTypeTree tree) {
+        visit(tree.ref());
+    }
+
+    @Override
+    public void visitSelectFromTypeTree(SelectFromTypeTree tree) {
+        visit(tree.qualifier());
+    }
+
+    @Override
+    public void visitCompoundTypeTree(CompoundTypeTree tree) {
+        visit(tree.templ());
+    }
+
+    @Override
+    public void visitAppliedTypeTree(AppliedTypeTree tree) {
+        visit(tree.args());
+        visit(tree.tpt());
+    }
+
+    @Override
+    public void visitTypeBoundsTree(TypeBoundsTree tree) {
+        visit(tree.hi());
+        visit(tree.lo());
+    }
+
+    @Override
+    public void visitExistentialTypeTree(ExistentialTypeTree tree) {
+        visit(tree.tpt());
+        visit(tree.whereClauses());
+    }
+
+    @Override
+    public void visitStubTree(StubTree tree) {
+    }
+}

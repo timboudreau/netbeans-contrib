@@ -1,0 +1,524 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+package org.netbeans.modules.scala.editing.ast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.OffsetRange;
+
+/**
+ *
+ * @author Caoyuan Deng
+ */
+public class AstScope implements Iterable<AstScope> {
+
+    private AstDef bindinDef;
+    private AstScope parent;
+    private List<AstScope> scopes;
+    private List<AstDef> defs;
+    private List<AstRef> refs;
+    private boolean scopesSorted;
+    private boolean defsSorted;
+    private boolean refsSorted;
+    private Token[] boundsTokens;
+
+    public AstScope(Token[] boundsTokens) {
+        this.boundsTokens = boundsTokens;
+    }
+
+    public Token[] getBoundsTokens() {
+        return boundsTokens;
+    }
+
+    public OffsetRange getRange(TokenHierarchy th) {
+        return new OffsetRange(getBoundsOffset(th), getBoundsEndOffset(th));
+    }
+
+    public int getBoundsOffset(TokenHierarchy th) {
+        return boundsTokens[0].offset(th);
+    }
+
+    public int getBoundsEndOffset(TokenHierarchy th) {
+        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+    }
+
+    public void setBindingDef(AstDef bindingDef) {
+        this.bindinDef = bindingDef;
+    }
+
+    public AstDef getBindingElement() {
+        return bindinDef;
+    }
+
+    public AstScope getParent() {
+        return parent;
+    }
+
+    public List<AstScope> getScopes() {
+        return scopes == null ? Collections.<AstScope>emptyList() : scopes;
+    }
+
+    public List<AstDef> getDefs() {
+        return defs == null ? Collections.<AstDef>emptyList() : defs;
+    }
+
+    public List<AstRef> getRefs() {
+        return refs == null ? Collections.<AstRef>emptyList() : refs;
+    }
+
+    void addScope(AstScope scope) {
+        if (scopes == null) {
+            scopes = new ArrayList<AstScope>();
+        }
+        scopes.add(scope);
+        scopesSorted = false;
+        scope.parent = this;
+    }
+
+    void addDef(AstDef def) {
+        if (defs == null) {
+            defs = new ArrayList<AstDef>();
+        }
+        defs.add(def);
+        defsSorted = false;
+        def.setEnclosingScope(this);
+    }
+
+    public void addRef(AstRef ref) {
+        if (refs == null) {
+            refs = new ArrayList<AstRef>();
+        }
+        refs.add(ref);
+        refsSorted = false;
+        ref.setEnclosingScope(this);
+    }
+
+    public Iterator<AstScope> iterator() {
+        if (scopes != null) {
+            return scopes.iterator();
+        } else {
+            return Collections.<AstScope>emptySet().iterator();
+        }
+    }
+
+    public AstItem findItemAt(TokenHierarchy th, int offset) {
+        // Always seach Ref first, since Ref can be included in Def's range
+        if (refs != null) {
+            if (!refsSorted) {
+                Collections.sort(refs, new RefComparator(th));
+                refsSorted = true;
+            }
+            int low = 0;
+            int high = refs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstRef middle = refs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new DefComparator(th));
+                defsSorted = true;
+            }
+            int low = 0;
+            int high = defs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstDef middle = defs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle.findItemAt(th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public <T extends AstDef> T findDefAt(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new DefComparator(th));
+                defsSorted = true;
+            }
+            int low = 0;
+            int high = defs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstDef middle = defs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return clazz.isInstance(middle) ? (T) middle : null;
+                }
+            }
+        }
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return (T) middle.findDefAt(clazz, th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public <T extends AstRef> T findMirrorAt(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (refs != null) {
+            if (!refsSorted) {
+                Collections.sort(refs, new RefComparator(th));
+                refsSorted = true;
+            }
+            int low = 0;
+            int high = refs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstRef middle = refs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return clazz.isInstance(middle) ? (T) middle : null;
+                }
+            }
+        }
+
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return (T) middle.findMirrorAt(clazz, th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    public List<AstItem> findOccurrences(AstItem item) {
+        AstDef def = null;
+
+        if (item instanceof AstDef) {
+            def = (AstDef) item;
+        } else if (item instanceof AstRef) {
+            def = findDefOf((AstRef) item);
+        }
+
+        if (def == null) {
+            return Collections.emptyList();
+        }
+
+        List<AstItem> occurrences = new ArrayList<AstItem>();
+        occurrences.add(def);
+        occurrences.addAll(findRefsOf(def));
+
+        return occurrences;
+    }
+
+    public AstDef findDefOf(AstItem item) {
+        AstDef def = null;
+
+        if (item instanceof AstDef) {
+            def = (AstDef) item;
+        } else if (item instanceof AstRef) {
+            def = findDefOf((AstRef) item);
+        }
+
+        return def;
+    }
+
+    private AstDef findDefOf(AstRef ref) {
+        AstScope closestScope = ref.getEnclosingScope();
+        return closestScope.findDefOfUpward(ref);
+    }
+
+    private final AstDef findDefOfUpward(AstRef ref) {
+        if (defs != null) {
+            for (AstDef element : defs) {
+                if (element.isReferredBy(ref)) {
+                    return element;
+                }
+            }
+        }
+
+        /** search upward */
+        if (parent != null) {
+            return parent.findDefOfUpward(ref);
+        }
+
+        return null;
+    }
+
+    public List<AstRef> findRefsOf(AstDef def) {
+        List<AstRef> result = new ArrayList<AstRef>();
+
+        AstScope enclosingScope = def.getEnclosingScope();
+        enclosingScope.findRefsOfDownward(def, result);
+
+        return result;
+    }
+
+    private final void findRefsOfDownward(AstDef def, List<AstRef> result) {
+        // find if there is closest override Def, if so, we shoud bypass it now :
+        if (defs != null) {
+            for (AstDef _def : defs) {
+                if (_def != def && _def.mayEqual(def)) {
+                    return;
+                }
+            }
+        }
+
+        if (refs != null) {
+            for (AstRef ref : refs) {
+                if (def.isReferredBy(ref)) {
+                    result.add(ref);
+                }
+
+            }
+        }
+
+        /** search downward */
+        if (scopes != null) {
+            for (AstScope scope : scopes) {
+                scope.findRefsOfDownward(def, result);
+            }
+        }
+    }
+
+    private boolean contains(TokenHierarchy th, int offset) {
+        return offset >= getBoundsOffset(th) && offset < getBoundsEndOffset(th);
+    }
+
+    public AstScope getClosestScope(TokenHierarchy th, int offset) {
+        AstScope result = null;
+
+        if (scopes != null) {
+            /** search children first */
+            for (AstScope child : scopes) {
+                if (child.contains(th, offset)) {
+                    result = child.getClosestScope(th, offset);
+                    break;
+                }
+            }
+        }
+        if (result != null) {
+            return result;
+        } else {
+            if (this.contains(th, offset)) {
+                return this;
+            } else {
+                /* we should return null here, since it may under a parent context's call, 
+                 * we shall tell the parent there is none in this and children of this
+                 */
+                return null;
+            }
+        }
+    }
+
+    public <T extends AstDef> List<T> getVisibleDefs(Class<T> clazz) {
+        List<T> result = new ArrayList<T>();
+
+        getVisibleDefsUpward(clazz, result);
+
+        return result;
+    }
+
+    private final <T extends AstDef> void getVisibleDefsUpward(Class<T> clazz, List<T> result) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (clazz.isInstance(def)) {
+                    result.add((T) def);
+                }
+            }
+        }
+
+        if (parent != null) {
+            parent.getVisibleDefsUpward(clazz, result);
+        }
+    }
+
+    public <T extends AstDef> T getEnclosinDef(Class<T> clazz, TokenHierarchy th, int offset) {
+        AstScope scope = getClosestScope(th, offset);
+        return scope.getEnclosingDef(clazz);
+    }
+
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
+        if (bindinDef != null && clazz.isInstance(bindinDef)) {
+            return (T) bindinDef;
+        } else {
+            if (parent != null) {
+                return parent.getEnclosingDef(clazz);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Scope(Binding=" + bindinDef + "," + ",elememts=" + getDefs() + ",mirrors=" + getRefs() + ")";
+    }
+    // ----- inner classes
+    private static class ScopeComparator implements Comparator<AstScope> {
+
+        private TokenHierarchy th;
+
+        public ScopeComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(AstScope o1, AstScope o2) {
+            return o1.getBoundsOffset(th) < o2.getBoundsOffset(th) ? -1 : 1;
+        }
+    }
+
+    private static class DefComparator implements Comparator<AstDef> {
+
+        private TokenHierarchy th;
+
+        public DefComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(AstDef o1, AstDef o2) {
+            return o1.getPickOffset(th) < o2.getPickOffset(th) ? -1 : 1;
+        }
+    }
+
+    private static class RefComparator implements Comparator<AstRef> {
+
+        private TokenHierarchy th;
+
+        public RefComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(AstRef o1, AstRef o2) {
+            return o1.getPickOffset(th) < o2.getPickEndOffset(th) ? -1 : 1;
+        }
+    }
+    // Sinleton EmptyScope
+    private static AstScope EmptyScope;
+
+    public static AstScope emptyScope() {
+        if (EmptyScope == null) {
+            EmptyScope = new AstScope(null) {
+
+                @Override
+                public int getBoundsOffset(TokenHierarchy th) {
+                    return -1;
+                }
+
+                @Override
+                public int getBoundsEndOffset(TokenHierarchy th) {
+                    return -1;
+                }
+            };
+        }
+        
+        return EmptyScope;
+    }
+}
+

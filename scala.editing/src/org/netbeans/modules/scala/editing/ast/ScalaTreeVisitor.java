@@ -238,6 +238,8 @@ public class ScalaTreeVisitor {
         Symbol symbol = tree.symbol();
         if (symbol != null) {
             symbols.add(symbol);
+        } else {
+            //System.out.println("A tree with null symbol=" + tree + " class=" + tree.getClass());
         }
 
         if (tree instanceof ClassDef) {
