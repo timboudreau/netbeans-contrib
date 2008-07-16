@@ -58,7 +58,6 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.GsfElement;
 
 /**
  *
@@ -71,7 +70,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     private static final String DOT_CALL = ".call"; // NOI18N
 
 
-    public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
+    public List<? extends StructureItem> scan(CompilationInfo info) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         if (pResult == null) {
             return Collections.emptyList();
@@ -88,7 +87,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         for (AstElement element : rootScope.getElements()) {
             if (element.getKind() != ElementKind.PARAMETER && element.getKind() != ElementKind.LOCAL_VARIABLE && element.getKind() != ElementKind.OTHER) {
-                items.add(new ScalaStructureItem(element, info, formatter));
+                items.add(new ScalaStructureItem(element, info));
             }
         }
 
@@ -167,9 +166,8 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         private GsfElement gsfElement;
         private CompilationInfo info;
         private Document doc;
-        private HtmlFormatter formatter;
 
-        private ScalaStructureItem(AstElement element, CompilationInfo info, HtmlFormatter formatter) {
+        private ScalaStructureItem(AstElement element, CompilationInfo info) {
             this.element = element;
             this.info = info;
             this.doc = info.getDocument();
@@ -177,8 +175,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             if (doc == null) {
                 ScalaLexUtilities.getDocument(info.getFileObject(), true);
             }
-
-            this.formatter = formatter;
         }
 
         public String getName() {
@@ -189,8 +185,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return getName();
         }
 
-        public String getHtml() {
-            formatter.reset();
+        public String getHtml(HtmlFormatter formatter) {
             element.htmlFormat(formatter);
             return formatter.getText();
         }
@@ -238,7 +233,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
                 for (AstElement child : nested) {
                     if (child.getKind() != ElementKind.PARAMETER && child.getKind() != ElementKind.LOCAL_VARIABLE && child.getKind() != ElementKind.OTHER) {
-                        children.add(new ScalaStructureItem(child, info, formatter));
+                        children.add(new ScalaStructureItem(child, info));
                     }
                 }
 

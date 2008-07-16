@@ -100,10 +100,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         return null;
     }
 
-    public String getLhsHtml() {
-        HtmlFormatter formatter = request.formatter;
-        formatter.reset();
-
+    public String getLhsHtml(HtmlFormatter formatter) {
         boolean emphasize = !element.isInherited();
         boolean strike = element.isDeprecated();
 
@@ -128,9 +125,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         return formatter.getText();
     }
 
-    public String getRhsHtml() {
-        HtmlFormatter formatter = request.formatter;
-        formatter.reset();
+    public String getRhsHtml(HtmlFormatter formatter) {
         Symbol symbol = element.getSymbol();
 
         formatter.type(true);
@@ -199,10 +194,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-
+        public String getLhsHtml(HtmlFormatter formatter) {
             boolean strike = element.isDeprecated();
             boolean emphasize = !element.isInherited();
             if (strike) {
@@ -369,10 +361,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-
+        public String getLhsHtml(HtmlFormatter formatter) {
             ElementKind kind = getKind();
             formatter.name(kind, true);
             formatter.appendHtml(getName());
@@ -382,10 +371,8 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
                 formatter.appendText(description);
 
                 return formatter.getText();
@@ -457,10 +444,8 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         //    return formatter.getText();
         //}
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
                 //formatter.appendText(description);
                 formatter.appendHtml("<i>");
                 formatter.appendHtml(description);
@@ -519,10 +504,8 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
+        public String getLhsHtml(HtmlFormatter formatter) {
             ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
             formatter.name(kind, true);
             formatter.appendText(getName());
             formatter.name(kind, false);
@@ -531,7 +514,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             return null;
         }
 
@@ -564,10 +547,8 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
+        public String getLhsHtml(HtmlFormatter formatter) {
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
             boolean strike = element.isDeprecated();
             if (strike) {
                 formatter.deprecated(true);
@@ -583,7 +564,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             return null;
         }
     }

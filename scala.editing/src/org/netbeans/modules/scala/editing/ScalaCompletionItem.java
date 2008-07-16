@@ -116,10 +116,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         return null;
     }
 
-    public String getLhsHtml() {
+    public String getLhsHtml(HtmlFormatter formatter) {
         org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-        HtmlFormatter formatter = request.formatter;
-        formatter.reset();
         boolean emphasize = (kind != org.netbeans.modules.gsf.api.ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
         if (emphasize) {
             formatter.emphasis(true);
@@ -151,11 +149,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         return formatter.getText();
     }
 
-    public String getRhsHtml() {
-        HtmlFormatter formatter = request.formatter;
-        formatter.reset();
-
-
+    public String getRhsHtml(HtmlFormatter formatter) {
         if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
             if (element.getElement() instanceof IndexedElement) {
                 String origin = ((IndexedElement) element.getElement()).getOrigin();
@@ -256,12 +250,10 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
+        public String getLhsHtml(HtmlFormatter formatter) {
             JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
             boolean strike = false;
             if (!strike && element.isDeprecated()) {
                 strike = true;
@@ -470,10 +462,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         //    return formatter.getText();
         //}
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
                 //formatter.appendText(description);
                 formatter.appendHtml(description);
 
@@ -546,10 +536,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         //    return formatter.getText();
         //}
         @Override
-        public String getRhsHtml() {
+        public String getRhsHtml(HtmlFormatter formatter) {
             if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
                 //formatter.appendText(description);
                 formatter.appendHtml("<i>");
                 formatter.appendHtml(description);
@@ -616,10 +604,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
+        public String getLhsHtml(HtmlFormatter formatter) {
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
             boolean strike = indexedElement != null && indexedElement.isDeprecated();
             if (strike) {
                 formatter.deprecated(true);
@@ -667,10 +653,8 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         @Override
-        public String getLhsHtml() {
+        public String getLhsHtml(HtmlFormatter formatter) {
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
             boolean strike = indexedElement != null && indexedElement.isDeprecated();
             if (strike) {
                 formatter.deprecated(true);

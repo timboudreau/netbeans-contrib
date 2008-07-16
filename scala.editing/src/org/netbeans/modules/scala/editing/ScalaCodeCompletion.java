@@ -304,7 +304,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         NameKind kind = context.getNameKind();
         QueryType queryType = context.getQueryType();
         this.caseSensitive = context.isCaseSensitive();
-        HtmlFormatter formatter = context.getFormatter();
         // Temporary: case insensitive matches don't work very well for JavaScript
         if (kind == NameKind.CASE_INSENSITIVE_PREFIX) {
             kind = NameKind.PREFIX;
@@ -346,7 +345,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             request.completionResult = completionResult;
             request.result = pResult;
             request.global = global;
-            request.formatter = formatter;
             request.lexOffset = lexOffset;
             request.astOffset = astOffset;
             request.index = ScalaIndex.get(info);
@@ -2151,7 +2149,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         protected Global global;
         protected QueryType queryType;
         protected FileObject fileObject;
-        protected HtmlFormatter formatter;
         protected MaybeCall call;
         protected String fqn;
     }

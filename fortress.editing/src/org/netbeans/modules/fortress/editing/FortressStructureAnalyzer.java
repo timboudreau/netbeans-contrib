@@ -90,7 +90,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
     private static final String DOT_CALL = ".call"; // NOI18N
 
 
-    public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
+    public List<? extends StructureItem> scan(CompilationInfo info) {
         FortressParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
             Collections.emptyList();
@@ -105,7 +105,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (Definition definition : rootScope.getDefinitions()) {
-            items.add(new FortressStructureItem(definition, info, formatter));
+            items.add(new FortressStructureItem(definition, info));
         }
 
         return items;
@@ -182,12 +182,10 @@ public class FortressStructureAnalyzer implements StructureScanner {
 
         private Definition definition;
         private CompilationInfo info;
-        private HtmlFormatter formatter;
 
-        private FortressStructureItem(Definition definition, CompilationInfo info, HtmlFormatter formatter) {
+        private FortressStructureItem(Definition definition, CompilationInfo info) {
             this.definition = definition;
             this.info = info;
-            this.formatter = formatter;
         }
 
         public String getName() {
@@ -198,7 +196,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
             return getName();
         }
 
-        public String getHtml() {
+        public String getHtml(HtmlFormatter formatter) {
             formatter.reset();
 //            boolean strike = signature.getModifiers().contains(Modifier.DEPRECATED);
 //            if (strike) {
@@ -418,7 +416,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 List<FortressStructureItem> children = new ArrayList<FortressStructureItem>(nested.size());
 
                 for (Definition child : nested) {
-                    children.add(new FortressStructureItem(child, info, formatter));
+                    children.add(new FortressStructureItem(child, info));
                 }
 
                 return children;
