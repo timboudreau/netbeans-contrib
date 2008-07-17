@@ -22,6 +22,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filter
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -30,7 +31,9 @@ import javax.swing.table.AbstractTableModel;
 public class InitParamTableModel extends AbstractTableModel{
     
     private List initParamsList;
-    private String[] COLUMN_NAME={"Name","Value"}; //NO I18N
+    private static String NAME = NbBundle.getMessage(InitParamTableModel.class, "LBL_NAME");
+    private static String VALUE = NbBundle.getMessage(InitParamTableModel.class, "LBL_VALUE");
+    private String[] COLUMN_NAME={NAME,VALUE}; //NO I18N
     /** Creates a new instance of InitParamTableModel */
     public InitParamTableModel() {
         initParamsList = new ArrayList();
