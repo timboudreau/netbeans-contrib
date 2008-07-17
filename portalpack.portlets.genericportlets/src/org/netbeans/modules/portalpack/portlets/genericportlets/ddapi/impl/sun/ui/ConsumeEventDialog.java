@@ -60,9 +60,9 @@ public class ConsumeEventDialog extends javax.swing.JDialog {
         jButton2.setText("jButton2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Generate code for Consume Event");
+        setTitle(org.openide.util.NbBundle.getMessage(ConsumeEventDialog.class, "ConsumeEventDialog.title")); // NOI18N
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Generate Code"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ConsumeEventDialog.class, "ConsumeEventDialog.generateSourcePanel.border.title"))); // NOI18N
 
         methodNameLabel.setText(org.openide.util.NbBundle.getMessage(ConsumeEventDialog.class, "LBL_MethodName")); // NOI18N
 
@@ -149,6 +149,9 @@ public class ConsumeEventDialog extends javax.swing.JDialog {
                         .add(cancelButton)
                         .add(13, 13, 13))))
         );
+
+        layout.linkSize(new java.awt.Component[] {cancelButton, okButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
