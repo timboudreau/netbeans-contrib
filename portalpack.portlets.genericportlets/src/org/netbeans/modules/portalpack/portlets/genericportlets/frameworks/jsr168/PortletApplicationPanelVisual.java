@@ -96,6 +96,7 @@ import org.openide.util.NbBundle;
         portletVersion.removeAllItems();
         portletVersion.addItem(NetbeanConstants.PORTLET_1_0);
         portletVersion.addItem(NetbeanConstants.PORTLET_2_0);
+        portletVersion.setSelectedItem(NetbeanConstants.PORTLET_2_0);
             
     }
     

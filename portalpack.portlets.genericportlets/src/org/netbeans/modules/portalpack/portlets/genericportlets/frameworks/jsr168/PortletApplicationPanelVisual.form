@@ -67,20 +67,20 @@
                   </Group>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="portletClassNameTf" pref="263" max="32767" attributes="2"/>
-                  <Component id="srcCombo" pref="263" max="32767" attributes="2"/>
-                  <Component id="pkgTf" pref="263" max="32767" attributes="2"/>
+                  <Component id="portletClassNameTf" pref="279" max="32767" attributes="2"/>
+                  <Component id="srcCombo" pref="279" max="32767" attributes="2"/>
+                  <Component id="pkgTf" pref="279" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="viewCheckbox" pref="44" max="32767" attributes="0"/>
+                      <Component id="viewCheckbox" pref="49" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="73" max="-2" attributes="0"/>
-                      <Component id="editCheckbox" pref="41" max="32767" attributes="0"/>
+                      <Component id="editCheckbox" pref="47" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="61" max="-2" attributes="0"/>
-                      <Component id="helpCheckbox" pref="44" max="32767" attributes="0"/>
+                      <Component id="helpCheckbox" pref="49" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="portletTitleTf" pref="263" max="32767" attributes="2"/>
-                  <Component id="portletNameTf" pref="263" max="32767" attributes="2"/>
-                  <Component id="portletDescTf" pref="263" max="32767" attributes="2"/>
-                  <Component id="portletDisplayNameTf" pref="263" max="32767" attributes="2"/>
+                  <Component id="portletTitleTf" pref="279" max="32767" attributes="2"/>
+                  <Component id="portletNameTf" pref="279" max="32767" attributes="2"/>
+                  <Component id="portletDescTf" pref="279" max="32767" attributes="2"/>
+                  <Component id="portletDisplayNameTf" pref="279" max="32767" attributes="2"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="portletVersion" pref="58" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
@@ -88,7 +88,7 @@
                       <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Component id="isCreateJsps" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="portletShortTitleTf" alignment="0" pref="263" max="32767" attributes="2"/>
+                  <Component id="portletShortTitleTf" alignment="0" pref="279" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="21" pref="21" max="-2" attributes="0"/>
           </Group>
