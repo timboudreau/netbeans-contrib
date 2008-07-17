@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editing;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.ElementKind;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -49,12 +48,10 @@ import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstRef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.AstMirror;
-import org.netbeans.modules.scala.editing.nodes.IdCall;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 
 /**
  *  
@@ -97,17 +94,19 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
         
-        //pResult.toGlobalPhase(info);
-
         AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
                 
         final TokenHierarchy th = pResult.getTokenHierarchy();
+        final Document doc = info.getDocument();
+        if (doc == null) {
+            return;
+        }
 
         Map<OffsetRange, Set<ColoringAttributes>> highlights = new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
-        visitScopeRecursively(info, rootScope, highlights);
+        visitScopeRecursively(doc, th, rootScope, highlights);
 
         if (highlights.size() > 0) {
 //            if (result.getTranslatedSource() != null) {
@@ -128,23 +127,17 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
     }
 
-    private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
-        final Document document = info.getDocument();
-        if (document == null) {
-            return;
-        }
+    private void visitScopeRecursively(Document doc, TokenHierarchy th, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
 
-        final TokenHierarchy th = TokenHierarchy.get(document);
-
-        for (AstElement element : scope.getElements()) {
-            Token idToken = element.getPickToken();
+        for (AstDef def : scope.getDefs()) {
+            Token idToken = def.getPickToken();
             if (idToken == null) {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, element.getPickToken());
-            switch (element.getKind()) {
-                case INTERFACE:
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
+            switch (def.getKind()) {
+                case MODULE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:
@@ -160,35 +153,23 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             }
         }
         
-        for (AstMirror mirror : scope.getMirrors()) {
-            Token hiToken = mirror.getPickToken();
+        for (AstRef ref : scope.getRefs()) {
+            Token hiToken = ref.getPickToken();
             if (hiToken == null) {
                 continue;
             }
             
             OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
-            if (mirror instanceof IdCall) {
-                AstElement element = scope.findElementOf(mirror);
-                if (element != null && element.getKind() == ElementKind.FIELD) {                    
-                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
-                }
-            } else if (mirror instanceof Type) {
-                String name = mirror.getSimpleName().toString();
-                if (name != null && name.equals("_")) {
-                    continue;
-                }
-                
-//                if (!((Type) mirror).isResolved()) {
-//                    AstElement element = scope.findElementOf(mirror);
-//                    if (!(element instanceof TypeParam)) {
-//                        highlights.put(hiRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
-//                    }
+//            if (mirror instanceof IdCall) {
+//                AstElement element = scope.findElementOf(mirror);
+//                if (element != null && element.getKind() == ElementKind.FIELD) {                    
+//                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
 //                }
-            }
+//            }
         }
 
         for (AstScope child : scope.getScopes()) {
-            visitScopeRecursively(info, child, highlights);
+            visitScopeRecursively(doc, th, child, highlights);
         }
     }
 }

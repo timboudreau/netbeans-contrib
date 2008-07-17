@@ -43,21 +43,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
-import org.netbeans.modules.scala.editing.nodes.Packaging;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  *
@@ -71,7 +69,7 @@ public class SourceUtils {
      * @return the classes containing main method
      * @throws IllegalArgumentException when file does not exist or is not a java source file.
      */
-    public static Collection<TypeElement> getMainClasses(final FileObject fo) {
+    public static Collection<AstDef> getMainClasses(final FileObject fo) {
         if (fo == null || !fo.isValid() || fo.isVirtual()) {
             throw new IllegalArgumentException();
         }
@@ -80,7 +78,7 @@ public class SourceUtils {
             throw new IllegalArgumentException();
         }
         try {
-            final List<TypeElement> result = new LinkedList<TypeElement>();
+            final List<AstDef> result = new LinkedList<AstDef>();
             js.runUserActionTask(new CancellableTask<CompilationController>() {
 
                 public void cancel() {
@@ -94,21 +92,24 @@ public class SourceUtils {
                             return;
                         }
 
-                        List<ObjectTemplate> objs = null;
-                        for (Packaging packaging : rootScope.getVisibleElements(Packaging.class)) {
-                            objs = packaging.getBindingScope().getVisibleElements(ObjectTemplate.class);
+                        List<AstDef> objs = null;
+                        for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
+                            objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
                             break;
                         }
                         if (objs == null) {
-                            objs = rootScope.getVisibleElements(ObjectTemplate.class);
+                            objs = rootScope.getVisibleDefs(ElementKind.CLASS);
                         }
 
-                        for (ObjectTemplate obj : objs) {
-                            List<ExecutableElement> methods = obj.getBindingScope().getVisibleElements(ExecutableElement.class);
-                            for (ExecutableElement method : methods) {
-                                if (isMainMethod(method)) {
-                                    result.add(obj);
-                                    break;
+                        for (AstDef obj : objs) {
+                            Symbol symbol = obj.getSymbol();
+                            if (symbol.isClass()) {
+                                List<AstDef> methods = obj.getBindingScope().getVisibleDefs(ElementKind.METHOD);
+                                for (AstDef method : methods) {
+                                    if (isMainMethod(method.getSymbol())) {
+                                        result.add(obj);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -118,7 +119,7 @@ public class SourceUtils {
             return result;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
-            return Collections.<TypeElement>emptySet();
+            return Collections.<AstDef>emptySet();
         }
     }
 
@@ -147,21 +148,22 @@ public class SourceUtils {
                         if (rootScope == null) {
                             return;
                         }
-                        
-                        List<ObjectTemplate> objs = null;
-                        for (Packaging packaging : rootScope.getVisibleElements(Packaging.class)) {
-                            objs = packaging.getBindingScope().getVisibleElements(ObjectTemplate.class);
+
+                        List<AstDef> objs = null;
+                        for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
+                            objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
                             break;
                         }
                         if (objs == null) {
-                            objs = rootScope.getVisibleElements(ObjectTemplate.class);
+                            objs = rootScope.getVisibleDefs(ElementKind.CLASS);
                         }
 
-                        for (ObjectTemplate obj : objs) {
-                            if (obj.getSimpleName().toString().equals(qualifiedName)) {
-                                List<ExecutableElement> methods = obj.getBindingScope().getVisibleElements(ExecutableElement.class);
-                                for (ExecutableElement method : methods) {
-                                    if (isMainMethod(method)) {
+                        for (AstDef obj : objs) {
+                            Symbol symbol = obj.getSymbol();
+                            if (symbol.isClass()) {
+                                List<AstDef> methods = obj.getBindingScope().getVisibleDefs(ElementKind.METHOD);
+                                for (AstDef method : methods) {
+                                    if (isMainMethod(method.getSymbol())) {
                                         result[0] = true;
                                         break;
                                     }
@@ -183,12 +185,13 @@ public class SourceUtils {
      * @param method to be checked
      * @return true when the method is a main method
      */
-    public static boolean isMainMethod(final ExecutableElement method) {
-        if (!method.getSimpleName().toString().equals("main")) {                //NOI18N
+    public static boolean isMainMethod(final Symbol method) {
+        if (!method.nameString().equals("main")) {                //NOI18N
 
             return false;
         }
-        List<? extends VariableElement> params = method.getParameters();
+        method.tpe().paramTypes();
+        scala.List params = method.tpe().paramTypes();
         if (params != null && params.size() != 1) {
             return false;
         }
@@ -214,8 +217,8 @@ public class SourceUtils {
      * @return the classes containing the main methods
      * Currently this method is not optimized and may be slow
      */
-    public static Collection<TypeElement> getMainClasses(final FileObject[] sourceRoots) {
-        final List<TypeElement> result = new LinkedList<TypeElement>();
+    public static Collection<AstDef> getMainClasses(final FileObject[] sourceRoots) {
+        final List<AstDef> result = new LinkedList<AstDef>();
         for (FileObject root : sourceRoots) {
             try {
                 ClassPath bootPath = ClassPath.getClassPath(root, ClassPath.BOOT);
@@ -248,7 +251,7 @@ public class SourceUtils {
 //                }, false);
             } catch (Exception ioe) {
                 Exceptions.printStackTrace(ioe);
-                return Collections.<TypeElement>emptySet();
+                return Collections.<AstDef>emptySet();
             }
         }
         return result;

@@ -46,7 +46,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.scala.platform.ScalaPlatform;
@@ -54,6 +53,7 @@ import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.scala.editing.SourceUtils;
+import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -103,10 +103,10 @@ public class J2SEProjectUtil {
     }
     
     /** @Todo should rename to getMainClasses */
-    public static Collection<TypeElement> getMainMethods (final FileObject fo) {
+    public static Collection<AstDef> getMainMethods (final FileObject fo) {
         // support for unit testing
         if (fo == null || MainClassChooser.unitTestingSupport_hasMainMethodResult != null) {
-            return Collections.<TypeElement>emptySet();
+            return Collections.<AstDef>emptySet();
         }
         return SourceUtils.getMainClasses(fo);
     }

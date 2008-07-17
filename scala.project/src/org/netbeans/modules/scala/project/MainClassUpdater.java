@@ -46,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
@@ -55,13 +54,13 @@ import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.SourceUtils;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
-import org.netbeans.modules.scala.editing.nodes.Packaging;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -148,11 +147,11 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             }
                         });
 
-                        Collection<TypeElement> main = SourceUtils.getMainClasses(_current);
+                        Collection<AstDef> main = SourceUtils.getMainClasses(_current);
                         String newMainClass = null;
                         if (!main.isEmpty()) {
-                            TypeElement mainHandle = main.iterator().next();
-                            newMainClass = mainHandle.getQualifiedName().toString();
+                            AstDef mainHandle = main.iterator().next();
+                            newMainClass = mainHandle.getQualifiedName();
                         }
                         if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() &&
                                 // XXX ##84806: ideally should update nbproject/configs/*.properties in this case:
@@ -244,16 +243,16 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                                 return;
                             }
                             
-                            List<ObjectTemplate> objs = null;
-                            for (Packaging packaging : rootScope.getVisibleElements(Packaging.class)) {
-                                objs = packaging.getBindingScope().getVisibleElements(ObjectTemplate.class);
+                            List<AstDef> objs = null;
+                            for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
+                                objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
                                 break;
                             }
                             if (objs == null) {
-                                objs = rootScope.getVisibleElements(ObjectTemplate.class);
+                                objs = rootScope.getVisibleDefs(ElementKind.CLASS);
                             }
-                            ObjectTemplate mainClass = null;
-                            for (ObjectTemplate obj : objs) {
+                            AstDef mainClass = null;
+                            for (AstDef obj : objs) {
                                 if (obj.getQualifiedName().toString().equals(mainClassName)) {
                                     mainClass = obj;
                                     break;

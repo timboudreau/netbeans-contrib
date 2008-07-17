@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
@@ -63,12 +64,50 @@ public class AstScope implements Iterable<AstScope> {
     private boolean refsSorted;
     private Token[] boundsTokens;
 
-    public AstScope(Token[] boundsTokens) {
-        this.boundsTokens = boundsTokens;
+    public AstScope(Token... boundsTokens) {
+        if (boundsTokens != null) {
+            assert boundsTokens.length <= 2;
+            if (boundsTokens.length == 1) {
+                setBoundsToken(boundsTokens[0]);
+            } else if (boundsTokens.length == 2) {
+                setBoundsToken(boundsTokens[0]);
+                setBoundsEndToken(boundsTokens[1]);
+            }
+        }
     }
 
-    public Token[] getBoundsTokens() {
-        return boundsTokens;
+    public Token getBoundsToken() {
+        if (boundsTokens != null) {
+            assert boundsTokens.length == 2;
+            return boundsTokens[0];
+        }        
+        return null;
+    }
+    
+    public Token getBoundsEndToken() {
+        if (boundsTokens != null) {
+            assert boundsTokens.length == 2;
+            return boundsTokens[1];
+        }        
+        return null;
+    }
+
+    public void setBoundsToken(Token token) {
+        if (boundsTokens == null) {
+            boundsTokens = new Token[2];
+        }
+        boundsTokens[0] = token;
+    }
+
+    public void setBoundsEndToken(Token token) {
+        if (boundsTokens == null) {
+            boundsTokens = new Token[2];
+        }
+        boundsTokens[1] = token;
+    }
+
+    public boolean isScopesSorted() {
+        return scopesSorted;
     }
 
     public OffsetRange getRange(TokenHierarchy th) {
@@ -76,11 +115,19 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public int getBoundsOffset(TokenHierarchy th) {
-        return boundsTokens[0].offset(th);
+        Token token = getBoundsToken();
+        if (token != null) {
+            return token.offset(th);
+        }
+        return -1;
     }
 
     public int getBoundsEndOffset(TokenHierarchy th) {
-        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+        Token token = getBoundsEndToken();
+        if (token != null) {
+            return token.offset(th) + token.length();
+        }
+        return -1;
     }
 
     public void setBindingDef(AstDef bindingDef) {
@@ -251,7 +298,7 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public <T extends AstRef> T findMirrorAt(Class<T> clazz, TokenHierarchy th, int offset) {
+    public <T extends AstRef> T findRefAt(Class<T> clazz, TokenHierarchy th, int offset) {
         if (refs != null) {
             if (!refsSorted) {
                 Collections.sort(refs, new RefComparator(th));
@@ -288,14 +335,13 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return (T) middle.findMirrorAt(clazz, th, offset);
+                    return (T) middle.findRefAt(clazz, th, offset);
                 }
             }
         }
 
         return null;
     }
-
 
     public List<AstItem> findOccurrences(AstItem item) {
         AstDef def = null;
@@ -336,9 +382,9 @@ public class AstScope implements Iterable<AstScope> {
 
     private final AstDef findDefOfUpward(AstRef ref) {
         if (defs != null) {
-            for (AstDef element : defs) {
-                if (element.isReferredBy(ref)) {
-                    return element;
+            for (AstDef def : defs) {
+                if (def.isReferredBy(ref)) {
+                    return def;
                 }
             }
         }
@@ -361,7 +407,7 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     private final void findRefsOfDownward(AstDef def, List<AstRef> result) {
-        // find if there is closest override Def, if so, we shoud bypass it now :
+        // find if there is closest override Def, if so, we shoud bypass it now:
         if (defs != null) {
             for (AstDef _def : defs) {
                 if (_def != def && _def.mayEqual(def)) {
@@ -417,6 +463,45 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
+    public List<AstDef> getVisibleDefs(ElementKind kind) {
+        List<AstDef> result = new ArrayList<AstDef>();
+
+        getVisibleDefsUpward(kind, result);
+
+        return result;
+    }
+
+    private final void getVisibleDefsUpward(ElementKind kind, List<AstDef> result) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (def.getKind() == kind) {
+                    result.add(def);
+                }
+            }
+        }
+
+        if (parent != null) {
+            parent.getVisibleDefsUpward(kind, result);
+        }
+    }
+
+    public AstDef getEnclosinDef(ElementKind kind, TokenHierarchy th, int offset) {
+        AstScope scope = getClosestScope(th, offset);
+        return scope.getEnclosingDef(kind);
+    }
+
+    public AstDef getEnclosingDef(ElementKind kind) {
+        if (bindinDef != null && bindinDef.getKind() == kind) {
+            return bindinDef;
+        } else {
+            if (parent != null) {
+                return parent.getEnclosingDef(kind);
+            } else {
+                return null;
+            }
+        }
+    }
+    
     public <T extends AstDef> List<T> getVisibleDefs(Class<T> clazz) {
         List<T> result = new ArrayList<T>();
 
@@ -438,7 +523,7 @@ public class AstScope implements Iterable<AstScope> {
             parent.getVisibleDefsUpward(clazz, result);
         }
     }
-
+    
     public <T extends AstDef> T getEnclosinDef(Class<T> clazz, TokenHierarchy th, int offset) {
         AstScope scope = getClosestScope(th, offset);
         return scope.getEnclosingDef(clazz);
@@ -458,9 +543,10 @@ public class AstScope implements Iterable<AstScope> {
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindinDef + "," + ",elememts=" + getDefs() + ",mirrors=" + getRefs() + ")";
+        return "Scope(Binding=" + bindinDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
     // ----- inner classes
+
     private static class ScopeComparator implements Comparator<AstScope> {
 
         private TokenHierarchy th;
@@ -504,7 +590,7 @@ public class AstScope implements Iterable<AstScope> {
 
     public static AstScope emptyScope() {
         if (EmptyScope == null) {
-            EmptyScope = new AstScope(null) {
+            EmptyScope = new AstScope() {
 
                 @Override
                 public int getBoundsOffset(TokenHierarchy th) {
@@ -517,7 +603,7 @@ public class AstScope implements Iterable<AstScope> {
                 }
             };
         }
-        
+
         return EmptyScope;
     }
 }

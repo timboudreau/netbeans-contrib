@@ -39,16 +39,21 @@
 package org.netbeans.modules.scala.editing.ast;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.openide.filesystems.FileObject;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
- * Element with AstNode information
+ * AST Definition
  * 
  * Represents a program element such as a package, class, or method. Each element 
  * represents a static, language-level construct (and not, for example, a runtime 
@@ -56,10 +61,11 @@ import scala.tools.nsc.symtab.Symbols.Symbol;
  * 
  * @author Caoyuan Deng
  */
-public class AstDef extends AstItem {
+public class AstDef extends AstItem implements ElementHandle {
 
     private ElementKind kind;
     private AstScope bindingScope;
+    private Set<Modifier> modifiers;
 
     protected AstDef(Symbol symbol, Token pickToken, AstScope bindingScope, ElementKind kind) {
         super(symbol, pickToken);
@@ -92,7 +98,7 @@ public class AstDef extends AstItem {
 
     @Override
     public String toString() {
-        return getSimpleName() + "(kind=" + getKind() + ", type=" + getSymbol().tpe() + ")";
+        return getName() + "(kind=" + getKind() + ", type=" + getSymbol().tpe() + ")";
     }
 
     public AstScope getBindingScope() {
@@ -113,45 +119,69 @@ public class AstDef extends AstItem {
     }
 
     public boolean isReferredBy(AstRef ref) {
-        return getSimpleName().toString().equals(ref.getSimpleName().toString());
+        return ref.getSymbol() == getSymbol();
     }
 
     public boolean mayEqual(AstDef def) {
-        return getSimpleName().equals(def.getSimpleName());
+        return this == def;
+        //return getName().equals(def.getName());
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        formatter.appendText(getSimpleName().toString());
+        formatter.appendText(getName().toString());
     }
 
-    public static boolean isReferredBy(AstDef def, AstRef ref) {
-        if (def.getKind() == ElementKind.METHOD) {
-//            ExecutableElement function = (ExecutableElement) def;
-//            FunctionCall funCall = (FunctionCall) ref;
-//            List<? extends VariableElement> params = function.getParameters();
-//            // only check local call only
-//            if (funCall.isLocal()) {
-//                return def.getSimpleName().toString().equals(funCall.getCall().getSimpleName().toString()) &&
-//                        params != null &&
-//                        params.size() == funCall.getArgs().size();
-//            } else {
-//                boolean containsVariableLengthArg = Function.isVarArgs(function);
-//                if (def.getSimpleName().toString().equals(funCall.getCall().getSimpleName().toString()) || def.getSimpleName().toString().equals("apply") && funCall.isLocal()) {
-//                    if (params.size() == funCall.getArgs().size() || containsVariableLengthArg) {
-//                        return true;
-//                    }
-//                }
-//
-//                return false;
-//            }
-        } else {
-            if (def.getSimpleName().equals(ref.getSimpleName())) {
-                return true;
-            }
+    public Set<Modifier> getModifiers() {
+        if (modifiers != null) {
+            return modifiers;
+        }
+        
+        modifiers = new HashSet<Modifier>();
+        
+        Symbol symbol = getSymbol();
+        if (symbol.isPublic()) {
+            modifiers.add(Modifier.PUBLIC);
         }
 
-        return false;
+        if (symbol.isPrivateLocal()) {
+            modifiers.add(Modifier.PRIVATE);
+        }
+
+        if (symbol.isProtectedLocal()) {
+            modifiers.add(Modifier.PROTECTED);
+        }
+
+        // java.lang.Error: no-symbol does not have owner
+        // at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+        // at scala.tools.nsc.symtab.Symbols$Symbol.isStatic(Symbols.scala:312)
+        //if (symbol.isStatic()) {
+        //    modifiers.add(Modifier.STATIC);
+        //}
+
+        return modifiers;
     }
+
+    public FileObject getFileObject() {
+        return null;
+    }
+    
+    public String getPackageName() {
+        Symbol packaging = getSymbol().enclosingPackage();
+        if (packaging != null) {
+            return packaging.fullNameString();
+        }
+        return null;
+    }
+
+    public String getQualifiedName() {
+        String pkgName = getPackageName();
+        if (pkgName == null) {
+            return getName();
+        } else {
+            return new StringBuilder().append(pkgName).append(".").append(getName()).toString();
+        }
+    }
+
 }

@@ -59,6 +59,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.scala.editing.SourceUtils;
+import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.openide.awt.Mnemonics;
 import org.openide.awt.MouseUtils;
@@ -74,7 +75,7 @@ public class MainClassChooser extends JPanel {
 
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
-    private Collection<TypeElement> possibleMainClasses;
+    private Collection<AstDef> possibleMainClasses;
             
     /** Creates new form MainClassChooser */
     public MainClassChooser (FileObject[] sourcesRoots) {
@@ -89,7 +90,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel(sourcesRoots);
     }
     
-    public MainClassChooser (final Collection<TypeElement> mainClassesInFile) {
+    public MainClassChooser (final Collection<AstDef> mainClassesInFile) {
         assert mainClassesInFile != null;
         this.initComponents();
         jMainClassList.setCellRenderer(new MainClassRenderer());
@@ -97,7 +98,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel (mainClassesInFile);
     }
     
-    public MainClassChooser (final Collection<TypeElement> mainClassesInFile, final String subtitle) {
+    public MainClassChooser (final Collection<AstDef> mainClassesInFile, final String subtitle) {
         assert mainClassesInFile != null;
         dialogSubtitle = subtitle;
         this.initComponents();
@@ -164,7 +165,7 @@ public class MainClassChooser extends JPanel {
         });
     }
     
-    private void initClassesModel (final Collection<TypeElement> mainClasses) {
+    private void initClassesModel (final Collection<AstDef> mainClasses) {
         final TypeElement[] arr = mainClasses.toArray(new TypeElement[mainClasses.size()]);
         Arrays.sort (arr, new MainClassComparator());
         possibleMainClasses = mainClasses;

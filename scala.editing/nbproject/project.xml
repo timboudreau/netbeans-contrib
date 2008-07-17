@@ -249,11 +249,11 @@
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.scala.editing</package>
+                <package>org.netbeans.modules.scala.editing.ast</package>
                 <package>org.netbeans.modules.scala.editing.nodes</package>
                 <package>org.netbeans.modules.scala.editing.nodes.exprs</package>
                 <package>org.netbeans.modules.scala.editing.nodes.tmpls</package>
                 <package>org.netbeans.modules.scala.editing.nodes.types</package>
-                <package>org.netbeans.modules.scala.editing.semantic</package>
             </public-packages>
         </data>
     </configuration>

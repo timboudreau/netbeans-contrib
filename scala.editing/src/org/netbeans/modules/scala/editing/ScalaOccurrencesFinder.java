@@ -48,12 +48,12 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstItem;
+import org.netbeans.modules.scala.editing.ast.AstRef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstMirror;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -118,7 +118,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
         
-        AstNode closest = rootScope.findElementOrMirror(th, caretPosition);
+        AstItem closest = rootScope.findItemAt(th, caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -144,7 +144,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         // rather than give a parse error on obj, it marks the whole region from
         // . to the end of Scanf as a CallNode, which is a weird highlight.
         // We don't want occurrences highlights that span lines.
-        if (closest != null && (closest instanceof AstElement || closest instanceof AstMirror)) {
+        if (closest != null && (closest instanceof AstDef || closest instanceof AstRef)) {
             BaseDocument doc = (BaseDocument) info.getDocument();
             if (doc == null) {
                 // Document was just closed
@@ -217,9 +217,9 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            List<AstNode> _occurrences = rootScope.findOccurrences(closest);
-            for (AstNode node : _occurrences) {
-                highlights.put(ScalaLexUtilities.getRangeOfToken(th, node.getPickToken()), ColoringAttributes.MARK_OCCURRENCES);
+            List<AstItem> _occurrences = rootScope.findOccurrences(closest);
+            for (AstItem item : _occurrences) {
+                highlights.put(ScalaLexUtilities.getRangeOfToken(th, item.getPickToken()), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;
         }

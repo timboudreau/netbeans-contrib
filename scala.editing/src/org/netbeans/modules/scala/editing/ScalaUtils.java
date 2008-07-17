@@ -687,20 +687,6 @@ public class ScalaUtils {
         return source;
     }
 
-    public static List<Template> resolveTemplate(CompilationInfo info, String templateQName) {
-        ScalaParserResult pResult = getParserResult(info);
-        if (pResult != null) {
-            AstScope rootScope = pResult.getRootScope();
-            if (rootScope != null) {
-                List<Template> templates = new ArrayList<Template>();
-                collectTemplatesByName(rootScope, templateQName, templates);
-                return templates;
-            }
-        } else {
-            assert false : "Parse result is null : " + info.getFileObject().getName();
-        }
-        return Collections.<Template>emptyList();
-    }
 
     private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
         for (AstElement element : scope.getElements()) {

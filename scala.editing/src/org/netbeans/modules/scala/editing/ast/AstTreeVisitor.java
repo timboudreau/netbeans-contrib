@@ -38,6 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.util.Iterator;
+import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import scala.tools.nsc.ast.Trees.Alternative;
@@ -89,102 +92,154 @@ import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class AstTreeVisitor extends AstVisitor {
 
     public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(rootTree, th, sourceFile);
+        setBoundsEndTokens(rootScope);
+    }
+
+    private void setBoundsEndTokens(AstScope fromScope) {
+        assert fromScope.isScopesSorted() == false;
+
+        List<AstScope> children = fromScope.getScopes();
+        Iterator<AstScope> itr = children.iterator();
+        AstScope curr = itr.hasNext() ? itr.next() : null;
+        while (curr != null) {
+            if (itr.hasNext()) {
+                AstScope next = itr.next();
+                int offset = next.getBoundsOffset(th);
+                if (offset != -1) {
+                    Token endToken = getBoundsEndToken(offset - 1);
+                    curr.setBoundsEndToken(endToken);
+                } else {
+                    System.out.println("Scope without start token: " + next);
+                }
+                curr = next;
+            } else {
+                AstScope parent = curr.getParent();
+                if (parent != null) {
+                    curr.setBoundsEndToken(parent.getBoundsEndToken());
+                }
+                curr = null;
+            }
+        }
+
+        for (AstScope child : children) {
+            setBoundsEndTokens(child);
+        }
     }
 
     @Override
     public void visitPackageDef(PackageDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE);
-        rootScope.addDef(def);
+        scopes.peek().addDef(def);
 
+        scopes.push(scope);
         visit(tree.stats());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitClassDef(ClassDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
-        rootScope.addDef(def);
+        scopes.peek().addDef(def);
 
+        scopes.push(scope);
         visit(tree.tparams());
         visit(tree.impl());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitModuleDef(ModuleDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE);
-        rootScope.addDef(def);
+        scopes.peek().addDef(def);
 
+        scopes.push(scope);
         visit(tree.impl());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitValDef(ValDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.VARIABLE);
-        rootScope.addDef(def);
+        ElementKind kind = ElementKind.VARIABLE;
+        Tree parent = getParent();
+        if (parent instanceof Template) {
+            kind = ElementKind.FIELD;
+        } else if (parent instanceof DefDef) {
+            kind = ElementKind.PARAMETER;
+        }
 
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind);
+        scopes.peek().addDef(def);
+
+        scopes.push(scope);
         visit(tree.tpt());
         visit(tree.rhs());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitDefDef(DefDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.METHOD);
-        rootScope.addDef(def);
+        ElementKind kind = tree.symbol().isConstructor() ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
 
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind);
+        scopes.peek().addDef(def);
+
+        scopes.push(scope);
         visit(tree.tparams());
         visit(tree.vparamss());
         visit(tree.tpt());
         visit(tree.rhs());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitTypeDef(TypeDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
-        rootScope.addDef(def);
+        scopes.peek().addDef(def);
 
+        scopes.push(scope);
         visit(tree.tparams());
         visit(tree.rhs());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
     public void visitLabelDef(LabelDef tree) {
         visit(tree.params());
         visit(tree.rhs());
+    }
+
+    @Override
+    public void visitTemplate(Template tree) {
+        /** @Note
+         * Do not start a new scope for template, since the scope should be Class/Object/Module def 
+         **/
+        visit(tree.parents());
+        visit(tree.body());
+        visit(tree.self());
     }
 
     @Override
@@ -200,49 +255,38 @@ public class AstTreeVisitor extends AstVisitor {
     }
 
     @Override
-    public void visitTemplate(Template tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
-
-        visit(tree.parents());
-        visit(tree.body());
-        visit(tree.self());
-
-        scopeStack.push(scope);
-    }
-
-    @Override
     public void visitBlock(Block tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        Tree parent = getParent();
+        if (parent != null && parent instanceof DefDef) {
+            AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+            scopes.peek().addScope(scope);
 
-        visit(tree.stats());
-        visit(tree.expr());
-
-        scopeStack.push(scope);
+            scopes.push(scope);
+            visit(tree.stats());
+            visit(tree.expr());
+            scopes.pop();
+        } else {
+            visit(tree.stats());
+            visit(tree.expr());
+        }
     }
 
     @Override
     public void visitMatch(Match tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
-
         visit(tree.cases());
         visit(tree.selector());
-
-        scopeStack.push(scope);
     }
 
     @Override
     public void visitCaseDef(CaseDef tree) {
-        AstScope scope = new AstScope(getBoundsTokens(tree, -1));
-        scopeStack.peek().addScope(scope);
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
 
+        scopes.push(scope);
         visit(tree.body());
         visit(tree.guard());
         visit(tree.pat());
-
-        scopeStack.push(scope);
+        scopes.pop();
     }
 
     @Override
@@ -352,11 +396,15 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSelect(Select tree) {
+        AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+        scopes.peek().addRef(ref);
         visit(tree.qualifier());
     }
 
     @Override
     public void visitIdent(Ident tree) {
+        AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+        scopes.peek().addRef(ref);
     }
 
     @Override

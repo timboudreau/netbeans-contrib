@@ -42,20 +42,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -266,7 +263,7 @@ public class ScalaIndexer implements Indexer {
                 return;
             }
 
-            List<AstElement> templates = new ArrayList<AstElement>();
+            List<AstDef> templates = new ArrayList<AstDef>();
             scan(root, templates);
             analyze(templates);
 
@@ -276,10 +273,10 @@ public class ScalaIndexer implements Indexer {
 
         }
 
-        private void scan(AstScope scope, List<AstElement> templates) {
-            for (AstElement element : scope.getElements()) {
-                if (element instanceof Template) {
-                    templates.add(element);
+        private void scan(AstScope scope, List<AstDef> templates) {
+            for (AstDef def : scope.getDefs()) {
+                if (def.getKind() == ElementKind.CLASS || def.getKind() == ElementKind.MODULE) {
+                    templates.add(def);
                 }
             }
 
@@ -288,104 +285,102 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private void analyze(List<AstElement> templates) {
-            for (AstElement element : templates) {
-                if (element instanceof Template) {
-                    analyzeTemplate((Template) element);
-                }
+        private void analyze(List<AstDef> templates) {
+            for (AstDef template : templates) {
+                    analyzeTemplate(template);
             }
         }
 
-        private void analyzeTemplate(Template template) {
+        private void analyzeTemplate(AstDef template) {
             //int previousDocMode = docMode;
-            try {
-                int flags = 0;
-
-                boolean nodoc = false;
-                if (file.isPlatform() || PREINDEXING) {
-                    // Should we skip this class? This is true for :nodoc: marked
-                    // classes for example. We do NOT want to skip all children;
-                    // in ActiveRecord for example we have this:
-                    //    module ActiveRecord
-                    //      module ConnectionAdapters # :nodoc:
-                    //        module SchemaStatements
-                    // and we definitely WANT to index SchemaStatements even though
-                    // ConnectionAdapters is not there
-//                    int newDocMode = RubyIndexerHelper.isNodocClass(element, doc);
-//                    if (newDocMode == RubyIndexerHelper.DOC) {
-//                        docMode = RubyIndexerHelper.DEFAULT_DOC;
-//                    } else if (newDocMode == RubyIndexerHelper.NODOC_ALL) {
-//                        flags |= IndexedElement.NODOC;
-//                        nodoc = true;
-//                        docMode = RubyIndexerHelper.NODOC_ALL;
-//                    } else if (newDocMode == RubyIndexerHelper.NODOC || docMode == RubyIndexerHelper.NODOC_ALL) {
-//                        flags |= IndexedElement.NODOC;
-//                        nodoc = true;                    
-//                    }
-                }
-
-
-                IndexDocument document = factory.createDocument(40); // TODO Measure
-
-                StringBuilder signature = new StringBuilder();
-
-                String sName = template.getSimpleName().toString();
-                String qName = template.getQualifiedName().toString();
-                String attrs = IndexedElement.encodeAttributes(template, pResult.getTokenHierarchy());
-                signature.append(qName.toLowerCase());
-                signature.append(';');
-                signature.append(';');
-                signature.append(qName);
-                signature.append(';');
-                signature.append(attrs);
-
-                Type superClass = template.getSuperclass();
-                if (superClass != null) {
-                    String superClz = superClass.getSimpleName().toString();
-                    document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
-                }
-                List<Type> withTraits = template.getInterfaces();
-                if (withTraits.size() > 0) {
-                    for (Type withTrait : withTraits) {
-                        String superClz = withTrait.getSimpleName().toString();
-                        document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
-                    }
-
-                    ClassCache.INSTANCE.refresh();
-                }
-
-                List<Importing> imports = template.getBindingScope().getVisibleElements(Importing.class);
-
-                if (imports.size() > 0) {
-                    Set<String> importPkgs = new HashSet<String>();
-                    for (Importing importExpr : imports) {
-                        String pkgName = importExpr.getPackageName();
-                        StringBuilder importAttr = new StringBuilder();
-                        importAttr.append(qName.toLowerCase()).append(";").append(qName).append(";").append(pkgName).append(";");
-                        if (importExpr.isWild()) {
-                            importAttr.append("_").append(";");
-
-                            importPkgs.add(pkgName);
-                            document.addPair(FIELD_IMPORT, importAttr.toString(), true);
-                        } else {
-                            List<Type> importedTypes = importExpr.getImportedTypes();
-                            for (Type type : importedTypes) {
-                                importAttr.append(type.getSimpleName()).append(";");
-
-                                importPkgs.add(pkgName);
-                                document.addPair(FIELD_IMPORT, importAttr.toString(), true);
-                            }
-                        }
-                    }
-
-                    ScalaTypeInferencer.updateClassToImportPkgsCache(qName, importPkgs);
-                }
-
-//                boolean isDocumented = isDocumented(node);
-//                int documentSize = getDocumentSize(node);
-//                if (documentSize > 0) {
-//                    flags |= IndexedElement.DOCUMENTED;
+//            try {
+//                int flags = 0;
+//
+//                boolean nodoc = false;
+//                if (file.isPlatform() || PREINDEXING) {
+//                    // Should we skip this class? This is true for :nodoc: marked
+//                    // classes for example. We do NOT want to skip all children;
+//                    // in ActiveRecord for example we have this:
+//                    //    module ActiveRecord
+//                    //      module ConnectionAdapters # :nodoc:
+//                    //        module SchemaStatements
+//                    // and we definitely WANT to index SchemaStatements even though
+//                    // ConnectionAdapters is not there
+////                    int newDocMode = RubyIndexerHelper.isNodocClass(element, doc);
+////                    if (newDocMode == RubyIndexerHelper.DOC) {
+////                        docMode = RubyIndexerHelper.DEFAULT_DOC;
+////                    } else if (newDocMode == RubyIndexerHelper.NODOC_ALL) {
+////                        flags |= IndexedElement.NODOC;
+////                        nodoc = true;
+////                        docMode = RubyIndexerHelper.NODOC_ALL;
+////                    } else if (newDocMode == RubyIndexerHelper.NODOC || docMode == RubyIndexerHelper.NODOC_ALL) {
+////                        flags |= IndexedElement.NODOC;
+////                        nodoc = true;
+////                    }
 //                }
+//
+//
+//                IndexDocument document = factory.createDocument(40); // TODO Measure
+//
+//                StringBuilder signature = new StringBuilder();
+//
+//                String sName = template.getSimpleName().toString();
+//                String qName = template.getQualifiedName().toString();
+//                String attrs = IndexedElement.encodeAttributes(template, pResult.getTokenHierarchy());
+//                signature.append(qName.toLowerCase());
+//                signature.append(';');
+//                signature.append(';');
+//                signature.append(qName);
+//                signature.append(';');
+//                signature.append(attrs);
+//
+//                Type superClass = template.getSuperclass();
+//                if (superClass != null) {
+//                    String superClz = superClass.getSimpleName().toString();
+//                    document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
+//                }
+//                List<Type> withTraits = template.getInterfaces();
+//                if (withTraits.size() > 0) {
+//                    for (Type withTrait : withTraits) {
+//                        String superClz = withTrait.getSimpleName().toString();
+//                        document.addPair(FIELD_EXTENDS_NAME, qName.toLowerCase() + ";" + qName + ";" + superClz, true); // NOI18N
+//                    }
+//
+//                    ClassCache.INSTANCE.refresh();
+//                }
+//
+//                List<Importing> imports = template.getBindingScope().getVisibleElements(Importing.class);
+//
+//                if (imports.size() > 0) {
+//                    Set<String> importPkgs = new HashSet<String>();
+//                    for (Importing importExpr : imports) {
+//                        String pkgName = importExpr.getPackageName();
+//                        StringBuilder importAttr = new StringBuilder();
+//                        importAttr.append(qName.toLowerCase()).append(";").append(qName).append(";").append(pkgName).append(";");
+//                        if (importExpr.isWild()) {
+//                            importAttr.append("_").append(";");
+//
+//                            importPkgs.add(pkgName);
+//                            document.addPair(FIELD_IMPORT, importAttr.toString(), true);
+//                        } else {
+//                            List<Type> importedTypes = importExpr.getImportedTypes();
+//                            for (Type type : importedTypes) {
+//                                importAttr.append(type.getSimpleName()).append(";");
+//
+//                                importPkgs.add(pkgName);
+//                                document.addPair(FIELD_IMPORT, importAttr.toString(), true);
+//                            }
+//                        }
+//                    }
+//
+//                    ScalaTypeInferencer.updateClassToImportPkgsCache(qName, importPkgs);
+//                }
+//
+////                boolean isDocumented = isDocumented(node);
+////                int documentSize = getDocumentSize(node);
+////                if (documentSize > 0) {
+////                    flags |= IndexedElement.DOCUMENTED;
+////                }
 
 //                StringBuilder attributes = new StringBuilder();
 //                attributes.append(IndexedElement.flagToFirstChar(flags));
@@ -407,37 +402,37 @@ public class ScalaIndexer implements Indexer {
 //                    return;
 //                }
 
-                document.addPair(FIELD_QUALIFIED_NAME, qName, true);
-                document.addPair(FIELD_QUALIFIED_NAME_CASE_INSENSITIVE, qName.toLowerCase(), true);
-                document.addPair(FIELD_SIMPLE_NAME, sName, true);
-                document.addPair(FIELD_SIMPLE_NAME_CASE_INSENSITIVE, sName.toLowerCase(), true);
-                document.addPair(FIELD_ATTRIBUTES, attrs, true);
-
-                // Add the fields, etc.. Recursively add the children classes or modules if any
-                for (AstElement element : template.getBindingScope().getElements()) {
-
-                    switch (element.getKind()) {
-                        case CLASS:
-                        case INTERFACE: {
-                            if (element instanceof Template) {
-                                analyzeTemplate((Template) element);
-                            }
-                            break;
-                        }
-                        case CONSTRUCTOR:
-                        case METHOD: {
-                            break;
-                        }
-                        case FIELD: {
-                            break;
-                        }
-                    }
-                }
-
-                documents.add(document);
-            } finally {
-                //docMode = previousDocMode;
-            }
+//                document.addPair(FIELD_QUALIFIED_NAME, qName, true);
+//                document.addPair(FIELD_QUALIFIED_NAME_CASE_INSENSITIVE, qName.toLowerCase(), true);
+//                document.addPair(FIELD_SIMPLE_NAME, sName, true);
+//                document.addPair(FIELD_SIMPLE_NAME_CASE_INSENSITIVE, sName.toLowerCase(), true);
+//                document.addPair(FIELD_ATTRIBUTES, attrs, true);
+//
+//                // Add the fields, etc.. Recursively add the children classes or modules if any
+//                for (AstElement element : template.getBindingScope().getElements()) {
+//
+//                    switch (element.getKind()) {
+//                        case CLASS:
+//                        case INTERFACE: {
+//                            if (element instanceof Template) {
+//                                analyzeTemplate((Template) element);
+//                            }
+//                            break;
+//                        }
+//                        case CONSTRUCTOR:
+//                        case METHOD: {
+//                            break;
+//                        }
+//                        case FIELD: {
+//                            break;
+//                        }
+//                    }
+//                }
+//
+//                documents.add(document);
+//            } finally {
+//                //docMode = previousDocMode;
+//            }
         }
     }
 }   

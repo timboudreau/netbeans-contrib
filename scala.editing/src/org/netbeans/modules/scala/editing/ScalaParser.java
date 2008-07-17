@@ -64,9 +64,9 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstTreeVisitor;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstNodeVisitor;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -77,11 +77,6 @@ import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.reporters.Reporter;
 import scala.tools.nsc.util.BatchSourceFile;
 import scala.tools.nsc.util.Position;
-import xtc.parser.ParseError;
-import xtc.parser.Result;
-import xtc.parser.SemanticValue;
-import xtc.tree.GNode;
-import xtc.tree.Location;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -368,122 +363,122 @@ public class ScalaParser implements Parser {
         }
     }
 
-    protected ScalaParserResult parseBuffer_old(final Context context, final Sanitize sanitizing) {
-        boolean sanitizedSource = false;
-        String source = context.source;
-
-        if (!((sanitizing == Sanitize.NONE) || (sanitizing == Sanitize.NEVER))) {
-            boolean ok = sanitizeSource(context, sanitizing);
-
-            if (ok) {
-                assert context.sanitizedSource != null;
-                sanitizedSource = true;
-                source = context.sanitizedSource;
-            } else {
-                // Try next trick
-                return sanitize(context, sanitizing);
-            }
-        }
-
-        TokenHierarchy th = null;
-
-        BaseDocument doc = null;
-        /** If this file is under editing, always get th from incrementally lexed th via opened document */
-        JTextComponent target = EditorRegistry.lastFocusedComponent();
-        if (target != null) {
-            doc = (BaseDocument) target.getDocument();
-            if (doc != null) {
-                FileObject fo = NbEditorUtilities.getFileObject(doc);
-                if (fo == context.file.getFileObject()) {
-                    th = TokenHierarchy.get(doc);
-                }
-            }
-        }
-
-        if (th == null) {
-            th = TokenHierarchy.create(source, ScalaTokenId.language());
-        }
-
-        context.th = th;
-
-        final boolean ignoreErrors = sanitizedSource;
-
-        Reader in = new StringReader(source);
-        String fileName = context.file != null ? context.file.getNameExt() : "<current>";
-        ParserScala parser = new ParserScala(in, fileName);
-        context.parser = parser;
-
-        if (sanitizing == Sanitize.NONE) {
-            context.errorOffset = -1;
-        }
-
-        AstScope rootScope = null;
-        List<GNode> errors = null;
-        if (doc != null) {
-            // Read-lock due to Token hierarchy use
-            doc.readLock();
-        }
-        try {
-            ParseError error = null;
-            Result r = parser.pCompilationUnit(0);
-            if (r.hasValue()) {
-                SemanticValue v = (SemanticValue) r;
-                GNode node = (GNode) v.value;
-
-                AstNodeVisitor visitor = new AstNodeVisitor(node, th);
-                visitor.visit(node);
-                rootScope = visitor.getRootScope();
-
-                ScalaTypeInferencer inferencer = new ScalaTypeInferencer(rootScope, th);
-                inferencer.infer();
-
-                errors = visitor.getErrors();
-                for (GNode errorNode : errors) {
-                    String msg = errorNode.getString(0);
-                    Location loc = errorNode.getLocation();
-                    notifyError(context, "SYNTAX_ERROR", msg,
-                            loc.offset, loc.endOffset, sanitizing, Severity.ERROR, new Object[]{loc.offset, errorNode});
-                }
-            } else {
-                error = r.parseError();
-            }
-
-            if (error != null) {
-                if (!ignoreErrors) {
-                    int start = 0;
-                    if (error.index != -1) {
-                        start = error.index;
-                    }
-                    notifyError(context, "SYNTAX_ERROR", "Syntax error",
-                            start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
-                }
-
-                System.err.println(error.msg);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // An internal exception thrown by ParserScala, just catch it and notify
-            notifyError(context, "SYNTAX_ERROR", e.getMessage(),
-                    0, 0, sanitizing, Severity.ERROR, new Object[]{e});
-        } finally {
-            if (doc != null) {
-                doc.readUnlock();
-            }
-        }
-
-
-        if (rootScope != null) {
-            context.sanitized = sanitizing;
-            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th, null);
-            pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
-            pResult.setSource(source);
-            return pResult;
-        } else {
-            return sanitize(context, sanitizing);
-        }
-    }
+//    protected ScalaParserResult parseBuffer_old(final Context context, final Sanitize sanitizing) {
+//        boolean sanitizedSource = false;
+//        String source = context.source;
+//
+//        if (!((sanitizing == Sanitize.NONE) || (sanitizing == Sanitize.NEVER))) {
+//            boolean ok = sanitizeSource(context, sanitizing);
+//
+//            if (ok) {
+//                assert context.sanitizedSource != null;
+//                sanitizedSource = true;
+//                source = context.sanitizedSource;
+//            } else {
+//                // Try next trick
+//                return sanitize(context, sanitizing);
+//            }
+//        }
+//
+//        TokenHierarchy th = null;
+//
+//        BaseDocument doc = null;
+//        /** If this file is under editing, always get th from incrementally lexed th via opened document */
+//        JTextComponent target = EditorRegistry.lastFocusedComponent();
+//        if (target != null) {
+//            doc = (BaseDocument) target.getDocument();
+//            if (doc != null) {
+//                FileObject fo = NbEditorUtilities.getFileObject(doc);
+//                if (fo == context.file.getFileObject()) {
+//                    th = TokenHierarchy.get(doc);
+//                }
+//            }
+//        }
+//
+//        if (th == null) {
+//            th = TokenHierarchy.create(source, ScalaTokenId.language());
+//        }
+//
+//        context.th = th;
+//
+//        final boolean ignoreErrors = sanitizedSource;
+//
+//        Reader in = new StringReader(source);
+//        String fileName = context.file != null ? context.file.getNameExt() : "<current>";
+//        ParserScala parser = new ParserScala(in, fileName);
+//        context.parser = parser;
+//
+//        if (sanitizing == Sanitize.NONE) {
+//            context.errorOffset = -1;
+//        }
+//
+//        AstScope rootScope = null;
+//        List<GNode> errors = null;
+//        if (doc != null) {
+//            // Read-lock due to Token hierarchy use
+//            doc.readLock();
+//        }
+//        try {
+//            ParseError error = null;
+//            Result r = parser.pCompilationUnit(0);
+//            if (r.hasValue()) {
+//                SemanticValue v = (SemanticValue) r;
+//                GNode node = (GNode) v.value;
+//
+//                AstNodeVisitor visitor = new AstNodeVisitor(node, th);
+//                visitor.visit(node);
+//                rootScope = visitor.getRootScope();
+//
+//                ScalaTypeInferencer inferencer = new ScalaTypeInferencer(rootScope, th);
+//                inferencer.infer();
+//
+//                errors = visitor.getErrors();
+//                for (GNode errorNode : errors) {
+//                    String msg = errorNode.getString(0);
+//                    Location loc = errorNode.getLocation();
+//                    notifyError(context, "SYNTAX_ERROR", msg,
+//                            loc.offset, loc.endOffset, sanitizing, Severity.ERROR, new Object[]{loc.offset, errorNode});
+//                }
+//            } else {
+//                error = r.parseError();
+//            }
+//
+//            if (error != null) {
+//                if (!ignoreErrors) {
+//                    int start = 0;
+//                    if (error.index != -1) {
+//                        start = error.index;
+//                    }
+//                    notifyError(context, "SYNTAX_ERROR", "Syntax error",
+//                            start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
+//                }
+//
+//                System.err.println(error.msg);
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (IllegalArgumentException e) {
+//            // An internal exception thrown by ParserScala, just catch it and notify
+//            notifyError(context, "SYNTAX_ERROR", e.getMessage(),
+//                    0, 0, sanitizing, Severity.ERROR, new Object[]{e});
+//        } finally {
+//            if (doc != null) {
+//                doc.readUnlock();
+//            }
+//        }
+//
+//
+//        if (rootScope != null) {
+//            context.sanitized = sanitizing;
+//            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th, null);
+//            pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
+//            pResult.setSource(source);
+//            return pResult;
+//        } else {
+//            return sanitize(context, sanitizing);
+//        }
+//    }
 
     protected ScalaParserResult parseBuffer(final Context context, final Sanitize sanitizing) {
         boolean sanitizedSource = false;
@@ -553,18 +548,6 @@ public class ScalaParser implements Parser {
             doc.readLock();
         }
         try {
-            Result r = parser.pCompilationUnit(0);
-            if (r.hasValue()) {
-                SemanticValue v = (SemanticValue) r;
-                GNode node = (GNode) v.value;
-
-                AstNodeVisitor visitor = new AstNodeVisitor(node, th);
-                visitor.visit(node);
-                rootScope = visitor.getRootScope();
-            } else {
-                ParseError error = r.parseError();
-            }
-
             run.compileSources(srcFiles);
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
@@ -591,6 +574,7 @@ public class ScalaParser implements Parser {
             if (unit.source() == srcFile) {
                 Tree tree = unit.body();
                 treeVisitor = new ScalaTreeVisitor(tree);
+                rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
                 break;
             }
         }

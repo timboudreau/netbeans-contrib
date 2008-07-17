@@ -84,7 +84,7 @@ public abstract class AstItem {
         return symbol;
     }
 
-    public String getSimpleName() {
+    public String getName() {
         return symbol.nameString();
     }
 
@@ -100,7 +100,7 @@ public abstract class AstItem {
         if (pickToken != null) {
             return pickToken.offset(th);
         } else {
-            assert false : getSimpleName() + ": Should implement getPickOffset(th)";
+            assert false : getName() + ": Should implement getPickOffset(th)";
             return -1;
         }
     }
@@ -109,13 +109,13 @@ public abstract class AstItem {
         if (pickToken != null) {
             return pickToken.offset(th) + pickToken.length();
         } else {
-            assert false : getSimpleName() + ": Should implement getPickEndOffset(th)";
+            assert false : getName() + ": Should implement getPickEndOffset(th)";
             return -1;
         }
     }
 
     public String getBinaryName() {
-        return getSimpleName().toString();
+        return getName().toString();
     }
 
 
@@ -135,7 +135,7 @@ public abstract class AstItem {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : getSimpleName() + ": Each item should set enclosing scope!, except native TypeRef";
+        assert enclosingScope != null : getName() + ": Each item should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 

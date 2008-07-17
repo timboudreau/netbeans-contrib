@@ -46,9 +46,8 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
-import scala.tools.nsc.Global;
 
 /**
  *
@@ -89,6 +88,10 @@ public class ScalaParserResult extends ParserResult {
 
     public void setAst(AstTreeNode ast) {
         this.ast = ast;
+    }
+
+    public org.netbeans.modules.scala.editing.ast.AstScope getRootScope() {
+        return rootScope;
     }
 
     public ScalaTreeVisitor getTreeVisitor() {
@@ -138,10 +141,6 @@ public class ScalaParserResult extends ParserResult {
         this.commentsAdded = commentsAdded;
     }
 
-    public AstScope getRootScope() {
-        return rootScope;
-    }
-
     public TokenHierarchy<Document> getTokenHierarchy() {
         return tokenHierarchy;
     }
@@ -155,11 +154,11 @@ public class ScalaParserResult extends ParserResult {
             return;
         }
 
-        if (this.phase != Phase.GLOBAL_RESOLVED) {
-            ScalaIndex index = ScalaIndex.get(info);
-            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
-            this.phase = Phase.GLOBAL_RESOLVED;
-        }
+//        if (this.phase != Phase.GLOBAL_RESOLVED) {
+//            ScalaIndex index = ScalaIndex.get(info);
+//            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
+//            this.phase = Phase.GLOBAL_RESOLVED;
+//        }
     }
 
     public void toGlobalPhase(ScalaIndex index) {
@@ -167,10 +166,10 @@ public class ScalaParserResult extends ParserResult {
             return;
         }
 
-        if (this.phase != Phase.GLOBAL_RESOLVED) {
-            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
-            this.phase = Phase.GLOBAL_RESOLVED;
-        }
+//        if (this.phase != Phase.GLOBAL_RESOLVED) {
+//            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(index);
+//            this.phase = Phase.GLOBAL_RESOLVED;
+//        }
     }
 
     @Override

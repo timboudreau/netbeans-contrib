@@ -69,7 +69,6 @@ import com.sun.source.util.TreePathScanner;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
@@ -104,8 +103,8 @@ import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -1155,7 +1154,10 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    Template tmpl = rootScope.getEnclosingElement(Template.class, th, offset);
+                    AstDef tmpl = rootScope.getEnclosinDef(ElementKind.CLASS, th, offset);
+                    if (tmpl == null) {
+                        tmpl = rootScope.getEnclosinDef(ElementKind.MODULE, th, offset);
+                    }
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
@@ -1163,11 +1165,11 @@ public class EditorContextImpl extends EditorContext {
 
                     String className = tmpl.getBinaryName();
 
-                    PackageElement enclosingPackage = tmpl.getPackageElement();
+                    String enclosingPackage = tmpl.getPackageName();
                     if (enclosingPackage == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackage.getQualifiedName() + "." + className;
+                        result[0] = enclosingPackage + "." + className;
                     }
 
                 }

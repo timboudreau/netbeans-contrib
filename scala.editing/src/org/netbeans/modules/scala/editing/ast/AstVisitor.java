@@ -104,16 +104,17 @@ import scala.tools.nsc.util.Position;
 public abstract class AstVisitor {
 
     private int indentLevel;
-    private TokenHierarchy th;
     private BatchSourceFile sourceFile;
+    protected TokenHierarchy th;
     protected AstScope rootScope;
     protected Stack<Tree> astPath = new Stack<Tree>();
-    protected Stack<AstScope> scopeStack = new Stack<AstScope>();
+    protected Stack<AstScope> scopes = new Stack<AstScope>();
 
     public AstVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         this.th = th;
-        this.rootScope = new AstScope(getBoundsTokens(rootTree, sourceFile.length()));
-        scopeStack.push(rootScope);
+        this.sourceFile = sourceFile;
+        this.rootScope = new AstScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
+        scopes.push(rootScope);
         visit(rootTree);
     }
 
@@ -157,6 +158,13 @@ public abstract class AstVisitor {
         }
 
         enter(tree);
+
+        Symbol symbol = tree.symbol();
+        String symbolStr = "<null>";
+        if (symbol != null) {
+            symbolStr = symbol.toString();
+        }
+        System.out.println("AstPath: " + getAstPathString() + "(" + offset(tree) + "), symbol: " + symbolStr);
 
         if (tree instanceof ClassDef) {
             visitClassDef((ClassDef) tree);
@@ -384,6 +392,11 @@ public abstract class AstVisitor {
     }
 
     // ---- Helper methods
+    protected Tree getParent() {
+        assert astPath.size() >= 2;
+        return astPath.get(astPath.size() - 2);
+    }
+    
     protected String getAstPathString() {
         StringBuilder sb = new StringBuilder();
 
@@ -417,8 +430,11 @@ public abstract class AstVisitor {
         return offsetOpt.isDefined() ? (Integer) offsetOpt.get() : -1;
     }
 
-    protected Token[] getBoundsTokens(Tree tree, int endOffset) {
-        int offset = offset(tree);
+    protected Token[] getBoundsTokens(int offset, int endOffset) {
+        return new Token[]{getBoundsToken(offset), getBoundsEndToken(endOffset)};
+    }
+
+    protected Token getBoundsToken(int offset) {
         if (offset == -1) {
             return null;
         }
@@ -435,6 +451,16 @@ public abstract class AstVisitor {
             startToken = ts.offsetToken();
         }
 
+        return startToken;
+    }
+
+    protected Token getBoundsEndToken(int endOffset) {
+        if (endOffset == -1) {
+            return null;
+        }
+
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, endOffset);
+
         ts.move(endOffset);
         if (!ts.movePrevious() && !ts.moveNext()) {
             assert false : "Should not happen!";
@@ -444,7 +470,7 @@ public abstract class AstVisitor {
             endToken = ts.offsetToken();
         }
 
-        return new Token[]{startToken, endToken};
+        return endToken;
     }
 
     /**
@@ -454,14 +480,17 @@ public abstract class AstVisitor {
      */
     protected Token getIdToken(Tree tree) {
         Symbol symbol = tree.symbol();
-        int offset = symbol.namePos(sourceFile);
+        assert symbol != null : "";
+        // Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this"
+        String name = symbol.idString();
+
+        int offset = offset(tree);
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
         ts.move(offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
             assert false : "Should not happen!";
         }
 
-        String name = symbol.nameString().trim();
         Token token;
         if (name.equals("this")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
@@ -479,6 +508,8 @@ public abstract class AstVisitor {
             token = ts.offsetToken();
         }
 
+        System.out.println("idToken: " + token.text().toString());
+        
         return token;
     }
 

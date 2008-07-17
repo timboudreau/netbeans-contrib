@@ -55,11 +55,13 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstItem;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldCall;
 import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
@@ -155,11 +157,12 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             ElementHandle foundElement = null;
             boolean isLocal = false;
 
-            AstNode closest = root.findElementOrMirror(th, astOffset);
-            AstElement element = root.findElementOf(closest);
-            if (element != null) {
-                foundElement = new GsfElement(element, info.getFileObject(), info);
-                isLocal = true;
+            AstItem closest = root.findItemAt(th, astOffset);
+            AstDef def = root.findDefOf(closest);
+            if (def != null) {
+                // is local
+                int offset = def.getPickOffset(th);
+                return new DeclarationLocation(info.getFileObject(), offset, def);
             } else {
                 ScalaTreeVisitor treeVisitor = pResult.getTreeVisitor();
                 if (treeVisitor != null) {
@@ -192,70 +195,6 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 FileObject fo = foundElement.getFileObject();
                 if (fo != null) {
                     return new DeclarationLocation(fo, offset, foundElement);
-                }
-            }
-
-            return DeclarationLocation.NONE;
-
-        } finally {
-            doc.readUnlock();
-        }
-    }
-
-    public DeclarationLocation findDeclaration_old(CompilationInfo info, int lexOffset) {
-
-        final BaseDocument doc = (BaseDocument) info.getDocument();
-        if (doc == null) {
-            return DeclarationLocation.NONE;
-        }
-
-        ScalaParserResult pResult = AstUtilities.getParserResult(info);
-
-        doc.readLock();
-        try {
-            AstScope root = pResult.getRootScope();
-            if (root == null) {
-                return DeclarationLocation.NONE;
-            }
-
-            final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
-            if (astOffset == -1) {
-                return DeclarationLocation.NONE;
-            }
-
-            final TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-
-            GsfElement foundNode = null;
-            boolean isLocal = false;
-
-            AstNode closest = root.findElementOrMirror(th, astOffset);
-            AstElement element = root.findElementOf(closest);
-            if (element != null) {
-                foundNode = new GsfElement(element, info.getFileObject(), info);
-                isLocal = true;
-            } else {
-                if (closest instanceof FunctionCall) {
-                    foundNode = findMethodDeclaration(info, (FunctionCall) closest, null);
-                } else if (closest instanceof FieldCall) {
-                    foundNode = findFieldDeclaration(info, (FieldCall) closest, null);
-                } else if (closest instanceof Type) {
-                    if (((Type) closest).isResolved()) {
-                        foundNode = findTypeDeclaration(info, (Type) closest);
-                    }
-                }
-            }
-
-            if (foundNode != null) {
-                int offset = 0;
-                if (isLocal) {
-                    offset = ((AstNode) foundNode.getElement()).getPickOffset(th);
-                } else {
-                    offset = foundNode.getOffset();
-                }
-
-                FileObject fo = foundNode.getFileObject();
-                if (fo != null) {
-                    return new DeclarationLocation(fo, offset, foundNode);
                 }
             }
 

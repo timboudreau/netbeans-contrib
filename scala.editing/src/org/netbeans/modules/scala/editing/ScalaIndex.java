@@ -344,159 +344,159 @@ public class ScalaIndex {
         return null;
     }
 
-    private Set<GsfElement> getMembers(String prefix, String typeQName,
-            NameKind kind, Set<SearchScope> scope, ScalaParserResult pResult,
-            boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
-
-        assert typeQName != null && typeQName.length() > 0;
-
-        final Set<SearchResult> results = new HashSet<SearchResult>();
-
-        String field = ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE;
-        Set<String> terms = TERMS_NAME;
-        NameKind originalKind = kind;
-        if (kind == NameKind.EXACT_NAME) {
-            // I can't do exact searches on methods because the method
-            // entries include signatures etc. So turn this into a prefix
-            // search and then compare chopped off signatures with the name
-            kind = NameKind.PREFIX;
-        }
-
-        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
-            // TODO - can I do anything about this????
-            //field = ScalaIndexer.FIELD_BASE_LOWER;
-            //terms = FQN_BASE_LOWER;
-        }
-
-//        final Set<Element> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<Element>();
-        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
-        String searchUrl = null;
-        if (pResult != null) {
-            try {
-                searchUrl = pResult.getFile().getFileObject().getURL().toExternalForm();
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        Set<String> seenTypes = new HashSet<String>();
-        seenTypes.add(typeQName);
-        boolean haveRedirected = false;
-        boolean inherited = typeQName == null;
-
-        while (true) {
-            String fqn = typeQName != null && typeQName.length() > 0
-                    ? typeQName
-                    : "scala.AnyRef";
-
-            String lcfqn = fqn.toLowerCase();
-            search(field, lcfqn, kind, results, scope, terms);
-
-            for (SearchResult map : results) {
-                String qName = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME);
-                String qName_ci = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE);
-                String attrs = map.getValue(ScalaIndexer.FIELD_ATTRIBUTES);
-                String sName = map.getValue(ScalaIndexer.FIELD_SIMPLE_NAME);
-
-
-                if (qName == null) {
-                    continue;
-                }
-
-                String fileUrl = map.getPersistentUrl();
-
-                FileObject fo = ScalaIndex.getFileObject(fileUrl);
-                if (fo == null) {
-                    continue;
-                }
-
-                // Check if this file even applies
-                if (pResult != null) {
-                    if (searchUrl == null || !searchUrl.equals(fileUrl)) {
-                        boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
-
-                        if (!isLibrary && !isReachable(pResult, fileUrl)) {
-                            continue;
-                        }
-                    }
-                }
-
-                // Lucene returns some inexact matches, TODO investigate why this is necessary
-                if ((kind == NameKind.PREFIX) && !qName_ci.startsWith(lcfqn)) {
-                    continue;
-                } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !qName_ci.startsWith(lcfqn)) {
-                    continue;
-                } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
-                    try {
-                        if (!qName_ci.matches(lcfqn)) {
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        // Silently ignore regexp failures in the search expression
-                    }
-                } else if (originalKind == NameKind.EXACT_NAME) {
-                    // Make sure the name matches exactly
-                    // We know that the prefix is correct from the first part of
-                    // this if clause, by the signature may have more
-                    if (!qName.equals(lcfqn)) {
-                        continue;
-                    }
-                }
-
-                // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
-                assert map != null;
-
-                int flags = IndexedElement.decodeFlags(attrs, 0, 0);
-                if (!IndexedElement.isTemplate(flags)) {
-                    continue;
-                }
-
-                CompilationInfo newInfo = ScalaUtils.getCompilationInfoForScalaFile(fo);
-                List<Template> templates = ScalaUtils.resolveTemplate(newInfo, qName);
-
-                for (Template tmpl : templates) {
-                    for (AstElement element : tmpl.getEnclosedElements()) {
-                        if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
-                            continue;
-                        }
-
-                        boolean isMethod = element instanceof ExecutableElement;
-                        if (isMethod && !includeMethods) {
-                            continue;
-                        } else if (!isMethod && !includeFields) {
-                            continue;
-                        }
-                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-                            continue;
-                        }
-                        GsfElement gsfElement = new GsfElement(element, fo, newInfo);
-                        gsfElement.setInherited(inherited);
-                        gsfElements.add(gsfElement);
-                    }
-                    break;
-                }
-            }
-
-
-            if (typeQName == null || "scala.AnyRef".equals(typeQName)) { // NOI18N
-                break;
-            }
-            typeQName = getExtends(typeQName, scope);
-            if (typeQName == null) {
-                typeQName = "scala.AnyRef"; // NOI18N
-                haveRedirected = true;
-            }
-            // Prevent circularity in types
-            if (seenTypes.contains(typeQName)) {
-                break;
-            } else {
-                seenTypes.add(typeQName);
-            }
-            inherited = true;
-        }
-
-        return gsfElements;
-    }
+//    private Set<GsfElement> getMembers(String prefix, String typeQName,
+//            NameKind kind, Set<SearchScope> scope, ScalaParserResult pResult,
+//            boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
+//
+//        assert typeQName != null && typeQName.length() > 0;
+//
+//        final Set<SearchResult> results = new HashSet<SearchResult>();
+//
+//        String field = ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE;
+//        Set<String> terms = TERMS_NAME;
+//        NameKind originalKind = kind;
+//        if (kind == NameKind.EXACT_NAME) {
+//            // I can't do exact searches on methods because the method
+//            // entries include signatures etc. So turn this into a prefix
+//            // search and then compare chopped off signatures with the name
+//            kind = NameKind.PREFIX;
+//        }
+//
+//        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+//            // TODO - can I do anything about this????
+//            //field = ScalaIndexer.FIELD_BASE_LOWER;
+//            //terms = FQN_BASE_LOWER;
+//        }
+//
+////        final Set<Element> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<Element>();
+//        final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
+//        String searchUrl = null;
+//        if (pResult != null) {
+//            try {
+//                searchUrl = pResult.getFile().getFileObject().getURL().toExternalForm();
+//            } catch (FileStateInvalidException ex) {
+//                Exceptions.printStackTrace(ex);
+//            }
+//        }
+//
+//        Set<String> seenTypes = new HashSet<String>();
+//        seenTypes.add(typeQName);
+//        boolean haveRedirected = false;
+//        boolean inherited = typeQName == null;
+//
+//        while (true) {
+//            String fqn = typeQName != null && typeQName.length() > 0
+//                    ? typeQName
+//                    : "scala.AnyRef";
+//
+//            String lcfqn = fqn.toLowerCase();
+//            search(field, lcfqn, kind, results, scope, terms);
+//
+//            for (SearchResult map : results) {
+//                String qName = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME);
+//                String qName_ci = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE);
+//                String attrs = map.getValue(ScalaIndexer.FIELD_ATTRIBUTES);
+//                String sName = map.getValue(ScalaIndexer.FIELD_SIMPLE_NAME);
+//
+//
+//                if (qName == null) {
+//                    continue;
+//                }
+//
+//                String fileUrl = map.getPersistentUrl();
+//
+//                FileObject fo = ScalaIndex.getFileObject(fileUrl);
+//                if (fo == null) {
+//                    continue;
+//                }
+//
+//                // Check if this file even applies
+//                if (pResult != null) {
+//                    if (searchUrl == null || !searchUrl.equals(fileUrl)) {
+//                        boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
+//
+//                        if (!isLibrary && !isReachable(pResult, fileUrl)) {
+//                            continue;
+//                        }
+//                    }
+//                }
+//
+//                // Lucene returns some inexact matches, TODO investigate why this is necessary
+//                if ((kind == NameKind.PREFIX) && !qName_ci.startsWith(lcfqn)) {
+//                    continue;
+//                } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !qName_ci.startsWith(lcfqn)) {
+//                    continue;
+//                } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+//                    try {
+//                        if (!qName_ci.matches(lcfqn)) {
+//                            continue;
+//                        }
+//                    } catch (Exception e) {
+//                        // Silently ignore regexp failures in the search expression
+//                    }
+//                } else if (originalKind == NameKind.EXACT_NAME) {
+//                    // Make sure the name matches exactly
+//                    // We know that the prefix is correct from the first part of
+//                    // this if clause, by the signature may have more
+//                    if (!qName.equals(lcfqn)) {
+//                        continue;
+//                    }
+//                }
+//
+//                // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
+//                assert map != null;
+//
+//                int flags = IndexedElement.decodeFlags(attrs, 0, 0);
+//                if (!IndexedElement.isTemplate(flags)) {
+//                    continue;
+//                }
+//
+//                CompilationInfo newInfo = ScalaUtils.getCompilationInfoForScalaFile(fo);
+//                List<Template> templates = ScalaUtils.resolveTemplate(newInfo, qName);
+//
+//                for (Template tmpl : templates) {
+//                    for (AstElement element : tmpl.getEnclosedElements()) {
+//                        if (!prefix.equals("") && !element.getSimpleName().toString().startsWith(prefix)) {
+//                            continue;
+//                        }
+//
+//                        boolean isMethod = element instanceof ExecutableElement;
+//                        if (isMethod && !includeMethods) {
+//                            continue;
+//                        } else if (!isMethod && !includeFields) {
+//                            continue;
+//                        }
+//                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+//                            continue;
+//                        }
+//                        GsfElement gsfElement = new GsfElement(element, fo, newInfo);
+//                        gsfElement.setInherited(inherited);
+//                        gsfElements.add(gsfElement);
+//                    }
+//                    break;
+//                }
+//            }
+//
+//
+//            if (typeQName == null || "scala.AnyRef".equals(typeQName)) { // NOI18N
+//                break;
+//            }
+//            typeQName = getExtends(typeQName, scope);
+//            if (typeQName == null) {
+//                typeQName = "scala.AnyRef"; // NOI18N
+//                haveRedirected = true;
+//            }
+//            // Prevent circularity in types
+//            if (seenTypes.contains(typeQName)) {
+//                break;
+//            } else {
+//                seenTypes.add(typeQName);
+//            }
+//            inherited = true;
+//        }
+//
+//        return gsfElements;
+//    }
 
     private Set<GsfElement> getTypesByQualifiedName(String fqnPrefix, NameKind kind,
             Set<SearchScope> scope, ScalaParserResult context,

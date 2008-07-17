@@ -46,12 +46,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -72,7 +68,6 @@ import org.netbeans.modules.gsf.api.CodeCompletionContext;
 import org.netbeans.modules.gsf.api.CodeCompletionResult;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.spi.DefaultCompletionResult;
-import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
@@ -80,18 +75,14 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionProposal.FunctionProposal;
 import org.netbeans.modules.scala.editing.ScalaCompletionProposal.PlainProposal;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstItem;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.FieldCall;
-import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.Function;
-import org.netbeans.modules.scala.editing.nodes.IdCall;
-import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.Var;
-import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -403,23 +394,23 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     offset = sanitizedRange.getStart();
                 }
 
-                AstNode closest = root.findElementOrMirror(th, offset);
+                AstItem closest = root.findItemAt(th, offset);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
-                    closest = root.findElementOrMirror(th, closestOffset--);
+                    closest = root.findItemAt(th, closestOffset--);
                 }
 
                 if (closest != null) {
-                    if (closest instanceof Importing) {
-                        String prefix1 = ((Importing) closest).toString();
-                        if (request.prefix.equals("")) {
-                            prefix1 = prefix1 + ".";
-                        }
-                        request.prefix = prefix1;
-                        completeImport(proposals, request);
-                        return completionResult;
-                    }
-                /** @Note Keep following code for reference */
+//                    if (closest instanceof Importing) {
+//                        String prefix1 = ((Importing) closest).toString();
+//                        if (request.prefix.equals("")) {
+//                            prefix1 = prefix1 + ".";
+//                        }
+//                        request.prefix = prefix1;
+//                        completeImport(proposals, request);
+//                        return completionResult;
+//                    }
+                    /** @Note Keep following code for reference */
 //                    else if (closest instanceof IdCall) {
 //                        // test if it's an arg of funRef ?
 //                        FunctionCall funRef = null;
@@ -521,22 +512,21 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             return;
         }
 
-        List<Var> localVars = closestScope.getVisibleElements(Var.class);
-        for (Var var : localVars) {
-            if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getSimpleName().toString())) ||
-                    (kind != NameKind.EXACT_NAME && startsWith(var.getSimpleName().toString(), prefix))) {
-                proposals.add(new PlainItem(new GsfElement(var, request.fileObject, request.info), request));
+        List<AstDef> localVars = closestScope.getVisibleDefs(org.netbeans.modules.gsf.api.ElementKind.FIELD);
+        localVars.addAll(closestScope.getVisibleDefs(org.netbeans.modules.gsf.api.ElementKind.PARAMETER));
+        localVars.addAll(closestScope.getVisibleDefs(org.netbeans.modules.gsf.api.ElementKind.VARIABLE));
+        for (AstDef var : localVars) {
+            if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
+                    (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
+                proposals.add(new PlainProposal(new ScalaElement(var.getSymbol(), request.info, request.global), request));
             }
         }
 
-        List<Function> localFuns = closestScope.getVisibleElements(Function.class);
-        for (Function fun : localFuns) {
-            if (fun.getKind() != ElementKind.METHOD) {
-                continue;
-            }
-            if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getSimpleName().toString())) ||
-                    (kind != NameKind.EXACT_NAME && startsWith(fun.getSimpleName().toString(), prefix))) {
-                proposals.add(new FunctionItem(new GsfElement(fun, request.fileObject, request.info), request));
+        List<AstDef> localFuns = closestScope.getVisibleDefs(org.netbeans.modules.gsf.api.ElementKind.METHOD);
+        for (AstDef fun : localFuns) {
+            if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getName())) ||
+                    (kind != NameKind.EXACT_NAME && startsWith(fun.getName(), prefix))) {
+                proposals.add(new FunctionProposal(new ScalaElement(fun.getSymbol(), request.info, request.global), request));
             }
         }
 
@@ -1193,244 +1183,243 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
      *
      * @todo Look for self or this or super; these should be limited to inherited.
      */
-    private boolean completeTemplateMembers(List<CompletionProposal> proposals, CompletionRequest request) {
-
-        ScalaIndex index = request.index;
-        String prefix = request.prefix;
-        int astOffset = request.astOffset;
-        int lexOffset = request.lexOffset;
-        AstScope root = request.root;
-        TokenHierarchy<Document> th = request.th;
-        BaseDocument doc = request.doc;
-        NameKind kind = request.kind;
-        FileObject fileObject = request.fileObject;
-        AstNode closest = request.node;
-        ScalaParserResult result = request.result;
-        CompilationInfo info = request.info;
-
-        String fqn = request.fqn;
-        MaybeCall call = request.call;
-
-        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
-
-        // Look in the token stream for constructs of the type
-        //   foo.x^
-        // or
-        //   foo.^
-        // and if found, add all methods
-        // (no keywords etc. are possible matches)
-        if ((index != null) && (ts != null)) {
-            boolean skipPrivate = true;
-
-            if ((call == MaybeCall.LOCAL) || (call == MaybeCall.NONE)) {
-                return false;
-            }
-
-            // If we're not sure we're only looking for a method, don't abort after this
-            boolean done = call.isMethodExpected();
-
-//            boolean skipInstanceMethods = call.isStatic();
-
-            Set<GsfElement> elements = Collections.emptySet();
-
-            String typeQName = call.getType();
-            String lhs = call.getLhs();
-
-            if (typeQName == null) {
-                if (closest != null) {
-                    TypeMirror type = null;
-                    if (closest instanceof FieldCall) {
-                        // dog.tal|
-                        type = closest.asType();
-                    } else if (closest instanceof FunctionCall) {
-                        // dog.talk().
-                        type = closest.asType();
-                    } else if (closest instanceof IdCall) {
-                        // dog.|
-                        type = closest.asType();
-                    } else {
-                        type = closest.asType();
-                    }
-
-                    if (type != null) {
-                        typeQName = Type.qualifiedNameOf(type);
-                    }
-                }
-            //Node method = AstUtilities.findLocalScope(node, path);
-            //if (method != null) {
-            //    List<Node> nodes = new ArrayList<Node>();
-            //    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
-            //    if (nodes.size() > 0) {
-            //        Node exprNode = nodes.get(0);
-            //        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-            //        type = analyzer.getType(exprNode.getParentNode());
-            //    }
-            //} 
-            }
-
-            if (typeQName == null && call.getPrevCallParenPos() != -1) {
-                // It's some sort of call
-                assert call.getType() == null;
-                assert call.getLhs() == null;
-
-                // Try to figure out the call in question
-                int callEndAstOffset = AstUtilities.getAstOffset(info, call.getPrevCallParenPos());
-                if (callEndAstOffset != -1) {
-//                    AstPath callPath = new AstPath(root, callEndAstOffset);
-//                    Iterator<Node> it = callPath.leafToRoot();
-//                    while (it.hasNext()) {
-//                        Node callNode = it.next();
-//                        if (callNode.getType() == org.mozilla.javascript.Token.FUNCTION) {
-//                            break;
-//                        } else if (callNode.getType() == org.mozilla.javascript.Token.CALL) {
-//                            Node method = AstUtilities.findLocalScope(node, path);
+//    private boolean completeTemplateMembers(List<CompletionProposal> proposals, CompletionRequest request) {
 //
-//                            if (method != null) {
-//                                JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-//                                type = analyzer.getType(callNode);
-//                            }
-//                            break;
-//                        } else if (callNode.getType() == org.mozilla.javascript.Token.GETELEM) {
-//                            Node method = AstUtilities.findLocalScope(node, path);
+//        ScalaIndex index = request.index;
+//        String prefix = request.prefix;
+//        int astOffset = request.astOffset;
+//        int lexOffset = request.lexOffset;
+//        AstScope root = request.root;
+//        TokenHierarchy<Document> th = request.th;
+//        BaseDocument doc = request.doc;
+//        NameKind kind = request.kind;
+//        FileObject fileObject = request.fileObject;
+//        AstNode closest = request.node;
+//        ScalaParserResult result = request.result;
+//        CompilationInfo info = request.info;
 //
-//                            if (method != null) {
-//                                JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-//                                type = analyzer.getType(callNode);
-//                            }
-//                            break;
-//                        }
-//                    }
-                }
-            } else if (typeQName == null && lhs != null && closest != null) {
-//                Node method = AstUtilities.findLocalScope(node, path);
+//        String fqn = request.fqn;
+//        MaybeCall call = request.call;
 //
-//                if (method != null) {
-//                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-//                    type = analyzer.getType(node);
-//                }
-            }
-
-            if ((typeQName == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
-//                Node method = AstUtilities.findLocalScope(node, path);
+//        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 //
-//                if (method != null) {
-//                    // TODO - if the lhs is "foo.bar." I need to split this
-//                    // up and do it a bit more cleverly
-//                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-//                    type = analyzer.getType(lhs);
-//                }
-            }
-
-            // I'm not doing any data flow analysis at this point, so
-            // I can't do anything with a LHS like "foo.". Only actual types.
-            if (typeQName != null && typeQName.length() > 0) {
-                if ("this".equals(lhs)) {
-                    typeQName = fqn;
-                    skipPrivate = false;
-//                } else if ("super".equals(lhs)) {
-//                    skipPrivate = false;
+//        // Look in the token stream for constructs of the type
+//        //   foo.x^
+//        // or
+//        //   foo.^
+//        // and if found, add all methods
+//        // (no keywords etc. are possible matches)
+//        if ((index != null) && (ts != null)) {
+//            boolean skipPrivate = true;
 //
-//                    IndexedClass sc = index.getSuperclass(fqn);
+//            if ((call == MaybeCall.LOCAL) || (call == MaybeCall.NONE)) {
+//                return false;
+//            }
 //
-//                    if (sc != null) {
-//                        type = sc.getFqn();
+//            // If we're not sure we're only looking for a method, don't abort after this
+//            boolean done = call.isMethodExpected();
+//
+////            boolean skipInstanceMethods = call.isStatic();
+//
+//            Set<GsfElement> elements = Collections.emptySet();
+//
+//            String typeQName = call.getType();
+//            String lhs = call.getLhs();
+//
+//            if (typeQName == null) {
+//                if (closest != null) {
+//                    TypeMirror type = null;
+//                    if (closest instanceof FieldCall) {
+//                        // dog.tal|
+//                        type = closest.asType();
+//                    } else if (closest instanceof FunctionCall) {
+//                        // dog.talk().
+//                        type = closest.asType();
+//                    } else if (closest instanceof IdCall) {
+//                        // dog.|
+//                        type = closest.asType();
 //                    } else {
-//                        ClassNode cls = AstUtilities.findClass(path);
+//                        type = closest.asType();
+//                    }
 //
-//                        if (cls != null) {
-//                            type = AstUtilities.getSuperclass(cls);
+//                    if (type != null) {
+//                        typeQName = Type.qualifiedNameOf(type);
+//                    }
+//                }
+//            //Node method = AstUtilities.findLocalScope(node, path);
+//            //if (method != null) {
+//            //    List<Node> nodes = new ArrayList<Node>();
+//            //    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
+//            //    if (nodes.size() > 0) {
+//            //        Node exprNode = nodes.get(0);
+//            //        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+//            //        type = analyzer.getType(exprNode.getParentNode());
+//            //    }
+//            //}
+//            }
+//
+//            if (typeQName == null && call.getPrevCallParenPos() != -1) {
+//                // It's some sort of call
+//                assert call.getType() == null;
+//                assert call.getLhs() == null;
+//
+//                // Try to figure out the call in question
+//                int callEndAstOffset = AstUtilities.getAstOffset(info, call.getPrevCallParenPos());
+//                if (callEndAstOffset != -1) {
+////                    AstPath callPath = new AstPath(root, callEndAstOffset);
+////                    Iterator<Node> it = callPath.leafToRoot();
+////                    while (it.hasNext()) {
+////                        Node callNode = it.next();
+////                        if (callNode.getType() == org.mozilla.javascript.Token.FUNCTION) {
+////                            break;
+////                        } else if (callNode.getType() == org.mozilla.javascript.Token.CALL) {
+////                            Node method = AstUtilities.findLocalScope(node, path);
+////
+////                            if (method != null) {
+////                                JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+////                                type = analyzer.getType(callNode);
+////                            }
+////                            break;
+////                        } else if (callNode.getType() == org.mozilla.javascript.Token.GETELEM) {
+////                            Node method = AstUtilities.findLocalScope(node, path);
+////
+////                            if (method != null) {
+////                                JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+////                                type = analyzer.getType(callNode);
+////                            }
+////                            break;
+////                        }
+////                    }
+//                }
+//            } else if (typeQName == null && lhs != null && closest != null) {
+////                Node method = AstUtilities.findLocalScope(node, path);
+////
+////                if (method != null) {
+////                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+////                    type = analyzer.getType(node);
+////                }
+//            }
+//
+//            if ((typeQName == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
+////                Node method = AstUtilities.findLocalScope(node, path);
+////
+////                if (method != null) {
+////                    // TODO - if the lhs is "foo.bar." I need to split this
+////                    // up and do it a bit more cleverly
+////                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+////                    type = analyzer.getType(lhs);
+////                }
+//            }
+//
+//            // I'm not doing any data flow analysis at this point, so
+//            // I can't do anything with a LHS like "foo.". Only actual types.
+//            if (typeQName != null && typeQName.length() > 0) {
+//                if ("this".equals(lhs)) {
+//                    typeQName = fqn;
+//                    skipPrivate = false;
+////                } else if ("super".equals(lhs)) {
+////                    skipPrivate = false;
+////
+////                    IndexedClass sc = index.getSuperclass(fqn);
+////
+////                    if (sc != null) {
+////                        type = sc.getFqn();
+////                    } else {
+////                        ClassNode cls = AstUtilities.findClass(path);
+////
+////                        if (cls != null) {
+////                            type = AstUtilities.getSuperclass(cls);
+////                        }
+////                    }
+////
+////                    if (type == null) {
+////                        type = "Object"; // NOI18N
+////                    }
+//                }
+//
+//                if (typeQName != null && typeQName.length() > 0) {
+//                    // Possibly a class on the left hand side: try searching with the class as a qualifier.
+//                    // Try with the LHS + current FQN recursively. E.g. if we're in
+//                    // Test::Unit when there's a call to Foo.x, we'll try
+//                    // Test::Unit::Foo, and Test::Foo
+//                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeQName)) {
+//                        elements = index.getMembers(prefix, fqn + "." + typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
+//
+//                        int f = fqn.lastIndexOf("::");
+//
+//                        if (f == -1) {
+//                            break;
+//                        } else {
+//                            fqn = fqn.substring(0, f);
 //                        }
 //                    }
 //
-//                    if (type == null) {
-//                        type = "Object"; // NOI18N
+//                    // Add methods in the class (without an FQN)
+//                    Set<GsfElement> m = index.getMembers(prefix, typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
+//
+//                    if (m.size() > 0) {
+//                        elements = m;
 //                    }
-                }
-
-                if (typeQName != null && typeQName.length() > 0) {
-                    // Possibly a class on the left hand side: try searching with the class as a qualifier.
-                    // Try with the LHS + current FQN recursively. E.g. if we're in
-                    // Test::Unit when there's a call to Foo.x, we'll try
-                    // Test::Unit::Foo, and Test::Foo
-                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeQName)) {
-                        elements = index.getMembers(prefix, fqn + "." + typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
-
-                        int f = fqn.lastIndexOf("::");
-
-                        if (f == -1) {
-                            break;
-                        } else {
-                            fqn = fqn.substring(0, f);
-                        }
-                    }
-
-                    // Add methods in the class (without an FQN)
-                    Set<GsfElement> m = index.getMembers(prefix, typeQName, kind, ScalaIndex.ALL_SCOPE, result, false);
-
-                    if (m.size() > 0) {
-                        elements = m;
-                    }
-                }
-            } else if (lhs != null && lhs.length() > 0) {
-                // No type but an LHS - perhaps it's a type?
-                Set<GsfElement> m = index.getMembers(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false);
-
-                if (m.size() > 0) {
-                    elements = m;
-                }
-            }
-
-            // Try just the method call (e.g. across all classes). This is ignoring the 
-            // left hand side because we can't resolve it.
-            if ((elements.size() == 0) && (prefix.length() > 0 || typeQName == null)) {
-//                if (prefix.length() == 0) {
-//                    proposals.clear();
-//                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
-//                    return true;
-//                } else {
-                //elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //                }
-            }
-
-            for (GsfElement gsfElement : elements) {
-                Element element = gsfElement.getElement();
-                // Skip constructors - you don't want to call
-                //   x.Foo !
-                if (element.getKind() == ElementKind.CONSTRUCTOR) {
-                    continue;
-                }
-
-                // Don't include private or protected methods on other objects
-                if (skipPrivate && element.getModifiers().contains(Modifier.PRIVATE)) {
-                    continue;
-                }
-
-
-
-//                // We can only call static methods
-//                if (skipInstanceMethods && !method.isStatic()) {
+//            } else if (lhs != null && lhs.length() > 0) {
+//                // No type but an LHS - perhaps it's a type?
+//                Set<GsfElement> m = index.getMembers(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false);
+//
+//                if (m.size() > 0) {
+//                    elements = m;
+//                }
+//            }
+//
+//            // Try just the method call (e.g. across all classes). This is ignoring the
+//            // left hand side because we can't resolve it.
+//            if ((elements.size() == 0) && (prefix.length() > 0 || typeQName == null)) {
+////                if (prefix.length() == 0) {
+////                    proposals.clear();
+////                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
+////                    return true;
+////                } else {
+//                //elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
+////                }
+//            }
+//
+//            for (GsfElement gsfElement : elements) {
+//                Element element = gsfElement.getElement();
+//                // Skip constructors - you don't want to call
+//                //   x.Foo !
+//                if (element.getKind() == ElementKind.CONSTRUCTOR) {
 //                    continue;
 //                }
-
-//                if (element.isNoDoc()) {
+//
+//                // Don't include private or protected methods on other objects
+//                if (skipPrivate && element.getModifiers().contains(Modifier.PRIVATE)) {
 //                    continue;
 //                }
-
-                if (element instanceof ExecutableElement) {
-                    FunctionItem item = new FunctionItem(gsfElement, request);
-                    proposals.add(item);
-                } else if (element instanceof VariableElement) {
-                    PlainItem item = new PlainItem(gsfElement, request);
-                    proposals.add(item);
-                }
-            }
-
-            return done;
-        }
-
-        return false;
-    }
-
+//
+//
+//
+////                // We can only call static methods
+////                if (skipInstanceMethods && !method.isStatic()) {
+////                    continue;
+////                }
+//
+////                if (element.isNoDoc()) {
+////                    continue;
+////                }
+//
+//                if (element instanceof ExecutableElement) {
+//                    FunctionItem item = new FunctionItem(gsfElement, request);
+//                    proposals.add(item);
+//                } else if (element instanceof VariableElement) {
+//                    PlainItem item = new PlainItem(gsfElement, request);
+//                    proposals.add(item);
+//                }
+//            }
+//
+//            return done;
+//        }
+//
+//        return false;
+//    }
     /** Determine if we're trying to complete the name for a "new" (in which case
      * we show available constructors.
      */
@@ -1870,6 +1859,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         try {
             ScalaParserResult pResult = AstUtilities.getParserResult(info);
             AstScope root = pResult.getRootScope();
+            ScalaTreeVisitor visitor = pResult.getTreeVisitor();
 
             if (root == null) {
                 return false;
@@ -1904,12 +1894,20 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
             }
 
-            FunctionCall call = null;
-            AstNode closest = root.findElementOrMirror(th, astOffset);
-            if (closest instanceof FunctionCall) {
-                call = (FunctionCall) closest;
+            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+            ts.move(lexOffset);
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return false;
             }
 
+            AstItem closest = root.findItemAt(th, astOffset);
+            int closestOffset = astOffset - 1;
+            while (closest == null && closestOffset > 0) {
+                closest = root.findItemAt(th, closestOffset--);
+            }
+
+            //Symbol call = findCallSymbol(visitor, ts, th, request, true);
+            AstItem call = closest;
 
             int currentLineStart = Utilities.getRowStart(doc, lexOffset);
             if (callLineStart != -1 && currentLineStart == callLineStart) {
@@ -2082,7 +2080,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
         } catch (AssertionError ex) {
             ScalaGlobal.reset();
-            // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
+        // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
         }
 
         return true;
@@ -2136,7 +2134,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         private DefaultCompletionResult completionResult;
         protected TokenHierarchy<Document> th;
         protected CompilationInfo info;
-        protected AstNode node;
+        protected AstItem node;
         protected AstScope root;
         protected int anchor;
         protected int lexOffset;

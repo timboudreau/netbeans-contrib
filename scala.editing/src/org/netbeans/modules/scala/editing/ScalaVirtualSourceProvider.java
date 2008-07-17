@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.nodes.ScalaTypeInferencer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -170,13 +171,13 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             if (pResult != null) {
                 //ScalaIndex index = ScalaIndex.get(fo);
                 //pResult.toGlobalPhase(index);
-                AstScope rootScope = pResult.getRootScope();
-                if (rootScope != null) {
-                    List<Template> templates = new ArrayList<Template>();
-                    scan(rootScope, templates);
-
-                    resultList.addAll(templates);
-                }
+//                AstScope rootScope = pResult.getRootScope();
+//                if (rootScope != null) {
+//                    List<Template> templates = new ArrayList<Template>();
+//                    scan(rootScope, templates);
+//
+//                    resultList.addAll(templates);
+//                }
             } else {
                 assert false : "Parse result is null : " + fo.getName();
             }

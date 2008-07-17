@@ -48,10 +48,10 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstItem;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.nodes.AstNode;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.NbBundle;
 
 /**
@@ -65,9 +65,10 @@ public class ScalaInstantRenamer implements InstantRenamer {
     }
 
     public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
-        AstScope root = AstUtilities.getRoot(info);
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        AstScope rootScope = pResult.getRootScope();
 
-        if (root == null) {
+        if (rootScope == null) {
             explanationRetValue[0] = NbBundle.getMessage(ScalaInstantRenamer.class, "NoRenameWithErrors");
 
             return false;
@@ -85,18 +86,22 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return false;
         }
 
-        ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        AstScope rootScope = pResult.getRootScope();
 
-        AstNode closest = rootScope.findElementOrMirror(th, caretOffset);
+        AstItem closest = rootScope.findItemAt(th, caretOffset);
+        if (closest == null) {
+            return false;
+        }
 
-        AstElement element = rootScope.findElementOf(closest);
+        AstDef def = rootScope.findDefOf(closest);
+        if (def == null) {
+            return false;
+        }
         
-        if (element instanceof AstElement) {
-            switch (((AstElement) closest).getKind()) {
+        if (def != null) {
+            switch (def.getKind()) {
                 case FIELD:
                 case PARAMETER:
-                case LOCAL_VARIABLE:
+                case VARIABLE:
                 case METHOD:
                     return true;
                 // TODO - block renaming of GLOBALS! I should already know
@@ -127,13 +132,12 @@ public class ScalaInstantRenamer implements InstantRenamer {
 
         AstScope rootScope = pResult.getRootScope();
 
-        AstNode closest = rootScope.findElementOrMirror(th, caretOffset);
-
-        List<AstNode> occurrences = rootScope.findOccurrences(closest);
+        AstItem closest = rootScope.findItemAt(th, caretOffset);
+        List<AstItem> occurrences = rootScope.findOccurrences(closest);
 
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
-        for (AstNode node : occurrences) {
-            regions.add(ScalaLexUtilities.getRangeOfToken(th, node.getPickToken()));
+        for (AstItem item : occurrences) {
+            regions.add(ScalaLexUtilities.getRangeOfToken(th, item.getPickToken()));
         }
 
         if (regions.size() > 0) {

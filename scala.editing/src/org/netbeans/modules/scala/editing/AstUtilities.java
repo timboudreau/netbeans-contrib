@@ -44,7 +44,7 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import xtc.tree.Node;
 
 /**
@@ -103,21 +103,18 @@ public class AstUtilities {
     }
 
     public static AstScope getRoot(CompilationInfo info, String mimeType) {
-        ParserResult result = info.getEmbeddedResult(mimeType, 0);
+        ParserResult pResult = info.getEmbeddedResult(mimeType, 0);
 
-        if (result == null) {
+        if (pResult == null) {
             return null;
         }
 
-        return getRoot(result);
+        return getRoot(pResult);
     }
 
-    public static AstScope getRoot(ParserResult r) {
-        assert r instanceof ScalaParserResult;
-
-        ScalaParserResult result = (ScalaParserResult) r;
-
-        return result.getRootScope();
+    public static AstScope getRoot(ParserResult pResult) {
+        assert pResult instanceof ScalaParserResult;
+        return ((ScalaParserResult) pResult).getRootScope();
     }
 
     /**

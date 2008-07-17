@@ -59,7 +59,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import javax.lang.model.element.TypeElement;
 import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -75,11 +74,12 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
@@ -493,7 +493,7 @@ class J2SEActionProvider implements ActionProvider {
                 clazz = clazz.replace('/','.');
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
-                final Collection<TypeElement> mainClasses = J2SEProjectUtil.getMainMethods (file);
+                final Collection<AstDef> mainClasses = J2SEProjectUtil.getMainMethods (file);
                 if (!hasMainClassFromTest && mainClasses.isEmpty()) {
 //                    if (AppletSupport.isApplet(file)) {
 //
@@ -542,7 +542,7 @@ class J2SEActionProvider implements ActionProvider {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
                             //Just one main class
-                            clazz = mainClasses.iterator().next().getSimpleName().toString();
+                            clazz = mainClasses.iterator().next().getName().toString();
                         }
                         else {
                             //Several main classes, let the user choose
@@ -760,13 +760,13 @@ class J2SEActionProvider implements ActionProvider {
                             return;
                         }
                         
-                        List<Template> tmpls = rootScope.getVisibleElements(Template.class);                        
+                        List<AstDef> tmpls = rootScope.getVisibleDefs(ElementKind.CLASS);
                         if (tmpls.size() > 0) {
-                            for (Template type : tmpls) {
+                            for (AstDef tmpl : tmpls) {
                                 if (classes[0].length() > 0) {
                                     classes[0] = classes[0] + " ";            // NOI18N
                                 }
-                                classes[0] = classes[0] + type.getSimpleName().toString().replace('.', '/') + "*.class";  // NOI18N
+                                classes[0] = classes[0] + tmpl.getName().toString().replace('.', '/') + "*.class";  // NOI18N
                             }
                         }
                     }
@@ -992,7 +992,7 @@ class J2SEActionProvider implements ActionProvider {
         return canceled;
     }
     
-    private String showMainClassWarning (final FileObject file, final Collection<TypeElement> mainClasses) {
+    private String showMainClassWarning (final FileObject file, final Collection<AstDef> mainClasses) {
         assert mainClasses != null;
         String mainClass = null;
         final JButton okButton = new JButton (NbBundle.getMessage (MainClassWarning.class, "LBL_MainClassWarning_ChooseMainClass_OK")); // NOI18N
