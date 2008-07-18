@@ -73,7 +73,6 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText(org.openide.util.NbBundle.getMessage(PCConfigPanel.class, "LBL_OPEN_SOURCE_PORTLET_CONTAINER")); // NOI18N
 
         jLabel4.setLabelFor(portalUri);
@@ -114,33 +113,48 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel4)
-                    .add(jLabel5)
-                    .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(49, 49, 49))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(28, 28, 28))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(27, 27, 27))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(26, 26, 26))
+                    .add(jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, adminConsoleUriTf)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletUriTf))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, hostTf)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, adminConsoleUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, portletUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))
+                        .add(168, 168, 168))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, homeTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 299, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(homeChooseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(61, Short.MAX_VALUE))
+                        .add(homeChooseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, Short.MAX_VALUE)))
+                .add(103, 103, 103))
             .add(layout.createSequentialGroup()
                 .add(155, 155, 155)
                 .add(jLabel1)
-                .addContainerGap(161, Short.MAX_VALUE))
+                .addContainerGap(239, Short.MAX_VALUE))
         );
+
+        layout.linkSize(new java.awt.Component[] {homeTf, hostTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {adminConsoleUriTf, portalUri, portletUriTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -174,7 +188,7 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
                         .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
