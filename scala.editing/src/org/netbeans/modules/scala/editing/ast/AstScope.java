@@ -47,6 +47,8 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.Type;
 
 /**
  *
@@ -80,15 +82,15 @@ public class AstScope implements Iterable<AstScope> {
         if (boundsTokens != null) {
             assert boundsTokens.length == 2;
             return boundsTokens[0];
-        }        
+        }
         return null;
     }
-    
+
     public Token getBoundsEndToken() {
         if (boundsTokens != null) {
             assert boundsTokens.length == 2;
             return boundsTokens[1];
-        }        
+        }
         return null;
     }
 
@@ -254,6 +256,75 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
+    public AstItem findItemAt(TokenHierarchy th, Token token) {
+        int offset = token.offset(th);
+        // Always seach Ref first, since Ref can be included in Def's range
+        if (refs != null) {
+            if (!refsSorted) {
+                Collections.sort(refs, new RefComparator(th));
+                refsSorted = true;
+            }
+            int low = 0;
+            int high = refs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstRef middle = refs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    Token idToken = middle.getPickToken();
+                    if (idToken != null && idToken == token) {
+                        return middle;
+                    }
+                }
+            }
+        }
+
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new DefComparator(th));
+                defsSorted = true;
+            }
+            int low = 0;
+            int high = defs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstDef middle = defs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle.findItemAt(th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
     public <T extends AstDef> T findDefAt(Class<T> clazz, TokenHierarchy th, int offset) {
         if (defs != null) {
             if (!defsSorted) {
@@ -343,7 +414,7 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public List<AstItem> findOccurrences(AstItem item) {
+    public List<? extends AstItem> findOccurrences(AstItem item) {
         AstDef def = null;
 
         if (item instanceof AstDef) {
@@ -353,7 +424,8 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         if (def == null) {
-            return Collections.emptyList();
+            // def maybe remote one, just try to find all same refs
+            return findAllRefsSameAs((AstRef) item);
         }
 
         List<AstItem> occurrences = new ArrayList<AstItem>();
@@ -433,6 +505,37 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
+    public final AstScope getRootScope() {
+        return parent == null ? this : parent.getRootScope();
+    }
+
+    private List<AstRef> findAllRefsSameAs(AstRef ref) {
+        List<AstRef> result = new ArrayList<AstRef>();
+
+        result.add(ref);
+        getRootScope().findAllRefsSameAsDownward(ref, result);
+
+        return result;
+    }
+
+    private final void findAllRefsSameAsDownward(AstRef ref, List<AstRef> result) {
+        if (refs != null) {
+            for (AstRef _ref : refs) {
+                if (ref.isSame(_ref)) {
+                    result.add(_ref);
+                }
+
+            }
+        }
+
+        /** search downward */
+        if (scopes != null) {
+            for (AstScope scope : scopes) {
+                scope.findAllRefsSameAsDownward(ref, result);
+            }
+        }
+    }
+
     private boolean contains(TokenHierarchy th, int offset) {
         return offset >= getBoundsOffset(th) && offset < getBoundsEndOffset(th);
     }
@@ -501,7 +604,7 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
     }
-    
+
     public <T extends AstDef> List<T> getVisibleDefs(Class<T> clazz) {
         List<T> result = new ArrayList<T>();
 
@@ -523,7 +626,7 @@ public class AstScope implements Iterable<AstScope> {
             parent.getVisibleDefsUpward(clazz, result);
         }
     }
-    
+
     public <T extends AstDef> T getEnclosinDef(Class<T> clazz, TokenHierarchy th, int offset) {
         AstScope scope = getClosestScope(th, offset);
         return scope.getEnclosingDef(clazz);
@@ -540,7 +643,27 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
     }
+    
+    public int findOffetOfDefEqualsTo(Symbol toMatch, TokenHierarchy th) {
+        String name = toMatch.nameString();
+        Type toMatchType = toMatch.tpe();
+        for (AstDef def : getDefs()) {
+            Symbol symbol = def.getSymbol();
+            if (symbol != null && symbol.nameString().equals(name)) {
+                if (symbol.tpe().$eq$colon$eq(toMatchType)) {
+                    return def.getPickOffset(th);
+                }
+            }
+        }
 
+        for (AstScope child : getScopes()) {
+            return child.findOffetOfDefEqualsTo(toMatch, th);
+        }
+
+        return -1;
+    }
+    
+    
     @Override
     public String toString() {
         return "Scope(Binding=" + bindinDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";

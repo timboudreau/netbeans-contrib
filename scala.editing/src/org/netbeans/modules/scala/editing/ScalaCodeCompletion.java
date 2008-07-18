@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.ast.ScalaElement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -450,15 +449,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                 request.root = root;
                 request.node = closest;
-            }
 
-            ScalaTreeVisitor treeVisitor = pResult.getTreeVisitor();
-            if (treeVisitor != null) {
-                Symbol symbol = findCallSymbol(treeVisitor, ts, th, request, true);
+                Symbol symbol = findCallSymbol(root, ts, th, request, true);
                 if (symbol != null) {
                     completeSymbolMembers(symbol, proposals, request);
                     return completionResult;
                 }
+
             }
 
 
@@ -1859,8 +1856,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         try {
             ScalaParserResult pResult = AstUtilities.getParserResult(info);
             AstScope root = pResult.getRootScope();
-            ScalaTreeVisitor visitor = pResult.getTreeVisitor();
-
             if (root == null) {
                 return false;
             }
@@ -2091,8 +2086,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             ScalaTokenId.Super,
             ScalaTokenId.Class);
 
-    private Symbol findCallSymbol(ScalaTreeVisitor treeVisitor, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
-        assert treeVisitor != null;
+    private Symbol findCallSymbol(AstScope rootScope, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
+        assert rootScope != null;
 
         Token idToken = null;
         Token closest = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
@@ -2110,17 +2105,15 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         }
 
         if (idToken != null) {
-            int idOffset = idToken.offset(th);
-            String idName = idToken.text().toString();
-            Symbol symbol = treeVisitor.findSymbolAt(idOffset, idName, idToken.id());
-            if (symbol != null) {
-                return symbol;
+            AstItem item = rootScope.findItemAt(th, idToken);
+            if (item != null) {
+                return item.getSymbol();
             } else {
                 if (tryTwice) {
                     Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
                     if (dot != null) {
                         request.prefix = idToken.text().toString();
-                        return findCallSymbol(treeVisitor, ts, th, request, false);
+                        return findCallSymbol(rootScope, ts, th, request, false);
                     }
                 }
             }

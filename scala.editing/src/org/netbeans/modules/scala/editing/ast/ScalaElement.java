@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.swing.text.BadLocationException;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
@@ -235,6 +236,10 @@ public class ScalaElement implements ElementHandle {
                 try {
                     char[] text = srcDoc.getChars(0, srcDoc.getLength());
                     BatchSourceFile srcFile = new BatchSourceFile(path, text);
+                    TokenHierarchy th = TokenHierarchy.get(doc);
+                    if (th == null) {
+                        return;
+                    }
 
                     /**
                      * @Note by compiling the related source file, this symbol will
@@ -246,8 +251,8 @@ public class ScalaElement implements ElementHandle {
                     CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                     if (unit != null) {
                         final Tree tree = unit.body();
-                        ScalaTreeVisitor visitor = new ScalaTreeVisitor(tree);
-                        int _offset = visitor.findOffet(symbol);
+                        AstScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                        int _offset = root.findOffetOfDefEqualsTo(symbol, th);
                         if (_offset >= 0) {
                             offset = _offset;
                         }

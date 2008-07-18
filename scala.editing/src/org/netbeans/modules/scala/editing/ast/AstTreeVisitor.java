@@ -43,6 +43,7 @@ import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -388,10 +389,20 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSuper(Super tree) {
+        Token idToken = getIdToken(tree);
+        if (idToken.id() == ScalaTokenId.Super) {
+            AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+            scopes.peek().addRef(ref);
+        }
     }
 
     @Override
     public void visitThis(This tree) {
+        Token idToken = getIdToken(tree);
+        if (idToken.id() == ScalaTokenId.This) {
+            AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+            scopes.peek().addRef(ref);
+        }
     }
 
     @Override
@@ -420,6 +431,8 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitTypeTree(TypeTree tree) {
+        AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+        scopes.peek().addRef(ref);
         visit(tree.original());
     }
 

@@ -217,7 +217,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            List<AstItem> _occurrences = rootScope.findOccurrences(closest);
+            List<? extends AstItem> _occurrences = rootScope.findOccurrences(closest);
             for (AstItem item : _occurrences) {
                 highlights.put(ScalaLexUtilities.getRangeOfToken(th, item.getPickToken()), ColoringAttributes.MARK_OCCURRENCES);
             }

@@ -133,7 +133,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
         AstScope rootScope = pResult.getRootScope();
 
         AstItem closest = rootScope.findItemAt(th, caretOffset);
-        List<AstItem> occurrences = rootScope.findOccurrences(closest);
+        List<? extends AstItem> occurrences = rootScope.findOccurrences(closest);
 
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
         for (AstItem item : occurrences) {

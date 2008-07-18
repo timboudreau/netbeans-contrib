@@ -64,11 +64,9 @@ import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.FieldCall;
 import org.netbeans.modules.scala.editing.nodes.FunctionCall;
-import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
 import scala.tools.nsc.Global;
-import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  * 
@@ -164,21 +162,17 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 int offset = def.getPickOffset(th);
                 return new DeclarationLocation(info.getFileObject(), offset, def);
             } else {
-                ScalaTreeVisitor treeVisitor = pResult.getTreeVisitor();
-                if (treeVisitor != null) {
-                    TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
-                    ts.move(lexOffset);
-                    if (!ts.moveNext() && !ts.movePrevious()) {
-                        return DeclarationLocation.NONE;
+                TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+                ts.move(lexOffset);
+                if (!ts.moveNext() && !ts.movePrevious()) {
+                    return DeclarationLocation.NONE;
+                }
+                Token token = ts.token();
+                if (token.id() == ScalaTokenId.Identifier) {
+                    AstItem item = root.findItemAt(th, token);
+                    if (item != null) {
+                        foundElement = new ScalaElement(item.getSymbol(), info, global);
                     }
-                    Token token = ts.token();
-                    if (token.id() == ScalaTokenId.Identifier) {
-                        Symbol symbol = treeVisitor.findSymbolAt(token.offset(th), token.text().toString(), token.id());
-                        if (symbol != null) {
-                            foundElement = new ScalaElement(symbol, info, global);
-                        }
-                    }
-
                 }
             }
 
@@ -189,7 +183,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 } else {
                     if (foundElement instanceof ScalaElement) {
                         offset = ((ScalaElement) foundElement).getOffset();
-                    }                   
+                    }
                 }
 
                 FileObject fo = foundElement.getFileObject();

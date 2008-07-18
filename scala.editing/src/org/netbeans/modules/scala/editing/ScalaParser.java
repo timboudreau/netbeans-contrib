@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.scala.editing.ast.ScalaTreeVisitor;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -309,7 +308,7 @@ public class ScalaParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null, context.th, null);
+                return createParseResult(context.file, null, null, context.th);
 
             case NONE:
 
@@ -359,7 +358,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null, context.th, null);
+                return createParseResult(context.file, null, null, context.th);
         }
     }
 
@@ -567,13 +566,11 @@ public class ScalaParser implements Parser {
         }
 
         //CompilationUnit unit = run.currentUnit(); it could be null when complie successfully?
-        ScalaTreeVisitor treeVisitor = null;
         scala.Iterator units = run.units();
         while (units.hasNext()) {
             CompilationUnit unit = (CompilationUnit) units.next();
             if (unit.source() == srcFile) {
                 Tree tree = unit.body();
-                treeVisitor = new ScalaTreeVisitor(tree);
                 rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
                 break;
             }
@@ -581,7 +578,7 @@ public class ScalaParser implements Parser {
 
         if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th, treeVisitor);
+            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th);
             pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             pResult.setSource(source);
             return pResult;
@@ -592,8 +589,8 @@ public class ScalaParser implements Parser {
     private static long version;
 
     private ScalaParserResult createParseResult(ParserFile file,
-            AstScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th, ScalaTreeVisitor treeVisitor) {
-        return new ScalaParserResult(this, file, rootScope, ast, th, treeVisitor);
+            AstScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th) {
+        return new ScalaParserResult(this, file, rootScope, ast, th);
     }
 
     private List<Integer> computeLinesOffset(String source) {

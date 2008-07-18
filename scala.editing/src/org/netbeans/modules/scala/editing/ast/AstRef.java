@@ -54,6 +54,10 @@ public class AstRef extends AstItem {
         super(symbol, pickToken);
     }
 
+    public boolean isSame(AstRef ref) {
+        return ref.getSymbol() == getSymbol();
+    }
+
     @Override
     public String toString() {
         return getName() + "(type=" + getSymbol().tpe() + ")";

@@ -157,14 +157,12 @@ public abstract class AstVisitor {
             return;
         }
 
-        enter(tree);
-
-        Symbol symbol = tree.symbol();
-        String symbolStr = "<null>";
-        if (symbol != null) {
-            symbolStr = symbol.toString();
+        if (offset(tree) == -1) {
+            /** It may be EmptyTree, emptyValDef$, or remote TypeTree which present an inferred Type etc */
+            return;
         }
-        System.out.println("AstPath: " + getAstPathString() + "(" + offset(tree) + "), symbol: " + symbolStr);
+
+        enter(tree);
 
         if (tree instanceof ClassDef) {
             visitClassDef((ClassDef) tree);
@@ -396,7 +394,7 @@ public abstract class AstVisitor {
         assert astPath.size() >= 2;
         return astPath.get(astPath.size() - 2);
     }
-    
+
     protected String getAstPathString() {
         StringBuilder sb = new StringBuilder();
 
@@ -413,6 +411,8 @@ public abstract class AstVisitor {
     protected void enter(Tree tree) {
         indentLevel++;
         astPath.push(tree);
+        
+        //debugPrintAstPath(tree);        
     }
 
     protected void exit(Tree node) {
@@ -449,6 +449,10 @@ public abstract class AstVisitor {
         Token startToken = ScalaLexUtilities.findNextNonWs(ts);
         if (startToken.isFlyweight()) {
             startToken = ts.offsetToken();
+        }
+
+        if (startToken == null) {
+            System.out.println("null start token(" + offset + ")");
         }
 
         return startToken;
@@ -492,9 +496,9 @@ public abstract class AstVisitor {
         }
 
         Token token;
-        if (name.equals("this")) {
+        if (tree instanceof This) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
-        } else if (name.equals("super")) {
+        } else if (tree instanceof Super) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
         } else if (name.endsWith("expected")) {
             token = ts.token();
@@ -508,8 +512,8 @@ public abstract class AstVisitor {
             token = ts.offsetToken();
         }
 
-        System.out.println("idToken: " + token.text().toString());
-        
+        //System.out.println("idToken: " + token.text().toString());
+
         return token;
     }
 
@@ -528,5 +532,17 @@ public abstract class AstVisitor {
 
             System.out.println("(" + pos.line() + ":" + pos.column() + ") name=" + name + ", symTypeName=" + symTypeName + ", type=" + type + " tree: " + tree.getClass().getCanonicalName());
         }
+    }
+
+    protected void debugPrintAstPath(Tree tree) {
+        Symbol symbol = tree.symbol();
+        String symbolStr = "<null>";
+        if (symbol != null) {
+            symbolStr = symbol.toString();
+        }
+        
+        Position pos = tree.pos();
+        
+        System.out.println("AstPath: " + getAstPathString() + "(" + pos.line() + ":" + pos.column() + "), symbol: " + symbolStr);
     }
 }
