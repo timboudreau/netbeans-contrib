@@ -48,6 +48,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.PositionManager;
+import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 
@@ -57,7 +58,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
  */
 public class ScalaPositionManager implements PositionManager {
 
-    public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle eHandle) {
+    public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle handle) {
         OffsetRange range = OffsetRange.NONE;
 
         final Document document = info.getDocument();
@@ -67,13 +68,15 @@ public class ScalaPositionManager implements PositionManager {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
 
-        if (eHandle instanceof GsfElement) {
-            Element element = ((GsfElement) eHandle).getElement();
+        if (handle instanceof GsfElement) {
+            Element element = ((GsfElement) handle).getElement();
             if (element instanceof AstElement) {
                 range = ScalaLexUtilities.getRangeOfToken(th, ((AstElement) element).getPickToken());
             } else if (element instanceof IndexedElement) {
                 range = ((IndexedElement) element).getRange(th);
             }
+        } else if (handle instanceof AstDef) {
+            range = range = ScalaLexUtilities.getRangeOfToken(th, ((AstDef) handle).getPickToken());
         }
 
         return range;
