@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.python.editor
-OpenIDE-Module-Layer: org/netbeans/modules/python/editor/resources/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/python/editor/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
