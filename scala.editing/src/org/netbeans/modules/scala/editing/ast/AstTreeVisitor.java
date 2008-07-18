@@ -38,12 +38,15 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -97,9 +100,22 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class AstTreeVisitor extends AstVisitor {
 
+    final FileObject fo;
+
     public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(rootTree, th, sourceFile);
         setBoundsEndTokens(rootScope);
+        if (sourceFile != null) {
+            File file = new File(sourceFile.path());
+            if (file != null && file.exists()) {
+                // it's a real file and not archive file
+                fo = FileUtil.toFileObject(file);
+            } else {
+                fo = null;
+            }
+        } else {
+            fo = null;
+        }
     }
 
     private void setBoundsEndTokens(AstScope fromScope) {
@@ -138,7 +154,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);
@@ -151,7 +167,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);
@@ -165,7 +181,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);
@@ -186,7 +202,7 @@ public class AstTreeVisitor extends AstVisitor {
             kind = ElementKind.PARAMETER;
         }
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);
@@ -202,7 +218,7 @@ public class AstTreeVisitor extends AstVisitor {
 
         ElementKind kind = tree.symbol().isConstructor() ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);
@@ -218,7 +234,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
         scopes.peek().addDef(def);
 
         scopes.push(scope);

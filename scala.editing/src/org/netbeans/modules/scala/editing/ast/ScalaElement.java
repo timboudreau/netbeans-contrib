@@ -60,13 +60,14 @@ import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.io.AbstractFile;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.Type;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ScalaElement implements ElementHandle {
+public class ScalaElement implements ScalaElementHandle {
 
     private Symbol symbol;
     private final Global global;
@@ -100,6 +101,10 @@ public class ScalaElement implements ElementHandle {
     public Symbol getSymbol() {
         return symbol;
     }
+    
+    public Type getType() {
+        return getSymbol().tpe();
+    }    
 
     public FileObject getFileObject() {
         if (fo == null) {
@@ -290,6 +295,10 @@ public class ScalaElement implements ElementHandle {
         return inherited;
     }
 
+    public boolean isEmphasize() {
+        return !isInherited();
+    }
+    
     public void setSmart(boolean smart) {
         this.smart = smart;
     }

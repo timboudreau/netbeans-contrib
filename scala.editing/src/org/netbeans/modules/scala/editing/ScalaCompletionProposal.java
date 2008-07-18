@@ -52,6 +52,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
+import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Symbols.TypeSymbol;
@@ -129,14 +130,9 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         Symbol symbol = element.getSymbol();
 
         formatter.type(true);
-        try {
-            Type retType = symbol.tpe().resultType();
-            if (retType != null && !symbol.isConstructor()) {
-                formatter.appendText(retType.toString());
-            }
-        } catch (java.lang.AssertionError ex) {
-            // ignore assert ex from scala
-            ScalaGlobal.reset();
+        Type retType = symbol.tpe().resultType();
+        if (retType != null && !symbol.isConstructor()) {
+            formatter.appendText(AstDef.toString(retType));
         }
         formatter.type(false);
 
@@ -244,10 +240,10 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                     formatter.parameters(true);
                     formatter.appendText("a" + Integer.toString(i));
                     formatter.parameters(false);
-                    formatter.appendText(" :");
-                    formatter.parameters(true);
+                    formatter.appendText(": ");
+                    formatter.type(true);
                     formatter.appendText(param.toString());
-                    formatter.parameters(false);
+                    formatter.type(false);
 
                     if (i < size - 1) {
                         formatter.appendText(", "); // NOI18N
@@ -268,7 +264,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 List<String> result = new ArrayList<String>(size);
                 for (int i = 0; i < size; i++) { // && tIt.hasNext()) {
                     Type param = (Type) paramTypes.apply(i);
-                    result.add(param.toString().toLowerCase());
+                    result.add(param.typeSymbol().nameString().toLowerCase());
                 }
                 return result;
             } else {

@@ -104,7 +104,7 @@ import scala.tools.nsc.util.Position;
 public abstract class AstVisitor {
 
     private int indentLevel;
-    private BatchSourceFile sourceFile;
+    protected BatchSourceFile sourceFile;
     protected TokenHierarchy th;
     protected AstScope rootScope;
     protected Stack<Tree> astPath = new Stack<Tree>();

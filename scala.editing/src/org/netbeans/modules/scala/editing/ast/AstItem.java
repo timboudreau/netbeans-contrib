@@ -144,9 +144,6 @@ public abstract class AstItem {
         return enclosingScope;
     }
 
-    public void htmlFormat(HtmlFormatter formatter) {
-    }
-
     public String getMimeType() {
         return ScalaMimeResolver.MIME_TYPE;
     }
