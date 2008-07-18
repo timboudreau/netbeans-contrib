@@ -20,7 +20,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters;
 
 import javax.swing.JPanel;
-import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 public final class ErrorVisualPanel extends JPanel {
     
@@ -33,7 +33,7 @@ public final class ErrorVisualPanel extends JPanel {
     }
     
     public String getName() {
-        return "Error";
+        return NbBundle.getMessage(ErrorVisualPanel.class, "MSG_ERROR");
     }
     
     /** This method is called from within the constructor to

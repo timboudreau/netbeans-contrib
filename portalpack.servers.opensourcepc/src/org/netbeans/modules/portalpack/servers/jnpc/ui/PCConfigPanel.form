@@ -20,38 +20,53 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jSeparator1" alignment="0" pref="491" max="32767" attributes="0"/>
+          <Component id="jSeparator1" alignment="0" pref="533" max="32767" attributes="0"/>
           <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jLabel2" max="32767" attributes="0"/>
+                      <EmptySpace min="49" pref="49" max="49" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jLabel3" max="32767" attributes="0"/>
+                      <EmptySpace min="28" pref="28" max="28" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jLabel4" max="32767" attributes="0"/>
+                      <EmptySpace min="27" pref="27" max="27" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jLabel5" max="32767" attributes="0"/>
+                      <EmptySpace min="26" pref="26" max="26" attributes="0"/>
+                  </Group>
+                  <Component id="jLabel6" pref="75" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="adminConsoleUriTf" alignment="0" max="32767" attributes="1"/>
-                      <Component id="portalUri" alignment="0" pref="173" max="32767" attributes="1"/>
-                      <Component id="portletUriTf" alignment="0" max="32767" attributes="1"/>
+                  <Group type="102" alignment="0" max="-2" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="adminConsoleUriTf" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
+                          <Component id="portalUri" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
+                          <Component id="portletUriTf" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="168" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="hostTf" alignment="0" max="32767" attributes="1"/>
-                          <Component id="homeTf" alignment="0" min="-2" pref="299" max="-2" attributes="1"/>
+                          <Component id="hostTf" linkSize="1" alignment="0" pref="299" max="32767" attributes="1"/>
+                          <Component id="homeTf" linkSize="1" alignment="0" min="-2" pref="299" max="-2" attributes="2"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="homeChooseButton" min="-2" pref="36" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Component id="homeChooseButton" pref="36" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="61" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="103" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="155" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="161" max="32767" attributes="0"/>
+              <EmptySpace pref="239" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -96,7 +111,7 @@
                       <Component id="jLabel6" min="-2" pref="22" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="13" max="32767" attributes="0"/>
+              <EmptySpace pref="16" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -104,9 +119,6 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="14" style="0"/>
-        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/portalpack/servers/jnpc/ui/Bundle.properties" key="LBL_OPEN_SOURCE_PORTLET_CONTAINER" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>

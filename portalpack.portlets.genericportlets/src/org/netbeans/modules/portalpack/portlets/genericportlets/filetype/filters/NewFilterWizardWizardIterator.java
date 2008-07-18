@@ -50,6 +50,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.TemplateWizard;
+import org.openide.util.NbBundle;
 
 public final class NewFilterWizardWizardIterator implements WizardDescriptor.InstantiatingIterator {
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
@@ -87,7 +88,7 @@ public final class NewFilterWizardWizardIterator implements WizardDescriptor.Ins
             if(WebDescriptorGenerator.getPortletAppVersion(portletXml.getAbsolutePath()).equals(NetbeanConstants.PORTLET_1_0))
             {
                 wizard.putProperty("WizardPanel_errorMessage",
-                    "Filter is not allowed in Portlet 1.0 Application");
+                    NbBundle.getMessage(NewFilterWizardWizardIterator.class, "LBL_FILTER_NOT_ALLOWED_IN_1_0_APP"));
                 panels =  new WizardDescriptor.Panel[]{
                       new ErrorWizardPanel(wizard)
                  };

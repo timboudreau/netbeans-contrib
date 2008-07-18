@@ -46,6 +46,9 @@ class MappingTable extends JTable {
 
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
     private static final boolean debug = false; 
+    
+    private String FILTER_NAME = NbBundle.getMessage(MappingTable.class, "LBL_FILTER_NAME");
+    private String APPLIES_TO = NbBundle.getMessage(MappingTable.class, "LBL_APPLIES_TO");
 
     // Handle resizing for larger fonts
     private boolean fontChanged = true;
@@ -184,10 +187,12 @@ class MappingTable extends JTable {
     }
 
     class MappingTableModel extends AbstractTableModel { 
+        
+        
 
 	private final String[] colheaders = { 
-	    "Filter Name",
-	    "Applies To"
+	    FILTER_NAME,
+	    APPLIES_TO
 	};
 
 	private ArrayList filterMappings = null;

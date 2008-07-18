@@ -103,7 +103,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.title")); // NOI18N
 
-        generateSourcePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.generateSourcePanel.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        generateSourcePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.generateSourcePanel.border.title"))); // NOI18N
 
         addToExistingMethodCB.setText(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.addToExistingMethodCB.text")); // NOI18N
         addToExistingMethodCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -123,13 +123,15 @@ public class GenerateEventDialog extends javax.swing.JDialog {
         generateSourcePanelLayout.setHorizontalGroup(
             generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(generateSourcePanelLayout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(14, 14, 14)
                 .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(addToExistingMethodCB)
-                    .add(generateNewMthodLabel))
+                    .add(addToExistingMethodCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(generateSourcePanelLayout.createSequentialGroup()
+                        .add(generateNewMthodLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(27, 27, 27)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(methodNameTxt)
+                .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(methodNameTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
                     .add(methodListCombo, 0, 236, Short.MAX_VALUE)))
         );
         generateSourcePanelLayout.setVerticalGroup(
@@ -146,7 +148,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        eventParametersPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.eventParametersPanel.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        eventParametersPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.eventParametersPanel.border.title"))); // NOI18N
 
         eventNameLabel.setText(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.eventNameLabel.text")); // NOI18N
 
@@ -164,11 +166,13 @@ public class GenerateEventDialog extends javax.swing.JDialog {
             .add(eventParametersPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(eventParametersPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(eventNameLabel)
-                    .add(portletNameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 83, Short.MAX_VALUE)
-                .add(eventParametersPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(portletNameTf)
+                    .add(eventParametersPanelLayout.createSequentialGroup()
+                        .add(eventNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(4, 4, 4))
+                    .add(portletNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(91, 91, 91)
+                .add(eventParametersPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(portletNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
                     .add(eventNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)))
         );
         eventParametersPanelLayout.setVerticalGroup(
@@ -202,23 +206,28 @@ public class GenerateEventDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, eventParametersPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(generateSourcePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                        .add(layout.createSequentialGroup()
+                            .add(4, 4, 4)
+                            .add(generateSourcePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                             .add(263, 263, 263)
                             .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(cancelButton))))
+                            .add(cancelButton)))
+                    .add(eventParametersPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {cancelButton, okButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap(20, Short.MAX_VALUE)
+                .addContainerGap(22, Short.MAX_VALUE)
                 .add(generateSourcePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(eventParametersPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
