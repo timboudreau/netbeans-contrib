@@ -93,7 +93,6 @@ import scala.tools.nsc.ast.Trees.Typed;
 import scala.tools.nsc.ast.Trees.UnApply;
 import scala.tools.nsc.ast.Trees.ValDef;
 import scala.tools.nsc.symtab.Symbols.Symbol;
-import scala.tools.nsc.symtab.Types.Type;
 import scala.tools.nsc.util.BatchSourceFile;
 import scala.tools.nsc.util.Position;
 
@@ -103,17 +102,18 @@ import scala.tools.nsc.util.Position;
  */
 public abstract class AstVisitor {
 
-    private int indentLevel;
+    protected boolean debug = true;
+    protected int indentLevel;
     protected BatchSourceFile sourceFile;
     protected TokenHierarchy th;
-    protected AstScope rootScope;
+    protected AstRootScope rootScope;
     protected Stack<Tree> astPath = new Stack<Tree>();
     protected Stack<AstScope> scopes = new Stack<AstScope>();
 
     public AstVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         this.th = th;
         this.sourceFile = sourceFile;
-        this.rootScope = new AstScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
+        this.rootScope = new AstRootScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
         scopes.push(rootScope);
         visit(rootTree);
     }
@@ -412,7 +412,7 @@ public abstract class AstVisitor {
         indentLevel++;
         astPath.push(tree);
         
-        //debugPrintAstPath(tree);        
+        if (debug) debugPrintAstPath(tree);        
     }
 
     protected void exit(Tree node) {
@@ -422,12 +422,16 @@ public abstract class AstVisitor {
 
     protected int offset(Tree tree) {
         Option offsetOpt = tree.pos().offset();
-        return offsetOpt.isDefined() ? (Integer) offsetOpt.get() : -1;
+        return offset(offsetOpt);
     }
 
     protected int offset(Symbol symbol) {
         Option offsetOpt = symbol.pos().offset();
-        return offsetOpt.isDefined() ? (Integer) offsetOpt.get() : -1;
+        return offset(offsetOpt);
+    }
+    
+    protected int offset(Option intOption) {
+        return intOption.isDefined() ? (Integer) intOption.get() : -1;
     }
 
     protected Token[] getBoundsTokens(int offset, int endOffset) {
@@ -484,10 +488,12 @@ public abstract class AstVisitor {
      */
     protected Token getIdToken(Tree tree) {
         Symbol symbol = tree.symbol();
-        assert symbol != null : "";
-        // Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this"
+        if (symbol == null) {
+            return null;
+        }
+        
+        /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
         String name = symbol.idString();
-
         int offset = offset(tree);
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
         ts.move(offset);
@@ -512,37 +518,18 @@ public abstract class AstVisitor {
             token = ts.offsetToken();
         }
 
-        //System.out.println("idToken: " + token.text().toString());
-
         return token;
     }
 
-    protected void printSingleTree(Tree tree) {
-        Position pos = tree.pos();
-        if (pos.offset() != null) {
-            Type type = tree.tpe();
-            String name = "";
-            String symTypeName = "";
-            Symbol sym = tree.symbol();
-            if (sym != null) {
-                name = sym.nameString();
-                symTypeName = sym.tpe().termSymbol().nameString();
-            }
-
-
-            System.out.println("(" + pos.line() + ":" + pos.column() + ") name=" + name + ", symTypeName=" + symTypeName + ", type=" + type + " tree: " + tree.getClass().getCanonicalName());
-        }
-    }
-
     protected void debugPrintAstPath(Tree tree) {
+        Token idToken = getIdToken(tree);
+        String idTokenStr = idToken == null ? "<null>" : idToken.text().toString();
+        
         Symbol symbol = tree.symbol();
-        String symbolStr = "<null>";
-        if (symbol != null) {
-            symbolStr = symbol.toString();
-        }
+        String symbolStr = symbol == null ? "<null>" : symbol.toString();
         
         Position pos = tree.pos();
-        
-        System.out.println("AstPath: " + getAstPathString() + "(" + pos.line() + ":" + pos.column() + "), symbol: " + symbolStr);
+
+        System.out.println("AstPath: " + getAstPathString() + "(" + offset(pos.line()) + ":" + offset(pos.column()) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
     }
 }

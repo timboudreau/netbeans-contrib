@@ -78,6 +78,10 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
+    public boolean isRoot() {
+        return getParent() == null;
+    }
+
     public Token getBoundsToken() {
         if (boundsTokens != null) {
             assert boundsTokens.length == 2;
@@ -165,22 +169,50 @@ public class AstScope implements Iterable<AstScope> {
         scope.parent = this;
     }
 
-    void addDef(AstDef def) {
+    /**
+     * @param def to be added
+     * @retrun added successfully or not
+     */
+    boolean addDef(AstDef def) {
+        Token idToken = def.getIdToken();
+        if (idToken == null) {
+            return false;
+        }
+        
+        /** a def will always be added */
+        getRoot().tryPut(idToken, def);
         if (defs == null) {
             defs = new ArrayList<AstDef>();
         }
         defs.add(def);
         defsSorted = false;
         def.setEnclosingScope(this);
+        return true;
     }
 
-    public void addRef(AstRef ref) {
+    /**
+     * @param ref to be added
+     * @retrun added successfully or not
+     */
+    boolean addRef(AstRef ref) {
+        Token idToken = ref.getIdToken();
+        if (idToken == null) {
+            return false;
+        }
+
+        /** if a def or ref that corresponds to thi idToekn has been added, this ref won't be added */
+        if (getRoot().contains(idToken)) {
+            return false;
+        }
+
+        getRoot().tryPut(idToken, ref);
         if (refs == null) {
             refs = new ArrayList<AstRef>();
         }
         refs.add(ref);
         refsSorted = false;
         ref.setEnclosingScope(this);
+        return true;
     }
 
     public Iterator<AstScope> iterator() {
@@ -203,9 +235,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstRef middle = refs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -223,9 +255,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstDef middle = defs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -269,12 +301,12 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstRef middle = refs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    Token idToken = middle.getPickToken();
+                    Token idToken = middle.getIdToken();
                     if (idToken != null && idToken == token) {
                         return middle;
                     }
@@ -292,9 +324,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstDef middle = defs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -336,9 +368,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstDef middle = defs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return clazz.isInstance(middle) ? (T) middle : null;
@@ -380,9 +412,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstRef middle = refs.get(mid);
-                if (offset < middle.getPickOffset(th)) {
+                if (offset < middle.getIdOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getPickEndOffset(th)) {
+                } else if (offset >= middle.getIdEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return clazz.isInstance(middle) ? (T) middle : null;
@@ -505,23 +537,23 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public final AstScope getRootScope() {
-        return parent == null ? this : parent.getRootScope();
+    public final AstRootScope getRoot() {
+        return parent == null ? (AstRootScope) this : parent.getRoot();
     }
 
     private List<AstRef> findAllRefsSameAs(AstRef ref) {
         List<AstRef> result = new ArrayList<AstRef>();
 
         result.add(ref);
-        getRootScope().findAllRefsSameAsDownward(ref, result);
+        getRoot().findAllRefsSameAsDownward(ref, result);
 
         return result;
     }
 
-    private final void findAllRefsSameAsDownward(AstRef ref, List<AstRef> result) {
+    protected final void findAllRefsSameAsDownward(AstRef ref, List<AstRef> result) {
         if (refs != null) {
             for (AstRef _ref : refs) {
-                if (ref.isSame(_ref)) {
+                if (ref.isOccurence(_ref)) {
                     result.add(_ref);
                 }
 
@@ -643,7 +675,7 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
     }
-    
+
     public int findOffetOfDefEqualsTo(Symbol toMatch, TokenHierarchy th) {
         String name = toMatch.nameString();
         Type toMatchType = toMatch.tpe();
@@ -651,7 +683,7 @@ public class AstScope implements Iterable<AstScope> {
             Symbol symbol = def.getSymbol();
             if (symbol != null && symbol.nameString().equals(name)) {
                 if (symbol.tpe().$eq$colon$eq(toMatchType)) {
-                    return def.getPickOffset(th);
+                    return def.getIdOffset(th);
                 }
             }
         }
@@ -662,8 +694,7 @@ public class AstScope implements Iterable<AstScope> {
 
         return -1;
     }
-    
-    
+
     @Override
     public String toString() {
         return "Scope(Binding=" + bindinDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
@@ -692,7 +723,7 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstDef o1, AstDef o2) {
-            return o1.getPickOffset(th) < o2.getPickOffset(th) ? -1 : 1;
+            return o1.getIdOffset(th) < o2.getIdOffset(th) ? -1 : 1;
         }
     }
 
@@ -705,7 +736,7 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstRef o1, AstRef o2) {
-            return o1.getPickOffset(th) < o2.getPickEndOffset(th) ? -1 : 1;
+            return o1.getIdOffset(th) < o2.getIdEndOffset(th) ? -1 : 1;
         }
     }
     // Sinleton EmptyScope

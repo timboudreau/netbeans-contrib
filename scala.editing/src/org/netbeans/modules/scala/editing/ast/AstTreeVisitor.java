@@ -92,6 +92,7 @@ import scala.tools.nsc.ast.Trees.TypeTree;
 import scala.tools.nsc.ast.Trees.Typed;
 import scala.tools.nsc.ast.Trees.UnApply;
 import scala.tools.nsc.ast.Trees.ValDef;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
@@ -100,7 +101,7 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class AstTreeVisitor extends AstVisitor {
 
-    final FileObject fo;
+    private final FileObject fo;
 
     public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(rootTree, th, sourceFile);
@@ -155,7 +156,11 @@ public class AstTreeVisitor extends AstVisitor {
         scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.stats());
@@ -168,7 +173,11 @@ public class AstTreeVisitor extends AstVisitor {
         scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.tparams());
@@ -182,7 +191,11 @@ public class AstTreeVisitor extends AstVisitor {
         scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.impl());
@@ -203,7 +216,11 @@ public class AstTreeVisitor extends AstVisitor {
         }
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.tpt());
@@ -219,7 +236,11 @@ public class AstTreeVisitor extends AstVisitor {
         ElementKind kind = tree.symbol().isConstructor() ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.tparams());
@@ -235,7 +256,11 @@ public class AstTreeVisitor extends AstVisitor {
         scopes.peek().addScope(scope);
 
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
-        scopes.peek().addDef(def);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
 
         scopes.push(scope);
         visit(tree.tparams());
@@ -408,7 +433,11 @@ public class AstTreeVisitor extends AstVisitor {
         Token idToken = getIdToken(tree);
         if (idToken.id() == ScalaTokenId.Super) {
             AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
-            scopes.peek().addRef(ref);
+            if (scopes.peek().addRef(ref)) {
+                if (debug) {
+                    System.out.println("Added: " + ref);
+                }
+            }
         }
     }
 
@@ -417,21 +446,39 @@ public class AstTreeVisitor extends AstVisitor {
         Token idToken = getIdToken(tree);
         if (idToken.id() == ScalaTokenId.This) {
             AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
-            scopes.peek().addRef(ref);
+            if (scopes.peek().addRef(ref)) {
+                if (debug) {
+                    System.out.println("Added: " + ref);
+                }
+            }
         }
     }
 
     @Override
     public void visitSelect(Select tree) {
         AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
-        scopes.peek().addRef(ref);
+        if (scopes.peek().addRef(ref)) {
+            if (debug) {
+                System.out.println("Added: " + ref);
+            }
+        }
         visit(tree.qualifier());
     }
 
     @Override
     public void visitIdent(Ident tree) {
-        AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
-        scopes.peek().addRef(ref);
+        Symbol symbol = tree.symbol();
+        if (symbol != null) {
+            if (symbol.toString().equals("<none>")) {
+                System.out.println("A NoSymbol found");
+            }
+            AstRef ref = new AstRef(symbol, getIdToken(tree));
+            if (scopes.peek().addRef(ref)) {
+                if (debug) {
+                    System.out.println("Added: " + ref);
+                }
+            }
+        }
     }
 
     @Override
@@ -448,7 +495,12 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitTypeTree(TypeTree tree) {
         AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
-        scopes.peek().addRef(ref);
+        if (scopes.peek().addRef(ref)) {
+            if (debug) {
+                System.out.println("Added: " + ref);
+            }
+        }
+
         visit(tree.original());
     }
 

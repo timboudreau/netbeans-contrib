@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editing.ast;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 
@@ -60,7 +59,7 @@ public abstract class AstItem {
      *    will return null when an Identifier token modified, seems sync issue
      */
     private Symbol symbol;
-    private Token pickToken;
+    private Token idToken;
     private AstScope enclosingScope;
 
     protected AstItem() {
@@ -71,13 +70,13 @@ public abstract class AstItem {
         this(symbol, null);
     }
 
-    protected AstItem(Token pickToken) {
-        this(null, pickToken);
+    protected AstItem(Token idToken) {
+        this(null, idToken);
     }
 
-    protected AstItem(Symbol symbol, Token pickToken) {
+    protected AstItem(Symbol symbol, Token idToken) {
         this.symbol = symbol;
-        this.pickToken = pickToken;
+        this.idToken = idToken;
     }
 
     public Symbol getSymbol() {
@@ -85,44 +84,48 @@ public abstract class AstItem {
     }
 
     public String getName() {
-        return symbol.nameString();
+        /**
+         * symbol.nameString() is same as idToken's text, for editor, it's always
+         * better to use idToken's text, for example, we'll use this name to
+         * decide occurrences etc. 
+         */
+        return getIdToken().text().toString();
     }
 
-    public void setPickToken(Token pickToken) {
-        this.pickToken = pickToken;
+    public void setIdToken(Token idToken) {
+        this.idToken = idToken;
     }
 
-    public Token getPickToken() {
-        return pickToken;
+    public Token getIdToken() {
+        return idToken;
     }
 
-    public int getPickOffset(TokenHierarchy th) {
-        if (pickToken != null) {
-            return pickToken.offset(th);
+    public int getIdOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th);
         } else {
-            assert false : getName() + ": Should implement getPickOffset(th)";
+            assert false : getName() + ": Should implement getIdOffset(th)";
             return -1;
         }
     }
 
-    public int getPickEndOffset(TokenHierarchy th) {
-        if (pickToken != null) {
-            return pickToken.offset(th) + pickToken.length();
+    public int getIdEndOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th) + idToken.length();
         } else {
-            assert false : getName() + ": Should implement getPickEndOffset(th)";
+            assert false : getName() + ": Should implement getIdEndOffset(th)";
             return -1;
         }
     }
 
     public String getBinaryName() {
         if (getSymbol().isModule()) {
-            // According to Symbol#kindString, a object template isModule()
+            /** According to Symbol#kindString, an object template isModule() */
             return getName() + "$";
         } else {
             return getName();
         }
     }
-
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
         return getEnclosingScope().getEnclosingDef(clazz);
@@ -155,5 +158,9 @@ public abstract class AstItem {
 
     public String getIn() {
         return symbol.enclClass().nameString();
+    }
+
+    public boolean isSameNameAsEnclClass() {
+        return symbol.isConstructor() || (symbol.isMethod() && symbol.nameString().equals("apply"));
     }
 }

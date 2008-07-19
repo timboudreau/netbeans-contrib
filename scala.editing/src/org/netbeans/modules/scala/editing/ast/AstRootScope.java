@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,53 +31,44 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
-import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
- * Mirror with AstNode information
- * 
- * Represent usage/reference of an element
- * 
+ *
  * @author Caoyuan Deng
  */
-public class AstRef extends AstItem {
+public class AstRootScope extends AstScope {
 
-    protected AstRef(Symbol symbol, Token idToken) {
-        super(symbol, idToken);
+    private Map<Token, AstItem> idTokenToItem = new HashMap<Token, AstItem>();
+
+    public AstRootScope(Token... boundsTokens) {
+        super(boundsTokens);
     }
 
-    public ElementKind getKind() {
-        Symbol symbol = getSymbol();
-        if (symbol.isClass() || symbol.isTrait() || symbol.isModule()) {
-            return ElementKind.CLASS;
-        } else {
-            return ElementKind.OTHER;
-        }
+    public boolean contains(Token idToken) {
+        return idTokenToItem.containsKey(idToken);
     }
 
-    public boolean isOccurence(AstRef ref) {
-        if (ref.getName().equals(getName())) {
-            if (isSameNameAsEnclClass() || ref.isSameNameAsEnclClass()) {
-                return getSymbol().enclClass() == ref.getSymbol().enclClass();
-            }
-            
-            return ref.getSymbol() == getSymbol();
+    /**
+     * To make sure each idToken only corresponds to one AstItem, if more than
+     * one AstItem point to the same idToken, only the first one will be stored
+     */
+    protected boolean tryPut(Token idToken, AstItem item) {
+        AstItem existOne = idTokenToItem.get(idToken);
+        if (existOne == null) {
+            idTokenToItem.put(idToken, item);
+            return true;
         }
-        
+
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return "Ref: " + getName() + " (idToken=" + getIdToken() + ", type=" + getSymbol().tpe() + ")";
     }
 }

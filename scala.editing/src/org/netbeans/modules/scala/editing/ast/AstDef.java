@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -51,11 +50,9 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Symbols.TypeSymbol;
 import scala.tools.nsc.symtab.Types.Type;
-import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  * AST Definition
@@ -71,7 +68,6 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     private ElementKind kind;
     private AstScope bindingScope;
     private Set<Modifier> modifiers;
-    private BatchSourceFile srcFile;
     private FileObject fo;
 
     protected AstDef(Symbol symbol, Token pickToken, AstScope bindingScope, ElementKind kind, FileObject fo) {
@@ -86,6 +82,15 @@ public class AstDef extends AstItem implements ScalaElementHandle {
 
     public Type getType() {
         return getSymbol().tpe();
+    }
+
+    @Override
+    public String getName() {
+        if (getKind() == ElementKind.CONSTRUCTOR) {
+            return getSymbol().enclClass().nameString();
+        } else {
+            return super.getName();
+        }
     }
 
     public List<? extends AstDef> getEnclosedElements() {
@@ -110,7 +115,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
 
     @Override
     public String toString() {
-        return getName() + "(kind=" + getKind() + ", type=" + getSymbol().tpe() + ")";
+        return "Def: " + getName() + " (idToken=" + getIdToken() + ", kind=" + getKind() + ", type=" + getSymbol().tpe() + ")";
     }
 
     public AstScope getBindingScope() {
@@ -131,7 +136,15 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     }
 
     public boolean isReferredBy(AstRef ref) {
-        return ref.getSymbol() == getSymbol();
+        if (ref.getName().equals(getName())) {
+            if ((getSymbol().isClass() || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
+                return true;
+            }
+
+            return ref.getSymbol() == getSymbol();
+        }
+
+        return false;
     }
 
     public boolean mayEqual(AstDef def) {
@@ -146,7 +159,6 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             case PACKAGE:
             case CLASS:
             case MODULE:
-            case CONSTRUCTOR:
                 break;
             default:
                 //Type resType = getType().resultType();
