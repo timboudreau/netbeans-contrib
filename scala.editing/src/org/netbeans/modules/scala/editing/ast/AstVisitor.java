@@ -102,7 +102,7 @@ import scala.tools.nsc.util.Position;
  */
 public abstract class AstVisitor {
 
-    protected boolean debug = true;
+    protected boolean debug;
     protected int indentLevel;
     protected BatchSourceFile sourceFile;
     protected TokenHierarchy th;
@@ -118,7 +118,7 @@ public abstract class AstVisitor {
         visit(rootTree);
     }
 
-    public AstScope getRootScope() {
+    public AstRootScope getRootScope() {
         return rootScope;
     }
 

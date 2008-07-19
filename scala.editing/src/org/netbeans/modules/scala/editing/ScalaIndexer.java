@@ -52,6 +52,7 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
@@ -201,7 +202,7 @@ public class ScalaIndexer implements Indexer {
         }
 
         ScalaParserResult pResult = (ScalaParserResult) result;
-        AstScope root = pResult.getRootScope();
+        AstRootScope root = pResult.getRootScope();
         if (root == null) { // NOI18N
 
             return null;
@@ -258,7 +259,7 @@ public class ScalaIndexer implements Indexer {
             }
 
 
-            AstScope root = pResult.getRootScope();
+            AstRootScope root = pResult.getRootScope();
             if (root == null) {
                 return;
             }

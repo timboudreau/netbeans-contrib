@@ -63,7 +63,7 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstTreeVisitor;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -531,7 +531,7 @@ public class ScalaParser implements Parser {
         ParserScala parser = new ParserScala(in, filePath);
         context.parser = parser;
 
-        AstScope rootScope = AstScope.emptyScope();
+        AstRootScope rootScope = null;
 
         // Scala global parser
         Reporter reporter = new ErrorReporter(context, sanitizing);
@@ -589,7 +589,7 @@ public class ScalaParser implements Parser {
     private static long version;
 
     private ScalaParserResult createParseResult(ParserFile file,
-            AstScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th) {
+            AstRootScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th) {
         return new ScalaParserResult(this, file, rootScope, ast, th);
     }
 

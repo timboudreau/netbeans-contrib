@@ -46,7 +46,7 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 
 /**
  *
@@ -66,12 +66,12 @@ public class ScalaParserResult extends ParserResult {
     private String sanitizedContents;
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
-    private AstScope rootScope;
+    private AstRootScope rootScope;
     private TokenHierarchy<Document> tokenHierarchy;
     private Phase phase;
 
     public ScalaParserResult(ScalaParser parser, ParserFile file,
-            AstScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
+            AstRootScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.rootScope = rootScope;
         this.ast = ast;
@@ -87,7 +87,7 @@ public class ScalaParserResult extends ParserResult {
         this.ast = ast;
     }
 
-    public AstScope getRootScope() {
+    public AstRootScope getRootScope() {
         return rootScope;
     }
 

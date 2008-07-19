@@ -79,7 +79,7 @@ import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
@@ -755,7 +755,7 @@ class J2SEActionProvider implements ActionProvider {
                                     "\nFree memory = "+Runtime.getRuntime().freeMemory());
                             return;
                         }
-                        AstScope rootScope = ((ScalaParserResult) ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0)).getRootScope();
+                        AstRootScope rootScope = ((ScalaParserResult) ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0)).getRootScope();
                         if (rootScope == null) {
                             return;
                         }

@@ -60,7 +60,7 @@ import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.SourceUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -238,7 +238,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                                 return;
                             }
                             ScalaParserResult pResult = (ScalaParserResult) c.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-                            AstScope rootScope = pResult.getRootScope();
+                            AstRootScope rootScope = pResult.getRootScope();
                             if (rootScope == null) {
                                 return;
                             }

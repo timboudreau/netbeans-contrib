@@ -50,7 +50,7 @@ import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.openide.util.NbBundle;
 
@@ -66,7 +66,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
 
     public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        AstScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.getRootScope();
 
         if (rootScope == null) {
             explanationRetValue[0] = NbBundle.getMessage(ScalaInstantRenamer.class, "NoRenameWithErrors");
@@ -130,7 +130,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return Collections.emptySet();
         }
 
-        AstScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.getRootScope();
 
         AstItem closest = rootScope.findItemAt(th, caretOffset);
         List<? extends AstItem> occurrences = rootScope.findOccurrences(closest);

@@ -38,9 +38,14 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 
 /**
  *
@@ -49,6 +54,8 @@ import org.netbeans.api.lexer.Token;
 public class AstRootScope extends AstScope {
 
     private Map<Token, AstItem> idTokenToItem = new HashMap<Token, AstItem>();
+    private List<Token> tokens;
+    private boolean tokensSorted;
 
     public AstRootScope(Token... boundsTokens) {
         super(boundsTokens);
@@ -66,9 +73,54 @@ public class AstRootScope extends AstScope {
         AstItem existOne = idTokenToItem.get(idToken);
         if (existOne == null) {
             idTokenToItem.put(idToken, item);
+            tokensSorted = false;
             return true;
         }
 
         return false;
+    }
+
+    @Override
+    public AstItem findItemAt(TokenHierarchy th, int offset) {
+        if (!tokensSorted) {
+            tokens = Arrays.asList(idTokenToItem.keySet().toArray(new Token[idTokenToItem.size()]));
+            Collections.sort(tokens, new TokenComparator(th));
+            tokensSorted = true;
+        }
+
+        int lo = 0;
+        int hi = tokens.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) >> 1;
+            Token middle = tokens.get(mid);
+            if (offset < middle.offset(th)) {
+                hi = mid - 1;
+            } else if (offset > middle.offset(th) + middle.length()) {
+                lo = mid + 1;
+            } else {
+                return idTokenToItem.get(middle);
+            }
+        }
+
+        return null;
+    }
+
+    protected void debugPrintTokens(TokenHierarchy th) {
+        for (Token token : tokens) {
+            System.out.println("idToekn: " + token.text().toString() + ", AstItem: " + idTokenToItem.get(token));
+        }
+    }
+    
+    private static class TokenComparator implements Comparator<Token> {
+
+        private TokenHierarchy th;
+
+        public TokenComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(Token o1, Token o2) {
+            return o1.offset(th) < o2.offset(th) ? -1 : 1;
+        }
     }
 }

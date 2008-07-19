@@ -76,6 +76,7 @@ import org.netbeans.modules.scala.editing.ScalaCompletionProposal.PlainProposal;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -323,7 +324,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             if (astOffset == -1) {
                 return CodeCompletionResult.NONE;
             }
-            final AstScope root = pResult.getRootScope();
+            final AstRootScope root = pResult.getRootScope();
             final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
             final FileObject fileObject = info.getFileObject();
             final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
@@ -499,7 +500,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         NameKind kind = request.kind;
         ScalaParserResult pResult = request.result;
 
-        AstScope root = pResult.getRootScope();
+        AstRootScope root = pResult.getRootScope();
         if (root == null) {
             return;
         }
@@ -1855,7 +1856,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             Set<Function>[] alternativesHolder) {
         try {
             ScalaParserResult pResult = AstUtilities.getParserResult(info);
-            AstScope root = pResult.getRootScope();
+            AstRootScope root = pResult.getRootScope();
             if (root == null) {
                 return false;
             }
@@ -2086,7 +2087,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             ScalaTokenId.Super,
             ScalaTokenId.Class);
 
-    private Symbol findCallSymbol(AstScope rootScope, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
+    private Symbol findCallSymbol(AstRootScope rootScope, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
         assert rootScope != null;
 
         Token idToken = null;
@@ -2128,7 +2129,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         protected TokenHierarchy<Document> th;
         protected CompilationInfo info;
         protected AstItem node;
-        protected AstScope root;
+        protected AstRootScope root;
         protected int anchor;
         protected int lexOffset;
         protected int astOffset;

@@ -56,7 +56,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 
 /**
@@ -76,7 +76,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyList();
         }
 
-        AstScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return Collections.emptyList();
         }
@@ -97,7 +97,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             Collections.emptyList();
         }
 
-        AstScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return Collections.emptyMap();
         }

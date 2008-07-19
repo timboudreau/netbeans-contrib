@@ -48,7 +48,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -87,7 +87,7 @@ public class SourceUtils {
                 public void run(final CompilationController control) throws Exception {
                     if (control.toPhase(Phase.ELEMENTS_RESOLVED).compareTo(Phase.ELEMENTS_RESOLVED) >= 0) {
                         ScalaParserResult pResult = (ScalaParserResult) control.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-                        AstScope rootScope = pResult.getRootScope();
+                        AstRootScope rootScope = pResult.getRootScope();
                         if (rootScope == null) {
                             return;
                         }
@@ -144,7 +144,7 @@ public class SourceUtils {
                 public void run(CompilationController control) throws Exception {
                     if (control.toPhase(Phase.ELEMENTS_RESOLVED).compareTo(Phase.ELEMENTS_RESOLVED) >= 0) {
                         ScalaParserResult pResult = (ScalaParserResult) control.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-                        AstScope rootScope = pResult.getRootScope();
+                        AstRootScope rootScope = pResult.getRootScope();
                         if (rootScope == null) {
                             return;
                         }

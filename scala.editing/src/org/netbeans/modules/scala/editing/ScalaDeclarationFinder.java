@@ -57,7 +57,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
-import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
@@ -140,7 +140,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         doc.readLock();
         try {
-            AstScope root = pResult.getRootScope();
+            AstRootScope root = pResult.getRootScope();
             if (root == null) {
                 return DeclarationLocation.NONE;
             }

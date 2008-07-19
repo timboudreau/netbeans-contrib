@@ -50,6 +50,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRef;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 
@@ -94,7 +95,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        AstScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
