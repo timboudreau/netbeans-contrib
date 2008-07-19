@@ -230,15 +230,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(refs, new RefComparator(th));
                 refsSorted = true;
             }
-            int low = 0;
-            int high = refs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = refs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstRef middle = refs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return middle;
                 }
@@ -250,15 +250,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(defs, new DefComparator(th));
                 defsSorted = true;
             }
-            int low = 0;
-            int high = defs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = defs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstDef middle = defs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return middle;
                 }
@@ -270,15 +270,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(scopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
-            int low = 0;
-            int high = scopes.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = scopes.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstScope middle = scopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return middle.findItemAt(th, offset);
                 }
@@ -296,15 +296,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(refs, new RefComparator(th));
                 refsSorted = true;
             }
-            int low = 0;
-            int high = refs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = refs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstRef middle = refs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     Token idToken = middle.getIdToken();
                     if (idToken != null && idToken == token) {
@@ -319,15 +319,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(defs, new DefComparator(th));
                 defsSorted = true;
             }
-            int low = 0;
-            int high = defs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = defs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstDef middle = defs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return middle;
                 }
@@ -339,15 +339,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(scopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
-            int low = 0;
-            int high = scopes.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = scopes.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstScope middle = scopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return middle.findItemAt(th, offset);
                 }
@@ -363,15 +363,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(defs, new DefComparator(th));
                 defsSorted = true;
             }
-            int low = 0;
-            int high = defs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = defs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstDef middle = defs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return clazz.isInstance(middle) ? (T) middle : null;
                 }
@@ -383,15 +383,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(scopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
-            int low = 0;
-            int high = scopes.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = scopes.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstScope middle = scopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return (T) middle.findDefAt(clazz, th, offset);
                 }
@@ -407,15 +407,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(refs, new RefComparator(th));
                 refsSorted = true;
             }
-            int low = 0;
-            int high = refs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = refs.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstRef middle = refs.get(mid);
                 if (offset < middle.getIdOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getIdEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return clazz.isInstance(middle) ? (T) middle : null;
                 }
@@ -428,15 +428,15 @@ public class AstScope implements Iterable<AstScope> {
                 Collections.sort(scopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
-            int low = 0;
-            int high = scopes.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
+            int lo = 0;
+            int hi = scopes.size() - 1;
+            while (lo <= hi) {
+                int mid = (lo + hi) >> 1;
                 AstScope middle = scopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
-                    high = mid - 1;
+                    hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
-                    low = mid + 1;
+                    lo = mid + 1;
                 } else {
                     return (T) middle.findRefAt(clazz, th, offset);
                 }
