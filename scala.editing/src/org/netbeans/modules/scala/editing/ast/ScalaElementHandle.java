@@ -51,6 +51,8 @@ public interface ScalaElementHandle extends ElementHandle {
     Symbol getSymbol();
 
     Type getType();
+    
+    String getDocComment();
 
     boolean isDeprecated();
 

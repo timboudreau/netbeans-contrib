@@ -44,11 +44,14 @@ import java.util.List;
 import java.util.Set;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.NbUtilities;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
+import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.filesystems.FileObject;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Symbols.TypeSymbol;
@@ -78,6 +81,9 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             this.bindingScope.setBindingDef(this);
         }
         this.fo = fo;
+        if (fo == null) {
+            System.out.println("Hi");
+        }
     }
 
     public Type getType() {
@@ -150,6 +156,29 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     public boolean mayEqual(AstDef def) {
         return this == def;
     //return getName().equals(def.getName());
+    }
+
+    public String getDocComment() {
+        BaseDocument srcDoc = getDoc();
+        if (srcDoc == null) {
+            return null;
+        }
+        
+        TokenHierarchy th = TokenHierarchy.get(srcDoc);
+        if (th == null) {
+            return null;
+        }
+
+        return ScalaUtils.getDocComment(srcDoc, getIdOffset(th));
+    }
+
+    public BaseDocument getDoc() {
+        FileObject srcFo = getFileObject();
+        if (srcFo != null) {
+            return NbUtilities.getDocument(srcFo, true);
+        } else {
+            return null;
+        }
     }
 
     public void htmlFormat(HtmlFormatter formatter) {

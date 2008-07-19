@@ -78,6 +78,7 @@ import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
+import org.netbeans.modules.scala.editing.ast.ScalaElementHandle;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
@@ -1695,8 +1696,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         } else if (element instanceof GsfElement) {
             ((GsfElement) element).htmlFormat(sigFormatter);
             comment = ((GsfElement) element).getDocComment();
-        } else if (element instanceof ScalaElement) {
-            ScalaElement element1 = (ScalaElement) element;
+        } else if (element instanceof ScalaElementHandle) {
+            ScalaElementHandle element1 = (ScalaElementHandle) element;
             try {
                 sigFormatter.appendText(element1.getSymbol().defString());
             } catch (AssertionError ex) {
@@ -1705,6 +1706,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             //sigFormatter.appendText(element1.getSymbol().nameString());
             //sigFormatter.appendText(element1.getSymbol().infoString(element1.getSymbol().tpe()));
             comment = element1.getDocComment();
+        } else {
+            
         }
 
         StringBuilder html = new StringBuilder();

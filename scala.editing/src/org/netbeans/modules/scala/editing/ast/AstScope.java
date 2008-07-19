@@ -178,9 +178,9 @@ public class AstScope implements Iterable<AstScope> {
         if (idToken == null) {
             return false;
         }
-        
+
         /** a def will always be added */
-        getRoot().tryPut(idToken, def);
+        getRoot().tryToPut(idToken, def);
         if (defs == null) {
             defs = new ArrayList<AstDef>();
         }
@@ -205,7 +205,7 @@ public class AstScope implements Iterable<AstScope> {
             return false;
         }
 
-        getRoot().tryPut(idToken, ref);
+        getRoot().tryToPut(idToken, ref);
         if (refs == null) {
             refs = new ArrayList<AstRef>();
         }
@@ -676,28 +676,43 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public int findOffetOfDefEqualsTo(Symbol toMatch, TokenHierarchy th) {
-        String name = toMatch.nameString();
-        Type toMatchType = toMatch.tpe();
-        for (AstDef def : getDefs()) {
-            Symbol symbol = def.getSymbol();
-            if (symbol != null && symbol.nameString().equals(name)) {
-                if (symbol.tpe().$eq$colon$eq(toMatchType)) {
-                    return def.getIdOffset(th);
-                }
+    public AstDef findDefMatched(Symbol symbol) {
+        String name = symbol.nameString();
+        Type type = symbol.tpe();
+
+        return findDefMatchedDownside(name, type, getDefs());
+    }
+
+    private static AstDef findDefMatchedDownside(String name, Type type, List<AstDef> defs) {
+        for (AstDef def : defs) {
+            if (isMatched(def, name, type)) {
+                return def;
+            }
+
+            List<AstDef> children = def.getBindingScope().getDefs();
+            AstDef found = findDefMatchedDownside(name, type, children);
+            if (found != null) {
+                return found;
             }
         }
 
-        for (AstScope child : getScopes()) {
-            return child.findOffetOfDefEqualsTo(toMatch, th);
-        }
+        return null;
+    }
 
-        return -1;
+    private static boolean isMatched(AstDef def, String name, Type type) {
+        Symbol symbol = def.getSymbol();
+        if (symbol != null && symbol.nameString().equals(name)) {
+            if (symbol.tpe().$eq$colon$eq(type)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindinDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
+        return "Scope: (Binding=" + bindinDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
     // ----- inner classes
 

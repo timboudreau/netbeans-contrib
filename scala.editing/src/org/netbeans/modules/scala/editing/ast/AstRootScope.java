@@ -69,7 +69,7 @@ public class AstRootScope extends AstScope {
      * To make sure each idToken only corresponds to one AstItem, if more than
      * one AstItem point to the same idToken, only the first one will be stored
      */
-    protected boolean tryPut(Token idToken, AstItem item) {
+    protected boolean tryToPut(Token idToken, AstItem item) {
         AstItem existOne = idTokenToItem.get(idToken);
         if (existOne == null) {
             idTokenToItem.put(idToken, item);

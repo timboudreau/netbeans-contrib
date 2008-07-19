@@ -256,10 +256,10 @@ public class ScalaElement implements ScalaElementHandle {
                     CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                     if (unit != null) {
                         final Tree tree = unit.body();
-                        AstScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
-                        int _offset = root.findOffetOfDefEqualsTo(symbol, th);
-                        if (_offset >= 0) {
-                            offset = _offset;
+                        AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();                        
+                        AstDef def = root.findDefMatched(symbol);
+                        if (def != null) {
+                            offset = def.getIdOffset(th);
                         }
                     }
                 } catch (BadLocationException ex) {
