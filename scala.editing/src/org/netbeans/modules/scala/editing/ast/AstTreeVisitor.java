@@ -348,6 +348,16 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitBind(Bind tree) {
+        AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+        scopes.peek().addScope(scope);
+
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.VARIABLE, fo);
+        if (scopes.peek().addDef(def)) {
+            if (debug) {
+                System.out.println("Added: " + def);
+            }
+        }
+
         visit(tree.body());
     }
 
