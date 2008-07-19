@@ -1997,7 +1997,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             parameterIndexHolder[0] = index;
 
             if (anchorOffset == -1) {
-                anchorOffset = call.getPickToken().offset(th); // TODO - compute
+                anchorOffset = call.getIdToken().offset(th); // TODO - compute
 
             }
             anchorOffsetHolder[0] = anchorOffset;

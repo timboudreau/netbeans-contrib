@@ -159,7 +159,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             AstDef def = root.findDefOf(closest);
             if (def != null) {
                 // is local
-                int offset = def.getPickOffset(th);
+                int offset = def.getIdOffset(th);
                 return new DeclarationLocation(info.getFileObject(), offset, def);
             } else {
                 TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);

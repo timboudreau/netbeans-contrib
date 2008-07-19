@@ -153,7 +153,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
             try {
                 doc.readLock();
                 int length = doc.getLength();
-                OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, closest.getPickToken());
+                OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, closest.getIdToken());
                 OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                 int lexStartPos = lexRange.getStart();
                 int lexEndPos   = lexRange.getEnd();
@@ -219,7 +219,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         if (closest != null) {
             List<? extends AstItem> _occurrences = rootScope.findOccurrences(closest);
             for (AstItem item : _occurrences) {
-                highlights.put(ScalaLexUtilities.getRangeOfToken(th, item.getPickToken()), ColoringAttributes.MARK_OCCURRENCES);
+                highlights.put(ScalaLexUtilities.getRangeOfToken(th, item.getIdToken()), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;
         }

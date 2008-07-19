@@ -93,12 +93,12 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         if (isCancelled()) {
             return;
         }
-        
+
         AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
-                
+
         final TokenHierarchy th = pResult.getTokenHierarchy();
         final Document doc = info.getDocument();
         if (doc == null) {
@@ -129,13 +129,36 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
     private void visitScopeRecursively(Document doc, TokenHierarchy th, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
 
+        for (AstRef ref : scope.getRefs()) {
+            Token hiToken = ref.getIdToken();
+            if (hiToken == null) {
+                continue;
+            }
+
+            OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
+            switch (ref.getKind()) {
+                case CLASS:
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    break;
+                default:
+            }
+
+
+//            if (mirror instanceof IdCall) {
+//                AstElement element = scope.findElementOf(mirror);
+//                if (element != null && element.getKind() == ElementKind.FIELD) {                    
+//                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+//                }
+//            }
+        }
+
         for (AstDef def : scope.getDefs()) {
-            Token idToken = def.getPickToken();
+            Token idToken = def.getIdToken();
             if (idToken == null) {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getPickToken());
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
             switch (def.getKind()) {
                 case MODULE:
                     highlights.put(idRange, ColoringAttributes.CLASS_SET);
@@ -146,26 +169,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                 case METHOD:
                     highlights.put(idRange, ColoringAttributes.METHOD_SET);
                     break;
-                case FIELD:
-                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
-                    break;
+//                case FIELD:
+//                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
+//                    break;
                 default:
             }
-        }
-        
-        for (AstRef ref : scope.getRefs()) {
-            Token hiToken = ref.getPickToken();
-            if (hiToken == null) {
-                continue;
-            }
-            
-            OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
-//            if (mirror instanceof IdCall) {
-//                AstElement element = scope.findElementOf(mirror);
-//                if (element != null && element.getKind() == ElementKind.FIELD) {                    
-//                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
-//                }
-//            }
         }
 
         for (AstScope child : scope.getScopes()) {

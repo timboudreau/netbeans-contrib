@@ -76,7 +76,7 @@ public class ScalaPositionManager implements PositionManager {
                 range = ((IndexedElement) element).getRange(th);
             }
         } else if (handle instanceof AstDef) {
-            range = range = ScalaLexUtilities.getRangeOfToken(th, ((AstDef) handle).getPickToken());
+            range = range = ScalaLexUtilities.getRangeOfToken(th, ((AstDef) handle).getIdToken());
         }
 
         return range;
