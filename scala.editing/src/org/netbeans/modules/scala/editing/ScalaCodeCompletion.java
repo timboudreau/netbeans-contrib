@@ -2108,16 +2108,20 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         if (idToken != null) {
             AstItem item = rootScope.findItemAt(th, idToken);
             if (item != null) {
-                return item.getSymbol();
-            } else {
-                if (tryTwice) {
-                    Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
-                    if (dot != null) {
-                        request.prefix = idToken.text().toString();
-                        return findCallSymbol(rootScope, ts, th, request, false);
-                    }
+                Symbol symbol = item.getSymbol();
+                if (!symbol.tpe().isError()) {
+                    return item.getSymbol();
                 }
             }
+            
+            if (tryTwice) {
+                Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
+                if (dot != null) {
+                    request.prefix = idToken.text().toString();
+                    return findCallSymbol(rootScope, ts, th, request, false);
+                }
+            }
+
         }
 
         return null;
