@@ -478,7 +478,6 @@ public class ScalaParser implements Parser {
 //            return sanitize(context, sanitizing);
 //        }
 //    }
-
     protected ScalaParserResult parseBuffer(final Context context, final Sanitize sanitizing) {
         boolean sanitizedSource = false;
         String source = context.source;
@@ -548,6 +547,17 @@ public class ScalaParser implements Parser {
         }
         try {
             run.compileSources(srcFiles);
+            
+            //CompilationUnit unit = run.currentUnit(); it could be null when complie successfully?
+            scala.Iterator units = run.units();
+            while (units.hasNext()) {
+                CompilationUnit unit = (CompilationUnit) units.next();
+                if (unit.source() == srcFile) {
+                    Tree tree = unit.body();
+                    rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                    break;
+                }
+            }
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
             ScalaGlobal.reset();
@@ -562,17 +572,6 @@ public class ScalaParser implements Parser {
         } finally {
             if (doc != null) {
                 doc.readUnlock();
-            }
-        }
-
-        //CompilationUnit unit = run.currentUnit(); it could be null when complie successfully?
-        scala.Iterator units = run.units();
-        while (units.hasNext()) {
-            CompilationUnit unit = (CompilationUnit) units.next();
-            if (unit.source() == srcFile) {
-                Tree tree = unit.body();
-                rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
-                break;
             }
         }
 
