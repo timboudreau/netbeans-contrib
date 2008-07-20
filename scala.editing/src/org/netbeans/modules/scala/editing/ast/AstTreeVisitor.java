@@ -480,7 +480,7 @@ public class AstTreeVisitor extends AstVisitor {
         Symbol symbol = tree.symbol();
         if (symbol != null) {
             if (symbol.toString().equals("<none>")) {
-                System.out.println("A NoSymbol found");
+                //System.out.println("A NoSymbol found");
             }
             AstRef ref = new AstRef(symbol, getIdToken(tree));
             if (scopes.peek().addRef(ref)) {

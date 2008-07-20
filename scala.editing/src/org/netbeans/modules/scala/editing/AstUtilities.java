@@ -38,14 +38,15 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
-import xtc.tree.Node;
 
 /**
  *
@@ -121,18 +122,15 @@ public class AstUtilities {
      * Return a range that matches the given node's source buffer range
      */
     @SuppressWarnings("unchecked")
-    public static OffsetRange getRange(CompilationInfo info, Node node) {
+    public static OffsetRange getRange(TokenHierarchy th, AstDef def) {
         OffsetRange range = OffsetRange.NONE;
 
-//        Span span = node.getSpan();
-//        try {
-//            BaseDocument doc = (BaseDocument) info.getDocument();
-//            int begin = getOffset(doc, span.getBegin().getLine(), span.getBegin().column() + 1);
-//            int end = getOffset(doc, span.getEnd().getLine(), span.getEnd().column() + 1);
-//            range = new OffsetRange(begin, end);
-//        } catch (IOException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
+        int offset = def.getBoundsOffset(th);
+        int endOffset = def.getBoundsEndOffset(th);
+        if (endOffset > offset) {
+            range = new OffsetRange(offset, endOffset);
+        }
+        
         return range;
     }
 

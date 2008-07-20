@@ -81,9 +81,6 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             this.bindingScope.setBindingDef(this);
         }
         this.fo = fo;
-        if (fo == null) {
-            System.out.println("Hi");
-        }
     }
 
     public Type getType() {

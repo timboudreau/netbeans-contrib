@@ -44,9 +44,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import javax.swing.ImageIcon;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -58,6 +64,8 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -66,9 +74,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 public class ScalaStructureAnalyzer implements StructureScanner {
 
     public static final String NETBEANS_IMPORT_FILE = "__netbeans_import__"; // NOI18N
-
     private static final String DOT_CALL = ".call"; // NOI18N
-
 
     public List<? extends StructureItem> scan(CompilationInfo info) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
@@ -94,7 +100,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         if (pResult == null) {
-            Collections.emptyList();
+            return Collections.emptyMap();
         }
 
         AstRootScope rootScope = pResult.getRootScope();
@@ -103,54 +109,140 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
-        List<OffsetRange> codeblocks = new ArrayList<OffsetRange>();
-        folds.put("codeblocks", codeblocks); // NOI18N
+        List<OffsetRange> codefolds = new ArrayList<OffsetRange>();
+        folds.put("codeblocks", codefolds); // NOI18N
 
-//        try {
-//            BaseDocument doc = (BaseDocument)info.getDocument();
-//
-//            for (AstElement element : elements) {
-//                ElementKind kind = element.getKind();
-//                switch (kind) {
-//                case METHOD:
-//                case CONSTRUCTOR:
-//                case CLASS:
-//                case MODULE:
-//                    Node node = element.getNode();
-//                    OffsetRange range = AstUtilities.getRange(node);
-//                    
-//                    if(source != null) {
-//                        int lexStart = source.getLexicalOffset(range.getStart());
-//                        int lexEnd = source.getLexicalOffset(range.getEnd());
-//                        if (lexStart < lexEnd) {
-//                            //recalculate the range if we parsed the virtual source
-//                            range = new OffsetRange(lexStart,lexEnd);
-//                        }
-//                    }
-//
-//                    if (kind == ElementKind.METHOD || kind == ElementKind.CONSTRUCTOR ||
-//                        // Only make nested classes/modules foldable, similar to what the java editor is doing
-//                        (range.getStart() > Utilities.getRowStart(doc, range.getStart()))) {
-//
-//                        int start = range.getStart();
-//                        // Start the fold at the END of the line
-//                        start = org.netbeans.editor.Utilities.getRowEnd(doc, start);
-//                        int end = range.getEnd();
-//                        if (start != (-1) && end != (-1) && start < end && end <= doc.getLength()) {
-//                            range = new OffsetRange(start, end);
-//                            codeblocks.add(range);
-//                        }
-//                    }
-//                    break;
-//                }
-//
-//                assert element.getChildren().size() == 0;
-//            }
-//        } catch (Exception ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
-//        
+        BaseDocument doc = (BaseDocument) info.getDocument();
+        if (doc == null) {
+            return Collections.emptyMap();
+        }
+
+        TokenHierarchy th = TokenHierarchy.get(doc);
+        if (th == null) {
+            return Collections.emptyMap();
+        }
+
+        List<OffsetRange> commentfolds = new ArrayList<OffsetRange>();
+        TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, 1);
+
+        int importStart = 0;
+        int importEnd = 0;
+        boolean startImportSet = false;
+
+        Stack<Integer[]> comments = new Stack<Integer[]>();
+        Stack<Integer> blocks = new Stack<Integer>();
+
+        while (ts.isValid() && ts.moveNext()) {
+            Token tk = ts.token();
+            if (tk.id() == ScalaTokenId.Import) {
+                int offset = ts.offset();
+                if (!startImportSet) {
+                    importStart = offset;
+                    startImportSet = true;
+                }
+                importEnd = offset;
+            } else if (tk.id() == ScalaTokenId.BlockCommentStart || tk.id() == ScalaTokenId.DocCommentStart) {
+                int commentStart = ts.offset();
+                int commentLines = 0;
+                comments.push(new Integer[]{commentStart, commentLines});
+            } else if (tk.id() == ScalaTokenId.BlockCommentData || tk.id() == ScalaTokenId.DocCommentData) {
+                // does this block comment (per BlockCommentData/DocCommentData per line as lexer) span multiple lines?
+                comments.peek()[1] = comments.peek()[1] + 1;
+            } else if (tk.id() == ScalaTokenId.BlockCommentEnd || tk.id() == ScalaTokenId.DocCommentEnd) {
+                if (!comments.empty()) {
+                    Integer[] comment = comments.pop();
+                    if (comment[1] > 1) {
+                        // multiple lines
+                        OffsetRange commentRange = new OffsetRange(comment[0], ts.offset() + tk.length());
+                        commentfolds.add(commentRange);
+                    }
+                }
+            } else if (tk.id() == ScalaTokenId.LBrace) {
+                int blockStart = ts.offset();
+                blocks.push(blockStart);
+            } else if (tk.id() == ScalaTokenId.RBrace) {
+                if (!blocks.empty()) {
+                    int blockStart = blocks.pop();
+                    OffsetRange blockRange = new OffsetRange(blockStart, ts.offset() + tk.length());
+                    codefolds.add(blockRange);
+                }
+            }
+        }
+
+        try {
+            /** @see GsfFoldManager#addTree() for suitable fold names. */
+            importEnd = Utilities.getRowEnd(doc, importEnd);
+
+            // same strategy here for the import statements: We have to have
+            // *more* than one line to fold them.
+
+            if (Utilities.getRowCount(doc, importStart, importEnd) > 1) {
+                List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
+                OffsetRange range = new OffsetRange(importStart, importEnd);
+                importfolds.add(range);
+                folds.put("imports", importfolds); // NOI18N
+            }
+
+            folds.put("comments", commentfolds); // NOI18N
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
         return folds;
+    }
+
+    /**
+     * Usage: addFolds(doc, rootScope.getDefs(), th, folds, codefolds);
+     * @Note: needs precise end offset of each defs or scopes
+     * Do we need folding code according to AST tree?, it seems lex LBrace/RBrace pair is enough */
+    private void addFolds(BaseDocument doc, List<? extends AstDef> defs, TokenHierarchy th,
+            Map<String, List<OffsetRange>> folds, List<OffsetRange> codeblocks) throws BadLocationException {
+
+        for (AstDef def : defs) {
+            if (def.getSymbol().isPrimaryConstructor()) {
+                // don't fold primary constructor
+                continue;
+            }
+
+            ElementKind kind = def.getKind();
+            switch (kind) {
+                case FIELD:
+                case METHOD:
+                case CONSTRUCTOR:
+                case CLASS:
+                case MODULE:
+
+                    OffsetRange range = AstUtilities.getRange(th, def);
+                    System.out.println("floder:" + range + "def: " + def);
+
+                    //System.out.println("### range: " + element + ", " + range.getStart() + ", " + range.getLength());
+
+                    if (kind == ElementKind.METHOD || kind == ElementKind.CONSTRUCTOR ||
+                            (kind == ElementKind.FIELD) ||
+                            // Only make nested classes/modules foldable, similar to what the java editor is doing
+                            (range.getStart() > Utilities.getRowStart(doc, range.getStart())) && kind != ElementKind.FIELD) {
+
+                        int start = range.getStart();
+                        // Start the fold at the END of the line behind last non-whitespace, remove curly brace, if any
+                        start = Utilities.getRowLastNonWhite(doc, start);
+                        if (doc.getChars(start, 1)[0] != '{') {
+                            start++;
+                        }
+                        int end = range.getEnd();
+                        if (start != -1 && end != -1 && start < end && end <= doc.getLength()) {
+                            range = new OffsetRange(start, end);
+                            codeblocks.add(range);
+                        }
+                    }
+                    break;
+            }
+
+            List<? extends AstDef> children = def.getBindingScope().getDefs();
+
+            if (children != null && children.size() > 0) {
+                addFolds(doc, children, th, folds, codeblocks);
+            }
+        }
     }
 
     public Configuration getConfiguration() {
