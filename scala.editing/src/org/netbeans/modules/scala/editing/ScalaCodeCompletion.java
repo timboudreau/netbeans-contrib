@@ -42,6 +42,7 @@ import org.netbeans.modules.scala.editing.ast.ScalaElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -401,54 +402,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     closest = root.findItemAt(th, closestOffset--);
                 }
 
-                if (closest != null) {
-//                    if (closest instanceof Importing) {
-//                        String prefix1 = ((Importing) closest).toString();
-//                        if (request.prefix.equals("")) {
-//                            prefix1 = prefix1 + ".";
-//                        }
-//                        request.prefix = prefix1;
-//                        completeImport(proposals, request);
-//                        return completionResult;
-//                    }
-                    /** @Note Keep following code for reference */
-//                    else if (closest instanceof IdCall) {
-//                        // test if it's an arg of funRef ?
-//                        FunctionCall funRef = null;
-//                        while (funRef == null && closestOffset > 0) {
-//                            funRef = root.findMirrorAt(FunctionCall.class, th, closestOffset--);
-//                        }
-//
-//                        if (funRef != null) {
-//                            boolean isHisArg = false;
-//                            int argOffset = closest.getPickOffset(th);
-//                            for (AstNode arg : funRef.getArgs()) {
-//                                if (arg.getPickOffset(th) >= argOffset && argOffset <= arg.getPickEndOffset(th)) {
-//                                    isHisArg = true;
-//                                    break;
-//                                }
-//                            }
-//
-//                            if (isHisArg) {
-//                                closest = funRef;
-//                            }
-//                        }
-//                    }
-//
-//                    if (closest instanceof FunctionCall || closest instanceof FieldCall) {
-//                        if (!request.prefix.equals("")) {
-//                            // dog.ta|
-//                            if (closest instanceof FunctionCall && !((FunctionCall) closest).isLocal()) {
-//                                closest = ((FunctionCall) closest).getBase();
-//                            } else {
-//                                closest = ((FieldCall) closest).getBase();
-//                            }
-//                        } else {
-//                            // dog.|
-//                        }
-//                    }
-                }
-
                 request.root = root;
                 request.node = closest;
 
@@ -457,9 +410,18 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     completeSymbolMembers(symbol, proposals, request);
                     return completionResult;
                 }
-
             }
 
+            List<Token> importPrefix = ScalaLexUtilities.findImportPrefix(th, lexOffset);
+            if (importPrefix != null) {
+                StringBuilder sb = new StringBuilder();
+                for (Iterator<Token> itr = importPrefix.iterator(); itr.hasNext();) {
+                    sb.append(itr.next().text().toString().trim());
+                }
+                request.prefix = sb.toString();
+                completeImport(proposals, request);
+                return completionResult;                
+            }
 
             if (root == null) {
                 completeKeywords(proposals, request);
@@ -604,7 +566,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (   int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -640,7 +602,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
+        for (   int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
@@ -1707,7 +1669,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             //sigFormatter.appendText(element1.getSymbol().infoString(element1.getSymbol().tpe()));
             comment = element1.getDocComment();
         } else {
-            
         }
 
         StringBuilder html = new StringBuilder();
@@ -2116,7 +2077,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     return item.getSymbol();
                 }
             }
-            
+
             if (tryTwice) {
                 Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
                 if (dot != null) {

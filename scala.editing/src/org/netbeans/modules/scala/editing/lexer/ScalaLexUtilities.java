@@ -41,7 +41,9 @@
 package org.netbeans.modules.scala.editing.lexer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,7 +94,7 @@ public class ScalaLexUtilities {
      *
      */
     private static final Set<ScalaTokenId> INDENT_WORDS = new HashSet<ScalaTokenId>();
-    
+
 
     static {
         INDENT_WORDS.add(ScalaTokenId.Class);
@@ -1177,7 +1179,7 @@ public class ScalaLexUtilities {
             return OffsetRange.NONE;
         }
     }
-    
+
     public static OffsetRange getDocumentationRange(AstNode node, TokenHierarchy th) {
         int astOffset = node.getPickOffset(th);
         // XXX This is wrong; I should do a
@@ -1301,6 +1303,7 @@ public class ScalaLexUtilities {
 //        return false;
 //    }
 //
+
     public static boolean isInsideRegexp(BaseDocument doc, int offset) {
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
@@ -1507,7 +1510,7 @@ public class ScalaLexUtilities {
         }
 
     }
-    
+
     public static boolean isKeyword(ScalaTokenId id) {
         return id.primaryCategory().equals("keyword");
     }
@@ -1529,6 +1532,69 @@ public class ScalaLexUtilities {
             Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
+        }
+
+        return null;
+    }
+
+    public static List<Token> findImportPrefix(TokenHierarchy th, int lexOffset) {
+        List<Token> paths = null;
+
+        TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        ts.move(lexOffset);
+
+        boolean lbraceMet = false;
+        boolean lbraceExpected = false;
+        boolean extractBehindComma = false;
+        while (ts.isValid() && ts.movePrevious()) {
+            Token tk = ts.token();
+            TokenId id = tk.id();
+
+            if (id == ScalaTokenId.Import) {
+                if (!lbraceExpected || lbraceExpected && lbraceMet) {
+                    if (paths != null) {
+                        Collections.reverse(paths);
+                        return paths;
+                    } else {
+                        return null;
+                    }
+                }
+            } else if (id == ScalaTokenId.Dot) {
+                if (paths == null) {
+                    paths = new ArrayList<Token>();
+                }
+                paths.add(tk);
+            } else if (id == ScalaTokenId.Identifier) {
+                if (paths == null) {
+                    paths = new ArrayList<Token>();
+                }
+                paths.add(tk);
+            } else if (id == ScalaTokenId.LBrace) {
+                if (lbraceMet) {
+                    // we can only meet LBrace once
+                    return null;
+                }
+                lbraceMet = true;
+                if (paths != null) {
+                    if (paths.size() > 0) {
+                        // keep first met id token only
+                        Token idToken = paths.get(0);
+                        paths.clear();
+                        if (!extractBehindComma) {
+                            paths.add(idToken);
+                        }
+                    }
+                }
+            } else if (id == ScalaTokenId.Comma) {
+                lbraceExpected = true;
+                if (paths == null) {
+                    extractBehindComma = true;
+                }
+            } else if (isWsComment(id)) {
+                continue;
+            } else {
+                return null;
+            }
         }
 
         return null;
