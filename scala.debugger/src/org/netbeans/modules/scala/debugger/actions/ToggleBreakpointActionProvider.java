@@ -96,6 +96,15 @@ implements PropertyChangeListener {
         } catch (MalformedURLException muex) {
             fo = null;
         }
+        /**
+         * @Note: this evt is fired via org.netbeans.spi.debugger.ui.EditorContextDispatcher when
+         * open/close an editing document etc, we should filter all events that are not related to
+         * scala files, otherwise, open a Java or other MIMEType file will also disable this provider
+         */
+        if (fo != null && !"text/x-scala".equals(fo.getMIMEType())) {
+            return;
+        }
+        
         setEnabled (
             ActionsManager.ACTION_TOGGLE_BREAKPOINT,
             (EditorContextBridge.getContext().getCurrentLineNumber () >= 0) && 
