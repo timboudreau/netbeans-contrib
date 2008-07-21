@@ -59,7 +59,7 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.debugger.projects</code-name-base>
                     <run-dependency>
-                        <specification-version>0.10.1</specification-version>
+                        <specification-version>0.14.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
