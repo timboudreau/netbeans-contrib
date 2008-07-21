@@ -136,10 +136,7 @@ public class SourcePathProviderImpl extends SourcePathProvider {
             Set<FileObject> preferredRoots = new HashSet<FileObject>();
             preferredRoots.addAll(Arrays.asList(originalSourcePath.getRoots()));
             Set<FileObject> globalRoots = new TreeSet<FileObject>(new FileObjectComparator());
-            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());            
-            /* hacking for gsfpath */
-            globalRoots.addAll(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry.getDefault().getSourceRoots());
-            
+            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());
             globalRoots.removeAll(preferredRoots);
             ClassPath globalCP = ClassPathSupport.createClassPath(globalRoots.toArray(new FileObject[0]));
             originalSourcePath = ClassPathSupport.createProxyClassPath(
@@ -190,10 +187,7 @@ public class SourcePathProviderImpl extends SourcePathProvider {
                 }
             }
             Set<FileObject> globalRoots = new TreeSet<FileObject>(new FileObjectComparator());
-            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());            
-            /* hacking for gsfpath */
-            globalRoots.addAll(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry.getDefault().getSourceRoots());
-            
+            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());
             for (FileObject fo : globalRoots) {
                 if (!preferredRoots.contains(fo)) {
                     allSourceRoots.add(fo);
@@ -354,7 +348,23 @@ public class SourcePathProviderImpl extends SourcePathProvider {
      */
     @Override
     public synchronized String getSourceRoot(String url) {
-        for (FileObject fileObject : originalSourcePath.getRoots()) {
+        FileObject fo;
+        try {
+            fo = URLMapper.findFileObject(new java.net.URL(url));
+        } catch (java.net.MalformedURLException ex) {
+            fo = null;
+        }
+        FileObject[] roots = null;
+        if (fo != null) {
+            ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+            if (cp != null) {
+                roots = cp.getRoots();
+            }
+        }
+        if (roots == null) {
+            roots = originalSourcePath.getRoots();
+        }
+        for (FileObject fileObject : roots) {
             try {
                 String rootURL = fileObject.getURL().toString();
                 if (url.startsWith(rootURL)) {
@@ -527,7 +537,7 @@ public class SourcePathProviderImpl extends SourcePathProvider {
      * @param path path to normalize
      * @return normalized path without "." and ".." elements
      */ 
-    private static String normalize(String path) {
+    public static String normalize(String path) {
       for (Matcher m = thisDirectoryPattern.matcher(path); m.find(); )
       {
         path = m.replaceAll("$1");
@@ -548,16 +558,20 @@ public class SourcePathProviderImpl extends SourcePathProvider {
      */
     private static String getRoot(FileObject fileObject) {
         File f = null;
+        String path = "";
         try {
             if (fileObject.getFileSystem () instanceof JarFileSystem) {
                 f = ((JarFileSystem) fileObject.getFileSystem ()).getJarFile ();
+                if (!fileObject.isRoot()) {
+                    path = "!/"+fileObject.getPath();
+                }
             } else {
                 f = FileUtil.toFile (fileObject);
             }
         } catch (FileStateInvalidException ex) {
         }
         if (f != null) {
-            return f.getAbsolutePath ();
+            return f.getAbsolutePath () + path;
         } else {
             return null;
         }
@@ -569,8 +583,19 @@ public class SourcePathProviderImpl extends SourcePathProvider {
     private FileObject getFileObject (String file) {
         File f = new File (file);
         FileObject fo = FileUtil.toFileObject (f);
-        if (fo != null && FileUtil.isArchiveFile (fo))
+        String path = null;
+        if (fo == null && file.contains("!/")) {
+            int index = file.indexOf("!/");
+            f = new File(file.substring(0, index));
+            fo = FileUtil.toFileObject (f);
+            path = file.substring(index + "!/".length());
+        }
+        if (fo != null && FileUtil.isArchiveFile (fo)) {
             fo = FileUtil.getArchiveRoot (fo);
+            if (path !=null) {
+                fo = fo.getFileObject(path);
+            }
+        }
         return fo;
     }
     

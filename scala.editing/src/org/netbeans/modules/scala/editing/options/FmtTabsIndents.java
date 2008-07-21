@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.scala.editing.options;
 
+import org.netbeans.api.editor.settings.SimpleValueNames;
 import static org.netbeans.modules.scala.editing.options.FmtOptions.*;
 import static org.netbeans.modules.scala.editing.options.FmtOptions.CategorySupport.OPTION_ID;
 import org.netbeans.modules.scala.editing.options.FmtOptions.CategorySupport;
@@ -36,7 +37,7 @@ public class FmtTabsIndents extends javax.swing.JPanel {
         // Not yet implemented
         //indentCasesFromSwitchCheckBox.setVisible(false);
         
-        indentSizeField.putClientProperty(OPTION_ID, indentSize);
+        indentSizeField.putClientProperty(OPTION_ID, SimpleValueNames.INDENT_SHIFT_WIDTH);
         continuationIndentSizeField.putClientProperty(OPTION_ID, continuationIndentSize);
         reformatCommentsCheckBox.putClientProperty(OPTION_ID, reformatComments);        
         indentHtmlCheckBox.putClientProperty(OPTION_ID, indentHtml);        
@@ -47,7 +48,7 @@ public class FmtTabsIndents extends javax.swing.JPanel {
                 "LBL_Indents", 
                 new FmtTabsIndents(),    // NOI18N   
                 NbBundle.getMessage(FmtTabsIndents.class, "SAMPLE_Indents"), // NOI18N
-                new String[] { FmtOptions.rightMargin, "30" }
+                new String[] { SimpleValueNames.TEXT_LIMIT_WIDTH, "30" }
                 ); // NOI18N
     }
     

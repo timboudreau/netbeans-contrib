@@ -42,6 +42,7 @@
 package org.netbeans.modules.scala.editing.options;
 
 import java.util.prefs.Preferences;
+import org.netbeans.api.editor.settings.SimpleValueNames;
 import org.netbeans.api.project.Project;
 
 import static org.netbeans.modules.scala.editing.options.FmtOptions.*;
@@ -87,13 +88,13 @@ public final class CodeStyle {
     }
     
     static CodeStyle create() {
-        return new CodeStyle(FmtOptions.getPreferences(FmtOptions.getCurrentProfileId()));
+        return new CodeStyle(FmtOptions.getPreferences());
     }
     
     // General tabs and indents ------------------------------------------------
     
     public int getIndentSize() {
-        return preferences.getInt(indentSize, getDefaultAsInt(indentSize));
+        return preferences.getInt(SimpleValueNames.INDENT_SHIFT_WIDTH, getDefaultAsInt(SimpleValueNames.INDENT_SHIFT_WIDTH));
     }
 
     public int getContinuationIndentSize() {
@@ -109,7 +110,7 @@ public final class CodeStyle {
     }
     
     public int getRightMargin() {
-        return preferences.getInt(rightMargin, getGlobalRightMargin());
+        return preferences.getInt(SimpleValueNames.TEXT_LIMIT_WIDTH, getGlobalRightMargin());
     }
 
     // Communication with non public packages ----------------------------------
