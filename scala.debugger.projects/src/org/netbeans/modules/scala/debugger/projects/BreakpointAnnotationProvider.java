@@ -81,6 +81,18 @@ import org.openide.util.WeakSet;
 
 
 /**
+ * @Note by Caoyuan: I just keep this file here for reference only.
+ * =====================================================
+ * To enabale this provider, needs to add a META-INFO.services as:
+ * org.openide.text.AnnotationProvider with content:
+ * org.netbeans.modules.scala.debugger.projects.BreakpointAnnotationProvider
+ * But, since there has been another BreakpointAnnotationProvider from:
+ * org.netbeans.modules.debugger.jpda.projects, which also process add/remove
+ * annotation when breakpoint is added/removed, we should not enable this provider
+ * again, otherwise, the annotation will be added twice for each breakpoint, and
+ * showing "Multiple breakpoints".
+ * =====================================================
+ * 
  * This class is called when some file in editor is openend. It changes if
  * some LineBreakpoints with annotations should be readed.
  *
