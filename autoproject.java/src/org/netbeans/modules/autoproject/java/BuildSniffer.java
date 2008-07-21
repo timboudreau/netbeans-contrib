@@ -59,8 +59,6 @@ import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
-// XXX check against scenarios here: http://wiki.netbeans.org/OSProjectsEvaluation
-
 /**
  * Tracks progress of Ant builds and looks for calls to important tasks like javac.
  * These are analyzed for interesting information.
@@ -131,24 +129,42 @@ public class BuildSniffer extends AntLogger {
             return;
         }
         List<String> sources = new ArrayList<String>();
-        List<String> classpath = new ArrayList<String>();
         appendPath(task.getAttribute("srcdir"), event, sources, true);
         // XXX consider includes/excludes too?
         List<String> _destdir = new ArrayList<String>();
         appendPath(task.getAttribute("destdir"), event, _destdir, false);
         assert _destdir.size() <= 1;
         String destdir = _destdir.isEmpty() ? null : _destdir.get(0);
-        appendPath(task.getAttribute("classpath"), event, classpath, true);
-        String cpref = task.getAttribute("classpathref");
-        if (cpref != null) {
-            appendPath(event.getProperty(cpref), event, classpath, true);
-        }
-        for (TaskStructure child : task.getChildren()) {
-            if (child.getName().equals("src")) {
-                appendPathStructure(child, event, sources);
-            } else if (child.getName().equals("classpath")) {
-                appendPathStructure(child, event, classpath);
+        String buildSysclasspath = event.getProperty("build.sysclasspath");
+        if (buildSysclasspath == null) {
+            String includeAntRuntime = task.getAttribute("includeantruntime");
+            // XXX need AntEvent method to check whether a value is true
+            if (includeAntRuntime != null && event.evaluate(includeAntRuntime).matches("(?i)false|no|off")) {
+                buildSysclasspath = "ignore";
+            } else {
+                buildSysclasspath = "last";
             }
+        }
+        List<String> classpath = new ArrayList<String>();
+        if (buildSysclasspath.matches("only|first")) {
+            appendPath(System.getProperty("java.class.path"), event, classpath, true);
+        }
+        if (!buildSysclasspath.equals("only")) {
+            appendPath(task.getAttribute("classpath"), event, classpath, true);
+            String cpref = task.getAttribute("classpathref");
+            if (cpref != null) {
+                appendPath(event.getProperty(cpref), event, classpath, true);
+            }
+            for (TaskStructure child : task.getChildren()) {
+                if (child.getName().equals("src")) {
+                    appendPathStructure(child, event, sources);
+                } else if (child.getName().equals("classpath")) {
+                    appendPathStructure(child, event, classpath);
+                }
+            }
+        }
+        if (buildSysclasspath.equals("last")) {
+            appendPath(System.getProperty("java.class.path"), event, classpath, true);
         }
         State state = (State) event.getSession().getCustomData(this);
         if (state == null) {
