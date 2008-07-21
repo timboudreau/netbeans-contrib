@@ -185,7 +185,7 @@ done
 if [ "$ACCEPT_LICENSE" = "" ]
 then 
     print_usage;
-    Error "Error. You should accept license to install Sun Studio."
+    error "Error. You should accept license to install Sun Studio."
 fi
 }
 

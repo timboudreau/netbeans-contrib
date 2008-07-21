@@ -39,7 +39,7 @@ do
     IMAGES_DIR=/shared/dp/sstrunk/latest/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
 
 
-    DISTR_NAME="$RESDIR/Studio-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}.sh"   
+    DISTR_NAME="$RESDIR/Studio-toolchain-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}.sh"   
     echo Generating $DISTR_NAME
     
     PACKAGE_DIR="$IMAGES_DIR"
@@ -65,7 +65,7 @@ do
     cd $TARDIR
     tar cvf $TARDIR/sunstudio.$distr.tar $PACKAGES -C $SRCDIR servicetag
     bzip2 $TARDIR/sunstudio.$distr.tar
-    cd -
+    cd $SRCDIR
     DISK_SPACE=`du -sk $TARDIR/$PACKAGES | cut -f1`
     echo "Required space is $DISK_SPACE"
     cat $SRCDIR/installer.sh | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$LENGTH \$0"/ \
