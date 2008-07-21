@@ -1,29 +1,34 @@
 #!/bin/sh
 
 #set -v
+#
+#  The names begin with __ are reserved for substitution
+#
+
+
 
 trap "on_exit; exit" 1 2 15 EXIT
 
+
 PID=$$
 TMP_DIR=/tmp/ssinstaller.${PID}
+export TMP_DIR
 mkdir -p ${TMP_DIR}
-
 CWD=`pwd`
 PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin
-INSTALLER_DIR=`dirname $0`
 INSTALLER_NAME=`basename $0`
 
 SOLARIS_VERSION=12.0
 
+SUNSTUDIO_DIR_NAME=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
 
 umask 022
 
 on_exit() {
-   cd /
-   if [ -d "$TMP_DIR" ]; then
-      rm -fr $TMP_DIR;
-      
-   fi      
+    cd /
+    #if [ -d "$TMP_DIR" ]; then
+#	rm -fr $TMP_DIR;
+#    fi      
 }
 
 error() {
@@ -37,10 +42,17 @@ message() {
     echo $MESSAGE
 }
 
+if [ "`id | cut -f2 -d'='| cut -f1 -d'('`" -ne 0 ]
+then
+    error "You should be root to install Sun Studio."
+fi 
+
+
 init() {
     un=`uname` 2> /dev/null    
     if [ "$un" = "SunOS" ]; then
 	SYMLINK_PACKAGE=SPROsslnk
+        ALTERNATIVE_ROOT_CMD="-R"
         pl=`uname -i` 2>/dev/null
         if [ "$pl" = "i86pc" ]; then
             arch=intel-S2
@@ -49,26 +61,55 @@ init() {
         fi
     elif [ "$un" = "Linux" ]; then
         arch=intel-Linux
-	error "Linux does not work now... Exiting..."
+	#SYMLINK_PACKAGE=
+	ALTERNATIVE_ROOT_CMD="-root"
+	if [ "$LOCAL_ZONE_ONLY" != "" ]
+	then
+	    error "Option --local-zone is not suppoted for Linux."
+	fi
     else
         error "Neither SunOS nor Linux... Exiting..."
     fi
+    
+    if [ "$arch" != "__expected_arch" ]
+    then
+	error "The Sun Studio expects __expected_arch platform."
+    fi
 
-    #if [ "$UID" != "0" ]
-    #then
-    #	error "You should be root to install Sun Studio."
-    #fi 
-
-    PACKAGES_DIR=$INSTALLER_DIR/packages
-    if [ "$arch" = "intel-Linux" ]; then
+    if [ "$arch" = "intel-Linux" ]
+    then
+	`rpm --version 2>/dev/null`
+	if [ "$?" -ne 0 ]
+	then
+	    error "RPM utility not found. Sun Studio can not be installed." 
+	fi 
+    fi
+        
+    PACKAGES_DIR=${TMP_DIR}/packages
+     if [ "$arch" = "intel-Linux" ]; then
         install_dir="/opt/sun"
     else
         install_dir="/opt"
     fi
     INSTALLATION_DIR="${ALTERNATIVE_ROOT}${BASE_DIR-$install_dir}"
     UNINSTALLER_SCRIPT=$INSTALLATION_DIR/uninstaller.sh
-}
 
+    PACKAGE_LIST="__package_list";
+    if [ "$CREATE_SYMLINKS" != "" ]
+    then
+	PACKAGE_LIST="$PACKAGE_LIST $SYMLINK_PACKAGE"
+    fi
+    
+    disk_space=`df -k $INSTALLATION_DIR | tail ${tail_args} -1 | awk '{if ( $4 ~ /%/) { print $3 } else { print $4 } }'`
+    if [ "$disk_space" -lt "__disk_space_required" ]; then
+	printf "You have %s kBytes of Disk Free\n"  $disk_space
+	printf "You will need atleast %s kBytes of Disk Free\n"  __disk_space_required
+	printf "Please free up the required Disk Space and try again\n"
+	exit 3
+    fi
+
+}
+ 
 print_params() {
     echo "========================================================"
     echo "INSTALLATION_DIR=${INSTALLATION_DIR}"
@@ -87,11 +128,11 @@ echo "    Install Sun Studio into this directory."
 echo "  --alternative-root <directory>"
 echo "    Use given directory as alternative root."
 echo "  --local-zone"
-echo "    Install into local zone only."
+echo "    Install into local zone only. (Supported only for Solaris)"
 echo "  --create-symlinks"
 echo "    Create symlinks in /usr/bin."
-echo "  --install-patches"
-echo "    Install additional patches."
+#echo "  --install-patches"
+#echo "    Install additional patches."
 echo "End."
 }
 
@@ -113,11 +154,12 @@ do
 	--installation-dir)
 	    shift
 	    BASE_DIR="$1"
+	    LINUX_PREFIX_ARG="--prefix ${BASE_DIR}"
 	    ;;
 	--alternative-root)
 	    shift
 	    ALTERNATIVE_ROOT="$1"
-	    ALTERNATIVE_ROOT_ARG="-R $1"
+	    ALTERNATIVE_ROOT_ARG="$ALTERNATIVE_ROOT_CMD $1"
 	    ;;
 	--local-zone)
 	    LOCAL_ZONE_ONLY=-G
@@ -125,11 +167,10 @@ do
 	--create-symlinks)
 	    CREATE_SYMLINKS=1
 	    ;;	    
-	--install-patches)
-	    INSTALL_PATCHES=1
-	    ;;	
-	--help)
-	
+#	--install-patches)
+#	    INSTALL_PATCHES=1
+#	    ;;	
+	--help)	
 	    print_usage;
 	    exit 0;
 	    ;;
@@ -141,37 +182,41 @@ do
     esac
     shift
 done
-if [ "$ACCEPT_LICENSE" -ne 1 ]
+if [ "$ACCEPT_LICENSE" = "" ]
 then 
     print_usage;
-    error "Error. You should accept license to install Sun Studio."
+    Error "Error. You should accept license to install Sun Studio."
 fi
-}
-
-load_package_list() {
-    PACKAGE_LIST="SPROcc";
-    if [ "$CREATE_SYMLINKS" -eq 1 ]
-    then
-	PACKAGE_LIST="$PACKAGE_LIST $SYMLINK_PACKAGE"
-    fi
 }
 
 check_existing_sunstudio() {
     for package in $PACKAGE_LIST 
     do
+	if [ "$arch" = "intel-Linux" ]
+	then
+	    package=`echo $package | sed s/.rpm//`
+	    rpm -q $package 2>/dev/null >dev/null
+	    result="$?"
+	    if [ "$result" -eq 0 ]
+	    then
+    		message "The package $package is already installed."
+		installed=true
+	    fi
+	    continue;
+	fi	
 	if [ "`pkginfo $ALTERNATIVE_ROOT_ARG $package 2>/dev/null`" = "" ]
 	then 
 	    continue
-	fi
-		
+	fi	
 	version=`pkginfo -l $ALTERNATIVE_ROOT_ARG  $package | grep VERSION | sed s/' '*VERSION:' '*// | cut -f1 -d','`
 	if [ "$version" = "$SOLARIS_VERSION" ]
 	then
 	    message "The package $package with version $version is already installed."
-	fi
-	
+	    installed=true
+	fi	
     done
-    if [ "$version" = "$SOLARIS_VERSION" ]
+    
+    if [ "$installed" = "true" ]
     then
 	error "The Sun Studio pacakges are found in the system. The installation could not be completed while they are not removed."
     fi	
@@ -200,13 +245,22 @@ install_packages() {
     create_adminfile;
     for package in $PACKAGE_LIST
     do
-	pkgadd -n $LOCAL_ZONE_ONLY $ALTERNATIVE_ROOT_ARG -d $PACKAGES_DIR -a $TMP_DIR/adminfile $package
+	if [ "$arch" = "intel-Linux" ] 
+	then
+	    rpm -i --nodeps $ALTERNATIVE_ROOT_ARG $LINUX_PREFIX_ARG  $PACKAGES_DIR/$package
+	else
+	    pkgadd -n $LOCAL_ZONE_ONLY $ALTERNATIVE_ROOT_ARG -d $PACKAGES_DIR -a $TMP_DIR/adminfile $package
+	fi
     done
 }
 
 
 unpack() {
-    echo "TODO .."
+    message "Please wait while Sun Studio files are unpacking into temporary directory."
+    tail +__tail_length > ${TMP_DIR}/sunstudio.tar.bz2
+    cd ${TMP_DIR}
+    bzcat sunstudio.tar.bz2 | tar -xf - || error "Sun Studio unpacking failed."
+    cd ${CWD}    
 }
 
 create_uninstaller() {
@@ -214,8 +268,19 @@ create_uninstaller() {
     echo "echo Uninstalling Sun Studio." >> $UNINSTALLER_SCRIPT
     for package in $PACKAGE_LIST 
     do
-	echo "yes | pkgrm $ALTERNATIVE_ROOT_ARG  $package" >> $UNINSTALLER_SCRIPT
+	if [ "$arch" = "intel-Linux" ] 
+	then
+	    package=`echo $package | sed s/.rpm//`
+	    echo "rpm -e --nodeps $ALTERNATIVE_ROOT_ARG $package" >> $UNINSTALLER_SCRIPT
+	else
+	    echo "yes | pkgrm $ALTERNATIVE_ROOT_ARG  $package" >> $UNINSTALLER_SCRIPT
+	fi
     done
+    if [ "$STSUPPORTED" -eq 1 ]
+    then 
+	REGISTRATION_UIN=`cat /opt/SUNWspro/prod/lib/condev/servicetag.xml  | grep instance | cut -f2 -d'<' | cut -f2 -d'>'`
+	echo "`which stclient` -d -i $REGISTRATION_UIN" >> $UNINSTALLER_SCRIPT
+    fi
     echo "rm $UNINSTALLER_SCRIPT" >> $UNINSTALLER_SCRIPT
     echo "echo Finished." >> $UNINSTALLER_SCRIPT
     chmod 744 $UNINSTALLER_SCRIPT
@@ -223,11 +288,18 @@ create_uninstaller() {
 }
 
 
+
 parse_args $*;
 init;
 print_params;
-unpack;
-load_package_list;
 check_existing_sunstudio;
+unpack;
 install_packages;
+REGISTRATION_DIR=$INSTALLATION_DIR/$SUNSTUDIO_DIR_NAME/prod/lib/condev
+cd ./servicetag/
+. ./register.sh 
 create_uninstaller;
+
+exit 0;
+
+###### Archive starts here ##########

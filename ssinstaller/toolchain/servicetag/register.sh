@@ -4,32 +4,10 @@
 #
 #
 
-trap "on_exit; exit" 1 2 15 EXIT
 
-PID=$$
-TMPDIR=/tmp/ssregister.${PID}
-mkdir -p ${TMPDIR}
-CWD=`pwd`
-# on exit remove all temporary data
-on_exit() {
-   cd /
-   if [ -d "$TMPDIR" ]; then
-      rm -fr $TMPDIR;
-      
-   fi
-   
-   if [ -d "$CWD/servicetag" ]; then
-      rm -rf $CWD/servicetag
-   fi   
-   
-}
+TMPDIR=${TMP_DIR-/tmp/ss-registration}
 
-
-if [ `uname` != "__os_name" ]
-then
-  echo "The incorrect platform. Should be __os_name. Exiting." 
-  exit 1
-fi
+mkdir -p $TMPDIR
 
 #
 # Below are some customization properties ...
@@ -44,14 +22,12 @@ PRODUCTID="ss"
 # REGISTRATION_DIR - a directory to store UIDs for
 #      already registered instances of product
 
-SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
-
 NETBEANS_DIR="netbeans-6.1"
 
-REGISTRATION_DIR="${SUNSTUDIO_DIR}/prod/lib/condev"
+REGISTRATION_DIR="${REGISTRATION_DIR-./result}"
 
 # REGISTRATION_PAGE - location of a generated registration page
-REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
+REGISTRATION_PAGE=${REGISTRATION_DIR}/register-sunstudio.html
 
 HOME_SUNSTUDIO_DIR=$HOME/.sunstudio/condev
 HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
@@ -72,20 +48,19 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
+#REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
+
 
 # STDIR - directory that contains swordfish.data and templates for
 #      registration page generating (relative to sunstudio installation dir)
-STDIR="./servicetag"
+STDIR="."
 
 ################################################################
 
-
 #cd `dirname "$0"`
-PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:$CWD/${SUNSTUDIO_DIR}/bin
+PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:${SUNSTUDIO_DIR}/bin
 #:$PATH
-MYNAME=`basename "$0"`
-
 
 # script can be invoked with specifying locale that is used
 # to determine which template file to use for registration 
@@ -191,8 +166,8 @@ validate_locale() {
 # Also does an initialization of component-independent 
 # servicetag/registration variables
 
-init() {
-   BINDIR=${CWD}
+init_registration() {
+   BINDIR=.
    BASEDIR="$BINDIR"
    if [ -f /bin/gawk ]; then
       AWK="gawk"
@@ -567,21 +542,6 @@ browse() {
    fi
 }
 
-unpack() {
-    echo "Please wait while Sun Studio is unpacked into this directory."
-    
-    mkdir ${SUNSTUDIO_DIR} || exit 1;
-    rm -r ${SUNSTUDIO_DIR}
-    
-    mkdir ${NETBEANS_DIR} || exit 1;
-    rm -r ${NETBEANS_DIR}
-
-    tail +__tail_length > ${TMPDIR}/sunstudio.tar.bz2
-    bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf - || exit "Sun Studio instllation failed."
-    rm ${TMPDIR}/sunstudio.tar.bz2
-    echo "Sun Studio was successfully installed."
-}
-
 
 register() {
 COMPONENTS=${ALLCOMPONENTS}
@@ -607,26 +567,23 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    # The HTML page is loaded from users home to be correctly shown if firefox is already run.
    # The '/root' on Linux could not be read by other users page from Sun Studio is used.
    #
-   if [ `uname` = "Linux" -a "$UID" -eq 0 ]
-   then
-        mkdir -p $TMP_SUNSTUDIO_DIR
-	cp -r $REGISTRATION_PAGE $TMP_SUNSTUDIO_DIR 
-	rm -rf $REGISTRATION_DIR
-	browse "file://$TMP_REGISTRATION_PAGE"
-   else
-        mkdir -p $HOME_SUNSTUDIO_DIR
-	cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 
-	rm -rf $REGISTRATION_DIR
-	browse "file://$HOME_REGISTRATION_PAGE"
-   fi
+   browse "file://$REGISTRATION_PAGE"
+  # if [ `uname` = "Linux" -a "$UID" -eq 0 ]
+  # then
+#        mkdir -p $TMP_SUNSTUDIO_DIR
+#	cp -r $REGISTRATION_PAGE $TMP_SUNSTUDIO_DIR 
+#	browse "file://$TMP_REGISTRATION_PAGE"
+ #  else
+#        mkdir -p $HOME_SUNSTUDIO_DIR
+#	cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 
+#	browse "file://$REGISTRATION_PAGE"
+ #  fi
 fi
 
-exit 0;
 
 }
 
 ########### Everything starts here ############
 
-unpack
-init
+init_registration
 register
