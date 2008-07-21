@@ -46,98 +46,98 @@ made subject to such option by the copyright holder.
       <file name="maven.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="MavenURL"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="sc.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="SCURL"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="nbextras.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_nbextras"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="nbxdoclet.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_zajo"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="ramon.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_ramon"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="deadlock.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_deadlock"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="efh.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_efh"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="geertjan.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_geertjan"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="hmichel.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_hmichel"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="liguorien.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_liguorien"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="findbugs.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_findbugs"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="catlans.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_catlans"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="napkin.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_napkin"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
       <file name="ajax.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_ajax"/>
-        <attr name="enabled" boolvalue="true"/>
+        <attr name="enabled" boolvalue="false"/>
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
