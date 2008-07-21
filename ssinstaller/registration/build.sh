@@ -11,7 +11,8 @@ DISTRS="intel-S2 sparc-S2 intel-Linux"
 
 # The images of Sun Studio to create distribution
 BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
-IMAGES_DIR=/shared/dp/sstrunk/biweekly/inst
+#IMAGES_DIR=/shared/dp/sstrunk/biweekly/inst
+IMAGES_DIR=/home/lm153972/ws/ssx
 BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
 
 rm -rf build
@@ -40,11 +41,11 @@ do
     DISTR_NAME="$RESDIR/StudioExpress-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}-ii.sh"   
     echo Generating $DISTR_NAME
     
-    DIRS=`ls $IMAGES_DIR/$distr.inst/$IMAGE_SUB`
+    DIRS=`ls $IMAGES_DIR/$distr`
     ARGS=""
     for dir in $DIRS
     do 
-	ARGS="$ARGS -C $IMAGES_DIR/$distr.inst/$IMAGE_SUB $dir" 
+	ARGS="$ARGS -C $IMAGES_DIR/$distr $dir" 
     done
     tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
     bzip2 $TARDIR/sunstudio.$distr.tar
