@@ -311,7 +311,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
         }
         builder.addEnvironmentVariable("JAVA_HOME", ScalaExecution.getJavaHome());
         builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
-        builder.pwd(pwd);
+        builder.workingDirectory(pwd);
 
         ExecutionDescriptor.Builder execBuilder = new ExecutionDescriptor.Builder();
         execBuilder.frontWindow(true).inputVisible(true);
