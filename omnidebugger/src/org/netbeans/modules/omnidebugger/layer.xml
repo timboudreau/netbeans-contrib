@@ -42,12 +42,10 @@
                 <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
                 <attr name="position" intvalue="210"/>
             </file>
-            <folder name="RunOther">
-                <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
-                    <attr name="position" intvalue="210"/>
-                </file>
-            </folder>
+            <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                <attr name="position" intvalue="244"/>
+            </file>
         </folder>
     </folder>
     <folder name="OptionsDialog">
