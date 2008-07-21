@@ -158,7 +158,7 @@ public class EditorContextImpl extends EditorContext {
         pcs = new PropertyChangeSupport (this);
         dispatchListener = new EditorContextDispatchListener();
         contextDispatcher = EditorContextDispatcher.getDefault();
-        contextDispatcher.addPropertyChangeListener("text/x-java",
+        contextDispatcher.addPropertyChangeListener("text/x-scala",
                 WeakListeners.propertyChange(dispatchListener, contextDispatcher));
     }
     
