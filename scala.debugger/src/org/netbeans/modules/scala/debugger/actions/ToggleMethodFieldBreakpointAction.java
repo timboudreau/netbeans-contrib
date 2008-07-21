@@ -58,6 +58,7 @@ import org.netbeans.modules.scala.debugger.EditorContextBridge;
 import org.netbeans.modules.scala.debugger.breakpoints.FieldBreakpointPanel;
 import org.netbeans.modules.scala.debugger.breakpoints.MethodBreakpointPanel;
 
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
@@ -124,7 +125,7 @@ public class ToggleMethodFieldBreakpointAction extends AbstractAction {//impleme
     
     public void actionPerformed (ActionEvent evt) {
         if (!submitFieldOrMethodBreakpoint()) {
-            DebuggerManager.getDebuggerManager().getActionsManager().doAction(ActionsManager.ACTION_TOGGLE_BREAKPOINT);
+            DebuggerManager.getDebuggerManager().getActionsManager().doAction(ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE);
         }
     }
     

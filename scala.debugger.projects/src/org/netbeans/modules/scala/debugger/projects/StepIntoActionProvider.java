@@ -57,6 +57,7 @@ import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.Watch;
 import org.netbeans.api.debugger.jpda.MethodBreakpoint;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
@@ -80,13 +81,13 @@ public class StepIntoActionProvider extends ActionsProviderSupport {
                 WeakListeners.create(DebuggerManagerListener.class, listener, DebuggerManager.getDebuggerManager()));
         
         setEnabled (
-            ActionsManager.ACTION_STEP_INTO,
+            ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE,
             shouldBeEnabled ()
         );
     }
     
     public Set getActions () {
-        return Collections.singleton (ActionsManager.ACTION_STEP_INTO);
+        return Collections.singleton (ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE);
     }
     
     public void doAction (final Object action) {
@@ -179,7 +180,7 @@ public class StepIntoActionProvider extends ActionsProviderSupport {
         
         private void doSetEnabled() {
             setEnabled (
-                ActionsManager.ACTION_STEP_INTO,
+                ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE,
                 shouldBeEnabled ()
             );
         }

@@ -56,6 +56,7 @@ import org.netbeans.spi.debugger.ContextProvider;
 import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 import org.netbeans.modules.scala.debugger.EditorContextBridge;
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
@@ -95,21 +96,12 @@ implements PropertyChangeListener {
             fo = URLMapper.findFileObject(new URL(url));
         } catch (MalformedURLException muex) {
             fo = null;
-        }
-        /**
-         * @Note: this evt is fired via org.netbeans.spi.debugger.ui.EditorContextDispatcher when
-         * open/close an editing document etc, we should filter all events that are not related to
-         * scala files, otherwise, open a Java or other MIMEType file will also disable this provider
-         */
-        if (fo != null && !"text/x-scala".equals(fo.getMIMEType())) {
-            return;
-        }
-        
+        }        
         setEnabled (
-            ActionsManager.ACTION_TOGGLE_BREAKPOINT,
+            ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE,
             (EditorContextBridge.getContext().getCurrentLineNumber () >= 0) && 
             // "text/x-scala" MIMEType will be resolved by scala.editing module, thus this module should run-dependency on scala.editing
-            (fo != null && "text/x-scala".equals(fo.getMIMEType()))  // NOI18N
+            (fo != null && ScalaMimeResolver.MIME_TYPE.equals(fo.getMIMEType()))  // NOI18N
             //(fo != null && (url.endsWith (".scala")))  // NOI18N
         );
         if ( debugger != null && 
@@ -119,7 +111,7 @@ implements PropertyChangeListener {
     }
     
     public Set getActions () {
-        return Collections.singleton (ActionsManager.ACTION_TOGGLE_BREAKPOINT);
+        return Collections.singleton (ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE);
     }
     
     public void doAction (Object action) {
