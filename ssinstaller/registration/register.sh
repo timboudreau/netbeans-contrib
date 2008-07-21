@@ -72,7 +72,7 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
 
 # STDIR - directory that contains swordfish.data and templates for
 #      registration page generating (relative to sunstudio installation dir)
@@ -83,6 +83,7 @@ STDIR="./servicetag"
 
 #cd `dirname "$0"`
 PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:$CWD/${SUNSTUDIO_DIR}/bin
+#:$PATH
 MYNAME=`basename "$0"`
 
 
@@ -598,16 +599,6 @@ for i in $COMPONENTS; do
 	installServiceTag $i
    fi
 done
-
-#REGISTRATION_CHECK=`curl -m 20 -k https://inventory.sun.com/RegistrationWeb/ss/default/en_US/thankyou.jsp`
-#TEST=`echo X$REGISTRATION_CHECK | grep '<TITLE>Not Found</TITLE>'`
-#echo "TEST=$TEST"
-
-#if [ "$REGISTRATION_CHECK" != "" -a  "$TEST" != "X"  ]
-#then
-#    echo "NOT READY"
-#    DOREGISTER=1
-#fi 
 
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
    createRegistrationDocument 1>/dev/null 2>/dev/null
