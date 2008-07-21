@@ -66,7 +66,7 @@ public class BuildSnifferTest extends NbTestCase {
                 " <target name='c'>\n" +
                 "  <mkdir dir='s'/>\n" +
                 "  <mkdir dir='c'/>\n" +
-                "  <javac srcdir='s' destdir='c' source='1.5' classpath='x.jar'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='1.5' classpath='x.jar' includeantruntime='false'/>\n" +
                 " </target>\n" +
                 "</project>\n");
         runAnt();
@@ -83,9 +83,9 @@ public class BuildSnifferTest extends NbTestCase {
                 " <target name='c'>\n" +
                 "  <mkdir dir='s'/>\n" +
                 "  <mkdir dir='c'/>\n" +
-                "  <javac srcdir='s' destdir='c' classpath='x.jar'/>\n" +
-                "  <javac srcdir='s' destdir='c' classpath='y.jar'/>\n" +
-                "  <javac srcdir='s' destdir='c' classpath='x.jar'/>\n" +
+                "  <javac srcdir='s' destdir='c' classpath='x.jar' includeantruntime='false'/>\n" +
+                "  <javac srcdir='s' destdir='c' classpath='y.jar' includeantruntime='false'/>\n" +
+                "  <javac srcdir='s' destdir='c' classpath='x.jar' includeantruntime='false'/>\n" +
                 " </target>\n" +
                 "</project>\n");
         runAnt();
@@ -102,8 +102,8 @@ public class BuildSnifferTest extends NbTestCase {
                 "  <mkdir dir='s1'/>\n" +
                 "  <mkdir dir='s2'/>\n" +
                 "  <mkdir dir='c'/>\n" +
-                "  <javac srcdir='s1' destdir='c' classpath='x.jar'/>\n" +
-                "  <javac srcdir='s2' destdir='c' classpath='x.jar:y.jar'/>\n" +
+                "  <javac srcdir='s1' destdir='c' classpath='x.jar' includeantruntime='false'/>\n" +
+                "  <javac srcdir='s2' destdir='c' classpath='x.jar:y.jar' includeantruntime='false'/>\n" +
                 " </target>\n" +
                 "</project>\n");
         runAnt();
@@ -129,7 +129,7 @@ public class BuildSnifferTest extends NbTestCase {
                 "  <mkdir dir='c'/>\n" +
                 "  <path id='p1'><pathelement location='from-p1.jar'/></path>\n" +
                 "  <path id='p2'><pathelement location='from-p2.jar'/></path>\n" +
-                "  <javac srcdir='s' destdir='c' classpath='direct1.jar:direct2.jar' classpathref='p1'>\n" +
+                "  <javac srcdir='s' destdir='c' classpath='direct1.jar:direct2.jar' classpathref='p1' includeantruntime='false'>\n" +
                 "   <classpath>\n" +
                 "    <path refid='p2'/>\n" +
                 "    <pathelement location='pe-loc.jar'/>\n" +
@@ -159,6 +159,23 @@ public class BuildSnifferTest extends NbTestCase {
             cp.append(prefix + entry);
         }
         assertEquals(cp.toString(), Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
+    }
+
+    public void testAntRuntimeCP() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='1.5' classpath='x.jar'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        String prefix = getWorkDirPath() + File.separator;
+        String cp = Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH);
+        assertTrue(cp, cp.contains(prefix + "x.jar"));
+        assertTrue(cp, cp.contains(System.getProperty("java.class.path")));
+        // can also contain tools.jar
     }
 
     private void write(String file, String body) throws IOException {
