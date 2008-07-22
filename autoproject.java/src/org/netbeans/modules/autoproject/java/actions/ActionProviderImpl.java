@@ -39,31 +39,32 @@
 
 package org.netbeans.modules.autoproject.java.actions;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
-import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.runner.ProjectRunner;
+import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.java.JavaCacheConstants;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ActionProvider;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -84,22 +85,21 @@ public class ActionProviderImpl implements ActionProvider {
 
     public String[] getSupportedActions() {
         return new String[] {
+            // ProjectRunner provides the impl:
+            ActionProvider.COMMAND_RUN_SINGLE,
+            ActionProvider.COMMAND_TEST_SINGLE,
+            ActionProvider.COMMAND_DEBUG_SINGLE,
+            ActionProvider.COMMAND_DEBUG_TEST_SINGLE,
+            // You provide the impl:
             ActionProvider.COMMAND_BUILD,
             ActionProvider.COMMAND_CLEAN,
             ActionProvider.COMMAND_REBUILD,
-            ActionProvider.COMMAND_COMPILE_SINGLE,
             ActionProvider.COMMAND_RUN,
-            ActionProvider.COMMAND_RUN_SINGLE,
-            /* XXX could be added pretty easily, though minus junit module integration:
             ActionProvider.COMMAND_TEST,
-            ActionProvider.COMMAND_TEST_SINGLE,
-             */
             JavaProjectConstants.COMMAND_JAVADOC,
-            /* XXX no debugger integration yet:
+            /* XXX incomplete debugger integration:
             ActionProvider.COMMAND_DEBUG,
-            ActionProvider.COMMAND_DEBUG_SINGLE,
             ActionProvider.COMMAND_DEBUG_STEP_INTO,
-            ActionProvider.COMMAND_DEBUG_TEST_SINGLE,
             JavaProjectConstants.COMMAND_DEBUG_FIX,
              */
             // XXX deploy, redeploy
@@ -109,33 +109,29 @@ public class ActionProviderImpl implements ActionProvider {
     }
 
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
-        if (command.equals(ActionProvider.COMMAND_COMPILE_SINGLE)) {
-            return compileSetup(context) != null;
-        } else if (command.equals(ActionProvider.COMMAND_RUN_SINGLE)) {
-            return runSetup(context, false) != null;
+        if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
+                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
+            return runSetup(context, command, false) != null;
         } else {
             return true;
         }
     }
 
-    public void invokeAction(String command, final Lookup context) throws IllegalArgumentException {
-        if (command.equals(ActionProvider.COMMAND_COMPILE_SINGLE)) {
+    public void invokeAction(final String command, final Lookup context) throws IllegalArgumentException {
+        if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
+                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    doCompile(compileSetup(context));
-                }
-            });
-        } else if (command.equals(ActionProvider.COMMAND_RUN_SINGLE)) {
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    CompileSetup compileSetup = compileSetup(context);
-                    if (compileSetup != null) {
-                        boolean ok = doCompile(compileSetup);
-                        if (!ok) {
-                            return;
+                    RunSetup setup = runSetup(context, command, true);
+                    if (setup != null) {
+                        try {
+                            ProjectRunner.execute(setup.command, setup.props, setup.toRun);
+                        } catch (IOException x) {
+                            LOG.log(Level.WARNING, null, x);
                         }
+                    } else {
+                        Toolkit.getDefaultToolkit().beep();
                     }
-                    doRun(runSetup(context, true));
                 }
             });
         } else {
@@ -176,127 +172,24 @@ public class ActionProviderImpl implements ActionProvider {
         }
     }
 
-    private static class CompileSetup {
-        final Set<File> diskfiles;
-        final List<String> options;
-        final File destdir;
-        public CompileSetup(Set<File> diskfiles, List<String> options, File destdir) {
-            this.diskfiles = diskfiles;
-            this.options = options;
-            this.destdir = destdir;
-        }
-    }
-    private CompileSetup/*|null*/ compileSetup(Lookup context) {
-        Set<File> diskfiles = new HashSet<File>();
-        File srcdir = null;
-        List<String> options = new ArrayList<String>();
-        for (DataObject d : context.lookupAll(DataObject.class)) {
-            File f = FileUtil.toFile(d.getPrimaryFile());
-            if (f == null) {
-                // JAR entry, etc.
-                return null;
-            }
-            if (!f.getName().endsWith(".java")) {
-                // Some other file selected; could just ignore?
-                // XXX would be useful to let you select a package and compile that
-                return null;
-            }
-            if (srcdir != null && !f.getAbsolutePath().startsWith(srcdir.getAbsolutePath())) {
-                // Do not currently support compiling files from several roots at once.
-                return null;
-            } else if (srcdir == null) {
-                for (Map.Entry<String,String> entry : Cache.pairs()) {
-                    if (entry.getKey().endsWith(JavaCacheConstants.SOURCE)) {
-                        String src = entry.getKey().substring(0, entry.getKey().length() - JavaCacheConstants.SOURCE.length());
-                        if (f.getAbsolutePath().startsWith(src)) {
-                            srcdir = new File(src);
-                            options.add("-sourcepath");
-                            options.add(entry.getValue());
-                            break;
-                        }
-                    }
-                }
-                if (srcdir == null) {
-                    // Not a file in a known source root.
-                    return null;
-                }
-            }
-            diskfiles.add(f);
-        }
-        if (diskfiles.isEmpty()) {
-            // Nothing compilable selected.
-            return null;
-        }
-        assert srcdir != null;
-        String d = Cache.get(srcdir + JavaCacheConstants.BINARY);
-        if (d == null) {
-            // Don't know where to send it.
-            return null;
-        }
-        options.add("-d");
-        options.add(d);
-        File destdir = new File(d);
-        String cp = Cache.get(srcdir + JavaCacheConstants.CLASSPATH);
-        if (cp == null) {
-            // Don't know how to compile it. (Note: distinct from empty CP.)
-            return null;
-        }
-        if (cp.length() > 0) {
-            options.add("-classpath");
-            options.add(cp);
-        }
-        String sourceLevel = Cache.get(srcdir + JavaCacheConstants.SOURCE_LEVEL);
-        if (sourceLevel != null) {
-            options.add("-source");
-            options.add(sourceLevel);
-            // XXX might be better to get this from BuildSniffer:
-            options.add("-target");
-            options.add(sourceLevel);
-        } else {
-            // Set up to be runnable from default JDK!
-            options.add("-target");
-            options.add(JavaPlatformManager.getDefault().getDefaultPlatform().getSpecification().getVersion().toString());
-        }
-        String encoding = Cache.get(srcdir + Cache.ENCODING);
-        if (encoding != null) {
-            options.add("-encoding");
-            options.add(encoding);
-        }
-        // XXX any other javac options? -debug etc.?
-        return new CompileSetup(diskfiles, options, destdir);
-    }
-    private boolean doCompile(CompileSetup compileSetup) {
-        try {
-            for (DataObject modified : DataObject.getRegistry().getModified()) {
-                SaveCookie save = modified.getCookie(SaveCookie.class);
-                if (save != null) {
-                    save.save();
-                }
-            }
-            boolean ok = Compiler.compile(compileSetup.diskfiles, compileSetup.options);
-            FileUtil.refreshFor(compileSetup.destdir);
-            return ok;
-        } catch (IOException x) {
-            LOG.log(Level.WARNING, null, x);
-            return false;
-        }
-    }
-
+    /** @see ProjectRunner */
     private static class RunSetup {
-        final List<String> options;
-        final File cwd;
-        public RunSetup(List<String> options, File cwd) {
-            this.options = options;
-            this.cwd = cwd;
+        final String command;
+        final Properties props;
+        final FileObject toRun;
+        public RunSetup(String command, Properties props, FileObject toRun) {
+            this.command = command;
+            this.props = props;
+            this.toRun = toRun;
         }
     }
-    private RunSetup/*|null*/ runSetup(Lookup context, boolean block) {
+    private RunSetup/*|null*/ runSetup(Lookup context, String command, boolean block) {
         Collection<? extends DataObject> ds = context.lookupAll(DataObject.class);
         if (ds.size() != 1) {
             // No selection, or multiselection.
             return null;
         }
-        FileObject fo = ds.iterator().next().getPrimaryFile();
+        final FileObject fo = ds.iterator().next().getPrimaryFile();
         File f = FileUtil.toFile(fo);
         if (f == null) {
             // JAR selection?
@@ -306,63 +199,58 @@ public class ActionProviderImpl implements ActionProvider {
             // Some other kind of file selected.
             return null;
         }
-        final List<String> options = new ArrayList<String>();
-        for (Map.Entry<String, String> entry : Cache.pairs()) {
-            if (entry.getKey().endsWith(JavaCacheConstants.SOURCE)) {
-                String src = entry.getKey().substring(0, entry.getKey().length() - JavaCacheConstants.SOURCE.length());
-                if (f.getAbsolutePath().startsWith(src)) {
-                    String clazz = Cache.get(src + JavaCacheConstants.BINARY);
-                    if (clazz == null) {
-                        // Not known where it is compiled to;
-                        return null;
+        final ClassPath sourcepath = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+        if (sourcepath == null) {
+            return null;
+        }
+        boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE);
+        boolean test = command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE);
+        FileObject toRun = fo;
+        if (test) {
+            // Try to find the matching unit test.
+            toRun = null;
+            FileObject root = sourcepath.findOwnerRoot(fo);
+            assert root != null : fo;
+            String testResource = sourcepath.getResourceName(fo, '/', false) + "Test.java";
+            for (URL u : UnitTestForSourceQuery.findUnitTests(root)) {
+                try {
+                    toRun = URLMapper.findFileObject(new URL(u, testResource));
+                    if (toRun != null) {
+                        break;
                     }
-                    String cp = Cache.get(src + JavaCacheConstants.CLASSPATH);
-                    if (cp == null) {
-                        // No known classpath for it.
-                        return null;
-                    }
-                    options.add("-classpath");
-                    // XXX could add source path to pick up noncopied resources?
-                    // XXX may in general be necessary to add other entries to run CP, TBD how to guess this...
-                    options.add(clazz + File.pathSeparator + cp);
-                    final String name = f.getAbsolutePath().substring(src.length() + File.separator.length()).
-                            replace('/', '.').replaceAll("^[.]|[.]java$", "");
-                    if (block) {
-                        // We can block waiting for parse, and figure out whether to run as a test.
-                        try {
-                            JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
-                                public void run(CompilationController cc) throws Exception {
-                                    TypeElement runType = cc.getElements().getTypeElement(name);
-                                    TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
-                                    if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
-                                        options.add("junit.textui.TestRunner");
-                                    }
-                                    // XXX also classes with a "public static junit.framework.Test suite()" method
-                                    // XXX also classes containing public methods annotated with @org.junit.Test (run with org.junit.runner.JUnitCore)
-                                }
-                            }, true).get();
-                        } catch (Exception x) {
-                            Exceptions.printStackTrace(x);
-                        }
-                    }
-                    options.add(name);
-                    return new RunSetup(options, FileUtil.toFile(p.getProjectDirectory()));
+                } catch (MalformedURLException x) {
+                    assert false : x;
                 }
+            }
+            if (toRun == null) {
+                return null;
+            }
+        } else if (block) {
+            // We can block waiting for parse, and figure out whether to run as a test.
+            try {
+                final AtomicBoolean result = new AtomicBoolean();
+                JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
+                    public void run(CompilationController cc) throws Exception {
+                        String name = sourcepath.getResourceName(fo, '.', false);
+                        assert name != null : fo;
+                        TypeElement runType = cc.getElements().getTypeElement(name);
+                        TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
+                        if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
+                            result.set(true);
+                        }
+                        // XXX also classes with a "public static junit.framework.Test suite()" method
+                        // XXX also classes containing public methods annotated with @org.junit.Test
+                    }
+                }, true).get();
+                test = result.get();
+            } catch (Exception x) {
+                Exceptions.printStackTrace(x);
             }
         }
-        // Not in a known source root.
-        return null;
-    }
-    private void doRun(final RunSetup runSetup) {
-        RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
-                try {
-                    Runner.runJava(runSetup.options, runSetup.cwd);
-                } catch (IOException x) {
-                    LOG.log(Level.WARNING, null, x);
-                }
-            }
-        });
+        return new RunSetup(debug ?
+            (test ? ProjectRunner.QUICK_TEST_DEBUG : ProjectRunner.QUICK_DEBUG) :
+            (test ? ProjectRunner.QUICK_TEST : ProjectRunner.QUICK_RUN),
+            new Properties(), toRun);
     }
 
 }
