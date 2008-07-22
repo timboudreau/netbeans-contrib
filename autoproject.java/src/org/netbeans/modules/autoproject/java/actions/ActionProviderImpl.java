@@ -228,7 +228,7 @@ public class ActionProviderImpl implements ActionProvider {
         } else if (block) {
             // We can block waiting for parse, and figure out whether to run as a test.
             try {
-                final AtomicBoolean result = new AtomicBoolean();
+                final AtomicBoolean isActuallyTest = new AtomicBoolean();
                 JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
                     public void run(CompilationController cc) throws Exception {
                         String name = sourcepath.getResourceName(fo, '.', false);
@@ -236,13 +236,14 @@ public class ActionProviderImpl implements ActionProvider {
                         TypeElement runType = cc.getElements().getTypeElement(name);
                         TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
                         if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
-                            result.set(true);
+                            isActuallyTest.set(true);
                         }
                         // XXX also classes with a "public static junit.framework.Test suite()" method
                         // XXX also classes containing public methods annotated with @org.junit.Test
+                        // XXX can also check for public static void main(String[]) and return null if not found
                     }
                 }, true).get();
-                test = result.get();
+                test = isActuallyTest.get();
             } catch (Exception x) {
                 Exceptions.printStackTrace(x);
             }
