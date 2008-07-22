@@ -37,8 +37,6 @@ do
     esac
 
     IMAGES_DIR=/shared/dp/sstrunk/latest/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
-
-
     DISTR_NAME="$RESDIR/Studio-toolchain-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}.sh"   
     echo Generating $DISTR_NAME
     
@@ -61,7 +59,6 @@ do
 	cp -r $PACKAGE_DIR/$package $TARDIR/$PACKAGES 
     done < package-list.$distr.real
     
-    #cp -r $PACKAGE_DIR/$package $TARDIR/$PACKAGES 
     cd $TARDIR
     tar cvf $TARDIR/sunstudio.$distr.tar $PACKAGES -C $SRCDIR servicetag
     bzip2 $TARDIR/sunstudio.$distr.tar
