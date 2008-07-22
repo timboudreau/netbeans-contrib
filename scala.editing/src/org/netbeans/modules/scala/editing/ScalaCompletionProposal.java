@@ -52,7 +52,6 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
-import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Symbols.TypeSymbol;
@@ -132,7 +131,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         formatter.type(true);
         Type retType = symbol.tpe().resultType();
         if (retType != null && !symbol.isConstructor()) {
-            formatter.appendText(AstDef.toString(retType));
+            formatter.appendText(ScalaElement.typeToString(retType));
         }
         formatter.type(false);
 

@@ -41,7 +41,11 @@ package org.netbeans.modules.scala.editing.ast;
 import org.netbeans.modules.scala.editing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.swing.text.BadLocationException;
@@ -101,10 +105,10 @@ public class ScalaElement implements ScalaElementHandle {
     public Symbol getSymbol() {
         return symbol;
     }
-    
+
     public Type getType() {
         return getSymbol().tpe();
-    }    
+    }
 
     public FileObject getFileObject() {
         if (fo == null) {
@@ -171,7 +175,7 @@ public class ScalaElement implements ScalaElementHandle {
                     try {
                         String docComment = JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject()), javaElement);
                         if (docComment != null) {
-                             return new StringBuilder(docComment.length() + 5).append("/**").append(docComment).append("*/").toString();
+                            return new StringBuilder(docComment.length() + 5).append("/**").append(docComment).append("*/").toString();
                         }
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
@@ -256,7 +260,7 @@ public class ScalaElement implements ScalaElementHandle {
                     CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                     if (unit != null) {
                         final Tree tree = unit.body();
-                        AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();                        
+                        AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
                         AstDef def = root.findDefMatched(symbol);
                         if (def != null) {
                             offset = def.getIdOffset(th);
@@ -298,7 +302,7 @@ public class ScalaElement implements ScalaElementHandle {
     public boolean isEmphasize() {
         return !isInherited();
     }
-    
+
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
@@ -356,5 +360,73 @@ public class ScalaElement implements ScalaElementHandle {
         }
 
         return modifiers;
+    }
+
+    public static String symbolQualifiedName(Symbol symbol) {
+        return symbolQualifiedName(symbol, true);
+    }
+
+    public static String symbolQualifiedName(Symbol symbol, boolean forScala) {
+        if (symbol.isError()) {
+            return "<error>";
+        } else if (symbol.nameString().equals("<none>")) {
+            return "<none>";
+        } else {
+            List<String> paths = new LinkedList<String>();
+            Symbol owner = symbol.owner();
+            // remove type parameter part at the beginnig, for example: scala.Array[T0] will be: scala.Array.T0
+            if (!symbol.isTypeParameterOrSkolem()) {
+                paths.add(symbol.nameString());
+            }
+            while (!owner.nameString().equals("<none>") && !owner.nameString().equals("<root>")) {
+                if (!symbol.isTypeParameterOrSkolem()) {
+                    paths.add(owner.nameString());
+                }
+                owner = owner.owner();
+            }
+
+            Collections.reverse(paths);
+            StringBuilder sb = new StringBuilder();
+            for (Iterator<String> itr = paths.iterator(); itr.hasNext();) {
+                sb.append(itr.next());
+                if (itr.hasNext()) {
+                    sb.append('.');
+                }
+            }
+
+            return sb.length() == 0
+                    ? forScala ? symbol.nameString() : "Object" // it maybe a TypeParameter likes: T0
+                    : sb.toString();
+        }
+    }
+
+    public static String typeQualifiedName(Type type, boolean forScala) {
+        return symbolQualifiedName(type.typeSymbol(), forScala);
+    }
+
+    public static boolean isInherited(Symbol template, Symbol member) {
+        return !symbolQualifiedName(template).equals(symbolQualifiedName(member.enclClass()));
+    }
+
+    public static String typeToString(Type type) {
+        if (type.typeSymbol().nameString().equals("<none>")) {
+            return type.typeSymbol().nameString();
+        }
+
+        String str = null;
+        try {
+            str = type.toString();
+        } catch (java.lang.AssertionError ex) {
+            // ignore assert ex from scala
+            ScalaGlobal.reset();
+        } catch (Throwable ex) {
+            ScalaGlobal.reset();
+        }
+
+        if (str == null) {
+            str = type.termSymbol().nameString();
+        }
+
+        return str;
     }
 }

@@ -64,7 +64,7 @@ public class JavaScalaMapping {
     }
     private static Map<Character, String> ScalaToJavaOpName = new HashMap<Character, String>();
     private static Map<String, Character> JavaToScalaOpName = new HashMap<String, Character>();
-
+    private static Map<String, String> ScalaTypeToJavaType = new HashMap<String, String>();
 
     static {
         ScalaToJavaOpName.put('$', "$");
@@ -102,6 +102,22 @@ public class JavaScalaMapping {
         JavaToScalaOpName.put("$plus", '+');
         JavaToScalaOpName.put("$minus", '-');
         JavaToScalaOpName.put("$colon", ':');
+        
+        ScalaTypeToJavaType.put("scala.Any", "scala.ScalaObject");
+        ScalaTypeToJavaType.put("scala.AnyRef", "scala.ScalaObject");
+        ScalaTypeToJavaType.put("scala.AnyVal", "scala.ScalaObject");
+        ScalaTypeToJavaType.put("scala.Double", "double");
+        ScalaTypeToJavaType.put("scala.Float", "float");
+        ScalaTypeToJavaType.put("scala.Long", "long");
+        ScalaTypeToJavaType.put("scala.Int", "int");
+        ScalaTypeToJavaType.put("scala.Short", "short");
+        ScalaTypeToJavaType.put("scala.Byte", "byte");
+        ScalaTypeToJavaType.put("scala.Boolean", "boolean");
+        ScalaTypeToJavaType.put("scala.Unit", "void");
+        ScalaTypeToJavaType.put("scala.Char", "char");
+        ScalaTypeToJavaType.put("String", "String");
+        ScalaTypeToJavaType.put("<error>", "Object");        
+        ScalaTypeToJavaType.put("<none>", "void");        
     }
     private static final String SCALA_OBJECT = "scala.ScalaObject";
     private static final String SCALA_OBJECT_MODULE = "MODULE$";
@@ -169,7 +185,7 @@ public class JavaScalaMapping {
         return false;
     }
 
-    public static String scalaOpNameToJava(String name) {
+    public static String toJavaOpName(String name) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
@@ -184,7 +200,7 @@ public class JavaScalaMapping {
         return sb.toString();
     }
 
-    public static String javaOpNameToScala(String name) {
+    public static String toScalaOpName(String name) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
@@ -215,6 +231,11 @@ public class JavaScalaMapping {
         }
 
         return sb.toString();
+    }
+
+    public static String toJavaType(String qName) {
+        String javaQName = ScalaTypeToJavaType.get(qName);
+        return javaQName != null ? javaQName : qName;
     }
 
     public static int isFunctionType(TypeMirror functionType) {

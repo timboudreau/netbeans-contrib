@@ -195,7 +195,7 @@ public class GsfElement implements ElementHandle {
     public String getName() {
         String name = element.getSimpleName().toString();
         if (isScalaFromClass() && element.getKind() == javax.lang.model.element.ElementKind.METHOD) {
-            return JavaScalaMapping.javaOpNameToScala(name);
+            return JavaScalaMapping.toScalaOpName(name);
         } else {
             return name;
         }
