@@ -195,19 +195,6 @@ public class SourceUtils {
         if (params != null && params.size() != 1) {
             return false;
         }
-//        TypeMirror param = params.get(0).asType();
-//        if (param.getKind() != TypeKind.ARRAY) {
-//            return false;
-//        }
-//        ArrayType array = (ArrayType) param;
-//        TypeMirror compound = array.getComponentType();
-//        if (compound.getKind() != TypeKind.DECLARED) {
-//            return false;
-//        }
-//        if (!"java.lang.String".contentEquals(((TypeElement) ((DeclaredType) compound).asElement()).getQualifiedName())) {   //NOI18N
-//
-//            return false;
-//        }
         return true;
     }
 

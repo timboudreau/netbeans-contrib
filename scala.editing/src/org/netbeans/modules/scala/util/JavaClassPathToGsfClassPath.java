@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.project.classpath;
+package org.netbeans.modules.scala.util;
 
 import java.net.URL;
 import java.util.List;

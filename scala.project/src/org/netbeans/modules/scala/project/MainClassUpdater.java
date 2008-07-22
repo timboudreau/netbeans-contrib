@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.project;
 
-import org.netbeans.modules.scala.project.classpath.JavaClassPathToGsfClassPath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -62,6 +61,7 @@ import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.SourceUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.project.classpath.GsfClassPathProviderImpl;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -200,7 +200,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                     ClassPath bootCp = ClassPath.getClassPath(roots[0], ClassPath.BOOT);
                     ClassPath compileCp = ClassPath.getClassPath(roots[0], ClassPath.COMPILE);
 
-                    final ClasspathInfo cpInfo = JavaClassPathToGsfClassPath.createGsfClassPathInfo(bootCp, compileCp, sourcePath);
+                    final ClasspathInfo cpInfo = GsfClassPathProviderImpl.createGsfClassPathInfo(bootCp, compileCp, sourcePath);
                     
                     /** 
                      * @TODO ugly hacking to find mainClass's fo, this hacking 

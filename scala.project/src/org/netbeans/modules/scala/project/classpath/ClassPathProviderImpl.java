@@ -151,7 +151,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
      *         <dt>-1</dt> <dd>something else</dd>
      *         </dl>
      */
-    private int getType(FileObject file) {
+    public int getType(FileObject file) {
         FileObject[] srcPath = getPrimarySrcPath();
         for (int i = 0; i < srcPath.length; i++) {
             FileObject root = srcPath[i];
