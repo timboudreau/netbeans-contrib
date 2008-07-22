@@ -100,7 +100,6 @@ public class ActionProviderImpl implements ActionProvider {
             /* XXX incomplete debugger integration:
             ActionProvider.COMMAND_DEBUG,
             ActionProvider.COMMAND_DEBUG_STEP_INTO,
-            JavaProjectConstants.COMMAND_DEBUG_FIX,
              */
             // XXX deploy, redeploy
             // XXX rename, move, copy, delete
