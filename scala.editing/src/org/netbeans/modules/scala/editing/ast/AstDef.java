@@ -229,20 +229,11 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     }
 
     public String getPackageName() {
-        Symbol packaging = getSymbol().enclosingPackage();
-        if (packaging != null) {
-            return packaging.fullNameString();
-        }
-        return null;
+        return getSymbol().tpe().packagePrefix();
     }
 
     public String getQualifiedName() {
-        String pkgName = getPackageName();
-        if (pkgName == null) {
-            return getName();
-        } else {
-            return new StringBuilder().append(pkgName).append(".").append(getName()).toString();
-        }
+        return ScalaElement.symbolQualifiedName(getSymbol());
     }
 
     public boolean isInherited() {

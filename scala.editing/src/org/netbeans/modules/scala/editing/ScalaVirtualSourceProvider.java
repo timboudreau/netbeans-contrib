@@ -109,12 +109,12 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 FileObject fo = FileUtil.toFileObject(file);
                 ScalaIndex index = ScalaIndex.get(fo);
                 JavaStubGenerator generator = new JavaStubGenerator(index);
-                for (AstDef template : tmpls) {
+                for (AstDef tmpl : tmpls) {
                     try {
-                        CharSequence javaStub = generator.generateClass(template);
-                        Symbol packaging = template.getSymbol().enclosingPackage();
+                        CharSequence javaStub = generator.generateClass(tmpl);
+                        Symbol packaging = tmpl.getSymbol().enclosingPackage();
                         String pkgName = packaging == null ? "" : packaging.fullNameString();
-                        result.add(file, pkgName, template.getSymbol().nameString(), javaStub);
+                        result.add(file, pkgName, tmpl.getSymbol().nameString(), javaStub);
                         break;
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -212,7 +212,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
         public CharSequence generateClass(AstDef tmpl) throws FileNotFoundException {
             Symbol symbol = tmpl.getSymbol();
-            String fileName = tmpl.getQualifiedName().toString().replace('.', '/');
+            String fileName = toJavaName(ScalaElement.symbolQualifiedName(symbol)).replace('.', '/');
             toCompile.add(fileName);
 
             StringWriter sw = new StringWriter();
@@ -240,12 +240,12 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 }
 
                 // class name
-                out.print(symbol.nameString());
+                String clzName = toJavaName(symbol.nameString());
+                out.print(clzName);
 
                 Symbol superClass = symbol.superClass();
-                String superQName = superClass.fullNameString();
-                if (superClass != null /**&& !superQName.equals(qName)*/
-                        ) {
+                if (superClass != null) {
+                    String superQName = ScalaElement.symbolQualifiedName(superClass);
                     out.print(" extends ");
                     out.print(superQName);
                 }
@@ -274,7 +274,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 for (int i = 0; i < size; i++) {
                     Symbol member = (Symbol) members.apply(i);
 
-                    if (member.isPublic() || member.isProtectedLocal()) {                        
+                    if (member.isPublic() || member.isProtectedLocal()) {
                         if (ScalaElement.isInherited(symbol, member)) {
                             continue;
                         }
@@ -287,18 +287,18 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                             printModifiers(out, member);
                             out.print(" ");
                             if (member.isConstructor()) {
-                                out.print(JavaScalaMapping.toJavaOpName(symbol.nameString()));
+                                out.print(toJavaName(symbol.nameString()));
                                 // parameters
                                 printParams(out, member.tpe().paramTypes());
                                 out.print(" ");
                                 out.println("{}");
                             } else {
                                 Type resType = member.tpe().resultType();
-                                String resQName = JavaScalaMapping.toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                                String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
                                 out.print(resQName);
                                 out.print(" ");
                                 // method name
-                                out.print(JavaScalaMapping.toJavaOpName(member.nameString()));
+                                out.print(toJavaName(member.nameString()));
                                 // method parameters
                                 printParams(out, member.tpe().paramTypes());
                                 out.print(" ");
@@ -314,14 +314,14 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                             printModifiers(out, member);
                             out.print(" ");
                             Type resType = member.tpe().resultType();
-                            String resQName = JavaScalaMapping.toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                            String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
                             out.print(resQName);
                             out.print(" ");
                             out.print(member.nameString());
                             out.println(";");
                         }
                     }
-                    
+
                     // implements scala.ScalaObject
                     out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
                 }
@@ -376,6 +376,14 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             String returnStr = TypeToReturn.get(typeName);
             out.print(returnStr == null ? "return null;" : returnStr);
 
+        }
+
+        private String toJavaName(String scalaName) {
+            return JavaScalaMapping.toJavaOpName(scalaName);
+        }
+
+        private String toJavaType(String scalaTypeName) {
+            return JavaScalaMapping.toJavaType(scalaTypeName);
         }
     }
     private static Map<String, String> TypeToReturn = new HashMap<String, String>();
