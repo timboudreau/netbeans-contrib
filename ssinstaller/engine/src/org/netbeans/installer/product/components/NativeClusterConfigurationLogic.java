@@ -45,6 +45,7 @@ import java.util.logging.Logger;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.EnvironmentInfoFactory;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.FileEntry;
@@ -81,13 +82,14 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
         LogManager.logEntry("Installing native package...");
         String installationLocation = Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath();
         final Platform platform = SystemUtils.getCurrentPlatform();
-        if (!PackageType.isPlatformSupported(platform)) {
-            throw new InstallationException("Platform is not supported!");
-        }
+//        if (!PackageType.isPlatformSupported(platform)) {
+//            throw new InstallationException("Platform is not supported!");
+//        }
 
         try {
             NativePackageInstaller packageInstaller =// NativeInstallerFactory.getPlatformNativePackageInstaller(platform.isCompatibleWith(Platform.SOLARIS));
-                    PackageType.getPlatformNativePackage(platform).getPackageInstaller();
+                    //PackageType.getPlatformNativePackage(platform).getPackageInstaller();
+                    EnvironmentInfoFactory.getInstance().getPackageType().getPackageInstaller();
             packageInstaller.setDestinationPath(installationLocation);
             final int percentageChunk = Progress.COMPLETE / getProduct().getInstalledFiles().getSize();
             final int percentageLeak = Progress.COMPLETE % getProduct().getInstalledFiles().getSize();
@@ -120,12 +122,13 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     public void uninstall(Progress progress) throws UninstallationException {
         LogManager.logEntry("Uninstalling native package...");
         final Platform platform = SystemUtils.getCurrentPlatform();
-        if (!PackageType.isPlatformSupported(platform)) {
-            throw new UninstallationException("Platform is not supported!");
-        }
+//        if (!PackageType.isPlatformSupported(platform)) {
+//            throw new UninstallationException("Platform is not supported!");
+//        }
         try {
-            PackageType packageType = PackageType.getPlatformNativePackage(platform);
-            NativePackageInstaller packageInstaller = packageType.getPackageInstaller();
+//            PackageType packageType = PackageType.getPlatformNativePackage(platform);
+//            NativePackageInstaller packageInstaller = packageType.getPackageInstaller();
+            NativePackageInstaller packageInstaller = EnvironmentInfoFactory.getInstance().getPackageType().getPackageInstaller();
             //packageInstaller.setDestinationPath(Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath());
             packageInstaller.setDestinationPath("");
 
@@ -165,78 +168,77 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     
     
 }
-enum PackageType {
+/*enum PackageType {
 
-    SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), Platform.SOLARIS),
-    // LINUX_DEB(new LinuxDebianPackageInstaller(), Platform.LINUX),
-    LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), Platform.LINUX);
-    private NativePackageInstaller packageInstaller = null;
-    private Platform platform = null;
+SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), Platform.SOLARIS),
+// LINUX_DEB(new LinuxDebianPackageInstaller(), Platform.LINUX),
+LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), Platform.LINUX);
+private NativePackageInstaller packageInstaller = null;
+private Platform platform = null;
 
-    PackageType(NativePackageInstaller packageInstaller, Platform platform) {
-        this.packageInstaller = packageInstaller;
-        this.platform = platform;
-    }
-
-    public NativePackageInstaller getPackageInstaller() {
-        return packageInstaller;
-    }
-
-    public Platform getPlatform() {
-        return platform;
-    }
-
-    public static boolean isPlatformSupported(Platform platform) {
-        for (PackageType type : PackageType.values()) {
-            if (isCompatiblePlatforms(type.getPlatform(), platform)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isCompatiblePlatforms(Platform platform1, Platform platform2) {
-        return platform1.getOsFamily().equals(platform2.getOsFamily());
-    }
-
-    public static PackageType getPlatformNativePackage(Platform platform) {
-        if (isCompatiblePlatforms(platform, Platform.SOLARIS)) {
-            return SOLARIS_PKG;
-        }
-        if (isCompatiblePlatforms(platform, Platform.LINUX)) {
-            //if (isCompatibleLinuxDistribution(UBUNTU, DEBIAN)) {
-            //   return LINUX_DEB;
-            //} else {
-            return LINUX_RPM;
-        //}
-        }
-        return null;
-    }
-
-    public static boolean isCompatibleLinuxDistribution(String... distributionNames) {
-        try {
-            // This is a preffered way, but it's only possible then distribution is LSB compartible. 
-            //Process p = new ProcessBuilder("lsb_release", "-sd").start();
-            Process p = new ProcessBuilder("sh", "-c", "cat /etc/*-release").start();
-            if (p.waitFor() == 0) {
-                BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = null;
-                while ((line = output.readLine()) != null) {
-                    for (String distributionName : distributionNames) {
-                        if (line.toLowerCase().contains(distributionName.toLowerCase())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(NativeClusterConfigurationLogic.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(NativeClusterConfigurationLogic.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
-    }
-    private static final String UBUNTU = "ubuntu";
-    private static final String DEBIAN = "debian";
+PackageType(NativePackageInstaller packageInstaller, Platform platform) {
+this.packageInstaller = packageInstaller;
+this.platform = platform;
 }
 
+public NativePackageInstaller getPackageInstaller() {
+return packageInstaller;
+}
+
+public Platform getPlatform() {
+return platform;
+}
+
+public static boolean isPlatformSupported(Platform platform) {
+for (PackageType type : PackageType.values()) {
+if (isCompatiblePlatforms(type.getPlatform(), platform)) {
+return true;
+}
+}
+return false;
+}
+
+private static boolean isCompatiblePlatforms(Platform platform1, Platform platform2) {
+return platform1.getOsFamily().equals(platform2.getOsFamily());
+}
+
+public static PackageType getPlatformNativePackage(Platform platform) {
+if (isCompatiblePlatforms(platform, Platform.SOLARIS)) {
+return SOLARIS_PKG;
+}
+if (isCompatiblePlatforms(platform, Platform.LINUX)) {
+//if (isCompatibleLinuxDistribution(UBUNTU, DEBIAN)) {
+//   return LINUX_DEB;
+//} else {
+return LINUX_RPM;
+//}
+}
+return null;
+}
+
+public static boolean isCompatibleLinuxDistribution(String... distributionNames) {
+try {
+// This is a preffered way, but it's only possible then distribution is LSB compartible. 
+//Process p = new ProcessBuilder("lsb_release", "-sd").start();
+Process p = new ProcessBuilder("sh", "-c", "cat /etc/*-release").start();
+if (p.waitFor() == 0) {
+BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
+String line = null;
+while ((line = output.readLine()) != null) {
+for (String distributionName : distributionNames) {
+if (line.toLowerCase().contains(distributionName.toLowerCase())) {
+return true;
+}
+}
+}
+}
+} catch (InterruptedException ex) {
+Logger.getLogger(NativeClusterConfigurationLogic.class.getName()).log(Level.SEVERE, null, ex);
+} catch (IOException ex) {
+Logger.getLogger(NativeClusterConfigurationLogic.class.getName()).log(Level.SEVERE, null, ex);
+}
+return false;
+}
+private static final String UBUNTU = "ubuntu";
+private static final String DEBIAN = "debian";
+}*/

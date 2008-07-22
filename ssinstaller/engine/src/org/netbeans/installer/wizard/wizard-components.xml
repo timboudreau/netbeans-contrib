@@ -41,6 +41,8 @@
     <component 
         class="org.netbeans.installer.wizard.components.panels.LicensesPanel"/>
     <component 
+        class="org.netbeans.installer.wizard.components.sequences.SystemCheckSequence"/>        
+    <component 
         class="org.netbeans.installer.wizard.components.panels.sunstudio.WelcomePanel"/>
     <component 
         class="org.netbeans.installer.wizard.components.sequences.MainSequence"/>
