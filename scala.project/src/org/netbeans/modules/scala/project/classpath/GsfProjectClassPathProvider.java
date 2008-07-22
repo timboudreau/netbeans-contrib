@@ -18,10 +18,11 @@
  */
 package org.netbeans.modules.scala.project.classpath;
 
-import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
+import org.netbeans.modules.scala.project.classpath.JavaClassPathToGsfClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -45,6 +46,9 @@ public class GsfProjectClassPathProvider implements ClassPathProvider {
     /** 
      * A proxy method which is actually call @link{ClassPathProviderImpl#findClassPath(FileObject, String)}
      * 
+     * @Note: this gsf classpath provider is used only to get __PACKAGE__ value in:
+     * @link{org.netbeans.modules.gsf.GsfDataLoader#createPrimaryEntry(MultiDataObject, FileObject) }
+     * 
      * @Todo:
      * This class is useless at all? since there is a org.netbeans.modules.gsf.ProjectClassPathProvider
      * which registered as a META-IN.services for org.netbeans.modules.spi.classpath.ClassPathProvider too
@@ -58,11 +62,14 @@ public class GsfProjectClassPathProvider implements ClassPathProvider {
      * classpath.
      */
     public ClassPath findClassPath(FileObject file, String type) {
+        if (!ClassPath.SOURCE.equals(type)) {
+            return null;
+        }
         Project p = FileOwnerQuery.getOwner(file);
         if (p != null) {
-            ClassPathProvider cpp = p.getLookup().lookup(ClassPathProvider.class);
+            org.netbeans.spi.java.classpath.ClassPathProvider cpp = p.getLookup().lookup(org.netbeans.spi.java.classpath.ClassPathProvider.class);
             if (cpp != null) {
-                return cpp.findClassPath(file, type);
+                return JavaClassPathToGsfClassPath.convert(cpp.findClassPath(file, type));
             } else {
                 return null;
             }

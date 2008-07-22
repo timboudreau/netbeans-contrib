@@ -106,6 +106,24 @@ made subject to such option by the copyright holder.
                 <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
             </file>
 
+            <file name="Object.scala" url="EmptyScalaObject.scala">
+                <attr name="position" intvalue="300"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/project/ui/resources/class.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaObjectFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+            </file>
+
+            <file name="Trait.scala" url="EmptyScalaTrait.scala">
+                <attr name="position" intvalue="400"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/project/ui/resources/class.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaTraitFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+            </file>
+
         </folder>
         
     </folder>

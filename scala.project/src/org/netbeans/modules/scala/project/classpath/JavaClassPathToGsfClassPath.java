@@ -37,9 +37,10 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.project;
+package org.netbeans.modules.scala.project.classpath;
 
 import java.net.URL;
+import java.util.List;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 
@@ -50,9 +51,10 @@ import org.netbeans.napi.gsfret.source.ClasspathInfo;
 public class JavaClassPathToGsfClassPath {
 
     public static org.netbeans.modules.gsfpath.api.classpath.ClassPath convert(ClassPath javaCp) {
+        List<ClassPath.Entry> entries = javaCp.entries();
         URL[] urls = new URL[javaCp.entries().size()];
-        for (ClassPath.Entry entry : javaCp.entries()) {
-            entry.getURL();
+        for (int i = 0; i < urls.length; i++) {
+            urls[i] = entries.get(i).getURL();
         }
         return org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport.createClassPath(urls);
     }

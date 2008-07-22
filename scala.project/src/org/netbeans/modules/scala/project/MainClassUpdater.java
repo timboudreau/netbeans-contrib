@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.project;
 
+import org.netbeans.modules.scala.project.classpath.JavaClassPathToGsfClassPath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
