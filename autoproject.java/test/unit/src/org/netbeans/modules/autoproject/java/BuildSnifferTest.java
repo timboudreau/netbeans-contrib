@@ -53,11 +53,13 @@ public class BuildSnifferTest extends NbTestCase {
         super(n);
     }
 
+    private String prefix;
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         clearWorkDir();
         Cache.clear();
+        prefix = getWorkDirPath() + File.separator;
     }
 
     public void testBasicJavac() throws Exception {
@@ -70,7 +72,6 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        String prefix = getWorkDirPath() + File.separator;
         assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
         assertEquals(prefix + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
         assertEquals(prefix + "x.jar", Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
@@ -89,7 +90,6 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        String prefix = getWorkDirPath() + File.separator;
         assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
         assertEquals(prefix + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
         assertEquals(prefix + "x.jar" + File.pathSeparator + prefix + "y.jar", Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
@@ -107,7 +107,6 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        String prefix = getWorkDirPath() + File.separator;
         assertEquals(prefix + "s1" + File.pathSeparator + prefix + "s2", Cache.get(prefix + "s1" + JavaCacheConstants.SOURCE));
         assertEquals(prefix + "s1" + File.pathSeparator + prefix + "s2", Cache.get(prefix + "s2" + JavaCacheConstants.SOURCE));
         assertEquals(prefix + "c", Cache.get(prefix + "s1" + JavaCacheConstants.BINARY));
@@ -146,7 +145,6 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        String prefix = getWorkDirPath() + File.separator;
         StringBuilder cp = new StringBuilder();
         for (String entry : new String[] {
             "direct1.jar", "direct2.jar", "from-p1.jar", "from-p2.jar",
@@ -171,11 +169,23 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        String prefix = getWorkDirPath() + File.separator;
         String cp = Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH);
         assertTrue(cp, cp.contains(prefix + "x.jar"));
         assertTrue(cp, cp.contains(System.getProperty("java.class.path")));
         // can also contain tools.jar
+    }
+
+    public void testMistakenSourceDir() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s/pkg' destdir='c' source='1.5' includeantruntime='false'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        write("s/pkg/Clazz.java", "// my root is s!\npackage pkg;\npublic class Clazz {}\n");
+        runAnt();
+        assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
     }
 
     private void write(String file, String body) throws IOException {
