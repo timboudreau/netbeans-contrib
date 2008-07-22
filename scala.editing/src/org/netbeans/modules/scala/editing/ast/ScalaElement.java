@@ -366,6 +366,13 @@ public class ScalaElement implements ScalaElementHandle {
         return symbolQualifiedName(symbol, true);
     }
 
+    /**
+     * Due to the ugly implementation of scala's Symbols.scala, Symbol#fullNameString() 
+     * may cause: 
+     * java.lang.Error: no-symbol does not have owner
+     *        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+     * We should bypass it via symbolQualifiedName
+     */
     public static String symbolQualifiedName(Symbol symbol, boolean forScala) {
         if (symbol.isError()) {
             return "<error>";

@@ -2020,17 +2020,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
                 if (proposal != null) {
-                    boolean inherited = true;
                     Symbol resTypeSymbol = resType.typeSymbol();
-                    Symbol enclClassSymbol = element.getSymbol().enclClass();
-                    try {
-                        if (resTypeSymbol.fullNameString().equals(enclClassSymbol.fullNameString())) {
-                            inherited = false;
-                        }
-                    } catch (java.lang.Error e) {
-                        // java.lang.Error: no-symbol does not have owner
-                        //         at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
-                    }
+                    boolean inherited = ScalaElement.isInherited(resTypeSymbol, member);
                     element.setInherited(inherited);
 
                     proposals.add(proposal);
