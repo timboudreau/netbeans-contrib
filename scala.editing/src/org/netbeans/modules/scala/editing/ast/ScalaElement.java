@@ -422,10 +422,6 @@ public class ScalaElement implements ScalaElementHandle {
     }
 
     public static String typeToString(Type type) {
-        if (type.typeSymbol().nameString().equals("<none>")) {
-            return type.typeSymbol().nameString();
-        }
-
         String str = null;
         try {
             str = type.toString();
