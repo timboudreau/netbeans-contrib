@@ -75,6 +75,12 @@ source build-private.sh
 source ../../../../build-private.sh 
 
 
+INSTALLED_BITS=$CACHE_DIR/packages
+NB_BUILDS_HOST=$CACHE_DIR/packages/nb
+
+
+bash copy-packages.sh $CACHE_DIR $SUNSTUDIO_BITS_ROOT
+cd ${DIRNAME}
 ################################################################################
 # define the temp file location
 TEMP_FILE=${WORK_DIR}/temp.sh.tmp
