@@ -129,7 +129,12 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         Symbol symbol = element.getSymbol();
 
         formatter.type(true);
-        Type retType = symbol.tpe().resultType();
+        Type retType = null;
+        try {
+            retType = symbol.tpe().resultType();
+        } catch (Throwable ex) {
+            ScalaGlobal.reset();
+        }
         if (retType != null && !symbol.isConstructor()) {
             formatter.appendText(ScalaElement.typeToString(retType));
         }
