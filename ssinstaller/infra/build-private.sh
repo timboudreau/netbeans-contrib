@@ -16,8 +16,8 @@ CACHE_DIR=$NB_HOME/cache
 
 SUNSTUDIO_BITS_ROOT=/shared/dp/sstrunk/latest
 
-INSTALLED_BITS=$CACHE_DIR/packages
-NB_BUILDS_HOST=$CACHE_DIR/packages/nb
+#INSTALLED_BITS=$CACHE_DIR/packages
+#NB_BUILDS_HOST=$CACHE_DIR/packages/nb
 
 #http://bits.nbextras.org/download/trunk/nightly/2008-04-01_02-01-24/zip/moduleclusters
 #NB_BUILDS_HOST=http://smetiste.czech.sun.com/builds/netbeans/6.0/fcs/zip/moduleclusters

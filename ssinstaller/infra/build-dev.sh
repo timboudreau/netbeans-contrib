@@ -79,8 +79,8 @@ source ../../../../build-private.sh
 TEMP_FILE=${WORK_DIR}/temp.sh.tmp
 
 
-INSTALLED_BITS=$CACHE_DIR/packages
-NB_BUILDS_HOST=$CACHE_DIR/packages/nb
+INSTALLED_BITS=file://$CACHE_DIR/packages
+NB_BUILDS_HOST=file://$CACHE_DIR/packages/nb
 
 ################################################################################
 # define the log file location and create the directory for logs
