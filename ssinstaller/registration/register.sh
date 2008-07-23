@@ -278,10 +278,10 @@ findServiceTag() {
    for i in ${UINS}; do
       DEFID=`stclient -g -i $i | grep product_defined_inst_id | cut -d= -f2-`
       if [ "${DEFID}" = "${PRODUCT_INSTANCE_ID}" ]; then
-         echo $i
+         last=$i
       fi
    done
-   echo ""
+   echo "$last"
 }
 
 cleanServiceTags() {
@@ -300,7 +300,7 @@ cleanServiceTags() {
 #
 
 installServiceTag() {
-    cleanServiceTags; 
+   cleanServiceTags; 
    #if [ "`findServiceTag`" = "" ]; then
       RC=`stclient -a -p "$PRODUCT_NAME" -e "$PRODUCT_VERSION" -t $PRODUCT_URN -I "$PRODUCT_INSTANCE_ID" -F $PARENT_URN -P "$PRODUCT_PARENT" -m "$PRODUCT_VENDOR" -A "$PLATFORM_ARCH" -z "$CONTAINER" -S "$SOURCE"`
 
@@ -626,7 +626,14 @@ if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
 	browse "file://$TMP_REGISTRATION_PAGE"
    else
         mkdir -p $HOME_SUNSTUDIO_DIR
-	cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 
+	cp  $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 2>/dev/null
+	if [ "$?" -ne 0 ]
+	then
+	    HOME_SUNSTUDIO_DIR=$TMP_SUNSTUDIO_DIR
+	    mkdir -p $HOME_SUNSTUDIO_DIR
+	    cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 2>/dev/null 
+	    HOME_REGISTRATION_PAGE=$TMP_REGISTRATION_PAGE
+	fi
 	rm -rf $REGISTRATION_DIR
 	browse "file://$HOME_REGISTRATION_PAGE"
    fi
