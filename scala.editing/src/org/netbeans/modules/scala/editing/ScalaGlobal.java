@@ -75,7 +75,8 @@ public class ScalaGlobal {
         projectDirToGlobal.clear();
     }
 
-    public static Global getGlobal(FileObject fo) {
+    /** Scala's global is not thread safed */
+    public static synchronized Global getGlobal(FileObject fo) {
         Global global = null;
 
         Project project = FileOwnerQuery.getOwner(fo);
@@ -197,7 +198,7 @@ public class ScalaGlobal {
         }
     }
 
-    public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
+    public static synchronized  CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
         Global.Run run = global.new Run();
 
         scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);

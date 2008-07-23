@@ -69,7 +69,6 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
-import scala.Nil$;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Tree;
@@ -536,28 +535,16 @@ public class ScalaParser implements Parser {
         Reporter reporter = new ErrorReporter(context, sanitizing);
         global = ScalaGlobal.getGlobal(context.file.getFileObject());
         global.reporter_$eq(reporter);
-        Global.Run run = global.new Run();
 
         BatchSourceFile srcFile = new BatchSourceFile(filePath, source.toCharArray());
-        scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
-
         if (doc != null) {
             // Read-lock due to Token hierarchy use
             doc.readLock();
         }
         try {
-            run.compileSources(srcFiles);
-            
-            //CompilationUnit unit = run.currentUnit(); it could be null when complie successfully?
-            scala.Iterator units = run.units();
-            while (units.hasNext()) {
-                CompilationUnit unit = (CompilationUnit) units.next();
-                if (unit.source() == srcFile) {
-                    Tree tree = unit.body();
-                    rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
-                    break;
-                }
-            }
+            CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+            Tree tree = unit.body();
+            rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
             ScalaGlobal.reset();
