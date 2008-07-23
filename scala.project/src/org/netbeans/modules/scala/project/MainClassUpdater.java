@@ -46,8 +46,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Source;
@@ -58,7 +61,6 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.SourceUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.project.classpath.GsfClassPathProviderImpl;
@@ -148,10 +150,10 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             }
                         });
 
-                        Collection<AstDef> main = SourceUtils.getMainClasses(_current);
+                        Collection<ElementHandle<TypeElement>> main = SourceUtils.getMainClasses(_current);
                         String newMainClass = null;
                         if (!main.isEmpty()) {
-                            AstDef mainHandle = main.iterator().next();
+                            ElementHandle mainHandle = main.iterator().next();
                             newMainClass = mainHandle.getQualifiedName();
                         }
                         if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() &&

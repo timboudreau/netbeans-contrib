@@ -172,6 +172,8 @@ public class CustomizerRun extends JPanel implements HelpCtx.Provider {
         }
 
         jButtonMainClass.addActionListener( new MainClassListener( project.getSourceRoots(), jTextFieldMainClass ) );
+        /** @Todo disable it until we have correct SourceUtils.getMainClasses */
+        jButtonMainClass.setEnabled(false);
     }
         
     public HelpCtx getHelpCtx() {
