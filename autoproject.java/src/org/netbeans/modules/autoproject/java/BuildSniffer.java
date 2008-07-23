@@ -175,7 +175,7 @@ public class BuildSniffer extends AntLogger {
             File origRoot = new File(s);
             FileObject origRootFO = FileUtil.toFileObject(origRoot);
             if (origRootFO != null && origRootFO.isFolder()) {
-                FileObject realRootFO = JavadocAndSourceRootDetection.findSourcesRoot(origRootFO);
+                FileObject realRootFO = JavadocAndSourceRootDetection.findSourceRoot(origRootFO);
                 if (realRootFO != null && realRootFO != origRootFO) {
                     File realRoot = FileUtil.toFile(realRootFO);
                     LOG.log(Level.FINE, "Corrected root {0} to {1} based on package decl", new Object[]{origRoot, realRoot});
