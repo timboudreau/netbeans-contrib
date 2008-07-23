@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -55,6 +56,7 @@ import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
 import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -166,6 +168,21 @@ public class BuildSniffer extends AntLogger {
         if (buildSysclasspath.equals("last")) {
             appendPath(System.getProperty("java.class.path"), event, classpath, true);
         }
+        // Check to see if source roots are correct; srcdir on <javac> is sometimes wrong.
+        ListIterator<String> sourcesIt = sources.listIterator();
+        while (sourcesIt.hasNext()) {
+            String s = sourcesIt.next();
+            File origRoot = new File(s);
+            FileObject origRootFO = FileUtil.toFileObject(origRoot);
+            if (origRootFO != null && origRootFO.isFolder()) {
+                FileObject realRootFO = JavadocAndSourceRootDetection.findSourceRoot(origRootFO);
+                if (realRootFO != null && realRootFO != origRootFO) {
+                    File realRoot = FileUtil.toFile(realRootFO);
+                    LOG.log(Level.FINE, "Corrected root {0} to {1} based on package decl", new Object[]{origRoot, realRoot});
+                    sourcesIt.set(realRoot.getAbsolutePath());
+                }
+            }
+        }
         State state = (State) event.getSession().getCustomData(this);
         if (state == null) {
             state = new State();
@@ -182,13 +199,6 @@ public class BuildSniffer extends AntLogger {
             }
         }
         for (String s : sources) {
-            // Check to see if this is a real root. srcdir on <javac> is sometimes wrong.
-            File origRoot = new File(s);
-            File realRoot = checkForRealRoot(origRoot);
-            if (realRoot != null && !realRoot.equals(origRoot)) {
-                LOG.log(Level.FINE, "Corrected root {0} to {1} based on package decl", new Object[] {origRoot, realRoot});
-                s = realRoot.getAbsolutePath();
-            }
             writePath(s + JavaCacheConstants.SOURCE, sources, state);
             writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
             if (destdir != null) {
@@ -331,20 +341,6 @@ public class BuildSniffer extends AntLogger {
             b.append(p);
         }
         return b.toString();
-    }
-
-    private static File checkForRealRoot(File f) {
-        if (f.isDirectory()) {
-            for (File kid : f.listFiles()) {
-                File root = checkForRealRoot(kid);
-                if (root != null) {
-                    return root;
-                }
-            }
-        } else if (f.isFile() && f.getName().endsWith(".java")) {
-            return ClassPathProviderImpl.inferRootFromPackage(f);
-        }
-        return null;
     }
 
 }

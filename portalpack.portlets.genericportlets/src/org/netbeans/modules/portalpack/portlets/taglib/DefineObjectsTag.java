@@ -25,6 +25,9 @@
 
 package org.netbeans.modules.portalpack.portlets.taglib;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.TagSupport;
+
 
 
 /**
@@ -36,6 +39,7 @@ package org.netbeans.modules.portalpack.portlets.taglib;
  *
  * This class applicable for Portlet v2.0
  */
-public class DefineObjectsTag {
+public class DefineObjectsTag extends TagSupport{
 
+    
 }

@@ -36,7 +36,7 @@
 
 package org.netbeans.installer.utils.env;
 
-import org.netbeans.installer.utils.system.NativeUtilsFactory;
+import org.netbeans.installer.utils.SystemUtils;
 
 public class EnvironmentInfoFactory {
     
@@ -46,7 +46,7 @@ public class EnvironmentInfoFactory {
     
     public static synchronized EnvironmentInfo getInstance() {
         if (instance == null) {
-            switch(NativeUtilsFactory.newNativeUtils().getCurrentPlatform()) {
+            switch(SystemUtils.getCurrentPlatform()) {
                 case LINUX_X86:
                 case LINUX_X64:
                 case LINUX: instance = new LinuxEnvironmentInfo(); break;

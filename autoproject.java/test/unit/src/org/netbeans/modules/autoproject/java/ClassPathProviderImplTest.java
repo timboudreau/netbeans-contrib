@@ -40,6 +40,7 @@
 package org.netbeans.modules.autoproject.java;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.junit.NbTestCase;
@@ -47,6 +48,7 @@ import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.test.TestFileUtils;
 
 public class ClassPathProviderImplTest extends NbTestCase {
 
@@ -63,6 +65,17 @@ public class ClassPathProviderImplTest extends NbTestCase {
         Cache.put(s + JavaCacheConstants.CLASSPATH, "");
         ClassPathProvider cpp = new ClassPathProviderImpl(null);
         assertEquals(Collections.emptyList(), cpp.findClassPath(fo, ClassPath.COMPILE).entries());
+    }
+
+    public void testInferredSourceRoots() throws Exception {
+        clearWorkDir();
+        File src = new File(getWorkDir(), "src");
+        File clazz = new File(src, "pkg/Clazz.java");
+        TestFileUtils.writeFile(clazz, "package pkg; public class Clazz {}");
+        ClassPathProvider cpp = new ClassPathProviderImpl(null);
+        ClassPath sourcepath = cpp.findClassPath(FileUtil.toFileObject(clazz), ClassPath.SOURCE);
+        assertNotNull(sourcepath);
+        assertEquals(Collections.singletonList(FileUtil.toFileObject(src)), Arrays.asList(sourcepath.getRoots()));
     }
 
 }

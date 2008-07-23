@@ -43,9 +43,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.utils.helper.Platform;
-import org.netbeans.installer.utils.system.NativeUtilsFactory;
 
 public abstract class EnvironmentInfo {
     
@@ -57,12 +57,12 @@ public abstract class EnvironmentInfo {
     public abstract String getOSVersion();
     
     public Platform getPlatform() {
-        return NativeUtilsFactory.newNativeUtils().getCurrentPlatform();
+        return SystemUtils.getCurrentPlatform();
     }
     
     public boolean isUserAdmin() {
         try {
-            return NativeUtilsFactory.newNativeUtils().isCurrentUserAdmin();
+            return SystemUtils.isCurrentUserAdmin();
         } catch (NativeException ex) {
             LogManager.log(ex);
         }

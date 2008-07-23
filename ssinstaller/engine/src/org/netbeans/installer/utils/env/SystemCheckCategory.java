@@ -53,7 +53,6 @@ import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.helper.ExtendedUri;
 import org.netbeans.installer.utils.helper.Platform;
-import org.netbeans.installer.utils.system.NativeUtilsFactory;
 
 public enum SystemCheckCategory implements ConfigurationChecker {
     
@@ -160,7 +159,7 @@ class PlatformCheck implements ConfigurationChecker {
     private boolean isCorrectPlatform() {
         if (registry == null) registry = getRegistry();        
         if (registry != null) {
-            Platform current = NativeUtilsFactory.newNativeUtils().getCurrentPlatform();            
+            Platform current = EnvironmentInfoFactory.getInstance().getPlatform();            
             for(Product product: registry.getProducts()) {
                 if (!hasCompatiblePlatforms(current, product.getPlatforms())) return false;          
             }
@@ -477,8 +476,8 @@ class PatchesCheck implements ConfigurationChecker {
     
     private void checkPatches() {
         EnvironmentInfo env = EnvironmentInfoFactory.getInstance();
-        if (!SystemRequements.getInstance().hasPathesInfo(env.getOSName(), env.getOSVersion())) return;
-        for(String patch: SystemRequements.getInstance().getPatches(env.getOSName(), env.getOSVersion())) {
+        if (!SystemRequements.getInstance().hasPathesInfo(env.getOSName(), env.getOSVersion(), env.getPlatform().getHardwareArch())) return;
+        for(String patch: SystemRequements.getInstance().getPatches(env.getOSName(), env.getOSVersion(), env.getPlatform().getHardwareArch())) {
             if (!env.isPatchInstalled(patch)) notInstalledPatches.add(patch);
         }
         isActualPatchesInfo = true;
@@ -514,7 +513,7 @@ class PatchesCheck implements ConfigurationChecker {
     }
 
     public boolean isMandatory() {
-        Platform platform = NativeUtilsFactory.newNativeUtils().getCurrentPlatform();
+        Platform platform = EnvironmentInfoFactory.getInstance().getPlatform();
         return platform.equals(Platform.SOLARIS) || platform.equals(Platform.SOLARIS_SPARC) || platform.equals(Platform.SOLARIS_X86);
     }
 

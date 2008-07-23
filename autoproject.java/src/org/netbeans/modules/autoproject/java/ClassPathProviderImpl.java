@@ -43,13 +43,7 @@ import org.netbeans.modules.autoproject.spi.Cache;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,8 +52,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.platform.JavaPlatformManager;
@@ -72,9 +64,9 @@ import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.WeakListeners;
 
 /**
@@ -106,8 +98,9 @@ class ClassPathProviderImpl implements ClassPathProvider {
             root = root.getParentFile();
         }
         if (root == null && f.isFile() && f.getName().endsWith(".java")) {
-            root = inferRootFromPackage(f);
-            if (root != null) {
+            FileObject packageRoot = JavadocAndSourceRootDetection.findPackageRoot(file);
+            if (packageRoot != null) {
+                root = FileUtil.toFile(packageRoot);
                 LOG.log(Level.FINE, "Inferring root {0} for {1}", new Object[] {root, f});
                 Cache.put(root + JavaCacheConstants.SOURCE, root.getAbsolutePath());
             }
@@ -135,54 +128,6 @@ class ClassPathProviderImpl implements ClassPathProvider {
             }
         }
         return impl.cp;
-    }
-
-    private static final Pattern JAVA_FILE, PACKAGE_INFO;
-    static {
-        String whitespace = "(?:(?://[^\n]*\n)|(?:/\\*(?:[^*]|\\*[^/])*\\*/)|\\s)";
-        String javaIdentifier = "(?:\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)";
-        String packageStatement = "package" + whitespace + "+(" + javaIdentifier + "(?:\\." + javaIdentifier + ")*)" + whitespace + "*;";
-        JAVA_FILE = Pattern.compile("(?ms)" + whitespace + "*" + packageStatement + ".*", Pattern.MULTILINE | Pattern.DOTALL);
-        PACKAGE_INFO = Pattern.compile("(?ms)(?:.*" + whitespace + ")?" + packageStatement + whitespace + "*", Pattern.MULTILINE | Pattern.DOTALL);
-    }
-    static File inferRootFromPackage(File f) {
-        try {
-            // Try default encoding, probably good enough.
-            Reader r = new BufferedReader(new FileReader(f));
-            r.mark(2);
-            char[] cbuf = new char[2];
-            r.read(cbuf, 0, 2);
-            if (cbuf[0] == 255 && cbuf[1] == 254) { // BOM
-                r.close();
-                r = new BufferedReader(new InputStreamReader(new FileInputStream(f), "Unicode"));
-            } else {
-                r.reset();
-            }
-            StringBuilder b = new StringBuilder((int) f.length());
-            int read;
-            char[] buf = new char[b.length() + 1];
-            while ((read = r.read(buf)) != -1) {
-                b.append(buf, 0, read);
-            }
-            Matcher m = (f.getName().equals("package-info.java") ? PACKAGE_INFO : JAVA_FILE).matcher(b);
-            if (m.matches()) {
-                String pkg = m.group(1);
-                LOG.log(Level.FINE, "Found package declaration {0} in {1}", new Object[] {pkg, f});
-                String suffix = File.separator + pkg.replace('.', File.separatorChar) + File.separator + f.getName();
-                String fpath = f.getAbsolutePath();
-                if (fpath.endsWith(suffix)) {
-                    return new File(fpath.substring(0, fpath.length() - suffix.length()));
-                } else {
-                    return null;
-                }
-            } else {
-                // XXX probably not a good idea to infer the default package: return f.getParentFile();
-                return null;
-            }
-        } catch (IOException x) {
-            Exceptions.printStackTrace(x);
-            return null;
-        }
     }
 
     private final class ClassPathImpl implements ClassPathImplementation, PropertyChangeListener {

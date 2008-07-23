@@ -36,7 +36,6 @@
 
 package org.netbeans.installer.utils.env.impl;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 public class Solaris9CPUInfoParser extends SolarisCPUInfoParser {
