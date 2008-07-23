@@ -24,13 +24,15 @@
 
 package org.netbeans.modules.portalpack.portlets.taglib;
 
+import javax.servlet.jsp.tagext.BodyTagSupport;
+
 
 /**
  * This class provides methods that are common to both PortletURL and ResourceURL.
  * 
  * This class applicable for Portlet v2.0
  */
-public abstract class BaseURLTag{
+public abstract class BaseURLTag extends BodyTagSupport{
    
     public void setEscapeXml(boolean escapeXml) {
    

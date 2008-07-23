@@ -25,6 +25,8 @@
 
 package org.netbeans.modules.portalpack.portlets.taglib;
 
+import javax.servlet.jsp.tagext.TagSupport;
+
 
 /**
  * This class implements the Namespace tag. It generates a string value in the portlet
@@ -33,7 +35,7 @@ package org.netbeans.modules.portalpack.portlets.taglib;
  * 
  * This class applicable for Portlet v2.0
  */
-public class NamespaceTag{
+public class NamespaceTag extends TagSupport{
 
    
 }
