@@ -198,26 +198,28 @@ public class ScalaGlobal {
         }
     }
 
-    public static synchronized  CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
-        Global.Run run = global.new Run();
+    public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
+        synchronized (global) {
+            Global.Run run = global.new Run();
 
-        scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
-        try {
-            run.compileSources(srcFiles);
-        } catch (AssertionError ex) {
-            ScalaGlobal.reset();
+            scala.List srcFiles = Nil$.MODULE$.$colon$colon(srcFile);
+            try {
+                run.compileSources(srcFiles);
+            } catch (AssertionError ex) {
+                ScalaGlobal.reset();
             // avoid scala nsc's assert error
-        } catch (java.lang.Error ex) {
-            // avoid scala nsc's Error error
-        } catch (Throwable ex) {
-            // just ignore all ex
-        }
+            } catch (java.lang.Error ex) {
+                // avoid scala nsc's Error error
+            } catch (Throwable ex) {
+                // just ignore all ex
+            }
 
-        scala.Iterator units = run.units();
-        while (units.hasNext()) {
-            CompilationUnit unit = (CompilationUnit) units.next();
-            if (unit.source() == srcFile) {
-                return unit;
+            scala.Iterator units = run.units();
+            while (units.hasNext()) {
+                CompilationUnit unit = (CompilationUnit) units.next();
+                if (unit.source() == srcFile) {
+                    return unit;
+                }
             }
         }
 
