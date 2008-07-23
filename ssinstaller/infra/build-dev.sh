@@ -78,6 +78,10 @@ source ../../../../build-private.sh
 # define the temp file location
 TEMP_FILE=${WORK_DIR}/temp.sh.tmp
 
+
+INSTALLED_BITS=$CACHE_DIR/packages
+NB_BUILDS_HOST=$CACHE_DIR/packages/nb
+
 ################################################################################
 # define the log file location and create the directory for logs
 #LOGS_DIR=${DIRNAME}/logs
