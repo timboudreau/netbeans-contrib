@@ -206,8 +206,11 @@ public class ScalaGlobal {
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
+                /**@Note: avoid scala nsc's assert error, but since global's
+                 * context may have been broken, we have to reset ScalaGlobal
+                 * to clean this global
+                 */
                 ScalaGlobal.reset();
-            // avoid scala nsc's assert error
             } catch (java.lang.Error ex) {
                 // avoid scala nsc's Error error
             } catch (Throwable ex) {
