@@ -128,7 +128,7 @@ public class FormattingOptionsPanel extends JPanel implements ActionListener, Pr
         optionsPanel.setLayout(new java.awt.GridBagLayout());
 
         categoryLabel.setLabelFor(categoryCombo);
-        org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, "null");
+        org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, org.openide.util.NbBundle.getMessage(FormattingOptionsPanel.class, "LBL_Category"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 12, 6);
         optionsPanel.add(categoryLabel, gridBagConstraints);
