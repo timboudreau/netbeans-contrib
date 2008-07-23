@@ -401,9 +401,15 @@ public class ScalaElement implements ScalaElementHandle {
                 }
             }
 
-            return sb.length() == 0
-                    ? forScala ? symbol.nameString() : "Object" // it maybe a TypeParameter likes: T0
-                    : sb.toString();
+            if (sb.length() == 0) {
+                if (symbol.isPackage()) {
+                    return "";
+                } else {
+                    return forScala ? symbol.nameString() : "Object"; // it maybe a TypeParameter likes: T0
+                }
+            } else {
+                return sb.toString();
+            }
         }
     }
 

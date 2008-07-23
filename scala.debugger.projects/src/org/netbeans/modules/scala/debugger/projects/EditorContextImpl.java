@@ -1032,7 +1032,7 @@ public class EditorContextImpl extends EditorContext {
                     String className = tmpl.getBinaryName();
 
                     String enclosingPackage = tmpl.getPackageName();
-                    if (enclosingPackage == null) {
+                    if (enclosingPackage == null || enclosingPackage != null && enclosingPackage.length() == 0) {
                         result[0] = className;
                     } else {
                         result[0] = enclosingPackage + "." + className;

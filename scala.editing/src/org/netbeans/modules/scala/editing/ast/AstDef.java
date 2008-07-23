@@ -229,7 +229,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     }
 
     public String getPackageName() {
-        return getSymbol().tpe().packagePrefix();
+        return ScalaElement.symbolQualifiedName(getSymbol().enclosingPackage());
     }
 
     public String getQualifiedName() {
