@@ -49,6 +49,7 @@ import org.netbeans.installer.utils.FileProxy;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.Pair;
 import org.netbeans.installer.utils.exceptions.DownloadException;
+import org.netbeans.installer.utils.helper.Platform;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -57,11 +58,14 @@ public class SystemRequements {
     
     public static final String SYSTEM_REQUEMENTS_DATA = FileProxy.RESOURCE_SCHEME_PREFIX + "org/netbeans/installer/utils/env/SystemRequements.xml";
     
+    public static final String ANY_PLATFORM = "any";
+    public static final String INTEL_PLATFORM = "intel";
+    
     private static SystemRequements instance = null;
     
     private Set<Pair<Pattern, Pattern>> distributions = new HashSet<Pair<Pattern, Pattern>>();
     private Set<Pair<Pattern, Float>> cpus = new HashSet<Pair<Pattern, Float>>();
-    private Map<Pair<Pattern, Pattern>, Set<String>> patches = new HashMap<Pair<Pattern, Pattern>, Set<String>>();
+    private HashMap<Pair<Pattern, Pattern>, Map<String, Set<String>>> patches = new HashMap<Pair<Pattern, Pattern>,  Map<String, Set<String>>>();
     private float memoryMinimum = 0;
 
     public static synchronized SystemRequements getInstance() {
@@ -73,6 +77,7 @@ public class SystemRequements {
         
         private boolean distributionsMode = false;
         private Pair<Pattern, Pattern> currentPatchDistribution = null;
+        private String currentPlatform = null;
         
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -91,11 +96,15 @@ public class SystemRequements {
             if (!distributionsMode && qName.equals("distribution")) {
                 currentPatchDistribution = new Pair<Pattern, Pattern>(Pattern.compile(attributes.getValue("name")), Pattern.compile(attributes.getValue("version")));
                 if (!patches.containsKey(currentPatchDistribution)) {
-                    patches.put(currentPatchDistribution, new HashSet<String>());
+                    Map<String, Set<String>> distribution = new HashMap<String, Set<String>>();
+                    patches.put(currentPatchDistribution, distribution);
+                    currentPlatform = attributes.getValue("platform");
+                    if (currentPlatform == null) currentPlatform = ANY_PLATFORM;
+                    distribution.put(currentPlatform, new HashSet<String>());                    
                 }
             }
             if (currentPatchDistribution != null && qName.equals("patch")) {
-                patches.get(currentPatchDistribution).add(attributes.getValue("id"));
+                patches.get(currentPatchDistribution).get(currentPlatform).add(attributes.getValue("id"));
             }
         }
 
@@ -106,6 +115,7 @@ public class SystemRequements {
             }
             if (qName.equals("distribution")) {
                 currentPatchDistribution = null;
+                currentPlatform = null;
             }
         }       
         
@@ -158,18 +168,28 @@ public class SystemRequements {
         return false;        
     }
     
-    public Set<String> getPatches(String name, String version) {
+    private boolean isIntelPlatform(String platform) {
+        return platform.equals(Platform.LINUX_X86.getHardwareArch()) || platform.equals(Platform.LINUX_X64.getHardwareArch());
+    }
+    
+    public Set<String> getPatches(String name, String version, String platform) {
         Set<String> result = new HashSet<String>();
-        for(Map.Entry<Pair<Pattern, Pattern>, Set<String>> entry: patches.entrySet()) {
-            if (entry.getKey().getKey().matcher(name).matches() && entry.getKey().getValue().matcher(version).matches()) result.addAll(entry.getValue());
+        for(Map.Entry<Pair<Pattern, Pattern>, Map<String, Set<String>>> entry: patches.entrySet()) {
+            if (entry.getKey().getKey().matcher(name).matches() && entry.getKey().getValue().matcher(version).matches()) {
+                if (entry.getValue().containsKey(platform)) result.addAll(entry.getValue().get(platform));
+                if (entry.getValue().containsKey(ANY_PLATFORM)) result.addAll(entry.getValue().get(ANY_PLATFORM));
+                if (isIntelPlatform(platform) && entry.getValue().containsKey(INTEL_PLATFORM)) result.addAll(entry.getValue().get(INTEL_PLATFORM));
+            }
         }
         return result;
     }
     
-    public boolean hasPathesInfo(String name, String version) {
-        for(Map.Entry<Pair<Pattern, Pattern>, Set<String>> entry: patches.entrySet()) {
+    public boolean hasPathesInfo(String name, String version, String platform) {
+        for(Map.Entry<Pair<Pattern, Pattern>, Map<String, Set<String>>> entry: patches.entrySet()) {
             if (entry.getKey().getKey().matcher(name).matches() && entry.getKey().getValue().matcher(version).matches()) {
-                if (!entry.getValue().isEmpty()) return true;
+                if (entry.getValue().containsKey(platform) && !entry.getValue().get(platform).isEmpty()) return true;
+                if (entry.getValue().containsKey(ANY_PLATFORM) && !entry.getValue().get(ANY_PLATFORM).isEmpty()) return true;
+                if (isIntelPlatform(platform) && entry.getValue().containsKey(INTEL_PLATFORM) && !entry.getValue().get(INTEL_PLATFORM).isEmpty()) return true;
             }
         }
         return false;

@@ -16,11 +16,34 @@
 		</cpus>
 		<memory minimum-size="512" />
 	</hardware>
-        <!--
         <patches> // Solaris only
-            <distribution name="OpenSolaris" version=".*" >
-                <patch id="11111-12" />
+            <distribution name="Solaris" version="9.*" platform="intel" >
+                <patch id="113986-18" />
+                <patch id="117559-06" />
+                <patch id="111728-04" />
+                <patch id="112786-32" />
+                <patch id="112234-08" />
             </distribution>
+            <distribution name="Solaris" version="9.*" platform="x86" >
+                <patch id="111713-09" />
+            </distribution>
+            <distribution name="Solaris" version="10 1/06.*" platform="intel" >
+                <patch id="120754-05" />
+                <patch id="119255-19" />
+            </distribution>
+            <distribution name="Solaris" version="9.*" platform="sparc" >
+                <patch id="111711-12" />
+                <patch id="111712-12" />
+                <patch id="112963-26" />
+                <patch id="111703-04" />
+                <patch id="117560-06" />
+                <patch id="111722-05" />
+                <patch id="112785-43" />
+                <patch id="112233-12" />
+            </distribution>
+            <distribution name="Solaris" version="10 1/06.*" platform="sparc" >
+                <patch id="120753-05" />
+                <patch id="119254-19" />
+            </distribution>            
         </patches>
-        -->
 </system-requements>
