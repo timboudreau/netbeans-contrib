@@ -284,12 +284,23 @@ findServiceTag() {
    echo ""
 }
 
+cleanServiceTags() {
+   UINS=`stclient -f -t $PRODUCT_URN`
+   for i in ${UINS}; do
+      DEFID=`stclient -g -i $i | grep product_defined_inst_id | cut -d= -f2-`
+      if [ "${DEFID}" = "${PRODUCT_INSTANCE_ID}" ]; then
+         stclient -d -i $i >/dev/null 2>/dev/null
+      fi
+   done
+}
+
 #
 # tries to install service tag to the system registry 
 # in the case of any failure just silently ignore
 #
 
 installServiceTag() {
+    cleanServiceTags; 
    #if [ "`findServiceTag`" = "" ]; then
       RC=`stclient -a -p "$PRODUCT_NAME" -e "$PRODUCT_VERSION" -t $PRODUCT_URN -I "$PRODUCT_INSTANCE_ID" -F $PARENT_URN -P "$PRODUCT_PARENT" -m "$PRODUCT_VENDOR" -A "$PLATFORM_ARCH" -z "$CONTAINER" -S "$SOURCE"`
 
