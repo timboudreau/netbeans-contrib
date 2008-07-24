@@ -50,6 +50,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.NbUtilities;
+import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.filesystems.FileObject;
 import scala.tools.nsc.symtab.Symbols.Symbol;
@@ -83,7 +84,14 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     }
 
     public Type getType() {
-        return getSymbol().tpe();
+        Type type = null;
+        try {
+            type = getSymbol().tpe();
+        } catch (Throwable ex) {
+            ScalaGlobal.reset();
+        }
+        
+        return type;
     }
 
     @Override
@@ -188,7 +196,10 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             default:
                 //Type resType = getType().resultType();
                 formatter.appendText(" : ");
-                formatter.appendText(ScalaElement.typeToString(getType()));
+                Type type = getType();
+                if (type != null) {
+                    formatter.appendText(ScalaElement.typeToString(type));
+                }
             //formatter.appendText(resType.toString());
             //htmlFormat(formatter, resType, true);
         }
