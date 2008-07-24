@@ -45,10 +45,12 @@ public class DelimTreeRootNode extends AbstractNode
         mDelimSet = delimSet;
     }
 
+    @Override
     public String getName() {
         return "Level"; //NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return _bundle.getString("delim_tree_root_node.lbl.level");
     }

@@ -22,7 +22,6 @@ package org.netbeans.modules.encoder.custom.aip;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 import org.openide.explorer.view.TreeTableView;
-import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 
 /**
@@ -34,42 +33,75 @@ public class DelimiterTreeTableView extends TreeTableView {
 
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/custom/aip/Bundle");
-    private static final int COL_TYPE = 0;
-    private static final int COL_BYTES = 1;
-    private static final int COL_PRECEDENCE = 2;
-    private static final int COL_OPTIONAL_MODE = 3;
-    private static final int COL_TERMINATOR_MODE = 4;
-    private static final int COL_OFFSET = 5;
-    private static final int COL_LENGTH = 6;
-    private static final int COL_SKIP_LEADING = 7;
-    private static final int COL_COLLAPSE = 8;
+    private static final int COL_TYPE               = 0;
+    private static final int COL_PRECEDENCE         = COL_TYPE + 1;
+    private static final int COL_OPTIONAL_MODE      = COL_PRECEDENCE + 1;
+    private static final int COL_TERMINATOR_MODE    = COL_OPTIONAL_MODE + 1;
+    private static final int COL_BYTES              = COL_TERMINATOR_MODE + 1;
+    private static final int COL_OFFSET             = COL_BYTES + 1;
+    private static final int COL_LENGTH             = COL_OFFSET + 1;
+    private static final int COL_BEGIN_BYTES        = COL_LENGTH + 1;
+    private static final int COL_BEGIN_OFFSET       = COL_BEGIN_BYTES + 1;
+    private static final int COL_BEGIN_LENGTH       = COL_BEGIN_OFFSET + 1;
+    private static final int COL_SKIP_LEADING       = COL_BEGIN_LENGTH + 1;
+    private static final int COL_COLLAPSE           = COL_SKIP_LEADING + 1;
     
     /** Creates a new instance of DelimiterTreeTableView */
     public DelimiterTreeTableView() {
         super();
-        
-        PropertySupport.ReadWrite prop1 = new SimplePropertySupport("kind", String.class, _bundle.getString("delim_tree_tab.lbl.type"), _bundle.getString("delim_tree_tab.lbl.type_short")); //NOI18N
-        PropertySupport.ReadWrite prop2 = new SimplePropertySupport("bytes", String.class, _bundle.getString("delim_tree_tab.lbl.delim_bytes"), _bundle.getString("delim_tree_tab.lbl.delim_bytes_short")); //NOI18N
-        PropertySupport.ReadWrite prop3 = new SimplePropertySupport("precedence", short.class, _bundle.getString("delim_tree_tab.lbl.precedence"), _bundle.getString("delim_tree_tab.lbl.precedence_short")); //NOI18N
-        PropertySupport.ReadWrite prop4 = new SimplePropertySupport("optionMode", String.class, _bundle.getString("delim_tree_tab.lbl.opt_mode"), _bundle.getString("delim_tree_tab.lbl.opt_mode_short")); //NOI18N
-        PropertySupport.ReadWrite prop5 = new SimplePropertySupport("termMode", String.class, _bundle.getString("delim_tree_tab.lbl.term_mode"), _bundle.getString("delim_tree_tab.lbl.term_mode_short")); //NOI18N
-        PropertySupport.ReadWrite prop6 = new SimplePropertySupport("offset", int.class, _bundle.getString("delim_tree_tab.lbl.offset"), _bundle.getString("delim_tree_tab.lbl.offset_short")); //NOI18N
-        PropertySupport.ReadWrite prop7 = new SimplePropertySupport("length", short.class, _bundle.getString("delim_tree_tab.lbl.length"), _bundle.getString("delim_tree_tab.lbl.length_short")); //NOI18N
-        PropertySupport.ReadWrite prop8 = new SimplePropertySupport("skipLeading", boolean.class, _bundle.getString("delim_tree_tab.lbl.skip_leading"), _bundle.getString("delim_tree_tab.lbl.skip_leading_short")); //NOI18N
-        PropertySupport.ReadWrite prop9 = new SimplePropertySupport("collapse", boolean.class, _bundle.getString("delim_tree_tab.lbl.collapse"), _bundle.getString("delim_tree_tab.lbl.collapse_short")); //NOI18N
-        setProperties(new Property[]{prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9});
+        PropertySupport.ReadWrite[] props = new PropertySupport.ReadWrite[COL_COLLAPSE + 1];
+        props[COL_TYPE] = new SimplePropertySupport("kind", String.class,
+                _bundle.getString("delim_tree_tab.lbl.type"),
+                _bundle.getString("delim_tree_tab.lbl.type_short")); //NOI18N
+        props[COL_PRECEDENCE] = new SimplePropertySupport("precedence", short.class,
+                _bundle.getString("delim_tree_tab.lbl.precedence"),
+                _bundle.getString("delim_tree_tab.lbl.precedence_short")); //NOI18N
+        props[COL_OPTIONAL_MODE] = new SimplePropertySupport("optionMode", String.class,
+                _bundle.getString("delim_tree_tab.lbl.opt_mode"),
+                _bundle.getString("delim_tree_tab.lbl.opt_mode_short")); //NOI18N
+        props[COL_TERMINATOR_MODE] = new SimplePropertySupport("termMode", String.class,
+                _bundle.getString("delim_tree_tab.lbl.term_mode"),
+                _bundle.getString("delim_tree_tab.lbl.term_mode_short")); //NOI18N
+        props[COL_BYTES] = new SimplePropertySupport("bytes", String.class,
+                _bundle.getString("delim_tree_tab.lbl.delim_bytes"),
+                _bundle.getString("delim_tree_tab.lbl.delim_bytes_short")); //NOI18N
+        props[COL_OFFSET] = new SimplePropertySupport("offset", int.class,
+                _bundle.getString("delim_tree_tab.lbl.offset"),
+                _bundle.getString("delim_tree_tab.lbl.offset_short")); //NOI18N
+        props[COL_LENGTH] = new SimplePropertySupport("length", short.class,
+                _bundle.getString("delim_tree_tab.lbl.length"),
+                _bundle.getString("delim_tree_tab.lbl.length_short")); //NOI18N
+        props[COL_BEGIN_BYTES] = new SimplePropertySupport("beginBytes", String.class,
+                _bundle.getString("delim_tree_tab.lbl.begin_delim_bytes"),
+                _bundle.getString("delim_tree_tab.lbl.begin_delim_bytes_short")); //NOI18N
+        props[COL_BEGIN_OFFSET] = new SimplePropertySupport("beginOffset", int.class,
+                _bundle.getString("delim_tree_tab.lbl.begin_offset"),
+                _bundle.getString("delim_tree_tab.lbl.begin_offset_short")); //NOI18N
+        props[COL_BEGIN_LENGTH] = new SimplePropertySupport("beginLength", short.class,
+                _bundle.getString("delim_tree_tab.lbl.begin_length"),
+                _bundle.getString("delim_tree_tab.lbl.begin_length_short")); //NOI18N
+        props[COL_SKIP_LEADING] = new SimplePropertySupport("skipLeading", boolean.class,
+                _bundle.getString("delim_tree_tab.lbl.skip_leading"),
+                _bundle.getString("delim_tree_tab.lbl.skip_leading_short")); //NOI18N
+        props[COL_COLLAPSE] = new SimplePropertySupport("collapse", boolean.class,
+                _bundle.getString("delim_tree_tab.lbl.collapse"),
+                _bundle.getString("delim_tree_tab.lbl.collapse_short")); //NOI18N
+        setProperties(props);
 
         double ratio = getFont().getSize2D() / 12;
         
-        setTableColumnPreferredWidth(COL_TYPE, (int) (ratio * 65));
-        setTableColumnPreferredWidth(COL_BYTES, (int) (ratio * 60));
-        setTableColumnPreferredWidth(COL_PRECEDENCE, (int) (ratio * 80));
-        setTableColumnPreferredWidth(COL_OPTIONAL_MODE, (int) (ratio * 60));
-        setTableColumnPreferredWidth(COL_TERMINATOR_MODE, (int) (ratio * 65));
-        setTableColumnPreferredWidth(COL_OFFSET, (int) (ratio * 54));
-        setTableColumnPreferredWidth(COL_LENGTH, (int) (ratio * 54));
-        setTableColumnPreferredWidth(COL_SKIP_LEADING, (int) (ratio * 40));
-        setTableColumnPreferredWidth(COL_COLLAPSE, (int) (ratio * 54));
+        setTableColumnPreferredWidth(COL_TYPE,              (int) (ratio * 65));
+        setTableColumnPreferredWidth(COL_PRECEDENCE,        (int) (ratio * 68));
+        setTableColumnPreferredWidth(COL_OPTIONAL_MODE,     (int) (ratio * 60));
+        setTableColumnPreferredWidth(COL_TERMINATOR_MODE,   (int) (ratio * 65));
+        setTableColumnPreferredWidth(COL_BYTES,             (int) (ratio * 45));
+        setTableColumnPreferredWidth(COL_OFFSET,            (int) (ratio * 45));
+        setTableColumnPreferredWidth(COL_LENGTH,            (int) (ratio * 54));
+        setTableColumnPreferredWidth(COL_BEGIN_BYTES,       (int) (ratio * 60));
+        setTableColumnPreferredWidth(COL_BEGIN_OFFSET,      (int) (ratio * 60));
+        setTableColumnPreferredWidth(COL_BEGIN_LENGTH,      (int) (ratio * 65));
+        setTableColumnPreferredWidth(COL_SKIP_LEADING,      (int) (ratio * 35));
+        setTableColumnPreferredWidth(COL_COLLAPSE,          (int) (ratio * 50));
     }
 
     private static class SimplePropertySupport extends PropertySupport.ReadWrite {

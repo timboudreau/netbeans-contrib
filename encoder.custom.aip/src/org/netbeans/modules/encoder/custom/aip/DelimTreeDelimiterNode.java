@@ -52,104 +52,135 @@ public class DelimTreeDelimiterNode extends AbstractNode
         mDelimOption.addPropertyChangeListener(this);
     }
     
+    @Override
     public boolean canRename() {
         return false;
     }
 
+    @Override
     public boolean canCut() {
         return false;
     }
 
+    @Override
     public boolean canCopy() {
         return false;
     }
     
+    @Override
     public String getName() {
         return "Delimiter"; //NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return _bundle.getString("delim_tree_delim_node.lbl.delimiter");
     }
     
+    @Override
     public Image getIcon(int i) {
         return Utilities.loadImage("org/netbeans/modules/encoder/custom/aip/delimIcon.PNG");  //NOI18N
     }
 
+    @Override
     public Image getOpenedIcon(int i) {
         return Utilities.loadImage("org/netbeans/modules/encoder/custom/aip/delimOpenIcon.PNG");  //NOI18N
     }
 
+    @Override
     protected Sheet createSheet() {
-        Sheet sheet = Sheet.createDefault();
         Sheet.Set propSet = Sheet.createPropertiesSet();
         try {
             //The Node Type Property
-            PropertySupport.Reflection kindProp =
-                    new PropertySupport.Reflection(mDelimOption,
-                            String.class, "kind");  //NOI18N
+            PropertySupport.Reflection<String> kindProp =
+                    new PropertySupport.Reflection<String>(mDelimOption,
+                    String.class, "kind");  //NOI18N
             kindProp.setName("kind");  //NOI18N
             kindProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.type"));
             kindProp.setPropertyEditorClass(DelimKindPropertyEditor.class);
             propSet.put(kindProp);
             
-            PropertySupport.Reflection bytesProp =
-                    new PropertySupport.Reflection(mDelimOption,
-                            String.class, "bytes");  //NOI18N
-            bytesProp.setName("bytes");  //NOI18N
-            bytesProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.delim_bytes"));
-            bytesProp.setPropertyEditorClass(DelimiterPropertyEditor.class);
-            propSet.put(bytesProp);
-            
-            PropertySupport.Reflection precedenceProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<Short> precedenceProp =
+                    new PropertySupport.Reflection<Short>(mDelimOption,
                             short.class, "precedence");  //NOI18N
             precedenceProp.setName("precedence");  //NOI18N
             precedenceProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.precedence"));
             precedenceProp.setPropertyEditorClass(DelimPrecedencePropertyEditor.class);
             propSet.put(precedenceProp);
             
-            PropertySupport.Reflection optionModeProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<String> optionModeProp =
+                    new PropertySupport.Reflection<String>(mDelimOption,
                             String.class, "optionMode");  //NOI18N
             optionModeProp.setName("optionMode");  //NOI18N
             optionModeProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.opt_mode"));
             optionModeProp.setPropertyEditorClass(DelimOptionModePropertyEditor.class);
             propSet.put(optionModeProp);
             
-            PropertySupport.Reflection termModeProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<String> termModeProp =
+                    new PropertySupport.Reflection<String>(mDelimOption,
                             String.class, "termMode");  //NOI18N
             termModeProp.setName("termMode");  //NOI18N
             termModeProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.term_mode"));
             termModeProp.setPropertyEditorClass(DelimTermModePropertyEditor.class);
             propSet.put(termModeProp);
 
-            PropertySupport.Reflection offsetProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<String> bytesProp =
+                    new PropertySupport.Reflection<String>(mDelimOption,
+                    String.class, "bytes");  //NOI18N
+            bytesProp.setName("bytes");  //NOI18N
+            bytesProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.delim_bytes"));
+            bytesProp.setPropertyEditorClass(DelimiterPropertyEditor.class);
+            propSet.put(bytesProp);
+            
+            PropertySupport.Reflection<Integer> offsetProp =
+                    new PropertySupport.Reflection<Integer>(mDelimOption,
                             int.class, "offset");  //NOI18N
             offsetProp.setName("offset");  //NOI18N
             offsetProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.offset"));
             offsetProp.setPropertyEditorClass(DelimOffsetPropertyEditor.class);
             propSet.put(offsetProp);
             
-            PropertySupport.Reflection lengthProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<Short> lengthProp =
+                    new PropertySupport.Reflection<Short>(mDelimOption,
                             short.class, "length");  //NOI18N
             lengthProp.setName("length");  //NOI18N
             lengthProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.length"));
             lengthProp.setPropertyEditorClass(DelimLengthPropertyEditor.class);
             propSet.put(lengthProp);
             
-            PropertySupport.Reflection skipLeadingProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<String> beginBytesProp =
+                    new PropertySupport.Reflection<String>(mDelimOption,
+                    String.class, "beginBytes");  //NOI18N
+            beginBytesProp.setName("beginBytes");  //NOI18N
+            beginBytesProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.begin_delim_bytes"));
+            beginBytesProp.setPropertyEditorClass(DelimiterPropertyEditor.class);
+            propSet.put(beginBytesProp);
+            
+            PropertySupport.Reflection<Integer> beginOffsetProp =
+                    new PropertySupport.Reflection<Integer>(mDelimOption,
+                            int.class, "beginOffset");  //NOI18N
+            beginOffsetProp.setName("beginOffset");  //NOI18N
+            beginOffsetProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.begin_offset"));
+            beginOffsetProp.setPropertyEditorClass(DelimOffsetPropertyEditor.class);
+            propSet.put(beginOffsetProp);
+            
+            PropertySupport.Reflection<Short> beginLengthProp =
+                    new PropertySupport.Reflection<Short>(mDelimOption,
+                            short.class, "beginLength");  //NOI18N
+            beginLengthProp.setName("beginLength");  //NOI18N
+            beginLengthProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.begin_length"));
+            beginLengthProp.setPropertyEditorClass(DelimLengthPropertyEditor.class);
+            propSet.put(beginLengthProp);
+            
+            PropertySupport.Reflection<Boolean> skipLeadingProp =
+                    new PropertySupport.Reflection<Boolean>(mDelimOption,
                             boolean.class, "skipLeading");  //NOI18N
             skipLeadingProp.setName("skipLeading");  //NOI18N
             skipLeadingProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.skip_leading"));
             propSet.put(skipLeadingProp);
             
-            PropertySupport.Reflection collapseProp =
-                    new PropertySupport.Reflection(mDelimOption,
+            PropertySupport.Reflection<Boolean> collapseProp =
+                    new PropertySupport.Reflection<Boolean>(mDelimOption,
                             boolean.class, "collapse");  //NOI18N
             collapseProp.setName("collapse");  //NOI18N
             collapseProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.collapse"));
@@ -157,6 +188,7 @@ public class DelimTreeDelimiterNode extends AbstractNode
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(_bundle.getString("delim_tree_delim_node.exp.no_such_mthd"), e);
         }
+        Sheet sheet = Sheet.createDefault();
         sheet.put(propSet);
         return sheet;
     }

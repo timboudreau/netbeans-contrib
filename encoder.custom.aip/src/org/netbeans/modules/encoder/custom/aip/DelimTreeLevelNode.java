@@ -41,38 +41,50 @@ public class DelimTreeLevelNode extends AbstractNode
             new DelimiterSetChangeNotifier();
     private final DelimiterLevel mDelimLevel;
     
-    /** Creates a new instance of DelimTreeLevelNode */
+    /**
+     * Creates a new instance of DelimTreeLevelNode (with empty children).
+     * @param delimLevel - DelimiterLevel
+     * @param children - Children
+     * @param lookup - Lookup
+     */
     public DelimTreeLevelNode(DelimiterLevel delimLevel, Children children, Lookup lookup) {
         super(children, lookup);
         mDelimLevel = delimLevel;
     }
 
+    @Override
     public boolean canRename() {
         return false;
     }
 
+    @Override
     public boolean canCut() {
         return false;
     }
 
+    @Override
     public boolean canCopy() {
         return false;
     }
     
+    @Override
     public Image getIcon(int i) {
         return Utilities.loadImage(
                 "org/netbeans/modules/encoder/custom/aip/delimLevelIcon.PNG");  //NOI18N
     }
 
+    @Override
     public Image getOpenedIcon(int i) {
         return Utilities.loadImage(
                 "org/netbeans/modules/encoder/custom/aip/delimLevelOpenIcon.PNG");  //NOI18N
     }
 
+    @Override
     public String getName() {
         return "Level";  //NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return _bundle.getString("delim_tree_level_node.lbl.level");
     }

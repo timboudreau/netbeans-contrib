@@ -166,8 +166,10 @@ public class EncodingOption {
     private DelimiterSet mDelimiterSet = null;
     private String mOrder = mTextMap.get(ORDER_PREFIX + "_" + NodeProperties.Order.SEQUENCE); //NOI18N
     private String mMatch = ""; //NOI18N
+    private boolean mNoMatch = false;
     private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" + NodeProperties.Alignment.BLIND); //NOI18N
     private int mLength = 0;
+    private String mEscapeSequence = ""; //NOI18N
     
     private CustomEncoding mCustomEncoding = null;
     private AppInfo mAppInfo = null;
@@ -309,6 +311,25 @@ public class EncodingOption {
         firePropertyChange("match", old, mMatch); //NOI18N
     }
 
+    public String getEscapeSequence() {
+        return mEscapeSequence;
+    }
+
+    public void setEscapeSequence(String escapeSequence) {
+        String old = mEscapeSequence;
+        mEscapeSequence = escapeSequence;
+        if (mEscapeSequence == null || mEscapeSequence.length() == 0) {
+            if (mCustomEncoding.getNodeProperties().isSetEscapeSequence()) {
+                // if no value, then unset the "escapeSequence" element
+                mCustomEncoding.getNodeProperties().unsetEscapeSequence();
+            }
+        } else {
+            mCustomEncoding.getNodeProperties().setEscapeSequence(mEscapeSequence);
+        }
+        commitToAppInfo();
+        firePropertyChange("escapeSequence", old, mEscapeSequence); //NOI18N
+    }
+
     public String getNodeType() {
         return mNodeType;
     }
@@ -352,6 +373,28 @@ public class EncodingOption {
         commitToAppInfo();
     }
 
+    public boolean isNoMatch() {
+        return mNoMatch;
+    }
+
+    public void setNoMatch(boolean noMatch) {
+        // if No Match is selected but there is no "Match" value, then skip
+        // to make No Match not selected
+        if (noMatch && (mMatch == null || mMatch.length() == 0)) {
+            return;
+        }
+        Boolean old = Boolean.valueOf(mNoMatch);
+        mNoMatch = noMatch;
+        if (mNoMatch) {
+            mCustomEncoding.getNodeProperties().setNoMatch(mNoMatch);
+        } else {
+            // remove the "noMatch" element
+            mCustomEncoding.getNodeProperties().unsetNoMatch();
+        }
+        commitToAppInfo();
+        firePropertyChange("noMatch", old, Boolean.valueOf(mNoMatch)); //NOI18N
+    }
+    
     public String getOrder() {
         return mOrder;
     }
@@ -540,7 +583,42 @@ public class EncodingOption {
         }
     }
     
+    /**
+     * Return all delimiters at the given delimiter level
+     * as a comma separate string, e.g. "], }". It returns null
+     * if there is no delimiter defined.
+     * 
+     * @param delimLevel a given delimiter level
+     * @return a comma separate string, e.g. "], }"
+     */
+    private String getDelimitersAsString(DelimiterLevel delimLevel) {
+        String delim = null;
+        Delimiter[] delimiters;
+        // get all delimiters at this delimiter level
+        delimiters = delimLevel.getDelimiterArray();
+        delim = ""; //NOI18N
+        for (int i = 0; i < delimiters.length; i++) {
+            if (!delimiters[i].isSetBytes() || !delimiters[i].getBytes().isSetConstant()) {
+                // skip non-constant delimiter(s)
+                continue;
+            }
+            if (delim.length() > 0) {
+                delim += ", "; //NOI18N
+            }
+            delim += delimiters[i].getBytes().getConstant();
+        }
+        if (delim.length() == 0) {
+            delim = null;
+        }
+        return delim;
+    }
+    
+    /**
+     * Compute the delimiter value at current node.
+     * @return the computed delimiter value.
+     */
     private String computeDelimiter() {
+        // Only Delinited or Array node needs to compute delimiter
         if (!NodeProperties.NodeType.DELIMITED.equals(
                     mCustomEncoding.getNodeProperties().getNodeType())
                 && !NodeProperties.NodeType.ARRAY.equals(
@@ -551,22 +629,9 @@ public class EncodingOption {
         DelimiterLevel delimLevel;
         Delimiter[] delimiters;
         if (mDelimiterSet != null) {
+            // get first delimiter level
             delimLevel = mDelimiterSet.getLevelArray(0);
-            delimiters = delimLevel.getDelimiterArray();
-            delim = ""; //NOI18N
-            for (int i = 0; i < delimiters.length; i++) {
-                if (!delimiters[i].isSetBytes()
-                        || !delimiters[i].getBytes().isSetConstant()) {
-                    continue;
-                }
-                if (delim.length() > 0) {
-                    delim += ", "; //NOI18N
-                }
-                delim += delimiters[i].getBytes().getConstant();
-            }
-            if (delim.length() == 0) {
-                delim = null;
-            }
+            delim = getDelimitersAsString(delimLevel);
         }
         if (delim != null) {
             return delim;
@@ -721,6 +786,10 @@ public class EncodingOption {
         if (customEncoding.getNodeProperties().isSetMatch()) {
             mMatch = customEncoding.getNodeProperties().getMatch();
         }
+        //Populates the NoMatch field
+        if (customEncoding.getNodeProperties().isSetNoMatch()) {
+            mNoMatch = customEncoding.getNodeProperties().getNoMatch();
+        }
         if (customEncoding.getNodeProperties().isSetLength()) {
             mLength = customEncoding.getNodeProperties().getLength();
         }
@@ -728,6 +797,10 @@ public class EncodingOption {
             mDelimiterSet = customEncoding.getNodeProperties().getDelimiterSet();
         }
         mCustomEncoding = customEncoding;
+        //Populates the Escape Sequence field
+        if (customEncoding.getNodeProperties().isSetEscapeSequence()) {
+            mEscapeSequence = customEncoding.getNodeProperties().getEscapeSequence();
+        }
         
         // I guess that following lines will cause recursive loop when
         // the AppInfo is removed from the text editing pane.
@@ -768,6 +841,7 @@ public class EncodingOption {
         Collection<AppInfo> appinfos = anno.getAppInfos();
         if (appinfos != null) {
             for (AppInfo appinfo : appinfos) {
+                // ensure the appinfo's uri is expected as "urn:com.sun:encoder"
                 if (!EncodingConst.URI.equals(appinfo.getURI())) {
                     continue;
                 }
@@ -776,12 +850,16 @@ public class EncodingOption {
                 }
                 try {                    
                     XmlOptions xmlOptions = new XmlOptions();
+                    // set this option so that the document element is replaced
+                    // with the given QName (null) when parsing.
                     xmlOptions.setLoadReplaceDocumentElement(null);
                     customEncoding = CustomEncoding.Factory.parse(
                             new StringReader(xmlFragFromAppInfo(appinfo)),
                             xmlOptions);
                     xmlOptions = new XmlOptions();
                     List errorList = new ArrayList();
+                    // errorList will contain all the errors after the validate
+                    // operation takes place.
                     xmlOptions.setErrorListener(errorList);
                     if (!customEncoding.validate(xmlOptions)) {
                         throw new XmlException(errorList.toString());

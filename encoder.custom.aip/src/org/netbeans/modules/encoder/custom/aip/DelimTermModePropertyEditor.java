@@ -22,7 +22,7 @@ package org.netbeans.modules.encoder.custom.aip;
 import java.beans.PropertyEditorSupport;
 
 /**
- * Property editor for the delimiter option mode property.
+ * Property editor for the delimiter terninator mode property.
  *
  * @author Jun Xu
  */
@@ -34,18 +34,22 @@ public class DelimTermModePropertyEditor extends PropertyEditorSupport {
     public DelimTermModePropertyEditor() {
     }
     
+    @Override
     public String[] getTags() {
         return DelimiterOption.termModeTagList().toArray(new String[0]);
     }
 
+    @Override
     public String getAsText() {
         return (String) getValue();
     }
 
+    @Override
     public void setAsText(String text) throws IllegalArgumentException {
         setValue(text);
     }
 
+    @Override
     public String getJavaInitializationString() {
         String value = (String) getValue();
         if (value == null) {

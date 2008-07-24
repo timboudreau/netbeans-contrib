@@ -22,8 +22,8 @@ package org.netbeans.modules.encoder.custom.aip;
 import com.sun.encoder.custom.appinfo.DelimiterLevel;
 import com.sun.encoder.custom.appinfo.DelimiterSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
@@ -40,7 +40,10 @@ public class DelimTreeRootNodeChildren extends Children.Keys
             new DelimiterSetChangeNotifier();
     private final DelimiterSet mDelimSet;
     
-    /** Creates a new instance of DelimTreeRootNodeChildren */
+    /**
+     * Creates a new instance of DelimTreeRootNodeChildren
+     * @param delimSet DelimiterSet object.
+     */
     public DelimTreeRootNodeChildren(DelimiterSet delimSet) {
         mDelimSet = delimSet;
     }
@@ -58,18 +61,21 @@ public class DelimTreeRootNodeChildren extends Children.Keys
         return new Node[]{node};
     }
 
+    @Override
     protected void removeNotify() {
         setKeys(Collections.EMPTY_LIST);
     }
 
+    @Override
     protected void addNotify() {
-        List<DelimiterLevel> keyList = new ArrayList<DelimiterLevel>();
+        Collection<DelimiterLevel> keyList = new ArrayList<DelimiterLevel>();
         for (int i = 0; i < mDelimSet.sizeOfLevelArray(); i++) {
             keyList.add(mDelimSet.getLevelArray(i));
         }
         setKeys(keyList);
     }
 
+    @Override
     public boolean remove(Node[] node) {
         addNotify();
         mChangeNotifier.fireDelimiterSetChangeEvent(
@@ -77,6 +83,7 @@ public class DelimTreeRootNodeChildren extends Children.Keys
         return true;
     }
 
+    @Override
     public boolean add(Node[] node) {
         addNotify();
         mChangeNotifier.fireDelimiterSetChangeEvent(

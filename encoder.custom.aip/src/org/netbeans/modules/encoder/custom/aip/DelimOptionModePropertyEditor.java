@@ -34,18 +34,22 @@ public class DelimOptionModePropertyEditor extends PropertyEditorSupport {
     public DelimOptionModePropertyEditor() {
     }
     
+    @Override
     public String[] getTags() {
         return DelimiterOption.optionModeTagList().toArray(new String[0]);
     }
 
+    @Override
     public String getAsText() {
         return (String) getValue();
     }
 
+    @Override
     public void setAsText(String text) throws IllegalArgumentException {
         setValue(text);
     }
 
+    @Override
     public String getJavaInitializationString() {
         String value = (String) getValue();
         if (value == null) {

@@ -40,7 +40,10 @@ public class DelimTreeLevelNodeChildren extends Children.Keys
             new DelimiterSetChangeNotifier();
     private final DelimiterLevel mDelimLevel;
     
-    /** Creates a new instance of DelimTreeLevelNodeChildren */
+    /**
+     * Creates a new instance of DelimTreeLevelNodeChildren
+     * @param delimLevel - DelimiterLevel
+     */
     public DelimTreeLevelNodeChildren(DelimiterLevel delimLevel) {
         mDelimLevel = delimLevel;
     }
@@ -52,10 +55,12 @@ public class DelimTreeLevelNodeChildren extends Children.Keys
         return new Node[]{node};
     }
 
+    @Override
     protected void removeNotify() {
         setKeys(Collections.EMPTY_LIST);
     }
 
+    @Override
     protected void addNotify() {
         List<Delimiter> keyList = new ArrayList<Delimiter>();
         for (int i = 0; i < mDelimLevel.sizeOfDelimiterArray(); i++) {
@@ -64,13 +69,15 @@ public class DelimTreeLevelNodeChildren extends Children.Keys
         setKeys(keyList);
     }
 
-    public boolean remove(Node[] node) {
+    @Override
+    public boolean remove(final Node[] node) {
         addNotify();
         mChangeNotifier.fireDelimiterSetChangeEvent(
                 mDelimLevel, "children", null, mDelimLevel.getDelimiterArray()); //NOI18N
         return true;
     }
 
+    @Override
     public boolean add(Node[] node) {
         addNotify();
         mChangeNotifier.fireDelimiterSetChangeEvent(
