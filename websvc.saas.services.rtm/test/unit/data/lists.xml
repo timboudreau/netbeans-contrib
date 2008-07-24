@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <lists>
+        <list id="100653" name="Inbox"
+       deleted="0" locked="1" archived="0" position="-1" smart="0" />
+        <list id="387549" name="High Priority"
+       deleted="0" locked="0" archived="0" position="0" smart="1">
+            <filter>(priority:1)</filter>
+        </list>
+        <list id="387546" name="New List"
+       deleted="0" locked="0" archived="0" position="0" smart="0" />
+        <list id="100654" name="Personal"
+       deleted="0" locked="0" archived="0" position="0" smart="0" />
+        <list id="100655" name="Study"
+       deleted="0" locked="0" archived="0" position="0" smart="0" />
+        <list id="100656" name="Work"
+       deleted="0" locked="0" archived="0" position="0" smart="0" />
+        <list id="100657" name="Sent"
+       deleted="0" locked="1" archived="0" position="1" smart="0" />
+    </lists>
+</rsp>

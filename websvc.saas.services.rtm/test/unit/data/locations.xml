@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <locations>
+        <location id="987654321" name="Berlin" longitude="13.411508"
+          latitude="52.524008" zoom="9" address="Berlin, Germany" viewable="1"/>
+        <location id="987654322" name="New York" longitude="-74.00713"
+          latitude="40.71449" zoom="9" address="New York, NY, USA" viewable="1"/>
+        <location id="987654323" name="Sydney" longitude="151.216667"
+           latitude="-33.8833333" zoom="7"
+           address="Sydney, New South Wales, Australia" viewable="1"/>
+    </locations>
+</rsp>

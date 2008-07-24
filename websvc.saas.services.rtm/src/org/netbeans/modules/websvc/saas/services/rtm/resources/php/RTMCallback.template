@@ -1,0 +1,21 @@
+<?php
+    session_start();
+    
+    include_once "RememberTheMilkRTMAuthenticator.php";
+    
+    $frob = $_GET["frob"];
+    RememberTheMilkRTMAuthenticator::saveSession("rtm_frob", $frob);
+
+    RememberTheMilkRTMAuthenticator::login();
+    $authToken = RememberTheMilkRTMAuthenticator::getAuthToken();
+
+    printf("<html>");
+    printf("<head>");
+    printf("<title>Servlet RememberTheMilkRTMCallback</title>");
+    printf("</head>");
+    printf("<body>");
+    printf("<h1>Servlet RememberTheMilkRTMCallback at " . $_SERVER['REQUEST_URI'] . "</h1>");
+    printf("<p> Your authentication token is " . $authToken . "</p>");
+    printf("</body>");
+    printf("</html>");
+?>

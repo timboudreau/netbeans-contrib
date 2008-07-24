@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <timezones>
+        <timezone id="216" name="Asia/Hong_Kong" dst="0" offset="28800" current_offset="28800" />
+        <timezone id="217" name="Asia/Hovd" dst="1" offset="28800" current_offset="25200" />
+        <timezone id="226" name="Asia/Kashgar" dst="0" offset="28800" current_offset="28800" />
+        <timezone id="228" name="Asia/Krasnoyarsk" dst="1" offset="28800" current_offset="25200" />
+        <timezone id="229" name="Asia/Kuala_Lumpur" dst="0" offset="28800" current_offset="28800" />
+        <timezone id="230" name="Asia/Kuching" dst="0" offset="28800" current_offset="28800" />
+    </timezones>
+</rsp>

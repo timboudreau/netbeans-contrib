@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <settings>
+        <timezone>Australia/Sydney</timezone>
+        <dateformat>0</dateformat>
+        <timeformat>0</timeformat>
+        <defaultlist>123456</defaultlist>
+    </settings>
+</rsp>

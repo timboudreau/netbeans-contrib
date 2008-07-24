@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <groups>
+        <group id="987654321" name="Friends">
+            <contacts>
+                <contact id="1"/>
+            </contacts>
+        </group>
+    </groups>
+</rsp>

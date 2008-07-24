@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <contacts>
+        <contact id="1" fullname="Omar Kilani" username="omar"/>
+    </contacts>
+</rsp>

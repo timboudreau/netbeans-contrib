@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <methods>
+        <method>rtm.tasks.add</method>
+        <method>rtm.tasks.addTags</method>
+        <method>rtm.tasks.complete</method>
+        <method>rtm.tasks.delete</method>
+    </methods>
+</rsp>

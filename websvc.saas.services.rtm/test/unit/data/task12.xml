@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <list id="387546">
+        <taskseries id="648042" created="2006-05-07T10:19:54Z" modified="2006-05-07T10:33:09Z"
+             name="Get Coffee" source="api">
+            <tags/>
+            <participants/>
+            <notes/>
+            <task id="811467" due="" has_due_time="0" added="2006-05-07T10:19:54Z"
+         completed="" deleted="" priority="N" postponed="0" estimate=""/>
+        </taskseries>
+    </list>
+</rsp>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified">
+    <xsd:element name="rsp">
+        <xsd:complexType>
+            <xsd:choice>
+                <xsd:element name="contact" type="contactType" minOccurs="0"></xsd:element>
+                <xsd:element name="contacts" type="contactsType" minOccurs="0"></xsd:element>
+                <xsd:element name="group" type="groupType" minOccurs="0"></xsd:element>
+                <xsd:element name="groups" type="groupsType" minOccurs="0"></xsd:element>
+                <xsd:element name="list" type="listType" minOccurs="0"></xsd:element>
+                <xsd:element name="lists" type="listsType" minOccurs="0"></xsd:element>
+                <xsd:element name="locations" type="locationsType" minOccurs="0"></xsd:element>
+                <xsd:element name="settings" type="settingsType" minOccurs="0"></xsd:element>
+                <xsd:element name="tasks" type="tasksType" minOccurs="0"></xsd:element>
+                <xsd:element name="methods" type="methodsType" minOccurs="0"></xsd:element>
+                <xsd:element name="method" type="methodType" minOccurs="0"></xsd:element>
+                <xsd:element name="note" type="noteType" minOccurs="0"></xsd:element>
+                <xsd:element name="timezones" type="timezonesType" minOccurs="0"></xsd:element>
+                <xsd:element name="timeline" type="timelineType" minOccurs="0"></xsd:element>
+                <xsd:element name="time" type="timeType" minOccurs="0"></xsd:element>
+                <xsd:element name="user" type="userType" minOccurs="0"></xsd:element>
+            </xsd:choice>
+            <xsd:attribute name="stat" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:complexType name="contactType">
+        <xsd:sequence/>
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="fullname" type="xsd:string"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="contactsType">
+        <xsd:sequence>
+            <xsd:element name="contact" type="contactType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="groupType">
+        <xsd:sequence>
+            <xsd:element name="contacts" type="contactsType"></xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="groupsType">
+        <xsd:sequence>
+            <xsd:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="listType">
+        <xsd:choice>
+            <xsd:element name="filter" minOccurs="0">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string"/>
+                </xsd:simpleType>
+            </xsd:element>
+            <xsd:element name="taskseries" type="taskseriesType" minOccurs="0"></xsd:element>
+        </xsd:choice>
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="deleted" type="xsd:integer"/>
+        <xsd:attribute name="locked" type="xsd:integer"/>
+        <xsd:attribute name="archived" type="xsd:integer"/>
+        <xsd:attribute name="position" type="xsd:integer"/>
+        <xsd:attribute name="smart" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="listsType">
+        <xsd:sequence>
+            <xsd:element name="list" type="listType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="locationType">
+        <xsd:sequence/>
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="longitude" type="xsd:float"/>
+        <xsd:attribute name="latitude" type="xsd:float"/>
+        <xsd:attribute name="zoom" type="xsd:positiveInteger"/>
+        <xsd:attribute name="address" type="xsd:string"/>
+        <xsd:attribute name="viewable" type="xsd:positiveInteger"/>
+    </xsd:complexType>
+    <xsd:complexType name="locationsType">
+        <xsd:sequence>
+            <xsd:element name="location" type="locationType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="tagsType">
+        <xsd:sequence>
+            <xsd:element name="tag" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="participantsType">
+        <xsd:sequence>
+            <!-- TODO: not clear from sample responses, have to be verified/revisited -->
+            <xsd:element name="participant" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="notesType">
+        <xsd:sequence>
+            <xsd:element name="note" type="noteType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="taskType">
+        <xsd:sequence/>
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="due" type="xsd:string"/>
+        <xsd:attribute name="has_due_time" type="xsd:string"/>
+        <xsd:attribute name="added" type="xsd:dateTime"/>
+        <xsd:attribute name="completed" type="xsd:string"/>
+        <xsd:attribute name="deleted" type="xsd:string"/>
+        <xsd:attribute name="priority" type="xsd:string"/>
+        <xsd:attribute name="postponed" type="xsd:string"/>
+        <xsd:attribute name="estimate" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="taskseriesType">
+        <xsd:sequence>
+            <xsd:element name="rrule" type="rruleType" minOccurs="0"></xsd:element>
+            <xsd:element name="tags" type="tagsType"></xsd:element>
+            <xsd:element name="participants" type="participantsType"></xsd:element>
+            <xsd:element name="notes" type="notesType"></xsd:element>
+            <xsd:element name="task" type="taskType"></xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="created" type="xsd:dateTime"/>
+        <xsd:attribute name="modified" type="xsd:dateTime"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="source" type="xsd:string"/>
+        <xsd:attribute name="location_id" type="xsd:string"/>
+        <xsd:attribute name="url" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="rruleType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="every" type="xsd:integer"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="tasksType">
+        <xsd:sequence>
+            <xsd:element name="list" type="listType" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="settingsType">
+        <xsd:sequence>
+            <xsd:element name="timezone" type="xsd:string"></xsd:element>
+            <xsd:element name="dateformat" type="xsd:string"></xsd:element>
+            <xsd:element name="timeformat" type="xsd:string"></xsd:element>
+            <xsd:element name="defaultlist" type="xsd:string"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="methodsType">
+        <xsd:sequence>
+            <xsd:element name="method" type="xsd:string" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="methodType" mixed="true">
+        <xsd:sequence minOccurs="0">
+            <xsd:element name="description" type="xsd:string"></xsd:element>
+            <xsd:element name="response" type="xsd:string"></xsd:element>
+            <xsd:element name="arguments">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="argument" type="argumentType" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="errors">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="error" type="errorType" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="needslogin" type="xsd:integer"/>
+        <xsd:attribute name="needssigning" type="xsd:integer"/>
+        <xsd:attribute name="requiredperms" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="argumentType" mixed="true">
+        <xsd:sequence/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="optional" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="errorType" mixed="true">
+        <xsd:sequence/>
+        <xsd:attribute name="code" type="xsd:integer"/>
+        <xsd:attribute name="message" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="noteType" mixed="true">
+        <xsd:sequence/>
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="created" type="xsd:dateTime"/>
+        <xsd:attribute name="modified" type="xsd:dateTime"/>
+        <xsd:attribute name="title" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="timezonesType">
+        <xsd:sequence>
+            <xsd:element name="timezone" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence/>
+                    <xsd:attribute name="id" type="xsd:integer"/>
+                    <xsd:attribute name="name" type="xsd:string"/>
+                    <xsd:attribute name="dst" type="xsd:integer"/>
+                    <xsd:attribute name="offset" type="xsd:integer"/>
+                    <xsd:attribute name="current_offset" type="xsd:integer"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="timelineType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:integer"/>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="timeType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:dateTime">
+                <xsd:attribute name="precision" type="xsd:string"/>
+                <xsd:attribute name="timezone" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="userType">
+        <xsd:sequence>
+            <xsd:element name="username">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string"/>
+                </xsd:simpleType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:integer"/>
+    </xsd:complexType>
+</xsd:schema>
