@@ -134,12 +134,21 @@ public class ActionProviderImpl implements ActionProvider {
                 }
             });
         } else {
-            String key = FileUtil.toFile(p.getProjectDirectory()) + Cache.ACTION + command;
-            String binding = Cache.get(key);
+            String binding = getOrDefineCommandBinding(command, false);
+            if (binding == null && command.equals(ActionProvider.COMMAND_REBUILD)) {
+                // Assume it is just CLEAN and BUILD together.
+                String cleanBinding = getOrDefineCommandBinding(ActionProvider.COMMAND_CLEAN, true);
+                String buildBinding = getOrDefineCommandBinding(ActionProvider.COMMAND_BUILD, true);
+                if (cleanBinding != null && cleanBinding.startsWith("ant:") &&
+                        buildBinding != null && buildBinding.startsWith("ant:")) {
+                    int colon = cleanBinding.lastIndexOf(':');
+                    if (buildBinding.startsWith(cleanBinding.substring(0, colon + 1))) {
+                        binding = cleanBinding + " " + buildBinding.substring(colon + 1);
+                    }
+                }
+            }
             if (binding == null) {
-                // XXX for COMMAND_REBUILD, should just look for bindings for CLEAN and BUILD and put them in order
-                new UnboundTargetAlert(p, command).accepted();
-                binding = Cache.get(key);
+                binding = getOrDefineCommandBinding(command, true);
                 if (binding == null) {
                     return;
                 }
@@ -168,6 +177,15 @@ public class ActionProviderImpl implements ActionProvider {
             } else {
                 // XXX support scripting, perhaps
             }
+        }
+    }
+    private String getOrDefineCommandBinding(String command, boolean prompt) {
+        String binding = Cache.get(FileUtil.toFile(p.getProjectDirectory()) + Cache.ACTION + command);
+        if (binding == null && prompt) {
+            new UnboundTargetAlert(p, command).accepted();
+            return getOrDefineCommandBinding(command, false);
+        } else {
+            return binding;
         }
     }
 
