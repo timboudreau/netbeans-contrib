@@ -42,12 +42,19 @@ public class ShortIntegerInplaceEditor extends StringInplaceEditor implements In
         mMaxInclusive = new BigInteger(new Short(Short.MAX_VALUE).toString());
     }
 
+    /**
+     * Creates a new instance of IntegerInplaceEditor with indicated
+     * minInclusive value and maxInclusive value.
+     * @param minInclusive the minimun (inclusive) value.
+     * @param maxInclusive the maximum (inclusive) value.
+     */
     public ShortIntegerInplaceEditor(short minInclusive, short maxInclusive) {
         super();
         mMinInclusive = new BigInteger(new Short(minInclusive).toString());
         mMaxInclusive = new BigInteger(new Short(maxInclusive).toString());
     }
 
+    @Override
     public Object getValue() {
         short value;
         try {
@@ -64,6 +71,14 @@ public class ShortIntegerInplaceEditor extends StringInplaceEditor implements In
         return value;
     }
     
+    /**
+     * Keep the indicated value (as short) inside a range with max value of
+     * upper bound and min value of lower bound.
+     * 
+     * @param value to be checked.
+     * @return the original short value if the value is in the range, or
+     * the upper (short maximum) or lower (short minimun) bound value.
+     */
     private short keepValueInRange(BigInteger value) {
         if (value.compareTo(mMinInclusive) < 0) {
             return mMinInclusive.shortValue();

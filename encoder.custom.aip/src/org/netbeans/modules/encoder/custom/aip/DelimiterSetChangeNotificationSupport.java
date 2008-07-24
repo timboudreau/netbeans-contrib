@@ -29,29 +29,29 @@ public interface DelimiterSetChangeNotificationSupport {
      * Adds a delimiter set change listener array.
      * @param listeners a delimiter set change listener array.
      */
-    public void addDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
+    void addDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
 
     /**
      * Adds a delimiter set change listener.
      * @param listener a delimiter set change listener.
      */
-    public void addDelimiterSetChangeListener(DelimiterSetChangeListener listener);
+    void addDelimiterSetChangeListener(DelimiterSetChangeListener listener);
 
     /**
      * Returns all delimiter set listeners in this notifier.
      * @return a delimiter set change listener array.
      */
-    public DelimiterSetChangeListener[] getDelimiterSetChangeListeners();
+    DelimiterSetChangeListener[] getDelimiterSetChangeListeners();
 
     /**
      * Removes a delimiter set change listener.
      * @param listener a delimiter set change listener.
      */
-    public void removeDelimiterSetChangeListener(DelimiterSetChangeListener listener);
+    void removeDelimiterSetChangeListener(DelimiterSetChangeListener listener);
 
     /**
      * Removes a delimiter set change listener array.
      * @param listeners a delimiter set change listener array.
      */
-    public void removeDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
+    void removeDelimiterSetChangeListener(DelimiterSetChangeListener listeners[]);
 }

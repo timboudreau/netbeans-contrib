@@ -103,14 +103,20 @@ public class DelimiterOption {
 
     private final Delimiter mDelimiter;
     
-    /* Bean property variables */
+    /***************************\
+     * Bean property variables *
+    \***************************/
+    
     private String mKind = mTextMap.get(KIND_PREFIX + "_" + "normal"); //NOI18N
-    private String mBytes = ""; //NOI18N
     private short mPrecedence = 10;
     private String mOptionMode = mTextMap.get(OPTION_MODE_PREFIX + "_" + "never"); //NOI18N
     private String mTermMode = mTextMap.get(TERM_MODE_PREFIX + "_" + "never"); //NOI18N
+    private String mBytes = ""; //NOI18N
     private int mOffset = 0;
     private short mLength = 0;
+    private String mBeginBytes = ""; //NOI18N
+    private int mBeginOffset = 0;
+    private short mBeginLength = 0;
     private boolean mSkipLeading = false;
     private boolean mCollapse = false;
     
@@ -145,6 +151,10 @@ public class DelimiterOption {
         return mTermModeTagList;
     }
     
+    /*****************************\
+     * bean getters and setters  *
+    \*****************************/
+    
     public String getKind() {
         return mKind;
     }
@@ -166,11 +176,16 @@ public class DelimiterOption {
         String old = mBytes;
         mBytes = bytes;
         if (mDelimiter.getBytes() == null) {
+            // no "bytes" element in XSD, so
+            // we append a new empty "bytes" element
             mDelimiter.addNewBytes();
         }
         if (mDelimiter.getBytes().isSetEmbedded()) {
+            // if "bytes" contains "embedded" choice element,
+            // then unset it.
             mDelimiter.getBytes().unsetEmbedded();
         }
+        // set the "constant" choice element under "bytes"
         mDelimiter.getBytes().setConstant(mBytes);
         int oldOffset = mOffset;
         mOffset = 0;
@@ -179,6 +194,35 @@ public class DelimiterOption {
         firePropertyChange("offset", oldOffset, mOffset); //NOI18N
         firePropertyChange("length", oldLength, mLength); //NOI18N
         firePropertyChange("bytes", old, mBytes); //NOI18N
+    }
+
+    public String getBeginBytes() {
+        return mBeginBytes;
+    }
+
+    public void setBeginBytes(String beginBytes) {
+        String oldBeginBytes = mBeginBytes;
+        mBeginBytes = beginBytes;
+        if (mDelimiter.getBeginBytes() == null) {
+            // no "beginBytes" element in XSD, so
+            // we append a new empty "beginBytes" element
+            mDelimiter.addNewBeginBytes();
+        }
+        if (mDelimiter.getBeginBytes().isSetEmbedded()) {
+            // if "beginBytes" contains "embedded" choice element,
+            // then unset it.
+            mDelimiter.getBeginBytes().unsetEmbedded();
+        }
+        // set the "constant" choice element under "beginBytes"
+        mDelimiter.getBeginBytes().setConstant(mBeginBytes);
+        // reset both "offset" and "length" to 0
+        int oldBeginOffset = mBeginOffset;
+        mBeginOffset = 0;
+        short oldBeginLength = mBeginLength;
+        mBeginLength = 0;
+        firePropertyChange("beginOffset", oldBeginOffset, mBeginOffset); //NOI18N
+        firePropertyChange("beginLength", oldBeginLength, mBeginLength); //NOI18N
+        firePropertyChange("beginBytes", oldBeginBytes, mBeginBytes); //NOI18N
     }
 
     public short getPrecedence() {
@@ -286,10 +330,52 @@ public class DelimiterOption {
         firePropertyChange("length", old, mLength); //NOI18N
     }
 
-    public Delimiter delimiter() {
-        return mDelimiter;
+    public int getBeginOffset() {
+        return mBeginOffset;
     }
-    
+
+    public void setBeginOffset(int beginOffset) {
+        int oldBeginOffset = mBeginOffset;
+        mBeginOffset = beginOffset;
+        if (mDelimiter.getBeginBytes() == null) {
+            mDelimiter.addNewBeginBytes();
+        }
+        if (mDelimiter.getBeginBytes().isSetConstant()) {
+            mDelimiter.getBeginBytes().unsetConstant();
+        }
+        if (!mDelimiter.getBeginBytes().isSetEmbedded()) {
+            mDelimiter.getBeginBytes().addNewEmbedded();
+        }
+        mDelimiter.getBeginBytes().getEmbedded().setOffset(mBeginOffset);
+        String oldBeginBytes = mBeginBytes;
+        mBeginBytes = ""; //NOI18N
+        firePropertyChange("beginBytes", oldBeginBytes, mBeginBytes); //NOI18N
+        firePropertyChange("beginOffset", oldBeginOffset, mBeginOffset); //NOI18N
+    }
+
+    public short getBeginLength() {
+        return mBeginLength;
+    }
+
+    public void setBeginLength(short beginLength) {
+        int oldBeginLength = mBeginLength;
+        mBeginLength = beginLength;
+        if (mDelimiter.getBeginBytes() == null) {
+            mDelimiter.addNewBeginBytes();
+        }
+        if (mDelimiter.getBeginBytes().isSetConstant()) {
+            mDelimiter.getBeginBytes().unsetConstant();
+        }
+        if (!mDelimiter.getBeginBytes().isSetEmbedded()) {
+            mDelimiter.getBeginBytes().addNewEmbedded();
+        }
+        mDelimiter.getBeginBytes().getEmbedded().setLength(beginLength);
+        String oldBeginBytes = mBeginBytes;
+        mBeginBytes = ""; //NOI18N
+        firePropertyChange("beginBytes", oldBeginBytes, mBeginBytes); //NOI18N
+        firePropertyChange("beginLength", oldBeginLength, mBeginLength); //NOI18N
+    }
+
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.add(listener);
     }
@@ -298,10 +384,22 @@ public class DelimiterOption {
         propChangeListeners.remove(listener);
     }
 
+    /** initalizes the options */
     private void init() {
         if (mDelimiter.isSetKind()) {
             mKind = mTextMap.get(KIND_PREFIX + "_" //NOI18N
                     + mDelimiter.getKind().toString());
+        }
+        if (mDelimiter.isSetPrecedence()) {
+            mPrecedence = mDelimiter.getPrecedence();
+        }
+        if (mDelimiter.isSetOptionalMode()) {
+            mOptionMode = mTextMap.get(OPTION_MODE_PREFIX + "_" //NOI18N
+                    + mDelimiter.getOptionalMode().toString());
+        }
+        if (mDelimiter.isSetTerminatorMode()) {
+            mTermMode = mTextMap.get(TERM_MODE_PREFIX + "_" //NOI18N
+                    + mDelimiter.getTerminatorMode().toString());
         }
         if (mDelimiter.getBytes() != null) {
             if (mDelimiter.getBytes().isSetConstant()) {
@@ -314,16 +412,16 @@ public class DelimiterOption {
                 mBytes = ""; //NOI18N
             }
         }
-        if (mDelimiter.isSetPrecedence()) {
-            mPrecedence = mDelimiter.getPrecedence();
-        }
-        if (mDelimiter.isSetOptionalMode()) {
-            mOptionMode = mTextMap.get(OPTION_MODE_PREFIX + "_" //NOI18N
-                    + mDelimiter.getOptionalMode().toString());
-        }
-        if (mDelimiter.isSetTerminatorMode()) {
-            mTermMode = mTextMap.get(TERM_MODE_PREFIX + "_" //NOI18N
-                    + mDelimiter.getTerminatorMode().toString());
+        if (mDelimiter.getBeginBytes() != null) {
+            if (mDelimiter.getBeginBytes().isSetConstant()) {
+                mBeginBytes = mDelimiter.getBeginBytes().getConstant();
+                mBeginOffset = 0;
+                mBeginLength = 0;
+            } else if (mDelimiter.getBeginBytes().isSetEmbedded()) {
+                mBeginOffset = mDelimiter.getBeginBytes().getEmbedded().getOffset();
+                mBeginLength = mDelimiter.getBeginBytes().getEmbedded().getLength();
+                mBeginBytes = ""; //NOI18N
+            }
         }
         if (mDelimiter.isSetSkipLeading() && mDelimiter.getSkipLeading()) {
             mSkipLeading = true;
@@ -338,7 +436,7 @@ public class DelimiterOption {
                 propChangeListeners.toArray(new PropertyChangeListener[0]);
         for (int i = 0; i < pcls.length; i++) {
             pcls[i].propertyChange(
-                    new PropertyChangeEvent (this, name, oldObj, newObj));
+                    new PropertyChangeEvent(this, name, oldObj, newObj));
         }
     }
     

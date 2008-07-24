@@ -37,6 +37,7 @@ public class CustomAIPModuleInstaller extends ModuleInstall {
     private static final SMFPropertyChangeListener mSMFPropertyChangeListener =
             new SMFPropertyChangeListener();
 
+    @Override
     public void restored() {
         super.restored();
         SchemaModelFactory.getDefault().addPropertyChangeListener(
