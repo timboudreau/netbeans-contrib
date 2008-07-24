@@ -46,10 +46,14 @@ import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import org.apache.tools.ant.module.api.support.AntScriptUtils;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.autoproject.spi.Cache;
@@ -102,9 +106,37 @@ public final class UnboundTargetAlert extends JPanel {
             }
             if (targets != null) {
                 selectCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
-                selectCombo.setSelectedItem("");
+                selectCombo.setSelectedItem(guessTarget(command, targets));
             }
         }
+    }
+
+    /** @see org.netbeans.modules.ant.freeform.ui.TargetMappingPanel */
+    private static final Map<String,List<String>> DEFAULT_TARGETS = new HashMap<String,List<String>>();
+    static {
+        DEFAULT_TARGETS.put(ActionProvider.COMMAND_BUILD, Arrays.asList("build", "compile", "jar", "dist", "all", ".*jar.*")); // NOI18N
+        DEFAULT_TARGETS.put(ActionProvider.COMMAND_CLEAN, Arrays.asList("clean", ".*clean.*")); // NOI18N
+        DEFAULT_TARGETS.put(ActionProvider.COMMAND_RUN, Arrays.asList("run", "start", ".*run.*", ".*start.*")); // NOI18N
+        DEFAULT_TARGETS.put(ActionProvider.COMMAND_TEST, Arrays.asList("test", ".*test.*")); // NOI18N
+        DEFAULT_TARGETS.put(JavaProjectConstants.COMMAND_JAVADOC, Arrays.asList("javadoc", "javadocs", "docs", "doc", ".*javadoc.*", ".*doc.*")); // NOI18N
+    }
+    /**
+     * Guess at a likely Ant target for a command.
+     * @param command an action as in {@link ActionProvider}
+     * @param targets available Ant target names
+     * @return the most plausible target to bind, or ""
+     */
+    private static String guessTarget(String command, List<String> targets) {
+        if (DEFAULT_TARGETS.containsKey(command)) {
+            for (String pattern : DEFAULT_TARGETS.get(command)) {
+                for (String target : targets) {
+                    if (target.matches(pattern)) {
+                        return target;
+                    }
+                }
+            }
+        }
+        return "";
     }
 
     /**
@@ -115,7 +147,7 @@ public final class UnboundTargetAlert extends JPanel {
         final DialogDescriptor d = new DialogDescriptor(this, title);
         d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
         d.setMessageType(NotifyDescriptor.ERROR_MESSAGE);
-        d.setValid(false);
+        d.setValid(!"".equals(selectCombo.getSelectedItem()));
         selectCombo.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 d.setValid(((String) selectCombo.getSelectedItem()).trim().length() > 0);
