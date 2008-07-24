@@ -122,6 +122,9 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyMap();
         }
 
+        // Read-lock due to Token hierarchy use
+        doc.readLock();
+
         List<OffsetRange> commentfolds = new ArrayList<OffsetRange>();
         TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, 1);
 
@@ -168,6 +171,8 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 }
             }
         }
+
+        doc.readUnlock();
 
         try {
             /** @see GsfFoldManager#addTree() for suitable fold names. */

@@ -1,0 +1,1470 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+ Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 2 only ("GPL") or the Common
+ Development and Distribution License("CDDL") (collectively, the
+ "License"). You may not use this file except in compliance with the
+ License. You can obtain a copy of the License at
+ http://www.netbeans.org/cddl-gplv2.html
+ or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ specific language governing permissions and limitations under the
+ License.  When distributing the software, include this License Header
+ Notice in each file and include the License file at
+ nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ particular file as subject to the "Classpath" exception as provided
+ by Sun in the GPL Version 2 section of the License file that
+ accompanied this code. If applicable, add the following below the
+ License Header, with the fields enclosed by brackets [] replaced by
+ your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+
+ Contributor(s):
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+ Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ Microsystems, Inc. All Rights Reserved.
+
+ If you wish your version of this file to be governed by only the CDDL
+ or only the GPL Version 2, indicate your decision by adding
+ "[Contributor] elects to include this software in this distribution
+ under the [CDDL or GPL Version 2] license." If you do not indicate a
+ single choice of license, a recipient has the option to distribute
+ your version of this file under either the CDDL, the GPL Version 2 or
+ to extend the choice of license to its licensees as provided above.
+ However, if you add GPL Version 2 code and therefore, elected the GPL
+ Version 2 license, then the option applies only if the new code is
+ made subject to such option by the copyright holder.
+-->
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	     xsi:schemaLocation="http://research.sun.com/wadl/2006/10
+                 https://wadl.dev.java.net/wadl20061109.xsd"
+             xmlns="http://research.sun.com/wadl/2006/10"
+             xmlns:r="urn:rtm:rtmresponse">
+    <grammars>
+        <include href="rtmResponse.xsd"/>
+    </grammars>
+    <resources base="http://api.rememberthemilk.com/">
+        <resource path="services">
+            <resource path="rest">
+                <param name="api_sig" required="true" style="query" type="xsd:string">
+                    <doc xml:lang="en">The api signature.
+                    </doc>
+                </param>
+                <!--
+                Contacts
+                -->
+                <method id="contacts_add" name="GET">
+                    <doc xml:lang="en">Adds a new contact. Contact should be a username or email address of a Remember The Milk user.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="contact" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The contact to add. Can be a username or an email address of a registered Remember The Milk user.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.contacts.add" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="contacts_delete" name="GET">
+                    <doc xml:lang="en">Deletes a contact.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="contact_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the contact to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.contacts.delete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="contacts_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of contacts.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.contacts.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Groups
+                -->
+                <method id="groups_add" name="GET">
+                    <doc xml:lang="en">Creates a new group.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="group" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The name of the group to create.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.groups.add" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="groups_addContact" name="GET">
+                    <doc xml:lang="en">Adds a contact to a group.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="group_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the group to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="contact_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the contact to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.groups.addContact" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="groups_delete" name="GET">
+                    <doc xml:lang="en">Deletes a group.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="group_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the group to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.groups.delete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="groups_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of groups.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.groups.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="groups_removeContact" name="GET">
+                    <doc xml:lang="en">Removes a contact from a group.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="group_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the group to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="contact_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the contact to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.groups.removeContact" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Lists
+                -->
+                <method id="lists_add" name="GET">
+                    <doc xml:lang="en">Creates a new list. If filter is provided, a Smart List is created with the criteria specified.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="name" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The desired list name. Cannot be Inbox or Sent.
+                            </doc>
+                        </param>
+                        <param name="filter" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">If specified, a Smart List is created with the desired criteria. &lt;a href="http://www.rememberthemilk.com/help/answers/search/advanced.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.add" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_archive" name="GET">
+                    <doc xml:lang="en">Archives a list.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.archive" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_delete" name="GET">
+                    <doc xml:lang="en">Deletes a list.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.delete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of lists.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_setDefaultList" name="GET">
+                    <doc xml:lang="en">Sets the default list.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.setDefaultList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_setName" name="GET">
+                    <doc xml:lang="en">Renames a list.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="name" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The desired list name. Cannot be Inbox or Sent.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.setName" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="lists_unarchive" name="GET">
+                    <doc xml:lang="en">Unarchives a list.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.lists.unarchive" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Locations
+                -->
+                <method id="locations_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of locations.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.locations.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Reflection
+                -->
+                <method id="reflection_getMethodInfo" name="GET">
+                    <doc xml:lang="en">Returns information for a given Remember The Milk API method.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="method_name" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The name of the method to fetch information for.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.reflection.getMethodInfo" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="reflection_getMethods" name="GET">
+                    <doc xml:lang="en">Returns a list of available Remember The Milk API methods.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.reflection.getMethods" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Settings
+                -->
+                <method id="settings_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of user settings.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.settings.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Tasks
+                -->
+                <method id="tasks_add" name="GET">
+                    <doc xml:lang="en">Adds a task, name, to the list specified by list_id.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="name" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The desired task name.
+                            </doc>
+                        </param>
+                        <param name="parse" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Specifies whether to look for a due date in name.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.add" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_addTags" name="GET">
+                    <doc xml:lang="en">Add tags to a task. tags should be a comma delimited list of tags.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="tags" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">A comma delimited list of tags.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.addTags" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_complete" name="GET">
+                    <doc xml:lang="en">Marks a task complete.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.complete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_delete" name="GET">
+                    <doc xml:lang="en">Marks a task as deleted.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.delete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of tasks.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="filter" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">If specified, only tasks matching the desired criteria are returned. &lt;a href="http://www.rememberthemilk.com/help/answers/search/advanced.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="last_sync" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">An ISO 8601 formatted time value. If last_sync is provided, only tasks modified since last_sync will be returned, and each  element will have an attribute, current, equal to last_sync.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_movePriority" name="GET">
+                    <doc xml:lang="en">Moves the priority of a task up or down depending on direction.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="direction" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The direction to move a priority. Either up or down.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.movePriority" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_moveTo" name="GET">
+                    <doc xml:lang="en">Move a task between lists.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="from_list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The originating list id.
+                            </doc>
+                        </param>
+                        <param name="to_list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The target list id.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.moveTo" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_postpone" name="GET">
+                    <doc xml:lang="en">Postpones a task. If the task has no due date or is overdue, its due date is set to today. Otherwise, the task due date is advanced a day.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.postpone" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_removeTags" name="GET">
+                    <doc xml:lang="en">Removes tags from a task. tags should be a comma delimited list of tags.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="tags" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">A comma delimited list of tags.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.removeTags" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setDueDate" name="GET">
+                    <doc xml:lang="en">Sets the due date of a task. If due is not provided, any existing due date will be unset. If has_due_time is provided, the due date will be marked as one with a time. If parse has a value of 1, due is parsed as per rtm.time.parse.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="due" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Due date for a task, in ISO 8601 format. If parse is specified and has a value of 1, due is parsed as per rtm.time.parse. due is parsed in the context of the user's Remember The Milk timezone.
+                            </doc>
+                        </param>
+                        <param name="has_due_time" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Specifies whether the due date has a due time.
+                            </doc>
+                        </param>
+                        <param name="parse" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Specifies whether to parse due as per rtm.time.parse.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setDueDate" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setEstimate" name="GET">
+                    <doc xml:lang="en">Sets a time estimate for a task. estimate should be provided in a values of days, hours or minutes.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="estimate" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The time estimate for a task. Specified in units of days, hours or minutes. If left empty, any existing time estimate will be unset.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setEstimate" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setLocation" name="GET">
+                    <doc xml:lang="en">Sets a location for a task.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="location_id" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of a location.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setLocation" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setName" name="GET">
+                    <doc xml:lang="en">Renames a task.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="name" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The desired task name.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setName" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setPriority" name="GET">
+                    <doc xml:lang="en">Sets the priority of a task. Valid values are 1, 2 and 3. If priority is not specified or is an invalid value, the task is marked as having no priority.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="priority" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The desired priority of a task. Valid values are 1, 2 and 3. If priority is not specified or is an invalid value, the task is marked as having no priority.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setPriority" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setRecurrence" name="GET">
+                    <doc xml:lang="en">Sets a recurrence pattern for a task. Valid values of repeat are detailed &lt;a href="http://www.rememberthemilk.com/help/answers/basics/repeatformat.rtm"&gt;here&lt;/a&gt;.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="repeat" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The recurrence pattern for a task. Valid values of repeat are detailed &lt;a href="http://www.rememberthemilk.com/help/answers/basics/repeatformat.rtm"&gt;here&lt;/a&gt;. An empty value unsets any existing recurrence pattern.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setRecurrence" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setTags" name="GET">
+                    <doc xml:lang="en">Set tags for a task. tags should be a comma delimited list of tags. Any previous task tags will be overwritten.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="tags" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">A comma delimited list of tags. An empty value removes any existing tags.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setTags" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_setURL" name="GET">
+                    <doc xml:lang="en">Sets an URL for a task.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="url" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">The URL associated with a task. Valid protocols are http, https, ftp and file. If left empty, any existing URL will be unset.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.setURL" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_uncomplete" name="GET">
+                    <doc xml:lang="en">Marks a task incomplete.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.uncomplete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Task notes
+                -->
+                <method id="tasks_notes_add" name="GET">
+                    <doc xml:lang="en">Adds a new note to a task.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="list_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the list to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="taskseries_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task series to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="task_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the task to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="note_title" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The title of a note.
+                            </doc>
+                        </param>
+                        <param name="note_text" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The body of a note.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.notes.add" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_notes_delete" name="GET">
+                    <doc xml:lang="en">Deletes a note.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="note_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the note to perform an action on.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.notes.delete" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="tasks_notes_edit" name="GET">
+                    <doc xml:lang="en">Modifies a note.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="note_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of the note to perform an action on.
+                            </doc>
+                        </param>
+                        <param name="note_title" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The title of a note.
+                            </doc>
+                        </param>
+                        <param name="note_text" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The body of a note.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.tasks.notes.edit" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Test
+                -->
+                <method id="test_echo" name="GET">
+                    <doc xml:lang="en">A testing method which echos all parameters back in the response.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.test.echo" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="test_login" name="GET">
+                    <doc xml:lang="en">A testing method which checks if the caller is logged in.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.test.login" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Time
+                -->
+                <method id="time_convert" name="GET">
+                    <doc xml:lang="en">Returns the specified time in the desired timezone.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="to_timezone" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Target timezone. A list of valid timezones can be retrieved with rtm.timezones.getList.
+                            </doc>
+                        </param>
+                        <param name="from_timezone" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Originating timezone. A list of valid timezones can be retrieved with rtm.timezones.getList. Defaults to UTC.
+                            </doc>
+                        </param>
+                        <param name="time" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">Time to convert in ISO 8601 format. Defaults to now.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.time.convert" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <method id="time_parse" name="GET">
+                    <doc xml:lang="en">Returns the time, in UTC, for the parsed input.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="text" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Text to parse.
+                            </doc>
+                        </param>
+                        <param name="timezone" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">If specified, text is parsed in the context of timezone. A list of valid timezones can be retrieved with rtm.timezones.getList. Defaults to UTC.
+                            </doc>
+                        </param>
+                        <param name="dateformat" required="false" style="query" type="xsd:string">
+                            <doc xml:lang="en">A value of 0 indicates an European date format (14/02/2006).A value of 1 indicates an American date format (02/14/2006). This value is used in case a date is ambiguous. Defaults to 1.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.time.parse" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Timelines
+                -->
+                <method id="timelines_create" name="GET">
+                    <doc xml:lang="en">Returns a new timeline.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.timelines.create" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Timezones
+                -->
+                <method id="timezones_getList" name="GET">
+                    <doc xml:lang="en">Retrieves a list of timezones.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.timezones.getList" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+                <!--
+                Transactions
+                -->
+                <method id="transactions_undo" name="GET">
+                    <doc xml:lang="en">Reverts the affects of an action.
+                    </doc>
+                    <request>
+                        <param name="api_key" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">Your API application key. &lt;a href="/services/api/keys.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="auth_token" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The authentication token to check.
+                            </doc>
+                        </param>
+                        <param name="timeline" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The timeline within which to run a method. &lt;a href="/services/api/timelines.rtm"&gt;See here&lt;/a&gt; for more details.
+                            </doc>
+                        </param>
+                        <param name="tansaction_id" required="true" style="query" type="xsd:string">
+                            <doc xml:lang="en">The id of transaction within a timeline.
+                            </doc>
+                        </param>
+                        <param fixed="rtm.transactions.undo" name="method" required="true" style="query" type="xsd:string"/>
+                    </request>
+                    <response>
+                        <representation mediaType="text/xml" element="r:rsp"/>
+                    </response>
+                </method>
+            </resource>
+        </resource>
+    </resources>
+</application>

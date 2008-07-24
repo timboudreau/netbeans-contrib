@@ -41,6 +41,9 @@ package org.netbeans.modules.autoproject.java;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
@@ -118,7 +121,7 @@ public class BuildSnifferTest extends NbTestCase {
     public void testComplexClasspath() throws Exception {
         File lib = new File(getWorkDir(), "lib");
         lib.mkdir();
-        for (String jar : new String[] {"aw", "ax", "ay", "b", "c"}) {
+        for (String jar : new String[] {"b", "ax", "ay", "aw", "c"}) {
             TestFileUtils.writeZipFile(new File(lib, jar + ".jar"), "META-INF/MANIFEST.MF:Manifest-Version: 1.0\n\n");
         }
         write("build.xml",
@@ -145,18 +148,16 @@ public class BuildSnifferTest extends NbTestCase {
                 " </target>\n" +
                 "</project>\n");
         runAnt();
-        StringBuilder cp = new StringBuilder();
+        SortedSet<String> cp = new TreeSet<String>();
         for (String entry : new String[] {
             "direct1.jar", "direct2.jar", "from-p1.jar", "from-p2.jar",
             "pe-loc.jar", "pe-path-1.jar", "pe-path-2.jar",
             "lib/aw.jar", "lib/b.jar", "c",
         }) {
-            if (cp.length() > 0) {
-                cp.append(File.pathSeparatorChar);
-            }
-            cp.append(prefix + entry);
+            cp.add(prefix + entry);
         }
-        assertEquals(cp.toString(), Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
+        assertEquals(cp.toString(),
+                new TreeSet<String>(Arrays.asList(Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH).split(File.pathSeparator))).toString());
     }
 
     public void testAntRuntimeCP() throws Exception {

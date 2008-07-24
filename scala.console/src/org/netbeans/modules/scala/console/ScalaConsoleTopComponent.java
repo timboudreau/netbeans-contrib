@@ -303,20 +303,21 @@ final class ScalaConsoleTopComponent extends TopComponent {
         }
         String cmdName = file.getName();
         List<String> scalaArgs = ScalaExecution.getScalaArgs(scalaHome, cmdName);
-        final ExternalProcessBuilder builder = new ExternalProcessBuilder(scalaArgs.get(0));
+        ExternalProcessBuilder builder = new ExternalProcessBuilder(scalaArgs.get(0));
 
 
         for (int index = 1; index < scalaArgs.size(); index++) {
-            builder.addArgument(scalaArgs.get(index));
+            builder = builder.addArgument(scalaArgs.get(index));
         }
-        builder.addEnvironmentVariable("JAVA_HOME", ScalaExecution.getJavaHome());
-        builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
-        builder.workingDirectory(pwd);
+        builder = builder.addEnvironmentVariable("JAVA_HOME", ScalaExecution.getJavaHome())
+                .addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
+        builder = builder.workingDirectory(pwd);
 
-        ExecutionDescriptor.Builder execBuilder = new ExecutionDescriptor.Builder();
-        execBuilder.frontWindow(true).inputVisible(true);
-        execBuilder.inputOutput(new CustomInputOutput(in, out, err));
-        execBuilder.postExecution(new Runnable() {
+        ExecutionDescriptor execDescriptor = new ExecutionDescriptor()
+                .frontWindow(true).inputVisible(true)
+                    .inputOutput(new CustomInputOutput(in, out, err));
+
+        execDescriptor = execDescriptor.postExecution(new Runnable() {
 
             public void run() {
                 finished = true;
@@ -331,13 +332,8 @@ final class ScalaConsoleTopComponent extends TopComponent {
             }
         });
 
-        ExecutionService executionService = ExecutionService.newService(new Callable<Process>() {
-
-            public Process call() throws Exception {
-                return builder.create();
-            }
-
-        }, execBuilder.create(), "Scala Shell");
+        ExecutionService executionService = ExecutionService.newService(
+                builder, execDescriptor, "Scala Shell");
 
         executionService.run();
 

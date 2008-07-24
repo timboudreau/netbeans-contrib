@@ -98,6 +98,11 @@ public class ScalaInstantRenamer implements InstantRenamer {
         }
         
         if (def != null) {
+            String name = def.getName();
+            if (name.equals("this") || name.equals("super")) {
+                return false;
+            }
+            
             switch (def.getKind()) {
                 case FIELD:
                 case PARAMETER:

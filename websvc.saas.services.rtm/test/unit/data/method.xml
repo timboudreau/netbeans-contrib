@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <method name="rtm.test.login" needslogin="1" needssigning="1" requiredperms="1">
+        <description>A testing method which checks if the caller is logged in.</description>
+        <response>&lt;user id=&quot;987654321&quot;&gt;
+    &lt;username&gt;bob&lt;username&gt;
+    &lt;/user&gt;
+        </response>
+        <arguments>
+            <argument name="api_key" optional="0">Your API application key.
+       &lt;a href="/services/api/api_key.rtm"&gt;See here&lt;/a&gt; for more details.
+            </argument>
+        </arguments>
+        <errors>
+            <error code="96" message="Invalid signature">The passed signature was invalid.</error>
+        </errors>
+    </method>
+</rsp>

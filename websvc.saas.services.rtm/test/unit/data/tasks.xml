@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <tasks>
+        <list id="987654321">
+            <taskseries id="123456789" created="2006-05-07T10:19:54Z" modified="2006-05-07T10:19:54Z"
+               name="Get Bananas" source="api" url="" location_id="">
+                <tags/>
+                <participants/>
+                <notes/>
+                <task id="987654321" due="" has_due_time="0" added="2006-05-07T10:19:54Z"
+           completed="" deleted="" priority="N" postponed="0" estimate=""/>
+            </taskseries>
+        </list>
+    </tasks>
+</rsp>

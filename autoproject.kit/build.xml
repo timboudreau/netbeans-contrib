@@ -11,6 +11,7 @@
                 <exclude name="identity*"/>
                 <include name="java*"/>
                 <include name="gsf*"/>
+                <include name="websvccommon*"/>
                 <include name="nb*"/>
             </dirset>
         </path>
@@ -22,6 +23,7 @@
         <antcall target="-testuserdir-delete"/>
         <antcall target="projectized.debug">
             <param name="tryme.args" value="
+                -J-Dnetbeans.full.hack=true
                 -J-Dnetbeans.exception.report.min.level=999999
                 -J-Dorg.netbeans.modules.autoproject.level=0
                 --clusters ${clusters.toString}

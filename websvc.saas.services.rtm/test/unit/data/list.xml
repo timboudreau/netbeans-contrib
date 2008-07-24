@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <list id="987654321" name="New List"
+      deleted="0" locked="0" archived="0" position="0" smart="0"/>
+</rsp>
