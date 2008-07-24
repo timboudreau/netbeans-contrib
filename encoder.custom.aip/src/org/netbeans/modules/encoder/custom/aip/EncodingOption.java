@@ -170,6 +170,7 @@ public class EncodingOption {
     private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" + NodeProperties.Alignment.BLIND); //NOI18N
     private int mLength = 0;
     private String mEscapeSequence = ""; //NOI18N
+    private boolean mFineInherit = false;
     
     private CustomEncoding mCustomEncoding = null;
     private AppInfo mAppInfo = null;
@@ -328,6 +329,23 @@ public class EncodingOption {
         }
         commitToAppInfo();
         firePropertyChange("escapeSequence", old, mEscapeSequence); //NOI18N
+    }
+
+    public boolean isFineInherit() {
+        return mFineInherit;
+    }
+
+    public void setFineInherit(boolean fineInherit) {
+        Boolean old = Boolean.valueOf(mFineInherit);
+        mFineInherit = fineInherit;
+        if (!mFineInherit) {
+            // if false, remove the "fineInherit" element.
+            mCustomEncoding.getNodeProperties().unsetFineInherit();
+        } else {
+            mCustomEncoding.getNodeProperties().setFineInherit(mFineInherit);
+        }
+        commitToAppInfo();
+        firePropertyChange("fineInherit", old, Boolean.valueOf(mFineInherit)); //NOI18N
     }
 
     public String getNodeType() {
@@ -801,7 +819,11 @@ public class EncodingOption {
         if (customEncoding.getNodeProperties().isSetEscapeSequence()) {
             mEscapeSequence = customEncoding.getNodeProperties().getEscapeSequence();
         }
-        
+        //Populates the FineInherit field
+        if (customEncoding.getNodeProperties().isSetFineInherit()) {
+            mFineInherit = customEncoding.getNodeProperties().getFineInherit();
+        }
+
         // I guess that following lines will cause recursive loop when
         // the AppInfo is removed from the text editing pane.
         //if (mAppInfo == null) {
@@ -889,44 +911,41 @@ public class EncodingOption {
     
     private synchronized void commitToAppInfo() {
         boolean startedTrans = false;
+        SchemaModel model = null;
         if (mAppInfo == null) {
             Annotation anno = annotation();
-            try {
-                if (!anno.getModel().isIntransaction()) {
-                    if (!anno.getModel().startTransaction()) {
-                        //TODO how to handle???
+            model = anno.getModel();
+            if (!model.isIntransaction()) {
+                if (!model.startTransaction()) {
+                    // happens if failed to acquire transaction, for e.g.
+                    // when model has transitioned into invalid state.
+                    //TODO how to handle???
                     }
-                    startedTrans = true;
-                }
-                AppInfo newAppInfo = anno.getModel().getFactory().createAppInfo();
-                mAppInfo = newAppInfo;
-                anno.addAppInfo(newAppInfo);
-                newAppInfo.setURI(EncodingConst.URI);
-                newAppInfo.setContentFragment(
-                        contentFragFromXmlObject(mCustomEncoding));
-            } catch (IOException ex) {
-                //TODO how to handle???
-            } finally {
-                if (startedTrans) {
-                    anno.getModel().endTransaction();
-                }
+                startedTrans = true;
             }
+            // create a new AppInfo object
+            mAppInfo = anno.getModel().getFactory().createAppInfo();
+            anno.addAppInfo(mAppInfo);
+            mAppInfo.setURI(EncodingConst.URI);
         } else {
-            try {
-                if (!mAppInfo.getModel().isIntransaction()) {
-                    if (!mAppInfo.getModel().startTransaction()) {
-                        //TODO how to handle???
+            model = mAppInfo.getModel();
+            if (!model.isIntransaction()) {
+                if (!model.startTransaction()) {
+                    // happens if failed to acquire transaction, for e.g.
+                    // when model has transitioned into invalid state.
+                    //TODO how to handle???
                     }
-                    startedTrans = true;
-                }
-                mAppInfo.setContentFragment(
-                        contentFragFromXmlObject(mCustomEncoding));
-            } catch (IOException ex) {
-                //TODO how to handle???
+                startedTrans = true;
+            }
+        }
+        try {
+            String contentFrag = contentFragFromXmlObject(mCustomEncoding);
+            mAppInfo.setContentFragment(contentFrag);
+        } catch (IOException ex) {
+            //TODO how to handle???
             } finally {
-                if (startedTrans) {
-                    mAppInfo.getModel().endTransaction();
-                }
+            if (startedTrans) {
+                model.endTransaction();
             }
         }
     }
@@ -941,8 +960,7 @@ public class EncodingOption {
     }
     
     private String xmlFragFromAppInfo(AppInfo appInfo) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<xml-fragment"); //NOI18N
+        StringBuffer sb = new StringBuffer("<xml-fragment"); //NOI18N
         sb.append(" ").append("source=\"").append(EncodingConst.URI).append("\""); //NOI18N
         if (appInfo.getPeer() != null) {
             String prefix = appInfo.getPeer().lookupPrefix(EncodingConst.URI);
@@ -969,21 +987,21 @@ public class EncodingOption {
     }
     
     private String contentFragFromXmlObject(XmlObject xmlObject) {
-        XmlCursor c = null;
+        XmlCursor cursor = null;
         try {
-            c = xmlObject.newCursor();
-            StringBuffer sb = new StringBuffer();
-            if (!c.toFirstChild()) {
+            cursor = xmlObject.newCursor();
+            StringBuffer buff = new StringBuffer();
+            if (!cursor.toFirstChild()) {
                 return ""; //NOI18N
             }
-            sb.append(c.xmlText());
-            while (c.toNextSibling()) {
-                sb.append(c.xmlText());
+            buff.append(cursor.xmlText());
+            while (cursor.toNextSibling()) {
+                buff.append(cursor.xmlText());
             }
-            return sb.toString();
+            return buff.toString();
         } finally {
-            if (c != null) {
-                c.dispose();
+            if (cursor != null) {
+                cursor.dispose();
             }
         }
     }
