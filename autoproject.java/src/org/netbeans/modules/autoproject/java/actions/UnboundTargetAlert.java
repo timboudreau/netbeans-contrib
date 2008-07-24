@@ -43,21 +43,27 @@ package org.netbeans.modules.autoproject.java.actions;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
 import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -66,14 +72,12 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
-// XXX permit the build script to be overridden...
-
 /**
  * Alert in case a common global action is invoked by the user but there is no binding.
  * The user is prompted to pick one.
  * @author Jesse Glick
  */
-public final class UnboundTargetAlert extends JPanel {
+public final class UnboundTargetAlert extends JPanel implements  ActionListener {
 
     private final Project project;
     private final String command;
@@ -96,7 +100,7 @@ public final class UnboundTargetAlert extends JPanel {
      * Populate the combo box with (eligible) build targets.
      */
     private void listTargets() {
-        FileObject script = project.getProjectDirectory().getFileObject("build.xml");
+        FileObject script = project.getProjectDirectory().getFileObject(scriptField.getText());
         if (script != null) {
             List<String> targets = null;
             try {
@@ -105,8 +109,8 @@ public final class UnboundTargetAlert extends JPanel {
                 Exceptions.printStackTrace(ex);
             }
             if (targets != null) {
-                selectCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
-                selectCombo.setSelectedItem(guessTarget(command, targets));
+                targetCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
+                targetCombo.setSelectedItem(guessTarget(command, targets));
             }
         }
     }
@@ -147,14 +151,14 @@ public final class UnboundTargetAlert extends JPanel {
         final DialogDescriptor d = new DialogDescriptor(this, title);
         d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
         d.setMessageType(NotifyDescriptor.ERROR_MESSAGE);
-        d.setValid(!"".equals(selectCombo.getSelectedItem()));
-        selectCombo.addItemListener(new ItemListener() {
+        d.setValid(!"".equals(targetCombo.getSelectedItem()));
+        targetCombo.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                d.setValid(((String) selectCombo.getSelectedItem()).trim().length() > 0);
+                d.setValid(((String) targetCombo.getSelectedItem()).trim().length() > 0);
             }
         });
         Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
-        selectCombo.requestFocusInWindow();
+        targetCombo.requestFocusInWindow();
         // XXX combo box gets cut off at the bottom unless you do something - why??
         Dimension sz = dlg.getSize();
         dlg.setSize(sz.width, sz.height + 30);
@@ -171,65 +175,136 @@ public final class UnboundTargetAlert extends JPanel {
     public void accepted() {
         String projectDisplayName = ProjectUtils.getInformation(project).getDisplayName();
         if (displayAlert(projectDisplayName)) {
-            Cache.put(FileUtil.toFile(project.getProjectDirectory()) + Cache.ACTION + command, "ant:build.xml:" + ((String) selectCombo.getSelectedItem()).trim());
+            Cache.put(FileUtil.toFile(project.getProjectDirectory()) + Cache.ACTION + command,
+                    "ant:" + scriptField.getText() + ":" + ((String) targetCombo.getSelectedItem()).trim());
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         introLabel = new javax.swing.JLabel();
         explanation = new javax.swing.JTextArea();
-        selectLabel = new javax.swing.JLabel();
-        selectCombo = new javax.swing.JComboBox();
-
-        setLayout(new java.awt.GridBagLayout());
+        scriptLabel = new javax.swing.JLabel();
+        scriptField = new javax.swing.JTextField();
+        scriptButton = new javax.swing.JButton();
+        targetLabel = new javax.swing.JLabel();
+        targetCombo = new javax.swing.JComboBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(introLabel, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UTA_LBL_intro", label)); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 12, 0);
-        add(introLabel, gridBagConstraints);
 
         explanation.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
         explanation.setEditable(false);
         explanation.setLineWrap(true);
         explanation.setText(org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UTA_TEXT_explanation", label)); // NOI18N
         explanation.setWrapStyleWord(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 12, 0);
-        add(explanation, gridBagConstraints);
-        explanation.getAccessibleContext().setAccessibleName("null");
-        explanation.getAccessibleContext().setAccessibleDescription("null");
 
-        selectLabel.setLabelFor(selectCombo);
-        org.openide.awt.Mnemonics.setLocalizedText(selectLabel, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UTA_LBL_select", label)); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
-        add(selectLabel, gridBagConstraints);
+        scriptLabel.setLabelFor(scriptField);
+        org.openide.awt.Mnemonics.setLocalizedText(scriptLabel, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UnboundTargetAlert.scriptLabel.text")); // NOI18N
 
-        selectCombo.setEditable(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        add(selectCombo, gridBagConstraints);
+        scriptField.setText("build.xml"); // NOI18N
+        scriptField.addActionListener(this);
+
+        org.openide.awt.Mnemonics.setLocalizedText(scriptButton, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UnboundTargetAlert.scriptButton.text")); // NOI18N
+        scriptButton.addActionListener(this);
+
+        targetLabel.setLabelFor(targetCombo);
+        org.openide.awt.Mnemonics.setLocalizedText(targetLabel, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UTA_LBL_select")); // NOI18N
+
+        targetCombo.setEditable(true);
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(scriptLabel)
+                    .add(targetLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(targetCombo, 0, 290, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(scriptField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(scriptButton)))
+                .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .add(12, 12, 12)
+                .add(introLabel)
+                .addContainerGap(112, Short.MAX_VALUE))
+            .add(layout.createSequentialGroup()
+                .add(12, 12, 12)
+                .add(explanation, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(introLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(explanation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(scriptLabel)
+                    .add(scriptButton)
+                    .add(scriptField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(targetCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(targetLabel))
+                .addContainerGap())
+        );
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        if (evt.getSource() == scriptButton) {
+            UnboundTargetAlert.this.scriptButtonActionPerformed(evt);
+        }
+        else if (evt.getSource() == scriptField) {
+            UnboundTargetAlert.this.scriptFieldActionPerformed(evt);
+        }
     }// </editor-fold>//GEN-END:initComponents
+
+    private void scriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scriptButtonActionPerformed
+        File base = FileUtil.toFile(project.getProjectDirectory());
+        JFileChooser chooser = new JFileChooser(base);
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileFilter(new FileFilter() {
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                FileObject fo = FileUtil.toFileObject(f);
+                return fo != null && fo.getMIMEType().equals("text/x-ant+xml");
+            }
+            public String getDescription() {
+                return NbBundle.getMessage(UnboundTargetAlert.class, "UnboundTargetAlert.ant_scripts");
+            }
+        });
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            scriptField.setText(PropertyUtils.relativizeFile(base, chooser.getSelectedFile()));
+            listTargets();
+        }
+    }//GEN-LAST:event_scriptButtonActionPerformed
+
+    private void scriptFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scriptFieldActionPerformed
+        listTargets();
+    }//GEN-LAST:event_scriptFieldActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea explanation;
     private javax.swing.JLabel introLabel;
-    private javax.swing.JComboBox selectCombo;
-    private javax.swing.JLabel selectLabel;
+    private javax.swing.JButton scriptButton;
+    private javax.swing.JTextField scriptField;
+    private javax.swing.JLabel scriptLabel;
+    private javax.swing.JComboBox targetCombo;
+    private javax.swing.JLabel targetLabel;
     // End of variables declaration//GEN-END:variables
 
 }
