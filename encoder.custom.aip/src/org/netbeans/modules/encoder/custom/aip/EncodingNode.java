@@ -275,13 +275,13 @@ public class EncodingNode extends AbstractNode
             }
                 
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()) {
-                //The Escape Sequence Property
-                PropertySupport.Reflection<String> escapeSequenceProp =
-                        new PropertySupport.Reflection<String>(mEncodingOption,
-                                String.class, "escapeSequence");  //NOI18N
-                escapeSequenceProp.setName("escapeSequence");  //NOI18N
-                escapeSequenceProp.setDisplayName(_bundle.getString("encoding_node.lbl.escape_sequence"));
-                propSet.put(escapeSequenceProp);
+                //The Fine Inherit Property
+                PropertySupport.Reflection<Boolean> fineInheritProp =
+                        new PropertySupport.Reflection<Boolean>(mEncodingOption,
+                                boolean.class, "fineInherit");  //NOI18N
+                fineInheritProp.setName("fineInherit");  //NOI18N
+                fineInheritProp.setDisplayName(_bundle.getString("encoding_node.lbl.fine_inherit"));
+                propSet.put(fineInheritProp);
             }
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(_bundle.getString("encoding_node.exp.no_such_mthd"), e);
