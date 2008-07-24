@@ -117,7 +117,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         final TokenHierarchy th = TokenHierarchy.get(document);
-        
+
         // we'll find item by offset of item's idToken, so, use caretPosition directly
         AstItem item = rootScope.findItemAt(th, caretPosition);
 
@@ -125,7 +125,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         if (astOffset == -1) {
             return;
         }
-        
+
 //        AstPath path = new AstPath(root, astOffset);
 //        Node closest = path.leaf();        
 
@@ -157,7 +157,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
                 OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, item.getIdToken());
                 OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                 int lexStartPos = lexRange.getStart();
-                int lexEndPos   = lexRange.getEnd();
+                int lexEndPos = lexRange.getEnd();
 
                 // If the buffer was just modified where a lot of text was deleted,
                 // the parse tree positions could be pointing outside the valid range
@@ -173,12 +173,12 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
                 // lines. This should trigger if you put the caret on the method definition
                 // line, unless it's in a comment there.
                 org.netbeans.api.lexer.Token<? extends ScalaTokenId> token = ScalaLexUtilities.getToken(doc, caretPosition);
-                //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
-                //boolean isMethodName = closest.getKind() == ElementKind.METHOD;
+            //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
+            //boolean isMethodName = closest.getKind() == ElementKind.METHOD;
             //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
 
 //                    if (isMethodName) {
-                // Highlight exit points
+            // Highlight exit points
 //                        Node func = closest;
 //                        if (isFunctionKeyword) {
 //                            // Look inside the method - the offsets for function doesn't include the "function" keyword yet
@@ -201,7 +201,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 //                            }
 //                        }
 //                        highlightExits(func, highlights, info);
-                // Fall through and set closest to null such that I don't do other highlighting
+            // Fall through and set closest to null such that I don't do other highlighting
 //                        closest = null;
 //                    } else if (closest.getType() == Token.CALL && 
 //                            lexStartPos != -1 && lexEndPos != -1 && 
@@ -220,6 +220,11 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         if (item != null) {
             List<? extends AstItem> _occurrences = rootScope.findOccurrences(item);
             for (AstItem _item : _occurrences) {
+                String name = _item.getName();
+                if (name.equals("this") || name.equals("super")) {
+                    continue;
+                }
+
                 highlights.put(ScalaLexUtilities.getRangeOfToken(th, _item.getIdToken()), ColoringAttributes.MARK_OCCURRENCES);
             }
             item = null;

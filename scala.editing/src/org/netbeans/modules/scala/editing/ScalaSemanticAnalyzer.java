@@ -136,26 +136,28 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                 continue;
             }
 
+            String name = ref.getName();
+            if (name.equals("this") || name.equals("super")) {
+                continue;
+            }
+
             OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
             switch (ref.getKind()) {
                 case CLASS:
                     highlights.put(hiRange, ColoringAttributes.FIELD_SET);
-                    break;
+                    break; // break out from switch
                 default:
             }
-
-
-//            if (mirror instanceof IdCall) {
-//                AstElement element = scope.findElementOf(mirror);
-//                if (element != null && element.getKind() == ElementKind.FIELD) {                    
-//                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
-//                }
-//            }
         }
 
         for (AstDef def : scope.getDefs()) {
             Token idToken = def.getIdToken();
             if (idToken == null) {
+                continue;
+            }
+
+            String name = def.getName();
+            if (name.equals("this") || name.equals("super")) {
                 continue;
             }
 
