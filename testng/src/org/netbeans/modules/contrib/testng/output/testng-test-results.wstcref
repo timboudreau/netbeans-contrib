@@ -4,7 +4,7 @@
           "-//NetBeans//DTD Top Component in Mode Properties 2.0//EN"
           "http://www.netbeans.org/dtds/tc-ref2_0.dtd">
 <tc-ref version="2.0">
-    <module name="org.netbeans.modules.contrib.testng"/>
+    <module name="org.netbeans.modules.testng"/>
     <tc-id id="testng-test-results"/>
     <state opened="false"/>
 </tc-ref>
