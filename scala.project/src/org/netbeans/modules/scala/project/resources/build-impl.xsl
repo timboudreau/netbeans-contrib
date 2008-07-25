@@ -615,6 +615,7 @@ Scala installation directory.
                             </batchtest>
                             <classpath>
                                 <path path="${{run.test.classpath}}"/>
+                                <pathelement location="${{scala.library}}"/>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="test-sys-prop."/>
@@ -1235,7 +1236,7 @@ Scala installation directory.
             <target name="-do-compile-test">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile,-pre-pre-compile-test,-pre-compile-test,-compile-test-depend</xsl:attribute>
-                <xsl:element name="scalaProject1:javac">
+                <xsl:element name="scalaProject1:scalac">
                     <xsl:attribute name="srcdir">
                         <xsl:call-template name="createPath">
                             <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:test-roots"/>
@@ -1323,7 +1324,7 @@ Scala installation directory.
             <target name="-do-test-run">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test,-pre-test-run</xsl:attribute>
-                <scalaProject1:junit testincludes="**/*Test.java"/>
+                <scalaProject1:junit testincludes="**/*Test.java, **/*Test.scala"/>
             </target>
             
             <target name="-post-test-run">
