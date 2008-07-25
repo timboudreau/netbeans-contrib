@@ -274,6 +274,8 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             }
         });
         
+        if(files == null)
+            return loader;
         for(int i=0;i<files.length;i++)
 
         {
