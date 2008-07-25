@@ -71,6 +71,8 @@ public class ScalaGlobal {
 
     private static Map<Project, Reference<Global>> ProjectToGlobal =
             new WeakHashMap<Project, Reference<Global>>();
+    private static Map<Project, Reference<Global>> TestProjectToGlobal =
+            new WeakHashMap<Project, Reference<Global>>();
 
     public static void reset() {
         ProjectToGlobal.clear();
@@ -79,37 +81,31 @@ public class ScalaGlobal {
     /** Scala's global is not thread safed */
     public static synchronized Global getGlobal(FileObject fo) {
         Global global = null;
+        boolean forTest = false;
 
         Project project = FileOwnerQuery.getOwner(fo);
-        FileObject prjDir = null;
-        if (project != null) {
-            prjDir = project.getProjectDirectory();
-            if (prjDir != null) {
-                Reference<Global> globalRef = ProjectToGlobal.get(project);
-                if (globalRef != null) {
-                    global = globalRef.get();
-                    if (global != null) {
-                        return global;
-                    } else {
-                        ProjectToGlobal.remove(global);
-                    }
-                }
-            }
-        }
 
         final Settings settings = new Settings();
         settings.verbose().value_$eq(false);
         if (project != null) {
             // add project's src and out path
+            FileObject prjDir = project.getProjectDirectory();
 
             FileObject srcDir = null;
             FileObject outDir = null;
+            FileObject tstDir = null;
             if (prjDir != null) {
                 try {
                     srcDir = prjDir.getFileObject("src");
                     if (srcDir == null) {
                         srcDir = prjDir.createFolder("src");
                     }
+
+                    tstDir = prjDir.getFileObject("test");
+                    if (tstDir == null) {
+                        tstDir = prjDir.createFolder("test");
+                    }
+
                     FileObject buildFo = prjDir.getFileObject("build");
                     if (buildFo == null) {
                         buildFo = prjDir.createFolder("build");
@@ -123,32 +119,61 @@ public class ScalaGlobal {
                     Exceptions.printStackTrace(ex);
                 }
 
-                String srcPath = srcDir == null ? "" : FileUtil.toFile(srcDir).getAbsolutePath();
+                if (tstDir.equals(fo) || FileUtil.isParentOf(tstDir, fo)) {
+                    forTest = true;
+                }
+
+                Reference<Global> globalRef;
+                if (forTest) {
+                    globalRef = TestProjectToGlobal.get(project);
+                } else {
+                    globalRef = ProjectToGlobal.get(project);
+                }
+
+                if (globalRef != null) {
+                    global = globalRef.get();
+                    if (global != null) {
+                        return global;
+                    } else {
+                        if (forTest) {
+                            TestProjectToGlobal.remove(project);
+                        } else {
+                            ProjectToGlobal.remove(project);
+                        }
+                    }
+                }
+
+
                 if (outDir != null) {
+                    String srcPath = srcDir == null ? "" : FileUtil.toFile(srcDir).getAbsolutePath();
+                    String tstPath = tstDir == null ? "" : FileUtil.toFile(tstDir).getAbsolutePath();
+                    String sourcePath = forTest ? srcPath + File.pathSeparator + tstPath : srcPath;
+
                     String outPath = FileUtil.toFile(outDir).getAbsolutePath();
-                    settings.sourcepath().tryToSet(Nil.$colon$colon(srcPath).$colon$colon("-sourcepath"));
+                    settings.sourcepath().tryToSet(Nil.$colon$colon(sourcePath).$colon$colon("-sourcepath"));
                     settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
                 }
             }
 
-            // add boot, compiler classpath
-            ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
-            if (cpp != null) {
-                ClassPath bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
-                ClassPath compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
-                if (bootCp == null || compCp == null) {
-                    bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT);
-                    compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
-                }
-                StringBuilder sb = new StringBuilder();
-                computeClassPath(sb, bootCp);
-                settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
-                sb.delete(0, sb.length());
-                computeClassPath(sb, compCp);
-                settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
-            }
-
             if (global == null) {
+                // add boot, compiler classpath
+                ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
+                if (cpp != null) {
+                    ClassPath bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
+                    ClassPath compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
+                    if (bootCp == null || compCp == null) {
+                        bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT);
+                        compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    computeClassPath(sb, bootCp);
+                    settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
+
+                    sb.delete(0, sb.length());
+                    computeClassPath(sb, compCp);
+                    settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
+                }
 
                 global = new Global(settings) {
 
@@ -160,10 +185,14 @@ public class ScalaGlobal {
                     @Override
                     public void logError(String msg, Throwable t) {
                         //Exceptions.printStackTrace(t);
-                    }
+                        }
                 };
 
-                ProjectToGlobal.put(project, new WeakReference<Global>(global));
+                if (forTest) {
+                    TestProjectToGlobal.put(project, new WeakReference<Global>(global));
+                } else {
+                    ProjectToGlobal.put(project, new WeakReference<Global>(global));
+                }
             }
         }
 
