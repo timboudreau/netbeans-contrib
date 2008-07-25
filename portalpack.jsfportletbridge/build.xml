@@ -10,7 +10,7 @@
         <mkdir dir="${cluster}/modules/ext/portalpack/jsfportletbridge"/>
         
         <copy file="external/jsf-portlet-1.2.jar"
-            tofile="${cluster}/modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.2.2.jar"/>
+            tofile="${cluster}/modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.2.3.jar"/>
         <copy file="external/jsf-portlet-1.1.5.jar"
             tofile="${cluster}/modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.1.5.jar"/>
     </target>
