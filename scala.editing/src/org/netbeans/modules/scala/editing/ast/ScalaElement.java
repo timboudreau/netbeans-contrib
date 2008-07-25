@@ -114,7 +114,12 @@ public class ScalaElement implements ScalaElementHandle {
         if (fo == null) {
             AbstractFile srcFile = symbol.sourceFile();
             if (srcFile != null) {
-                File file = new File(srcFile.path());
+                String srcPath = srcFile.path();
+                // Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
+                if (!srcPath.startsWith(File.separator)) {
+                    srcPath = File.separator + srcPath;
+                }
+                File file = new File(srcPath);
                 if (file != null && file.exists()) {
                     // it's a real file and not archive file
                     fo = FileUtil.toFileObject(file);
