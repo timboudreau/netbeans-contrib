@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+<project name="testng-impl" default="default" basedir=".." xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
+    <target name="default">
+        <echo message="Default target is not set."/>
+    </target>
+
+    <!-- Call testng ant task -->
+    <target name="-init-macrodef-testng-ant">
+        <macrodef name="testng-ant">
+            <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
+            <sequential>
+                <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
+                <testng workingDir="${work.dir}" failureProperty="tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                    <classpath>
+                        <pathelement path="${run.test.classpath}"/>
+                        <pathelement path="${build.test.classes.dir}"/>
+                    </classpath>
+                    <xmlfileset dir="${basedir}">
+                        <include name="@{testSuite}"/>
+                    </xmlfileset>
+                    <jvmarg line="${run.jvmargs}"/>
+                </testng>
+            </sequential>
+        </macrodef>
+    </target>
+
+    <!-- Call testng from java -->
+    <target name="-init-macrodef-testng-java">
+        <macrodef name="testng-java">
+            <sequential>
+                <pathconvert property="testng.classnames" pathsep=" ">
+                    <path>
+                        <fileset dir="${build.test.classes.dir}" includes="**/*.class"/>
+                    </path>
+                    <map from="${basedir}${file.separator}" to="-testclass "/>
+                </pathconvert>
+                <java classname="org.testng.TestNG" dir="${work.dir}">
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                    </classpath>
+                    <arg line="-d ${build.test.results.dir}"/>
+                    <arg line="-sourcedir ${test.src.dir}"/>
+                    <arg line="-log 2"/>
+                    <arg line="${testng.classnames}"/>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${run.jvmargs}"/>
+                </java>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-init-macrodef-testng-junit-converter">
+        <macrodef name="junit-converter">
+            <sequential>
+                <java classname="org.testng.JUnitConverter" dir="${work.dir}">
+                    <classpath>
+                        <path path="${run.test.classpath}:${java.home}/../lib/tools.jar"/>
+                    </classpath>
+                    <arg line="-overwrite"/>
+                    <arg line="-annotation"/>
+                    <arg line="-srcdir ${test.src.dir}"/>
+                </java>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-init-macrodef-testng" depends="-init-macrodef-testng-ant, -init-macrodef-testng-java"/>
+    <target name="-run-testng-default" unless="testng.config">
+        <testng-ant/>
+    </target>
+    <target name="-run-testng-custom" if="testng.config">
+        <testng-ant testSuite="${testng.config}"/>
+    </target>
+    <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom">
+    </target>
+    <target name="convert" depends="init, -init-macrodef-testng-junit-converter">
+        <junit-converter/>
+    </target>
+</project>
