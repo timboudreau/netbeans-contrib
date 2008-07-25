@@ -27,7 +27,7 @@
     </xsd:element>
     <xsd:complexType name="contactType">
         <xsd:sequence/>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="fullname" type="xsd:string"/>
         <xsd:attribute name="username" type="xsd:string"/>
     </xsd:complexType>
@@ -40,7 +40,7 @@
         <xsd:sequence>
             <xsd:element name="contacts" type="contactsType"></xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="groupsType">
@@ -57,13 +57,14 @@
             </xsd:element>
             <xsd:element name="taskseries" type="taskseriesType" minOccurs="0"></xsd:element>
         </xsd:choice>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
-        <xsd:attribute name="deleted" type="xsd:integer"/>
-        <xsd:attribute name="locked" type="xsd:integer"/>
-        <xsd:attribute name="archived" type="xsd:integer"/>
-        <xsd:attribute name="position" type="xsd:integer"/>
-        <xsd:attribute name="smart" type="xsd:integer"/>
+        <xsd:attribute name="deleted" type="xsd:int"/>
+        <xsd:attribute name="locked" type="xsd:int"/>
+        <xsd:attribute name="archived" type="xsd:int"/>
+        <xsd:attribute name="position" type="xsd:int"/>
+        <xsd:attribute name="smart" type="xsd:int"/>
+        <xsd:attribute name="sort_order" type="xsd:int"/>
     </xsd:complexType>
     <xsd:complexType name="listsType">
         <xsd:sequence>
@@ -72,10 +73,10 @@
     </xsd:complexType>
     <xsd:complexType name="locationType">
         <xsd:sequence/>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
-        <xsd:attribute name="longitude" type="xsd:float"/>
-        <xsd:attribute name="latitude" type="xsd:float"/>
+        <xsd:attribute name="longitude" type="xsd:double"/>
+        <xsd:attribute name="latitude" type="xsd:double"/>
         <xsd:attribute name="zoom" type="xsd:positiveInteger"/>
         <xsd:attribute name="address" type="xsd:string"/>
         <xsd:attribute name="viewable" type="xsd:positiveInteger"/>
@@ -103,7 +104,7 @@
     </xsd:complexType>
     <xsd:complexType name="taskType">
         <xsd:sequence/>
-        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="due" type="xsd:string"/>
         <xsd:attribute name="has_due_time" type="xsd:string"/>
         <xsd:attribute name="added" type="xsd:dateTime"/>
@@ -121,7 +122,7 @@
             <xsd:element name="notes" type="notesType"></xsd:element>
             <xsd:element name="task" type="taskType"></xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="created" type="xsd:dateTime"/>
         <xsd:attribute name="modified" type="xsd:dateTime"/>
         <xsd:attribute name="name" type="xsd:string"/>
@@ -132,7 +133,7 @@
     <xsd:complexType name="rruleType">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
-                <xsd:attribute name="every" type="xsd:integer"/>
+                <xsd:attribute name="every" type="xsd:int"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
@@ -174,9 +175,9 @@
             </xsd:element>
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string"/>
-        <xsd:attribute name="needslogin" type="xsd:integer"/>
-        <xsd:attribute name="needssigning" type="xsd:integer"/>
-        <xsd:attribute name="requiredperms" type="xsd:integer"/>
+        <xsd:attribute name="needslogin" type="xsd:int"/>
+        <xsd:attribute name="needssigning" type="xsd:int"/>
+        <xsd:attribute name="requiredperms" type="xsd:int"/>
     </xsd:complexType>
     <xsd:complexType name="argumentType" mixed="true">
         <xsd:sequence/>
@@ -185,12 +186,12 @@
     </xsd:complexType>
     <xsd:complexType name="errorType" mixed="true">
         <xsd:sequence/>
-        <xsd:attribute name="code" type="xsd:integer"/>
+        <xsd:attribute name="code" type="xsd:int"/>
         <xsd:attribute name="message" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="noteType" mixed="true">
         <xsd:sequence/>
-        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="created" type="xsd:dateTime"/>
         <xsd:attribute name="modified" type="xsd:dateTime"/>
         <xsd:attribute name="title" type="xsd:string"/>
@@ -200,18 +201,18 @@
             <xsd:element name="timezone" maxOccurs="unbounded">
                 <xsd:complexType>
                     <xsd:sequence/>
-                    <xsd:attribute name="id" type="xsd:integer"/>
+                    <xsd:attribute name="id" type="xsd:int" use="required"/>
                     <xsd:attribute name="name" type="xsd:string"/>
-                    <xsd:attribute name="dst" type="xsd:integer"/>
-                    <xsd:attribute name="offset" type="xsd:integer"/>
-                    <xsd:attribute name="current_offset" type="xsd:integer"/>
+                    <xsd:attribute name="dst" type="xsd:int"/>
+                    <xsd:attribute name="offset" type="xsd:int"/>
+                    <xsd:attribute name="current_offset" type="xsd:int"/>
                 </xsd:complexType>
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="timelineType">
         <xsd:simpleContent>
-            <xsd:extension base="xsd:integer"/>
+            <xsd:extension base="xsd:int"/>
         </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="timeType">
@@ -230,6 +231,6 @@
                 </xsd:simpleType>
             </xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:integer"/>
+        <xsd:attribute name="id" type="xsd:int" use="required"/>
     </xsd:complexType>
 </xsd:schema>
