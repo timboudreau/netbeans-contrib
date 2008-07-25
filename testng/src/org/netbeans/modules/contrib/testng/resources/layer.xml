@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="TestNG">
+            <file name="org-netbeans-modules-contrib-testng-actions-ConvertAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-CreateTestAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-RunTestClassAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.instance"/>
+        </folder>
+        <folder name="Window">
+            <file name="org-netbeans-modules-contrib-testng-output-ResultWindowOpenAction.instance">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/contrib/testng/resources/testResults.png"/> 
+            </file>
+        </folder> <!-- Window -->
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <folder name="TestNG">
+                        <attr name="position" intvalue="1630"/>
+                        <file name="org-netbeans-modules-contrib-testng-actions-CreateTestAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-CreateTestAction.instance"/>
+                            <attr name="position" intvalue="100"/>
+                        </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.instance"/>
+                            <attr name="position" intvalue="200"/>
+                        </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-RunTestClassAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RunTestClassAction.instance"/>
+                            <attr name="position" intvalue="300"/>
+                        </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.instance"/>
+                            <attr name="position" intvalue="400"/>
+                        </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-ConvertAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-ConvertAction.instance"/>
+                            <attr name="position" intvalue="500"/>
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-contrib-testng-actions-CreateTestAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-CreateTestAction.instance"/>
+                        <attr name="position" intvalue="2192"/>
+                    </file>
+                    <file name="org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.instance"/>
+                        <attr name="position" intvalue="2195"/>
+                    </file>
+                    <file name="org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.instance"/>
+                        <attr name="position" intvalue="2194"/>
+                    </file>
+                    <file name="org-netbeans-modules-contrib-testng-actions-RunTestClassAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RunTestClassAction.instance"/>
+                        <attr name="position" intvalue="2193"/>
+                    </file>
+                    <file name="org-netbeans-modules-contrib-testng-actions-ConvertAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-ConvertAction.instance"/>
+                        <attr name="position" intvalue="2196"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="JUnit">
+            <file name="TestNGTest.java" url="testng.template">
+                <attr name="position" intvalue="1000"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/contrib/testng/resources/testng.gif"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.contrib.testng.Bundle"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.contrib.testng.NewTestWizardIterator.create"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/contrib/testng/resources/newTest.html"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="TestNG-5.7.xml" url="TestNG-5.7.xml"/>
+        </folder>
+    </folder>
+    <folder name="org-netbeans-modules-contrib-testng">
+        <file name="testng-build.xml" url="testng-build.xml"/>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <folder name="Output">
+                <file name="org-netbeans-modules-contrib-testng-output-ResultWindowOpenAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-contrib-testng-output-ResultWindowOpenAction.instance"/>
+                    <attr name="position" intvalue="410"/>
+                </file> <!-- ResultWindowOpenAction -->
+            </folder>
+        </folder> <!-- Window -->
+    </folder>
+    <folder name="Windows2">
+        <folder name="Modes">
+            <folder name="output">        <!-- "output" is defined in core/ui -->
+                <file name="testng-test-results.wstcref" url="../output/testng-test-results.wstcref">
+                    <attr name="position" intvalue="201"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="Components">
+            <file name="testng-test-results.settings" url="../output/testng-test-results.settings"/>
+        </folder>
+    </folder>
+</filesystem>
