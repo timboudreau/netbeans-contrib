@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.scala.project
 OpenIDE-Module-Layer: org/netbeans/modules/scala/project/ui/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/project/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.2.11
+OpenIDE-Module-Specification-Version: 1.2.12
 

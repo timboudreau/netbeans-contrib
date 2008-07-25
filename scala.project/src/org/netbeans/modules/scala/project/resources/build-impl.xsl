@@ -606,12 +606,9 @@ Scala installation directory.
                                 <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
                             </xsl:if>
                             <batchtest todir="${{build.test.results.dir}}">
-                                <xsl:call-template name="createFilesets">
-                                    <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:test-roots"/>
-                                    <xsl:with-param name="includes">@{includes}</xsl:with-param>
-                                    <xsl:with-param name="includes2">@{testincludes}</xsl:with-param>
-                                    <xsl:with-param name="excludes">@{excludes}</xsl:with-param>
-                                </xsl:call-template>
+                                <fileset dir="${{build.test.classes.dir}}" excludes="@{{excludes}},${{excludes}}" includes="@{{includes}}">
+                                    <filename name="@{{testincludes}}"/>
+                                </fileset>
                             </batchtest>
                             <classpath>
                                 <path path="${{run.test.classpath}}"/>
@@ -934,7 +931,7 @@ Scala installation directory.
                 <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if></xsl:attribute>
                 <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
                 <scalaProject1:force-recompile/>
-                <xsl:element name="scalaProject1:javac">
+                <xsl:element name="scalaProject1:scalac">
                     <xsl:attribute name="includes">${javac.includes}</xsl:attribute>
                     <xsl:attribute name="excludes"/>
                     <xsl:attribute name="sourcepath"> <!-- #115918 -->
@@ -1275,7 +1272,7 @@ Scala installation directory.
                 <xsl:element name="scalaProject1:force-recompile">
                     <xsl:attribute name="destdir">${build.test.classes.dir}</xsl:attribute>
                 </xsl:element>
-                <xsl:element name="scalaProject1:javac">
+                <xsl:element name="scalaProject1:scalac">
                     <xsl:attribute name="srcdir">
                         <xsl:call-template name="createPath">
                             <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:test-roots"/>
@@ -1324,7 +1321,7 @@ Scala installation directory.
             <target name="-do-test-run">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test,-pre-test-run</xsl:attribute>
-                <scalaProject1:junit testincludes="**/*Test.java, **/*Test.scala"/>
+                <scalaProject1:junit testincludes="**/*Test.class"/>
             </target>
             
             <target name="-post-test-run">
