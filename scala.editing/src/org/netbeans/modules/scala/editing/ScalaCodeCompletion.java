@@ -317,7 +317,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         Global global = ((ScalaParser) pResult.getParser()).getGlobal();
-        //pResult.toGlobalPhase(info);
 
         // Read-lock due to Token hierarchy use
         doc.readLock();
@@ -420,7 +419,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
                 request.prefix = sb.toString();
                 completeImport(proposals, request);
-                return completionResult;                
+                return completionResult;
             }
 
             if (root == null) {
@@ -566,7 +565,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (   int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -602,7 +601,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (   int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
+        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
@@ -2026,12 +2025,10 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
                     proposals.add(proposal);
                 }
-
-            //System.out.println("member: " + member + " info: " + member.info().getClass());
             }
         } catch (AssertionError ex) {
+            // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
             ScalaGlobal.reset();
-        // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
         }
 
         return true;

@@ -317,8 +317,7 @@ public class ScalaElement implements ScalaElementHandle {
         return symbol.toString();
     }
 
-    public static ElementKind getKind(
-            Symbol symbol) {
+    public static ElementKind getKind(Symbol symbol) {
         if (symbol.isClass()) {
             return ElementKind.CLASS;
         } else if (symbol.isConstructor()) {
