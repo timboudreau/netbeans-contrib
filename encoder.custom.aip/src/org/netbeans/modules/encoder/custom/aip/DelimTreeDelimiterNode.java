@@ -148,6 +148,13 @@ public class DelimTreeDelimiterNode extends AbstractNode
             lengthProp.setPropertyEditorClass(DelimLengthPropertyEditor.class);
             propSet.put(lengthProp);
             
+            PropertySupport.Reflection<Boolean> detachedProp =
+                    new PropertySupport.Reflection<Boolean>(mDelimOption,
+                            boolean.class, "detached");  //NOI18N
+            detachedProp.setName("detached");  //NOI18N
+            detachedProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.detached"));
+            propSet.put(detachedProp);
+            
             PropertySupport.Reflection<String> beginBytesProp =
                     new PropertySupport.Reflection<String>(mDelimOption,
                     String.class, "beginBytes");  //NOI18N
@@ -171,6 +178,13 @@ public class DelimTreeDelimiterNode extends AbstractNode
             beginLengthProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.begin_length"));
             beginLengthProp.setPropertyEditorClass(DelimLengthPropertyEditor.class);
             propSet.put(beginLengthProp);
+            
+            PropertySupport.Reflection<Boolean> beginDetachedProp =
+                    new PropertySupport.Reflection<Boolean>(mDelimOption,
+                            boolean.class, "beginDetached");  //NOI18N
+            beginDetachedProp.setName("beginDetached");  //NOI18N
+            beginDetachedProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.begin_detached"));
+            propSet.put(beginDetachedProp);
             
             PropertySupport.Reflection<Boolean> skipLeadingProp =
                     new PropertySupport.Reflection<Boolean>(mDelimOption,
