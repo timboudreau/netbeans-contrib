@@ -351,7 +351,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             request.anchor = lexOffset - prefix.length();
             request.call = call;
 
-            Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset);
+            Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset - 1);
             if (token == null) {
                 return completionResult;
             }
@@ -375,8 +375,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 return completionResult;
             }
 
-            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
-            ts.move(lexOffset);
+            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset - 1);
+            ts.move(lexOffset - 1);
             if (!ts.moveNext() && !ts.movePrevious()) {
                 return completionResult;
             }
@@ -396,7 +396,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     offset = sanitizedRange.getStart();
                 }
 
-                AstItem closest = root.findItemAt(th, offset);
+                AstItem closest = root.findItemAt(th, offset - 1);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
                     closest = root.findItemAt(th, closestOffset--);
