@@ -40,10 +40,12 @@ public class DelimiterTreeTableView extends TreeTableView {
     private static final int COL_BYTES              = COL_TERMINATOR_MODE + 1;
     private static final int COL_OFFSET             = COL_BYTES + 1;
     private static final int COL_LENGTH             = COL_OFFSET + 1;
-    private static final int COL_BEGIN_BYTES        = COL_LENGTH + 1;
+    private static final int COL_DETACHED           = COL_LENGTH + 1;
+    private static final int COL_BEGIN_BYTES        = COL_DETACHED + 1;
     private static final int COL_BEGIN_OFFSET       = COL_BEGIN_BYTES + 1;
     private static final int COL_BEGIN_LENGTH       = COL_BEGIN_OFFSET + 1;
-    private static final int COL_SKIP_LEADING       = COL_BEGIN_LENGTH + 1;
+    private static final int COL_BEGIN_DETACHED     = COL_BEGIN_LENGTH + 1;
+    private static final int COL_SKIP_LEADING       = COL_BEGIN_DETACHED + 1;
     private static final int COL_COLLAPSE           = COL_SKIP_LEADING + 1;
     
     /** Creates a new instance of DelimiterTreeTableView */
@@ -71,6 +73,9 @@ public class DelimiterTreeTableView extends TreeTableView {
         props[COL_LENGTH] = new SimplePropertySupport("length", short.class,
                 _bundle.getString("delim_tree_tab.lbl.length"),
                 _bundle.getString("delim_tree_tab.lbl.length_short")); //NOI18N
+        props[COL_DETACHED] = new SimplePropertySupport("detached", boolean.class,
+                _bundle.getString("delim_tree_tab.lbl.detached"),
+                _bundle.getString("delim_tree_tab.lbl.detached_short")); //NOI18N
         props[COL_BEGIN_BYTES] = new SimplePropertySupport("beginBytes", String.class,
                 _bundle.getString("delim_tree_tab.lbl.begin_delim_bytes"),
                 _bundle.getString("delim_tree_tab.lbl.begin_delim_bytes_short")); //NOI18N
@@ -80,6 +85,9 @@ public class DelimiterTreeTableView extends TreeTableView {
         props[COL_BEGIN_LENGTH] = new SimplePropertySupport("beginLength", short.class,
                 _bundle.getString("delim_tree_tab.lbl.begin_length"),
                 _bundle.getString("delim_tree_tab.lbl.begin_length_short")); //NOI18N
+        props[COL_BEGIN_DETACHED] = new SimplePropertySupport("beginDetached", boolean.class,
+                _bundle.getString("delim_tree_tab.lbl.begin_detached"),
+                _bundle.getString("delim_tree_tab.lbl.begin_detached_short")); //NOI18N
         props[COL_SKIP_LEADING] = new SimplePropertySupport("skipLeading", boolean.class,
                 _bundle.getString("delim_tree_tab.lbl.skip_leading"),
                 _bundle.getString("delim_tree_tab.lbl.skip_leading_short")); //NOI18N
@@ -94,12 +102,14 @@ public class DelimiterTreeTableView extends TreeTableView {
         setTableColumnPreferredWidth(COL_PRECEDENCE,        (int) (ratio * 68));
         setTableColumnPreferredWidth(COL_OPTIONAL_MODE,     (int) (ratio * 60));
         setTableColumnPreferredWidth(COL_TERMINATOR_MODE,   (int) (ratio * 65));
-        setTableColumnPreferredWidth(COL_BYTES,             (int) (ratio * 45));
-        setTableColumnPreferredWidth(COL_OFFSET,            (int) (ratio * 45));
-        setTableColumnPreferredWidth(COL_LENGTH,            (int) (ratio * 54));
+        setTableColumnPreferredWidth(COL_BYTES,             (int) (ratio * 42));
+        setTableColumnPreferredWidth(COL_OFFSET,            (int) (ratio * 42));
+        setTableColumnPreferredWidth(COL_LENGTH,            (int) (ratio * 42));
+        setTableColumnPreferredWidth(COL_DETACHED,          (int) (ratio * 60));
         setTableColumnPreferredWidth(COL_BEGIN_BYTES,       (int) (ratio * 60));
         setTableColumnPreferredWidth(COL_BEGIN_OFFSET,      (int) (ratio * 60));
         setTableColumnPreferredWidth(COL_BEGIN_LENGTH,      (int) (ratio * 65));
+        setTableColumnPreferredWidth(COL_BEGIN_DETACHED,    (int) (ratio * 78));
         setTableColumnPreferredWidth(COL_SKIP_LEADING,      (int) (ratio * 35));
         setTableColumnPreferredWidth(COL_COLLAPSE,          (int) (ratio * 50));
     }

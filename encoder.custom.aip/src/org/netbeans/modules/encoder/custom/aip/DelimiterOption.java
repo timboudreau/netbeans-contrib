@@ -114,9 +114,11 @@ public class DelimiterOption {
     private String mBytes = ""; //NOI18N
     private int mOffset = 0;
     private short mLength = 0;
+    private boolean mDetached = false;
     private String mBeginBytes = ""; //NOI18N
     private int mBeginOffset = 0;
     private short mBeginLength = 0;
+    private boolean mBeginDetached = false;
     private boolean mSkipLeading = false;
     private boolean mCollapse = false;
     
@@ -258,6 +260,21 @@ public class DelimiterOption {
         firePropertyChange("collapse", old, mCollapse); //NOI18N
     }
 
+    public boolean getDetached() {
+        return mDetached;
+    }
+
+    public void setDetached(boolean detached) {
+        boolean old = mDetached;
+        mDetached = detached;
+        if (mDetached) {
+            mDelimiter.setEndAnch(false);
+        } else {
+            mDelimiter.unsetEndAnch();
+        }
+        firePropertyChange("detached", old, mDetached); //NOI18N
+    }
+
     public String getOptionMode() {
         return mOptionMode;
     }
@@ -376,6 +393,21 @@ public class DelimiterOption {
         firePropertyChange("beginLength", oldBeginLength, mBeginLength); //NOI18N
     }
 
+    public boolean getBeginDetached() {
+        return mBeginDetached;
+    }
+
+    public void setBeginDetached(boolean beginDetached) {
+        boolean old = mBeginDetached;
+        mBeginDetached = beginDetached;
+        if (mBeginDetached) {
+            mDelimiter.setBeginAnch(false);
+        } else {
+            mDelimiter.unsetBeginAnch();
+        }
+        firePropertyChange("beginDetached", old, mBeginDetached); //NOI18N
+    }
+
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.add(listener);
     }
@@ -412,6 +444,12 @@ public class DelimiterOption {
                 mBytes = ""; //NOI18N
             }
         }
+        if (mDelimiter.isSetEndAnch() && !mDelimiter.getEndAnch()) {
+            mDetached = true;
+        }
+        if (mDelimiter.isSetSkipLeading() && mDelimiter.getSkipLeading()) {
+            mSkipLeading = true;
+        }
         if (mDelimiter.getBeginBytes() != null) {
             if (mDelimiter.getBeginBytes().isSetConstant()) {
                 mBeginBytes = mDelimiter.getBeginBytes().getConstant();
@@ -423,8 +461,8 @@ public class DelimiterOption {
                 mBeginBytes = ""; //NOI18N
             }
         }
-        if (mDelimiter.isSetSkipLeading() && mDelimiter.getSkipLeading()) {
-            mSkipLeading = true;
+        if (mDelimiter.isSetBeginAnch() && !mDelimiter.getBeginAnch()) {
+            mBeginDetached = true;
         }
         if (mDelimiter.isSetCollapse() && mDelimiter.getCollapse()) {
             mCollapse = true;
