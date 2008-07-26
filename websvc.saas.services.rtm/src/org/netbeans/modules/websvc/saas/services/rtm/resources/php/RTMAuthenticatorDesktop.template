@@ -1,16 +1,16 @@
 <?php
 
     include_once "../org_netbeans_saas/RestConnection.php";
-    include_once "__NAME__Profile.php";
+    include_once "${name}Profile.php";
 
-    define("_ATTR_PREFIX", "__NAME__");
+    define("_ATTR_PREFIX", "${name}");
     define("_SAAS", "org_netbeans_saas_");
     define("_RETURN_URL", "rtm_return_url");
     define("_AUTH_TOKEN", "rtm_auth_token");
     define("_FROB", "rtm_frob");
     define("_EXPIRE", "3600");
-        
-    class __NAME__ {
+
+    class ${name} {
 
         private static $inited = false;
         private static $LOGIN_URL;
@@ -23,7 +23,7 @@
         }
 
         public static function getApiKey() {
-            $apiKey = __NAME__Profile::getApiKey();
+            $apiKey = ${name}Profile::getApiKey();
             if ($apiKey == null || $apiKey == "") {
                 throw new Exception("Please specify your api key in the Profile file.");
             }
@@ -31,7 +31,7 @@
         }
 
         public static function getSecret() {
-            $secret = __NAME__Profile::getSecret();
+            $secret = ${name}Profile::getSecret();
             if ($secret == null || $secret == "") {
                 throw new Exception("Please specify your secret key in the Profile file.");
             }
@@ -107,7 +107,7 @@
                 exit(0);
             }
         }
-        
+
         private static function sessionInit() {
             session_start();
             $_SESSION = array();
@@ -116,7 +116,7 @@
             }
             session_destroy();
         }
-        
+
         public static function getSession($name) {
             if($_SESSION[$name] != null)
               return $_SESSION[$name];
@@ -128,7 +128,7 @@
             setcookie(_SAAS.$name, $value, time() + _EXPIRE, "/");
             $_SESSION[$name] = $value;
         }
-        
+
         public static function deleteSession($name) {
             setcookie(_SAAS.$name, "", time() - _EXPIRE, "/");
             $_SESSION[$name] = null;

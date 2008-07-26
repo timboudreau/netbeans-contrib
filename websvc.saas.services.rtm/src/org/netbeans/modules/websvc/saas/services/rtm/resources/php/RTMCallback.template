@@ -1,8 +1,8 @@
 <?php
     session_start();
-    
+
     include_once "RememberTheMilkRTMAuthenticator.php";
-    
+
     $frob = $_GET["frob"];
     RememberTheMilkRTMAuthenticator::saveSession("rtm_frob", $frob);
 

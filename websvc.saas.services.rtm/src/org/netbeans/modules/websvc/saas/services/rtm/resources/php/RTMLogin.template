@@ -5,7 +5,7 @@
     include_once "RememberTheMilkRTMAuthenticator.php";
 
     RememberTheMilkRTMAuthenticator::saveSession("rtm_return_url", $_GET['rUrl']);
-    
+
     printf("<html>");
     printf("<head>");
     printf("<title>Remember The Milk Authorization Page</title>");
