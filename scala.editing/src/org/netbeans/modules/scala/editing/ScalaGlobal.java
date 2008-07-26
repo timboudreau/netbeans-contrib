@@ -69,13 +69,11 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class ScalaGlobal {
 
-    private static Map<Project, Reference<Global>> ProjectToGlobal =
-            new WeakHashMap<Project, Reference<Global>>();
-    private static Map<Project, Reference<Global>> TestProjectToGlobal =
-            new WeakHashMap<Project, Reference<Global>>();
+    private final static Map<ClassPath, Reference<Global>> srcCpToGlobal =
+            new WeakHashMap<ClassPath, Reference<Global>>();
 
     public static void reset() {
-        ProjectToGlobal.clear();
+        srcCpToGlobal.clear();
     }
 
     /** Scala's global is not thread safed */
@@ -88,6 +86,21 @@ public class ScalaGlobal {
         final Settings settings = new Settings();
         settings.verbose().value_$eq(false);
         if (project != null) {
+            ClassPath srcCp = null;
+
+            ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
+            if (cpp != null) {
+                srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
+                StringBuilder sb = new StringBuilder();
+                computeClassPath(sb, srcCp);
+            }
+
+            /** @Todo, it seems scala's Settings only support one source path, i.e. 
+             * "/scalaproject/src" only, does not support "/scalaproject/src:/scalaproject/src2"
+             * since we can not gaurantee the srcCp returns only one entry, we have to use
+             * following guessing method:
+             */
+            
             // add project's src and out path
             FileObject prjDir = project.getProjectDirectory();
 
@@ -123,26 +136,15 @@ public class ScalaGlobal {
                     forTest = true;
                 }
 
-                Reference<Global> globalRef;
-                if (forTest) {
-                    globalRef = TestProjectToGlobal.get(project);
-                } else {
-                    globalRef = ProjectToGlobal.get(project);
-                }
-
+                Reference<Global> globalRef = srcCpToGlobal.get(srcCp);
                 if (globalRef != null) {
                     global = globalRef.get();
                     if (global != null) {
                         return global;
                     } else {
-                        if (forTest) {
-                            TestProjectToGlobal.remove(project);
-                        } else {
-                            ProjectToGlobal.remove(project);
-                        }
+                        srcCpToGlobal.remove(srcCp);
                     }
                 }
-
 
                 if (outDir != null) {
                     String srcPath = srcDir == null ? "" : FileUtil.toFile(srcDir).getAbsolutePath();
@@ -157,7 +159,6 @@ public class ScalaGlobal {
 
             if (global == null) {
                 // add boot, compiler classpath
-                ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
                 if (cpp != null) {
                     ClassPath bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
                     ClassPath compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
@@ -185,14 +186,10 @@ public class ScalaGlobal {
                     @Override
                     public void logError(String msg, Throwable t) {
                         //Exceptions.printStackTrace(t);
-                        }
+                    }
                 };
 
-                if (forTest) {
-                    TestProjectToGlobal.put(project, new WeakReference<Global>(global));
-                } else {
-                    ProjectToGlobal.put(project, new WeakReference<Global>(global));
-                }
+                srcCpToGlobal.put(srcCp, new WeakReference<Global>(global));
             }
         }
 
