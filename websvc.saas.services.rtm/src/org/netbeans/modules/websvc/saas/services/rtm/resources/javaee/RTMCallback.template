@@ -1,25 +1,28 @@
-/*
- * __NAME__
- *
- * Created on __DATE__, __TIME__
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
+<#-- FreeMarker template (see http://freemarker.org/) -->
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
 
-package Templates.Classes;
+<#if package?? && package != "">
+package ${package};
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+</#if>
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author __USER__
+ * @author ${user}
  */
-public class __NAME__ extends HttpServlet {
+public class ${name} extends HttpServlet {
 
-    /** 
+    /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -32,10 +35,10 @@ public class __NAME__ extends HttpServlet {
             HttpSession session = request.getSession(true);
             String frob = request.getParameter("frob");
             session.setAttribute("rtm_frob", frob);
-            
+
             RememberTheMilkRTMAuthenticator.login(request, response);
             String authToken = RememberTheMilkRTMAuthenticator.getAuthToken(request, response);
-         
+
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet RememberTheMilkRTMCallback</title>");
@@ -52,7 +55,7 @@ public class __NAME__ extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -62,7 +65,7 @@ public class __NAME__ extends HttpServlet {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -72,7 +75,7 @@ public class __NAME__ extends HttpServlet {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
      */
     public String getServletInfo() {
