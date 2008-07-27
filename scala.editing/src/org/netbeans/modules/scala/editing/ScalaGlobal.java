@@ -84,13 +84,11 @@ public class ScalaGlobal {
             new WeakHashMap<Project, Reference<Global>>();
     private final static Map<Project, Reference<Global>> ProjectToGlobalForTest =
             new WeakHashMap<Project, Reference<Global>>();
+    private final static Map<Project, Reference<SrcOutDirs>> ProjectToDirs =
+            new WeakHashMap<Project, Reference<SrcOutDirs>>();
 
-    private static class DirsInfo {
+    private static class SrcOutDirs {
 
-        ClassPath srcCp;
-        ClassPath bootCp;
-        ClassPath compCp;
-        ClassPath execCp;
         FileObject srcDir;
         FileObject outDir;
         FileObject testSrcDir;
@@ -114,39 +112,42 @@ public class ScalaGlobal {
 
         final Project project = FileOwnerQuery.getOwner(fo);
         if (project != null) {
-            DirsInfo info = findDirsInfo(fo, project);
+            SrcOutDirs dirs = null;
+            Reference<SrcOutDirs> dirsRef = ProjectToDirs.get(project);
+            if (dirsRef != null) {
+                dirs = dirsRef.get();
+            }
+
+            if (dirs == null) {
+                dirs = findDirsInfo(project);
+                ProjectToDirs.put(project, new WeakReference<SrcOutDirs>(dirs));
+            }
 
             // is fo under test source?
             boolean forTest = false;
-            if (info.testSrcDir != null &&
-                    (info.testSrcDir.equals(fo) || FileUtil.isParentOf(info.testSrcDir, fo))) {
+            if (dirs.testSrcDir != null &&
+                    (dirs.testSrcDir.equals(fo) || FileUtil.isParentOf(dirs.testSrcDir, fo))) {
 
                 forTest = true;
             }
 
-            // can not use srcCp as the key, difference fo under same src seems return diff instance of srcCp
+            // Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
             Reference<Global> globalRef = forTest ? ProjectToGlobalForTest.get(project) : ProjectToGlobal.get(project);
             if (globalRef != null) {
                 global = globalRef.get();
                 if (global != null) {
                     return global;
-                } else {
-                    if (forTest) {
-                        ProjectToGlobalForTest.remove(info.srcCp);
-                    } else {
-                        ProjectToGlobal.remove(info.srcCp);
-                    }
                 }
             }
 
             String srcPath = "";
             String outPath = "";
             if (forTest) {
-                srcPath = info.testSrcDir == null ? "" : FileUtil.toFile(info.testSrcDir).getAbsolutePath();
-                outPath = info.testOutDir == null ? "" : FileUtil.toFile(info.testOutDir).getAbsolutePath();
+                srcPath = dirs.testSrcDir == null ? "" : FileUtil.toFile(dirs.testSrcDir).getAbsolutePath();
+                outPath = dirs.testOutDir == null ? "" : FileUtil.toFile(dirs.testOutDir).getAbsolutePath();
             } else {
-                srcPath = info.srcDir == null ? "" : FileUtil.toFile(info.srcDir).getAbsolutePath();
-                outPath = info.outDir == null ? "" : FileUtil.toFile(info.outDir).getAbsolutePath();
+                srcPath = dirs.srcDir == null ? "" : FileUtil.toFile(dirs.srcDir).getAbsolutePath();
+                outPath = dirs.outDir == null ? "" : FileUtil.toFile(dirs.outDir).getAbsolutePath();
             }
 
             final Settings settings = new Settings();
@@ -156,8 +157,15 @@ public class ScalaGlobal {
             settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
 
             // add boot, compile classpath
-            ClassPath bootCp = info.bootCp;
-            ClassPath compCp = info.compCp;
+            ClassPath bootCp = null;
+            ClassPath compCp = null;
+            ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
+            if (cpp != null) {
+                bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
+                compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
+            }
+
+
             boolean inStdLib = false;
             if (bootCp == null || compCp == null) {
                 // in case of fo in standard libaray
@@ -172,8 +180,8 @@ public class ScalaGlobal {
 
             sb.delete(0, sb.length());
             computeClassPath(sb, compCp);
-            if (forTest && !inStdLib && info.outDir != null) {
-                sb.append(File.pathSeparator).append(info.outDir);
+            if (forTest && !inStdLib && dirs.outDir != null) {
+                sb.append(File.pathSeparator).append(dirs.outDir);
             }
             settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
 
@@ -192,25 +200,40 @@ public class ScalaGlobal {
 
             if (forTest) {
                 ProjectToGlobalForTest.put(project, new WeakReference<Global>(global));
-                if (info.testOutDir != null) {
-                    info.testOutDir.addFileChangeListener(new FileChangeAdapter() {
+                if (dirs.testOutDir != null) {
+                    dirs.testOutDir.addFileChangeListener(new FileChangeAdapter() {
 
                         @Override
                         public void fileDeleted(FileEvent fe) {
                             // maybe a clean task invoked
                             ProjectToGlobalForTest.remove(project);
+                            ProjectToDirs.remove(project);
+                        }
+                    });
+                }
+
+                if (dirs.outDir != null) {
+                    // monitor outDir's changes, 
+                    /** @Todo should reset global for any changes under out dir, including subdirs */
+                    dirs.outDir.addFileChangeListener(new FileChangeAdapter() {
+
+                        @Override
+                        public void fileDeleted(FileEvent fe) {
+                            ProjectToGlobalForTest.remove(project);
+                            ProjectToDirs.remove(project);
                         }
                     });
                 }
             } else {
                 ProjectToGlobal.put(project, new WeakReference<Global>(global));
-                if (info.outDir != null) {
-                    info.outDir.addFileChangeListener(new FileChangeAdapter() {
+                if (dirs.outDir != null) {
+                    dirs.outDir.addFileChangeListener(new FileChangeAdapter() {
 
                         @Override
                         public void fileDeleted(FileEvent fe) {
                             // maybe a clean task invoked
                             ProjectToGlobal.remove(project);
+                            ProjectToDirs.remove(project);
                         }
                     });
                 }
@@ -220,26 +243,20 @@ public class ScalaGlobal {
         return global;
     }
 
-    private static DirsInfo findDirsInfo(FileObject fo, Project project) {
-        DirsInfo info = new DirsInfo();
-
-        ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
-        info.srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
-        info.bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
-        info.compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
-        info.execCp = cpp.findClassPath(fo, ClassPath.EXECUTE);
+    private static SrcOutDirs findDirsInfo(Project project) {
+        SrcOutDirs dirs = new SrcOutDirs();
 
         SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (sgs.length > 0) {
-            info.srcDir = sgs[0].getRootFolder();
-            info.outDir = findOutDir(project, info.srcDir);
+            dirs.srcDir = sgs[0].getRootFolder();
+            dirs.outDir = findOutDir(project, dirs.srcDir);
             if (sgs.length > 1) {
-                info.testSrcDir = sgs[1].getRootFolder();
-                info.testOutDir = findOutDir(project, info.testSrcDir);
+                dirs.testSrcDir = sgs[1].getRootFolder();
+                dirs.testOutDir = findOutDir(project, dirs.testSrcDir);
             }
         }
 
-        return info;
+        return dirs;
     }
 
     private static FileObject findOutDir(Project project, FileObject srcRoot) {
@@ -349,8 +366,8 @@ public class ScalaGlobal {
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
-                /**@Note: avoid scala nsc's assert error, but since global's
-                 * context may have been broken, we have to reset ScalaGlobal
+                /**@Note: avoid scala nsc's assert error. Since global's
+                 * symbol table may have been broken, we have to reset ScalaGlobal
                  * to clean this global
                  */
                 ScalaGlobal.reset();
