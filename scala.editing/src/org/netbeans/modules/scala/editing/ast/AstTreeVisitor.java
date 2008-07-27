@@ -440,9 +440,10 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSuper(Super tree) {
+        Symbol symbol = tree.symbol();
         Token idToken = getIdToken(tree);
-        if (idToken.id() == ScalaTokenId.Super) {
-            AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+        if (idToken.id() == ScalaTokenId.Super && !symbol.isPackageClass()) {
+            AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 if (debug) {
                     System.out.println("Added: " + ref);
@@ -453,9 +454,10 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitThis(This tree) {
+        Symbol symbol = tree.symbol();
         Token idToken = getIdToken(tree);
-        if (idToken.id() == ScalaTokenId.This) {
-            AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+        if (idToken.id() == ScalaTokenId.This && !symbol.isPackageClass()) {
+            AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 if (debug) {
                     System.out.println("Added: " + ref);
