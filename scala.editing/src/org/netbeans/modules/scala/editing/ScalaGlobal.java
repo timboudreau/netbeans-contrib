@@ -229,8 +229,6 @@ public class ScalaGlobal {
         srcInfo.compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
         srcInfo.execCp = cpp.findClassPath(fo, ClassPath.EXECUTE);
 
-        ProjectUtils.getInformation(project);
-
         SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (sgs.length > 0) {
             srcInfo.srcDir = sgs[0].getRootFolder();
