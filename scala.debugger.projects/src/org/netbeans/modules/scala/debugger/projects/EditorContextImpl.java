@@ -254,65 +254,71 @@ public class EditorContextImpl extends EditorContext {
     public void disposeTimeStamp (Object timeStamp) {
         LineTranslations.getTranslations().disposeTimeStamp(timeStamp);
     }
-    
-    public Object annotate (
-        String url, 
-        int lineNumber, 
-        String annotationType,
-        Object timeStamp
-    ) {
-        return annotate(url, lineNumber, annotationType, timeStamp, null);
-    }
-    public Object annotate (
-        String url, 
-        int lineNumber, 
-        String annotationType,
-        Object timeStamp,
-        JPDAThread thread
-    ) {
-        Line l =  LineTranslations.getTranslations().getLine (
-            url, 
-            lineNumber, 
-            (timeStamp instanceof JPDABreakpoint) ? null : timeStamp
-        );
-        if (l == null) return null;
-        Annotation annotation;
-        if (timeStamp instanceof JPDABreakpoint) {
-            annotation = new DebuggerBreakpointAnnotation(annotationType, l, (JPDABreakpoint) timeStamp);
-        } else {
-            annotation = new DebuggerAnnotation (annotationType, l, thread);
-        }
-        annotationToURL.put (annotation, url);
-        
-        return annotation;
-    }
 
+
+    /**@Node:
+     * the chained annotate method from EditorContextImpl under debug.jpda.projects
+     * will also be called, so we do not need add a reduantant annotation
+     */
     public Object annotate (
-        String url,
-        int startPosition,
-        int endPosition,
+        String url, 
+        int lineNumber, 
         String annotationType,
         Object timeStamp
     ) {
-        AttributeSet attrs;
-        if (EditorContext.CURRENT_LAST_OPERATION_ANNOTATION_TYPE.equals(annotationType)) {
-            attrs = AttributesUtilities.createImmutable(EditorStyleConstants.WaveUnderlineColor, getColor(annotationType));
-        } else {
-            attrs = AttributesUtilities.createImmutable(StyleConstants.Background, getColor(annotationType));
-        }
-        DebuggerAnnotation annotation;
-        try {
-            annotation = new DebuggerAnnotation(annotationType, attrs, startPosition, endPosition,
-                    URLMapper.findFileObject(new URL(url)));
-        } catch (MalformedURLException ex) {
-            RuntimeException rex = new RuntimeException("Bad URL: "+url);
-            rex.initCause(ex);
-            throw rex;
-        }
-        annotationToURL.put (annotation, url);
-        
-        return annotation;
+        return null;
+        //return annotate(url, lineNumber, annotationType, timeStamp, null);
     }
+//    public Object annotate (
+//        String url,
+//        int lineNumber,
+//        String annotationType,
+//        Object timeStamp,
+//        JPDAThread thread
+//    ) {
+//        Line l =  LineTranslations.getTranslations().getLine (
+//            url,
+//            lineNumber,
+//            (timeStamp instanceof JPDABreakpoint) ? null : timeStamp
+//        );
+//        if (l == null) return null;
+//        Annotation annotation;
+//        if (timeStamp instanceof JPDABreakpoint) {
+//            annotation = new DebuggerBreakpointAnnotation(annotationType, l, (JPDABreakpoint) timeStamp);
+//        } else {
+//            annotation = new DebuggerAnnotation (annotationType, l, thread);
+//        }
+//        annotationToURL.put (annotation, url);
+//
+//        return annotation;
+//    }
+//
+//    public Object annotate (
+//        String url,
+//        int startPosition,
+//        int endPosition,
+//        String annotationType,
+//        Object timeStamp
+//    ) {
+//        AttributeSet attrs;
+//        if (EditorContext.CURRENT_LAST_OPERATION_ANNOTATION_TYPE.equals(annotationType)) {
+//            attrs = AttributesUtilities.createImmutable(EditorStyleConstants.WaveUnderlineColor, getColor(annotationType));
+//        } else {
+//            attrs = AttributesUtilities.createImmutable(StyleConstants.Background, getColor(annotationType));
+//        }
+//        DebuggerAnnotation annotation;
+//        try {
+//            annotation = new DebuggerAnnotation(annotationType, attrs, startPosition, endPosition,
+//                    URLMapper.findFileObject(new URL(url)));
+//        } catch (MalformedURLException ex) {
+//            RuntimeException rex = new RuntimeException("Bad URL: "+url);
+//            rex.initCause(ex);
+//            throw rex;
+//        }
+//        annotationToURL.put (annotation, url);
+//
+//        return annotation;
+//    }
     
     private static Color getColor(String annotationType) {
         if (annotationType.endsWith("_broken")) {
@@ -340,20 +346,21 @@ public class EditorContextImpl extends EditorContext {
     public void removeAnnotation (
         Object a
     ) {
-        if (a instanceof Collection) {
-            Collection annotations = ((Collection) a);
-            for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-                removeAnnotation((Annotation) it.next());
-            }
-        } else {
-            removeAnnotation((Annotation) a);
-        }
+        return;
+//        if (a instanceof Collection) {
+//            Collection annotations = ((Collection) a);
+//            for (Iterator it = annotations.iterator(); it.hasNext(); ) {
+//                removeAnnotation((Annotation) it.next());
+//            }
+//        } else {
+//            removeAnnotation((Annotation) a);
+//        }
     }
     
-    private void removeAnnotation(Annotation annotation) {
-        annotation.detach ();
-        annotationToURL.remove (annotation);
-    }
+//    private void removeAnnotation(Annotation annotation) {
+//        annotation.detach ();
+//        annotationToURL.remove (annotation);
+//    }
 
     /**
      * Returns line number given annotation is associated with.

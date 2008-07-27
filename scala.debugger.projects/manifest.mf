@@ -3,5 +3,5 @@ AutoUpdate-Show-In-Client: true
 OpenIDE-Module: org.netbeans.modules.scala.debugger.projects
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/debugger/projects/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/scala/debugger/projects/resources/mf-layer.xml
-OpenIDE-Module-Specification-Version: 0.14.1
+OpenIDE-Module-Specification-Version: 0.14.2
 
