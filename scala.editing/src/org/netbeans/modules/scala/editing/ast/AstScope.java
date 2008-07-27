@@ -678,19 +678,26 @@ public class AstScope implements Iterable<AstScope> {
 
     public AstDef findDefMatched(Symbol symbol) {
         String name = symbol.nameString();
-        Type type = symbol.tpe();
-
-        return findDefMatchedDownside(name, type, getDefs());
+        return findDefMatchedDownside(name, symbol, getDefs());
     }
 
-    private static AstDef findDefMatchedDownside(String name, Type type, List<AstDef> defs) {
+    private static AstDef findDefMatchedDownside(String name, Symbol symbol, List<AstDef> defs) {
         for (AstDef def : defs) {
-            if (isMatched(def, name, type)) {
-                return def;
+            Symbol mySymbol = def.getSymbol();
+            if (symbol.isType()) {
+                // try to avoid cyclic type refenrence or type doesn't exist AsserError from scala's Types
+                if (ScalaElement.symbolQualifiedName(mySymbol).equals(ScalaElement.symbolQualifiedName(symbol))) {
+                    return def;
+                }
+            } else {
+                Type type = symbol.tpe();
+                if (isMatched(mySymbol, name, type)) {
+                    return def;
+                }
             }
 
             List<AstDef> children = def.getBindingScope().getDefs();
-            AstDef found = findDefMatchedDownside(name, type, children);
+            AstDef found = findDefMatchedDownside(name, symbol, children);
             if (found != null) {
                 return found;
             }
@@ -699,14 +706,13 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    private static boolean isMatched(AstDef def, String name, Type type) {
-        Symbol symbol = def.getSymbol();
-        if (symbol != null && symbol.nameString().equals(name)) {
-            if (symbol.tpe().$eq$colon$eq(type)) {
+    private static boolean isMatched(Symbol mySymbol, String name, Type type) {
+        if (mySymbol != null && mySymbol.nameString().equals(name)) {
+            if (mySymbol.tpe().$eq$colon$eq(type)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
