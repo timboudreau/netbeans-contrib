@@ -169,7 +169,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             Token<? extends ScalaTokenId> token = ts.token();
             TokenId id = token.id();
 
-            if (id == ScalaTokenId.Def || id == ScalaTokenId.Object || id == ScalaTokenId.Trait || id == ScalaTokenId.Class) {
+            if (id == ScalaTokenId.Object || id == ScalaTokenId.Trait || id == ScalaTokenId.Class) {
                 return ts.offset();
             }
         } while (ts.movePrevious());
