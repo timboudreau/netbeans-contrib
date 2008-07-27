@@ -114,7 +114,7 @@ public class ScalaGlobal {
 
         final Project project = FileOwnerQuery.getOwner(fo);
         if (project != null) {
-            DirsInfo info = findSourcesInfo(fo, project);
+            DirsInfo info = findDirsInfo(fo, project);
 
             // is fo under test source?
             boolean forTest = false;
@@ -220,26 +220,26 @@ public class ScalaGlobal {
         return global;
     }
 
-    private static DirsInfo findSourcesInfo(FileObject fo, Project project) {
-        DirsInfo srcInfo = new DirsInfo();
+    private static DirsInfo findDirsInfo(FileObject fo, Project project) {
+        DirsInfo info = new DirsInfo();
 
         ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
-        srcInfo.srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
-        srcInfo.bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
-        srcInfo.compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
-        srcInfo.execCp = cpp.findClassPath(fo, ClassPath.EXECUTE);
+        info.srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
+        info.bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
+        info.compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
+        info.execCp = cpp.findClassPath(fo, ClassPath.EXECUTE);
 
         SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (sgs.length > 0) {
-            srcInfo.srcDir = sgs[0].getRootFolder();
-            srcInfo.outDir = findOutDir(project, srcInfo.srcDir);
+            info.srcDir = sgs[0].getRootFolder();
+            info.outDir = findOutDir(project, info.srcDir);
             if (sgs.length > 1) {
-                srcInfo.testSrcDir = sgs[1].getRootFolder();
-                srcInfo.testOutDir = findOutDir(project, srcInfo.testSrcDir);
+                info.testSrcDir = sgs[1].getRootFolder();
+                info.testOutDir = findOutDir(project, info.testSrcDir);
             }
         }
 
-        return srcInfo;
+        return info;
     }
 
     private static FileObject findOutDir(Project project, FileObject srcRoot) {
