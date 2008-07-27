@@ -42,15 +42,26 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.BinaryForSourceQuery;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
@@ -69,164 +80,236 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class ScalaGlobal {
 
-    private final static Map<ClassPath, Reference<Global>> srcCpToGlobal =
-            new WeakHashMap<ClassPath, Reference<Global>>();
+    private final static Map<Project, Reference<Global>> ProjectToGlobal =
+            new WeakHashMap<Project, Reference<Global>>();
+    private final static Map<Project, Reference<Global>> ProjectToGlobalForTest =
+            new WeakHashMap<Project, Reference<Global>>();
 
-    public static void reset() {
-        srcCpToGlobal.clear();
+    private static class DirsInfo {
+
+        ClassPath srcCp;
+        ClassPath bootCp;
+        ClassPath compCp;
+        ClassPath execCp;
+        FileObject srcDir;
+        FileObject outDir;
+        FileObject testSrcDir;
+        FileObject testOutDir;
     }
 
-    /** Scala's global is not thread safed */
+    public static void reset() {
+        ProjectToGlobal.clear();
+    }
+
+    /** 
+     * Scala's global is not thread safed
+     * 
+     * @Todo: it seems scala's Settings only support one source path, i.e.
+     * "/scalaproject/src" only, does not support "/scalaproject/src:/scalaproject/src2"
+     * since we can not gaurantee the srcCp returns only one entry, we have to use
+     * following guessing method:
+     */
     public static synchronized Global getGlobal(FileObject fo) {
         Global global = null;
-        boolean forTest = false;
 
-        Project project = FileOwnerQuery.getOwner(fo);
-
-        final Settings settings = new Settings();
-        settings.verbose().value_$eq(false);
+        final Project project = FileOwnerQuery.getOwner(fo);
         if (project != null) {
-            ClassPath srcCp = null;
+            DirsInfo info = findSourcesInfo(fo, project);
 
-            ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
-            if (cpp != null) {
-                srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
-                StringBuilder sb = new StringBuilder();
-                computeClassPath(sb, srcCp);
+            // is fo under test source?
+            boolean forTest = false;
+            if (info.testSrcDir != null &&
+                    (info.testSrcDir.equals(fo) || FileUtil.isParentOf(info.testSrcDir, fo))) {
+
+                forTest = true;
             }
 
-            /** @Todo, it seems scala's Settings only support one source path, i.e. 
-             * "/scalaproject/src" only, does not support "/scalaproject/src:/scalaproject/src2"
-             * since we can not gaurantee the srcCp returns only one entry, we have to use
-             * following guessing method:
-             */
-            
-            // add project's src and out path
-            FileObject prjDir = project.getProjectDirectory();
-
-            FileObject srcDir = null;
-            FileObject outDir = null;
-            FileObject tstDir = null;
-            if (prjDir != null) {
-                try {
-                    srcDir = prjDir.getFileObject("src");
-                    if (srcDir == null) {
-                        srcDir = prjDir.createFolder("src");
-                    }
-
-                    tstDir = prjDir.getFileObject("test");
-                    if (tstDir == null) {
-                        tstDir = prjDir.createFolder("test");
-                    }
-
-                    FileObject buildFo = prjDir.getFileObject("build");
-                    if (buildFo == null) {
-                        buildFo = prjDir.createFolder("build");
-                    }
-                    FileObject classesFo = buildFo.getFileObject("classes");
-                    if (classesFo == null) {
-                        classesFo = buildFo.createFolder("classes");
-                    }
-                    outDir = prjDir.getFileObject("build/classes");
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-
-                if (tstDir.equals(fo) || FileUtil.isParentOf(tstDir, fo)) {
-                    forTest = true;
-                }
-
-                Reference<Global> globalRef = srcCpToGlobal.get(srcCp);
-                if (globalRef != null) {
-                    global = globalRef.get();
-                    if (global != null) {
-                        return global;
+            // can not use srcCp as the key, difference fo under same src seems return diff instance of srcCp
+            Reference<Global> globalRef = forTest ? ProjectToGlobalForTest.get(project) : ProjectToGlobal.get(project);
+            if (globalRef != null) {
+                global = globalRef.get();
+                if (global != null) {
+                    return global;
+                } else {
+                    if (forTest) {
+                        ProjectToGlobalForTest.remove(info.srcCp);
                     } else {
-                        srcCpToGlobal.remove(srcCp);
+                        ProjectToGlobal.remove(info.srcCp);
                     }
-                }
-
-                if (outDir != null) {
-                    String srcPath = srcDir == null ? "" : FileUtil.toFile(srcDir).getAbsolutePath();
-                    String tstPath = tstDir == null ? "" : FileUtil.toFile(tstDir).getAbsolutePath();
-                    String sourcePath = forTest ? srcPath + File.pathSeparator + tstPath : srcPath;
-
-                    String outPath = FileUtil.toFile(outDir).getAbsolutePath();
-                    settings.sourcepath().tryToSet(Nil.$colon$colon(sourcePath).$colon$colon("-sourcepath"));
-                    settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
                 }
             }
 
-            if (global == null) {
-                // add boot, compiler classpath
-                if (cpp != null) {
-                    ClassPath bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
-                    ClassPath compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
-                    if (bootCp == null || compCp == null) {
-                        bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT);
-                        compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
-                    }
+            String srcPath = "";
+            String outPath = "";
+            if (forTest) {
+                srcPath = info.testSrcDir == null ? "" : FileUtil.toFile(info.testSrcDir).getAbsolutePath();
+                outPath = info.testOutDir == null ? "" : FileUtil.toFile(info.testOutDir).getAbsolutePath();
+            } else {
+                srcPath = info.srcDir == null ? "" : FileUtil.toFile(info.srcDir).getAbsolutePath();
+                outPath = info.outDir == null ? "" : FileUtil.toFile(info.outDir).getAbsolutePath();
+            }
 
-                    StringBuilder sb = new StringBuilder();
-                    computeClassPath(sb, bootCp);
-                    settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
+            final Settings settings = new Settings();
+            settings.verbose().value_$eq(false);
 
-                    sb.delete(0, sb.length());
-                    computeClassPath(sb, compCp);
-                    settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
+            settings.sourcepath().tryToSet(Nil.$colon$colon(srcPath).$colon$colon("-sourcepath"));
+            settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
+
+            // add boot, compile classpath
+            ClassPath bootCp = info.bootCp;
+            ClassPath compCp = info.compCp;
+            boolean inStdLib = false;
+            if (bootCp == null || compCp == null) {
+                // in case of fo in standard libaray
+                inStdLib = true;
+                bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT);
+                compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+            }
+
+            StringBuilder sb = new StringBuilder();
+            computeClassPath(sb, bootCp);
+            settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
+
+            sb.delete(0, sb.length());
+            computeClassPath(sb, compCp);
+            if (forTest && !inStdLib && info.outDir != null) {
+                sb.append(File.pathSeparator).append(info.outDir);
+            }
+            settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
+
+            global = new Global(settings) {
+
+                @Override
+                public boolean onlyPresentation() {
+                    return true;
                 }
 
-                global = new Global(settings) {
+                @Override
+                public void logError(String msg, Throwable t) {
+                    //Exceptions.printStackTrace(t);
+                }
+            };
 
-                    @Override
-                    public boolean onlyPresentation() {
-                        return true;
-                    }
+            if (forTest) {
+                ProjectToGlobalForTest.put(project, new WeakReference<Global>(global));
+                if (info.testOutDir != null) {
+                    info.testOutDir.addFileChangeListener(new FileChangeAdapter() {
 
-                    @Override
-                    public void logError(String msg, Throwable t) {
-                        //Exceptions.printStackTrace(t);
-                    }
-                };
+                        @Override
+                        public void fileDeleted(FileEvent fe) {
+                            // maybe a clean task invoked
+                            ProjectToGlobalForTest.remove(project);
+                        }
+                    });
+                }
+            } else {
+                ProjectToGlobal.put(project, new WeakReference<Global>(global));
+                if (info.outDir != null) {
+                    info.outDir.addFileChangeListener(new FileChangeAdapter() {
 
-                srcCpToGlobal.put(srcCp, new WeakReference<Global>(global));
+                        @Override
+                        public void fileDeleted(FileEvent fe) {
+                            // maybe a clean task invoked
+                            ProjectToGlobal.remove(project);
+                        }
+                    });
+                }
             }
         }
 
         return global;
     }
 
-    /**
-     * @Note: It seems that using global instance to set settings not works sometimes,
-     * So it's always better to use Settings
-     */
-    private static void addToGlobalClassPath(Global global, ClassPath cp) {
-        if (cp == null) {
-            return;
+    private static DirsInfo findSourcesInfo(FileObject fo, Project project) {
+        DirsInfo srcInfo = new DirsInfo();
+
+        ClassPathProvider cpp = project.getLookup().lookup(ClassPathProvider.class);
+        srcInfo.srcCp = cpp.findClassPath(fo, ClassPath.SOURCE);
+        srcInfo.bootCp = cpp.findClassPath(fo, ClassPath.BOOT);
+        srcInfo.compCp = cpp.findClassPath(fo, ClassPath.COMPILE);
+        srcInfo.execCp = cpp.findClassPath(fo, ClassPath.EXECUTE);
+
+        ProjectUtils.getInformation(project);
+
+        SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        if (sgs.length > 0) {
+            srcInfo.srcDir = sgs[0].getRootFolder();
+            srcInfo.outDir = findOutDir(project, srcInfo.srcDir);
+            if (sgs.length > 1) {
+                srcInfo.testSrcDir = sgs[1].getRootFolder();
+                srcInfo.testOutDir = findOutDir(project, srcInfo.testSrcDir);
+            }
         }
 
-        for (ClassPath.Entry entry : cp.entries()) {
-            String sources = "";
-            File rootFile = null;
-            try {
-                FileObject entryRoot = entry.getRoot();
-                if (entryRoot != null) {
-                    FileSystem fs = entryRoot.getFileSystem();
-                    if (fs instanceof JarFileSystem) {
-                        rootFile = ((JarFileSystem) fs).getJarFile();
-                    } else {
-                        rootFile = FileUtil.toFile(entryRoot);
+        return srcInfo;
+    }
+
+    private static FileObject findOutDir(Project project, FileObject srcRoot) {
+        FileObject out = null;
+        URL srcRootUrl = null;
+        try {
+            // make sure the url is in same form of BinaryForSourceQueryImplementation
+            srcRootUrl = FileUtil.toFile(srcRoot).toURI().toURL();
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        BinaryForSourceQueryImplementation query = project.getLookup().lookup(BinaryForSourceQueryImplementation.class);
+        if (query != null && srcRootUrl != null) {
+            BinaryForSourceQuery.Result result = query.findBinaryRoots(srcRootUrl);
+            if (result != null) {
+                for (URL url : result.getRoots()) {
+                    if (FileUtil.isArchiveFile(url)) {
+                        continue;
+                    }
+
+                    URI uri = null;
+                    try {
+                        uri = url.toURI();
+                    } catch (URISyntaxException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+
+                    if (uri == null) {
+                        continue;
+                    }
+
+                    File file = new File(uri);
+                    if (file != null) {
+                        if (file.isDirectory()) {
+                            out = FileUtil.toFileObject(file);
+                            break;
+                        } else if (file.exists()) {
+                            continue;
+                        } else {
+                            // global requires an exist out path, so we should create
+                            if (file.mkdirs()) {
+                                out = FileUtil.toFileObject(file);
+                                break;
+                            }
+                        }
                     }
                 }
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-
-            if (rootFile != null) {
-                String path = rootFile.getAbsolutePath();
-                global.classPath().library(path, sources);
             }
         }
+
+        // global requires an exist out path, so we have to create a tmp folder
+        if (out == null) {
+            FileObject projectDir = project.getProjectDirectory();
+            if (projectDir != null && projectDir.isFolder()) {
+                try {
+                    String tmpClasses = "tmpClasses";
+                    out = projectDir.getFileObject(tmpClasses);
+                    if (out == null) {
+                        out = projectDir.createFolder(tmpClasses);
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+
+        return out;
     }
 
     private static void computeClassPath(StringBuilder sb, ClassPath cp) {
