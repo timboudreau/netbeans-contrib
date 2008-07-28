@@ -63,14 +63,12 @@ public class PSConfigServerPanel extends ConfigPanel{
         addClassPathButton = new javax.swing.JButton();
         removeClassPathButton = new javax.swing.JButton();
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PSConfigServerPanel.class, "LBL_CLASSPATH")); // NOI18N
 
         classPathList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         classPathList.setToolTipText("Add jar library which will be used only during compilation. Those will not be included in war.");
         jScrollPane1.setViewportView(classPathList);
 
-        addClassPathButton.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         addClassPathButton.setText(org.openide.util.NbBundle.getMessage(PSConfigServerPanel.class, "LBL_ADD")); // NOI18N
         addClassPathButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -78,7 +76,6 @@ public class PSConfigServerPanel extends ConfigPanel{
             }
         });
 
-        removeClassPathButton.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         removeClassPathButton.setText(org.openide.util.NbBundle.getMessage(PSConfigServerPanel.class, "LBL_REMOVE")); // NOI18N
         removeClassPathButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -96,10 +93,10 @@ public class PSConfigServerPanel extends ConfigPanel{
                 .add(13, 13, 13)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 353, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(17, 17, 17)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(removeClassPathButton)
-                    .add(addClassPathButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
-                .addContainerGap())
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(addClassPathButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(removeClassPathButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
