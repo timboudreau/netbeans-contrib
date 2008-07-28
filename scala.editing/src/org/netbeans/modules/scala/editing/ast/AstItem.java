@@ -161,6 +161,11 @@ public abstract class AstItem {
     }
 
     public boolean isSameNameAsEnclClass() {
-        return symbol.isConstructor() || (symbol.isMethod() && symbol.nameString().equals("apply"));
+        return
+                symbol.isConstructor() ||
+                symbol.isClass() ||
+                symbol.isModule() ||
+                symbol.isTrait() ||
+                (symbol.isMethod() && symbol.nameString().equals("apply"));
     }
 }
