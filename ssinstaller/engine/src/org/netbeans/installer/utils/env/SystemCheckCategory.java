@@ -130,8 +130,10 @@ class PlatformCheck implements ConfigurationChecker {
     private final String INCORRECT_PLATFORM_LONG = ResourceUtils.getString(PlatformCheck.class, "SCC.platfromcheck.incorrect_platform_long"); // NOI18N
     private final String INCORRECT_PLATFORM_MESSAGE = ResourceUtils.getString(PlatformCheck.class, "SCC.platfromcheck.incorrect_platform_message"); // NOI18N
     private final String CORRECT_PLATFORM_MESSAGE = ResourceUtils.getString(PlatformCheck.class, "SCC.platfromcheck.correct_platform_message"); // NOI18N
+    private final String PLATFORMS_LIST_SEPARATOR = ", ";
     
     private Registry registry = null;
+    private String incompatiblePlatform = null;
     
     private Registry getRegistry() {        
         try {            
@@ -151,7 +153,7 @@ class PlatformCheck implements ConfigurationChecker {
        
     private boolean hasCompatiblePlatforms(Platform platform, Collection<Platform> platforms) {
         for(Platform pl: platforms) {
-            if (pl.getOsFamily().equals(platform.getOsFamily())) return true;
+            if (pl.getOsFamily().equals(platform.getOsFamily()) && pl.getHardwareArch().equals(platform.getHardwareArch())) return true;
         }
         return false;
     }
@@ -161,7 +163,16 @@ class PlatformCheck implements ConfigurationChecker {
         if (registry != null) {
             Platform current = EnvironmentInfoFactory.getInstance().getPlatform();            
             for(Product product: registry.getProducts()) {
-                if (!hasCompatiblePlatforms(current, product.getPlatforms())) return false;          
+                if (!hasCompatiblePlatforms(current, product.getPlatforms())) {
+                    StringBuffer sb = new StringBuffer();
+                    for(Platform platform: product.getPlatforms()) {
+                        sb.append(platform.getDisplayName());
+                        sb.append(PLATFORMS_LIST_SEPARATOR);
+                    }
+                    sb.setLength(sb.length() - PLATFORMS_LIST_SEPARATOR.length());
+                    incompatiblePlatform = sb.toString();
+                    return false;          
+                }
             }
             return true;
         }
@@ -188,7 +199,7 @@ class PlatformCheck implements ConfigurationChecker {
     }
 
     public String getDisplayString() {
-        return isCorrectPlatform()? CORRECT_PLATFORM_MESSAGE: INCORRECT_PLATFORM_MESSAGE;
+        return isCorrectPlatform()? CORRECT_PLATFORM_MESSAGE: INCORRECT_PLATFORM_MESSAGE + ": " + incompatiblePlatform;
     }
     
 }
