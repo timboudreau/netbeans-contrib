@@ -456,6 +456,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <component uid="ss-base" version="1.0.0.0.0"/>
             
 	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="nb-extra" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -475,7 +476,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-	
+	    <component uid="nb-extra" version="${nb.full.version}"/>	
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
@@ -491,6 +492,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-linux-Linux.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="nb-extra" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -509,6 +511,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-sparc-S2.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
+            <component uid="nb-extra" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -526,6 +529,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-sparc-S2.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
+            <component uid="nb-extra" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
