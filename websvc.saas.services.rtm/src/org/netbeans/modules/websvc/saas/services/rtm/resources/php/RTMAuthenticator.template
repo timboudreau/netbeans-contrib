@@ -18,7 +18,7 @@
         public static function init() {
             if(self::$inited)
             return;
-            self::$LOGIN_URL = "org_netbeans_saas_rtm/".str_replace("Authenticator", "Login", _ATTR_PREFIX).".php";
+            self::$LOGIN_URL = "org_netbeans_saas_rememberthemilk/".str_replace("Authenticator", "Login", _ATTR_PREFIX).".php";
             self::$inited = true;
         }
 
