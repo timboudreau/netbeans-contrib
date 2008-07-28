@@ -63,6 +63,7 @@ import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.util.Exceptions;
@@ -88,13 +89,22 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         List<StructureItem> items = new ArrayList<StructureItem>(rootScope.getDefs().size());
-        for (AstDef def : rootScope.getDefs()) {
-            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE && def.getKind() != ElementKind.OTHER) {
-                items.add(new ScalaStructureItem(def, info));
-            }
-        }
+        scanTopTmpls(rootScope, items, info);
 
         return items;
+    }
+
+    private void scanTopTmpls(AstScope scope, List<StructureItem> items, CompilationInfo info) {
+        for (AstDef def : scope.getDefs()) {
+            ElementKind kind = def.getKind();
+            if (kind == ElementKind.CLASS || kind == ElementKind.MODULE) {
+                if (def.getEnclosingScope().isRoot() || def.getEnclosingDef().getKind() == ElementKind.PACKAGE) {
+                    items.add(new ScalaStructureItem(def, info));
+                }
+            }
+
+            scanTopTmpls(def.getBindingScope(), items, info);
+        }
     }
 
     public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
