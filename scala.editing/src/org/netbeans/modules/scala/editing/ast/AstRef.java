@@ -71,10 +71,10 @@ public class AstRef extends AstItem {
             if (isSameNameAsEnclClass() || ref.isSameNameAsEnclClass()) {
                 return getSymbol().enclClass() == ref.getSymbol().enclClass();
             }
-            
+
             return ref.getSymbol() == getSymbol();
         }
-        
+
         return false;
     }
 
