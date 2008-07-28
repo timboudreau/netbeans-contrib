@@ -313,9 +313,9 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 case VARIABLE:
                 case OTHER:
                 case PARAMETER:
+                case PACKAGE: // the enclosed defs should has been processed in scanTopTmpls
                     return true;
 
-                case PACKAGE:
                 case MODULE:
                 case CLASS:
                     return false;
