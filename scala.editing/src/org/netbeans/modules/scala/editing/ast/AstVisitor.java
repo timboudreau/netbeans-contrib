@@ -530,6 +530,6 @@ public abstract class AstVisitor {
         
         Position pos = tree.pos();
 
-        System.out.println("AstPath: " + getAstPathString() + "(" + offset(pos.line()) + ":" + offset(pos.column()) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
+        System.out.println(getAstPathString() + "(" + offset(pos.line()) + ":" + offset(pos.column()) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
     }
 }

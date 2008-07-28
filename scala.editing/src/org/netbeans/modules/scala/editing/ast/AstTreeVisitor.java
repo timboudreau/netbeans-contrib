@@ -158,7 +158,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -175,7 +175,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -193,7 +193,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -218,7 +218,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -238,7 +238,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -258,7 +258,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -279,15 +279,15 @@ public class AstTreeVisitor extends AstVisitor {
         /** @Note
          * Do not start a new scope for template, since the scope should be Class/Object/Module def 
          **/
+        visit(tree.self());
         visit(tree.parents());
         visit(tree.body());
-        visit(tree.self());
     }
 
     @Override
     public void visitImport(Import tree) {
-        visit(tree.expr());
         visit(tree.selectors());
+        visit(tree.expr());
     }
 
     @Override
@@ -315,8 +315,8 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitMatch(Match tree) {
-        visit(tree.cases());
         visit(tree.selector());
+        visit(tree.cases());
     }
 
     @Override
@@ -325,9 +325,9 @@ public class AstTreeVisitor extends AstVisitor {
         scopes.peek().addScope(scope);
 
         scopes.push(scope);
-        visit(tree.body());
-        visit(tree.guard());
         visit(tree.pat());
+        visit(tree.guard());
+        visit(tree.body());
         scopes.pop();
     }
 
@@ -354,7 +354,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.VARIABLE, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
-                System.out.println("Added: " + def);
+                System.out.println("\tAdded: " + def);
             }
         }
 
@@ -363,8 +363,8 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitUnApply(UnApply tree) {
-        visit(tree.args());
         visit(tree.fun());
+        visit(tree.args());
     }
 
     @Override
@@ -388,8 +388,8 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitIf(If tree) {
         visit(tree.cond());
-        visit(tree.elsep());
         visit(tree.thenp());
+        visit(tree.elsep());
     }
 
     @Override
@@ -422,20 +422,20 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitTypeApply(TypeApply tree) {
-        visit(tree.args());
         visit(tree.fun());
+        visit(tree.args());
     }
 
     @Override
     public void visitApply(Apply tree) {
-        visit(tree.args());
         visit(tree.fun());
+        visit(tree.args());
     }
 
     @Override
     public void visitApplyDynamic(ApplyDynamic tree) {
-        visit(tree.args());
         visit(tree.qual());
+        visit(tree.args());
     }
 
     @Override
@@ -446,7 +446,7 @@ public class AstTreeVisitor extends AstVisitor {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 if (debug) {
-                    System.out.println("Added: " + ref);
+                    System.out.println("\tAdded: " + ref);
                 }
             }
         }
@@ -460,7 +460,7 @@ public class AstTreeVisitor extends AstVisitor {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 if (debug) {
-                    System.out.println("Added: " + ref);
+                    System.out.println("\tAdded: " + ref);
                 }
             }
         }
@@ -471,7 +471,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
         if (scopes.peek().addRef(ref)) {
             if (debug) {
-                System.out.println("Added: " + ref);
+                System.out.println("\tAdded: " + ref);
             }
         }
         visit(tree.qualifier());
@@ -487,7 +487,7 @@ public class AstTreeVisitor extends AstVisitor {
             AstRef ref = new AstRef(symbol, getIdToken(tree));
             if (scopes.peek().addRef(ref)) {
                 if (debug) {
-                    System.out.println("Added: " + ref);
+                    System.out.println("\tAdded: " + ref);
                 }
             }
         }
@@ -509,7 +509,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
         if (scopes.peek().addRef(ref)) {
             if (debug) {
-                System.out.println("Added: " + ref);
+                System.out.println("\tAdded: " + ref);
             }
         }
 
