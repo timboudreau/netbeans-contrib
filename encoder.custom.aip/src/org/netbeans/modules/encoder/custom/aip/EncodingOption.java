@@ -116,6 +116,7 @@ public class EncodingOption {
         mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_inter"), "inter"); //NOI18N
         mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_super"), "super"); //NOI18N
         mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_oneof"), "oneof"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_regex"), "regex"); //NOI18N
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "blind", _bundle.getString("TAG_Alignment_blind")); //NOI18N
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "exact", _bundle.getString("TAG_Alignment_exact")); //NOI18N
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "begin", _bundle.getString("TAG_Alignment_begin")); //NOI18N
@@ -123,6 +124,7 @@ public class EncodingOption {
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "inter", _bundle.getString("TAG_Alignment_inter")); //NOI18N
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "super", _bundle.getString("TAG_Alignment_super")); //NOI18N
         mTextMap.put(ALIGNMENT_PREFIX + "_" + "oneof", _bundle.getString("TAG_Alignment_oneof")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + "_" + "regex", _bundle.getString("TAG_Alignment_regex")); //NOI18N
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_blind"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_exact"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_begin"));
@@ -130,6 +132,7 @@ public class EncodingOption {
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_inter"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_super"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_oneof"));
+        mAlignmentTagList.add(_bundle.getString("TAG_Alignment_regex"));
         mAlignmentTagList = Collections.unmodifiableList(mAlignmentTagList);
         
         //Populate the localized text map and the tag list for the order property
