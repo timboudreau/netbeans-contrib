@@ -253,10 +253,10 @@ findServiceTag() {
    for i in ${UINS}; do
       DEFID=`stclient -g -i $i | grep product_defined_inst_id | cut -d= -f2-`
       if [ "${DEFID}" = "${PRODUCT_INSTANCE_ID}" ]; then
-         echo $i
+         last=$i
       fi
    done
-   echo ""
+   echo "$last" 
 }
 
 #
