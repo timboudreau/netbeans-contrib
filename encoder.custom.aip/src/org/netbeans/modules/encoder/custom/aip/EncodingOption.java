@@ -24,6 +24,7 @@ import com.sun.encoder.custom.appinfo.Delimiter;
 import com.sun.encoder.custom.appinfo.DelimiterLevel;
 import com.sun.encoder.custom.appinfo.DelimiterSet;
 import com.sun.encoder.custom.appinfo.NodeProperties;
+import com.sun.encoder.custom.appinfo.NodeProperties.DelimOfFixed;
 import com.sun.encoder.runtime.provider.Misc;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -169,6 +170,8 @@ public class EncodingOption {
     private boolean mNoMatch = false;
     private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" + NodeProperties.Alignment.BLIND); //NOI18N
     private int mLength = 0;
+    private String mBeginDelimiter = ""; //NOI18N
+    private boolean mBeginDelimiterDetached = true;
     private String mEscapeSequence = ""; //NOI18N
     private boolean mFineInherit = false;
     
@@ -292,6 +295,46 @@ public class EncodingOption {
         mCustomEncoding.getNodeProperties().setLength(mLength);
         commitToAppInfo();
         firePropertyChange("length", old, Integer.valueOf(mLength)); //NOI18N
+    }
+
+    public String getBeginDelimiter() {
+        return mBeginDelimiter;
+    }
+
+    public void setBeginDelimiter(String beginDelimiter) {
+        String old = mBeginDelimiter;
+        mBeginDelimiter = beginDelimiter;
+        if (mBeginDelimiter == null || mBeginDelimiter.length() == 0) {
+            // if empty delimiter is set, then remove the "delimOfFixed" element
+            if (mCustomEncoding.getNodeProperties().isSetDelimOfFixed()) {
+                mCustomEncoding.getNodeProperties().unsetDelimOfFixed();
+            }
+        } else {
+            if (!mCustomEncoding.getNodeProperties().isSetDelimOfFixed()) {
+                mCustomEncoding.getNodeProperties().addNewDelimOfFixed();
+            }
+            mCustomEncoding.getNodeProperties().getDelimOfFixed().setBeginBytes(mBeginDelimiter);
+        }
+        commitToAppInfo();
+        firePropertyChange("beginDelimiter", old, mBeginDelimiter); //NOI18N
+    }
+
+    public boolean getBeginDelimiterDetached() {
+        return mBeginDelimiterDetached;
+    }
+
+    public void setBeginDelimiterDetached(boolean beginDelimiterDetached) {
+        if (!mCustomEncoding.getNodeProperties().isSetDelimOfFixed()) {
+            // do nothing so that as if user can not 
+            // check the "Begin Delimiter Detached" because the 
+            // "Begin Delimiter" field is not set any value yet.
+            return;
+        }
+        boolean old = mBeginDelimiterDetached;
+        mBeginDelimiterDetached = beginDelimiterDetached;
+        mCustomEncoding.getNodeProperties().getDelimOfFixed().setBeginAnch(!mBeginDelimiterDetached);
+        commitToAppInfo();
+        firePropertyChange("beginDelimiterDetached", old, mBeginDelimiterDetached); //NOI18N
     }
 
     public String getMatch() {
@@ -810,6 +853,13 @@ public class EncodingOption {
         }
         if (customEncoding.getNodeProperties().isSetLength()) {
             mLength = customEncoding.getNodeProperties().getLength();
+        }
+        if (customEncoding.getNodeProperties().isSetDelimOfFixed()) {
+            DelimOfFixed delimOfFixed = customEncoding.getNodeProperties().getDelimOfFixed();
+            mBeginDelimiter = delimOfFixed.getBeginBytes();
+            if (delimOfFixed.isSetBeginAnch()) {
+                mBeginDelimiterDetached = !delimOfFixed.getBeginAnch();
+            }
         }
         if (customEncoding.getNodeProperties().isSetDelimiterSet()) {
             mDelimiterSet = customEncoding.getNodeProperties().getDelimiterSet();
