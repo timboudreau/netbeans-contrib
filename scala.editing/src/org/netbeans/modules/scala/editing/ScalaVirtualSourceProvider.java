@@ -59,7 +59,7 @@ import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
-import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
+import org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
@@ -81,6 +81,10 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
     public Set<String> getSupportedExtensions() {
         return Collections.singleton("scala"); // NOI18N
 
+    }
+    
+    public boolean index () {
+        return true;
     }
 
     public void translate(Iterable<File> files, File sourceRoot, Result result) {

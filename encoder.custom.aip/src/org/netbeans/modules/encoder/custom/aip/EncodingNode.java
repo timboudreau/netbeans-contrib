@@ -245,6 +245,24 @@ public class EncodingNode extends AbstractNode
                 propSet.put(lengthProp);
             }
 
+            if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
+                PropertySupport.Reflection<String> beginDelimiterProp =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "beginDelimiter");  //NOI18N
+                beginDelimiterProp.setName("beginDelimiter");  //NOI18N
+                beginDelimiterProp.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter"));
+                propSet.put(beginDelimiterProp);
+            }
+                
+            if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
+                PropertySupport.Reflection<Boolean> beginDelimiterDetachedProp =
+                        new PropertySupport.Reflection<Boolean>(mEncodingOption,
+                                boolean.class, "beginDelimiterDetached");  //NOI18N
+                beginDelimiterDetachedProp.setName("beginDelimiterDetached");  //NOI18N
+                beginDelimiterDetachedProp.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter_detached"));
+                propSet.put(beginDelimiterDetachedProp);
+            }
+                
             if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())
                     || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
                 PropertySupport.Reflection<String> delimiterProp =
@@ -255,15 +273,6 @@ public class EncodingNode extends AbstractNode
                 propSet.put(delimiterProp);
             }
             
-            if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<Integer> lengthProp =
-                        new PropertySupport.Reflection<Integer>(mEncodingOption,
-                                int.class, "length");  //NOI18N
-                lengthProp.setName("length");  //NOI18N
-                lengthProp.setDisplayName(_bundle.getString("encoding_node.lbl.length"));
-                propSet.put(lengthProp);
-            }
-                
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()) {
                 //The Escape Sequence Property
                 PropertySupport.Reflection<String> escapeSequenceProp =
@@ -290,6 +299,11 @@ public class EncodingNode extends AbstractNode
         return sheet;
     }
 
+    /**
+     * This method gets called when a bound property is changed.
+     * @param evt A PropertyChangeEvent object describing the event source 
+     *   	and the property that has changed.
+     */
     public void propertyChange(PropertyChangeEvent evt) {
         if (mChangeSheetPropNames.contains(evt.getPropertyName())) {
             setSheet(createSheet());

@@ -261,7 +261,7 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             }
         }
         
-        boolean mResult = true;
+        boolean result = true;
 
         if (type.equals(ENCODE)) {
             try {
@@ -270,20 +270,25 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
                         processFile, outputFile, testerPanel.getPostencodeCoding(),
                         testerPanel.isToString());
             } catch (IOException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (ParserConfigurationException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (EncoderException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (SAXException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;            
+                result = false;            
             } catch (EncoderConfigurationException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;            
+                result = false;            
             } finally {
                 testerPanel.setCursor(null);
             }
@@ -294,26 +299,31 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
                         processFile, outputFile, testerPanel.getPredecodeCoding(),
                         testerPanel.isFromString());
             } catch (TransformerConfigurationException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (final TransformerException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (EncoderException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (IOException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;
+                result = false;
             } catch (EncoderConfigurationException ex) {
+                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                mResult = false;            
+                result = false;            
             } finally {
                 testerPanel.setCursor(null);
-            }            
+            }
         }
         
-        if (!mResult) {
+        if (!result) {
             return;
         }
         
@@ -331,31 +341,39 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
 
-        if (isVerbose) {
-            if (logHandler != null && byteArrOS != null && logger4Verbose != null) {
-                // flush the Handler.
-                logHandler.flush();
-                InputOutput io = IOProvider.getDefault()
-                        .getIO("Encoder Test [" + metaFile.getName() + "]", true);
-                // Ensure this I/O output pane is visible.
-                io.select();
-                // now writes to the output pane.
-                OutputWriter writer = io.getOut();
-                writer.println(byteArrOS.toString());
-                try {
-                    byteArrOS.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-
-                // make sure to close the writer of I/O output pane.
-                writer.close();
-                // close and remove the Handler.
-                logHandler.close();
-                logger4Verbose.removeHandler(logHandler);
-                // reset to its original logging level
-                logger4Verbose.setLevel(origLevel);
-            }
+        displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+    }
+    
+    private void displayVerboseMessages(boolean isVerbose,
+            ByteArrayOutputStream byteArrOS,
+            Handler logHandler,
+            Logger logger4Verbose,
+            Level origLevel) {
+        if (!isVerbose || logHandler == null || byteArrOS == null 
+                || logger4Verbose == null) {
+            return;
         }
+        // flush the Handler.
+        logHandler.flush();
+        InputOutput io = IOProvider.getDefault().getIO("Encoder Test ["
+                + metaFile.getName() + "]", true);
+        // Ensure this I/O output pane is visible.
+        io.select();
+        // now writes to the output pane.
+        OutputWriter writer = io.getOut();
+        writer.println(byteArrOS.toString());
+        try {
+            byteArrOS.close();
+        } catch (IOException ex) {
+            // ignore
+        }
+
+        // make sure to close the writer of I/O output pane.
+        writer.close();
+        // close and remove the Handler.
+        logHandler.close();
+        logger4Verbose.removeHandler(logHandler);
+        // reset to its original logging level
+        logger4Verbose.setLevel(origLevel);
     }
 }
