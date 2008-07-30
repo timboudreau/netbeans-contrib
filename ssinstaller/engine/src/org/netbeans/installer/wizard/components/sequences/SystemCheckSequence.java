@@ -36,6 +36,7 @@
 
 package org.netbeans.installer.wizard.components.sequences;
 
+import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
 import org.netbeans.installer.wizard.components.WizardSequence;
 import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPanel;
@@ -50,7 +51,7 @@ public class SystemCheckSequence extends WizardSequence {
 
     @Override
     public void executeForward() {
-        if (SystemCheckCategory.hasProblemCategories()) {
+        if (SystemCheckCategory.hasProblemCategories() && System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
             getChildren().clear();
             addChild(systemCheckPanel);
         }

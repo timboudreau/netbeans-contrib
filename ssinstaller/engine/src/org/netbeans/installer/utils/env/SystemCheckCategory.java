@@ -153,7 +153,7 @@ class PlatformCheck implements ConfigurationChecker {
        
     private boolean hasCompatiblePlatforms(Platform platform, Collection<Platform> platforms) {
         for(Platform pl: platforms) {
-            if (pl.getOsFamily().equals(platform.getOsFamily()) && pl.getHardwareArch().equals(platform.getHardwareArch())) return true;
+            if (pl.getOsFamily().equals(platform.getOsFamily()) && (pl.getHardwareArch() != null? pl.getHardwareArch().equals(platform.getHardwareArch()): true)) return true;
         }
         return false;
     }
