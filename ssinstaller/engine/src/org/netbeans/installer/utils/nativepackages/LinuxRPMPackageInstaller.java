@@ -74,39 +74,10 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
                     p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage, "--relocate", "/opt/sun=" + target).start();
                 }
 
-                {
-                    String line;
-                    StringBuffer message = new StringBuffer();
-                    message.append("Error = ");
-                    BufferedReader input =
-                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    message.append("\n Output = ");
-                    input =
-                            new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                }
+                getProcessOutput(p);
 
                 if (p.waitFor() != 0) {
-                    String line;
-                    StringBuffer message = new StringBuffer();
-                    message.append("Error = ");
-                    BufferedReader input =
-                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    message.append("\n Output = ");
-                    input =
-                            new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    throw new InstallationException("Error native. " + message);
+                    throw new InstallationException("Error native. " + getProcessOutput(p));
                 }
             } catch (InterruptedException ex) {
                 throw new InstallationException("Error executing 'rpm -i'!", ex);
@@ -134,39 +105,10 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
                     p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage, "--relocate", "/opt/sun=" + target).start();
                 }
 
-                {
-                    String line;
-                    StringBuffer message = new StringBuffer();
-                    message.append("Error = ");
-                    BufferedReader input =
-                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    message.append("\n Output = ");
-                    input =
-                            new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                }
+                getProcessOutput(p);
 
                 if (p.waitFor() != 0) {
-                    String line;
-                    StringBuffer message = new StringBuffer();
-                    message.append("Error = ");
-                    BufferedReader input =
-                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    message.append("\n Output = ");
-                    input =
-                            new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    while ((line = input.readLine()) != null) {
-                        message.append(line);
-                    }
-                    throw new InstallationException("Error native. " + message);
+                    throw new InstallationException("Error native. " + getProcessOutput(p));
                 }
                 ArrayList<String> res = new ArrayList<String>(1);
                 res.add(packageName);
@@ -186,13 +128,14 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         List<String> arguments = new LinkedList<String>();
         arguments.add("rpm");
         arguments.add("-e");
+        arguments.add("--nodeps");
         arguments.add(packageName);
 
         try {
             // LogManager.log("executing command: " + listToString(arguments));
             Process p = new ProcessBuilder(arguments).start();
             if (p.waitFor() != 0) {
-                throw new InstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()));
+                throw new InstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()) + " ! " + getProcessOutput(p));
             }
         } catch (InterruptedException ex) {
             throw new InstallationException("Error executing 'rpm -e'!", ex);
@@ -205,13 +148,14 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         List<String> arguments = new LinkedList<String>();
         arguments.add("rpm");
         arguments.add("-e");
+        arguments.add("--nodeps");
         arguments.addAll(packageNames);
 
         try {
             // LogManager.log("executing command: " + listToString(arguments));
             Process p = new ProcessBuilder(arguments).start();
             if (p.waitFor() != 0) {
-                throw new InstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()));
+                throw new InstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()) + " ! " + getProcessOutput(p));
             }
         } catch (InterruptedException ex) {
             throw new InstallationException("Error executing 'rpm -e'!", ex);
@@ -220,13 +164,22 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         }
     }
 
-    private String listToString(List<String> list) {
-        StringBuffer sb = new StringBuffer();
-        for (String str : list) {
-            sb.append(str);
-            sb.append(' ');
+    private String getProcessOutput(Process p) throws IOException {
+        String line;
+        StringBuffer message = new StringBuffer();
+        message.append("Error = ");
+        BufferedReader input =
+                new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        while ((line = input.readLine()) != null) {
+            message.append(line);
         }
-        return sb.toString();
+        message.append("\n Output = ");
+        input =
+                new BufferedReader(new InputStreamReader(p.getInputStream()));
+        while ((line = input.readLine()) != null) {
+            message.append(line);
+        }
+        return message.toString();
     }
 
     public boolean isCorrectPackageFile(String pathToPackage) {
