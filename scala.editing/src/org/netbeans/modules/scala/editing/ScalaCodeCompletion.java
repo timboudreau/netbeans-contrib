@@ -2061,7 +2061,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             AstItem item = rootScope.findItemAt(th, idToken);
             if (item != null) {
                 Symbol symbol = item.getSymbol();
-                if (!symbol.tpe().isError()) {
+                if (!symbol.nameString().equals("<none>") && !symbol.tpe().isError()) {
                     return item.getSymbol();
                 }
             }
