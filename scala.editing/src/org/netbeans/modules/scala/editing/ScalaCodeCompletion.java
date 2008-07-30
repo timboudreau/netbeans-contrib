@@ -2033,7 +2033,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         scala.tools.nsc.symtab.Types.Type resType = type.resultType();
         if (resType instanceof MethodType) {
             // recursively go on ?
-            return getResultType(resType);
+            return resType;
         } else {
             return resType;
         }
