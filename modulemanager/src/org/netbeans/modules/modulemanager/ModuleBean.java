@@ -334,7 +334,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     
     @Override
     public String toString() {
-        return "ModuleBean[" + codeNameBase + "]"; // NOI8N
+        return "ModuleBean[" + codeNameBase + "]"; // NOI18N
     }
     
     public static final class AllModulesBean implements Runnable, PropertyChangeListener, Comparator<ModuleInfo> {
