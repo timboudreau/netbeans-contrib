@@ -66,6 +66,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstTreeVisitor;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -262,7 +263,7 @@ public class ScalaParser implements Parser {
                         } else {
                             // Make sure the line doesn't end with one of the JavaScript keywords
                             // (new, do, etc) - we can't handle that!
-                            for (String keyword : ScalaUtils.FORTRESS_KEYWORDS) { // reserved words are okay
+                            for (String keyword : LexerScala.SCALA_KEYWORDS) { // reserved words are okay
 
                                 if (line.endsWith(keyword)) {
                                     removeChars = 1;
@@ -481,7 +482,7 @@ public class ScalaParser implements Parser {
         boolean sanitizedSource = false;
         String source = context.source;
 
-        if (!((sanitizing == Sanitize.NONE) || (sanitizing == Sanitize.NEVER))) {
+        if (!(sanitizing == Sanitize.NONE || sanitizing == Sanitize.NEVER)) {
             boolean ok = sanitizeSource(context, sanitizing);
 
             if (ok) {
@@ -632,9 +633,9 @@ public class ScalaParser implements Parser {
         NEVER,
         /** Perform no sanitization */
         NONE,
-        /** Try to remove the trailing . or :: at the caret line */
+        /** Try to remove the trailing . at the caret line */
         EDITED_DOT,
-        /** Try to remove the trailing . or :: at the error position, or the prior
+        /** Try to remove the trailing . at the error position, or the prior
          * line, or the caret line */
         ERROR_DOT,
         /** Try to cut out the error line */
@@ -660,6 +661,7 @@ public class ScalaParser implements Parser {
         private Sanitize sanitized = Sanitize.NONE;
         private TranslatedSource translatedSource;
         private TokenHierarchy th;
+        private boolean errorObject;
 
         public Context(ParserFile parserFile, ParseListener listener, String source,
                 int caretOffset, TranslatedSource translatedSource) {
@@ -708,8 +710,18 @@ public class ScalaParser implements Parser {
             int offset = ScalaUtils.getOffset(pos);
             org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
 
-            notifyError(context, "SYNTAX_ERROR", msg,
-                    offset, offset + 1, sanitizing, sev, new Object[]{offset, msg});
+//            if (msg.startsWith("identifier expected but")) {
+//                int caretOffset = context.caretOffset;
+//                if (caretOffset < offset) {
+//                    context.sanitized = Sanitize.EDITED_DOT;
+//                }
+//            }
+
+            boolean ignoreError = context.sanitizedSource != null;
+            if (!ignoreError) {
+                notifyError(context, "SYNTAX_ERROR", msg,
+                        offset, offset, sanitizing, sev, new Object[]{offset, msg});
+            }
         }
     }
 }

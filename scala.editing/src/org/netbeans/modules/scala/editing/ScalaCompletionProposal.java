@@ -85,7 +85,13 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
     }
 
     public String getSortText() {
-        return getName();
+        String name = getName();
+        char c = name.charAt(0);
+        if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {
+            return name;
+        } else {
+            return '~' + name;
+        }
     }
 
     public ElementHandle getElement() {
@@ -144,7 +150,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
     }
 
     public Set<Modifier> getModifiers() {
-        return getElement().getModifiers();
+        return element.getModifiers();
     }
 
     @Override

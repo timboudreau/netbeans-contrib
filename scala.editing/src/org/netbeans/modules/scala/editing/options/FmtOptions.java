@@ -165,9 +165,9 @@ public class FmtOptions {
         String defaultValues[][] = {
             {SimpleValueNames.TEXT_LIMIT_WIDTH, "80"}, //NOI18N
             {SimpleValueNames.EXPAND_TABS, TRUE}, //NOI18N
-            {SimpleValueNames.TAB_SIZE, "8"}, //NOI18N
-            {SimpleValueNames.INDENT_SHIFT_WIDTH, "4"}, //NOI18N
-            {continuationIndentSize, "4"}, //NOI18N
+            {SimpleValueNames.TAB_SIZE, "4"}, //NOI18N
+            {SimpleValueNames.INDENT_SHIFT_WIDTH, "2"}, //NOI18N
+            {continuationIndentSize, "2"}, //NOI18N
             {reformatComments, FALSE}, //NOI18N
             {indentHtml, TRUE}, //NOI18N
         };

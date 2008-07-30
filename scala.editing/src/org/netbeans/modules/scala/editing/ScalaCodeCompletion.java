@@ -91,6 +91,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.MethodType;
 
 /**
  * Code completion handler for JavaScript
@@ -1983,13 +1984,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
     private boolean completeSymbolMembers(Symbol symbol, List<CompletionProposal> proposals, CompletionRequest request) {
         String prefix = request.prefix;
-        symbol.info(); // force to load(complete) all info;
-        scala.tools.nsc.symtab.Types.Type resType;
-        if (symbol.isMethod()) {
-            resType = symbol.tpe().resultType();
-        } else {
-            resType = symbol.tpe();
-        }
+        scala.tools.nsc.symtab.Types.Type resType = getResultType(symbol.tpe());
 
         try {
             scala.List members = resType.members();
@@ -2033,6 +2028,16 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         return true;
     }
+
+    private scala.tools.nsc.symtab.Types.Type getResultType(scala.tools.nsc.symtab.Types.Type type) {
+        scala.tools.nsc.symtab.Types.Type resType = type.resultType();
+        if (resType instanceof MethodType) {
+            // recursively go on ?
+            return resType;
+        } else {
+            return resType;
+        }
+    }
     private static final List<ScalaTokenId> CALL_ID = Arrays.asList(
             ScalaTokenId.Identifier,
             ScalaTokenId.This,
@@ -2061,7 +2066,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             AstItem item = rootScope.findItemAt(th, idToken);
             if (item != null) {
                 Symbol symbol = item.getSymbol();
-                if (!symbol.tpe().isError()) {
+                if (!symbol.nameString().equals("<none>") && !symbol.tpe().isError()) {
                     return item.getSymbol();
                 }
             }

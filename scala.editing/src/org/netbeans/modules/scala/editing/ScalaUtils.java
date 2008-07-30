@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +51,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -72,7 +71,7 @@ public class ScalaUtils {
     private ScalaUtils() {
     }
 
-    public static boolean isFortressFile(FileObject f) {
+    public static boolean isScalaFile(FileObject f) {
         return ScalaMimeResolver.MIME_TYPE.equals(f.getMIMEType());
     }
 
@@ -165,7 +164,7 @@ public class ScalaUtils {
     }
 
     /** Similar to isValidFortressClassName, but allows a number of ::'s to join class names */
-    public static boolean isValidFortressTraitName(String name) {
+    public static boolean isValidTraitName(String name) {
         if (name.trim().length() == 0) {
             return false;
         }
@@ -182,7 +181,7 @@ public class ScalaUtils {
     }
 
     public static boolean isValidClassName(String name) {
-        if (isFortressKeyword(name)) {
+        if (isKeyword(name)) {
             return false;
         }
 
@@ -210,8 +209,8 @@ public class ScalaUtils {
         return true;
     }
 
-    public static boolean isValidFortressLocalVarName(String name) {
-        if (isFortressKeyword(name)) {
+    public static boolean isValidLocalVarName(String name) {
+        if (isKeyword(name)) {
             return false;
         }
 
@@ -243,8 +242,8 @@ public class ScalaUtils {
         return true;
     }
 
-    public static boolean isValidFortressFunctionName(String name) {
-        if (isFortressKeyword(name)) {
+    public static boolean isValidFunctionName(String name) {
+        if (isKeyword(name)) {
             return false;
         }
 
@@ -275,8 +274,8 @@ public class ScalaUtils {
         return true;
     }
 
-    public static boolean isValidFortressIdentifier(String name) {
-        if (isFortressKeyword(name)) {
+    public static boolean isValidIdentifier(String name) {
+        if (isKeyword(name)) {
             return false;
         }
 
@@ -297,14 +296,8 @@ public class ScalaUtils {
         return true;
     }
 
-    public static boolean isFortressKeyword(String name) {
-        for (String s : FORTRESS_KEYWORDS) {
-            if (s.equals(name)) {
-                return true;
-            }
-        }
-
-        return false;
+    public static boolean isKeyword(String name) {
+        return LexerScala.SCALA_KEYWORDS.contains(name);
     }
 
     public static String getLineCommentPrefix() {
