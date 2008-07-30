@@ -51,17 +51,26 @@
 
 package org.netbeans.modules.dtrace.script;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Enumeration;
-import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.openide.execution.ExecutionEngine;
 import org.openide.execution.ExecutorTask;
+import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Utilities;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
-
 /**
  *
  * @author nassern
@@ -72,40 +81,89 @@ public class ScriptLibrary implements Runnable {
     private StringBuffer usrDefScriptDir;
     private String userHomeDir;
     private String userCurDir;
+    private String chimeHome;
     private FileFilter fileFilter;
     private FileFilter dirFilter;
     private boolean grayOut;
     private Process p;
-    static final String ScriptLibrary_Path = "/org/netbeans/modules/dtrace/script/ScriptLibrary.class";
     
     public ScriptLibrary() {
         preDefScriptDir = new StringBuffer();
         usrDefScriptDir = new StringBuffer();
-        userHomeDir = new String(); 
-        userCurDir = new String(); 
-        Properties props = System.getProperties();
-        Enumeration iter = props.propertyNames();
-        
-        for (; iter.hasMoreElements(); ) {
-             String propName = (String)iter.nextElement();
-             if (propName.equals("user.home")) {
-                 userHomeDir = (String)props.get(propName);
-             } else if (propName.equals("user.dir")) {
-                 userCurDir = (String)props.get(propName);
-             }
-        }
-        
+
+        userHomeDir = System.getProperty("user.home");
         if (userHomeDir.length() != 0) {
             preDefScriptDir.append(userHomeDir);
             preDefScriptDir.append("/");
             preDefScriptDir.append("DTraceScripts");
         }
         
+        userCurDir = System.getProperty("user.dir");
         if (userCurDir.length() != 0) {
             usrDefScriptDir.append(userCurDir);
             usrDefScriptDir.append("/");
             usrDefScriptDir.append("DTraceScripts");
         } 
+        
+        chimeHome = preDefScriptDir.toString() + "/chime";
+        System.setProperty("CHIME_HOME", chimeHome);
+        // System.setProperty("JAVA_CONVERSION_API_DEBUG", "1");
+        // System.getProperties().list(System.out);
+        String arch = System.getProperty("os.arch");
+        File libraryFile = InstalledFileLocator.getDefault().locate("modules/lib",
+                "org.netbeans.modules.dtrace",
+                false);
+  
+        if (libraryFile != null  && libraryFile.exists()) {
+            String path = libraryFile.toString();
+            File netbeansLib = new File(path, arch);
+            String libraryPath = System.getProperty("java.library.path");
+            libraryPath += ":";
+            libraryPath += netbeansLib.getAbsolutePath();
+            System.setProperty("java.library.path", libraryPath);
+        }
+    /*   
+        String classPath = System.getProperty("java.class.path");
+        String dtraceJar = "/usr/share/lib/java/dtrace.jar";
+        classPath +=":" + dtraceJar;
+        System.setProperty("java.class.path", classPath);
+       
+        try {
+            URLClassLoader urlLoader = getURLClassLoader(new URL("file", null, dtraceJar));
+            JarInputStream jis = new JarInputStream(new FileInputStream(dtraceJar));
+            JarEntry entry = jis.getNextJarEntry();
+            
+            while (entry != null) {
+              String name = entry.getName();
+              if (name.endsWith(".class")) {
+                name = name.substring(0, name.length() - 6);
+                name = name.replace('/', '.');
+                System.out.print("> " + name);
+
+                try {
+                  ClassLoader sysLoader = (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class);
+                  sysLoader.loadClass(name);
+                  System.out.println("\t- loaded");
+                } catch (Throwable e) {
+                  System.out.println("\t- not loaded");
+                  System.out.println("\t " + e.getClass().getName() + ": " + e.getMessage());
+                }
+
+              }
+              entry = jis.getNextJarEntry();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+       */
+       // String netbeansUser = System.getProperty("netbeans.user");
+        //String libraryPath = System.getProperty("java.library.path");
+       // File netbeansLib = new File(netbeansUser, "lib");
+        //netbeansLib = new File(netbeansLib, arch);
+       // libraryPath += ":";
+      //  libraryPath += netbeansLib.getAbsolutePath();
+       // System.out.println(libraryPath);
+        //System.setProperty("java.library.path", libraryPath);
         
         if (Utilities.getOperatingSystem() == Utilities.OS_SOLARIS) {       
             installScripts();
@@ -153,7 +211,17 @@ public class ScriptLibrary implements Runnable {
                         acceptDir = false;
                     } else if (name.compareToIgnoreCase("Examples") == 0) {
                         acceptDir = false;
-                    }
+                    } else if (name.compareToIgnoreCase("Code") == 0) {
+                        acceptDir = false;
+                    } else if (name.compareToIgnoreCase("Include") == 0) {
+                        acceptDir = false;
+                    } else if (name.compareToIgnoreCase("Notes") == 0) {
+                        acceptDir = false;                       
+                    } else if (name.compareToIgnoreCase("chime") == 0) {
+                        acceptDir = false;
+                    } else if (name.compareToIgnoreCase("Legal") == 0) {
+                        acceptDir = false;   
+                    } 
                     
                   //  if (name.compareToIgnoreCase("Examples") == 0) {
                    //     grayOut = true;
@@ -165,12 +233,18 @@ public class ScriptLibrary implements Runnable {
         };
     }
    
+    private static URLClassLoader getURLClassLoader(URL jarURL) {
+        return new URLClassLoader(new URL[]{jarURL});
+    }
+    
     public void installScripts() {
-        File scriptDir = new File(preDefScriptDir.toString());      
+
+        File scriptDir = new File(preDefScriptDir.toString());  
+        
         if (scriptDir != null && scriptDir.exists()) {
             return;
         }
-        
+       
         synchronized (this) { 
             String procName = "Install DTraceScripts";
             InputOutput io = IOProvider.getDefault().getIO(procName, true);
@@ -233,79 +307,86 @@ public class ScriptLibrary implements Runnable {
         File[] files = dir.listFiles(fileFilter);
         return files;
     }
+    
+    public void copyInputStream(InputStream in, OutputStream out)
+    throws IOException {
+        byte[] buffer = new byte[1024];
+        int len;
 
-    public void run() {       
-        java.net.URL url = ScriptLibrary.class.getResource(ScriptLibrary_Path);
-        if (url == null) {
-            return;
-        }
-            
-        StringBuffer path = new StringBuffer(url.getPath());
-        int idx1 = path.lastIndexOf(":");           
-        int idx2 = path.indexOf("org-netbeans-modules-dtrace.jar!");
-        if (idx1 != -1 && idx2 != -1) {
-            String modulePath = path.substring(idx1 + 1, idx2);
-            path = new StringBuffer(modulePath);
-        }
-      
-        path.append("ext/DTraceScripts.zip");
-        File scriptFile = new File(path.toString());
-        if (!scriptFile.exists()) {
-            return;
-        }
+        while((len = in.read(buffer)) >= 0)
+            out.write(buffer, 0, len);
 
-        String command = "/bin/cp " + path + " " + userHomeDir;
+        in.close();
+        out.close();
+    }  
+    
+    public void copyFile(File from, File to) {
         try {
-            p = Runtime.getRuntime().exec(command);
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        }
-        
-        int retCode = 0;
-        try {
-            retCode = p.waitFor();                 
-        } catch (InterruptedException ex) {
-            // We've interupted the process. Kill it and wait for the process to finish.
-            p.destroy();
-            while (retCode < 0) {
-                try {
-                    retCode= p.waitFor();
-                } catch (InterruptedException ex1) {
-                    ex1.getStackTrace();
-                }
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(from));
+            BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(to));
+            byte[] buf = new byte[4096];
+            int cnt;
+            while ((cnt = is.read(buf, 0, buf.length)) != -1) {
+                os.write(buf, 0, cnt);
             }
-        }      
-      
-        command = "/bin/unzip DTraceScripts.zip";
+            is.close();
+            os.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+
+    public void run() {    
+   
+        Enumeration entries;
+        ZipFile zipFile;
+        
+        File scriptFile = InstalledFileLocator.getDefault().locate("modules/ext/DTraceScripts.zip",
+                "org.netbeans.modules.dtrace",
+                false);
+  
+        if (scriptFile != null  && !scriptFile.exists()) {
+            return;
+        } 
+              
+        StringBuffer path = new StringBuffer(scriptFile.toString());
+        String zipPath = userHomeDir + File.separator + "DTraceScripts.zip";
+        File zipSource = new File(path.toString());
+        File zipDest = new File(zipPath);
+        copyFile(zipSource, zipDest);
+ 
+        try {
+            zipFile = new ZipFile(zipPath);
+            entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry)entries.nextElement();
+
+                if (entry.isDirectory()) {
+                    (new File(userHomeDir + File.separator + entry.getName())).mkdir();
+                    continue;
+                }
+
+                copyInputStream(zipFile.getInputStream(entry),
+                new BufferedOutputStream(new FileOutputStream(userHomeDir + 
+                        File.separator + entry.getName())));
+            }
+            zipFile.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return;
+        }  
+
+        String command = "/bin/chmod -R 755 DTraceScripts";
         try {
             File userHomeDirFile = new File(userHomeDir);
             p = Runtime.getRuntime().exec(command, null, userHomeDirFile);
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        
-        try {
-            retCode = p.waitFor();                 
-        } catch (InterruptedException ex) {
-            // We've interupted the process. Kill it and wait for the process to finish.
-            p.destroy();
-            while (retCode < 0) {
-                try {
-                    retCode= p.waitFor();
-                } catch (InterruptedException ex1) {
-                    ex1.getStackTrace();
-                }
-            }
-        }        
-
-        command = "/bin/chmod -R 755 DTraceScripts";
-        try {
-            File userHomeDirFile = new File(userHomeDir);
-            p = Runtime.getRuntime().exec(command, null, userHomeDirFile);
         } catch(IOException ex) {
             ex.printStackTrace();
         }
-        
+       int retCode = 0;
         try {
             retCode = p.waitFor();                 
         } catch (InterruptedException ex) {
@@ -318,6 +399,6 @@ public class ScriptLibrary implements Runnable {
                     ex1.getStackTrace();
                 }
             }
-        }    
+        }
     }
 }

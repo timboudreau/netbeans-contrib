@@ -51,12 +51,24 @@
 
 package org.netbeans.modules.dtrace.execution;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Iterator;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
 import org.netbeans.modules.dtrace.script.Script;
 import org.openide.execution.ExecutionEngine;
 import org.openide.execution.ExecutorTask;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -67,7 +79,7 @@ import org.openide.windows.InputOutput;
 public class ScriptExecutor implements Runnable {
     private Script script;
     private TaskManager taskMgr;
-    private LinkedList tasks = new LinkedList();
+    private  static ArrayList   taskTabs = new ArrayList();
     
     private InputOutput io;
     private PrintWriter out; 
@@ -77,27 +89,90 @@ public class ScriptExecutor implements Runnable {
 
     }
     
+    public void stopExecTask(TaskManager tm) {
+        ExecutorTask tabExecTask =  tm.getTask();
+        if (!tabExecTask.isFinished()) {
+            stop(tm);
+        }
+    }
+    
+    public void stopAllIoTabs() {
+        Iterator i = taskTabs.iterator();
+        while (i.hasNext()) {
+            TaskManager tm = (TaskManager)i.next();
+            InputOutput tabIO = tm.getIO();
+            
+            if (tabIO != null) {
+                tabIO.closeInputOutput();  
+            }       
+            stopExecTask(tm);
+            i.remove();
+        }  
+        taskTabs.clear();
+    }
+    
     public ExecutorTask execute(Script script) {
-        final ExecutorTask task;
+        final ExecutorTask execTask;
         synchronized (this) { 
             this.script = script;
-            String procName = "DTrace - " + script.getName();
-            io = IOProvider.getDefault().getIO(procName, true);
-            io.select();            
+            String displayName = "DTrace - " + script.getName();
+            
+            Iterator i = taskTabs.iterator();
+            while (i.hasNext()) {
+                TaskManager tm = (TaskManager)i.next();
+                InputOutput tabIO = tm.getIO();
+ 
+                if (tabIO == null) {
+                    stopExecTask(tm);
+                    i.remove();
+                } else if (tabIO != null && tabIO.isClosed()) {
+                    stopExecTask(tm);
+                    tabIO.closeInputOutput();
+                    i.remove();
+                }
+            }
+       
             taskMgr = new TaskManager();
-            task = ExecutionEngine.getDefault().execute(procName, this, io);
-            taskMgr.setTask(task);
-            tasks.add(taskMgr);
+            taskMgr.setScript(script);
+            taskMgr.setDisplayName(displayName);
+            
+            StopAction stopAction = new StopAction(taskMgr);
+            taskMgr.setStopAction(stopAction);           
+            RerunAction rerunAction = new RerunAction(taskMgr);
+            taskMgr.setRerunAction(rerunAction);
+            
+            io = IOProvider.getDefault().getIO(displayName, new Action[] {rerunAction, stopAction});
+            io.select();
+            taskMgr.setIO(io);
+            execTask = ExecutionEngine.getDefault().execute(displayName, this, io);
+            taskMgr.setTask(execTask);
+            taskTabs.add(taskMgr);
+            CloseTabThread closeTabThread = new CloseTabThread(taskMgr);
+            closeTabThread.start();
         }
         
-        return task;
+        return execTask;
     }
+    
+    public ExecutorTask execute(TaskManager taskMgr) {
+        final ExecutorTask execTask;
+        synchronized (this) { 
+            this.script = taskMgr.getScript();
+            this.io = taskMgr.getIO();
+            this.taskMgr = taskMgr;
+            execTask = ExecutionEngine.getDefault().execute(taskMgr.getDisplayName(), this, io);
+        }
+        
+        return execTask;
+    } 
     
     public void run() {
         int execStat = 0;
         ScriptExecution scriptExec = new ScriptExecution(script);
         try {  
             taskMgr.setScriptExec (scriptExec);
+            taskMgr.getStopAction().setEnabled(true);
+            taskMgr.getRerunAction().setEnabled(false);
             execStat = scriptExec.executeCmd(io); 
         } catch(ThreadDeath td) {
          //   scriptExec.destroy();
@@ -121,14 +196,12 @@ public class ScriptExecutor implements Runnable {
             ex.printStackTrace();
         }
     } 
-
     
-    public void stop() {
-        if (tasks.isEmpty()) {
+    public void stop(TaskManager taskMgr) {
+        if (taskMgr == null) {
             return;
         }
-        
-        TaskManager taskMgr = (TaskManager)tasks.getLast();     
+            
         try {
             sigkill(taskMgr.getScritpExec().getPid());
         } catch (Exception ex) {
@@ -138,15 +211,47 @@ public class ScriptExecutor implements Runnable {
         if (!(taskMgr.getScritpExec().getScript().isDScript())) {
             taskMgr.getScritpExec().destroy();
             taskMgr.getTask().stop();
-        } 
+        }     
         
-        tasks.removeLast();
+        taskMgr.getRerunAction().setEnabled(true);
+    }
+    
+    
+    private class CloseTabThread extends Thread {
+        TaskManager taskMgr;
+        
+        public CloseTabThread(TaskManager taskMgr) {
+            this.taskMgr = taskMgr;
+        }
+        
+        @Override
+        public void run() {
+            if (taskMgr != null) {
+                InputOutput io = taskMgr.getIO();
+                while (!interrupted()&& io != null && !io.isClosed()) {
+                    try {
+                         Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                if (io != null && io.isClosed()) {
+                    stopExecTask(taskMgr);
+                    taskTabs.remove(taskMgr);
+                }
+            }
+        }
     }
     
     private class TaskManager {
         private ExecutorTask task;
         private ScriptExecution scriptExec;
-    
+        private String displayName;
+        private InputOutput io;
+        private StopAction stopAction;
+        private RerunAction rerunAction;
+        private Script script;
+        
         TaskManager() {
             this.task = null;
             scriptExec = null;
@@ -167,5 +272,124 @@ public class ScriptExecutor implements Runnable {
         public ScriptExecution getScritpExec() {
             return scriptExec;
         }
+        
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+        
+        public void setIO(InputOutput io) {
+            this.io = io;
+        }
+        
+        public InputOutput getIO() {
+            return io;
+        }
+        
+        public void setStopAction(StopAction stopAction) {
+            this.stopAction = stopAction;
+        }
+        
+        public StopAction getStopAction() {
+            return stopAction;
+        }
+        
+        public void setRerunAction(RerunAction rerunAction) {
+            this.rerunAction = rerunAction;
+        }
+        
+        public RerunAction getRerunAction() {
+            return rerunAction;
+        }
+        
+        public void setScript(Script script) {
+            this.script = script;
+        }
+        
+        public Script getScript() {
+            return script;
+        }
+    }
+    
+    private class StopAction extends AbstractAction {
+        
+        private TaskManager taskMgr;
+        
+        public StopAction(TaskManager taskMgr) {
+            this.taskMgr = taskMgr;
+            setEnabled(false); // initially, until ready
+        }
+
+        @Override
+        public Object getValue(String key) {
+            if (key.equals(Action.SMALL_ICON)) {
+                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/stop.png"));
+            } else if (key.equals(Action.SHORT_DESCRIPTION)) {
+                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.StopAction.stop");
+            } else {
+                return super.getValue(key);
+            }
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            setEnabled(false); // discourage repeated clicking
+            if (taskMgr != null) { 
+                stop(taskMgr);
+            }
+        }
+        
+        public void setTaskMgr(TaskManager taskMgr) {
+            this.taskMgr = taskMgr;
+        }
+    }
+    
+    private class RerunAction extends AbstractAction implements FileChangeListener {
+
+        private TaskManager taskMgr;
+
+        public RerunAction(TaskManager taskMgr) {
+            this.taskMgr = taskMgr;
+            setEnabled(false); // initially, until ready
+            FileObject fileObject = FileUtil.toFileObject(taskMgr.getScript().getFile());
+            if (fileObject == null || !fileObject.isValid()) {
+                return;
+            } else {
+                fileObject.addFileChangeListener(FileUtil.weakFileChangeListener(this, fileObject));
+            }
+        }
+
+        @Override
+        public Object getValue(String key) {
+            if (key.equals(Action.SMALL_ICON)) {
+                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/rerun.png"));
+            } else if (key.equals(Action.SHORT_DESCRIPTION)) {
+                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.RerunAction.rerun");
+            } else {
+                return super.getValue(key);
+            }
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            setEnabled(false);
+            ScriptExecutor exec = new ScriptExecutor();
+            exec.execute(taskMgr);
+        }
+
+        public void fileDeleted(FileEvent fe) {
+            firePropertyChange("enabled", null, false); // NOI18N
+        }
+
+        public void fileFolderCreated(FileEvent fe) {}
+
+        public void fileDataCreated(FileEvent fe) {}
+
+        public void fileChanged(FileEvent fe) {}
+
+        public void fileRenamed(FileRenameEvent fe) {}
+
+        public void fileAttributeChanged(FileAttributeEvent fe) {}
     }
 }

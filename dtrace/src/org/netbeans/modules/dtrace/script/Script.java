@@ -266,7 +266,7 @@ public class Script {
         
         readConfig();
         if (dScript) {
-            cmd.append("/usr/sbin/dtrace -s ");
+            cmd.append("/usr/sbin/dtrace -Z -C -s ");
         }
         cmd.append(path);
                 

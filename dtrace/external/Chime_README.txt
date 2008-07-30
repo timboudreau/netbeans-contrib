@@ -1,31 +1,11 @@
-Name: DTraceScripts
-Version: 10.2007
-License: CDDL-1.0
+Unless otherwise noted, all files in this distribution are released
+under the Common Development and Distribution License (CDDL),
+Version 1.0 only.  Exceptions are noted within the associated
+source files.
+
+--------------------------------------------------------------------
 
 
-DO NOT TRANSLATE OR LOCALIZE.
-
-The following software may be included in this product: DTraceToolKit,
-including but not limited to
-anonpgpid.d, anonpgpid.xml, bitesize.d, connections, cpudists,
-cputimes, cputypes.d, cpuwalk.d, crash.d, creatbyproc.d, cswstat.d,
-dappprof, dapptrace, diskhits, dispqlen.d, dnlcps.d, dnlcsnoop.d,
-dnlcstat, dtruss, dvmstat, errinfo, execsnoop, filebyproc.d, functime.d,
-hotspot.d, httpdstat.d, icmpstat.d, intbycpu.d, intoncpu.d, inttimes.d,
-iofile.d, iofileb.d, iopattern, iopending, iosnoop, iotop, kill.d,
-kstat_types.d, kstat_types.xml, lastwords, loads.d, lockbydist.d,
-lockbyproc.d, lwptime.d, memleak.d, minfbypid.d, minfbyproc.d,
-mmapfiles.d, modcalls.d, newproc.d, nfswizard.d, opensnoop, pathopens.d,
-pfilestat, pgpginbypid.d, pgpginbyproc.d, pidpersec.d, priclass.d,
-pridist.d, readbytes.d, readdist.d, rfileio.d, rfsio.d, runocc.d,
-rwbbypid.d, rwbypid.d, rwbytype.d, rwtop, sar-c.d, seeksize.d, setuids.d,
-shellsnoop, shortlived.d, sigdist.d, stacksize.d, swapinfo.d, sysbypid.d,
-syscallbypid.d, syscallbyproc.d, syscallbysysc.d, tcpstat.d, tcpwdist.d,
-threaded.d, topsyscall, topsysproc, uname-a.d, vmbypid.d, vmstat-p.d,
-vmstat.d, vopstat, weblatency.d, whatexec.d, writebytes.d, writedist.d,
-xcallsbypid.d, xvmstat, zvmstat.  
-
-Use of any of this software is governed by the terms of the license below:
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE Version 1.0
 
 1. Definitions.
@@ -403,6 +383,3 @@ Any litigation relating to this License shall be subject to the
 jurisdiction of the Federal Courts of the Northern District of
 California and the state courts of the State of California, with
 venue lying in Santa Clara County, California.
-
-
-

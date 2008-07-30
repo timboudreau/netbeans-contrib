@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="contrib/dtrace" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <target name="release" depends="projectized.release,files-init,compile-postinstall">
+        <mkdir dir="main"/>
+        <copy todir="main" overwrite="true">
+            <fileset dir="postinstallsrc">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile-postinstall">
+        <javac srcdir="postinstallsrc" destdir="postinstallsrc" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" optimize="${build.compiler.optimize}" source="1.5"/>
+    </target>
+    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cluster}"
+                 module="${module.jar}"
+                 homepage="${nbm.homepage}"
+                 distribution="${nbm.distribution}"
+                 needsrestart="${nbm.needs.restart}"
+                 releasedate="${nbm.release.date}"
+                 moduleauthor="${nbm.module.author}">
+            <license >
+                <file location ="external/License_for_Update_Center_display.txt"/>
+            </license>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm
+_alias}"/>
+            <main dir="main"/>
+        </makenbm>
+        <delete dir="main"/>
+        <delete>
+            <fileset dir="postinstallsrc">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+    </target>
+
 </project>

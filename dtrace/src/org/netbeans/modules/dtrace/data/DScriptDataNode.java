@@ -61,17 +61,18 @@ public class DScriptDataNode extends DataNode {
         super(obj, Children.LEAF);
 //        setIconBaseWithExtension(IMAGE_ICON_BASE);
    //     setValue("nodeDescription", getScript().getDescription());
+        setShowFileExtensions(true);
     }
     
     /** Creates a property sheet. */
     protected Sheet createSheet() {
         Sheet s = super.createSheet();
-        Sheet.Set ss = s.get(Sheet.PROPERTIES);
-        if (ss == null) {
-            ss = Sheet.createPropertiesSet();
-            s.put(ss);
-        }
-        
+        //Sheet.Set ss = s.get(Sheet.PROPERTIES);
+        //if (ss == null) {
+            //ss = Sheet.createPropertiesSet();
+            //s.put(ss);
+        //}
+        s.remove(Sheet.PROPERTIES);
         Sheet.Set ps = new Sheet.Set();
         ps.setName("DTrace config");
         ps.setDisplayName("DTrace config");
@@ -97,7 +98,7 @@ public class DScriptDataNode extends DataNode {
    
     private final class PidProperty extends PropertySupport.ReadWrite {
         public PidProperty() {
-            super("pid", String.class, "pid", "pid");
+            super("Pid", String.class, "Pid", "Pid");
         }
         
         public Object getValue() {
@@ -112,7 +113,7 @@ public class DScriptDataNode extends DataNode {
     
     private final class ExecNameProperty extends PropertySupport.ReadWrite {
         public ExecNameProperty() {
-            super("executable", String.class, "executable", "executable name");
+            super("Executable", String.class, "Executable", "Executable name");
         }
         
         public Object getValue() {
@@ -127,7 +128,7 @@ public class DScriptDataNode extends DataNode {
     
     private final class ExecArgsProperty extends PropertySupport.ReadWrite {
         public ExecArgsProperty() {
-            super("executable args", String.class, "executable args", "executable arguments");
+            super("Executable Args", String.class, "Executable Args", "Executable Arguments");
         }
         
         public Object getValue() {
@@ -142,7 +143,7 @@ public class DScriptDataNode extends DataNode {
     
     private final class ScriptArgsProperty extends PropertySupport.ReadWrite {
         public ScriptArgsProperty() {
-            super("Script args", String.class, "Script args", "Script arguments");
+            super("Script Args", String.class, "Script Args", "Script Arguments");
         }
         
         public Object getValue() {
