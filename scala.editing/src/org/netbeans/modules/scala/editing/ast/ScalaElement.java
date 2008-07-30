@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
-import org.netbeans.modules.scala.editing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -55,6 +54,11 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.scala.editing.JavaUtilities;
+import org.netbeans.modules.scala.editing.NbUtilities;
+import org.netbeans.modules.scala.editing.ScalaGlobal;
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
