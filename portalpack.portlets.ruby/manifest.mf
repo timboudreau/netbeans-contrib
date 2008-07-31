@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.portalpack.portlets.ruby
+OpenIDE-Module-Layer: org/netbeans/modules/portalpack/portlets/ruby/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/portlets/ruby/resources/Bundle.properties
+OpenIDE-Module-Install: org/netbeans/modules/portalpack/portlets/ruby/PluginInstall.class
+OpenIDE-Module-Specification-Version: 0.9
+
