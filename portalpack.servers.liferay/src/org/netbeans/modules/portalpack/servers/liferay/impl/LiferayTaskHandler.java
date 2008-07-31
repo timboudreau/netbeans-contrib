@@ -43,6 +43,7 @@ import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.liferay.ServerDeployHandler;
@@ -64,7 +65,6 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     protected PSConfigObject psconfig;
     protected ServerDeployHandler deployerHandler;
     protected String uri;
-   
 
     /** Creates a new instance of LifeRayTaskHandler */
     public LiferayTaskHandler(PSDeploymentManager dm) {
@@ -104,60 +104,69 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }*/
         String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
         File deployDirFile = new File(deployDir);
-        if(!deployDirFile.exists())
+        if (!deployDirFile.exists()) {
             deployDirFile.mkdirs();
         //copy(warfile, System.getProperty("user.home") + File.separator + "liferay" + File.separator + "deploy");
+        }
         long baseTime = System.currentTimeMillis();
-        copy(warfile,deployDir);
+        copy(warfile, deployDir);
         showServerLog();
-        return getDeploymentMessage(warfile,baseTime);
+        return getDeploymentMessage(warfile, baseTime);
     }
-    
-    
-    public String getDeploymentMessage(String warfile,long baseTime) throws Exception
-    {
+
+    public String getDeploymentMessage(String warfile, long baseTime) throws Exception {
         File warFile = new File(warfile);
         String warName = warFile.getName();
-        if(!psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
-            org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
-        
+        // if(!psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
+        //     return org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
+
         String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
-        
-        File warInLRAutoDeployDir = new File(deployDir + File.separator +warName);
+
+        File warInLRAutoDeployDir = new File(deployDir + File.separator + warName);
         int counter = 0;
-        while(warInLRAutoDeployDir.exists())
-        {
+        while (warInLRAutoDeployDir.exists()) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException ex) {
                 logger.info(ex.getMessage());
             }
-            counter ++;
-            if(counter >= 50)
+            counter++;
+            if (counter >= 50) {
                 return "Deployment done. Check server log for the status.";
+            }
+        }
+
+        if (psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            return _getGlassFishDeploymentMessage(warName, baseTime);
         }
         
-        File appServerAutoDeployDir = new File(psconfig.getDomainDir() + File.separator + "autodeploy");
-        File warFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir,warName + "_deployed");
-        File deployFailFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir,warName + "_deployFailed");
+        if(psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+            return _getTomcatDeploymentMessage(warName, baseTime);
+        }
         
-        counter = 0;
-        while(true)
-        {
-            if(warFileInAppServerAutoDeployDir.exists())
-            {
-                if(warFileInAppServerAutoDeployDir.lastModified() >= baseTime)
-                {
+        return org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
+        
+    }
+
+    private String _getGlassFishDeploymentMessage(String warName,long baseTime)
+        throws DeploymentException{
+        
+        File appServerAutoDeployDir = new File(psconfig.getDomainDir() + File.separator + "autodeploy");
+        File warFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir, warName + "_deployed");
+        File deployFailFileInAppServerAutoDeployDir = new File(appServerAutoDeployDir, warName + "_deployFailed");
+
+        int counter = 0;
+        while (true) {
+            if (warFileInAppServerAutoDeployDir.exists()) {
+                if (warFileInAppServerAutoDeployDir.lastModified() >= baseTime) {
                     return warName + " deployed successfully. Check log for more message.";
                 }
             }
-            
-            if(deployFailFileInAppServerAutoDeployDir.exists())
-            {
-                if(deployFailFileInAppServerAutoDeployDir.lastModified() >= baseTime)
-                {
+
+            if (deployFailFileInAppServerAutoDeployDir.exists()) {
+                if (deployFailFileInAppServerAutoDeployDir.lastModified() >= baseTime) {
                     throw new DeploymentException(warName + " deployment failed. For more into check log message. ");
-                    //return warName + " deployment failed. For more into check log message. ";
+                //return warName + " deployment failed. For more into check log message. ";
                 }
             }
             try {
@@ -166,11 +175,53 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
             } catch (InterruptedException ex) {
                 logger.info(ex.getMessage());
             }
-            counter ++;
-            if(counter >= 50)
+            counter++;
+            if (counter >= 50) {
                 return "Deployment done. Check server log for the status.";
+            }
         }
+    }
+    
+    private String _getTomcatDeploymentMessage(String warName,long baseTime)
+        throws DeploymentException{
         
+        String appDir = null;
+        int index = warName.indexOf(".");
+        if(index == -1)
+        {
+            appDir = warName;
+        } else {
+            appDir = warName.substring(0,index);
+        }
+         
+        File tomcatDeployDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
+                                            + File.separator + "webapps" + appDir);
+
+        int counter = 0;
+        while (true) {
+            if (tomcatDeployDir.exists()) {
+                if (tomcatDeployDir.lastModified() >= baseTime) {
+                    return warName + " deployed successfully. Check log for more message.";
+                }
+            }
+
+           /* if (deployFailFileInAppServerAutoDeployDir.exists()) {
+                if (deployFailFileInAppServerAutoDeployDir.lastModified() >= baseTime) {
+                    throw new DeploymentException(warName + " deployment failed. For more into check log message. ");
+                }
+            }*/
+            
+            try {
+
+                Thread.sleep(300);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter++;
+            if (counter >= 50) {
+                return "Deployment done. Check server log for the status.";
+            }
+        }
     }
 
     protected int runProcess(String str, boolean wait) throws Exception {
@@ -256,12 +307,11 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     }
     }
      */
-    
     public String[] getPortlets(String dn) {
         try {
 
             URL url = null;
-            String urlStr = "http://localhost:" + psconfig.getPort() + "/c/" + psconfig.getPortalUri() + "/" + "json_service?serviceClassName=" + "com.liferay.portal.service.http.PortletServiceJSON" + "&serviceMethodName=getWARPortlets";
+            String urlStr = "http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/c/" + psconfig.getPortalUri() + "/" + "json_service?serviceClassName=" + "com.liferay.portal.service.http.PortletServiceJSON" + "&serviceMethodName=getWARPortlets";
             try {
                 url = new URL(urlStr);
             } catch (MalformedURLException e) {
@@ -271,6 +321,9 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
             }
 
             String jsonString = getContentFromHttpURL(url);
+            if (jsonString == null) {
+                return new String[0];
+            }
             JSONArray jsonArray = new JSONArray(jsonString);
             List<String> portlets = new ArrayList();
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -291,26 +344,26 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         ExtendedClassLoader loader = new ExtendedClassLoader(getClass().getClassLoader());
         /*String jdkVersion = "1.5";
         try {
-            loader.loadClass("java.awt.Desktop");
-            jdkVersion = "1.6";
+        loader.loadClass("java.awt.Desktop");
+        jdkVersion = "1.6";
         } catch (ClassNotFoundException ex) {
-            jdkVersion = "1.5";
+        jdkVersion = "1.5";
         }
-
+        
         File libDir = new File(psconfig.getServerHome() + File.separator + "lib");
         File[] files = null;
-
+        
         if (jdkVersion.equals("1.5")) {
-            files = new File[]{new File(libDir, "webservices-rt.jar"), new File(libDir, "activation.jar"),
-                        new File(libDir, "javaee.jar")
-                    };
+        files = new File[]{new File(libDir, "webservices-rt.jar"), new File(libDir, "activation.jar"),
+        new File(libDir, "javaee.jar")
+        };
         } else {
-            files = new File[]{new File(libDir, "javaee.jar")};
+        files = new File[]{new File(libDir, "javaee.jar")};
         //}
         
         for (int i = 0; i < files.length; i++) {
-            logger.info(files[i].getName());
-            loader.addURL(files[i]);
+        logger.info(files[i].getName());
+        loader.addURL(files[i]);
         }*/
         return loader;
     }
@@ -393,7 +446,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     }
 
     public static void copy(String fromFileName, String toFileName)
-            throws IOException {
+        throws IOException {
         File fromFile = new File(fromFileName);
         File toFile = new File(toFileName);
 
@@ -426,7 +479,6 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
                 try {
                     from.close();
                 } catch (IOException e) {
-                    
                 }
             }
             if (to != null) {
