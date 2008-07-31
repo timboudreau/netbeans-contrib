@@ -11,7 +11,16 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.13</specification-version>
+                        <specification-version>1.18</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.api.java.classpath</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -19,7 +28,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>0.5.1</specification-version>
+                        <specification-version>0.5</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -94,12 +103,29 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.ruby.platform</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>0.46</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.spi.palette</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.10</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.awt</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.7.12</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -155,7 +181,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.7.0.1</specification-version>
+                        <specification-version>6.8.12</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -169,10 +195,17 @@
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.cms</friend>
+                <friend>org.netbeans.modules.portalpack.portlets.genericportlets</friend>
+                <friend>org.netbeans.modules.portalpack.portlets.ruby</friend>
                 <friend>org.netbeans.modules.portalpack.saw</friend>
+                <friend>org.netbeans.modules.portalpack.servers.base_psframework</friend>
+                <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
                 <package>org.json</package>
                 <package>org.netbeans.modules.portalpack.commons</package>
+                <package>org.netbeans.modules.portalpack.commons.palette.java</package>
+                <package>org.netbeans.modules.portalpack.commons.palette.java.util</package>
                 <package>org.netbeans.modules.portalpack.commons.palette.jsp</package>
+                <package>org.netbeans.modules.portalpack.commons.ruby</package>
             </friend-packages>
         </data>
     </configuration>
