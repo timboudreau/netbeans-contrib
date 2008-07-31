@@ -44,8 +44,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
@@ -69,6 +72,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
@@ -308,7 +312,7 @@ public class ScalaParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null, context.th);
+                return createParseResult(context.file, null, null, context.th, Collections.<DefaultError>emptyList());
 
             case NONE:
 
@@ -358,7 +362,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null, context.th);
+                return createParseResult(context.file, null, null, context.th, Collections.<DefaultError>emptyList());
         }
     }
 
@@ -565,7 +569,7 @@ public class ScalaParser implements Parser {
 
         if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th);
+            ScalaParserResult pResult = createParseResult(context.file, rootScope, null, context.th, context.getErrors());
             pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             pResult.setSource(source);
             return pResult;
@@ -576,7 +580,25 @@ public class ScalaParser implements Parser {
     private static long version;
 
     private ScalaParserResult createParseResult(ParserFile file,
-            AstRootScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th) {
+            AstRootScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th, List<DefaultError> errors) {
+
+            if (!errors.isEmpty()) {
+                FileObject fo = file.getFileObject();
+                if (fo != null) {
+                    try {
+                        Set<URL> inError = Collections.singleton(fo.getURL());
+//                        ErrorAnnotator eAnnot = ErrorAnnotator.getAnnotator();
+//                        if (eAnnot != null) {
+//                            eAnnot.updateInError(inError);
+//                        }
+                    } catch (FileStateInvalidException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+
+         
+        
         return new ScalaParserResult(this, file, rootScope, ast, th);
     }
 
@@ -612,6 +634,7 @@ public class ScalaParser implements Parser {
         }
 
         context.listener.error(error);
+        context.addError(error);
 
         if (sanitizing == Sanitize.NONE) {
             context.errorOffset = end;
@@ -661,7 +684,7 @@ public class ScalaParser implements Parser {
         private Sanitize sanitized = Sanitize.NONE;
         private TranslatedSource translatedSource;
         private TokenHierarchy th;
-        private boolean errorObject;
+        private List<DefaultError> errors;
 
         public Context(ParserFile parserFile, ParseListener listener, String source,
                 int caretOffset, TranslatedSource translatedSource) {
@@ -692,6 +715,23 @@ public class ScalaParser implements Parser {
 
         public int getErrorOffset() {
             return errorOffset;
+        }
+
+        public void addError(DefaultError error) {
+            if (errors == null) {
+                errors = new ArrayList<DefaultError>();
+            }
+            errors.add(error);
+        }
+
+        public void cleanErrors() {
+            if (errors != null) {
+                errors.clear();
+            }
+        }
+
+        public List<DefaultError> getErrors() {
+            return errors == null ? Collections.<DefaultError>emptyList() : errors;
         }
     }
 
