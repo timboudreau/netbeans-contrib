@@ -25,6 +25,8 @@ import com.sun.encoder.custom.appinfo.DelimiterLevel;
 import com.sun.encoder.custom.appinfo.DelimiterSet;
 import com.sun.encoder.custom.appinfo.NodeProperties;
 import com.sun.encoder.custom.appinfo.NodeProperties.DelimOfFixed;
+import com.sun.encoder.custom.appinfo.NodeProperties.NOfN;
+import com.sun.encoder.custom.appinfo.NodeProperties.Scvngr;
 import com.sun.encoder.runtime.provider.Misc;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -77,6 +79,10 @@ public class EncodingOption {
     public static final String NODE_TYPE_PREFIX = "nodeType"; //NOI18N
     public static final String ALIGNMENT_PREFIX = "align"; //NOI18N
     public static final String ORDER_PREFIX = "order"; //NOI18N
+    public static final String UNDEFINED_DATA_POLICY_PREFIX = "undefDataPolicy"; //NOI18N
+    public static final String FIXED_LENGTH_TYPE_PREFIX = "fixedLengthType"; //NOI18N
+    private static final String EMP = ""; //NOI18N
+    private static final String UDS = "_"; //NOI18N
     
     private static final CustomEncoding mDefaultCustomEncoding =
             CustomEncoding.Factory.newInstance();
@@ -88,19 +94,21 @@ public class EncodingOption {
     private static List<String> mNodeTypeTagList = new ArrayList<String>();
     private static List<String> mAlignmentTagList = new ArrayList<String>();
     private static List<String> mOrderTagList = new ArrayList<String>();
+    private static List<String> mFixedLengthTypeTagList = new ArrayList<String>();
+    private static List<String> mUndefDataPolicyTagList = new ArrayList<String>();
     
     static {        
         //Populate the localized text map and the tag list for the node type property
-        mReverseTextMap.put(NODE_TYPE_PREFIX + "_" + _bundle.getString("TAG_NodeType_group"), "group"); //NOI18N
-        mReverseTextMap.put(NODE_TYPE_PREFIX + "_" + _bundle.getString("TAG_NodeType_array"), "array"); //NOI18N
-        mReverseTextMap.put(NODE_TYPE_PREFIX + "_" + _bundle.getString("TAG_NodeType_delimited"), "delimited"); //NOI18N
-        mReverseTextMap.put(NODE_TYPE_PREFIX + "_" + _bundle.getString("TAG_NodeType_fixedLength"), "fixedLength"); //NOI18N
-        mReverseTextMap.put(NODE_TYPE_PREFIX + "_" + _bundle.getString("TAG_NodeType_transient"), "transient"); //NOI18N
-        mTextMap.put(NODE_TYPE_PREFIX + "_" + "group", _bundle.getString("TAG_NodeType_group")); //NOI18N
-        mTextMap.put(NODE_TYPE_PREFIX + "_" + "array", _bundle.getString("TAG_NodeType_array")); //NOI18N
-        mTextMap.put(NODE_TYPE_PREFIX + "_" + "delimited", _bundle.getString("TAG_NodeType_delimited")); //NOI18N
-        mTextMap.put(NODE_TYPE_PREFIX + "_" + "fixedLength", _bundle.getString("TAG_NodeType_fixedLength")); //NOI18N
-        mTextMap.put(NODE_TYPE_PREFIX + "_" + "transient", _bundle.getString("TAG_NodeType_transient")); //NOI18N
+        mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_group"), "group"); //NOI18N
+        mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_array"), "array"); //NOI18N
+        mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_delimited"), "delimited"); //NOI18N
+        mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_fixedLength"), "fixedLength"); //NOI18N
+        mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_transient"), "transient"); //NOI18N
+        mTextMap.put(NODE_TYPE_PREFIX + UDS + "group", _bundle.getString("TAG_NodeType_group")); //NOI18N
+        mTextMap.put(NODE_TYPE_PREFIX + UDS + "array", _bundle.getString("TAG_NodeType_array")); //NOI18N
+        mTextMap.put(NODE_TYPE_PREFIX + UDS + "delimited", _bundle.getString("TAG_NodeType_delimited")); //NOI18N
+        mTextMap.put(NODE_TYPE_PREFIX + UDS + "fixedLength", _bundle.getString("TAG_NodeType_fixedLength")); //NOI18N
+        mTextMap.put(NODE_TYPE_PREFIX + UDS + "transient", _bundle.getString("TAG_NodeType_transient")); //NOI18N
         mNodeTypeTagList.add(_bundle.getString("TAG_NodeType_group"));
         mNodeTypeTagList.add(_bundle.getString("TAG_NodeType_array"));
         mNodeTypeTagList.add(_bundle.getString("TAG_NodeType_delimited"));
@@ -109,22 +117,22 @@ public class EncodingOption {
         mNodeTypeTagList = Collections.unmodifiableList(mNodeTypeTagList);
         
         //Populate the localized text map and the tag list for the alignment property
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_blind"), "blind"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_exact"), "exact"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_begin"), "begin"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_final"), "final"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_inter"), "inter"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_super"), "super"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_oneof"), "oneof"); //NOI18N
-        mReverseTextMap.put(ALIGNMENT_PREFIX + "_" + _bundle.getString("TAG_Alignment_regex"), "regex"); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "blind", _bundle.getString("TAG_Alignment_blind")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "exact", _bundle.getString("TAG_Alignment_exact")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "begin", _bundle.getString("TAG_Alignment_begin")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "final", _bundle.getString("TAG_Alignment_final")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "inter", _bundle.getString("TAG_Alignment_inter")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "super", _bundle.getString("TAG_Alignment_super")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "oneof", _bundle.getString("TAG_Alignment_oneof")); //NOI18N
-        mTextMap.put(ALIGNMENT_PREFIX + "_" + "regex", _bundle.getString("TAG_Alignment_regex")); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_blind"), "blind"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_exact"), "exact"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_begin"), "begin"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_final"), "final"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_inter"), "inter"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_super"), "super"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_oneof"), "oneof"); //NOI18N
+        mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_regex"), "regex"); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "blind", _bundle.getString("TAG_Alignment_blind")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "exact", _bundle.getString("TAG_Alignment_exact")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "begin", _bundle.getString("TAG_Alignment_begin")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "final", _bundle.getString("TAG_Alignment_final")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "inter", _bundle.getString("TAG_Alignment_inter")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "super", _bundle.getString("TAG_Alignment_super")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "oneof", _bundle.getString("TAG_Alignment_oneof")); //NOI18N
+        mTextMap.put(ALIGNMENT_PREFIX + UDS + "regex", _bundle.getString("TAG_Alignment_regex")); //NOI18N
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_blind"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_exact"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_begin"));
@@ -136,17 +144,43 @@ public class EncodingOption {
         mAlignmentTagList = Collections.unmodifiableList(mAlignmentTagList);
         
         //Populate the localized text map and the tag list for the order property
-        mReverseTextMap.put(ORDER_PREFIX + "_" + _bundle.getString("TAG_Order_sequence"), "sequence"); //NOI18N
-        mReverseTextMap.put(ORDER_PREFIX + "_" + _bundle.getString("TAG_Order_any"), "any"); //NOI18N
-        mReverseTextMap.put(ORDER_PREFIX + "_" + _bundle.getString("TAG_Order_mixed"), "mixed"); //NOI18N
-        mTextMap.put(ORDER_PREFIX + "_" + "sequence", _bundle.getString("TAG_Order_sequence")); //NOI18N
-        mTextMap.put(ORDER_PREFIX + "_" + "any", _bundle.getString("TAG_Order_any")); //NOI18N
-        mTextMap.put(ORDER_PREFIX + "_" + "mixed", _bundle.getString("TAG_Order_mixed")); //NOI18N
+        mReverseTextMap.put(ORDER_PREFIX + UDS + _bundle.getString("TAG_Order_sequence"), "sequence"); //NOI18N
+        mReverseTextMap.put(ORDER_PREFIX + UDS + _bundle.getString("TAG_Order_any"), "any"); //NOI18N
+        mReverseTextMap.put(ORDER_PREFIX + UDS + _bundle.getString("TAG_Order_mixed"), "mixed"); //NOI18N
+        mTextMap.put(ORDER_PREFIX + UDS + "sequence", _bundle.getString("TAG_Order_sequence")); //NOI18N
+        mTextMap.put(ORDER_PREFIX + UDS + "any", _bundle.getString("TAG_Order_any")); //NOI18N
+        mTextMap.put(ORDER_PREFIX + UDS + "mixed", _bundle.getString("TAG_Order_mixed")); //NOI18N
         mOrderTagList.add(_bundle.getString("TAG_Order_sequence"));
         mOrderTagList.add(_bundle.getString("TAG_Order_any"));
         mOrderTagList.add(_bundle.getString("TAG_Order_mixed"));
         mOrderTagList = Collections.unmodifiableList(mOrderTagList);
         
+        //Populate the localized text map and the tag list for the fixedLengthType property
+        mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_regular"), "regular"); //NOI18N
+        mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_encoded"), "encoded"); //NOI18N
+        mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_undetermined"), "undetermined"); //NOI18N
+        mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_reversed"), "reversed"); //NOI18N
+        mTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + "regular", _bundle.getString("TAG_FixedLengthType_regular")); //NOI18N
+        mTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + "encoded", _bundle.getString("TAG_FixedLengthType_encoded")); //NOI18N
+        mTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + "undetermined", _bundle.getString("TAG_FixedLengthType_undetermined")); //NOI18N
+        mTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + "reversed", _bundle.getString("TAG_FixedLengthType_reversed")); //NOI18N
+        mFixedLengthTypeTagList.add(_bundle.getString("TAG_FixedLengthType_regular"));
+        mFixedLengthTypeTagList.add(_bundle.getString("TAG_FixedLengthType_encoded"));
+        mFixedLengthTypeTagList.add(_bundle.getString("TAG_FixedLengthType_undetermined"));
+        mFixedLengthTypeTagList.add(_bundle.getString("TAG_FixedLengthType_reversed"));
+        mFixedLengthTypeTagList = Collections.unmodifiableList(mFixedLengthTypeTagList);
+
+        //Populate the localized text map and the tag list for the undefDataPolicy property
+        mReverseTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + _bundle.getString("TAG_UndefDataPolicy_map"), "map"); //NOI18N
+        mReverseTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + _bundle.getString("TAG_UndefDataPolicy_skip"), "skip"); //NOI18N
+        mReverseTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + _bundle.getString("TAG_UndefDataPolicy_prohibit"), "prohibit"); //NOI18N
+        mTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + "map", _bundle.getString("TAG_UndefDataPolicy_map")); //NOI18N
+        mTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + "skip", _bundle.getString("TAG_UndefDataPolicy_skip")); //NOI18N
+        mTextMap.put(UNDEFINED_DATA_POLICY_PREFIX + UDS + "prohibit", _bundle.getString("TAG_UndefDataPolicy_prohibit")); //NOI18N
+        mUndefDataPolicyTagList.add(_bundle.getString("TAG_UndefDataPolicy_map"));
+        mUndefDataPolicyTagList.add(_bundle.getString("TAG_UndefDataPolicy_skip"));
+        mUndefDataPolicyTagList.add(_bundle.getString("TAG_UndefDataPolicy_prohibit"));
+
         //Populate the default NodeProperties
         mDefaultCustomEncoding.addNewNodeProperties();
         mDefaultCustomEncoding.getNodeProperties().setNodeType(
@@ -157,38 +191,56 @@ public class EncodingOption {
     private final List<PropertyChangeListener> propChangeListeners =
             Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
 
-    /* Component path from which the encoding options are read */
+    /**
+     * Component path from which the encoding options are read
+     */
     private final SchemaComponent[] mComponentPath;
     
     /* Bean property variables */
-    private String mNodeType = mTextMap.get(NODE_TYPE_PREFIX + "_" + NodeProperties.NodeType.DELIMITED); //NOI18N
+    private String mNodeType = mTextMap.get(NODE_TYPE_PREFIX + UDS + NodeProperties.NodeType.DELIMITED);
     private boolean mTop = false;
-    private String mInputCharset = ""; //NOI18N
-    private String mParsingCharset = ""; //NOI18N
-    private String mSerializingCharset = ""; //NOI18N
-    private String mOutputCharset = ""; //NOI18N
+    private String mInputCharset = EMP;
+    private String mParsingCharset = EMP;
+    private String mSerializingCharset = EMP;
+    private String mOutputCharset = EMP;
     private DelimiterSet mDelimiterSet = null;
-    private String mOrder = mTextMap.get(ORDER_PREFIX + "_" + NodeProperties.Order.SEQUENCE); //NOI18N
-    private String mMatch = ""; //NOI18N
+    private String mOrder = mTextMap.get(ORDER_PREFIX + UDS + NodeProperties.Order.SEQUENCE);
+    private String mNOfNminN = EMP;
+    private String mNOfNmaxN = EMP;
+    private String mMatch = EMP;
     private boolean mNoMatch = false;
-    private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" + NodeProperties.Alignment.BLIND); //NOI18N
+    private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND);
+    private String mMinOcc = EMP;
+    private String mMaxOcc = EMP;
+    private String mScvngrChars = EMP;
+    private boolean mScvngrEmit1st = false;
+    
+    // for a fixedLength field
+    private String mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "regular"); //NOI18N
     private int mLength = 0;
-    private String mBeginDelimiter = ""; //NOI18N
-    private boolean mBeginDelimiterDetached = true;
-    private String mEscapeSequence = ""; //NOI18N
+    private String mOffset = EMP;
+    private String mPosition = EMP;
+    private String mBeginDelimiter = EMP;
+    private boolean mBeginDelimiterDetached = false;
+    // global
+    private String mEscapeSequence = EMP;
     private boolean mFineInherit = false;
+    private String mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS + NodeProperties.UndefDataPolicy.PROHIBIT);
     
     private CustomEncoding mCustomEncoding = null;
     private AppInfo mAppInfo = null;
     private PropertyChangeListener mSchemaPropChangeListener;
     
-    /** Creates a new instance of EncodingOption */
+    /**
+     * Creates a new instance of EncodingOption
+     * @param path - a list of SchemaComponent
+     */
     private EncodingOption(List<SchemaComponent> path) {
         if (path == null) {
-            throw new NullPointerException(_bundle.getString("encoding_opt.exp.no_component_path"));
+            throw new NullPointerException(_bundle.getString("encoding_opt.exp.no_component_path")); //NOI18N
         }
         if (path.size() < 1) {
-            throw new IllegalArgumentException(_bundle.getString("encoding_opt.exp.illegal_comp_path"));
+            throw new IllegalArgumentException(_bundle.getString("encoding_opt.exp.illegal_comp_path")); //NOI18N
         }
         mComponentPath = path.toArray(new SchemaComponent[0]);
     }
@@ -229,6 +281,14 @@ public class EncodingOption {
         return mOrderTagList;
     }
     
+    public static List<String> fixedLengthTypeTagList() {
+        return mFixedLengthTypeTagList;
+    }
+    
+    public static List<String> undefDataPolicyTagList() {
+        return mUndefDataPolicyTagList;
+    }
+    
     public String getAlignment() {
         return mAlignment;
     }
@@ -238,7 +298,7 @@ public class EncodingOption {
         mAlignment = alignment;
         NodeProperties.Alignment.Enum enumAlignment =
                 NodeProperties.Alignment.Enum.forString(
-                    mReverseTextMap.get(ALIGNMENT_PREFIX + "_" + mAlignment)); //NOI18N
+                    mReverseTextMap.get(ALIGNMENT_PREFIX + UDS + mAlignment));
         firePropertyChange("alignment", old, mAlignment); //NOI18N
         mCustomEncoding.getNodeProperties().setAlignment(enumAlignment);
         commitToAppInfo();
@@ -247,7 +307,7 @@ public class EncodingOption {
     public String getDelimiter() {
         String delim = computeDelimiter();
         if (delim == null) {
-            delim = _bundle.getString("encoding_opt.lbl.delim_not_set");
+            delim = _bundle.getString("encoding_opt.lbl.delim_not_set"); //NOI18N
         }
         return delim;
     }
@@ -293,11 +353,231 @@ public class EncodingOption {
     }
 
     public void setLength(int length) {
+        if (length < 0) {
+            length *= -1;
+        }
         Integer old = Integer.valueOf(mLength);
         mLength = length;
-        mCustomEncoding.getNodeProperties().setLength(mLength);
+        if (isReversedFixedLengthType()) {
+            mCustomEncoding.getNodeProperties().setLength(mLength * (-1));
+        } else {
+            mCustomEncoding.getNodeProperties().setLength(mLength);
+        }
         commitToAppInfo();
         firePropertyChange("length", old, Integer.valueOf(mLength)); //NOI18N
+    }
+
+    public String getOffset() {
+        return mOffset;
+    }
+
+    public void setOffset(String offset) {
+        if (offset == null || offset.length() == 0) {
+            mCustomEncoding.getNodeProperties().unsetOffset();
+        } else {
+            long l = 0;
+            try {
+                l = Long.parseLong(offset);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            offset = Long.toString(l);
+            mCustomEncoding.getNodeProperties().setOffset(l);
+        }
+        String old = mOffset;
+        mOffset = offset;
+        commitToAppInfo();
+        firePropertyChange("offset", old, mOffset); //NOI18N
+    }
+
+    public String getPosition() {
+        return mPosition;
+    }
+
+    public void setPosition(String position) {
+        if (position == null || position.length() == 0) {
+            mCustomEncoding.getNodeProperties().unsetPosition();
+        } else {
+            long l = 0;
+            try {
+                l = Long.parseLong(position);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            position = Long.toString(l);
+            mCustomEncoding.getNodeProperties().setPosition(l);
+        }
+        String old = mPosition;
+        mPosition = position;
+        commitToAppInfo();
+        firePropertyChange("position", old, mPosition); //NOI18N
+    }
+
+    public String getNOfNminN() {
+        return mNOfNminN;
+    }
+
+    public void setNOfNminN(String nOfNminN) {
+        if (nOfNminN == null || nOfNminN.length() == 0) {
+            if (mCustomEncoding.getNodeProperties().isSetNOfN()) {
+                mCustomEncoding.getNodeProperties().getNOfN().unsetMinN();
+            }
+        } else {
+            int l = 0;
+            try {
+                l = Integer.parseInt(nOfNminN);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            nOfNminN = Integer.toString(l);
+            if (!mCustomEncoding.getNodeProperties().isSetNOfN()) {
+                mCustomEncoding.getNodeProperties().addNewNOfN();
+            }
+            mCustomEncoding.getNodeProperties().getNOfN().setMinN(l);
+        }
+        String old = mNOfNminN;
+        mNOfNminN = nOfNminN;
+        commitToAppInfo();
+        firePropertyChange("nOfNminN", old, mNOfNminN); //NOI18N
+    }
+
+    public String getNOfNmaxN() {
+        return mNOfNmaxN;
+    }
+
+    public void setNOfNmaxN(String nOfNmaxN) {
+        if (nOfNmaxN == null || nOfNmaxN.length() == 0) {
+            if (mCustomEncoding.getNodeProperties().isSetNOfN()) {
+                mCustomEncoding.getNodeProperties().getNOfN().unsetMaxN();
+            }
+        } else {
+            int l = 1;
+            try {
+                l = Integer.parseInt(nOfNmaxN);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            nOfNmaxN = Integer.toString(l);
+            if (!mCustomEncoding.getNodeProperties().isSetNOfN()) {
+                mCustomEncoding.getNodeProperties().addNewNOfN();
+            }
+            mCustomEncoding.getNodeProperties().getNOfN().setMaxN(l);
+        }
+        String old = mNOfNmaxN;
+        mNOfNmaxN = nOfNmaxN;
+        commitToAppInfo();
+        firePropertyChange("nOfNmaxN", old, mNOfNmaxN); //NOI18N
+    }
+
+    public String getMinOcc() {
+        return mMinOcc;
+    }
+
+    public void setMinOcc(String minOcc) {
+        if (minOcc == null || minOcc.length() == 0) {
+            mCustomEncoding.getNodeProperties().unsetMinOcc();
+        } else {
+            long l = 0;
+            try {
+                l = Long.parseLong(minOcc);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            minOcc = Long.toString(l);
+            mCustomEncoding.getNodeProperties().setMinOcc(l);
+        }
+        String old = mMinOcc;
+        mMinOcc = minOcc;
+        commitToAppInfo();
+        firePropertyChange("minOcc", old, mMinOcc); //NOI18N
+    }
+
+    public String getMaxOcc() {
+        return mMaxOcc;
+    }
+
+    public void setMaxOcc(String maxOcc) {
+        if (maxOcc == null || maxOcc.length() == 0 
+                || _bundle.getString("encoding_node.value.unbounded").equalsIgnoreCase(maxOcc)) { //NOI18N
+            mCustomEncoding.getNodeProperties().unsetMaxOcc();
+        } else {
+            long l = 0;
+            try {
+                l = Long.parseLong(maxOcc);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+            if (l < 0) {
+                // change to positive number instead
+                l *= -1;
+            }
+            maxOcc = Long.toString(l);
+            mCustomEncoding.getNodeProperties().setMaxOcc(l);
+        }
+        String old = mMaxOcc;
+        mMaxOcc = maxOcc;
+        commitToAppInfo();
+        firePropertyChange("maxOcc", old, mMaxOcc); //NOI18N
+    }
+
+    public String getScvngrChars() {
+        return mScvngrChars;
+    }
+
+    public void setScvngrChars(String scvngrChars) {
+        String old = mScvngrChars;
+        mScvngrChars = scvngrChars;
+        if (mScvngrChars == null || mScvngrChars.length() == 0) {
+            mCustomEncoding.getNodeProperties().unsetScvngr();
+        } else {
+            if (!mCustomEncoding.getNodeProperties().isSetScvngr()) {
+                mCustomEncoding.getNodeProperties().addNewScvngr();
+            }
+            mCustomEncoding.getNodeProperties().getScvngr().setChars(scvngrChars);
+        }
+        commitToAppInfo();
+        firePropertyChange("scvngrChars", old, mScvngrChars); //NOI18N
+    }
+
+    public boolean isScvngrEmit1st() {
+        return mScvngrEmit1st;
+    }
+
+    public void setScvngrEmit1st(boolean scvngrEmit1st) {
+        if (!mCustomEncoding.getNodeProperties().isSetScvngr()
+                || mCustomEncoding.getNodeProperties().getScvngr().getChars() == null
+                || mCustomEncoding.getNodeProperties().getScvngr().getChars().length() == 0) {
+            // do nothing so that as if user can not 
+            // check the "Output First Scavenger Character" because the 
+            // "Scavenger Characters" field is not set to any value yet.
+            mScvngrEmit1st = false;
+            return;
+        }
+        boolean old = mScvngrEmit1st;
+        mScvngrEmit1st = scvngrEmit1st;
+        mCustomEncoding.getNodeProperties().getScvngr().setEmit1St(mScvngrEmit1st);
+        commitToAppInfo();
+        firePropertyChange("scvngrEmit1st", old, mScvngrEmit1st); //NOI18N
     }
 
     public String getBeginDelimiter() {
@@ -322,7 +602,7 @@ public class EncodingOption {
         firePropertyChange("beginDelimiter", old, mBeginDelimiter); //NOI18N
     }
 
-    public boolean getBeginDelimiterDetached() {
+    public boolean isBeginDelimiterDetached() {
         return mBeginDelimiterDetached;
     }
 
@@ -330,7 +610,8 @@ public class EncodingOption {
         if (!mCustomEncoding.getNodeProperties().isSetDelimOfFixed()) {
             // do nothing so that as if user can not 
             // check the "Begin Delimiter Detached" because the 
-            // "Begin Delimiter" field is not set any value yet.
+            // "Begin Delimiter" field is not set to any value yet.
+            mBeginDelimiterDetached = false;
             return;
         }
         boolean old = mBeginDelimiterDetached;
@@ -394,6 +675,88 @@ public class EncodingOption {
         firePropertyChange("fineInherit", old, Boolean.valueOf(mFineInherit)); //NOI18N
     }
 
+    public String getFixedLengthType() {
+        return mFixedLengthType;
+    }
+
+    public void setFixedLengthType(String fixedLengthType) {
+        String old = mFixedLengthType;
+        mFixedLengthType = fixedLengthType;
+        String type = mReverseTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + mFixedLengthType);
+        String regexAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.REGEX);
+        String dummyMatch = _bundle.getString("encoding_node.value.default_match"); //NOI18N
+        if ("regular".equals(type)) { //NOI18N
+            // regular fixed length: only length and offset fields make sense
+            if (mCustomEncoding.getNodeProperties().isSetPosition()) {
+                mCustomEncoding.getNodeProperties().unsetPosition();
+            }
+            if (regexAlignment.equals(getAlignment()) && dummyMatch.equals(getMatch())) {
+                setAlignment(mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND));
+                setMatch(EMP);
+            }
+        } else if ("reversed".equals(type)) { //NOI18N
+            // this means the length is deducted from the end of data
+            // Only length field makes sense
+            if (mCustomEncoding.getNodeProperties().isSetPosition()) {
+                mCustomEncoding.getNodeProperties().unsetPosition();
+            }
+            if (mCustomEncoding.getNodeProperties().isSetOffset()) {
+                mCustomEncoding.getNodeProperties().unsetOffset();
+            }
+            if (regexAlignment.equals(getAlignment()) && dummyMatch.equals(getMatch())) {
+                setAlignment(mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND));
+                setMatch(EMP);
+            }
+        } else if ("undetermined".equals(type)) { //NOI18N
+            // this means this fixed length field is determined by a regular
+            // expression match at runtime
+            mLength = 0;
+            mCustomEncoding.getNodeProperties().setLength(mLength);
+            if (mCustomEncoding.getNodeProperties().isSetPosition()) {
+                mCustomEncoding.getNodeProperties().unsetPosition();
+            }
+            if (mCustomEncoding.getNodeProperties().isSetOffset()) {
+                mCustomEncoding.getNodeProperties().unsetOffset();
+            }
+            if (!regexAlignment.equals(getAlignment())) {
+                setAlignment(regexAlignment);
+                if (getMatch() == null || getMatch().length() == 0) {
+                    setMatch(dummyMatch);
+                }
+            }
+        } else {
+            if (regexAlignment.equals(getAlignment()) && dummyMatch.equals(getMatch())) {
+                setAlignment(mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND));
+                setMatch(EMP);
+            }
+        }
+        firePropertyChange("fixedLengthType", old, mFixedLengthType); //NOI18N
+        commitToAppInfo();
+    }
+    
+    public String getUndefDataPolicy() {
+        return mUndefDataPolicy;
+    }
+
+    public void setUndefDataPolicy(String undefDataPolicy) {
+        if (undefDataPolicy == null || undefDataPolicy.length() == 0) {
+            // do nothing
+            return;
+        }
+        String old = undefDataPolicy;
+        mUndefDataPolicy = undefDataPolicy;
+        String policy = mReverseTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS + mUndefDataPolicy);
+        if ("prohibit".equals(policy)) {
+            mCustomEncoding.getNodeProperties().unsetUndefDataPolicy();
+        } else {
+            NodeProperties.UndefDataPolicy.Enum enumUndefDataPolicy =
+                    NodeProperties.UndefDataPolicy.Enum.forString(policy);
+            mCustomEncoding.getNodeProperties().setUndefDataPolicy(enumUndefDataPolicy);
+        }
+        firePropertyChange("undefDataPolicy", old, mUndefDataPolicy); //NOI18N
+        commitToAppInfo();
+    }
+
     public String getNodeType() {
         return mNodeType;
     }
@@ -403,7 +766,7 @@ public class EncodingOption {
         mNodeType = nodeType;
         NodeProperties.NodeType.Enum enumNodeType =
                 NodeProperties.NodeType.Enum.forString(
-                    mReverseTextMap.get(NODE_TYPE_PREFIX + "_" + mNodeType)); //NOI18N
+                    mReverseTextMap.get(NODE_TYPE_PREFIX + UDS + mNodeType));
         mCustomEncoding.getNodeProperties().setNodeType(enumNodeType);
         if (!NodeProperties.NodeType.FIXED_LENGTH.equals(enumNodeType)) {
             if (mCustomEncoding.getNodeProperties().isSetLength()) {
@@ -412,11 +775,11 @@ public class EncodingOption {
             }
             if (!mTop) {
                 if (mCustomEncoding.getNodeProperties().isSetParsingCharset()) {
-                    mParsingCharset = "";
+                    mParsingCharset = EMP;
                     mCustomEncoding.getNodeProperties().unsetParsingCharset();
                 }
                 if (mCustomEncoding.getNodeProperties().isSetSerializingCharset()) {
-                    mSerializingCharset = "";
+                    mSerializingCharset = EMP;
                     mCustomEncoding.getNodeProperties().unsetSerializingCharset();
                 }
             }
@@ -425,11 +788,11 @@ public class EncodingOption {
                 || NodeProperties.NodeType.TRANSIENT.equals(enumNodeType)
                 || !testIsSimple()) {
             if (mCustomEncoding.getNodeProperties().isSetAlignment()) {
-                mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" + NodeProperties.Alignment.BLIND); //NOI18N
+                mAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND);
                 mCustomEncoding.getNodeProperties().unsetAlignment();
             }
             if (mCustomEncoding.getNodeProperties().isSetMatch()) {
-                mMatch = "";
+                mMatch = EMP;
                 mCustomEncoding.getNodeProperties().unsetMatch();
             }
         }
@@ -468,7 +831,7 @@ public class EncodingOption {
         mOrder = order;
         NodeProperties.Order.Enum enumOrder =
                 NodeProperties.Order.Enum.forString(
-                    mReverseTextMap.get(ORDER_PREFIX + "_" + mOrder)); //NOI18N
+                    mReverseTextMap.get(ORDER_PREFIX + UDS + mOrder));
         firePropertyChange("order", old, mOrder); //NOI18N
         mCustomEncoding.getNodeProperties().setOrder(enumOrder);
         commitToAppInfo();
@@ -538,21 +901,21 @@ public class EncodingOption {
         mCustomEncoding.setTop(mTop);
         if (!mTop) {
             if (mCustomEncoding.getNodeProperties().isSetInputCharset()) {
-                mInputCharset = "";
+                mInputCharset = EMP;
                 mCustomEncoding.getNodeProperties().unsetInputCharset();
             }
             if (mCustomEncoding.getNodeProperties().isSetOutputCharset()) {
-                mOutputCharset = "";
+                mOutputCharset = EMP;
                 mCustomEncoding.getNodeProperties().unsetOutputCharset();
             }
             if (!NodeProperties.NodeType.FIXED_LENGTH.equals(
                     mCustomEncoding.getNodeProperties().getNodeType())) {
                 if (mCustomEncoding.getNodeProperties().isSetParsingCharset()) {
-                    mParsingCharset = "";
+                    mParsingCharset = EMP;
                     mCustomEncoding.getNodeProperties().unsetParsingCharset();
                 }
                 if (mCustomEncoding.getNodeProperties().isSetSerializingCharset()) {
-                    mSerializingCharset = "";
+                    mSerializingCharset = EMP;
                     mCustomEncoding.getNodeProperties().unsetSerializingCharset();
                 }
             }
@@ -561,8 +924,11 @@ public class EncodingOption {
         firePropertyChange("top", old, Boolean.valueOf(mTop)); //NOI18N
     }
     
+    /**
+     * Test if current "encoding" node belongs to an XSD global element.
+     * @return true if current "encoding" node belongs to an XSD global element.
+     */
     public boolean testIsGlobal() {
-        int count = 0;
         for (int i = 0; i < mComponentPath.length; i++) {
             if (mComponentPath[i] instanceof ElementReference) {
                 return false;
@@ -571,6 +937,10 @@ public class EncodingOption {
         return annotation().getParent() instanceof GlobalElement;
     }
     
+    /**
+     * Test if current "encoding" node belongs to a leaf node.
+     * @return true if current "encoding" node belongs to a leaf node.
+     */
     public boolean testIsSimple() {
         if (!(annotation().getParent() instanceof Element)) {
             return false;
@@ -578,6 +948,10 @@ public class EncodingOption {
         return SchemaUtility.isSimpleContent((Element) annotation().getParent());
     }
 
+    /**
+     * Test if current "encoding" node belongs to a choice node.
+     * @return true if current "encoding" node belongs to a choice node.
+     */
     public boolean testIsChoice() {
         if (!(annotation().getParent() instanceof Element)) {
             return false;
@@ -587,6 +961,27 @@ public class EncodingOption {
 
     public NodeProperties.NodeType.Enum xgetNodeType() {
         return mCustomEncoding.getNodeProperties().getNodeType();
+    }
+
+    public boolean isReversedFixedLengthType() {
+        if (mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "reversed").equals(getFixedLengthType())) { //NOI18N)
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEncodedFixedLengthType() {
+        if (mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "encoded").equals(getFixedLengthType())) { //NOI18N)
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isUndeterminedFixedLengthType() {
+        if (mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "undetermined").equals(getFixedLengthType())) { //NOI18N)
+            return true;
+        }
+        return false;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -660,7 +1055,7 @@ public class EncodingOption {
         Delimiter[] delimiters;
         // get all delimiters at this delimiter level
         delimiters = delimLevel.getDelimiterArray();
-        delim = ""; //NOI18N
+        delim = EMP;
         for (int i = 0; i < delimiters.length; i++) {
             if (!delimiters[i].isSetBytes() || !delimiters[i].getBytes().isSetConstant()) {
                 // skip non-constant delimiter(s)
@@ -719,7 +1114,7 @@ public class EncodingOption {
             try {
                 customEncoding = fetchCustomEncoding(anno, null);
             } catch (InvalidAppInfoException ex) {
-                return _bundle.getString("encoding_opt.lbl.error_retrieving_delim");
+                return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
             }
             if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
                 level++;
@@ -740,7 +1135,7 @@ public class EncodingOption {
             }
             delimLevel = customEncoding.getNodeProperties().getDelimiterSet().getLevelArray(level);
             delimiters = delimLevel.getDelimiterArray();
-            delim = ""; //NOI18N
+            delim = EMP;
             for (int j = 0; j < delimiters.length; j++) {
                 if (!delimiters[j].isSetBytes()) {
                     continue;
@@ -751,7 +1146,7 @@ public class EncodingOption {
                     }
                     delim += (
                             "{" //NOI18N
-                            + _bundle.getString("encoding_opt.lbl.embedded")
+                            + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
                             + delimiters[j].getBytes().getEmbedded().getOffset()
                             + "," //NOI18N
                             + delimiters[j].getBytes().getEmbedded().getLength()
@@ -772,6 +1167,7 @@ public class EncodingOption {
     }
     
     private Annotation annotation() {
+        // annotation is stored as last element
         return (Annotation) mComponentPath[mComponentPath.length - 1];
     }
     
@@ -792,7 +1188,7 @@ public class EncodingOption {
         SchemaComponent comp = mComponentPath[mComponentPath.length - 1];
         if (!(comp instanceof Annotation)) {
             throw new IllegalArgumentException(
-                    _bundle.getString("encoding_opt.exp.must_be_annotation"));
+                    _bundle.getString("encoding_opt.exp.must_be_annotation")); //NOI18N
         }
         AppInfo[] appinfoReturned = new AppInfo[1];
         CustomEncoding customEncoding =
@@ -815,16 +1211,39 @@ public class EncodingOption {
         } else {
             mAppInfo = appinfoReturned[0];
         }
-        mNodeType = mTextMap.get(NODE_TYPE_PREFIX + "_" //NOI18N
+        mNodeType = mTextMap.get(NODE_TYPE_PREFIX + UDS
                 + customEncoding.getNodeProperties().getNodeType().toString());
         if (customEncoding.getNodeProperties().isSetAlignment()) {
-            mAlignment = mTextMap.get(ALIGNMENT_PREFIX + "_" //NOI18N
+            mAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS
                     + customEncoding.getNodeProperties().getAlignment().toString());
         }
         if (customEncoding.getNodeProperties().isSetOrder()) {
-            mOrder = mTextMap.get(ORDER_PREFIX + "_" //NOI18N
+            mOrder = mTextMap.get(ORDER_PREFIX + UDS
                     + customEncoding.getNodeProperties().getOrder().toString());
         }
+        if (customEncoding.getNodeProperties().isSetNOfN()) {
+            NOfN nOfN = customEncoding.getNodeProperties().getNOfN();
+            if (nOfN.isSetMinN()) {
+                mNOfNminN = Integer.toString(nOfN.getMinN());
+            }
+            if (nOfN.isSetMaxN()) {
+                mNOfNmaxN = Integer.toString(nOfN.getMaxN());
+            }
+        }
+        if (customEncoding.getNodeProperties().isSetMinOcc()) {
+            mMinOcc = Long.toString(customEncoding.getNodeProperties().getMinOcc());
+        }
+        if (customEncoding.getNodeProperties().isSetMaxOcc()) {
+            mMaxOcc = Long.toString(customEncoding.getNodeProperties().getMaxOcc());
+        }
+        if (customEncoding.getNodeProperties().isSetScvngr()) {
+            Scvngr scvngr = customEncoding.getNodeProperties().getScvngr();
+            mScvngrChars = scvngr.getChars();
+            if (scvngr.isSetEmit1St()) {
+                mScvngrEmit1st = scvngr.getEmit1St();
+            }
+        }
+
         if (customEncoding.isSetTop()) {
             mTop = customEncoding.getTop();
         }
@@ -857,6 +1276,24 @@ public class EncodingOption {
         if (customEncoding.getNodeProperties().isSetLength()) {
             mLength = customEncoding.getNodeProperties().getLength();
         }
+        if (customEncoding.getNodeProperties().isSetOffset()) {
+            mOffset = Long.toString(customEncoding.getNodeProperties().getOffset());
+        }
+        if (customEncoding.getNodeProperties().isSetPosition()) {
+            mPosition = Long.toString(customEncoding.getNodeProperties().getPosition());
+        }
+        if (customEncoding.getNodeProperties().isSetLength()) {
+            mLength = customEncoding.getNodeProperties().getLength();
+        }
+        if (customEncoding.getNodeProperties().isSetLength() && mLength == 0) {
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "undetermined"); //NOI18N
+        } else if (customEncoding.getNodeProperties().isSetPosition()) { // && mPosition >= 0
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "encoded"); //NOI18N
+        } else if (customEncoding.getNodeProperties().isSetLength() && mLength < 0) {
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "reversed"); //NOI18N
+            mLength = mLength * (-1);
+        }
+        
         if (customEncoding.getNodeProperties().isSetDelimOfFixed()) {
             DelimOfFixed delimOfFixed = customEncoding.getNodeProperties().getDelimOfFixed();
             mBeginDelimiter = delimOfFixed.getBeginBytes();
@@ -876,6 +1313,11 @@ public class EncodingOption {
         if (customEncoding.getNodeProperties().isSetFineInherit()) {
             mFineInherit = customEncoding.getNodeProperties().getFineInherit();
         }
+        //Populates the UndefDataPolicy field
+        if (customEncoding.getNodeProperties().isSetUndefDataPolicy()) {
+            mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS
+                    + customEncoding.getNodeProperties().getUndefDataPolicy().toString());
+        }
 
         // I guess that following lines will cause recursive loop when
         // the AppInfo is removed from the text editing pane.
@@ -885,7 +1327,7 @@ public class EncodingOption {
         
         if (!(((Annotation) comp).getParent() instanceof Element)) {
             throw new IllegalArgumentException(
-                    _bundle.getString("encoding_opt.exp.anno_must_under_elem"));
+                    _bundle.getString("encoding_opt.exp.anno_must_under_elem")); //NOI18N
         }
         if (hookUpListener) {
             Element elem = (Element) ((Annotation) comp).getParent();
@@ -1045,7 +1487,7 @@ public class EncodingOption {
             cursor = xmlObject.newCursor();
             StringBuffer buff = new StringBuffer();
             if (!cursor.toFirstChild()) {
-                return ""; //NOI18N
+                return EMP;
             }
             buff.append(cursor.xmlText());
             while (cursor.toNextSibling()) {

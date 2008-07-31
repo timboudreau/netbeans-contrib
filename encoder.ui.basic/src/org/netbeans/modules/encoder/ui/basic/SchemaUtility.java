@@ -64,6 +64,7 @@ public class SchemaUtility {
 
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/basic/Bundle"); //NOI18N
+
     /**
      * Tests if the element is of simple type or a complex type with
      * simple content.
@@ -177,6 +178,11 @@ public class SchemaUtility {
         return null;
     }
     
+    /**
+     * Checks if the given element is of Any type.
+     * @param elem an Element instance.
+     * @return true if the given element is of Any type, or false otherwise.
+     */
     public static boolean isOfAnyType(Element elem) {
         if (!(elem instanceof TypeContainer)) {
             return false;

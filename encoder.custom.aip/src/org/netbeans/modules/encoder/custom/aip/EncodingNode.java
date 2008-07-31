@@ -52,6 +52,7 @@ public class EncodingNode extends AbstractNode
         mChangeSheetPropNames.add("xmlType"); //NOI18N
         mChangeSheetPropNames.add("typeDef"); //NOI18N
         mChangeSheetPropNames.add("top");  //NOI18N
+        mChangeSheetPropNames.add("fixedLengthType");  //NOI18N
     }
     
     private final EncodingOption mEncodingOption;
@@ -123,174 +124,280 @@ public class EncodingNode extends AbstractNode
                             _bundle.getString("encoding_node.lbl.encoding_style_short")));
             
             //The Node Type Property
-            PropertySupport.Reflection<String> nodeTypeProp =
-                    new PropertySupport.Reflection<String>(mEncodingOption,
-                            String.class, "nodeType");  //NOI18N
-            nodeTypeProp.setName("nodeType");  //NOI18N
-            nodeTypeProp.setDisplayName(_bundle.getString("encoding_node.lbl.node_type"));
-            nodeTypeProp.setPropertyEditorClass(NodeTypePropertyEditor.class);
-            propSet.put(nodeTypeProp);
+            {
+                PropertySupport.Reflection<String> prop =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                        String.class, "nodeType");  //NOI18N
+                prop.setName("nodeType");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.node_type"));
+                prop.setPropertyEditorClass(NodeTypePropertyEditor.class);
+                propSet.put(prop);
+            }
             
+            if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
+                
+                PropertySupport.Reflection<String> prop =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                        String.class, "fixedLengthType");  //NOI18N
+                prop.setName("fixedLengthType");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.fixed_length_type"));
+                prop.setPropertyEditorClass(FixedLengthTypePropertyEditor.class);
+                propSet.put(prop);                
+                
+                if (mEncodingOption.isUndeterminedFixedLengthType()) {
+                    // do not show "length", "offset" or "position" fields
+                } else if (mEncodingOption.isReversedFixedLengthType()) {
+                    PropertySupport.Reflection<Integer> prop1 =
+                            new PropertySupport.Reflection<Integer>(mEncodingOption,
+                                    int.class, "length");  //NOI18N
+                    prop1.setName("lengthFromEnd");  //NOI18N
+                    prop1.setDisplayName(_bundle.getString("encoding_node.lbl.length_from_end"));
+                    propSet.put(prop1);
+                } else if (mEncodingOption.isEncodedFixedLengthType()) {
+                    PropertySupport.Reflection<Integer> prop1 =
+                            new PropertySupport.Reflection<Integer>(mEncodingOption,
+                            int.class, "length");  //NOI18N
+                    prop1.setName("lengthEncoded");  //NOI18N
+                    prop1.setDisplayName(_bundle.getString("encoding_node.lbl.length_encoded"));
+                    propSet.put(prop1);
+                    
+                    PropertySupport.Reflection<String> prop2 =
+                            new PropertySupport.Reflection<String>(mEncodingOption,
+                                    String.class, "offset");  //NOI18N
+                    prop2.setName("offsetEncoded");  //NOI18N
+                    prop2.setDisplayName(_bundle.getString("encoding_node.lbl.offset_encoded"));
+                    propSet.put(prop2);
+                    
+                    PropertySupport.Reflection<String> prop3 =
+                            new PropertySupport.Reflection<String>(mEncodingOption,
+                            String.class, "position");  //NOI18N
+                    prop3.setName("positionEncoded");  //NOI18N
+                    prop3.setDisplayName(_bundle.getString("encoding_node.lbl.position_encoded"));
+                    propSet.put(prop3);
+                } else {
+                    PropertySupport.Reflection<Integer> prop1 =
+                            new PropertySupport.Reflection<Integer>(mEncodingOption,
+                            int.class, "length");  //NOI18N
+                    prop1.setName("length");  //NOI18N
+                    prop1.setDisplayName(_bundle.getString("encoding_node.lbl.length"));
+                    propSet.put(prop1);
+                    
+                    PropertySupport.Reflection<String> prop2 =
+                            new PropertySupport.Reflection<String>(mEncodingOption,
+                                    String.class, "offset");  //NOI18N
+                    prop2.setName("offset");  //NOI18N
+                    prop2.setDisplayName(_bundle.getString("encoding_node.lbl.offset"));
+                    propSet.put(prop2);
+                }
+            }
+
             if (!NodeProperties.NodeType.TRANSIENT.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection delimSetProp =
+                PropertySupport.Reflection prop =
                         new DelimiterSetProperty(mEncodingOption,
                                 DelimiterSet.class, "delimiterSet");  //NOI18N
-                delimSetProp.setName("delimiterSet");  //NOI18N
-                delimSetProp.setDisplayName(_bundle.getString("encoding_node.lbl.delim_list"));
-                propSet.put(delimSetProp);
+                prop.setName("delimiterSet");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.delim_list"));
+                propSet.put(prop);
             }
             
             if (mEncodingOption.testIsGlobal()) {
-                //The Top Property
-                PropertySupport.Reflection<Boolean> topProp =
+                //The Top Property checkbox
+                PropertySupport.Reflection<Boolean> prop =
                         new PropertySupport.Reflection<Boolean>(mEncodingOption,
                                 boolean.class, "top");  //NOI18N
-                topProp.setName("top");  //NOI18N
-                topProp.setDisplayName(_bundle.getString("encoding_node.lbl.top"));
-                propSet.put(topProp);
+                prop.setName("top");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.top"));
+                propSet.put(prop);
             }
 
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()) {
                 //The Input Character Set Property
-                PropertySupport.Reflection<String> inputCharsetProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "inputCharset");  //NOI18N
-                inputCharsetProp.setName("inputCharset");  //NOI18N
-                inputCharsetProp.setDisplayName(_bundle.getString("encoding_node.lbl.input_charset"));
-                propSet.put(inputCharsetProp);
+                prop.setName("inputCharset");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.input_charset"));
+                propSet.put(prop);
                 
                 //The Output Character Set Property
-                PropertySupport.Reflection<String> outputCharsetProp =
+                PropertySupport.Reflection<String> prop2 =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "outputCharset");  //NOI18N
-                outputCharsetProp.setName("outputCharset");  //NOI18N
-                outputCharsetProp.setDisplayName(_bundle.getString("encoding_node.lbl.output_charset"));
-                propSet.put(outputCharsetProp);
+                prop2.setName("outputCharset");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.output_charset"));
+                propSet.put(prop2);
             }
             
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()
                     || NodeProperties.NodeType.FIXED_LENGTH.equals(
                             mEncodingOption.xgetNodeType())) {
                 //The Parsing Character Set Property
-                PropertySupport.Reflection<String> parsingCharsetProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "parsingCharset");  //NOI18N
-                parsingCharsetProp.setName("parsingCharset");  //NOI18N
-                parsingCharsetProp.setDisplayName(_bundle.getString("encoding_node.lbl.parsing_charset"));
-                propSet.put(parsingCharsetProp);
+                prop.setName("parsingCharset");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.parsing_charset"));
+                propSet.put(prop);
                 
                 //The Serializing Character Set Property
-                PropertySupport.Reflection<String> serializingCharsetProp =
+                PropertySupport.Reflection<String> prop2 =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "serializingCharset");  //NOI18N
-                serializingCharsetProp.setName("serializingCharset");  //NOI18N
-                serializingCharsetProp.setDisplayName(_bundle.getString("encoding_node.lbl.serial_charset"));
-                propSet.put(serializingCharsetProp);
+                prop2.setName("serializingCharset");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.serial_charset"));
+                propSet.put(prop2);
             }
             
             if (!NodeProperties.NodeType.GROUP.equals(mEncodingOption.xgetNodeType())
                     && mEncodingOption.testIsSimple()
                     && !NodeProperties.NodeType.TRANSIENT.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<String> alignmentProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "alignment");  //NOI18N
-                alignmentProp.setName("alignment");  //NOI18N
-                alignmentProp.setDisplayName(_bundle.getString("encoding_node.lbl.alignment"));
-                alignmentProp.setPropertyEditorClass(AlignmentPropertyEditor.class);
-                propSet.put(alignmentProp);
+                prop.setName("alignment");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.alignment"));
+                prop.setPropertyEditorClass(AlignmentPropertyEditor.class);
+                propSet.put(prop);
                 
-                PropertySupport.Reflection<String> matchProp =
+                PropertySupport.Reflection<String> prop2 =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "match");  //NOI18N
-                matchProp.setName("match");  //NOI18N
-                matchProp.setDisplayName(_bundle.getString("encoding_node.lbl.match"));
-                propSet.put(matchProp);
+                prop2.setName("match");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.match"));
+                propSet.put(prop2);
 
                 //The NoMatch (boolean) Property
-                PropertySupport.Reflection<Boolean> noMatchProp =
+                PropertySupport.Reflection<Boolean> prop3 =
                         new PropertySupport.Reflection<Boolean>(mEncodingOption,
                                 boolean.class, "noMatch");  //NOI18N
-                noMatchProp.setName("noMatch");  //NOI18N
-                noMatchProp.setDisplayName(_bundle.getString("encoding_node.lbl.no_match"));
-                propSet.put(noMatchProp);
+                prop3.setName("noMatch");  //NOI18N
+                prop3.setDisplayName(_bundle.getString("encoding_node.lbl.no_match"));
+                propSet.put(prop3);
             }
             
             if (!NodeProperties.NodeType.TRANSIENT.equals(mEncodingOption.xgetNodeType())
                     && !mEncodingOption.testIsSimple() && !mEncodingOption.testIsChoice()) {
-                PropertySupport.Reflection<String> orderProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "order");  //NOI18N
-                orderProp.setName("order");  //NOI18N
-                orderProp.setDisplayName(_bundle.getString("encoding_node.lbl.order"));
-                orderProp.setPropertyEditorClass(OrderPropertyEditor.class);
-                propSet.put(orderProp);
+                prop.setName("order");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.order"));
+                prop.setPropertyEditorClass(OrderPropertyEditor.class);
+                propSet.put(prop);
             }
             
-            if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())
-                    || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<String> delimiterProp =
-                        new ReadOnlyDelimiterProperty<String>(mEncodingOption,
-                                String.class, "getDelimiter");  //NOI18N
-                delimiterProp.setName("delimiter");  //NOI18N
-                delimiterProp.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
-                propSet.put(delimiterProp);
-            }
-            
-            if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<Integer> lengthProp =
-                        new PropertySupport.Reflection<Integer>(mEncodingOption,
-                                int.class, "length");  //NOI18N
-                lengthProp.setName("length");  //NOI18N
-                lengthProp.setDisplayName(_bundle.getString("encoding_node.lbl.length"));
-                propSet.put(lengthProp);
+            if (!NodeProperties.NodeType.TRANSIENT.equals(mEncodingOption.xgetNodeType())
+                    && !mEncodingOption.testIsSimple()) {
+                PropertySupport.Reflection<String> prop1 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "nOfNminN");  //NOI18N
+                prop1.setName("nOfNminN");  //NOI18N
+                prop1.setDisplayName(_bundle.getString("encoding_node.lbl.n_of_n_min_n"));
+                propSet.put(prop1);
+                
+                PropertySupport.Reflection<String> prop2 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "nOfNmaxN");  //NOI18N
+                prop2.setName("nOfNmaxN");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.n_of_n_max_n"));
+                propSet.put(prop2);
             }
 
+            if (!NodeProperties.NodeType.TRANSIENT.equals(mEncodingOption.xgetNodeType())
+                    && !mEncodingOption.testIsGlobal()) {
+                PropertySupport.Reflection<String> prop1 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "minOcc");  //NOI18N
+                prop1.setName("minOcc");  //NOI18N
+                prop1.setDisplayName(_bundle.getString("encoding_node.lbl.min_occ"));
+                propSet.put(prop1);
+                
+                PropertySupport.Reflection<String> prop2 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "maxOcc");  //NOI18N
+                prop2.setName("maxOcc");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.max_occ"));
+                propSet.put(prop2);
+
+                PropertySupport.Reflection<String> prop3 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "scvngrChars");  //NOI18N
+                prop3.setName("scvngrChars");  //NOI18N
+                prop3.setDisplayName(_bundle.getString("encoding_node.lbl.scvngr_chars"));
+                propSet.put(prop3);
+                
+                PropertySupport.Reflection<Boolean> prop4 =
+                        new PropertySupport.Reflection<Boolean>(mEncodingOption,
+                                boolean.class, "scvngrEmit1st");  //NOI18N
+                prop4.setName("scvngrEmit1st");  //NOI18N
+                prop4.setDisplayName(_bundle.getString("encoding_node.lbl.scvngr_emit_1st"));
+                propSet.put(prop4);
+            }
+
+            if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())
+                    || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
+                PropertySupport.Reflection<String> prop =
+                        new ReadOnlyDelimiterProperty<String>(mEncodingOption,
+                                String.class, "getDelimiter");  //NOI18N
+                prop.setName("delimiter");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
+                propSet.put(prop);
+            }
+            
             if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<String> beginDelimiterProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "beginDelimiter");  //NOI18N
-                beginDelimiterProp.setName("beginDelimiter");  //NOI18N
-                beginDelimiterProp.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter"));
-                propSet.put(beginDelimiterProp);
+                prop.setName("beginDelimiter");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter"));
+                propSet.put(prop);
             }
                 
             if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<Boolean> beginDelimiterDetachedProp =
+                PropertySupport.Reflection<Boolean> prop =
                         new PropertySupport.Reflection<Boolean>(mEncodingOption,
                                 boolean.class, "beginDelimiterDetached");  //NOI18N
-                beginDelimiterDetachedProp.setName("beginDelimiterDetached");  //NOI18N
-                beginDelimiterDetachedProp.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter_detached"));
-                propSet.put(beginDelimiterDetachedProp);
+                prop.setName("beginDelimiterDetached");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter_detached"));
+                propSet.put(prop);
             }
                 
             if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())
                     || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
-                PropertySupport.Reflection<String> delimiterProp =
+                PropertySupport.Reflection<String> prop =
                         new ReadOnlyDelimiterProperty<String>(mEncodingOption,
                                 String.class, "getDelimiter");  //NOI18N
-                delimiterProp.setName("delimiter");  //NOI18N
-                delimiterProp.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
-                propSet.put(delimiterProp);
+                prop.setName("delimiter");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
+                propSet.put(prop);
             }
             
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()) {
                 //The Escape Sequence Property
-                PropertySupport.Reflection<String> escapeSequenceProp =
+                PropertySupport.Reflection<String> prop =
                         new PropertySupport.Reflection<String>(mEncodingOption,
                                 String.class, "escapeSequence");  //NOI18N
-                escapeSequenceProp.setName("escapeSequence");  //NOI18N
-                escapeSequenceProp.setDisplayName(_bundle.getString("encoding_node.lbl.escape_sequence"));
-                propSet.put(escapeSequenceProp);
+                prop.setName("escapeSequence");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.escape_sequence"));
+                propSet.put(prop);
             }
                 
             if (mEncodingOption.testIsGlobal() && mEncodingOption.isTop()) {
                 //The Fine Inherit Property
-                PropertySupport.Reflection<Boolean> fineInheritProp =
+                PropertySupport.Reflection<Boolean> prop =
                         new PropertySupport.Reflection<Boolean>(mEncodingOption,
                                 boolean.class, "fineInherit");  //NOI18N
-                fineInheritProp.setName("fineInherit");  //NOI18N
-                fineInheritProp.setDisplayName(_bundle.getString("encoding_node.lbl.fine_inherit"));
-                propSet.put(fineInheritProp);
+                prop.setName("fineInherit");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.fine_inherit"));
+                propSet.put(prop);
+
+                PropertySupport.Reflection<String> prop2 =
+                        new PropertySupport.Reflection<String>(mEncodingOption,
+                                String.class, "undefDataPolicy");  //NOI18N
+                prop2.setName("undefDataPolicy");  //NOI18N
+                prop2.setDisplayName(_bundle.getString("encoding_node.lbl.undefined_data_policy"));
+                prop2.setPropertyEditorClass(UndefDataPolicyPropertyEditor.class);
+                propSet.put(prop2);            
             }
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(_bundle.getString("encoding_node.exp.no_such_mthd"), e);
