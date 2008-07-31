@@ -48,6 +48,7 @@ public class IntegerInplaceEditor extends StringInplaceEditor implements Inplace
         mMaxInclusive = new BigInteger(new Integer(maxInclusive).toString());
     }
 
+    @Override
     public Object getValue() {
         int value;
         try {
