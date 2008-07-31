@@ -105,9 +105,18 @@ public class AstRootScope extends AstScope {
         return null;
     }
 
-    @Override
-    public AstItem findItemAt(TokenHierarchy th, Token token) {
+    public AstItem findItemAt(Token token) {
         return idTokenToItem.get(token);
+    }
+
+    public AstItem findFirstItemWithName(String name) {
+        for (Map.Entry<Token, AstItem> entry : idTokenToItem.entrySet()) {
+            if (entry.getKey().text().toString().equals(name)) {
+                return entry.getValue();
+            }
+        }
+        
+        return null;
     }
 
     protected void debugPrintTokens(TokenHierarchy th) {

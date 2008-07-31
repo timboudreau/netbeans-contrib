@@ -329,7 +329,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             final AstRootScope root = pResult.getRootScope();
             final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
             final FileObject fileObject = info.getFileObject();
-            final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
 
             // Carry completion context around since this logic is split across lots of methods
             // and I don't want to pass dozens of parameters from method to method; just pass
@@ -349,7 +348,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             request.queryType = queryType;
             request.fileObject = fileObject;
             request.anchor = lexOffset - prefix.length();
-            request.call = call;
 
             Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset - 1);
             if (token == null) {
@@ -405,10 +403,23 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 request.root = root;
                 request.node = closest;
 
-                Symbol symbol = findCallSymbol(root, ts, th, request, true);
-                if (symbol != null) {
-                    completeSymbolMembers(symbol, proposals, request);
-                    return completionResult;
+                Call call = new Call();
+                findCall(root, ts, th, call, 0);
+                if (call.base != null) {
+                    Symbol symbol = call.base.getSymbol();
+                    if (symbol.nameString().equals("<none>")) {
+                        // this maybe an object, which can not be resolved by scala's compiler
+                        symbol = ErrorRecoverGlobal.recoverObject(global.settings(), pResult, doc, call.base);
+                    }
+
+                    if (call.select != null) {
+                        request.prefix = call.select.getName();
+                    }
+
+                    if (symbol != null) {
+                        completeSymbolMembers(symbol, proposals, request);
+                        return completionResult;
+                    }
                 }
             }
 
@@ -1657,7 +1668,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
         } else if (element instanceof GsfElement) {
             ((GsfElement) element).htmlFormat(sigFormatter);
-            //comment = ((GsfElement) element).getDocComment();
+        //comment = ((GsfElement) element).getDocComment();
         } else if (element instanceof ScalaElementHandle) {
             ScalaElementHandle element1 = (ScalaElementHandle) element;
             try {
@@ -2038,13 +2049,13 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             return resType;
         }
     }
-    private static final List<ScalaTokenId> CALL_ID = Arrays.asList(
+    private static final List<ScalaTokenId> CALL_IDs = Arrays.asList(
             ScalaTokenId.Identifier,
             ScalaTokenId.This,
             ScalaTokenId.Super,
             ScalaTokenId.Class);
 
-    private Symbol findCallSymbol(AstRootScope rootScope, TokenSequence ts, TokenHierarchy th, CompletionRequest request, boolean tryTwice) {
+    private void findCall(AstRootScope rootScope, TokenSequence ts, TokenHierarchy th, Call call, int times) {
         assert rootScope != null;
 
         Token idToken = null;
@@ -2057,31 +2068,39 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
             }
-            idToken = ScalaLexUtilities.findPreviousIncluding(ts, CALL_ID);
-        } else if (CALL_ID.contains(closest.id())) {
+            idToken = ScalaLexUtilities.findPreviousIncluding(ts, CALL_IDs);
+        } else if (CALL_IDs.contains(closest.id())) {
             idToken = closest;
         }
 
         if (idToken != null) {
-            AstItem item = rootScope.findItemAt(th, idToken);
-            if (item != null) {
-                Symbol symbol = item.getSymbol();
-                if (!symbol.nameString().equals("<none>") && !symbol.tpe().isError()) {
-                    return item.getSymbol();
+            AstItem item = rootScope.findItemAt(idToken);
+            if (times == 0) {
+                Token prev = null;
+                if (ts.movePrevious()) {
+                    prev = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
                 }
-            }
-
-            if (tryTwice) {
-                Token dot = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Dot);
-                if (dot != null) {
-                    request.prefix = idToken.text().toString();
-                    return findCallSymbol(rootScope, ts, th, request, false);
+                
+                if (prev != null && prev.id() == ScalaTokenId.Dot) {
+                    call.select = item;
+                    findCall(rootScope, ts, th, call, times + 1);
+                } else {
+                    call.base = item;
+                    return;
                 }
+            } else {
+                call.base = item;
+                return;
             }
-
         }
 
-        return null;
+        return;
+    }
+
+    private static class Call {
+
+        AstItem base;
+        AstItem select;
     }
 
     protected static class CompletionRequest {
