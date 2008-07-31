@@ -145,7 +145,16 @@ public class PSInstantiatingIterator implements WizardDescriptor.InstantiatingIt
         String suffix = "local";
         if(wr.isRemote())
             suffix = "remote";
+        
+        String serverInstallationHome = wr.getServerHome();
+        
+        if(!wr.isRemote() && serverInstallationHome != null 
+                          && serverInstallationHome.trim().length() != 0) {
             
+            suffix += ":" + serverInstallationHome;
+            
+        }
+        
         String url         = uriPrefix+":"+suffix+":"+ wr.getHost()+ ":"+ wr.getPort(); // NOI18N
         String username    = wr.getAdminUser(); // NOI18N
         String password    = wr.getAdminPassWord(); // NOI18N

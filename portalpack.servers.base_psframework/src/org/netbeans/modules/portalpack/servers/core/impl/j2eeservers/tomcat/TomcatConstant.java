@@ -30,4 +30,5 @@ public interface TomcatConstant {
     public static String JAVA_HOME = "JAVA_HOME";
     public static String MANAGER_USER = "manager_user";
     public static String MANAGER_PASSWORD = "manager_pwd";
+    public static String DEBUG_PORT = "debug_port";
 }
