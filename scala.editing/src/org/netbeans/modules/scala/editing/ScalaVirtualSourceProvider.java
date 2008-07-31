@@ -82,8 +82,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         return Collections.singleton("scala"); // NOI18N
 
     }
-    
-    public boolean index () {
+
+    public boolean index() {
         return true;
     }
 
@@ -118,6 +118,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                         CharSequence javaStub = generator.generateClass(tmpl);
                         Symbol packaging = tmpl.getSymbol().enclosingPackage();
                         String pkgName = packaging == null ? "" : packaging.fullNameString();
+                        if (pkgName.equals("<empty>")) {
+                            pkgName = "";
+                        }
                         result.add(file, pkgName, tmpl.getSymbol().nameString(), javaStub);
                         break;
                     } catch (FileNotFoundException ex) {
@@ -225,9 +228,12 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             try {
                 Symbol packaging = symbol.enclosingPackage();
                 if (packaging != null) {
-                    out.print("package ");
-                    out.print(packaging.fullNameString());
-                    out.println(";");
+                    String pkgName = packaging.fullNameString();
+                    if (!pkgName.equals("") && !pkgName.equals("<empty>")) {
+                        out.print("package ");
+                        out.print(packaging.fullNameString());
+                        out.println(";");
+                    }
                 }
 
                 //out.println("@NetBeansVirtualSource(11, 12)");

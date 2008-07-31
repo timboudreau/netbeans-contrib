@@ -1657,7 +1657,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             }
         } else if (element instanceof GsfElement) {
             ((GsfElement) element).htmlFormat(sigFormatter);
-            comment = ((GsfElement) element).getDocComment();
+            //comment = ((GsfElement) element).getDocComment();
         } else if (element instanceof ScalaElementHandle) {
             ScalaElementHandle element1 = (ScalaElementHandle) element;
             try {
