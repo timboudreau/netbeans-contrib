@@ -38,7 +38,16 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.10.1</specification-version>
+                        <specification-version>1.18</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.api.java.classpath</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -332,8 +341,8 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <friend-packages>
+                <friend>org.netbeans.modules.portalpack.portlets.ruby</friend>
                 <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
-                <friend>org.netbeans.modules.portalpack.servers.liferay.portlets.ruby</friend>
                 <friend>org.netbeans.modules.portalpack.visualweb</friend>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen</package>
