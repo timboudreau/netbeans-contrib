@@ -76,7 +76,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     private int embeddededIndent = 0;
     private static final Map<ScalaTokenId, Set<ScalaTokenId>> BRACE_MATCH_MAP =
             new HashMap<ScalaTokenId, Set<ScalaTokenId>>();
-    
+
 
     static {
         Set<ScalaTokenId> matchingset = new HashSet<ScalaTokenId>();
@@ -401,14 +401,11 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     private class Brace {
 
         Token token;
-        int offsetOnline; // offset on it's line after indent
-
-        int ordinalOnline; // ordinal on its line (we only count non-white tokens 
-
+        int offsetOnline; // offset of this token on its line after indent
+        int ordinalOnline; // ordinal of this token on its line (we only count non-white tokens)
         boolean isLatestOnLine; // last one on this line?
-
         boolean onProcessingLine; // on the processing line?
-
+        Token lasestTokenOnLine; // lastest non-white token on this line 
 
         @Override
         public String toString() {
@@ -423,10 +420,10 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
      *      int[1] - indent for next line
      */
     private int[] computeLineIndent(int indent, int prevIndent, int continueIndent,
-            Stack<Brace> openingBraces, BaseDocument doc, int lineBegin, int lineEnd) {
+            Stack<Brace> openBraces, BaseDocument doc, int lineBegin, int lineEnd) {
 
         // Well, a new line begin
-        for (Brace brace : openingBraces) {
+        for (Brace brace : openBraces) {
             brace.onProcessingLine = false;
         }
 
@@ -435,8 +432,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
         // token index on this line (we only count not-white tokens, 
         // if notWhiteIdx == 0, means the first non-white token on this line
-        int notWhiteIdx = -1;
-        Token latestNotWhiteToken = null;
+        int notWSIdx = -1;
+        Token latestNotWSToken = null;
 
         TokenSequence ts = ScalaLexUtilities.getTokenSequence(doc, lineBegin);
         if (ts != null) {
@@ -452,9 +449,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         //sb.append(text); // for debug
 
                         if (!ScalaLexUtilities.isWsComment(id)) {
-
-                            notWhiteIdx++;
-                            latestNotWhiteToken = token;
+                            notWSIdx++;
+                            latestNotWSToken = token;
                         }
 
                         // match/add brace
@@ -466,8 +462,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                             Brace justClosedBrace = null;
 
-                            if (!openingBraces.isEmpty()) {
-                                Brace brace = openingBraces.peek();
+                            if (!openBraces.isEmpty()) {
+                                Brace brace = openBraces.peek();
                                 TokenId braceId = brace.token.id();
 
                                 Set<ScalaTokenId> matchingIds = BRACE_MATCH_MAP.get(braceId);
@@ -478,9 +474,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                                     // we may need to lookahead 2 steps for some cases:
                                     if (braceId == ScalaTokenId.Case) {
-                                        Brace backup = openingBraces.pop();
+                                        Brace backup = openBraces.pop();
 
-                                        if (!openingBraces.isEmpty()) {
+                                        if (!openBraces.isEmpty()) {
                                             //TokenId lookaheadId = openingBraces.peek().token.id();
                                             // if resolved is "=>", we may have matched two braces:
                                             if (id == ScalaTokenId.RBrace) {
@@ -488,20 +484,20 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                             }
                                         }
 
-                                        openingBraces.push(backup);
+                                        openBraces.push(backup);
                                     }
 
                                     for (int i = 0; i < numClosed; i++) {
-                                        justClosedBrace = openingBraces.pop();
+                                        justClosedBrace = openBraces.pop();
                                     }
 
-                                    if (notWhiteIdx == 0) {
+                                    if (notWSIdx == 0) {
                                         // At the beginning of this line, adjust this line's indent if necessary 
                                         if (id == ScalaTokenId.Case ||
                                                 id == ScalaTokenId.RParen ||
                                                 id == ScalaTokenId.RBracket ||
                                                 id == ScalaTokenId.RBrace) {
-                                            indent = openingBraces.size() * indentSize();
+                                            indent = openBraces.size() * indentSize();
                                         } else {
                                             indent = justClosedBrace.offsetOnline;
                                         }
@@ -513,11 +509,11 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                             // Add new opening brace
                             if (BRACE_MATCH_MAP.containsKey(id)) {
                                 boolean ignore = false;
+                                // is it a case object or class?, if so, do not indent
                                 if (id == ScalaTokenId.Case) {
                                     if (ts.moveNext()) {
                                         Token next = ScalaLexUtilities.findNextNonWs(ts);
                                         if (next.id() == ScalaTokenId.Object || next.id() == ScalaTokenId.Class) {
-                                            // it's a case objct or class, do not indent
                                             ignore = true;
                                         }
                                         ts.movePrevious();
@@ -529,9 +525,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                     newBrace.token = token;
                                     // will add indent of this line to offsetOnline later
                                     newBrace.offsetOnline = offset - lineBegin;
-                                    newBrace.ordinalOnline = notWhiteIdx;
+                                    newBrace.ordinalOnline = notWSIdx;
                                     newBrace.onProcessingLine = true;
-                                    openingBraces.add(newBrace);
+                                    openBraces.add(newBrace);
                                 }
                             }
                         } else if (id == ScalaTokenId.XmlCDData ||
@@ -540,7 +536,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                              * A literal string with more than one line is a whole token and when goes
                              * to second or following lines, will has offset < lineBegin
                              */
-                            if (notWhiteIdx == 0 || notWhiteIdx == -1) {
+                            if (notWSIdx == 0 || notWSIdx == -1) {
                                 // No indentation for literal strings from 2nd line. 
                                 indent = -1;
                             }
@@ -559,35 +555,36 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
         // Now we've got the final indent of this line, adjust offset for new added
         // braces (which should be on this line)
-        for (Brace brace : openingBraces) {
+        for (Brace brace : openBraces) {
             if (brace.onProcessingLine) {
                 brace.offsetOnline += indent;
-                if (brace.ordinalOnline == notWhiteIdx) {
+                if (brace.ordinalOnline == notWSIdx) {
                     brace.isLatestOnLine = true;
                 }
+                brace.lasestTokenOnLine = latestNotWSToken;
             }
         }
 
         // Compute indent for next line
         int nextIndent;
-        Brace latestOpening = openingBraces.size() > 0 ? openingBraces.get(openingBraces.size() - 1) : null;
-        TokenId latestOpeningId = latestOpening != null ? latestOpening.token.id() : null;
+        Brace latestOpenBrace = openBraces.size() > 0 ? openBraces.get(openBraces.size() - 1) : null;
+        TokenId latestOpenId = latestOpenBrace != null ? latestOpenBrace.token.id() : null;
 
         // decide if next line is new or continued continute line        
         boolean isContinueLine;
-        if (latestNotWhiteToken == null) {
+        if (latestNotWSToken == null) {
             // empty line or comment line
             isContinueLine = false;
         } else {
             isContinueLine = false; // default
 
-            TokenId id = latestNotWhiteToken.id();
+            TokenId id = latestNotWSToken.id();
 
             if (id == ScalaTokenId.Comma) {
                 //we have special case
-                if (latestOpening != null && latestOpening.isLatestOnLine && (latestOpeningId == ScalaTokenId.LParen ||
-                        latestOpeningId == ScalaTokenId.LBracket ||
-                        latestOpeningId == ScalaTokenId.LBrace)) {
+                if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine && (latestOpenId == ScalaTokenId.LParen ||
+                        latestOpenId == ScalaTokenId.LBracket ||
+                        latestOpenId == ScalaTokenId.LBrace)) {
 
                     isContinueLine = true;
                 }
@@ -609,16 +606,16 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // Reset continueIndent
             continueIndent = -1;
 
-            if (latestOpening == null) {
+            if (latestOpenBrace == null) {
                 // All braces resolved
                 nextIndent = 0;
             } else {
-                int offset = latestOpening.offsetOnline;
-                if (latestOpeningId == ScalaTokenId.RArrow) {
+                int offset = latestOpenBrace.offsetOnline;
+                if (latestOpenId == ScalaTokenId.RArrow) {
                     Brace nearestHangableBrace = null;
                     int depth1 = 0;
-                    for (int i = openingBraces.size() - 1; i >= 0; i--) {
-                        Brace brace = openingBraces.get(i);
+                    for (int i = openBraces.size() - 1; i >= 0; i--) {
+                        Brace brace = openBraces.get(i);
                         depth1++;
                         if (brace.token.id() != ScalaTokenId.RArrow) {
                             nearestHangableBrace = brace;
@@ -630,22 +627,24 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         // Hang it from this brace
                         nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();
                     } else {
-                        nextIndent = openingBraces.size() * indentSize();
+                        nextIndent = openBraces.size() * indentSize();
                     }
-                } else if ((latestOpeningId == ScalaTokenId.LParen ||
-                        latestOpeningId == ScalaTokenId.LBracket ||
-                        latestOpeningId == ScalaTokenId.LBrace) && !latestOpening.isLatestOnLine) {
+                } else if ((latestOpenId == ScalaTokenId.LParen ||
+                        latestOpenId == ScalaTokenId.LBracket ||
+                        latestOpenId == ScalaTokenId.LBrace) &&
+                        !latestOpenBrace.isLatestOnLine &&
+                        (latestOpenBrace.lasestTokenOnLine == null || latestOpenBrace.lasestTokenOnLine.id() != ScalaTokenId.RArrow)) {
 
-                    nextIndent = offset + latestOpening.token.text().toString().length();
+                    nextIndent = offset + latestOpenBrace.token.text().toString().length();
 
-                } else if (latestOpeningId == ScalaTokenId.BlockCommentStart ||
-                        latestOpeningId == ScalaTokenId.DocCommentStart) {
+                } else if (latestOpenId == ScalaTokenId.BlockCommentStart ||
+                        latestOpenId == ScalaTokenId.DocCommentStart) {
 
                     nextIndent = offset + 1;
 
                 } else {
                     // default
-                    nextIndent = openingBraces.size() * indentSize();
+                    nextIndent = openBraces.size() * indentSize();
                 }
             }
         }
