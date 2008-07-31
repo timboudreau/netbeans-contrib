@@ -27,6 +27,7 @@ import javax.swing.event.DocumentListener;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.liferay.common.LiferayConstants;
 import org.openide.WizardDescriptor;
@@ -74,7 +75,6 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_LIFERAY_PORTAL_SERVER")); // NOI18N
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_PORTAL_URI")); // NOI18N
@@ -93,7 +93,7 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
         jLabel3.setLabelFor(autoDeployTf);
         jLabel3.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_Auto_Deploy_Dir")); // NOI18N
 
-        browseButton.setText("...");
+        browseButton.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); // NOI18N
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -104,36 +104,36 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
+            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(169, 169, 169)
                 .add(jLabel1)
-                .addContainerGap(162, Short.MAX_VALUE))
+                .addContainerGap(173, Short.MAX_VALUE))
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel4)
-                            .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(hostTf)
-                                    .add(portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)))
-                            .add(layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(portletUriTf))))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(jLabel3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 268, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(browseButton)))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
+                        .add(27, 27, 27))
+                    .add(jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                    .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(portletUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                    .add(portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                    .add(hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                    .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 291, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(18, 18, 18)
+                .add(browseButton)
+                .add(41, 41, 41))
+            .add(layout.createSequentialGroup()
+                .add(10, 10, 10)
+                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
+                .addContainerGap(454, Short.MAX_VALUE))
         );
+
+        layout.linkSize(new java.awt.Component[] {hostTf, portalUri, portletUriTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -153,13 +153,15 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel6)
                     .add(portletUriTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
                     .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3)
                     .add(browseButton))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
+
+        browseButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "ACD_BROWSE")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void hostTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hostTfFocusLost
@@ -206,19 +208,10 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
     public void initData()
     {
-       /* String[] instances = InstanceProperties.getInstanceList();
-        for(int i=0;i<instances.length;i++)
-        {
-            instancesCombo.addItem(instances[i]);
-        }*/
-        
-      ///  InstanceProperties intProps = InstanceProperties.getInstanceProperties(instances[1]);
-        
-      /// DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager("test").
+       
        autoDeployTf.setText(System.getProperty("user.home")+File.separator + "liferay" + 
                File.separator + "deploy");
        portalUri.setText("/portal");
-//       adminConsoleUriTf.setText("/portletdriver/admin");
        portletUriTf.setText("/portal");
        hostTf.setText("localhost");
         
@@ -269,9 +262,21 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         //String serverHome = wr.getServerHome();
         String domainDir = wr.getDomainDir();
         String serverType = wr.getServerType();
-        if(serverType.equals(ServerConstants.SUN_APP_SERVER_9))
-        {
+        if(serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
+            
             File file = new File(domainDir + File.separator + "lib" + File.separator + "portal-service.jar");
+            if(!file.exists())
+            {
+                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
+                return false;
+            }
+        } else if(serverType.equals(ServerConstants.TOMCAT_5_X)) {
+            
+            File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
+                                        "common" + File.separator +
+                                        "lib" + File.separator +
+                                        "ext" + File.separator +
+                                        "portal-service.jar");
             if(!file.exists())
             {
                 setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
@@ -279,7 +284,6 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             }
         }
        
-        
         setErrorMessage("");
         return true;
     }
@@ -297,6 +301,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
     
     private JFileChooser getJFileChooser(){
+        
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
         chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
