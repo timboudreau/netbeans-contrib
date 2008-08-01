@@ -51,6 +51,7 @@ import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Platform;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.WizardComponent;
 import org.netbeans.installer.wizard.components.WizardSequence;
@@ -145,7 +146,8 @@ public class MainSequence extends WizardSequence {
                 addChild(nbPreInstallSummaryPanel);
                 
                 if (toUninstall.size() > 0) {
-                    addChild(uninstallAction);
+                    addChild(serviceTagAction);
+                    addChild(uninstallAction);                    
                 }
                 
                 if (toInstall.size() > 0) {
@@ -159,7 +161,7 @@ public class MainSequence extends WizardSequence {
                             final Registry registry = Registry.getInstance();
 
                             File root = registry.getProducts("ss-base").get(0).getInstallationLocation();
-                            String dir = Platform.LINUX.equals(SystemUtils.getCurrentPlatform()) ? "sunstudioceres" : "SUNWspro";
+                            String dir = Utils.getMainDirectory();
                             File tmpF = new File(root.getAbsolutePath() + File.separator + dir);
                             tmpF.mkdir();
                             LogManager.log("Creating dir=" + tmpF);

@@ -101,8 +101,16 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
            // }
         }       
         File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
+        
         try {
-            FileUtils.deleteFile(mainDirectory, true);
+            FileUtils.deleteFile(new File(mainDirectory, "uninstall.sh"));
+            FileUtils.deleteFile(new File(mainDirectory, "modify-install.sh"));
+
+            // workaround for SS bug
+            FileUtils.deleteFile(new File(mainDirectory, "prod"), true);
+            // end
+            // delete only if empty
+            FileUtils.deleteFile(mainDirectory);
         } catch (IOException ex) {
             LogManager.log("Unexpected exception during removal of " 
                     + mainDirectory.getAbsolutePath(), ex);

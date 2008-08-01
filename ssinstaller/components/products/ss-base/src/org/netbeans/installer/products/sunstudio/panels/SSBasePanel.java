@@ -36,16 +36,13 @@
 
 package org.netbeans.installer.products.sunstudio.panels;
 
-import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.ResourceUtils;
-import org.netbeans.installer.utils.helper.swing.NbiButton;
-import org.netbeans.installer.utils.helper.swing.NbiCheckBox;
-import org.netbeans.installer.utils.helper.swing.NbiTextField;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel.DestinationPanelUi;
 import org.netbeans.installer.wizard.ui.SwingUi;
 import org.netbeans.installer.wizard.ui.WizardUi;
 import org.netbeans.installer.wizard.containers.SwingContainer;
+import org.netbeans.installer.wizard.Utils;
 
 public class SSBasePanel extends DestinationPanel {
     
@@ -57,12 +54,12 @@ public class SSBasePanel extends DestinationPanel {
                 DEFAULT_DESCRIPTION);
         
         setProperty(DESTINATION_LABEL_TEXT_PROPERTY,
-                DEFAULT_DESTINATION_LABEL_TEXT);
+                DEFAULT_DESTINATION_LABEL_TEXT
+                 // while packages are in SUNWspo / sunstudioceres
+                + " ( product will located in "+ Utils.getMainDirectory() + " subdirectory )");
         setProperty(DESTINATION_BUTTON_TEXT_PROPERTY,
                 DEFAULT_DESTINATION_BUTTON_TEXT);
-        
-        setProperty(BROWSE_BUTTON_TEXT_PROPERTY,
-                DEFAULT_BROWSE_BUTTON_TEXT);        
+  
     }
     
     @Override
@@ -143,107 +140,10 @@ public class SSBasePanel extends DestinationPanel {
             return errorMessage;
         }
         
-        /*
-        private void initComponents() {
-            alternateRoot = new NbiTextField();
-            alternateRootButton = new NbiButton();
-            alternateRootButton.setText("Browse...");
-            copySystemPrequesties = new NbiCheckBox();            
-            copySystemPrequesties.setSelected(true);
-            createSymLinks = new NbiCheckBox();
-            createSymLinks.setSelected(true);
-            installPatches = new NbiCheckBox();            
-            installPatches.setSelected(true);
-            currentZoneOnly = new NbiCheckBox();
-            
-            alternateRootLabel = new NbiLabel();
-            alternateRootLabel.setText("Use alternate root");            
-            copySystemPrequesties.setText("Copy system prequesties");                        
-            createSymLinks.setText("Create symlinks in /usr/bin");            
-            installPatches.setText("Install product patches");            
-            currentZoneOnly.setText("Install product in current zone only"); 
-            
-            
-            add(alternateRootLabel, new GridBagConstraints(
-                    0, 2,                             // x, y
-                    2, 1,                             // width, height
-                    1.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LAST_LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(11, 11, 0, 11),        // padding
-                    0, 0));                           // padx, pady - ???
-            add(alternateRoot, new GridBagConstraints(
-                    0, 3,                             // x, y
-                    1, 1,                             // width, height
-                    0.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(4, 11, 0, 0),        // padding
-                    0, 0));
-            add(alternateRootButton, new GridBagConstraints(
-                    1, 3,                             // x, y
-                    1, 1,                             // width, height
-                    0.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.NONE,    // fill
-                    new Insets(4, 4, 0, 11),        // padding
-                    0, 0));                  
-            JPanel pane = new JPanel(new GridBagLayout());
-            add(pane , new GridBagConstraints(
-                    0, 5,                             // x, y
-                    1, 10,                             // width, height
-                    1.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(11, 11, 0, 11),        // padding
-                    0, 0));                           // padx, pady - ??? );
-            
-            pane.add(copySystemPrequesties, new GridBagConstraints(
-                    0, 0,                             // x, y
-                    1, 1,                             // width, height
-                    10.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(0, 0, 0, 0),        // padding
-                    0, 0));                           // padx, pady - ???
-                
-            pane.add(createSymLinks, new GridBagConstraints(
-                    0, 3,                             // x, y
-                    1, 1,                             // width, height
-                    0.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(0, 0, 0, 0),        // padding
-                    0, 0));                           // padx, pady - ???
-           
-            pane.add(installPatches, new GridBagConstraints(
-                    0, 4,                             // x, y
-                    1, 1,                             // width, height
-                    0.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(0, 0, 0, 0),        // padding
-                    0, 0));                           // padx, pady - ???
-              // padx, pady - ???
-
-            pane.add(currentZoneOnly, new GridBagConstraints(
-                    0, 5,                             // x, y
-                    1, 1,                             // width, height
-                    0.0, 0.0,                         // weight-x, weight-y
-                    GridBagConstraints.LINE_START,    // anchor
-                    GridBagConstraints.HORIZONTAL,    // fill
-                    new Insets(0, 0, 0, 0),        // padding
-                    0, 0));                           // padx, pady - ???
-
-       
-        }
-        */       
     }
     
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
-    public static final String BROWSE_BUTTON_TEXT_PROPERTY =
-            "browse.button.text"; // NOI18N
     
     public static final String DEFAULT_TITLE =
             ResourceUtils.getString(SSBasePanel.class,
@@ -258,9 +158,5 @@ public class SSBasePanel extends DestinationPanel {
     public static final String DEFAULT_DESTINATION_BUTTON_TEXT =
             ResourceUtils.getString(SSBasePanel.class,
             "NBP.destination.button.text"); // NOI18N
-    
-    public static final String DEFAULT_BROWSE_BUTTON_TEXT =
-            ResourceUtils.getString(SSBasePanel.class,
-            "NBP.browse.button.text"); // NOI18N
-    
+
 }

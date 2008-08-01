@@ -48,12 +48,10 @@ import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.panels.sunstudio.PostInstallSummaryPanel;
 import org.netbeans.modules.reglib.BrowserSupport;
 import org.netbeans.modules.reglib.NbConnectionSupport;
-import org.netbeans.modules.reglib.NbServiceTagSupport;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_SUCCESSFULLY;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_WITH_WARNINGS;
 
@@ -65,46 +63,37 @@ public class RegistrationAction extends WizardAction {
     public void execute() {
         // open web page...
         try {
-            LogManager.logEntry("... execute netbeans registration action");
+            LogManager.logEntry("... execute sunstudio registration action");
             final List<Product> products = new LinkedList<Product>();
             final Registry registry = Registry.getInstance();
             products.addAll(registry.getProducts(INSTALLED_SUCCESSFULLY));
             products.addAll(registry.getProducts(INSTALLED_WITH_WARNINGS));
-            String productId = "nb";
+            String productId = "ss"; // the id in the URL
             Product nbProduct = null;
             List <Product> productsToRegister = new ArrayList<Product>();
             if (!products.isEmpty()) {
                 for (Product product : products) {
                     final String uid = product.getUid();
-                    if (uid.equals("nb-base")) {
-                        productId = "nb" + productId;
-                        nbProduct = product;
+                    if (uid.equals("ss-base")
+                            || uid.equals("nb-base")) {
                         productsToRegister.add(nbProduct);
                     }
                 }
             }
-            LogManager.log("... product ID: " + productId);
-            if (productId.startsWith("nb")) {
-                if (nbProduct != null) {
-                    System.setProperty("netbeans.home", nbProduct.getInstallationLocation().getPath());
-                }             
 
-                boolean result = showRegistrationPage(productId, productsToRegister);
-                if (result) {
-                    ServiceTagCreateAction.setNetBeansStatus(true);
-                   
-                }
+            if (productsToRegister.size() > 0) {
+                showRegistrationPage(productId, productsToRegister);
             }
         } catch (Exception ex) {
             LogManager.log(ex);
         } finally {
-            LogManager.logExit("... finished netbeans registration action");
+            LogManager.logExit("... finished sunstidio registration action");
         }
     }
 
     private boolean showRegistrationPage(String productId, List <Product> productsToRegister) throws IOException {
         LogManager.logEntry("... show registration page for:" + productId);
-        RegistrationData regData = NbServiceTagSupport.getRegistrationData();
+        RegistrationData regData = ServiceTagCreateAction.getRegistrationData();
         URL url = NbConnectionSupport.getRegistrationURL(regData.getRegistrationURN(), productId);
         boolean succeed = NbConnectionSupport.postRegistrationData(url, regData);
         boolean result = false;
@@ -116,7 +105,8 @@ public class RegistrationAction extends WizardAction {
                 LogManager.log(e);
             }
         } else {
-            LogManager.log("... POST request failed, opening browser with local page");
+            LogManager.log("... POST request failed, registration cancelled.");
+            /*
             String [] productNames = new String [productsToRegister.size()];
             for(int i=0;i<productsToRegister.size();i++) {          
                 try { 
@@ -129,13 +119,14 @@ public class RegistrationAction extends WizardAction {
             File registerPage = NbServiceTagSupport.getRegistrationHtmlPage(productId,productNames);
             URI registerPageUri = registerPage.toURI();
             result = openBrowser(registerPageUri);
+            */
         }
         LogManager.logExit("... registration page shown");
         return result;
     }
   
     /**
-     * Opens a browser for JDK product registration.
+     * Opens a browser for product registration.
      * @param url Registration Webapp URL
      */
     private boolean openBrowser(URI uri) throws IOException {
@@ -165,7 +156,7 @@ public class RegistrationAction extends WizardAction {
   
     @Override
     public boolean canExecuteForward() {
-        return Boolean.getBoolean(PostInstallSummaryPanel.ALLOW_SERVICETAG_REGISTRATION_PROPERTY);
+        return Boolean.getBoolean(PostInstallSummaryPanel.ALLOW_REGISTRATION_PROPERTY);
     }
 
     @Override

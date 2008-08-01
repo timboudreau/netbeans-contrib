@@ -68,6 +68,7 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
     public SolarisNativePackageInstaller() {
         try {
             defaultResponse = File.createTempFile("nbi-response", "", TMP_DIR);
+            defaultResponse.deleteOnExit();
             PrintStream out = new PrintStream(defaultResponse);
             out.println("LIST_FILE=/tmp/depend_list.\nTRLR_RESP=/tmp/response.\n");
         } catch (IOException ex) {
@@ -79,6 +80,7 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
         target = path;
         try {
             defaultAdminFile = File.createTempFile("nbi-admin", "", TMP_DIR);
+            defaultAdminFile.deleteOnExit();
             PrintStream out = new PrintStream(defaultAdminFile);
             out.println("mail=\ninstance=unique\npartial=nocheck\nrunlevel=nocheck" +
                     "\nidepend=nocheck\nrdepend=nocheck\nspace=quit\nsetuid=nocheck\n" +
