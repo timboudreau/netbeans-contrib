@@ -142,7 +142,7 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         FileObject ng = cp.findResource("org.testng.annotations.Test");
         if (ng == null) {
             // add library to the project
-            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.7"); //NOI18N
+            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
             if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, createdFile, ClassPath.COMPILE)) {
                 LOGGER.fine("TestNG library not added"); //NOI18N
             }
