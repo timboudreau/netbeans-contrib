@@ -321,6 +321,19 @@ public class ScalaElement implements ScalaElementHandle {
         return symbol.toString();
     }
 
+    public scala.List paramNames() {
+        assert symbol.isMethod();
+
+        /** @todo not work yet */
+        scala.collection.mutable.HashMap argNamesMap = global.methodArgumentNames();
+        if (argNamesMap != null) {
+            Option argNames = argNamesMap.get(symbol);
+            return argNames.isDefined() ? (scala.List) argNames.get() : null;
+        }
+        
+        return null;
+    }
+
     public static ElementKind getKind(Symbol symbol) {
         if (symbol.isClass()) {
             return ElementKind.CLASS;

@@ -181,12 +181,12 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
     protected static class FunctionProposal extends ScalaCompletionProposal {
 
-        private Type functionType;
+        private Type methodType;
 
         FunctionProposal(ScalaElement element, CompletionRequest request) {
             super(element, request);
             Symbol symbol = element.getSymbol();
-            functionType = symbol.tpe();
+            methodType = symbol.tpe();
         }
 
         @Override
@@ -222,7 +222,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.deprecated(false);
             }
 
-            scala.List typeParams = functionType.typeParams();
+            scala.List typeParams = methodType.typeParams();
             if (!typeParams.isEmpty()) {
                 formatter.appendHtml("[");
                 int size = typeParams.size();
@@ -238,24 +238,30 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.appendHtml("]");
             }
 
-            scala.List paramTypes = functionType.paramTypes();
-
+            scala.List paramTypes = methodType.paramTypes();
+            scala.List paramNames = element.paramNames();
+            int nSize = paramNames == null ? 0 : paramNames.size();
+            
             if (!paramTypes.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
 
-                int size = paramTypes.size();
-                for (int i = 0; i < size; i++) {
+                int tSize = paramTypes.size();
+                for (int i = 0; i < tSize; i++) {
                     Type param = (Type) paramTypes.apply(i);
 
                     formatter.parameters(true);
-                    formatter.appendText("a" + Integer.toString(i));
+                    if (i < nSize) {
+                        formatter.appendText(paramNames.apply(i).toString());
+                    } else {
+                        formatter.appendText("a" + Integer.toString(i));                        
+                    }
                     formatter.parameters(false);
                     formatter.appendText(": ");
                     formatter.type(true);
                     formatter.appendText(param.toString());
                     formatter.type(false);
 
-                    if (i < size - 1) {
+                    if (i < tSize - 1) {
                         formatter.appendText(", "); // NOI18N
                     }
                 }
@@ -268,7 +274,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
         @Override
         public List<String> getInsertParams() {
-            scala.List paramTypes = functionType.paramTypes();
+            scala.List paramTypes = methodType.paramTypes();
             if (!paramTypes.isEmpty()) {
                 int size = paramTypes.size();
                 List<String> result = new ArrayList<String>(size);
@@ -289,7 +295,7 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
             final String insertPrefix = getInsertPrefix();
             sb.append(insertPrefix);
 
-            if (functionType.paramTypes().isEmpty()) {
+            if (methodType.paramTypes().isEmpty()) {
                 return sb.toString();
             }
 
