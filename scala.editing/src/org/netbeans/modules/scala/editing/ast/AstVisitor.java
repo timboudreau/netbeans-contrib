@@ -102,7 +102,7 @@ import scala.tools.nsc.util.Position;
  */
 public abstract class AstVisitor {
 
-    protected boolean debug;
+    protected boolean debug = true;
     protected int indentLevel;
     protected BatchSourceFile sourceFile;
     protected TokenHierarchy th;

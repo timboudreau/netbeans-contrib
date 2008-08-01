@@ -435,11 +435,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 String pkgQName = lastDot == -1 ? sb.toString() : sb.substring(0, lastDot);
                 Symbol pkgSymbol = ErrorRecoverGlobal.resolvePackage(global.settings(), pResult, doc, pkgQName);
                 if (pkgSymbol != null) {
-                    request.prefix = lastDot == -1 ? "" : sb.substring(lastDot + 1, sb.length());
-                    completeSymbolMembers(pkgSymbol, proposals, request);
-                    return completionResult;
+                request.prefix = lastDot == -1 ? "" : sb.substring(lastDot + 1, sb.length());
+                completeSymbolMembers(pkgSymbol, proposals, request);
+                return completionResult;
                 }
-                */
+                 */
                 request.prefix = sb.toString();
                 completeImport(proposals, request);
                 return completionResult;
@@ -2072,9 +2072,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     private void findCall(AstRootScope rootScope, TokenSequence ts, TokenHierarchy th, Call call, int times) {
         assert rootScope != null;
 
+        boolean caretFollowingDot = false;
         Token idToken = null;
         Token closest = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
         if (closest.id() == ScalaTokenId.Dot) {
+            caretFollowingDot = true;
             if (ts.movePrevious()) {
                 Token prev = ScalaLexUtilities.findPreviousNonWs(ts);
                 if (prev != null && prev.id() == ScalaTokenId.RParen) {
@@ -2090,6 +2092,11 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         if (idToken != null) {
             AstItem item = rootScope.findItemAt(idToken);
             if (times == 0) {
+                if (caretFollowingDot) {
+                    call.base = item;
+                    return;
+                }
+
                 Token prev = null;
                 if (ts.movePrevious()) {
                     prev = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
