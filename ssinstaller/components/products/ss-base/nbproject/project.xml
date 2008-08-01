@@ -22,6 +22,14 @@
                 <id>jar</id>
             </reference>
             <reference>
+                <foreign-project>Core_NBI_Engine-1</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
+            <reference>
                 <foreign-project>NetBeans_NBI_Engine</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>

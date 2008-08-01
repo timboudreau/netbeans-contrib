@@ -186,6 +186,8 @@ public class ServiceTagCreateAction extends WizardAction {
             }
             if (registrationData.getServiceTags().size() > 0) {
                 registrationData.storeToXML(new FileOutputStream(registrationFile));
+            } else {
+                FileUtils.deleteFile(registrationFile.getParentFile(), true);
             }
         } catch (IOException ex) {
             LogManager.log("Unexpected exception during service tage creaion.", ex);
