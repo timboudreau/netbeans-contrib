@@ -251,14 +251,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
             boolean nbInstalled = false;
             for (Product product: products) {
                 if (product.getUid().equals("nb-base")
-                        || product.getUid().equals("ss-base")) {
-                    if (SystemUtils.isWindows()) {
-                        messagePaneNetBeans.setText(DEFAULT_MESSAGE_NETBEANS_TEXT_WINDOWS);
-                    } else if (SystemUtils.isMacOS()) {
-                        messagePaneNetBeans.setText(DEFAULT_MESSAGE_NETBEANS_TEXT_MACOSX);
-                    } else {
-                        messagePaneNetBeans.setText(DEFAULT_MESSAGE_NETBEANS_TEXT_UNIX);
-                    }
+                        || product.getUid().equals("ss-base")) { 
                     nbInstalled = true;
                     break;
                 }
@@ -274,8 +267,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
             boolean registrationEnabled =
                     nbInstalled            && // if NetBeans is among installed products
                     !toRegister.isEmpty()  && // if anything to register
-                    !SystemUtils.isMacOS() && // no support on mac
-                    Boolean.getBoolean(ALLOW_SERVICETAG_REGISTRATION_PROPERTY) && //system property is defined
+                    Boolean.getBoolean(ALLOW_REGISTRATION_PROPERTY) && //system property is defined
                     (BrowserSupport.isSupported() ||                   // if JDK6 supports browser or                   
                     RegistrationAction.getUnixBrowser() != null);    // on unix we can found it in some predefined locations
             
@@ -284,7 +276,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
                 checkBoxRegistration.setVisible(false);
                 spacer.setVisible(false);
                 checkBoxRegistration.setSelected(false);
-                System.setProperty(ALLOW_SERVICETAG_REGISTRATION_PROPERTY, "" + false);
+                System.setProperty(ALLOW_REGISTRATION_PROPERTY, "" + false);
             } else {
                 String productsString = StringUtils.EMPTY_STRING;
                 for (Product product : toRegister) {
@@ -292,12 +284,8 @@ public class PostInstallSummaryPanel extends WizardPanel {
                     String name = StringUtils.EMPTY_STRING;
                     if (uid.equals("nb-base")) {
                         name = DEFAULT_MESSAGE_REGISTRATION_NETBEANS;
-                    } else if (uid.equals("jdk")) {
-                        name = DEFAULT_MESSAGE_REGISTRATION_JDK;
-                    } else if (uid.equals("glassfish")) {
-                        name = DEFAULT_MESSAGE_REGISTRATION_GLASSFISH;
-                    } else if (uid.equals("sjsas")) {
-                        name = DEFAULT_MESSAGE_REGISTRATION_APPSERVER;
+                    } else if (uid.equals("ss-base")) {
+                        name = DEFAULT_MESSAGE_REGISTRATION_STUDIO;
                     }
                     if (productsString.equals(StringUtils.EMPTY_STRING)) {
                         productsString = name;
@@ -352,7 +340,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
             checkBoxRegistration.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    System.setProperty(ALLOW_SERVICETAG_REGISTRATION_PROPERTY,
+                    System.setProperty(ALLOW_REGISTRATION_PROPERTY,
                             "" + checkBoxRegistration.isSelected());
                 }
             });
@@ -499,16 +487,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
     public static final String DEFAULT_MESSAGE_FILES_REMAINING =
             ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.files.remaining"); // NOI18N
-    
-    public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_WINDOWS = 
-            ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.netbeans.text.windows"); // NOI18N
-    public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_UNIX = 
-            ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.netbeans.text.unix"); // NOI18N
-    public static final String DEFAULT_MESSAGE_NETBEANS_TEXT_MACOSX = 
-            ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.netbeans.text.macosx"); // NOI18N
+       
     public static final String DEFAULT_MESSAGE_NETBEANS_CONTENT_TYPE = 
             ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.netbeans.content.type"); // NOI18N
@@ -518,15 +497,9 @@ public class PostInstallSummaryPanel extends WizardPanel {
     public static final String DEFAULT_MESSAGE_REGISTRATION_NETBEANS =
             ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.netbeans"); // NOI18N
-    public static final String DEFAULT_MESSAGE_REGISTRATION_GLASSFISH =
+    public static final String DEFAULT_MESSAGE_REGISTRATION_STUDIO =
             ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.registration.glassfish"); // NOI18N
-    public static final String DEFAULT_MESSAGE_REGISTRATION_APPSERVER =
-            ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.registration.appserver"); // NOI18N
-    public static final String DEFAULT_MESSAGE_REGISTRATION_JDK =
-            ResourceUtils.getString(PostInstallSummaryPanel.class,
-            "NPoISP.message.registration.jdk"); // NOI18N
+            "NPoISP.message.registration.sunstudio"); // NOI18N
     public static final String DEFAULT_MESSAGE_REGISTRATION_CONCAT =
             ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.concat");//NOI18N
@@ -536,7 +509,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
     public static final String DEFAULT_MESSAGE_REGISTRATION_CONTENT_TYPE =
             ResourceUtils.getString(PostInstallSummaryPanel.class,
             "NPoISP.message.registration.content.type");//NOI18N    
-    public static final String ALLOW_SERVICETAG_REGISTRATION_PROPERTY =
+    public static final String ALLOW_REGISTRATION_PROPERTY =
             "servicetag.allow.register";
 
     public static final String DEFAULT_TITLE = ResourceUtils.getString(

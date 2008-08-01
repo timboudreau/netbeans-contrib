@@ -23,11 +23,11 @@
  * is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun Microsystems, Inc. All
  * Rights Reserved.
  *
- * If you wish your version of this file to be governed by only the CDDL or only the
+ * If you wish your productVersion of this file to be governed by only the CDDL or only the
  * GPL Version 2, indicate your decision by adding "[Contributor] elects to include
  * this software in this distribution under the [CDDL or GPL Version 2] license." If
  * you do not indicate a single choice of license, a recipient has the option to
- * distribute your version of this file under either the CDDL, the GPL Version 2 or
+ * distribute your productVersion of this file under either the CDDL, the GPL Version 2 or
  * to extend the choice of license to its licensees as provided above. However, if
  * you add GPL Version 2 code and therefore, elected the GPL Version 2 license, then
  * the option applies only if the new code is made subject to such option by the
@@ -35,19 +35,13 @@
  */
 package org.netbeans.installer.wizard.components.actions.sunstudio;
 
-import java.util.logging.Level;
 import org.netbeans.modules.servicetag.ServiceTag;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -57,25 +51,25 @@ import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
-import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.applications.JavaUtils;
-import org.netbeans.installer.utils.applications.NetBeansUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
-import org.netbeans.installer.utils.exceptions.NativeException;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardAction;
-import org.netbeans.modules.reglib.BrowserSupport;
 import org.netbeans.modules.reglib.NbBundle;
-import org.netbeans.modules.reglib.NbServiceTagSupport;
-import org.netbeans.modules.reglib.StatusData;
+import org.netbeans.modules.servicetag.RegistrationData;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_SUCCESSFULLY;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_WITH_WARNINGS;
-
+import static org.netbeans.installer.utils.helper.DetailedStatus.UNINSTALLED_SUCCESSFULLY;
+import static org.netbeans.installer.utils.helper.DetailedStatus.UNINSTALLED_WITH_WARNINGS;
 /**
  *
- * @author Dmitry Lipin
+ * @author Leonid Mesnik
  */
 public class ServiceTagCreateAction extends WizardAction {
-    private String source;
+    
+    private static RegistrationData registrationData;
+    private static String REGISTRATION_DIR = File.separator + "prod"
+            + File.separator + "lib" + File.separator + "condev";
+    private static String REGISTRATION_XML = "registration.xml";
 
     public ServiceTagCreateAction() {
         Logger parent = Logger.getLogger(this.getClass().getName()).getParent();
@@ -109,256 +103,175 @@ public class ServiceTagCreateAction extends WizardAction {
             @Override
             public void close() throws SecurityException {
             }
-        });
-        if(SystemUtils.isMacOS()) {                                           
-            System.setProperty(ALLOW_SERVICETAG_CREATION_PROPERTY,"" + false);
-        }
+        });        
+    }
+
+    public static RegistrationData getRegistrationData() {
+        return registrationData;
     }
 
     public void execute() {
         LogManager.logEntry("... create service tags action");
-        final List<Product> products = new LinkedList<Product>();
+        final List<Product> installedProducts = new LinkedList<Product>();
+        final List<Product> uninstalledProducts = new LinkedList<Product>();
         final Registry registry = Registry.getInstance();
-        products.addAll(registry.getProducts(INSTALLED_SUCCESSFULLY));
-        products.addAll(registry.getProducts(INSTALLED_WITH_WARNINGS));
-        Product jdkProduct = null;
-        source = SOURCE_NAME;
+        installedProducts.addAll(registry.getProducts(INSTALLED_SUCCESSFULLY));
+        installedProducts.addAll(registry.getProducts(INSTALLED_WITH_WARNINGS));
 
+        uninstalledProducts.addAll(registry.getProductsToUninstall());
+        
+        
         try {
             Registry bundledRegistry = new Registry();
             final String bundledRegistryUri = System.getProperty(
                     Registry.BUNDLED_PRODUCT_REGISTRY_URI_PROPERTY);
 
             bundledRegistry.loadProductRegistry((bundledRegistryUri != null) ? 
-                bundledRegistryUri : Registry.DEFAULT_BUNDLED_PRODUCT_REGISTRY_URI);
-            List<Product> bundledJdks = bundledRegistry.getProducts("jdk");
-            
-            if (bundledJdks.size() > 0) {
-                source = StringUtils.format(SOURCE_NAME_JDK,
-                        bundledJdks.get(0).getDisplayName(new Locale("")));
-            }
+                bundledRegistryUri : Registry.DEFAULT_BUNDLED_PRODUCT_REGISTRY_URI);           
+         
         } catch (InitializationException e) {
             LogManager.log("Cannot load bundled registry", e);
         }
 
-        for (Product product : products) {
-            String uid = product.getUid();
-            if (uid.equals("nb-base")) {
-                createSTNetBeans(product);
-            } else if (uid.equals("ss-base")) {
-                createSTSunStudio(product, true);
-            } else if (uid.equals("jdk")) {
-                jdkProduct = product;
+        File registrationFile = new File(
+                registry.getProducts("ss-base").get(0).getInstallationLocation()
+                + File.separator + Utils.getMainDirectory()
+                + REGISTRATION_DIR , REGISTRATION_XML);
+        try {
+
+            if (registrationFile.exists()) {
+                registrationData = RegistrationData.loadFromXML(new FileInputStream(registrationFile));
+            } else {
+                registrationData = new RegistrationData();
+                FileUtils.mkdirs(registrationFile.getParentFile());
             }
-        }
-        // JDK ST should be created at the end since it requires netbeans.home to be set
-        if(jdkProduct!=null) {
-            createSTJDK(jdkProduct);
-        }
-        LogManager.logExit("... finished service tags action");
-    }
 
-    private void createSTNetBeans(Product nbProduct) {
-        try {
-            LogManager.log("... create ST for NetBeans");
-            File nbLocation = nbProduct.getInstallationLocation();
-            File nbPlatform = nbLocation.listFiles(new FileFilter() {
-
-                public boolean accept(File pathname) {
-                    return pathname.getName().startsWith("platform");
-                }
-            })[0];
-
-            System.setProperty("netbeans.home", nbPlatform.getPath());
-            NbServiceTagSupport.createNbServiceTag(source,
-                    JavaUtils.getVersion(
-                    new File(NetBeansUtils.getJavaHome(nbPlatform.getParentFile()))).
-                    toJdkStyle());
-            setNetBeansStatus(false);
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-    }
-   
-    static void setNetBeansStatus(boolean register) {
-        StatusData sd = (register) ? 
-            new StatusData(StatusData.STATUS_REGISTERED, StatusData.DEFAULT_DELAY):
-            new StatusData(StatusData.STATUS_LATER, 1);
-
-        File parent = NbServiceTagSupport.getServiceTagDirHome();
-        File statusFile = new File(parent, "status.xml");
-        try {
-            FileUtils.mkdirs(parent);
-        } catch (IOException ex) {
-            LogManager.log("Error: Cannot create directory " + parent);
-            return;
-        }
-
-        BufferedOutputStream out = null;
-        try {
-            out = new BufferedOutputStream(new FileOutputStream(statusFile));
-            sd.storeToXML(out);
-        } catch (IOException ex) {
-            LogManager.log("Error: Cannot save status data to " + statusFile, ex);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ex) {
-                    LogManager.log("Error: Cannot close writer", ex);
+            // The system service tag regitry.
+            org.netbeans.modules.servicetag.Registry stRegistry =
+                    org.netbeans.modules.servicetag.Registry.getSystemRegistry();
+            ServiceTag st;
+            for (Product product : installedProducts) {
+                String uid = product.getUid();
+                if (uid.equals("nb-base")) {
+                    st = newNbServiceTag(product);
+                    registrationData.addServiceTag(st);
+                    if (stRegistry.isSupported()) {
+                        LogManager.log("Add service tags to system registry");
+                        stRegistry.addServiceTag(st);
+                    }
+                } else if (uid.equals("ss-base")) {
+                    st = newSSServiceTag(product);
+                    registrationData.addServiceTag(st);
+                    if (stRegistry.isSupported()) {
+                        LogManager.log("Add service tags to system registry");
+                        stRegistry.addServiceTag(st);
+                    }                    
                 }
             }
+
+            String instanceURN;
+            for (Product product : uninstalledProducts) {
+                String uid = product.getUid();
+                if (uid.equals("nb-base") || uid.equals("ss-base")) {
+                    instanceURN = getInstanceURN(uid);
+                    if (instanceURN == null) {
+                        continue;
+                    }
+                    registrationData.removeServiceTag(instanceURN);
+                    if (stRegistry.isSupported()) {
+                        LogManager.log("Remove service tags from system registry");
+                        stRegistry.removeServiceTag(instanceURN);
+                    }
+                }
+            }
+            if (registrationData.getServiceTags().size() > 0) {
+                registrationData.storeToXML(new FileOutputStream(registrationFile));
+            }
+        } catch (IOException ex) {
+            LogManager.log("Unexpected exception during service tage creaion.", ex);
         }
+         
     }
 
-            
-    /**
-     * Return the NetBeans service tag from local registration data.
-     * Return null if srevice tag is not found.
-     * 
-     * @return a service tag for 
-     */
-    private static ServiceTag getRegistredServiceTag (String productURN) throws IOException {        
-        Collection<ServiceTag> svcTags = org.netbeans.modules.servicetag.Registry.getSystemRegistry().findServiceTags(productURN);
-        for (ServiceTag st : svcTags) {
-            if (productURN.equals(st.getProductURN())) {
-                return st;
+    private static String getInstanceURN(String uid) {
+        String productURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag."
+                + uid.substring(0,2) +".urn");
+        for (ServiceTag st : registrationData.getServiceTags()) {
+            if (st.getProductURN().equals(productURN)) {
+                return st.getInstanceURN();
             }
         }
         return null;
     }
-    
-    /**
-     * Create new service tag instance for NetBeans
-     * @param svcTagSource
-     * @return
-     * @throws java.io.IOException
-     */
-    private static ServiceTag newSSServiceTag (String svcTagSource) throws IOException {
+
+    private static ServiceTag newNbServiceTag (Product product)  {
         // Determine the product URN and name
-        String productURN, productName, parentURN, parentName, version;
+        String productURN, productName, productVersion, parentURN, parentName;
+
+        productURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.urn");
+        productName = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.name");
+        productVersion = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.version");
+        parentURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.parent.urn");
+        parentName = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.parent.name");
+
+        return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
+                                      productName,
+                                      productVersion,
+                                      productURN,
+                                      parentName,
+                                      parentURN,
+                                      "version=" + productVersion + ",dir="
+                                      + product.getInstallationLocation().getAbsolutePath(),
+                                      "NetBeans.org",
+                                      System.getProperty("os.arch"),
+                                      getZone(),
+                                      SOURCE_NAME);
+    }
+
+    private static String getZone() {
+        return "global";
+    }
+  
+     
+    /**
+     * Create new service tag instance for Sun Studio          
+     */
+    private static ServiceTag newSSServiceTag (Product product) {
+        // Determine the product URN and name
+        String productURN, productName, parentURN, parentName, productVersion;
 
         productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.urn");
         productName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.name");
-        version = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.version");
+        productVersion = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.version");
         parentURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.parent.urn");
         parentName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.parent.name");
 
         return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
                                       productName,
-                                      version,
+                                      productVersion,
                                       productURN,
                                       parentName,
                                       parentURN,
-                                      "test",
-                                      "Sun Mic",
+                                      "version=" + productVersion + ",dir="
+                                      + product.getInstallationLocation().getAbsolutePath(),
+                                      "Sun Microsystems",
                                       System.getProperty("os.arch"),
-                                      "global",
-                                      svcTagSource);
-    }
-    
-
-    private void createSTSunStudio(Product ssProduct, boolean createInstallationST) {
-        try {
-            String productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.ss.urn");
-            if (null == getRegistredServiceTag(productURN)) {
-                ServiceTag st = newSSServiceTag(productURN);
-                org.netbeans.modules.servicetag.Registry.getSystemRegistry().addServiceTag(st);
-            }
-            // NbServiceTagSupport.writeRegistrationXml();
-        } catch (Exception ex) {
-            LogManager.log("The service tags registration is not supported. " , ex);
-        }
-       // NbServiceTagSupport.writeRegistrationXml();
-    }
-   
-    
-    /**
-     * Create new service tag instance for GlassFish
-     * @param svcTagSource
-     * @return
-     * @throws java.io.IOException
-     */
-
-    private static String SS_VERSION  = "12.0";
-    private static ServiceTag newSSServiceTag
-    (String svcTagSource, String jdkHomeUsedByGlassfish, String jdkVersionUsedByGlassfish, String glassfishHome) throws IOException {
-        // Determine the product URN and name
-        String productURN, productName, parentURN, parentName;
-
-        productURN = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.urn");
-        productName = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.s.name");
-        
-        parentURN = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.parent.urn");
-        parentName = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.parent.name");
-
-        return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
-                                      productName,
-                                      SS_VERSION,
-                                      productURN,
-                                      parentName,
-                                      parentURN,
-                                     // getGfProductDefinedId(jdkHomeUsedByGlassfish, jdkVersionUsedByGlassfish, glassfishHome),
-                                      "ss-id",
-                                      "Sun Microsystems Inc.",
-                                      System.getProperty("os.arch"),
-                                      "global",
-                                      svcTagSource);
-    }
-    
-    private void createSTJDK(Product jdkProduct) {
-        final String classpath = System.getProperty("java.class.path");
-
-        if(System.getProperty("netbeans.home")!=null) {
-            try {
-                final File jdkHome = jdkProduct.getInstallationLocation();
-                final File javaExe = JavaUtils.getExecutable(jdkHome);
-                LogManager.log("... java.exe = " + javaExe);
-                final String [] command = new String [] {
-                    javaExe.getPath(),
-                    "-cp",
-                    classpath,
-                    this.getClass().getName(),
-                    System.getProperty("netbeans.home"),
-                    source
-                };
-            
-                SystemUtils.executeCommand(jdkHome, command);
-            } catch (IOException e) {
-                LogManager.log(e);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        LogManager.start();
-        LogManager.log("... creating JDK service tag");
-        LogManager.log("... netbeans.home = " + args[0]);
-        System.setProperty("netbeans.home", args[0]);
-        LogManager.log("... source = " + args[1]);
-        try {
-            NbServiceTagSupport.createJdkServiceTag(args[1]);
-        } catch (IOException e) {
-            LogManager.log(e);
-        }
-        LogManager.log("... JDK ST created");
-    }
-
+                                      getZone(),
+                                      SOURCE_NAME);
+    }    
+  
     @Override
     public boolean canExecuteForward() {
-        return Boolean.getBoolean(ALLOW_SERVICETAG_CREATION_PROPERTY);
+        return true;
     }
 
     @Override
     public WizardActionUi getWizardUi() {
         return null;
     }
-    public static final String ALLOW_SERVICETAG_CREATION_PROPERTY =
+    private static final String ALLOW_SERVICETAG_CREATION_PROPERTY =
             "servicetag.allow.create";//NOI18N
-    public static final String SOURCE_NAME =
+    private static final String SOURCE_NAME =
             ResourceUtils.getString(ServiceTagCreateAction.class,
             "NSTCA.installer.source.name");//NOI18N
-    public static final String SOURCE_NAME_JDK =
-            ResourceUtils.getString(ServiceTagCreateAction.class,
-            "NSTCA.installer.source.name.jdk");//NOI18N
 }
