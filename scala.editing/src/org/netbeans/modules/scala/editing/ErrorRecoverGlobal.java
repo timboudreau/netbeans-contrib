@@ -66,7 +66,7 @@ public class ErrorRecoverGlobal {
 
     private static Global global;
 
-    public static Symbol recoverObject(Settings settings, ScalaParserResult pResult, BaseDocument doc, AstItem item) {
+    private static void checkGlobal(Settings settings) {
         if (global != null && !global.settings().equals(settings)) {
             global = null;
         }
@@ -85,7 +85,11 @@ public class ErrorRecoverGlobal {
                 }
             };
         }
+    }
 
+    public static Symbol resolveObject(Settings settings, ScalaParserResult pResult, BaseDocument doc, AstItem item) {
+        checkGlobal(settings);
+        
         doc.readLock();
 
         TokenSequence ts = ScalaLexUtilities.getTokenSequence(pResult.getTokenHierarchy(), 1);
@@ -152,6 +156,37 @@ public class ErrorRecoverGlobal {
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
+        }
+
+        return null;
+    }
+
+    public static Symbol resolvePackage(Settings settings, ScalaParserResult pResult, BaseDocument doc, String pkgQName) {
+        checkGlobal(settings);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("package ");
+        sb.append(pkgQName);
+        sb.append(";");
+
+        TokenHierarchy th = TokenHierarchy.create(sb, ScalaTokenId.language());
+        if (th != null) {
+            String filePath = "<NetBeansErrorRecover>";
+            BatchSourceFile srcFile = new BatchSourceFile(filePath, sb.toString().toCharArray());
+
+            CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+            if (unit != null) {
+                final Tree tree = unit.body();
+                AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                
+                int lastDot = pkgQName.lastIndexOf('.');
+                String lastPath = lastDot == -1 ? pkgQName : pkgQName.substring(lastDot + 1, pkgQName.length());
+                
+                AstItem found = root.findFirstItemWithName(lastPath);
+                if (found != null) {
+                    return found.getSymbol();
+                }
+            }
         }
 
         return null;
