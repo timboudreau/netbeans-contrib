@@ -165,27 +165,20 @@ public abstract class AstVisitor {
         enter(tree);
 
         if (tree instanceof PackageDef) {
-            beginStatOrExpr();
             visitPackageDef((PackageDef) tree);
         } else if (tree instanceof ClassDef) {
-            beginStatOrExpr();
             visitClassDef((ClassDef) tree);
         } else if (tree instanceof ModuleDef) {
-            beginStatOrExpr();
             visitModuleDef((ModuleDef) tree);
         } else if (tree instanceof ValDef) {
-            beginStatOrExpr();
             visitValDef((ValDef) tree);
         } else if (tree instanceof DefDef) {
-            beginStatOrExpr();
             visitDefDef((DefDef) tree);
         } else if (tree instanceof TypeDef) {
-            beginStatOrExpr();
             visitTypeDef((TypeDef) tree);
         } else if (tree instanceof LabelDef) {
             visitLabelDef((LabelDef) tree);
         } else if (tree instanceof Import) {
-            beginStatOrExpr();
             visitImport((Import) tree);
         } else if (tree instanceof Annotation) {
             visitAnnotation((Annotation) tree);
@@ -204,7 +197,6 @@ public abstract class AstVisitor {
         } else if (tree instanceof Star) {
             visitStar((Star) tree);
         } else if (tree instanceof Bind) {
-            beginStatOrExpr();
             visitBind((Bind) tree);
         } else if (tree instanceof UnApply) {
             visitUnApply((UnApply) tree);
@@ -398,12 +390,6 @@ public abstract class AstVisitor {
     }
 
     // ---- Helper methods
-    protected void beginStatOrExpr() {
-        if (debug) {
-            System.out.println("new stat or expr");
-        }
-    }
-    
     protected Tree getParent() {
         assert astPath.size() >= 2;
         return astPath.get(astPath.size() - 2);
