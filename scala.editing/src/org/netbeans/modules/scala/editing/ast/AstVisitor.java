@@ -127,29 +127,29 @@ public abstract class AstVisitor {
             return;
         }
 
-        Object head = trees.head();
-        if (head instanceof scala.Nil$) {
-            // do nothing;
-        } else if (head instanceof Tree) {
-            visit((Tree) head);
-        } else if (head instanceof scala.List) {
-            visit((scala.List) head);
-        } else if (head instanceof Tuple2) {
-            System.out.println("Visit Tuple: " + head + " class=" + head.getClass().getCanonicalName());
+        for (scala.Iterator itr = trees.elements(); itr.hasNext();) {
+            Object tree = itr.next();
+            if (tree instanceof Tree) {
+                visit((Tree) tree);
+            } else if (tree instanceof scala.List) {
+                visit((scala.List) tree);
+            } else if (tree instanceof Tuple2) {
+                /*
+                System.out.println("Visit Tuple: " + tree + " class=" + tree.getClass().getCanonicalName());
 
-            Object o1 = ((Tuple2) head)._1();
-            if (o1 != null) {
+                Object o1 = ((Tuple2) tree)._1();
+                if (o1 != null) {
                 System.out.println("Visit Tuple: " + o1 + " class=" + o1.getClass().getCanonicalName());
-            }
-            Object o2 = ((Tuple2) head)._2();
-            if (o2 != null) {
+                }
+                Object o2 = ((Tuple2) tree)._2();
+                if (o2 != null) {
                 System.out.println("Visit Tuple: " + o2 + " class=" + o2.getClass().getCanonicalName());
+                }
+                 */
+            } else {
+                System.out.println("Try to visit: " + tree + " class=" + tree.getClass().getCanonicalName());
             }
-        } else {
-            System.out.println("Try to visit: " + head + " class=" + head.getClass().getCanonicalName());
         }
-
-        visit(trees.tail());
     }
 
     protected void visit(Tree tree) {
@@ -411,13 +411,21 @@ public abstract class AstVisitor {
     protected void enter(Tree tree) {
         indentLevel++;
         astPath.push(tree);
-        
-        if (debug) debugPrintAstPath(tree);        
+
+        if (debug) {
+            debugPrintAstPath(tree);
+        }
     }
 
     protected void exit(Tree node) {
         indentLevel--;
         astPath.pop();
+    }
+
+    protected void expr() {
+        if (debug) {
+            System.out.println("!!!!!!!!!");
+        }
     }
 
     protected int offset(Tree tree) {
@@ -429,7 +437,7 @@ public abstract class AstVisitor {
         Option offsetOpt = symbol.pos().offset();
         return offset(offsetOpt);
     }
-    
+
     protected int offset(Option intOption) {
         return intOption.isDefined() ? (Integer) intOption.get() : -1;
     }
@@ -491,7 +499,7 @@ public abstract class AstVisitor {
         if (symbol == null) {
             return null;
         }
-        
+
         /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
         String name = symbol.idString();
         int offset = offset(tree);
@@ -524,10 +532,10 @@ public abstract class AstVisitor {
     protected void debugPrintAstPath(Tree tree) {
         Token idToken = getIdToken(tree);
         String idTokenStr = idToken == null ? "<null>" : idToken.text().toString();
-        
+
         Symbol symbol = tree.symbol();
         String symbolStr = symbol == null ? "<null>" : symbol.toString();
-        
+
         Position pos = tree.pos();
 
         System.out.println(getAstPathString() + "(" + offset(pos.line()) + ":" + offset(pos.column()) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
