@@ -439,7 +439,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 completeSymbolMembers(pkgSymbol, proposals, request);
                 return completionResult;
                 }
-                 */
+                */
                 request.prefix = sb.toString();
                 completeImport(proposals, request);
                 return completionResult;
@@ -2010,9 +2010,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         try {
             scala.List members = resType.members();
-            int size = members.size();
-            for (int i = 0; i < size; i++) {
-                Symbol member = (Symbol) members.apply(i);
+            for (scala.Iterator itr = members.elements(); itr.hasNext();) {
+                Symbol member = (Symbol) itr.next();
 
                 if (!JavaUtilities.startsWith(member.nameString(), prefix)) {
                     continue;
@@ -2057,7 +2056,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     private scala.tools.nsc.symtab.Types.Type getResultType(scala.tools.nsc.symtab.Types.Type type) {
         scala.tools.nsc.symtab.Types.Type resType = type.resultType();
         if (resType instanceof MethodType) {
-            // recursively go on ?
             return resType;
         } else {
             return resType;

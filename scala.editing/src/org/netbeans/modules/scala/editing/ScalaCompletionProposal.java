@@ -225,12 +225,12 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
             scala.List typeParams = methodType.typeParams();
             if (!typeParams.isEmpty()) {
                 formatter.appendHtml("[");
-                int size = typeParams.size();
-                for (int i = 0; i < size; i++) {
-                    TypeSymbol typeParam = (TypeSymbol) typeParams.apply(i);
+                
+                for (scala.Iterator itr = typeParams.elements(); itr.hasNext();) {
+                    TypeSymbol typeParam = (TypeSymbol) itr.next();
                     formatter.appendText(typeParam.nameString());
 
-                    if (i < size - 1) {
+                    if (itr.hasNext()) {
                         formatter.appendText(", "); // NOI18N
                     }
                 }
@@ -240,30 +240,33 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
 
             scala.List paramTypes = methodType.paramTypes();
             scala.List paramNames = element.paramNames();
-            int nSize = paramNames == null ? 0 : paramNames.size();
-            
+
             if (!paramTypes.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
 
-                int tSize = paramTypes.size();
-                for (int i = 0; i < tSize; i++) {
-                    Type param = (Type) paramTypes.apply(i);
+                int i = 0;
+                scala.Iterator nameItr = paramNames == null ? null : paramNames.elements();
+                for (scala.Iterator itr = paramTypes.elements(); itr.hasNext();) {
+                    Type param = (Type) itr.next();
 
                     formatter.parameters(true);
-                    if (i < nSize) {
-                        formatter.appendText(paramNames.apply(i).toString());
-                    } else {
-                        formatter.appendText("a" + Integer.toString(i));                        
-                    }
+                    formatter.appendText("a" + Integer.toString(i));
+                    //if (nameItr != null && nameItr.hasNext()) {
+                    //    formatter.appendText(nameItr.next().toString());
+                    //} else {
+                    //    formatter.appendText("a" + Integer.toString(i));
+                    //}
                     formatter.parameters(false);
                     formatter.appendText(": ");
                     formatter.type(true);
                     formatter.appendText(param.toString());
                     formatter.type(false);
 
-                    if (i < tSize - 1) {
+                    if (itr.hasNext()) {
                         formatter.appendText(", "); // NOI18N
                     }
+                    
+                    i++;
                 }
 
                 formatter.appendHtml(")"); // NOI18N
@@ -276,10 +279,9 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         public List<String> getInsertParams() {
             scala.List paramTypes = methodType.paramTypes();
             if (!paramTypes.isEmpty()) {
-                int size = paramTypes.size();
-                List<String> result = new ArrayList<String>(size);
-                for (int i = 0; i < size; i++) { // && tIt.hasNext()) {
-                    Type param = (Type) paramTypes.apply(i);
+                List<String> result = new ArrayList<String>(paramTypes.size());
+                for (scala.Iterator itr = paramTypes.elements(); itr.hasNext();) {
+                    Type param = (Type) itr.next();
                     result.add(param.typeSymbol().nameString().toLowerCase());
                 }
                 return result;

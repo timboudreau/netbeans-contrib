@@ -89,7 +89,7 @@ public class ErrorRecoverGlobal {
 
     public static Symbol resolveObject(Settings settings, ScalaParserResult pResult, BaseDocument doc, AstItem item) {
         checkGlobal(settings);
-        
+
         doc.readLock();
 
         TokenSequence ts = ScalaLexUtilities.getTokenSequence(pResult.getTokenHierarchy(), 1);
@@ -125,6 +125,7 @@ public class ErrorRecoverGlobal {
                     sb.append("package ");
                     sb.append(packaging.fullNameString());
                     sb.append(";");
+                    sb.append("\n");
                 }
             }
 
@@ -167,7 +168,8 @@ public class ErrorRecoverGlobal {
         StringBuilder sb = new StringBuilder();
         sb.append("package ");
         sb.append(pkgQName);
-        sb.append(";");
+        sb.append(";\n");
+        sb.append("class NetBeansErrorRecover {}");
 
         TokenHierarchy th = TokenHierarchy.create(sb, ScalaTokenId.language());
         if (th != null) {
@@ -178,12 +180,13 @@ public class ErrorRecoverGlobal {
             if (unit != null) {
                 final Tree tree = unit.body();
                 AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
-                
+
                 int lastDot = pkgQName.lastIndexOf('.');
                 String lastPath = lastDot == -1 ? pkgQName : pkgQName.substring(lastDot + 1, pkgQName.length());
-                
+
                 AstItem found = root.findFirstItemWithName(lastPath);
-                if (found != null) {
+                if (found != null && found.getSymbol().isPackage()) {
+                    System.out.println("Resolved: " + found.getSymbol());
                     return found.getSymbol();
                 }
             }
