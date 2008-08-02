@@ -207,7 +207,6 @@ public final class TestNGAntLogger extends AntLogger {
             final String msg = event.getMessage();
             AntSession session = event.getSession();
             int messageLevel = event.getLogLevel();
-            int sessionLevel = session.getVerbosity();
             AntSessionInfo data = getSessionData(session);
             assert msg != null;
 
@@ -229,44 +228,6 @@ public final class TestNGAntLogger extends AntLogger {
                 }
             }
 
-
-            //handle stacktraces here:
-            //Matcher m = RegexpUtils.getInstance().getTestcaseExceptionPattern().matcher(msg);
-            Matcher m = STACK_TRACE.matcher(msg);
-
-            //LOGGER.info("Do I match \"" + msg + "\": " + m.matches());
-
-            if (m.matches()) {
-                // We have a stack trace.
-                String pkg = m.group(2);
-                String filename = m.group(3);
-                String resource = pkg.replace('.', '/') + filename;
-                int lineNumber = Integer.parseInt(m.group(4));
-                // Check to see if the class is listed in our per-task sourcepath.
-                // XXX could also look for -Xbootclasspath etc., but probably less important
-                Iterator it = getCurrentSourceRootsForClasspath(data).iterator();
-                while (it.hasNext()) {
-                    FileObject root = (FileObject) it.next();
-                    // XXX this is apparently pretty expensive; try to use java.io.File instead
-                    FileObject source = root.getFileObject(resource);
-                    if (source != null) {
-                        // Got it!
-                        hyperlink(msg, session, event, source, messageLevel, sessionLevel, data, lineNumber);
-                        break;
-                    }
-                }
-                // Also check global sourcepath (sources of open projects, and sources
-                // corresponding to compile or boot classpaths of open projects).
-                // Fallback in case a JAR file is copied to an unknown location, etc.
-                // In this case we can't be sure that this source file really matches
-                // the .class used in the stack trace, but it is a good guess.
-                if (!event.isConsumed()) {
-                    FileObject source = GlobalPathRegistry.getDefault().findResource(resource);
-                    if (source != null) {
-                        hyperlink(msg, session, event, source, messageLevel, sessionLevel, data, lineNumber);
-                    }
-                }
-            }
             if (event.getLogLevel() != AntEvent.LOG_VERBOSE) {
                 getOutputReader(event).messageLogged(event);
             } else {
@@ -288,16 +249,7 @@ public final class TestNGAntLogger extends AntLogger {
     private static final Pattern STACK_TRACE = Pattern.compile(
             //"(?:\t|\\[catch\\] )at ((?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)*)[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$<][a-zA-Z0-9_$>]*\\(([a-zA-Z_$][a-zA-Z0-9_$]*\\.java):([0-9]+)\\)"); // NOI18N
             "(\\s)*at ((?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)*)[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$<][a-zA-Z0-9_$>]*\\(([a-zA-Z_$][a-zA-Z0-9_$]*\\.java):(([0-9]+))\\)"); // NOI18N
-    /**
-     * Regexp matching the first line of a stack trace, with the exception message.
-     * Captured groups:
-     * <ol>
-     * <li>unqualified name of exception class plus possible message
-     * </ol>
-     */
-    private static final Pattern EXCEPTION_MESSAGE = Pattern.compile(
-            // #42894: JRockit uses "Main Thread" not "main"
-            "(?:Exception in thread \"(?:main|Main Thread)\" )?(?:(?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)+)([a-zA-Z_$][a-zA-Z0-9_$]*(?:: .+)?)"); // NOI18N
+
     /**
      * Regexp matching part of a Java task's invocation debug message
      * that specifies the classpath.
@@ -493,97 +445,6 @@ public final class TestNGAntLogger extends AntLogger {
             }
         }
         return false;
-    }
-
-    private static void hyperlink(String line, AntSession session, AntEvent event, FileObject source, int messageLevel, int sessionLevel, AntSessionInfo data, int lineNumber) {
-        LOGGER.info("consumed: " + event.isConsumed());
-        LOGGER.info("" + messageLevel);
-        LOGGER.info("" + sessionLevel);
-        LOGGER.info("" + (messageLevel <= sessionLevel));
-        if (/*messageLevel <= sessionLevel && */!event.isConsumed()) {
-            event.consume();
-        }
-        try {
-            session.println(line, true, session.createStandardHyperlink(source.getURL(), guessExceptionMessage(data), lineNumber, -1, -1, -1));
-        } catch (FileStateInvalidException e) {
-            assert false : e;
-        }
-
-    }
-
-    /**
-     * Finds source roots corresponding to the apparently active classpath
-     * (as reported by logging from Ant when it runs the Java launcher with -cp).
-     */
-    private static Collection/*<FileObject>*/ getCurrentSourceRootsForClasspath(AntSessionInfo data) {
-        if (data.classpath == null) {
-            return Collections.EMPTY_SET;
-        }
-        if (data.classpathSourceRoots == null) {
-            data.classpathSourceRoots = new LinkedHashSet<FileObject>();
-            StringTokenizer tok = new StringTokenizer(data.classpath, File.pathSeparator);
-            while (tok.hasMoreTokens()) {
-                String binrootS = tok.nextToken();
-                File f = FileUtil.normalizeFile(new File(binrootS));
-                URL binroot = FileUtil.urlForArchiveOrDir(f);
-                if (binroot == null) {
-                    continue;
-                }
-                FileObject[] someRoots = SourceForBinaryQuery.findSourceRoots(binroot).getRoots();
-                data.classpathSourceRoots.addAll(Arrays.asList(someRoots));
-            }
-            if (data.platformSources != null) {
-                data.classpathSourceRoots.addAll(Arrays.asList(data.platformSources.getRoots()));
-            } else {
-                // no platform found. use default one:
-                JavaPlatform plat = JavaPlatform.getDefault();
-                // in unit tests the default platform may be null:
-                if (plat != null) {
-                    data.classpathSourceRoots.addAll(Arrays.asList(plat.getSourceFolders().getRoots()));
-                }
-            }
-        }
-        return data.classpathSourceRoots;
-    }
-
-    private static String guessExceptionMessage(AntSessionInfo data) {
-        if (data.possibleExceptionText != null) {
-            if (data.lastExceptionMessage == null) {
-                Matcher m = EXCEPTION_MESSAGE.matcher(data.possibleExceptionText);
-                if (m.matches()) {
-                    data.lastExceptionMessage = m.group(1);
-                } else {
-                    data.possibleExceptionText = null;
-                }
-            }
-            return data.lastExceptionMessage;
-        }
-        return null;
-    }
-
-    /**
-     * Data stored in the session.
-     */
-    private static final class SessionData {
-
-        public ClassPath platformSources = null;
-        public String classpath = null;
-        public Collection<FileObject> classpathSourceRoots = null;
-        public String possibleExceptionText = null;
-        public String lastExceptionMessage = null;
-
-        public SessionData() {
-        }
-
-        public void setClasspath(String cp) {
-            classpath = cp;
-            classpathSourceRoots = null;
-        }
-
-        public void setPlatformSources(ClassPath platformSources) {
-            this.platformSources = platformSources;
-            classpathSourceRoots = null;
-        }
     }
 
     private AntSessionInfo getSessionData(AntSession session) {
