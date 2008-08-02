@@ -114,7 +114,6 @@ public class TestClassInfoTaskTest extends NbTestCase {
     }
 
     public void testCursorInMethod() throws Exception {
-        fail("test");
         JavaSource src = JavaSource.forFileObject(testFO);
         TestClassInfoTask task = new TestClassInfoTask(70);
         src.runUserActionTask(task, true);
