@@ -126,7 +126,7 @@ public class TestClassInfoTaskTest extends NbTestCase {
         JavaSource src = JavaSource.forFileObject(testFO);
         TestClassInfoTask task = new TestClassInfoTask(42);
         src.runUserActionTask(task, true);
-        assertEquals(null, task.getMethodName());
+        assertNull(task.getMethodName());
         assertEquals("Test", task.getClassName());
         assertEquals("sample.pkg", task.getPackageName());
     }
@@ -135,7 +135,7 @@ public class TestClassInfoTaskTest extends NbTestCase {
         JavaSource src = JavaSource.forFileObject(testFO);
         TestClassInfoTask task = new TestClassInfoTask(0);
         src.runUserActionTask(task, true);
-        assertEquals(null, task.getMethodName());
+        assertNull(task.getMethodName());
         assertEquals("Test", task.getClassName());
         assertEquals("sample.pkg", task.getPackageName());
     }
@@ -144,7 +144,7 @@ public class TestClassInfoTaskTest extends NbTestCase {
         JavaSource src = JavaSource.forFileObject(testFO);
         TestClassInfoTask task = new TestClassInfoTask(87);
         src.runUserActionTask(task, true);
-        assertEquals(null, task.getMethodName());
+        assertNull(task.getMethodName());
         assertEquals("Test", task.getClassName());
         assertEquals("sample.pkg", task.getPackageName());
     }
