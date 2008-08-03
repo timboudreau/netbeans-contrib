@@ -167,9 +167,11 @@ public class ErrorRecoverGlobal {
 
         StringBuilder sb = new StringBuilder();
         sb.append("package ");
-        sb.append(pkgQName);
+        sb.append("scalarun"); // @todo tha real package name, and should with these correct import stats
         sb.append(";\n");
-        sb.append("class NetBeansErrorRecover {}");
+        sb.append("class NetBeansErrorRecover {");
+        sb.append(pkgQName).append(".ABCDEFG");
+        sb.append("}");
 
         TokenHierarchy th = TokenHierarchy.create(sb, ScalaTokenId.language());
         if (th != null) {
@@ -186,8 +188,12 @@ public class ErrorRecoverGlobal {
 
                 AstItem found = root.findFirstItemWithName(lastPath);
                 if (found != null && found.getSymbol().isPackage()) {
-                    System.out.println("Resolved: " + found.getSymbol());
-                    return found.getSymbol();
+                    Symbol symbol = found.getSymbol();
+                    if (symbol.isPackage()) {
+                        System.out.println("Resolved: " + found.getSymbol());
+                        symbol.info(); // force to load
+                        return symbol;
+                    }
                 }
             }
         }
