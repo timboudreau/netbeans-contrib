@@ -458,7 +458,7 @@ public abstract class AstVisitor {
             assert false : "Should not happen!";
         }
 
-        Token startToken = ScalaLexUtilities.findNextNonWs(ts);
+        Token startToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
         if (startToken.isFlyweight()) {
             startToken = ts.offsetToken();
         }
@@ -481,7 +481,7 @@ public abstract class AstVisitor {
         if (!ts.movePrevious() && !ts.moveNext()) {
             assert false : "Should not happen!";
         }
-        Token endToken = ScalaLexUtilities.findPreviousNonWs(ts);
+        Token endToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
         if (endToken.isFlyweight()) {
             endToken = ts.offsetToken();
         }

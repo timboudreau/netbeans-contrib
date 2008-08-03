@@ -105,7 +105,7 @@ public class AstTreeVisitor extends AstVisitor {
 
     public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(rootTree, th, sourceFile);
-        setBoundsEndTokens(rootScope);
+        setBoundsEndToken(rootScope);
         if (sourceFile != null) {
             File file = new File(sourceFile.path());
             if (file != null && file.exists()) {
@@ -119,7 +119,7 @@ public class AstTreeVisitor extends AstVisitor {
         }
     }
 
-    private void setBoundsEndTokens(AstScope fromScope) {
+    private void setBoundsEndToken(AstScope fromScope) {
         assert fromScope.isScopesSorted() == false;
 
         List<AstScope> children = fromScope.getScopes();
@@ -146,7 +146,7 @@ public class AstTreeVisitor extends AstVisitor {
         }
 
         for (AstScope child : children) {
-            setBoundsEndTokens(child);
+            setBoundsEndToken(child);
         }
     }
 
