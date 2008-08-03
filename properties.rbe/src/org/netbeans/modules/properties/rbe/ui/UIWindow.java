@@ -40,13 +40,26 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.Locale;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.jdesktop.layout.GroupLayout;
+import org.jdesktop.layout.LayoutStyle;
 import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.LocaleProperty;
@@ -56,6 +69,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 /**
  * The UI window
@@ -142,7 +156,8 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
             selectedPropertyNode = bundlePropertyNode;
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
                 LocaleProperty value = bundlePropertyNode.getProperty().getLocalProperty(locale);
-                rightPanel.add(new UIPropertyPanel(locale, value));
+                //TODO: create if value is null
+                rightPanel.add(new UIPropertyPanel(value));
             }
         } else {
             selectedPropertyNode = null;
@@ -152,133 +167,139 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        splitPane = new javax.swing.JSplitPane();
-        leftPanel = new javax.swing.JPanel();
-        toolbar = new javax.swing.JToolBar();
-        changeModeButton = new javax.swing.JButton();
-        expandAllButton = new javax.swing.JButton();
-        collapseAllButton = new javax.swing.JButton();
-        treePanel = new javax.swing.JPanel();
-        searchTextField = new javax.swing.JTextField();
-        createButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        rightPanel = new javax.swing.JPanel();
+        splitPane = new JSplitPane();
+        leftPanel = new JPanel();
+        toolbar = new JToolBar();
+        changeModeButton = new JButton();
+        expandAllButton = new JButton();
+        collapseAllButton = new JButton();
+        treePanel = new JPanel();
+        searchTextField = new JTextField();
+        createButton = new JButton();
+        jScrollPane1 = new JScrollPane();
+        rightPanel = new JPanel();
 
         splitPane.setContinuousLayout(true);
 
-        leftPanel.setPreferredSize(new java.awt.Dimension(270, 200));
+        leftPanel.setPreferredSize(new Dimension(270, 200));
 
         toolbar.setFloatable(false);
-        toolbar.setMinimumSize(new java.awt.Dimension(50, 31));
-        toolbar.setPreferredSize(new java.awt.Dimension(50, 31));
+        toolbar.setMinimumSize(new Dimension(50, 31));
+        toolbar.setPreferredSize(new Dimension(50, 31));
 
-        changeModeButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.changeModeButton.text")); // NOI18N
+        changeModeButton.setText(NbBundle.getMessage(UIWindow.class, "UIWindow.changeModeButton.text")); // NOI18N
         changeModeButton.setFocusable(false);
-        changeModeButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        changeModeButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        changeModeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        changeModeButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        changeModeButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        changeModeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 changeModeButtonActionPerformed(evt);
             }
         });
         toolbar.add(changeModeButton);
 
-        expandAllButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.expandAllButton.text")); // NOI18N
+        expandAllButton.setText(NbBundle.getMessage(UIWindow.class, "UIWindow.expandAllButton.text")); // NOI18N
         expandAllButton.setEnabled(false);
         expandAllButton.setFocusable(false);
-        expandAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        expandAllButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        expandAllButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        expandAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 expandAllButtonActionPerformed(evt);
             }
         });
         toolbar.add(expandAllButton);
 
-        collapseAllButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.collapseAllButton.text")); // NOI18N
+        collapseAllButton.setText(NbBundle.getMessage(UIWindow.class, "UIWindow.collapseAllButton.text")); // NOI18N
         collapseAllButton.setEnabled(false);
-        collapseAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        collapseAllButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        collapseAllButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        collapseAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 collapseAllButtonActionPerformed(evt);
             }
         });
         toolbar.add(collapseAllButton);
 
-        org.jdesktop.layout.GroupLayout treePanelLayout = new org.jdesktop.layout.GroupLayout(treePanel);
+        GroupLayout treePanelLayout = new GroupLayout(treePanel);
         treePanel.setLayout(treePanelLayout);
+
         treePanelLayout.setHorizontalGroup(
-            treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            treePanelLayout.createParallelGroup(GroupLayout.LEADING)
             .add(0, 270, Short.MAX_VALUE)
+
         );
         treePanelLayout.setVerticalGroup(
-            treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            treePanelLayout.createParallelGroup(GroupLayout.LEADING)
             .add(0, 534, Short.MAX_VALUE)
+
         );
 
-        searchTextField.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.searchTextField.text")); // NOI18N
-
-        createButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.createButton.text")); // NOI18N
-        createButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        searchTextField.setText(NbBundle.getMessage(UIWindow.class, "UIWindow.searchTextField.text")); // NOI18N
+        createButton.setText(NbBundle.getMessage(UIWindow.class, "UIWindow.createButton.text")); // NOI18N
+        createButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 createButtonActionPerformed(evt);
             }
         });
 
-        org.jdesktop.layout.GroupLayout leftPanelLayout = new org.jdesktop.layout.GroupLayout(leftPanel);
+        GroupLayout leftPanelLayout = new GroupLayout(leftPanel);
         leftPanel.setLayout(leftPanelLayout);
         leftPanelLayout.setHorizontalGroup(
-            leftPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(toolbar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, leftPanelLayout.createSequentialGroup()
-                .add(searchTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+            leftPanelLayout.createParallelGroup(GroupLayout.LEADING)
+            .add(toolbar, GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+            .add(GroupLayout.TRAILING, leftPanelLayout.createSequentialGroup()
+                .add(searchTextField, GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
                 .add(0, 0, 0)
                 .add(createButton))
-            .add(treePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(treePanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+
         );
         leftPanelLayout.setVerticalGroup(
-            leftPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            leftPanelLayout.createParallelGroup(GroupLayout.LEADING)
             .add(leftPanelLayout.createSequentialGroup()
-                .add(toolbar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(treePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(leftPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(toolbar, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(treePanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(leftPanelLayout.createParallelGroup(GroupLayout.BASELINE)
                     .add(createButton)
-                    .add(searchTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(searchTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+
         );
 
         splitPane.setLeftComponent(leftPanel);
 
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        rightPanel.setLayout(new javax.swing.BoxLayout(rightPanel, javax.swing.BoxLayout.LINE_AXIS));
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.LINE_AXIS));
         jScrollPane1.setViewportView(rightPanel);
 
         splitPane.setRightComponent(jScrollPane1);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            layout.createParallelGroup(GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(7, 7, 7)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                .add(splitPane, GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
                 .add(7, 7, 7))
+
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            layout.createParallelGroup(GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(7, 7, 7)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                .add(splitPane, GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
                 .add(7, 7, 7))
+
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void expandAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expandAllButtonActionPerformed
+private void expandAllButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_expandAllButtonActionPerformed
     treeView.expandAll();
 }//GEN-LAST:event_expandAllButtonActionPerformed
 
-private void collapseAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collapseAllButtonActionPerformed
+private void collapseAllButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_collapseAllButtonActionPerformed
     treeView.collapseAll();
 }//GEN-LAST:event_collapseAllButtonActionPerformed
 
@@ -302,7 +323,7 @@ private void collapseAllButtonActionPerformed(java.awt.event.ActionEvent evt) {/
         }
     }
 
-private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeModeButtonActionPerformed
+private void changeModeButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_changeModeButtonActionPerformed
     if (rbe.getMode() == RBE.DisplayMode.FLAT) {
         changeModeButton.setText("Flat");
         rbe.setMode(RBE.DisplayMode.TREE);
@@ -321,7 +342,7 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     }
 }//GEN-LAST:event_changeModeButtonActionPerformed
 
-private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
+private void createButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
     rbe.getBundle().createProperty(searchTextField.getText());
     selectNode(searchTextField.getText());
 }//GEN-LAST:event_createButtonActionPerformed
@@ -344,17 +365,17 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         return root;
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton changeModeButton;
-    private javax.swing.JButton collapseAllButton;
-    private javax.swing.JButton createButton;
-    private javax.swing.JButton expandAllButton;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPanel leftPanel;
-    private javax.swing.JPanel rightPanel;
-    private javax.swing.JTextField searchTextField;
-    private javax.swing.JSplitPane splitPane;
-    private javax.swing.JToolBar toolbar;
-    private javax.swing.JPanel treePanel;
+    private JButton changeModeButton;
+    private JButton collapseAllButton;
+    private JButton createButton;
+    private JButton expandAllButton;
+    private JScrollPane jScrollPane1;
+    private JPanel leftPanel;
+    private JPanel rightPanel;
+    private JTextField searchTextField;
+    private JSplitPane splitPane;
+    private JToolBar toolbar;
+    private JPanel treePanel;
     // End of variables declaration//GEN-END:variables
 }
 
