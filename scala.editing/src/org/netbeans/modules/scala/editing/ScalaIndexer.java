@@ -281,7 +281,7 @@ public class ScalaIndexer implements Indexer {
                 }
             }
 
-            for (AstScope _scope : scope.getScopes()) {
+            for (AstScope _scope : scope.getSubScopes()) {
                 scan(_scope, templates);
             }
         }

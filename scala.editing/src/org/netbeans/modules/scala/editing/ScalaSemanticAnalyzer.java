@@ -179,7 +179,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             }
         }
 
-        for (AstScope child : scope.getScopes()) {
+        for (AstScope child : scope.getSubScopes()) {
             visitScopeRecursively(doc, th, child, highlights);
         }
     }

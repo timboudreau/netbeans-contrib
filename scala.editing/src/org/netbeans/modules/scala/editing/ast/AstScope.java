@@ -58,7 +58,7 @@ public class AstScope implements Iterable<AstScope> {
 
     private AstDef bindinDef;
     private AstScope parent;
-    private List<AstScope> scopes;
+    private List<AstScope> subScopes;
     private List<AstDef> defs;
     private List<AstRef> refs;
     private boolean scopesSorted;
@@ -148,8 +148,8 @@ public class AstScope implements Iterable<AstScope> {
         return parent;
     }
 
-    public List<AstScope> getScopes() {
-        return scopes == null ? Collections.<AstScope>emptyList() : scopes;
+    public List<AstScope> getSubScopes() {
+        return subScopes == null ? Collections.<AstScope>emptyList() : subScopes;
     }
 
     public List<AstDef> getDefs() {
@@ -161,10 +161,10 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     void addScope(AstScope scope) {
-        if (scopes == null) {
-            scopes = new ArrayList<AstScope>();
+        if (subScopes == null) {
+            subScopes = new ArrayList<AstScope>();
         }
-        scopes.add(scope);
+        subScopes.add(scope);
         scopesSorted = false;
         scope.parent = this;
     }
@@ -216,8 +216,8 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public Iterator<AstScope> iterator() {
-        if (scopes != null) {
-            return scopes.iterator();
+        if (subScopes != null) {
+            return subScopes.iterator();
         } else {
             return Collections.<AstScope>emptySet().iterator();
         }
@@ -265,16 +265,16 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
-        if (scopes != null) {
+        if (subScopes != null) {
             if (!scopesSorted) {
-                Collections.sort(scopes, new ScopeComparator(th));
+                Collections.sort(subScopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
             int lo = 0;
-            int hi = scopes.size() - 1;
+            int hi = subScopes.size() - 1;
             while (lo <= hi) {
                 int mid = (lo + hi) >> 1;
-                AstScope middle = scopes.get(mid);
+                AstScope middle = subScopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
                     hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
@@ -334,16 +334,16 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
-        if (scopes != null) {
+        if (subScopes != null) {
             if (!scopesSorted) {
-                Collections.sort(scopes, new ScopeComparator(th));
+                Collections.sort(subScopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
             int lo = 0;
-            int hi = scopes.size() - 1;
+            int hi = subScopes.size() - 1;
             while (lo <= hi) {
                 int mid = (lo + hi) >> 1;
-                AstScope middle = scopes.get(mid);
+                AstScope middle = subScopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
                     hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
@@ -378,16 +378,16 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
-        if (scopes != null) {
+        if (subScopes != null) {
             if (!scopesSorted) {
-                Collections.sort(scopes, new ScopeComparator(th));
+                Collections.sort(subScopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
             int lo = 0;
-            int hi = scopes.size() - 1;
+            int hi = subScopes.size() - 1;
             while (lo <= hi) {
                 int mid = (lo + hi) >> 1;
-                AstScope middle = scopes.get(mid);
+                AstScope middle = subScopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
                     hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
@@ -423,16 +423,16 @@ public class AstScope implements Iterable<AstScope> {
         }
 
 
-        if (scopes != null) {
+        if (subScopes != null) {
             if (!scopesSorted) {
-                Collections.sort(scopes, new ScopeComparator(th));
+                Collections.sort(subScopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
             int lo = 0;
-            int hi = scopes.size() - 1;
+            int hi = subScopes.size() - 1;
             while (lo <= hi) {
                 int mid = (lo + hi) >> 1;
-                AstScope middle = scopes.get(mid);
+                AstScope middle = subScopes.get(mid);
                 if (offset < middle.getBoundsOffset(th)) {
                     hi = mid - 1;
                 } else if (offset >= middle.getBoundsEndOffset(th)) {
@@ -530,8 +530,8 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         /** search downward */
-        if (scopes != null) {
-            for (AstScope scope : scopes) {
+        if (subScopes != null) {
+            for (AstScope scope : subScopes) {
                 scope.findRefsOfDownward(def, result);
             }
         }
@@ -561,8 +561,8 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         /** search downward */
-        if (scopes != null) {
-            for (AstScope scope : scopes) {
+        if (subScopes != null) {
+            for (AstScope scope : subScopes) {
                 scope.findAllRefsSameAsDownward(ref, result);
             }
         }
@@ -575,9 +575,9 @@ public class AstScope implements Iterable<AstScope> {
     public AstScope getClosestScope(TokenHierarchy th, int offset) {
         AstScope result = null;
 
-        if (scopes != null) {
+        if (subScopes != null) {
             /** search children first */
-            for (AstScope child : scopes) {
+            for (AstScope child : subScopes) {
                 if (child.contains(th, offset)) {
                     result = child.getClosestScope(th, offset);
                     break;

@@ -56,9 +56,14 @@ public class AstRootScope extends AstScope {
     private Map<Token, AstItem> idTokenToItem = new HashMap<Token, AstItem>();
     private List<Token> tokens;
     private boolean tokensSorted;
+    private AstExpr exprContainer = new AstExpr();
 
     public AstRootScope(Token... boundsTokens) {
         super(boundsTokens);
+    }
+
+    protected AstExpr getExprContainer() {
+        return exprContainer;
     }
 
     public boolean contains(Token idToken) {

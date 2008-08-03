@@ -194,7 +194,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             }
         }
 
-        for (AstScope _scope : scope.getScopes()) {
+        for (AstScope _scope : scope.getSubScopes()) {
             scan(_scope, tmpls);
         }
     }
