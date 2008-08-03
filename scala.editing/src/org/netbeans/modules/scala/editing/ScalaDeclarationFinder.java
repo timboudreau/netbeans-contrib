@@ -187,9 +187,12 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 }
 
                 FileObject fo = foundElement.getFileObject();
-                if (fo != null) {
-                    return new DeclarationLocation(fo, offset, foundElement);
+                DeclarationLocation location = new DeclarationLocation(fo, offset, foundElement);
+                if (fo == null) {
+                    location.setInvalidMessage("No source file found!"); 
                 }
+                
+                return location;
             }
 
             return DeclarationLocation.NONE;
