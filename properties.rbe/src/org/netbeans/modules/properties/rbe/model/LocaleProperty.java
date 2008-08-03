@@ -83,7 +83,7 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
 
     public void setComment(String comment) {
         this.comment = comment;
-        property.getBundle().setPropertyComment(locale, getKey(), value);
+        property.getBundle().setPropertyComment(locale, getKey(), comment);
     }
 
     protected void updateComment(String comment) {

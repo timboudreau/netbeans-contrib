@@ -40,9 +40,25 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Locale;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import org.jdesktop.layout.GroupLayout;
+import org.jdesktop.layout.LayoutStyle;
 import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.LocaleProperty;
 import org.openide.util.NbBundle;
@@ -53,26 +69,27 @@ import org.openide.util.NbBundle;
  */
 public class UIPropertyPanel extends javax.swing.JPanel {
 
+    protected LocaleProperty localeProperty;
+
     /** Creates new form Property panel */
-    public UIPropertyPanel(Locale locale, final LocaleProperty value) {
+    public UIPropertyPanel(final LocaleProperty localeProperty) {
+        this.localeProperty = localeProperty;
+
         initComponents();
-        if (Bundle.DEFAULT_LOCALE.equals(locale)) {
+        if (Bundle.DEFAULT_LOCALE.equals(localeProperty.getLocale())) {
             titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
         } else {
-            titleLabel.setText(getLocaleTitle(locale));
+            titleLabel.setText(getLocaleTitle(localeProperty.getLocale()));
         }
-        if (value != null && value.isCreated()) {
-            textArea.setText(value.getValue());
-            //Using focus listener to update item value after change.
-            //First attempt was to do it with document listener and update it in runtime,
-            //but becouse of some synchronization issues, this didn't worked well
+        if (localeProperty != null && localeProperty.isCreated()) {
+            textArea.setText(localeProperty.getValue());
             textArea.addFocusListener(new FocusListener() {
 
                 public void focusGained(FocusEvent e) {
                 }
 
                 public void focusLost(FocusEvent e) {
-                    value.setValue(textArea.getText());
+                    localeProperty.setValue(textArea.getText());
                 }
             });
 
@@ -80,42 +97,77 @@ public class UIPropertyPanel extends javax.swing.JPanel {
             textArea.setEnabled(false);
         }
 
+        toolBar.setLayout(new CardLayout());
+        updateCommentStatus(localeProperty);
+    }
+
+    protected void updateCommentStatus(final LocaleProperty value) {
+        if (value.getComment() != null && value.getComment().length() > 0) {
+            commentButton.setFont(new Font(commentButton.getFont().getName(),
+                    commentButton.getFont().getStyle() | Font.BOLD, commentButton.getFont().getSize()));
+        } else {
+            commentButton.setFont(new Font(commentButton.getFont().getName(),
+                    commentButton.getFont().getStyle() & ~Font.BOLD, commentButton.getFont().getSize()));
+        }
     }
 
     protected String getLocaleTitle(Locale locale) {
-        return String.format("%s (%s)%s",
-            locale.getDisplayLanguage(),
-            locale.getLanguage(),
-            locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
+        String title = String.format("%s (%s)", locale.getDisplayLanguage(), locale.getLanguage());
+        if (locale.getDisplayCountry().length() > 0) {
+            title += String.format(" - %s (%s)", locale.getDisplayCountry(), locale.getCountry());
+        }
+        if (locale.getDisplayVariant().length() > 0) {
+            title += String.format(" - %s (%s)", locale.getDisplayVariant(), locale.getVariant());
+        }
+        return title;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        toolBar = new javax.swing.JToolBar();
-        jPanel1 = new javax.swing.JPanel();
-        titleLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textArea = new javax.swing.JTextArea();
+        toolBar = new JToolBar();
+        jPanel1 = new JPanel();
+        titleLabel = new JLabel();
+        commentButton = new JButton();
+        jScrollPane1 = new JScrollPane();
+        textArea = new JTextArea();
 
         toolBar.setFloatable(false);
         toolBar.setOrientation(1);
+        toolBar.setOpaque(false);
 
         jPanel1.setOpaque(false);
 
-        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        titleLabel.setText(org.openide.util.NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.titleLabel.text")); // NOI18N
-        titleLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setText(NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.titleLabel.text")); // NOI18N
+        titleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        commentButton.setText(NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.commentButton.text_1")); // NOI18N
+        commentButton.setMaximumSize(new Dimension(25, 25));
+        commentButton.setMinimumSize(new Dimension(25, 25));
+        commentButton.setPreferredSize(new Dimension(25, 25));
+        commentButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                commentButtonActionPerformed(evt);
+            }
+        });
+
+        GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(titleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+            jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                .add(titleLabel, GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(commentButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(titleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+            jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(jPanel1Layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(commentButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(titleLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
+
         );
 
         toolBar.add(jPanel1);
@@ -126,26 +178,36 @@ public class UIPropertyPanel extends javax.swing.JPanel {
         textArea.setWrapStyleWord(true);
         jScrollPane1.setViewportView(textArea);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(toolBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+            layout.createParallelGroup(GroupLayout.LEADING)
+            .add(toolBar, GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+            .add(jScrollPane1, GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            layout.createParallelGroup(GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(toolBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(toolBar, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
                 .add(0, 0, 0)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
+                .add(jScrollPane1, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
+
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void commentButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_commentButtonActionPerformed
+        UICommentWindow commentWindow = new UICommentWindow(JOptionPane.getFrameForComponent(this), localeProperty);
+        commentWindow.setVisible(true);
+        updateCommentStatus(localeProperty);
+    }//GEN-LAST:event_commentButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea textArea;
-    private javax.swing.JLabel titleLabel;
-    private javax.swing.JToolBar toolBar;
+    private JButton commentButton;
+    private JPanel jPanel1;
+    private JScrollPane jScrollPane1;
+    private JTextArea textArea;
+    private JLabel titleLabel;
+    private JToolBar toolBar;
     // End of variables declaration//GEN-END:variables
 }
