@@ -67,7 +67,7 @@ public class ErrorRecoverGlobal {
     private static Global global;
 
     private static void checkGlobal(Settings settings) {
-        if (global != null && !global.settings().equals(settings)) {
+        if (global != null && (global.settings() != settings)) {
             global = null;
         }
 
