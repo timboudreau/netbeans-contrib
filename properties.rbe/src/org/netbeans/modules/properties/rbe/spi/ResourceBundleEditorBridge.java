@@ -56,6 +56,8 @@ public interface ResourceBundleEditorBridge {
 
     Collection<Locale> getLocales();
 
+    void createProperty(String key);
+
     void createLocaleProperty(Locale locale, String key, String value, String comment);
 
     void setLocalePropertyComment(Locale locale, String key, String comment);

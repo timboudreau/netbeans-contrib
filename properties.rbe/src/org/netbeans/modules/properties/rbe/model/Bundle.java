@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
@@ -85,6 +86,7 @@ public class Bundle {
     static final LocaleComparator LOCALE_COMPARATOR = new LocaleComparator();
     /** The bridge between RBE and current properties infrastructure */
     private ResourceBundleEditorBridge bridge;
+    private PropertyChangeListener localePropertyChangeListener;
 
     public Bundle(PropertiesDataObject dataObject) {
         ResourceBundleEditorBridge.Factory factory = Lookup.getDefault().lookup(ResourceBundleEditorBridge.Factory.class);
@@ -98,6 +100,19 @@ public class Bundle {
                 Bundle.this.bundleChanged(event);
             }
         });
+
+        localePropertyChangeListener = new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(LocaleProperty.VALUE_PROP)) {
+                    LocaleProperty localeProperty = (LocaleProperty) evt.getSource();
+                    bridge.setLocalePropertyValue(localeProperty.getLocale(), localeProperty.getKey(), localeProperty.getValue());
+                } else if (evt.getPropertyName().equals(LocaleProperty.COMMENT_PROP)) {
+                    LocaleProperty localeProperty = (LocaleProperty) evt.getSource();
+                    bridge.setLocalePropertyComment(localeProperty.getLocale(), localeProperty.getKey(), localeProperty.getComment());
+                }
+            }
+        };
     }
 
     protected void initLocales() {
@@ -123,64 +138,52 @@ public class Bundle {
         treeRoot = createChildren(null, null, new TreeSet<BundleProperty>(properties.values()));
     }
 
-    public BundleProperty createProperty(String key) {
-        return createProperty(key, true);
-    }
-
     /**
      * Adds property
      * @param fullname
      */
-    public BundleProperty createProperty(String key, boolean createLocaleProperties) {
+    public BundleProperty createProperty(String key) {
         BundleProperty createdProperty = properties.get(key);
-        if (createdProperty != null) {
-            createLocaleProperties(createdProperty);
-            return createdProperty;
-        }
+        if (createdProperty == null) {
 
-        TreeItem<BundleProperty> tree = treeRoot;
-        int index;
-        int offset = 0;
-        boolean finded = true;
-        key = proceedKey(key);
-        if (treeRoot != null) {
-            while (true) {
-                index = key.indexOf(getTreeSeparator(), offset);
-                String group = index == -1 ? key : key.substring(0, index);
-                offset = group.length() + getTreeSeparator().length();
+            TreeItem<BundleProperty> tree = treeRoot;
+            int index;
+            int offset = 0;
+            boolean finded = true;
+            key = proceedKey(key);
+            if (treeRoot != null) {
+                while (true) {
+                    index = key.indexOf(getTreeSeparator(), offset);
+                    String group = index == -1 ? key : key.substring(0, index);
+                    offset = group.length() + getTreeSeparator().length();
 
-                if (finded) {
-                    finded = false;
-                    for (TreeItem<BundleProperty> item : tree.getChildren()) {
-                        if (item.getValue().getKey().equals(group)) {
-                            if (createLocaleProperties && item.getValue().getKey().equals(key)) {
-                                createLocaleProperties(item.getValue());
+                    if (finded) {
+                        finded = false;
+                        for (TreeItem<BundleProperty> item : tree.getChildren()) {
+                            if (item.getValue().getKey().equals(group)) {
+                                tree = item;
+                                finded = true;
+                                break;
                             }
-                            tree = item;
-                            finded = true;
-                            break;
                         }
                     }
+                    if (!finded) {
+                        createdProperty = createBundleProperty(group);
+                        TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(createdProperty);
+                        tree.addChild(treeItem);
+                        tree = treeItem;
+                    }
+                    if (index == -1) {
+                        break;
+                    }
                 }
-                if (!finded) {
-                    createdProperty = createBundleProperty(group);
-                    TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(createdProperty);
-                    tree.addChild(treeItem);
-                    tree = treeItem;
-                }
-                if (index == -1) {
-                    break;
-                }
-            }
-            if (createLocaleProperties) {
-                createLocaleProperties(createdProperty);
-            }
-        } else {
-            createdProperty = createBundleProperty(key);
-            if (createLocaleProperties) {
-                createLocaleProperties(createdProperty);
+            } else {
+                createdProperty = createBundleProperty(key);
             }
         }
+
+        bridge.createProperty(key);
+
         firePropertyChange(PROPERTY_PROPERTIES, null, null);
         return createdProperty;
     }
@@ -188,18 +191,16 @@ public class Bundle {
     public BundleProperty createPropertyFromExisting(String propertyKey, BundleProperty property, boolean overwrite) {
 //        System.out.println(key + " " + propertyKey);
         BundleProperty newProperty = getProperties().get(propertyKey);
-        if (newProperty == null || overwrite || !newProperty.isExists()) {
+        if ((newProperty == null || overwrite || !newProperty.isExists()) && property.isExists()) {
             if (newProperty == null) {
-                newProperty = createProperty(propertyKey, false);
+                newProperty = createProperty(propertyKey);
             }
-            for (Locale locale : getLocales()) {
-                LocaleProperty localeProperty = property.getLocalProperty(locale);
+            for (LocaleProperty localeProperty : property.getLocaleProperties()) {
                 if (localeProperty != null) {
-                    newProperty.addLocaleProperty(locale, new LocaleProperty(
-                            newProperty,
-                            locale,
-                            localeProperty.getValue(),
-                            localeProperty.getComment()));
+                    LocaleProperty newLocaleProperty =
+                            new LocaleProperty(newProperty, localeProperty.getLocale(), localeProperty.getValue(), localeProperty.getComment());
+                    newProperty.addLocaleProperty(localeProperty.getLocale(), newLocaleProperty);
+                    newLocaleProperty.addPropertyChangeListener(localePropertyChangeListener);
                 }
             }
         }
@@ -275,7 +276,9 @@ public class Bundle {
         for (Locale locale : locales) {
             String value = bridge.getLocalePropertyValue(locale, property.getKey());
             String comment = bridge.getLocalePropertyComment(locale, property.getKey());
-            property.addLocaleProperty(locale, new LocaleProperty(property, locale, value, comment));
+            LocaleProperty localeProperty = new LocaleProperty(property, locale, value, comment);
+            localeProperty.addPropertyChangeListener(localePropertyChangeListener);
+            property.addLocaleProperty(locale, localeProperty);
         }
     }
 
@@ -332,24 +335,16 @@ public class Bundle {
         return key.replaceAll(Pattern.quote(getTreeSeparator()) + "+", getTreeSeparator());
     }
 
-    void setPropertyValue(Locale locale, String key, String value) {
-        bridge.setLocalePropertyValue(locale, key, value);
-    }
-
-    void setPropertyComment(Locale locale, String key, String comment) {
-        bridge.setLocalePropertyComment(locale, key, comment);
-    }
-
     BundleProperty createBundleProperty(String key) {
         BundleProperty bundleProperty = new BundleProperty(this, getPropertyName(key), key);
         properties.put(key, bundleProperty);
+        createLocaleProperties(bundleProperty);
         return bundleProperty;
     }
 
-    void createLocaleProperty(Locale locale, String key, String value, String comment) {
-        bridge.createLocaleProperty(locale, key, value, comment);
-    }
-
+//    void createLocaleProperty(Locale locale, String key, String value, String comment) {
+//        bridge.createLocaleProperty(locale, key, value, comment);
+//    }
     void addLocale(Locale locale) {
         locales.add(locale);
         firePropertyChange(PROPERTY_LOCALES, null, null);

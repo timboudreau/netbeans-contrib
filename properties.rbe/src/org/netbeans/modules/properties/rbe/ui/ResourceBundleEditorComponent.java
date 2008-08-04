@@ -56,13 +56,16 @@ import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
@@ -79,11 +82,10 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     /** The explorer manager */
     private ExplorerManager explorerManager;
     /** The lookup instance content */
-    private InstanceContent ic;
+    public InstanceContent ic;
 
 //    public ResourceBundleEditorComponent() {
 //    }
-
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
@@ -96,6 +98,7 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
         explorerManager = new ExplorerManager();
         ic = new InstanceContent();
         ic.add(dataObject);
+        ic.add(this);
 
         ActionMap actionMap = getActionMap();
         actionMap.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(explorerManager));
@@ -103,12 +106,15 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
         actionMap.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(explorerManager));
         actionMap.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
 
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, actionMap), new AbstractLookup(ic)));
+//        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, actionMap), new AbstractLookup(ic)));
+
+        setActivatedNodes(new Node[]{new AbstractNode(Children.LEAF, new AbstractLookup(ic))});
 
         updateName();
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(new UIWindow(new RBE(dataObject)));
+
     }
 
     protected void updateName() {

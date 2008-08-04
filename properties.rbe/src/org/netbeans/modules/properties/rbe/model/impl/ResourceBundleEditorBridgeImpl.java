@@ -40,8 +40,6 @@
  */
 package org.netbeans.modules.properties.rbe.model.impl;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -84,11 +82,11 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
             }
         });
 
-        propertiesDataObject.addPropertyChangeListener(new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-            }
-        });
+//        propertiesDataObject.addPropertyChangeListener(new PropertyChangeListener() {
+//
+//            public void propertyChange(PropertyChangeEvent evt) {
+//            }
+//        });
 
         initLocales();
     }
@@ -114,7 +112,9 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
     public void setLocalePropertyValue(Locale locale, String key, String value) {
         ItemElem itemElem = getItemElem(locale, key);
         if (itemElem == null) {
-            createNewItemElem(locale, key, value, "");
+            if (value != null && value.length() > 0) {
+                createNewItemElem(locale, key, value, "");
+            }
         } else {
             itemElem.setValue(value);
         }
@@ -123,9 +123,19 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
     public void setLocalePropertyComment(Locale locale, String key, String comment) {
         ItemElem itemElem = getItemElem(locale, key);
         if (itemElem == null) {
-            createNewItemElem(locale, key, "", comment);
+            if (comment != null && comment.length() > 0) {
+                createNewItemElem(locale, key, "", comment);
+            }
         } else {
             itemElem.setComment(comment);
+        }
+    }
+
+    public void createProperty(String key) {
+        ItemElem itemElem = getItemElem(getLocales().iterator().next(), key);
+        if (itemElem == null) {
+            // Create empty default value
+            createNewItemElem(getLocales().iterator().next(), key, "", "");
         }
     }
 

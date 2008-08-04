@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -52,6 +53,7 @@ import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVi
 import org.netbeans.modules.properties.rbe.model.visitor.TreeVisitor;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeTransfer;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
@@ -66,9 +68,30 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
     private final TreeItem<BundleProperty> treeItem;
 
     public TreeItemPropertyNode(TreeItem<BundleProperty> treeItem) {
-        super(treeItem.isLeaf() ? Children.LEAF : new ChildrenProperties(treeItem), Lookups.singleton(treeItem.getValue()));
+        super(treeItem.isLeaf() ? Children.LEAF : new ChildrenProperties(treeItem), Lookups.fixed(treeItem.getValue()));
         this.treeItem = treeItem;
         treeItem.addPropertyChangeListener(this);
+        getProperty().addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(BundleProperty.LOCALE_PROPERTY_PROP)) {
+                    fireIconChange();
+                }
+            }
+        });
+
+        addNodeListener(new NodeAdapter() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent ev) {
+                if (ev.getPropertyName().equals(Node.PROP_ICON)) {
+                    if (getParentNode() instanceof TreeItemPropertyNode) {
+                        ((TreeItemPropertyNode) getParentNode()).fireIconChange();
+                    }
+                }
+            }
+        });
+
     }
 
     public BundleProperty getProperty() {
@@ -77,6 +100,21 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
     public TreeItem<BundleProperty> getTreeItem() {
         return treeItem;
+    }
+
+    @Override
+    public Image getIcon(int type) {
+        for (Node node : getChildren().getNodes()) {
+            if (node.getIcon(type).equals(defaultIconWithWarning)) {
+                return defaultIconWithWarning;
+            }
+        }
+        if (!getProperty().isExists()) {
+            return defaultIcon;
+        } else if (getProperty().isContainsEmptyLocaleProperty()) {
+            return defaultIconWithWarning;
+        }
+        return defaultIcon;
     }
 
     @Override
@@ -209,7 +247,12 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
         public void propertyChange(PropertyChangeEvent evt) {
             if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-                addNotify();
+                MUTEX.writeAccess(new Runnable() {
+
+                    public void run() {
+                        addNotify();
+                    }
+                });
             }
         }
 
