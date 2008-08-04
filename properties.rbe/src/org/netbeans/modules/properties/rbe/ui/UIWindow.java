@@ -56,6 +56,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.jdesktop.layout.GroupLayout;
@@ -69,6 +70,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -116,8 +118,10 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     public void addNotify() {
         super.addNotify();
         explorer = ExplorerManager.find(this);
-        explorer.addPropertyChangeListener(this);
-        updateBeanTree();
+        if (explorer != null) {
+            explorer.addPropertyChangeListener(this);
+            updateBeanTree();
+        }
     }
 
     protected void updateBeanTree() {
@@ -125,11 +129,14 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected AbstractNode getRootNode() {
+        Lookup.Provider provider = (Lookup.Provider)SwingUtilities.getAncestorOfClass(Lookup.Provider.class, this);
+        Lookup lookup = provider.getLookup();
+
         switch (rbe.getMode()) {
             case FLAT:
-                return new FlatRootNode(rbe);
+                return new FlatRootNode(rbe, lookup);
             case TREE:
-                return new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true));
+                return new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true), lookup);
         }
         return new AbstractNode(Children.LEAF);
     }
@@ -383,8 +390,8 @@ class FlatRootNode extends AbstractNode implements PropertyChangeListener {
 
     private RBE rbe;
 
-    public FlatRootNode(RBE rbe) {
-        super(Children.create(new BundlePropertyNodeFactory(rbe), true));
+    public FlatRootNode(RBE rbe, Lookup lookup) {
+        super(Children.create(new BundlePropertyNodeFactory(rbe), true), lookup);
         this.rbe = rbe;
         rbe.getBundle().addPropertyChangeListener(this);
     }

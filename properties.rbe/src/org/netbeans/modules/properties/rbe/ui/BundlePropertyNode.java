@@ -40,15 +40,24 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.awt.Dialog;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.TreeItem;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.PasteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 
@@ -57,6 +66,16 @@ import org.openide.util.actions.SystemAction;
  * @author @author Denis Stepanov <denis.stepanov at gmail.com>
  */
 public abstract class BundlePropertyNode extends AbstractNode {
+
+    protected final static Image defaultIcon;
+    protected final static Image defaultIconWithWarning;
+
+
+    static {
+        defaultIcon = Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
+        defaultIconWithWarning = ImageUtilities.mergeImages(defaultIcon,
+                Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/warning2.gif"), 14, 10);
+    }
 
     public BundlePropertyNode(Children children, Lookup lookup) {
         super(children, lookup);
@@ -81,19 +100,59 @@ public abstract class BundlePropertyNode extends AbstractNode {
         return new Action[]{
                     SystemAction.get(CutAction.class),
                     SystemAction.get(CopyAction.class),
-                    SystemAction.get(PasteAction.class)
+                    SystemAction.get(PasteAction.class),
+//                    new MoveAction(),
                 };
     }
 
     @Override
     public Image getIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
+        if (getProperty().isContainsEmptyLocaleProperty()) {
+            return defaultIconWithWarning;
+        }
+        return defaultIcon;
     }
 
     @Override
     public Image getOpenedIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
+        return getIcon(type);
+    }
+
+    public void move() {
+        UIMoveActionPanel actionPanel = new UIMoveActionPanel();
+        actionPanel.getKeyTextField().setText(getProperty().getKey());
+        DialogDescriptor dialogDescriptor = new DialogDescriptor(
+                actionPanel,
+                NbBundle.getBundle(UIMoveActionPanel.class).getString("UIMoveActionPanel.title"),
+                true,
+                DialogDescriptor.OK_CANCEL_OPTION,
+                DialogDescriptor.OK_OPTION,
+                new ActionListener() {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        if (evt.getSource() == DialogDescriptor.OK_OPTION) {
+                            getTreeItem();
+                        }
+                    }
+                });
+
+        Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+        dialog.setVisible(true);
     }
 
     public abstract BundleProperty getProperty();
+
+    public abstract TreeItem<BundleProperty> getTreeItem();
+
+    class MoveAction extends AbstractAction {
+
+        public MoveAction() {
+            super("Move");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ev) {
+            move();
+        }
+    }
 }

@@ -81,7 +81,7 @@ public class UIPropertyPanel extends javax.swing.JPanel {
         } else {
             titleLabel.setText(getLocaleTitle(localeProperty.getLocale()));
         }
-        if (localeProperty != null && localeProperty.isCreated()) {
+        if (localeProperty.getProperty().isExists()) {
             textArea.setText(localeProperty.getValue());
             textArea.addFocusListener(new FocusListener() {
 

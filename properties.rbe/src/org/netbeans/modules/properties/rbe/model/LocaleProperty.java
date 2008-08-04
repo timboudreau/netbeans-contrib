@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Locale;
 
 /**
@@ -52,6 +54,10 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
     private Locale locale;
     private String value;
     private String comment;
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
+    public final static String VALUE_PROP = "Value";
+    public final static String COMMENT_PROP = "Comment";
 
     public LocaleProperty(BundleProperty property, Locale locale, String value, String comment) {
         this.property = property;
@@ -74,20 +80,12 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
 
     public void setValue(String value) {
         this.value = value;
-        property.getBundle().setPropertyValue(locale, getKey(), value);
-    }
-
-    protected void updateValue(String value) {
-        this.value = value;
+        propertyChangeSupport.firePropertyChange(VALUE_PROP, null, value);
     }
 
     public void setComment(String comment) {
         this.comment = comment;
-        property.getBundle().setPropertyComment(locale, getKey(), comment);
-    }
-
-    protected void updateComment(String comment) {
-        this.comment = comment;
+        propertyChangeSupport.firePropertyChange(COMMENT_PROP, null, comment);
     }
 
     public Locale getLocale() {
@@ -96,6 +94,14 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
 
     public BundleProperty getProperty() {
         return property;
+    }
+
+    void updateValue(String value) {
+        this.value = value;
+    }
+
+    void updateComment(String comment) {
+        this.comment = comment;
     }
 
     public boolean isCreated() {
@@ -107,5 +113,13 @@ public class LocaleProperty implements Comparable<LocaleProperty> {
             return property.getKey().compareTo(o.property.getKey());
         }
         return Bundle.LOCALE_COMPARATOR.compare(locale, o.locale);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.removePropertyChangeListener(pcl);
     }
 }

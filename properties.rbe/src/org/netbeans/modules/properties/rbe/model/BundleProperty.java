@@ -40,6 +40,10 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -58,6 +62,9 @@ public class BundleProperty implements Comparable<BundleProperty> {
     private String key;
     /** Locale properties */
     private Map<Locale, LocaleProperty> localeProperties;
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    /** Change support constants */
+    public final static String LOCALE_PROPERTY_PROP = "LocaleProperty";
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
@@ -86,6 +93,10 @@ public class BundleProperty implements Comparable<BundleProperty> {
         return localeProperties.get(locale);
     }
 
+    public Collection<LocaleProperty> getLocaleProperties() {
+        return localeProperties.values();
+    }
+
     public boolean isExists() {
         return getBundle().isPropertyExists(key);
     }
@@ -98,14 +109,35 @@ public class BundleProperty implements Comparable<BundleProperty> {
         return this.key.compareTo(o.key);
     }
 
-    public void addLocaleProperty(Locale locale, LocaleProperty value) {
-        if (!getBundle().isLocalePropertyExists(locale, key)) {
-            getBundle().createLocaleProperty(locale, key, value.getValue() == null ? "" : value.getValue(), value.getComment());
-        }
+    public void addLocaleProperty(final Locale locale, final LocaleProperty value) {
+        value.addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                propertyChangeSupport.firePropertyChange(LOCALE_PROPERTY_PROP, null, value);
+            }
+        });
+
         localeProperties.put(locale, value);
     }
 
     public void removeLocaleProperty(Locale locale) {
         localeProperties.remove(locale);
+    }
+
+    public boolean isContainsEmptyLocaleProperty() {
+        for (LocaleProperty localeProperty : localeProperties.values()) {
+            if (!localeProperty.isCreated() || (localeProperty.getValue() == null) || localeProperty.getValue().trim().length() == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.removePropertyChangeListener(pcl);
     }
 }
