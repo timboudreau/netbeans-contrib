@@ -62,6 +62,7 @@ import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.SingleMethod;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
@@ -90,6 +91,8 @@ public class ActionProviderImpl implements ActionProvider {
             ActionProvider.COMMAND_TEST_SINGLE,
             ActionProvider.COMMAND_DEBUG_SINGLE,
             ActionProvider.COMMAND_DEBUG_TEST_SINGLE,
+            SingleMethod.COMMAND_RUN_SINGLE_METHOD,
+            SingleMethod.COMMAND_DEBUG_SINGLE_METHOD,
             // You provide the impl:
             ActionProvider.COMMAND_BUILD,
             ActionProvider.COMMAND_CLEAN,
@@ -109,7 +112,8 @@ public class ActionProviderImpl implements ActionProvider {
 
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
         if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
-                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
+                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
+                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
             return runSetup(context, command, false) != null;
         } else {
             return true;
@@ -118,7 +122,8 @@ public class ActionProviderImpl implements ActionProvider {
 
     public void invokeAction(final String command, final Lookup context) throws IllegalArgumentException {
         if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
-                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
+                command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
+                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     RunSetup setup = runSetup(context, command, true);
@@ -201,12 +206,22 @@ public class ActionProviderImpl implements ActionProvider {
         }
     }
     private RunSetup/*|null*/ runSetup(Lookup context, String command, boolean block) {
-        Collection<? extends DataObject> ds = context.lookupAll(DataObject.class);
-        if (ds.size() != 1) {
-            // No selection, or multiselection.
-            return null;
+        String methodname;
+        final FileObject fo;
+        Collection<? extends SingleMethod> methods = context.lookupAll(SingleMethod.class);
+        if (methods.size() == 1) {
+            SingleMethod method = methods.iterator().next();
+            fo = method.getFile();
+            methodname = method.getMethodName();
+        } else {
+            Collection<? extends DataObject> ds = context.lookupAll(DataObject.class);
+            if (ds.size() != 1) {
+                // No selection, or multiselection.
+                return null;
+            }
+            fo = ds.iterator().next().getPrimaryFile();
+            methodname = null;
         }
-        final FileObject fo = ds.iterator().next().getPrimaryFile();
         File f = FileUtil.toFile(fo);
         if (f == null) {
             // JAR selection?
@@ -220,7 +235,9 @@ public class ActionProviderImpl implements ActionProvider {
         if (sourcepath == null) {
             return null;
         }
-        boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE);
+        boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) ||
+                command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
+                command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD);
         boolean test = command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE);
         FileObject toRun = fo;
         if (test) {
@@ -265,10 +282,18 @@ public class ActionProviderImpl implements ActionProvider {
                 Exceptions.printStackTrace(x);
             }
         }
+        Properties properties = new Properties();
+        if (command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
+            if (methodname == null) {
+                return null;
+            }
+            test = true;
+            properties.put("methodname", methodname); // NOI18N
+        }
         return new RunSetup(debug ?
             (test ? ProjectRunner.QUICK_TEST_DEBUG : ProjectRunner.QUICK_DEBUG) :
             (test ? ProjectRunner.QUICK_TEST : ProjectRunner.QUICK_RUN),
-            new Properties(), toRun);
+            properties, toRun);
     }
 
 }
