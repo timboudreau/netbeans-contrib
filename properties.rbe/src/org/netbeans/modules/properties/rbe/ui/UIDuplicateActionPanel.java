@@ -16,10 +16,10 @@ import javax.swing.JTextField;
  *
  * @author denis
  */
-public class UIMoveActionPanel extends javax.swing.JPanel {
+public class UIDuplicateActionPanel extends javax.swing.JPanel {
 
     /** Creates new form UIMoveActionPanel */
-    public UIMoveActionPanel() {
+    public UIDuplicateActionPanel() {
         initComponents();
     }
 
@@ -35,9 +35,9 @@ public class UIMoveActionPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         keyTextField = new javax.swing.JTextField();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(UIMoveActionPanel.class, "UIMoveActionPanel.jLabel1.text")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(UIDuplicateActionPanel.class, "UIDuplicateActionPanel.jLabel1.text")); // NOI18N
 
-        keyTextField.setText(org.openide.util.NbBundle.getMessage(UIMoveActionPanel.class, "UIMoveActionPanel.keyTextField.text")); // NOI18N
+        keyTextField.setText(org.openide.util.NbBundle.getMessage(UIDuplicateActionPanel.class, "UIDuplicateActionPanel.keyTextField.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

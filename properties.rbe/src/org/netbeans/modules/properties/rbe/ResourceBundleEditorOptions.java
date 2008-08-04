@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.properties.rbe;
 
+import org.openide.util.NbPreferences;
+
 /**
  * The Resource Bundle Editor options
  * TODO
@@ -47,7 +49,25 @@ package org.netbeans.modules.properties.rbe;
  */
 public class ResourceBundleEditorOptions {
 
+    /** Constants */
+    public final static String SEPARATOR_OPTION = "SEPARATOR_OPTION";
+    public final static String DEFAULT_SEPARATOR = ".";
+    /** Separators */
+    public final static String[] SEPARATORS = {".", "-"};
+
     public static String getSeparator() {
-        return ".";
+        return getOption(SEPARATOR_OPTION, DEFAULT_SEPARATOR);
+    }
+
+    public static void setSeparator(String separator) {
+        setOption(SEPARATOR_OPTION, separator);
+    }
+
+    protected static String getOption(String key, String def) {
+        return NbPreferences.forModule(ResourceBundleEditorOptions.class).get(key, def);
+    }
+
+    protected static void setOption(String key, String value) {
+        NbPreferences.forModule(ResourceBundleEditorOptions.class).put(key, value);
     }
 }
