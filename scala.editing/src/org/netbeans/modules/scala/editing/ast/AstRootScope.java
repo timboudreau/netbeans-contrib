@@ -62,7 +62,7 @@ public class AstRootScope extends AstScope {
         super(boundsTokens);
     }
 
-    protected AstExpr getExprContainer() {
+    public AstExpr getExprContainer() {
         return exprContainer;
     }
 
