@@ -87,6 +87,8 @@ public class Bundle {
     /** The bridge between RBE and current properties infrastructure */
     private ResourceBundleEditorBridge bridge;
     private PropertyChangeListener localePropertyChangeListener;
+    /** Current tree view separator */
+    private String separator;
 
     public Bundle(PropertiesDataObject dataObject) {
         ResourceBundleEditorBridge.Factory factory = Lookup.getDefault().lookup(ResourceBundleEditorBridge.Factory.class);
@@ -126,7 +128,7 @@ public class Bundle {
         }
         properties = new TreeMap<String, BundleProperty>();
         for (String key : bridge.getKeys()) {
-            createLocaleProperties(createBundleProperty(key));
+            createLocaleProperties(createBundleProperty(proceedKey(key)));
         }
     }
 
@@ -143,6 +145,7 @@ public class Bundle {
      * @param fullname
      */
     public BundleProperty createProperty(String key) {
+        key = proceedKey(key);
         BundleProperty createdProperty = properties.get(key);
         if (createdProperty == null) {
 
@@ -189,14 +192,21 @@ public class Bundle {
     }
 
     public BundleProperty createPropertyFromExisting(String propertyKey, BundleProperty property, boolean overwrite) {
-//        System.out.println(key + " " + propertyKey);
+        propertyKey = proceedKey(propertyKey);
         BundleProperty newProperty = getProperties().get(propertyKey);
         if ((newProperty == null || overwrite || !newProperty.isExists()) && property.isExists()) {
             if (newProperty == null) {
                 newProperty = createProperty(propertyKey);
             }
-            for (LocaleProperty localeProperty : property.getLocaleProperties()) {
-                if (localeProperty != null) {
+        }
+        for (LocaleProperty localeProperty : property.getLocaleProperties()) {
+            LocaleProperty clocalProperty = newProperty.getLocalProperty(localeProperty.getLocale());
+            if (localeProperty != null) {
+                if (clocalProperty != null) {
+                    clocalProperty.setComment(localeProperty.getComment());
+                    clocalProperty.setValue(localeProperty.getValue());
+                } else {
+
                     LocaleProperty newLocaleProperty =
                             new LocaleProperty(newProperty, localeProperty.getLocale(), localeProperty.getValue(), localeProperty.getComment());
                     newProperty.addLocaleProperty(localeProperty.getLocale(), newLocaleProperty);
@@ -333,6 +343,21 @@ public class Bundle {
         //Replace multiple occurrences of the separator
         //TODO: remove separator on the first and the last key position (".ssss.")
         return key.replaceAll(Pattern.quote(getTreeSeparator()) + "+", getTreeSeparator());
+//        replace separator at the start of a key
+//        if (key.startsWith(getTreeSeparator())) {
+//            key = key.substring(getTreeSeparator().length());
+//        }
+//        //replace separator at the end of a key
+//        if (key.endsWith(getTreeSeparator())) {
+//            key = key.substring(key.length() - getTreeSeparator().length());
+//        }
+//        //replace double separators
+//        String doubleSeparator = getTreeSeparator() + getTreeSeparator();
+//        int index;
+//        while ((index = key.indexOf(doubleSeparator)) != -1) {
+//            key = key.substring(0, index) + getTreeSeparator() + key.substring(index + doubleSeparator.length());
+//        }
+//        return key; 
     }
 
     BundleProperty createBundleProperty(String key) {
@@ -360,8 +385,11 @@ public class Bundle {
         return lastIndex == -1 ? fullname : fullname.substring(lastIndex + getTreeSeparator().length());
     }
 
-    private String getTreeSeparator() {
-        return ResourceBundleEditorOptions.getSeparator();
+    public String getTreeSeparator() {
+        if (separator == null) {
+            separator = ResourceBundleEditorOptions.getSeparator();
+        }
+        return separator;
     }
 
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {

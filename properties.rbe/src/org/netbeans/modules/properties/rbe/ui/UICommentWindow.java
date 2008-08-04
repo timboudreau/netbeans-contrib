@@ -12,19 +12,11 @@ package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Dialog;
 import java.awt.Frame;
-import java.awt.Window;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.properties.rbe.model.LocaleProperty;
-import org.openide.util.NbBundle;
 
 /**
  *
@@ -77,33 +69,31 @@ public class UICommentWindow extends Dialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textArea = new javax.swing.JTextArea();
 
-        jScrollPane1 = new JScrollPane();
-        textArea = new JTextArea();
+        setTitle(org.openide.util.NbBundle.getMessage(UICommentWindow.class, "UICommentWindow.title")); // NOI18N
 
-        setTitle(NbBundle.getMessage(UICommentWindow.class, "UICommentWindow.title")); // NOI18N
         textArea.setColumns(20);
         textArea.setRows(5);
         jScrollPane1.setViewportView(textArea);
 
-        GroupLayout layout = new GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(Alignment.LEADING)
-            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE)
-
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(Alignment.LEADING)
-            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
-
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private JScrollPane jScrollPane1;
-    private JTextArea textArea;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea textArea;
     // End of variables declaration//GEN-END:variables
 }
