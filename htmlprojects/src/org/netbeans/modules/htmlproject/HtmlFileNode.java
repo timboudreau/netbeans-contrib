@@ -25,20 +25,12 @@ your own identifying information:
 Contributor(s): */
 package org.netbeans.modules.htmlproject;
 
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.openide.ErrorManager;
@@ -123,8 +115,6 @@ class HtmlFileNode extends AbstractNode implements OpenCookie {
             }
             return new Action[0];
         }
-        String trimmedPath = 
-                getShortDescription().substring(0, f.getName().length());
         
         return new Action[] {
             new OpenAction(), 
@@ -132,7 +122,7 @@ class HtmlFileNode extends AbstractNode implements OpenCookie {
             null, 
             new DelAction(), 
             null, 
-            new ColocatedHtmlFileAction(f, trimmedPath, projDir, getKids())};
+            new ColocatedHtmlFileAction(f, projDir, getKids())};
     }
 
     public Action getPreferredAction() {

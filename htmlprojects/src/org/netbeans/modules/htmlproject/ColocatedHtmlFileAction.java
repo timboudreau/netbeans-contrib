@@ -44,14 +44,11 @@ import org.openide.loaders.DataObject;
  * @author Tim Boudreau
  */
 public class ColocatedHtmlFileAction extends AbstractAction {
-    private final String trimmedPath;
     private final File f;
     private final FileObject projDir;
     private final Kids kids;
-    /** Creates a new instance of ColocatedHtmlFileAction */
-    public ColocatedHtmlFileAction(File f, String trimmedPath, FileObject projDir, Kids kids) {
+    public ColocatedHtmlFileAction(File f, FileObject projDir, Kids kids) {
         this.f = f;
-        this.trimmedPath = trimmedPath;
         this.projDir = projDir;
         this.kids = kids;
         assert f.isFile();
@@ -61,7 +58,7 @@ public class ColocatedHtmlFileAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
         NotifyDescriptor.InputLine line = new NotifyDescriptor.InputLine(
-                "Create new HTML file in " + trimmedPath, "New HTML File");
+                "Create new HTML file in " + f.getName(), "New HTML File");
         if (DialogDisplayer.getDefault().notify(line) == line.OK_OPTION) {
             String txt = line.getInputText();
             if (txt.contains(File.separator) || txt.contains(File.pathSeparator)) {
