@@ -59,7 +59,7 @@ public class XMLSuiteHandler {
     
     public static File createSuiteforMethod(File targetFolder, String projectName, String pkgName, String className, String methodName) {
         if (!targetFolder.isDirectory()) {
-            throw new IllegalArgumentException(targetFolder.getAbsolutePath() + " is not a directory");
+            throw new IllegalArgumentException(targetFolder.getAbsolutePath() + " is not a directory"); //NOI18N
         }
         Map<String, Collection<String>> classes = new HashMap<String, Collection<String>>();
         Set<String> methods = null;
@@ -67,7 +67,8 @@ public class XMLSuiteHandler {
             methods = new HashSet<String>();
             methods.add(methodName);
         }
-        classes.put(pkgName + "." + className, methods);
+        pkgName = pkgName.trim();
+        classes.put("".equals(pkgName) ? className : pkgName + "." + className, methods); //NOI18N
         LaunchSuite suite = SuiteGenerator.createSuite(projectName, null, classes, null, null, null, 7);
         File f = suite.save(targetFolder);
         FileUtil.refreshFor(targetFolder);
