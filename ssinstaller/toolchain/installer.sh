@@ -63,6 +63,7 @@ init() {
         arch=intel-Linux
 	#SYMLINK_PACKAGE=
 	ALTERNATIVE_ROOT_CMD="-root"
+	tail_args="--lines="
 	if [ "$LOCAL_ZONE_ONLY" != "" ]
 	then
 	    error "Option --local-zone is not suppoted for Linux."
@@ -279,7 +280,7 @@ install_packages() {
 
 unpack() {
     message "Please wait while Sun Studio files are unpacking into temporary directory."
-    tail +__tail_length > ${TMP_DIR}/sunstudio.tar.bz2
+    tail ${tail_args}+__tail_length > ${TMP_DIR}/sunstudio.tar.bz2
     cd ${TMP_DIR}
     bzcat sunstudio.tar.bz2 | tar -xf - || error "Sun Studio unpacking failed."
     cd ${CWD}    
