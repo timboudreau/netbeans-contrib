@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import javax.swing.Action;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
@@ -58,10 +60,23 @@ public class FlatPropertyNode extends BundlePropertyNode implements Comparable<F
     public FlatPropertyNode(TreeItem<BundleProperty> treeItem) {
         super(Children.LEAF, Lookups.singleton(treeItem.getValue()));
         this.treeItem = treeItem;
+        getProperty().addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(BundleProperty.LOCALE_PROPERTY_PROP)) {
+                    fireIconChange();
+                }
+            }
+        });
     }
 
     public BundleProperty getProperty() {
         return treeItem.getValue();
+    }
+
+    @Override
+    public TreeItem<BundleProperty> getTreeItem() {
+        return treeItem;
     }
 
     @Override
