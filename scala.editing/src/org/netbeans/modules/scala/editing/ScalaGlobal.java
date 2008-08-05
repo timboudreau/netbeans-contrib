@@ -46,10 +46,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -86,6 +84,7 @@ public class ScalaGlobal {
             new WeakHashMap<Project, Reference<Global>>();
     private final static Map<Project, Reference<SrcOutDirs>> ProjectToDirs =
             new WeakHashMap<Project, Reference<SrcOutDirs>>();
+    private static Global GlobalForStdLid;
 
     private static class SrcOutDirs {
 
@@ -97,6 +96,7 @@ public class ScalaGlobal {
 
     public static void reset() {
         ProjectToGlobal.clear();
+        GlobalForStdLid = null;
     }
 
     /** 
@@ -111,6 +111,15 @@ public class ScalaGlobal {
         Global global = null;
 
         final Project project = FileOwnerQuery.getOwner(fo);
+        if (project == null) {
+            // it may be a standalone file, or file in standard lib
+            if (GlobalForStdLid == null) {
+                 GlobalForStdLid = ScalaHome.getGlobalForStdLib();
+            }
+            
+            return GlobalForStdLid;
+        }
+
         if (project != null) {
             SrcOutDirs dirs = null;
             Reference<SrcOutDirs> dirsRef = ProjectToDirs.get(project);
@@ -386,16 +395,6 @@ public class ScalaGlobal {
             }
 
             return null;
-        }
-    }
-
-    private static void printProperties(Properties props) {
-        System.out.println("===========================");
-        Enumeration keys = props.keys();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            String value = (String) props.get(key);
-            System.out.println(key + ": " + value);
         }
     }
 }
