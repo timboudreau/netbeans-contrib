@@ -99,7 +99,12 @@ public class FlatPropertyNode extends BundlePropertyNode implements Comparable<F
     }
 
     @Override
+    public void duplicate(String key) {
+        getProperty().getBundle().createPropertyFromExisting(key, getProperty(), true);
+    }
+    
+    @Override
     public Action[] getActions(boolean context) {
-        return new Action[0];
+        return new Action[]{new DuplicateAction()};
     }
 }

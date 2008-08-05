@@ -45,7 +45,10 @@ import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.netbeans.modules.properties.rbe.ResourceBundleEditorOptions;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
@@ -163,6 +166,35 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
     }
 
     @Override
+    public void duplicate(final String key) {
+        final Map<String, BundleProperty> propertiesToCreate = new HashMap<String, BundleProperty>();
+        propertiesToCreate.put(key, getProperty());
+        for (TreeItem<BundleProperty> item : getTreeItem().getChildren()) {
+            item.accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
+
+                private StringBuilder nodeKey = new StringBuilder(key);
+
+                @Override
+                protected void preVisit(TreeItem<BundleProperty> t) {
+                    nodeKey.append(getProperty().getBundle().getTreeSeparator());
+                    nodeKey.append(t.getValue().getName());
+                    propertiesToCreate.put(nodeKey.toString(), t.getValue());
+                }
+
+                @Override
+                protected void postVisit(TreeItem<BundleProperty> t) {
+                    nodeKey.setLength(nodeKey.length() - getProperty().getBundle().getTreeSeparator().length() - t.getValue().getName().length());
+                }
+            });
+        }
+
+        for (Map.Entry<String, BundleProperty> entry : propertiesToCreate.entrySet()) {
+            getProperty().getBundle().createPropertyFromExisting(entry.getKey(), entry.getValue(), true);
+        }
+
+    }
+
+    @Override
     protected void createPasteTypes(Transferable t, List<PasteType> s) {
         super.createPasteTypes(t, s);
         Node node = NodeTransfer.node(t, NodeTransfer.CLIPBOARD_COPY);
@@ -198,7 +230,7 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
                 @Override
                 protected void preVisit(TreeItem<BundleProperty> t) {
-                    nodeKey.append(ResourceBundleEditorOptions.getSeparator());
+                    nodeKey.append(getProperty().getBundle().getTreeSeparator());
                     nodeKey.append(t.getValue().getName());
                     treeItem.getValue().getBundle().createPropertyFromExisting(nodeKey.toString(), t.getValue(), true);
                 }
@@ -208,7 +240,7 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
                     if (isMoveAction) {
                         t.getValue().delete();
                     }
-                    nodeKey.setLength(nodeKey.length() - ResourceBundleEditorOptions.getSeparator().length() - t.getValue().getName().length());
+                    nodeKey.setLength(nodeKey.length() - getProperty().getBundle().getTreeSeparator().length() - t.getValue().getName().length());
                 }
             });
         }

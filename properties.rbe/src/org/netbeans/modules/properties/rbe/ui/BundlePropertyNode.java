@@ -101,7 +101,8 @@ public abstract class BundlePropertyNode extends AbstractNode {
                     SystemAction.get(CutAction.class),
                     SystemAction.get(CopyAction.class),
                     SystemAction.get(PasteAction.class),
-//                    new MoveAction(),
+                    //                    new MoveAction(),
+                    new DuplicateAction()
                 };
     }
 
@@ -118,26 +119,11 @@ public abstract class BundlePropertyNode extends AbstractNode {
         return getIcon(type);
     }
 
-    public void move() {
-        UIMoveActionPanel actionPanel = new UIMoveActionPanel();
-        actionPanel.getKeyTextField().setText(getProperty().getKey());
-        DialogDescriptor dialogDescriptor = new DialogDescriptor(
-                actionPanel,
-                NbBundle.getBundle(UIMoveActionPanel.class).getString("UIMoveActionPanel.title"),
-                true,
-                DialogDescriptor.OK_CANCEL_OPTION,
-                DialogDescriptor.OK_OPTION,
-                new ActionListener() {
+    public void move(String key) {
+    }
 
-                    public void actionPerformed(ActionEvent evt) {
-                        if (evt.getSource() == DialogDescriptor.OK_OPTION) {
-                            getTreeItem();
-                        }
-                    }
-                });
-
-        Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
-        dialog.setVisible(true);
+    public void duplicate(String key) {
+        
     }
 
     public abstract BundleProperty getProperty();
@@ -150,9 +136,56 @@ public abstract class BundlePropertyNode extends AbstractNode {
             super("Move");
         }
 
-        @Override
         public void actionPerformed(ActionEvent ev) {
-            move();
+            UIMoveActionPanel actionPanel = new UIMoveActionPanel();
+            actionPanel.getKeyTextField().setText(getProperty().getKey());
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(
+                    actionPanel,
+                    NbBundle.getBundle(UIMoveActionPanel.class).getString("UIMoveActionPanel.title"),
+                    true,
+                    DialogDescriptor.OK_CANCEL_OPTION,
+                    DialogDescriptor.OK_OPTION,
+                    new ActionListener() {
+
+                        public void actionPerformed(ActionEvent evt) {
+                            if (evt.getSource() == DialogDescriptor.OK_OPTION) {
+                                move("");
+                            }
+                        }
+                    });
+
+            Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+            dialog.setVisible(true);
+        }
+    }
+
+    class DuplicateAction extends AbstractAction implements ActionListener {
+
+        public DuplicateAction() {
+            super("Duplicate");
+        }
+
+        public void actionPerformed(ActionEvent ev) {
+            final UIDuplicateActionPanel actionPanel = new UIDuplicateActionPanel();
+            actionPanel.getKeyTextField().setText(getProperty().getKey());
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(
+                    actionPanel,
+                    NbBundle.getBundle(UIMoveActionPanel.class).getString("UIDuplicateActionPanel.title"),
+                    true,
+                    DialogDescriptor.OK_CANCEL_OPTION,
+                    DialogDescriptor.OK_OPTION,
+                    new ActionListener() {
+
+                        public void actionPerformed(ActionEvent evt) {
+                            if (evt.getSource() == DialogDescriptor.OK_OPTION) {
+                                String key = actionPanel.getKeyTextField().getText();
+                                duplicate(key);
+                            }
+                        }
+                    });
+
+            Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+            dialog.setVisible(true);
         }
     }
 }

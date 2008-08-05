@@ -26,4 +26,9 @@
             </folder>
         </folder>
     </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-properties-rbe-ui-options-ResourceBundleEditorAdvancedOption.instance"/>
+        </folder>
+    </folder>
 </filesystem>
