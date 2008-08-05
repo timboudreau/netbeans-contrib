@@ -162,7 +162,6 @@ public class TestClassInfoTaskTest extends NbTestCase {
         TestClassInfoTask task = new TestClassInfoTask(20);
         src.runUserActionTask(task, true);
         assertNull(task.getMethodName());
-        System.err.println("pkg: " + task.getPackageName());
         assertEquals("", task.getPackageName());
         assertEquals("Test", task.getClassName());
     }
