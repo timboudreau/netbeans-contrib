@@ -149,6 +149,23 @@ public class TestClassInfoTaskTest extends NbTestCase {
         assertEquals("sample.pkg", task.getPackageName());
     }
 
+    public void testDefaultPackage() throws Exception {
+        TestUtilities.copyStringToFile(testFO,
+                "public class Test {\n" +
+                "\n" +
+                "    @Deprecated\n" +
+                "    void method() {\n" +
+                "    }\n" +
+                "\n" +
+                "}\n");
+        JavaSource src = JavaSource.forFileObject(testFO);
+        TestClassInfoTask task = new TestClassInfoTask(20);
+        src.runUserActionTask(task, true);
+        assertNull(task.getMethodName());
+        assertEquals("", task.getPackageName());
+        assertEquals("Test", task.getClassName());
+    }
+
     private static ClassPath createClassPath(String classpath) {
         StringTokenizer tokenizer = new StringTokenizer(classpath, File.pathSeparator);
         List<PathResourceImplementation> list = new ArrayList<PathResourceImplementation>();
