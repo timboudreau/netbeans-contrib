@@ -46,7 +46,6 @@ package org.netbeans.modules.portalpack.servers.websynergy.portlets.php;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletProjectUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +53,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -76,7 +76,7 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
     }
 
     public void initValues(Project project) {
-        String packageName = PortletProjectUtils.getProjectProperty(project, PhpProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
+        String packageName = "";//TODO PortletProjectUtils.getProjectProperty(project, PhpProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
         if (packageName == null || packageName.length() == 0) {
             packageName = PortletProjectUtils.deriveSafeName(project.getProjectDirectory().getName());
         }

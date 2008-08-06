@@ -46,7 +46,6 @@ package org.netbeans.modules.portalpack.servers.websynergy.portlets.php;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletProjectUtils;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -54,6 +53,7 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;

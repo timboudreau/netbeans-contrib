@@ -4,7 +4,6 @@
  */
 package org.netbeans.modules.portalpack.servers.websynergy.portlets.php;
 
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletProjectUtils;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +24,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeEventNotificationHelper;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType;
@@ -153,7 +153,7 @@ public final class PhpPortletWizardIterator implements TemplateWizard.Iterator, 
         }
 
         PortletContext context = (PortletContext) wizard.getProperty("context");
-        String phpRelativePath = PortletProjectUtils.getRelativePathForPhpPortlet(webDocbase, dir);
+        String phpRelativePath = FileUtil.getRelativePath(webDocbase, dir);
         if(phpRelativePath == null) phpRelativePath = "/";
         String viewPhp = phpRelativePath + targetName + "." + template.getExt();
         addPhpPortletToPortletXML(project, context, viewPhp);
@@ -205,7 +205,7 @@ public final class PhpPortletWizardIterator implements TemplateWizard.Iterator, 
 
         // Always start with the document root or under
         FileObject docRoot = PortletProjectUtils.getDocumentRoot(project);
-        FileObject javaDir = PortletProjectUtils.getPageBeanRoot(project);
+        FileObject javaDir = null; //TODO PortletProjectUtils.getPageBeanRoot(project);
         FileObject jspDir = Templates.getTargetFolder(wizard);
         String relativePath = (jspDir == null) ? null : FileUtil.getRelativePath(docRoot, jspDir);
         if ((relativePath == null) || (relativePath.indexOf("WEB-INF") != -1)) {

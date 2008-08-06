@@ -42,7 +42,6 @@
 // <RAVE> Copy from projects/projectui/src/org/netbeans/modules/project/ui
 package org.netbeans.modules.portalpack.servers.websynergy.portlets.php;
 
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletProjectUtils;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +65,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.api.java.classpath.ClassPath;
 
 // XXX org.netbeans.modules.visualweb.project.jsf is not accessible under NetBeans 6.0; needs friend-package
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 // Use local copy now
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
@@ -175,7 +175,7 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         // Check to make sure that the backing file doesn't already exist.
         String jspName = targetName + ".php";
         String javaName = targetName + ".java";
-        FileObject javaDir = PortletProjectUtils.getPageBeanRoot(project);
+        FileObject javaDir = null; //TODO PortletProjectUtils.getPageBeanRoot(project);
         String javaPath = folderPath + javaName;
         if (javaPath.startsWith("/")) {
             javaPath = javaPath.substring(1);

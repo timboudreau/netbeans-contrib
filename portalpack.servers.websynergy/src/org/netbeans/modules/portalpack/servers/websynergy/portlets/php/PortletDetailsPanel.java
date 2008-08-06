@@ -29,11 +29,12 @@ import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletSupportImpl;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
 import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletDDHelper;
 import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletSupportException;
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletSupportImpl;
+//import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletSupportImpl;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
@@ -138,12 +139,12 @@ public class PortletDetailsPanel implements WizardDescriptor.Panel,ChangeListene
         PortletSupportImpl impl = new PortletSupportImpl(project);
         File filePortlet = null;
         
-        try {
+     /*   try {
             filePortlet = impl.getPortletDD();
         } catch (PortletSupportException ex) {
             ex.printStackTrace();
             return false;
-        }
+        }*/
         PortletApp portletApp = NetbeansUtil.getPortletApp(filePortlet);
         if (portletApp == null) {
             return false;

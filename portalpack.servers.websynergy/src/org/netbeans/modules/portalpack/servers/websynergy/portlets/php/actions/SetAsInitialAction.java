@@ -67,11 +67,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletSupportImpl;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletModeType;
 
 import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletSupportException;
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletProjectUtils;
-import org.netbeans.modules.portalpack.servers.websynergy.portlets.php.util.PortletSupportImpl;
 import org.openide.awt.JMenuPlus;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileUtil;
@@ -135,7 +135,7 @@ public class SetAsInitialAction extends AbstractAction
             String actionCommand = evt.getActionCommand();
             PortletSupportImpl portletSupport = new PortletSupportImpl(project);
             
-            try {
+           
                 /**
                  * Fix for CR  6337056.  Need to get the root path to the JSP files to be able 
                  * to set the currently set initial page icon back to the default one.
@@ -157,7 +157,7 @@ public class SetAsInitialAction extends AbstractAction
                     /**
                      * Set the icon for the current one for this mode to the default icon.
                      */
-                    String currentViewPage = portletSupport.getInitialPage(PortletModeType.VIEW);
+                    String currentViewPage = "";//portletSupport.getInitialPage(PortletModeType.VIEW);
                     if(null != currentViewPage) {
                         FileObject currentFO = FileUtil.toFileObject(new File(dataNodePath + File.separator + currentViewPage));
                         /**
@@ -177,7 +177,7 @@ public class SetAsInitialAction extends AbstractAction
                         }
                         
                     }
-                    portletSupport.setInitialPage(PortletModeType.VIEW, fo);                    
+//                    portletSupport.setInitialPage(PortletModeType.VIEW, fo);                    
                     /**
                      * Now set the right data node with the mode icon.
                      */
@@ -187,7 +187,7 @@ public class SetAsInitialAction extends AbstractAction
                     /**
                      * Set the icon for the current one for this mode to the default icon.
                      */
-                    String currentEditPage = portletSupport.getInitialPage(PortletModeType.EDIT);
+                    String currentEditPage = null;// = portletSupport.getInitialPage(PortletModeType.EDIT);
                     if(null != currentEditPage) {
                         FileObject currentFO = FileUtil.toFileObject(new File(dataNodePath + File.separator + currentEditPage));
                         /**
@@ -207,7 +207,7 @@ public class SetAsInitialAction extends AbstractAction
                         }
                         
                     }
-                    portletSupport.setInitialPage(PortletModeType.EDIT, fo);
+                ///    portletSupport.setInitialPage(PortletModeType.EDIT, fo);
                     /**
                      * Now set the right data node with the mode icon.
                      */
@@ -218,7 +218,7 @@ public class SetAsInitialAction extends AbstractAction
                     /**
                      * Set the icon for the current one for this mode to the default icon.
                      */
-                    String currentHelpPage = portletSupport.getInitialPage(PortletModeType.HELP);
+                    String currentHelpPage = "";//portletSupport.getInitialPage(PortletModeType.HELP);
                     FileObject currentFO = FileUtil.toFileObject(new File(dataNodePath + File.separator + currentHelpPage));
                     /**
                      * Fix for CR 6329425
@@ -235,7 +235,7 @@ public class SetAsInitialAction extends AbstractAction
                                     "MSG_UnableToSetDefaultIcon", currentHelpPage);
                         }
                     }
-                    portletSupport.setInitialPage(PortletModeType.HELP, fo);
+                   // portletSupport.setInitialPage(PortletModeType.HELP, fo);
                     
                     /**
                      * Now set the right data node with the mode icon.
@@ -246,7 +246,7 @@ public class SetAsInitialAction extends AbstractAction
                     /**
                      * Unset the page as an initial page.
                      */
-                    portletSupport.unsetInitialPage(fo);
+                   /// portletSupport.unsetInitialPage(fo);
                     
                     /**
                      * Now set the icon to the default icon.
@@ -260,9 +260,7 @@ public class SetAsInitialAction extends AbstractAction
                         }
                     
 
-                }
-            } catch(PortletSupportException jpse) {
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, jpse);
+           
             }
         }
     }
@@ -381,8 +379,8 @@ public class SetAsInitialAction extends AbstractAction
                 return;
             PortletSupportImpl portletSupport = new PortletSupportImpl(project);
             if(null == portletSupport) return;
-            try {
-                if(portletSupport.isInitialPage(PortletModeType.VIEW, fo)) {
+           // try {
+               /* if(portletSupport.isInitialPage(PortletModeType.VIEW, fo)) {
                     rbViewItem.setSelected(true);
                 } else if(portletSupport.isInitialPage(PortletModeType.EDIT, fo)) {
                     rbEditItem.setSelected(true);
@@ -390,10 +388,10 @@ public class SetAsInitialAction extends AbstractAction
                     rbHelpItem.setSelected(true);
                 } else {
                     rbNoneItem.setSelected(true);
-                }
-            } catch(PortletSupportException jpse) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, jpse);
-            }
+                }*/
+            //} //catch(PortletSupportException jpse) {
+               // ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, jpse);
+            //}
             
 
         }
