@@ -1,0 +1,53 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<netbeans-deployment>
+
+    <!--
+    The icon element contains a path to the icon to be used to present the server
+    in the server registry.
+    -->
+    <icon>org/netbeans/modules/portalpack/servers/core/resources</icon>
+    
+    <!--
+    The disconnected-string element contains the String parameter to DeploymentFactory.getDisconnectedDeploymentManager()
+    -->
+    <disconnected-string>deployer:liferay</disconnected-string>
+    
+    <!--
+    The container-limitation element modifies a plugin to say that not all j2ee deployments are valid.
+    For example, a web-only server would include
+    <container-limitation> <war-deploy/> </container-limitation>
+    to indicate that only war deployments are accepted.
+    If a container-limitation element is not present, all j2ee deployments are assumed valid.
+    If a container-limitation element is present, then only j2ee deployment types explicitly
+    mentioned are allowed.
+    -->
+    <container-limitation>
+        <!--<ear-deploy/>-->
+        <war-deploy/>
+        <!-- <ejbjar-deploy/> -->
+    </container-limitation>
+    
+    <web-context-root>
+        <xpath>/</xpath>
+        <prop-name>contextRoot</prop-name>
+    </web-context-root>
+    
+</netbeans-deployment>

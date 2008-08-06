@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <folder name="J2EE">
+        <folder name="DeploymentPlugins">
+            <folder name="Liferay">
+                <file name="Descriptor" url="/org/netbeans/modules/portalpack/servers/liferay/resources/nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.servers.liferay.LiferayDeploymentFactory.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.liferay.LiferayDeploymentFactory"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.core.nodes.PSRegistryNodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory"/>
+                </file>
+                <file name="J2eePlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.liferay.LiferayJ2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.liferay.LiferayJ2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.liferay.LiferayOptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.servers.liferay.LifeRayOptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory"/>
+                </file>
+                <file name="SunPortalModuleConfigurationFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.liferay.config.LiferayModuleConfigurationFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory"/>
+                </file>
+                
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">
+                        <file name="WEB-INF\portlet.xml"/>
+                        <file name="WEB-INF\liferay-portlet.xml"/>
+                        <file name="WEB-INF\liferay-display.xml"/>
+                        <file name="WEB-INF\liferay-plugin-package.xml"/>
+                        <file name="WEB-INF\liferay-plugin-package.properties"/>
+                    </folder>
+                </folder>
+                
+                
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="Templates">
+        <folder name="WebSynergy Portlets">
+            <file name="PHPPortlet.php" url="/templates/phpportlet.template">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.servers.liferay.portlets.php.Bundle"/>
+                <attr name="position" intvalue="500"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="web-types"/>
+            
+                <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.servers.liferay.portlets.php.PhpPortletWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/servers/liferay/portlets/php/phpPortlet.html"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="portalpack">
+        <folder name="listeners">
+            <folder name="portletxml">
+                <file name="org-netbeans-modules-portalpack-servers-liferay-config-LiferayPortletXMLListener.instance">
+                   <!-- <attr name="originalFile" stringvalue="Actions/Filter/kiyut-citra-modules-fxfilter-action-filter-BoxBlurFXFilterAction.instance"/> -->
+                </file>
+            </folder>    
+        </folder>
+    </folder>
+    <folder name="liferay"> 
+        <folder name="webservice">
+            <file name="PortalPackLiferayIntegration.war" url="nbresloc:war/PortalPackLiferayIntegration.war">
+            </file>
+          </folder>
+      </folder>
+      
+     <folder name="liferay"> 
+        <folder name="templates">
+            <file name="liferay-display-400.template" url="nbresloc:templates/liferay-display-400.template">
+                <attr name="position" intvalue="0"/>
+            </file>
+            <file name="liferay-plugin-package-430.template" url="nbresloc:templates/liferay-plugin-package-430.template">
+                <attr name="position" intvalue="0"/>
+            </file>    
+            <file name="liferay-portlet-440.template" url="nbresloc:templates/liferay-portlet-440.template">
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+    </folder> 
+        
+    <!-- loader changes -->
+     <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-php5">
+                <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+        </folder>
+         <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-php5">
+                <folder name="Actions">
+                  <!-- Add Set As Initial Page action -->
+                  <file name="SetPortletModeAction.instance">
+                     <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.liferay.portlets.php.actions.SetAsInitialAction"/>
+                     <attr name="position" intvalue="150"/>
+                   </file>
+               </folder>
+              </folder>
+          </folder>
+     </folder>
+</filesystem>
