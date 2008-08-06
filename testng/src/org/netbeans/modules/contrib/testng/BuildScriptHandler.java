@@ -67,13 +67,13 @@ public final class BuildScriptHandler {
         String ID = "test-ng-1.0"; //NOI18N
         Extension extension = extender.getExtension(ID);
         if (extension == null) {
-            LOGGER.info("Extensible targets: " + extender.getExtensibleTargets());
+            LOGGER.finer("Extensible targets: " + extender.getExtensibleTargets());
             // create testng-build.xml
             String resource = "org-netbeans-modules-contrib-testng/testng-build.xml"; // NOI18N
             try {
                 FileObject testng = FileUtil.copyFile(Repository.getDefault().getDefaultFileSystem().findResource(resource), p.getProjectDirectory().getFileObject("nbproject"), "testng-impl"); //NOI18N
-                extender.addExtension(ID, testng);
-                //extension.addDependency("jar", "")
+                extension = extender.addExtension(ID, testng);
+                extension.addDependency("-pre-pre-compile", "-reinit-tasks"); //NOI18N
                 ProjectManager.getDefault().saveProject(p);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);

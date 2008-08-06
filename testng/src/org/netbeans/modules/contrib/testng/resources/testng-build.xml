@@ -46,18 +46,34 @@ made subject to such option by the copyright holder.
     </target>
 
     <!-- Call testng ant task -->
-    <target name="-init-macrodef-testng-ant">
+    <target name="-init-macrodef-testng">
         <macrodef name="testng-ant">
+            <attribute name="testincludes" default="**/*Test.class"/>
+            <sequential>
+                <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
+                <testng workingDir="${work.dir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                    <classpath>
+                        <pathelement path="${run.test.classpath}"/>
+                        <pathelement path="${build.test.classes.dir}"/>
+                    </classpath>
+                    <classfileset dir="${build.test.classes.dir}">
+                        <filename name="@{testincludes}"/>
+                    </classfileset>
+                    <jvmarg line="${run.jvmargs}"/>
+                </testng>
+            </sequential>
+        </macrodef>
+        <macrodef name="testng-ant-xml">
             <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
             <sequential>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
-                <testng workingDir="${work.dir}" failureProperty="tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                <testng workingDir="${work.dir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
                         <pathelement path="${run.test.classpath}"/>
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
                     <xmlfileset dir="${basedir}">
-                        <include name="@{testSuite}"/>
+                        <filename name="@{testSuite}"/>
                     </xmlfileset>
                     <jvmarg line="${run.jvmargs}"/>
                 </testng>
@@ -65,6 +81,84 @@ made subject to such option by the copyright holder.
         </macrodef>
     </target>
 
+    <target name="-testng" unless="junit.enabled">
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+    </target>
+    
+    <target name="-testng-junit" if="junit.enabled">
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <junit dir="${work.dir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg line="${run.jvmargs}"/>
+                </junit>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="junit.tests.failed"/>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+    </target>
+    
+    <target name="-init-macrodef-testng-junit-converter">
+        <macrodef name="junit-converter">
+            <sequential>
+                <java classname="org.testng.JUnitConverter" dir="${work.dir}">
+                    <classpath>
+                        <path path="${run.test.classpath}:${java.home}/../lib/tools.jar"/>
+                    </classpath>
+                    <arg line="-overwrite"/>
+                    <arg line="-annotation"/>
+                    <arg line="-srcdir ${test.src.dir}"/>
+                </java>
+            </sequential>
+        </macrodef>
+    </target>
+
+    <target name="-reinit-tasks" depends="-init-macrodef-testng, -testng, -testng-junit, -init-macrodef-testng-junit-converter" />
+    
+    <target name="-run-testng-default" unless="testng.config">
+        <testng-ant/>
+    </target>
+    <target name="-run-testng-custom" if="testng.config">
+        <testng-ant testSuite="${testng.config}"/>
+    </target>
+    <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom">
+    </target>
+    <target name="convert" depends="init, -init-macrodef-testng-junit-converter">
+        <junit-converter/>
+    </target>
     <!-- Call testng from java -->
     <target name="-init-macrodef-testng-java">
         <macrodef name="testng-java">
@@ -93,31 +187,5 @@ made subject to such option by the copyright holder.
                 </java>
             </sequential>
         </macrodef>
-    </target>
-    <target name="-init-macrodef-testng-junit-converter">
-        <macrodef name="junit-converter">
-            <sequential>
-                <java classname="org.testng.JUnitConverter" dir="${work.dir}">
-                    <classpath>
-                        <path path="${run.test.classpath}:${java.home}/../lib/tools.jar"/>
-                    </classpath>
-                    <arg line="-overwrite"/>
-                    <arg line="-annotation"/>
-                    <arg line="-srcdir ${test.src.dir}"/>
-                </java>
-            </sequential>
-        </macrodef>
-    </target>
-    <target name="-init-macrodef-testng" depends="-init-macrodef-testng-ant, -init-macrodef-testng-java"/>
-    <target name="-run-testng-default" unless="testng.config">
-        <testng-ant/>
-    </target>
-    <target name="-run-testng-custom" if="testng.config">
-        <testng-ant testSuite="${testng.config}"/>
-    </target>
-    <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom">
-    </target>
-    <target name="convert" depends="init, -init-macrodef-testng-junit-converter">
-        <junit-converter/>
     </target>
 </project>
