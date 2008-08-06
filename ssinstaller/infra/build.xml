@@ -312,7 +312,12 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     	<antcall target="build-tools-group"/>
     	<antcall target="build-ide-group"/>
     	<antcall target="build-other-group"/>
- 
+	<!-- java -cp engine/build/ssinstaller/engine/build/classes buildhelper.Main products.xml products/native -->
+	<java classpath="${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar" fork="true" classname="buildhelper.Main" failonerror="true">
+	    <arg value="${products.xml}"/>
+	    <arg value="products/native"/>
+	</java> 
+	
         
 	<build-product dir="C_Compiler"/>
         <build-product dir="C++_Compiler"/>

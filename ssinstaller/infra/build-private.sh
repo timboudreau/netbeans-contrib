@@ -12,7 +12,7 @@ ANT_OPTS="-Xmx1024m -Dhttp.proxyHost=webcache.norway.sun.com -Dhttp.proxyPort=80
 
 CACHE_DIR=$NB_HOME/cache
 
-
+PRODUCTS_XML_FILE=`pwd`/products.xml
 
 SUNSTUDIO_BITS_ROOT=/shared/dp/sstrunk/latest
 

@@ -1,20 +1,25 @@
 cd `dirname "$0"`
+
+
+source build-private.sh
+source ../../../../build-private.sh 
+
 TARDIR=`pwd`/build/tars
-RESDIR=`pwd`/build/result
+RESDIR=$OUTPUT_DIR/bundles
 SRCDIR=`pwd`
 
 # The length of register.sh is used to untar archive 
 LENGTH=`wc -l installer.sh | sed s/installer.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 
-DISTRS="intel-S2"
+#DISTRS="intel-S2"
 DISTRS="intel-S2 sparc-S2 intel-Linux"
 
 
 # The images of Sun Studio to create distribution
-BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
+#BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
 #IMAGE_DIR=/shared/dp/sstrunk/latest/builds/intel-S2/c_installers/dvd_image_universal/install-intel-S2/packages-intel-S2
-BUILD_DATE=`ls -lA /shared/dp/sstrunk/$BUILD_NUMBER | sed s/.*' '//`
+#BUILD_DATE=`ls -lA /shared/dp/sstrunk/$BUILD_NUMBER | sed s/.*' '//`
 
 rm -rf build
 mkdir -p $RESDIR
@@ -36,8 +41,8 @@ do
     ;;
     esac
 
-    IMAGES_DIR=/shared/dp/sstrunk/latest/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
-    DISTR_NAME="$RESDIR/Studio-toolchain-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}.sh"   
+    IMAGES_DIR=$SUNSTUDIO_BITS_ROOT/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
+    DISTR_NAME="$RESDIR/sunstudio-${SS_VERSION}-toolchain-${distr}.sh"   
     echo Generating $DISTR_NAME
     
     PACKAGE_DIR="$IMAGES_DIR"

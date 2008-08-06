@@ -103,6 +103,7 @@ run() {
             \"-Dbuild.number=${BUILD_NUMBER}\" \
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\
+	    \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dinstalled.bits.dir=${INSTALLED_BITS}\" \
@@ -135,7 +136,8 @@ run() {
             \"-Dbuild.number=${BUILD_NUMBER}\" \
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\
-            \"-Doutput.dir=${OUTPUT_DIR}\" \
+            \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
+	    \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbundles.url=${BUNDLES_ULR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
