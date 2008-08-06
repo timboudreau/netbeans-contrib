@@ -60,6 +60,13 @@
 
 
 <target name="-build" depends="-build-engine,.build">
+<!--Added by Igor Nikiforov-->
+        <taskdef 
+            name="esizeof"
+            classname="org.netbeans.installer.infra.build.ant.ExtendedSizeOf"
+            classpath="${custom.tasks.cls}"/>
+<!--End of addition-->
+
         <!-- init the required disk space -->
         <set property="product.disk.space" 
              value="${product.disk.space.modificator}"/>
@@ -264,7 +271,7 @@
                 </antcall>
                 
                 <!-- measure its size and add it to the required disk space -->
-                <sizeof 
+                <esizeof 
                     file="${current.temp.dir}" 
                     property="current.disk.space"/>
                 <sum 

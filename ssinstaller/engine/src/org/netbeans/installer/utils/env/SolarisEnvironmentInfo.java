@@ -100,12 +100,12 @@ public class SolarisEnvironmentInfo extends EnvironmentInfo {
 
     @Override
     protected Set<String> createInstalledPatchesSet() {
-        return getPackageType().getInfo().getInstalledPatches();
+        return getPackageType().getInstalledPatches();
     }
 
     @Override
     protected Map<String, String> createInstalledPackagesSet() {
-        return getPackageType().getInfo().getInstalledPackages();
+        return getPackageType().getInstalledPackages();
     }
 
     @Override

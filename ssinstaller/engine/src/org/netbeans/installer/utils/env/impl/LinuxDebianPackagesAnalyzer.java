@@ -34,25 +34,44 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.utils.env;
+package org.netbeans.installer.utils.env.impl;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-import org.netbeans.installer.utils.helper.Platform;
+import java.io.File;
+import java.io.IOException;
+import org.netbeans.installer.utils.LogManager;
 
-public interface PackagesInfo {
-    
-    Map<String, String> getInstalledPackages();
-    
-    Set<String> getInstalledPatches();
-    
-    boolean isCorrectPackageFile(String pathToPackage);
-    
-    long getPackageContentSize(String pathToPackage);
-    
-    Vector<String> getPackageNames(String pathToPackage);
-    
-    Platform getPackagePlatform(String pathToPackage);
+public class LinuxDebianPackagesAnalyzer extends LinuxPackagesAnalyzer {
 
+    private final String QUERY_OPTIONS = " --showformat '${Package} ${Version} ${Installed-Size} ${Architecture}\\n' ";
+    
+    public LinuxDebianPackagesAnalyzer() {
+        try {
+            dataFile  = File.createTempFile("ssinstaller", ".tmp");
+            dataFile.deleteOnExit();
+            Process p = new ProcessBuilder("sh", "-c", "dpkg-query" + QUERY_OPTIONS + "--show > " + dataFile.getAbsolutePath()).start();
+            p.waitFor();
+        } catch (InterruptedException ex) {
+            dataFile = null;
+            LogManager.log(ex);
+        } catch (IOException ex) {
+            dataFile = null;
+            LogManager.log(ex);
+        }
+    }
+    
+    public LinuxDebianPackagesAnalyzer(String packageFilePath) {
+        try {
+            dataFile  = File.createTempFile("ssinstaller", ".tmp");
+            dataFile.deleteOnExit();
+            Process p = new ProcessBuilder("sh", "-c", "dpkg-deb" + QUERY_OPTIONS + "--show " + packageFilePath + " > " + dataFile.getAbsolutePath()).start();
+            p.waitFor();
+        } catch (InterruptedException ex) {
+            dataFile = null;
+            LogManager.log(ex);            
+        } catch (IOException ex) {
+            dataFile = null;
+            LogManager.log(ex);            
+        }
+    }    
+    
 }

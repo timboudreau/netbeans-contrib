@@ -37,7 +37,6 @@
 package org.netbeans.installer.utils.env;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
@@ -50,6 +49,8 @@ import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ErrorManager;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.helper.ExtendedUri;
 import org.netbeans.installer.utils.helper.Platform;
@@ -62,8 +63,9 @@ public enum SystemCheckCategory implements ConfigurationChecker {
     MEMORY(MEMORY_CATEGORY_CAPTION, new MemoryCheck()),
     RIGHTS(ADMIN_CATEGORY_CAPTION, new RightsCheck()),
     REMOTE(REMOTE_CATEGORY_CAPTION, new RemotePackagesCheck()),
-    PATCHES(PATCHES_CATEGORY_CAPTION, new PatchesCheck());
-         
+    PATCHES(PATCHES_CATEGORY_CAPTION, new PatchesCheck()),
+    PACKAGES(PACKAGES_CATEGORY_CAPTION, new PackagesCheck());
+    
     private String caption = null;
     private ConfigurationChecker checker = null;
     
@@ -225,19 +227,10 @@ class OSCheck implements ConfigurationChecker {
     }
     
     private boolean isCompatiblePackagesType() {
-        if (EnvironmentInfoFactory.getInstance().getPlatform().isCompatibleWith(Platform.SOLARIS)) return true;
+        if (SystemUtils.isSolaris()) return true;
         PackageType type = EnvironmentInfoFactory.getInstance().getPackageType();
-        if (type == null) {
-            try {
-                Process p = new ProcessBuilder("rpm", "--version").start();
-                return (p.waitFor() == 0);
-            } catch (InterruptedException ex) {
-                LogManager.log(ex);
-            } catch (IOException ex) {
-                LogManager.log(ex);
-            }            
-        } else return type.equals(PackageType.LINUX_RPM);
-        return false;
+        if (type == null) return LinuxRPMPackagesAnalyzer.isRPMSupported();
+        else return type.equals(PackageType.LINUX_RPM);
     }
     
     public CheckStatus check() {
@@ -524,13 +517,52 @@ class PatchesCheck implements ConfigurationChecker {
     }
 
     public boolean isMandatory() {
-        Platform platform = EnvironmentInfoFactory.getInstance().getPlatform();
-        return platform.equals(Platform.SOLARIS) || platform.equals(Platform.SOLARIS_SPARC) || platform.equals(Platform.SOLARIS_X86);
+        return SystemUtils.isSolaris();
     }
 
     public String getDisplayString() {
         if (check().equals(CheckStatus.OK)) return NECESSARY_PATCHES_INSTALLED_MESSAGE;
         return NECESSARY_PATCHES_NOT_INSTALLED_MESSAGE;
+    }
+    
+}
+
+class PackagesCheck implements ConfigurationChecker {
+
+    private Registry getRegistry() {        
+        try {            
+            Registry bundledRegistry = new Registry();
+            final String bundledRegistryUri = System.getProperty(Registry.BUNDLED_PRODUCT_REGISTRY_URI_PROPERTY);
+            if (bundledRegistryUri != null) {
+                bundledRegistry.loadProductRegistry(bundledRegistryUri);
+            } else {
+                bundledRegistry.loadProductRegistry(Registry.DEFAULT_BUNDLED_PRODUCT_REGISTRY_URI);
+            }
+            return bundledRegistry;
+        } catch (InitializationException e) {
+            ErrorManager.notifyError("Cannot load bundled registry", e);
+        }        
+        return Registry.getInstance();
+    }    
+    
+    public CheckStatus check() {
+        return CheckStatus.OK;
+    }
+
+    public String getShortErrorMessage() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getLongErrorMessage() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isMandatory() {
+        return SystemUtils.isLinux();
+    }
+
+    public String getDisplayString() {
+        return "Everything is fine!";
     }
     
 }

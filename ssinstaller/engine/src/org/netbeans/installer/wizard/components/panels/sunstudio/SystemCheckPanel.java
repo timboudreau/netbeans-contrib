@@ -127,6 +127,8 @@ public class SystemCheckPanel extends ErrorMessagePanel {
                     panel.getProperty(NEXT_BUTTON_TEXT_PROPERTY));
             if (SystemCheckCategory.hasErrorCategories()) {
                 container.getNextButton().setVisible(false);
+                container.getBackButton().setVisible(false);
+                container.getCancelButton().setText(component.getProperty(FINISH_BUTTON_TEXT_PROPERTY));
             }
         }
         
@@ -206,6 +208,11 @@ public class SystemCheckPanel extends ErrorMessagePanel {
             mainPanel.revalidate();
             setLayout(new GridBagLayout());
             add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));            
+        }
+        
+        @Override
+        public void evaluateCancelButtonClick() {
+            component.getWizard().getFinishHandler().cancel();
         }
         
     }

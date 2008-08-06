@@ -47,6 +47,7 @@ public interface ConfigurationChecker {
     static final String ADMIN_CATEGORY_CAPTION = ResourceUtils.getString(ConfigurationChecker.class, "CC.administrator_category.caption"); // NOI18N
     static final String REMOTE_CATEGORY_CAPTION = ResourceUtils.getString(ConfigurationChecker.class, "CC.remote_category.caption"); // NOI18N
     static final String PATCHES_CATEGORY_CAPTION = ResourceUtils.getString(ConfigurationChecker.class, "CC.patches_category.caption"); // NOI18N
+    static final String PACKAGES_CATEGORY_CAPTION = ResourceUtils.getString(ConfigurationChecker.class, "CC.packages_category.caption"); // NOI18N
     
     CheckStatus check();
     

@@ -44,42 +44,30 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.Vector;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.env.impl.LinuxDebianPackagesAnalyzer;
+import org.netbeans.installer.utils.env.impl.LinuxPackagesAnalyzer;
+import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
+import org.netbeans.installer.utils.env.impl.SolarisPackagesAnalyzer;
+import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.nativepackages.NativeInstallerFactory;
 import org.netbeans.installer.utils.nativepackages.NativePackageInstaller;
 
-public enum PackageType {
+public enum PackageType implements PackagesInfo {
     
     SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), new PackagesInfo() {
-
+        
         public Map<String, String> getInstalledPackages() {
-            try {
-                File tempFile = File.createTempFile("ssistaller", ".tmp");
-                tempFile.deleteOnExit();
-                Process p = new ProcessBuilder("sh", "-c", "pkginfo -x > " + tempFile.getAbsolutePath()).start();
-                if (p.waitFor() == 0) {
-                    Map<String, String> result = new HashMap<String, String>();
-                    BufferedReader output = new BufferedReader(new FileReader(tempFile));
-                    String line = null;                    
-                    int n = 0;
-                    String name = null;
-                    while ((line = output.readLine()) != null) {
-                        String[] fields = line.trim().split("\\s");
-                        if (fields.length >= 2) {
-                            if (n % 2 == 0) name = fields[0].trim();
-                            if (n % 2 == 1) result.put(name, fields[1].trim());
-                        }
-                        n++;
-                    }
-                    return result;
+            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer();
+            Map<String, String> result = null;
+            if (spa.isActual()) {
+                result = new HashMap<String, String>();
+                for(String name: spa) {
+                    result.put(name, spa.getPackageVersion(name));
                 }
-            } catch (InterruptedException ex) {
-                LogManager.log(ex);
-            } catch (IOException ex) {
-                LogManager.log(ex);
             }
-            return null;      
+            return result;      
         }
 
         public Set<String> getInstalledPatches() {
@@ -104,77 +92,128 @@ public enum PackageType {
             }
             return null;     
         }
+
+        public boolean isCorrectPackageFile(String pathToPackage) {
+            try {
+                Process p = new ProcessBuilder("pkginfo", "-d", pathToPackage).start();
+                return p.waitFor() == 0;
+            } catch (InterruptedException ex) {
+                return false;
+            } catch (IOException ex) {
+                return false;
+            }
+        }
+
+        public long getPackageContentSize(String pathToPackage) {
+            return (new File(pathToPackage)).length();
+        }
+
+        public Vector<String> getPackageNames(String pathToPackage) {
+            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
+            Vector<String> result = null;
+            if (spa.isActual()) {
+                result = new Vector<String>();
+                for(String name: spa) {
+                    result.add(name);
+                }
+            }
+            return result;
+        }
+
+        public Platform getPackagePlatform(String pathToPackage) {
+            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
+            if (spa.isActual()) {                
+                for(String name: spa) {
+                  String arch = spa.getPackageArchitecture(name);
+                  if (arch.equals("i386")) return Platform.SOLARIS_X86;
+                  if (arch.equals("i486")) return Platform.SOLARIS_X86;
+                  if (arch.equals("i586")) return Platform.SOLARIS_X86;
+                  if (arch.equals("i686")) return Platform.SOLARIS_X86;
+                  if (arch.equals("amd64")) return Platform.SOLARIS_X86;
+                  if (arch.equals("x86_64")) return Platform.SOLARIS_X86;
+                  if (arch.equals("sparc")) return Platform.SOLARIS_SPARC;
+                }
+            }
+            return null;
+        }
         
     }),
     LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), new PackagesInfo() {
-
-        private Map<String, String> queryRPM(String additionalParameters) {
-            try {
-                File tempFile = File.createTempFile("ssistaller", ".tmp");
-                tempFile.deleteOnExit();
-                Process p = new ProcessBuilder("sh", "-c", "rpm -qa" + additionalParameters + " --qf \"%{NAME} %{VERSION}\\n\" > " + tempFile.getAbsolutePath()).start();
-                if (p.waitFor() == 0) {
-                    Map<String, String> result = new HashMap<String, String>();
-                    BufferedReader output = new BufferedReader(new FileReader(tempFile));
-                    String line = null;                    
-                    while ((line = output.readLine()) != null) {
-                        String[] fields = line.split(" ");
-                        if (fields.length == 2) {
-                            result.put(fields[0].trim(), fields[1].trim());
-                        }
-                    }
-                    return result;
-                }
-            } catch (InterruptedException ex) {
-                LogManager.log(ex);
-            } catch (IOException ex) {
-                LogManager.log(ex);
-            }
-            return null;            
-        }
         
         public Map<String, String> getInstalledPackages() {
-            return queryRPM("");
+            return LinuxPackagesInfo.getInstalledPackages(new LinuxRPMPackagesAnalyzer(false));
         }
 
         public Set<String> getInstalledPatches() {
-            Map<String, String> output = queryRPM("P");
-            return (output == null)? null: new HashSet<String>(output.keySet());
+            LinuxPackagesAnalyzer lpa = new LinuxRPMPackagesAnalyzer(true);
+            Set<String> result = null;
+            if (lpa.isActual()) {
+                for(String name: lpa) {
+                    result.add(name);
+                }
+            }
+            return result;
         }
-        
+
+        public boolean isCorrectPackageFile(String pathToPackage) {
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.isCorrectPackageFile(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            return pathToPackage.endsWith(".rpm");
+        }
+
+        public long getPackageContentSize(String pathToPackage) {
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackageContentSize(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            return 0;//return (new File(pathToPackage)).length();
+        }
+
+        public Vector<String> getPackageNames(String pathToPackage) {
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackageNames(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            Vector<String> result = null;
+            if (pathToPackage.endsWith(".rpm")) {                
+                String[] fields = LinuxRPMPackagesAnalyzer.getRPMPackageFieldsFromFileName(pathToPackage);
+                if (fields != null) {
+                    result = new Vector<String>();
+                    result.add(fields[0]);
+                    return result;
+                }
+            }
+            return result;
+        }
+
+        public Platform getPackagePlatform(String pathToPackage) {
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackagePlatform(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            Platform result = null;
+            if (pathToPackage.endsWith(".rpm")) {
+                String[] fields = LinuxRPMPackagesAnalyzer.getRPMPackageFieldsFromFileName(pathToPackage);
+                if (fields != null) result = LinuxPackagesInfo.archStringToPlatform(fields[2]);
+            }
+            return result;            
+        }
+       
     }),
     LINUX_DEB(null, new PackagesInfo() {
 
         public Map<String, String> getInstalledPackages() {
-            try {
-                File tempFile = File.createTempFile("ssistaller", ".tmp");
-                tempFile.deleteOnExit();
-                Process p = new ProcessBuilder("sh", "-c", "dpkg -l > " + tempFile.getAbsolutePath()).start();
-                if (p.waitFor() == 0) {
-                    Map<String, String> result = new HashMap<String, String>();
-                    BufferedReader output = new BufferedReader(new FileReader(tempFile));
-                    for(int i=1; i<=5; i++)
-                        output.readLine();
-                    String line = null;                    
-                    while ((line = output.readLine()) != null) {
-                        StringTokenizer st = new StringTokenizer(line, " ");
-                        if (st.countTokens() > 3) {
-                            st.nextToken();
-                            result.put(st.nextToken().trim(), st.nextToken().trim());
-                        }
-                    }
-                    return result;
-                }
-            } catch (InterruptedException ex) {
-                LogManager.log(ex);
-            } catch (IOException ex) {
-                LogManager.log(ex);
-            }
-            return null;
+            return LinuxPackagesInfo.getInstalledPackages(new LinuxDebianPackagesAnalyzer());
         }
 
         public Set<String> getInstalledPatches() {
             return null;
+        }
+
+        public boolean isCorrectPackageFile(String pathToPackage) {
+            return LinuxPackagesInfo.isCorrectPackageFile(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
+        }
+
+        public long getPackageContentSize(String pathToPackage) {
+            return LinuxPackagesInfo.getPackageContentSize(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
+        }
+
+        public Vector<String> getPackageNames(String pathToPackage) {
+            return LinuxPackagesInfo.getPackageNames(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
+        }
+
+        public Platform getPackagePlatform(String pathToPackage) {
+            return LinuxPackagesInfo.getPackagePlatform(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
         }
         
     });
@@ -191,8 +230,88 @@ public enum PackageType {
         return packageInstaller;
     }
 
-    public PackagesInfo getInfo() {
-        return info;
+    public Map<String, String> getInstalledPackages() {
+        return info.getInstalledPackages();
+    }
+
+    public Set<String> getInstalledPatches() {
+        return info.getInstalledPatches();
+    }
+
+    public boolean isCorrectPackageFile(String pathToPackage) {
+        return info.isCorrectPackageFile(pathToPackage);
+    }
+
+    public long getPackageContentSize(String pathToPackage) {
+        return info.getPackageContentSize(pathToPackage);
+    }
+
+    public Vector<String> getPackageNames(String pathToPackage) {
+        return info.getPackageNames(pathToPackage);
+    }
+
+    public Platform getPackagePlatform(String pathToPackage) {
+        return info.getPackagePlatform(pathToPackage);
     }
         
+}
+
+class LinuxPackagesInfo {
+    
+    public static Map<String, String> getInstalledPackages(LinuxPackagesAnalyzer lpa) {
+        Map<String, String> result = null;
+        if (lpa.isActual()) {
+            result = new HashMap<String, String>();
+            for(String name: lpa) {
+                result.put(name, lpa.getPackageVersion(name));
+            }
+        }
+        return result;
+    }
+
+    public static boolean isCorrectPackageFile(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        return getPackageNames(pathToPackage, lpa) != null;
+    }
+
+    public static long getPackageContentSize(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        if (lpa.isActual()) {
+            for(String name: lpa) {
+                return lpa.getPackageSize(name);
+            }                
+        }
+        return -1;
+    }
+
+    public static Vector<String> getPackageNames(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        Vector<String> result = null;
+        if (lpa.isActual()) {
+            result = new Vector<String>();
+            for(String name: lpa) {
+                result.add(name);
+            }
+        }
+        return result;
+    }
+
+    public static Platform getPackagePlatform(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        if (lpa.isActual()) {
+            for(String name: lpa) {
+              return  archStringToPlatform(lpa.getPackageArchitecture(name));
+            }                
+        }
+        return null;
+    }   
+    
+    public static Platform archStringToPlatform(String arch) {
+        if (arch.equals("i386")) return Platform.LINUX_X86;
+        if (arch.equals("i486")) return Platform.LINUX_X86;
+        if (arch.equals("i586")) return Platform.LINUX_X86;
+        if (arch.equals("i686")) return Platform.LINUX_X86;
+        if (arch.equals("noarch")) return Platform.LINUX;
+        if (arch.equals("all")) return Platform.LINUX;
+        if (arch.equals("amd64")) return Platform.LINUX_X64;
+        if (arch.equals("x86_64")) return Platform.LINUX_X64;        
+        return null;
+    }
+    
 }

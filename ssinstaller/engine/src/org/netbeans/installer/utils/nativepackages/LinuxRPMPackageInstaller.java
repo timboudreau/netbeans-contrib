@@ -40,11 +40,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Vector;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.PackageType;
 import org.netbeans.installer.utils.helper.Platform;
 
 /**
@@ -53,48 +54,20 @@ import org.netbeans.installer.utils.helper.Platform;
  */
 class LinuxRPMPackageInstaller implements NativePackageInstaller {
 
-    //  public static final String PACKAGES_COUNTER = ".packages_counter";
-    // public static final String PACKAGE = ".package.";
     private String target = null;
 
     public Iterable<String> install(String pathToPackage, Collection<String> packageNames) throws InstallationException {
-                //Platform platform = Platform.LINUX_X64;
-        if (SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) && pathToPackage.contains("x86_64")) {
-            return new ArrayList<String>();
-        }
-        String packageName = getPackageName(pathToPackage);
-        if (packageName != null) {
-            try {
-                //  LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
-                Process p = null;
-
-                if (target == null) {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage).start();
-                } else {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage, "--relocate", "/opt/sun=" + target).start();
-                }
-
-                getProcessOutput(p);
-
-                if (p.waitFor() != 0) {
-                    throw new InstallationException("Error native. " + getProcessOutput(p));
-                }
-            } catch (InterruptedException ex) {
-                throw new InstallationException("Error executing 'rpm -i'!", ex);
-            } catch (IOException ex) {
-                throw new InstallationException("Error executing 'rpm -i'!", ex);
-            }
-        }
-        return null;
+        return install(pathToPackage);
     }
 
     public Iterable<String> install(String pathToPackage) throws InstallationException {
-                //Platform platform = Platform.LINUX_X64;
-        if (SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) && pathToPackage.contains("x86_64")) {
-            return new ArrayList();
+        if (SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) && PackageType.LINUX_RPM.getPackagePlatform(pathToPackage).equals(Platform.LINUX_X64)) {
+            return Collections.EMPTY_LIST;
         }
-        String packageName = getPackageName(pathToPackage);
-        if (packageName != null) {
+        
+        Vector<String> packagesNames = PackageType.LINUX_RPM.getPackageNames(pathToPackage);
+        if (packagesNames != null && !packagesNames.isEmpty()) {
+            String packageName = packagesNames.get(0);
             try {
                 //  LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;
@@ -121,8 +94,6 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         }
         return null;
     }
-
-  
 
     public void uninstall(String packageName) throws InstallationException {
         List<String> arguments = new LinkedList<String>();
@@ -182,33 +153,12 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         return message.toString();
     }
 
-    public boolean isCorrectPackageFile(String pathToPackage) {
-        return getPackageName(pathToPackage) != null;
-    }
-
-    public String getPackageName(String pathToPackage) {
-        try {
-            Process p = new ProcessBuilder("rpm", "-q", "-p", pathToPackage).start();
-            if (p.waitFor() == 0) {
-                BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = output.readLine();
-                if (line != null) {
-                    return line.trim();
-                }
-            }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(LinuxDebianPackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(LinuxDebianPackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    private int parseInteger(String value) {
-        return (value == null || value.length() == 0) ? 0 : Integer.parseInt(value);
-    }
-
     public void setDestinationPath(String path) {
         target = path;
     }
+
+    public boolean isCorrectPackageFile(String pathToPackage) {
+        return PackageType.LINUX_RPM.isCorrectPackageFile(pathToPackage);
+    }
+    
 }
