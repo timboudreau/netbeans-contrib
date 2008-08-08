@@ -1,0 +1,85 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+
+package org.netbeans.modules.portalpack.websynergy.portlets.nonjava.api;
+
+import java.util.Set;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
+import org.openide.loaders.TemplateWizard;
+
+/**
+ * This class should be implemented by different type of non java portlet
+ * builder modules.
+ * 
+ * The implementation classes are required to be specified in the following way in
+ * respective layer.xml file
+ * 
+ * <folder name="portalpack">
+ *       <folder name="portlets">
+ *           <folder name="builders">
+ *              <folder name="nonjava">
+ *                  <file name="org-netbeans-modules-portalpack-xxx-SampleBuilder.instance"/>           
+ *              </folder>                  
+ *           </folder>    
+ *       </folder>
+ * </folder>
+ * 
+ * @author satyaranjan
+ */
+public abstract class NonJavaPortletBuilder {
+
+    public abstract String getPortletType();
+    
+    public abstract String getPortletTypeDesc();
+    
+    public abstract String getExtension();
+    
+    public String getRelativePageRoot() {
+        return "";
+    }
+    public abstract Set handleCreate(TemplateWizard wizard,boolean newPortlet);
+   
+    public abstract boolean isPortletOfType(PortletType portlet);
+
+    @Override
+    public String toString() {
+        return getPortletType();
+    }
+    
+}
