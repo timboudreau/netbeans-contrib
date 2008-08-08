@@ -307,9 +307,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 </dependency>
             </module-dependencies>
             <friend-packages>
-                <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
                 <friend>org.netbeans.modules.portalpack.servers.opensourcepc</friend>
                 <friend>org.netbeans.modules.portalpack.servers.sunps</friend>
+                <friend>org.netbeans.modules.portalpack.servers.websynergy</friend>
                 <package>org.netbeans.modules.portalpack.servers.core</package>
                 <package>org.netbeans.modules.portalpack.servers.core.api</package>
                 <package>org.netbeans.modules.portalpack.servers.core.common</package>
