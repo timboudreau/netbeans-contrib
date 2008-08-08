@@ -61,13 +61,9 @@ made subject to such option by the copyright holder.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.13</specification-version>
-                        <!-- Uncomment to compile against NB 6.5 -->
-                        <!-- specification-version>1.18</specification-version -->
+                        <specification-version>1.18</specification-version>
                     </run-dependency>
                 </dependency>
-                <!-- Uncomment to compile against NB 6.5 -->
-                <!--
                 <dependency>
                     <code-name-base>org.netbeans.api.java.classpath</code-name-base>
                     <build-prerequisite/>
@@ -76,7 +72,7 @@ made subject to such option by the copyright holder.
                         <release-version>1</release-version>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
-                </dependency> -->
+                </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.api.web.webmodule</code-name-base>
                     <build-prerequisite/>
@@ -139,8 +135,7 @@ made subject to such option by the copyright holder.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <!-- Uncomment for NB 6.5 -->
-                        <!--specification-version>1.17</specification-version -->
+                        <specification-version>1.17</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
