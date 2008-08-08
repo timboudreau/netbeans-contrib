@@ -194,12 +194,7 @@
                 </dependency>
             </module-dependencies>
             <friend-packages>
-                <friend>org.netbeans.modules.portalpack.cms</friend>
-                <friend>org.netbeans.modules.portalpack.portlets.genericportlets</friend>
-                <friend>org.netbeans.modules.portalpack.portlets.ruby</friend>
-                <friend>org.netbeans.modules.portalpack.saw</friend>
-                <friend>org.netbeans.modules.portalpack.servers.base_psframework</friend>
-                <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
+                <friend>org.netbeans.modules.portalpack.websynergy.portlets</friend>
                 <package>org.json</package>
                 <package>org.netbeans.modules.portalpack.commons</package>
                 <package>org.netbeans.modules.portalpack.commons.palette.java</package>

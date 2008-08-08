@@ -17,7 +17,6 @@
 package org.netbeans.modules.portalpack.commons;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,11 +31,13 @@ import javax.script.ScriptException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.queries.FileEncodingQuery;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.util.Exceptions;
 
 /**
  * This is a helper class to merge template.
@@ -46,11 +47,35 @@ import org.openide.util.Exceptions;
  */
 public class TemplateHelper {
 
+    private Logger logger = Logger.getLogger(CommonConstants.LOGGER);
+    
     private String templateFolder;
     private FileObject folder;
     private ScriptEngineManager manager;
     
-    public TemplateHelper() {
+    public TemplateHelper(String templateFolder) {
+        
+        this.templateFolder = templateFolder;
+    }
+    
+     public FileObject createFileFromTemplate(String templateName, FileObject destObj,
+        String fileName, String extentionName) throws TemplateNotFoundException {
+        FileObject templateFile = getTemplateFile(templateName);
+        if (templateFile == null) {
+            throw new TemplateNotFoundException("Template File " + templateName + " not found !!!");
+        }
+
+        if (destObj == null) {
+            logger.severe("Destination Object is null !!!");
+            return null;
+        }
+        try {
+            return FileUtil.copyFile(templateFile, destObj, fileName, extentionName);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Error creating file : " + fileName, ex);
+            return null;
+        }
+
     }
    
     public FileObject mergeTemplateToFile(FileObject templateFileObj,FileObject folder,String fileName,Map values)
