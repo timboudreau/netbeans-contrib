@@ -49,6 +49,7 @@ import java.io.OutputStreamWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -60,7 +61,6 @@ import org.openide.util.Mutex;
 import org.openide.util.Utilities;
 import org.openide.ErrorManager;
 
-import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.spi.java.queries.SourceLevelQueryImplementation;
