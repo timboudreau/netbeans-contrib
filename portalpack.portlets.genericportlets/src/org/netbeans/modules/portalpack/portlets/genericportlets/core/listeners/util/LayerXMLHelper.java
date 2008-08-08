@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.InitialPageListener;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeListener;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.cookies.InstanceCookie;
@@ -58,6 +59,7 @@ import org.openide.loaders.DataObject;
 public class LayerXMLHelper {
 
     private static String PORTLET_XML_CHANGE_LISTENER_FOLDER = "portalpack/listeners/portletxml";
+    private static String INITIAL_PAGE_LISTENER_FOLDER = "portalpack/listeners/initial-page";
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
     private static FileObject getFolder(String listenerFolder) {
@@ -98,6 +100,45 @@ public class LayerXMLHelper {
 
                 if (instanceObj instanceof PortletXMLChangeListener) {
                     instanceList.add((PortletXMLChangeListener)instanceObj);
+                } 
+            }
+        }
+        
+        return instanceList;
+    }
+    
+     public static List<InitialPageListener> getInitialPageListeners() {
+        FileObject fo = getFolder(INITIAL_PAGE_LISTENER_FOLDER);        
+        if (fo == null) {
+            return Collections.EMPTY_LIST;
+        }
+        List instanceList = new ArrayList();
+        DataFolder df = DataFolder.findFolder(fo);
+        if(df == null) 
+            return Collections.EMPTY_LIST;
+        DataObject[] childs = df.getChildren();
+        DataObject dob;
+        Object instanceObj;
+
+        for (int i = 0; i < childs.length; i++) {
+            dob = childs[i];
+            if (dob.getPrimaryFile().isFolder()) {
+                continue;
+            } else {
+                InstanceCookie ck = (InstanceCookie) dob.getCookie(InstanceCookie.class);
+                try {
+                    instanceObj = ck.instanceCreate();
+                } catch (Exception ex) {
+                    instanceObj = null;
+                    logger.info(ex.getMessage());
+                }
+
+                if (instanceObj == null) {
+                    continue;
+                }
+
+                if (instanceObj instanceof InitialPageListener) {
+                    instanceList.add((InitialPageListener)instanceObj);
                 } 
             }
         }

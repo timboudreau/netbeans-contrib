@@ -58,8 +58,10 @@ public class PortletChildrenNode extends Children.Keys {
                 List list =new  ArrayList();
                 if(portletType == null)
                     return;
-                if(dbObj.getPortletSpecVersion().equals(PortletApp.VERSION_1_0))
+                if(dbObj.getPortletSpecVersion().equals(PortletApp.VERSION_1_0)) {
+                    list.add("mode-nodes");
                     return;
+                }
                 FilterMappingType[] filterMappingType = portletApp.getFilterMapping();
                 for(int i=0;i<filterMappingType.length;i++)
                 {
@@ -79,6 +81,7 @@ public class PortletChildrenNode extends Children.Keys {
                 }
               
                 list.add("supported-public-render-parameters");
+                list.add("mode-nodes");
                 
                 setKeys(list);
                 return;
@@ -89,12 +92,12 @@ public class PortletChildrenNode extends Children.Keys {
     protected Node[] createNodes(Object key) {
         if(key == null) return new Node[]{};
         
-        if(key instanceof FilterMappingType)
+        if(key instanceof FilterMappingType) {
             return new Node[]{new FilterMappingNode(dbObj,portletType,(FilterMappingType)key)};
        
-        else if(key.equals("supported-public-render-parameters"))
-        {
-               String[] values = portletType.getSupportedPublicRenderParameter();
+        } else if(key.equals("supported-public-render-parameters")) {
+            
+                String[] values = portletType.getSupportedPublicRenderParameter();
                 if(values == null || values.length == 0)
                     return new Node[]{};
                 Node[] nds = new Node[values.length];
@@ -105,8 +108,11 @@ public class PortletChildrenNode extends Children.Keys {
                 }
                 return nds;
          
-        }
-        else    
+        } else if(key.equals("mode-nodes")) {
+            
+            return InitialPageNodesHelper.getModeNodes(portletType);
+            
+        } else    
             return new Node[]{};
     }
     
