@@ -45,11 +45,9 @@ import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.netbeans.modules.properties.rbe.ResourceBundleEditorOptions;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
 import org.netbeans.modules.properties.rbe.model.visitor.AbstractTraversalTreeVisitor;
@@ -94,7 +92,6 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
                 }
             }
         });
-
     }
 
     public BundleProperty getProperty() {
@@ -107,17 +104,19 @@ public class TreeItemPropertyNode extends BundlePropertyNode implements Property
 
     @Override
     public Image getIcon(int type) {
-        for (Node node : getChildren().getNodes()) {
-            if (node.getIcon(type).equals(defaultIconWithWarning)) {
-                return defaultIconWithWarning;
+        final boolean[] emptyExists = new boolean[]{false};
+        treeItem.accept(new AbstractTraversalTreeVisitor<BundleProperty>() {
+
+            @Override
+            protected void preVisit(TreeItem<BundleProperty> t) {
+                 if (t.getValue().isExists() && t.getValue().isContainsEmptyLocaleProperty()) {
+                    emptyExists[0] = true;
+                    done = true;
+                }
             }
-        }
-        if (!getProperty().isExists()) {
-            return defaultIcon;
-        } else if (getProperty().isContainsEmptyLocaleProperty()) {
-            return defaultIconWithWarning;
-        }
-        return defaultIcon;
+            
+        });
+        return emptyExists[0] ? defaultIconWithWarning : defaultIcon;
     }
 
     @Override
