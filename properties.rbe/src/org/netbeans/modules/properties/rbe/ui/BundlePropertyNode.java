@@ -52,6 +52,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
+import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -101,6 +102,7 @@ public abstract class BundlePropertyNode extends AbstractNode {
                     SystemAction.get(CutAction.class),
                     SystemAction.get(CopyAction.class),
                     SystemAction.get(PasteAction.class),
+                    SystemAction.get(DeleteAction.class),
                     //                    new MoveAction(),
                     new DuplicateAction()
                 };

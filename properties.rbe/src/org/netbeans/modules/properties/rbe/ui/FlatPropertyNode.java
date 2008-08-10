@@ -46,7 +46,9 @@ import java.io.IOException;
 import javax.swing.Action;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.TreeItem;
+import org.openide.actions.DeleteAction;
 import org.openide.nodes.Children;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -102,9 +104,12 @@ public class FlatPropertyNode extends BundlePropertyNode implements Comparable<F
     public void duplicate(String key) {
         getProperty().getBundle().createPropertyFromExisting(key, getProperty(), true);
     }
-    
+
     @Override
     public Action[] getActions(boolean context) {
-        return new Action[]{new DuplicateAction()};
+        return new Action[]{
+                    SystemAction.get(DeleteAction.class),
+                    new DuplicateAction()
+                };
     }
 }

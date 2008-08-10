@@ -44,18 +44,24 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultEditorKit;
+import org.netbeans.modules.properties.PresentableFileEntry;
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.netbeans.modules.properties.PropertiesEditorSupport;
+import org.netbeans.modules.properties.PropertiesFileEntry;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.cookies.CloseCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.MultiDataObject.Entry;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -63,7 +69,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
-import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.CloneableTopComponent;
@@ -126,7 +131,7 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     }
 
     public void save() throws IOException {
-        SaveCookie saveCookie = dataObject.getLookup().lookup(SaveCookie.class);
+        SaveCookie saveCookie = dataObject.getCookie(SaveCookie.class);
         if (saveCookie != null) {
             try {
                 saveCookie.save();
@@ -136,27 +141,31 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
         }
     }
 
+    void updateModificationStatus() {
+        boolean modif = false;
+        if (((PresentableFileEntry) dataObject.getPrimaryEntry()).isModified()) {
+            modif = true;
+        } else {
+            for (Iterator<Entry> it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
+                if (((PresentableFileEntry) it.next()).isModified()) {
+                    modif = true;
+                    break;
+                }
+            }
+        }
+        dataObject.setModified(modif);
+    }
+
     @Override
     public boolean canClose() {
-//
-//        closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
-//        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
-//            closeEntry((PropertiesFileEntry) it.next());
-//        }
-//        PropertiesEditorSupport editorSupport = dataObject.getCookie(PropertiesEditorSupport.class);
-//        if(editorSupport != null){
-//            return editorSupport.close();
-//        }
-
         if (dataObject != null && !dataObject.isModified()) {
             return true;
         }
 
-        //TODO: move to the bundle
-        String title = "Close?";
-        String question = "Do you want to close?";
-        String optionSave = "Save";
-        String optionDiscard = "Discard";
+        String title = NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_Question");
+        String question = NbBundle.getMessage(ResourceBundleEditorComponent.class, "MSG_SaveFile");
+        String optionSave = NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_Save");
+        String optionDiscard = NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_Discard"); 
 
         NotifyDescriptor descr = new DialogDescriptor(
                 question,
@@ -183,11 +192,36 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
                 Exceptions.printStackTrace(ex);
             }
         }
-
+        updateModificationStatus();
 
         return optionSave.equals(answer) || optionDiscard.equals(answer);
     }
 
+    @Override
+    protected boolean closeLast() {
+        closeEntry((PropertiesFileEntry)dataObject.getPrimaryEntry());
+        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext(); ) {
+            closeEntry((PropertiesFileEntry)it.next());
+        }
+        return true;
+    }
+    
+    /** Helper method. Closes entry. */
+    private void closeEntry(PropertiesFileEntry entry) {
+        PropertiesEditorSupport editorSupport = entry.getCookie(PropertiesEditorSupport.class);
+        if (editorSupport.hasOpenedEditorComponent()) {
+            // Has opened editor view for this entry -> don't close document.
+            return;
+        } else {
+            // Hasn't opened editor view for this entry -> close document.
+            CloseCookie closeCookie = entry.getCookie(CloseCookie.class);
+            if(closeCookie != null){
+                closeCookie.close();
+            }
+        }
+    }
+    
+    
     @Override
     public Image getIcon() {
         return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesObject.png"); // NOI18N
@@ -228,18 +262,4 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     protected CloneableTopComponent createClonedObject() {
         return new ResourceBundleEditorComponent(dataObject);
     }
-
-//    @Override
-//    public void writeExternal(ObjectOutput oo) throws IOException {
-//        super.writeExternal(oo);
-//        oo.writeObject(dataObject);
-//
-//    }
-//
-//    @Override
-//    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-//        super.readExternal(oi);
-//        dataObject = (PropertiesDataObject) oi.readObject();
-//        initialize();
-//    }
 }
