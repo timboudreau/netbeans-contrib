@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.impl.LinuxDebianPackagesAnalyzer;
 import org.netbeans.installer.utils.env.impl.LinuxPackagesAnalyzer;
 import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
@@ -109,13 +110,17 @@ public enum PackageType implements PackagesInfo {
         }
 
         public Vector<String> getPackageNames(String pathToPackage) {
-            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
-            Vector<String> result = null;
-            if (spa.isActual()) {
-                result = new Vector<String>();
-                for(String name: spa) {
-                    result.add(name);
+            Vector<String> result = new Vector<String>();            
+            if (SystemUtils.isSolaris()) {
+                SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
+                if (spa.isActual()) {
+                    for(String name: spa) {
+                        result.add(name);
+                    }
                 }
+                return result;
+            } else {
+                result.add((new File(pathToPackage)).getName());
             }
             return result;
         }
@@ -161,8 +166,8 @@ public enum PackageType implements PackagesInfo {
         }
 
         public long getPackageContentSize(String pathToPackage) {
-            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackageContentSize(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
-            return 0;//return (new File(pathToPackage)).length();
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported() && isCorrectPackageFile(pathToPackage)) return LinuxPackagesInfo.getPackageContentSize(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            return (new File(pathToPackage)).length();
         }
 
         public Vector<String> getPackageNames(String pathToPackage) {

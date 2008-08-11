@@ -147,8 +147,11 @@ public class ServiceTagCreateAction extends WizardAction {
             }
 
             // The system service tag regitry.
-            org.netbeans.modules.servicetag.Registry stRegistry =
-                    org.netbeans.modules.servicetag.Registry.getSystemRegistry();
+            org.netbeans.modules.servicetag.Registry stRegistry = null;
+                    //org.netbeans.modules.servicetag.Registry.getSystemRegistry();
+            if (org.netbeans.modules.servicetag.Registry.isSupported()) {
+                stRegistry = org.netbeans.modules.servicetag.Registry.getSystemRegistry();
+            }
             ServiceTag st;
             for (Product product : installedProducts) {
                 String uid = product.getUid();

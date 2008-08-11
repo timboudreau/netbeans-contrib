@@ -49,7 +49,6 @@ import org.netbeans.installer.utils.LogManager;
 public abstract class LinuxPackagesAnalyzer implements Iterable<String> {
     
     private final int FIELDS_COUNT = 4;
-    private final int SIZE_MULTIPLIER = 1024; // Package managers report size in kB
     
     protected File dataFile = null;
     private Map<String, String> versions = new HashMap<String, String>();
@@ -69,7 +68,7 @@ public abstract class LinuxPackagesAnalyzer implements Iterable<String> {
                 String[] fields = line.trim().split(" ");
                 if (fields.length == FIELDS_COUNT) {
                     versions.put(fields[0].trim(), fields[1].trim());
-                    sizes.put(fields[0].trim(), Long.parseLong(fields[2].trim()) * SIZE_MULTIPLIER);
+                    sizes.put(fields[0].trim(), Long.parseLong(fields[2].trim()));
                     archictectures.put(fields[0].trim(), fields[3].trim());
                 }
             }

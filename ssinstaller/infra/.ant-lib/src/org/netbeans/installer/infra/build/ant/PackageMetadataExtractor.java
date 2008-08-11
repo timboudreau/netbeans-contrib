@@ -47,7 +47,13 @@ import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
 import org.netbeans.installer.utils.env.PackageType;
 
-public class ExtendedSizeOf extends Task {
+public class PackageMetadataExtractor extends Task {
+    
+    private final String PROPERTIES_LENGTH = "product.properties.length";
+    private final String PROPERTY_NAME_PATTERN = "product.properties.%1$d.name";
+    private final String PROPERTY_VALUE_PATTERN = "product.properties.%1$d.value";
+    private final String PACKAGES_LENGTH_PROPERTY = "packages_length";
+    private final String PACKAGE_NAME_PROPERTY_PATTERN = "package_%1$d_name";
     
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -55,11 +61,6 @@ public class ExtendedSizeOf extends Task {
      * File for which the size should be calculated.
      */
     private File file;
-    
-    /**
-     * Name of the property whose value should contain the size.
-     */
-    private String property;
     
     // setters //////////////////////////////////////////////////////////////////////
     /**
@@ -74,49 +75,52 @@ public class ExtendedSizeOf extends Task {
         }
     }
     
-    /**
-     * Setter for the 'property' property.
-     * 
-     * @param property New value for the 'property' property.
-     */
-    public void setProperty(final String property) {
-        this.property = property;
-    }
-    
     // execution ////////////////////////////////////////////////////////////////////
     /**
      * Executes the task.
      */
     public void execute() {
-        Utils.setProject(getProject());
-        
-        String[] fields = null;
-        if (LinuxRPMPackagesAnalyzer.isRPMSupported()) {
-            log("For rpm-packages real content size will be used");
-            long realSize = extendedSize(file);
-            long size = Utils.size(file);
-            if (size != realSize) {
-                log(String.format("Real content size is: %1$d, files size is: %2$d", realSize, size));
-            }
-            getProject().setProperty(property, Long.toString(realSize));
-        } else {
-            log("Using file size as content size: " + file.getAbsolutePath());            
-            getProject().setProperty(property, Long.toString(Utils.size(file)));
-        }
+        fillPackagesFields(file, String.format(PROPERTY_VALUE_PATTERN, getPackagesLengthPropertyNumber()));
     }
     
-    private long extendedSize(final File file) {
-        long size = 0;
-        
+    private int getPackagesLengthPropertyNumber() {
+        int propertiesLength = Integer.parseInt(getProject().getProperty(PROPERTIES_LENGTH));
+        for(int i=1; i<=propertiesLength; i++) {
+            if (getProject().getProperty(String.format(PROPERTY_NAME_PATTERN, i)).equals(PACKAGES_LENGTH_PROPERTY)) return i;
+        }
+        return addProperty(PACKAGES_LENGTH_PROPERTY, "0");
+    }
+    
+    private int addProperty(String name, String value) {
+        int number = increasePropertyValue(PROPERTIES_LENGTH);
+        getProject().setProperty(String.format(PROPERTY_NAME_PATTERN, number), name);
+        getProject().setProperty(String.format(PROPERTY_VALUE_PATTERN, number), value);
+        return number;
+    }
+  
+    private int increasePropertyValue(String property) {
+        int value = Integer.parseInt(getProject().getProperty(property));
+        getProject().setProperty(property, String.valueOf(++value));
+        return value;
+    }
+    
+    private void fillPackagesFields(final File file, String packagesCountProperty) {
         if (file.isDirectory()) {
             for (File child: file.listFiles()) {
-                size += extendedSize(child);
+                fillPackagesFields(child, packagesCountProperty);
+            }
+        } else {        
+            if (PackageType.LINUX_RPM.isCorrectPackageFile(file.getAbsolutePath())) {
+                addPackageName(PackageType.LINUX_RPM.getPackageNames(file.getAbsolutePath()).get(0), packagesCountProperty);
+            } else {
+                addPackageName(PackageType.SOLARIS_PKG.getPackageNames(file.getAbsolutePath()).get(0), packagesCountProperty);
             }
         }
-        
-        size += PackageType.LINUX_RPM.getPackageContentSize(file.getAbsolutePath());
-        
-        return size;
-    }    
+    }   
+    
+    private void addPackageName(String name, String packagesCountProperty) {
+        addProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, increasePropertyValue(packagesCountProperty)), name);
+    }
    
 }
+

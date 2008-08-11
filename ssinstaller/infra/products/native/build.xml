@@ -65,6 +65,10 @@
             name="esizeof"
             classname="org.netbeans.installer.infra.build.ant.ExtendedSizeOf"
             classpath="${custom.tasks.cls}"/>
+        <taskdef 
+            name="package-metadata"
+            classname="org.netbeans.installer.infra.build.ant.PackageMetadataExtractor"
+            classpath="${custom.tasks.cls}"/>
 <!--End of addition-->
 
         <!-- init the required disk space -->
@@ -269,7 +273,11 @@
                     <param name="i" value="${i}"/>
                     <param name="data.directory" value="${current.temp.dir}"/>
                 </antcall>
-                
+
+		<!-- extracting native package metadata (if possible) -->
+                <package-metadata 
+                    file="${current.temp.dir}" />
+
                 <!-- measure its size and add it to the required disk space -->
                 <esizeof 
                     file="${current.temp.dir}" 
