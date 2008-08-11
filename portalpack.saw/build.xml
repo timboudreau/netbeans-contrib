@@ -15,19 +15,19 @@
 	        
 	       <mkdir dir="${cluster}/modules/ext/portalpack/saw"/>	        
                 <mkdir dir="libs"/>
-                <!--
+                
                 <get src="${saw.api.download.url}" 
-                        dest="libs/${saw.api}" usetimestamp="true"/> -->
+                        dest="libs/${saw.api}" usetimestamp="true"/>
                 <copy file="libs/${saw.api}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
-                <!--
+                
                 <get src="${saw.impl.jcaps.download.url}" 
-                        dest="libs/${saw.impl.jcaps}" usetimestamp="true"/>  -->
+                        dest="libs/${saw.impl.jcaps}" usetimestamp="true"/>
                 <copy file="libs/${saw.impl.jcaps}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
-                <!--
+                
                 <get src="${saw.api.javadoc.download.url}" 
-                        dest="libs/${saw.api.javadoc}" usetimestamp="true"/>-->
+                        dest="libs/${saw.api.javadoc}" usetimestamp="true"/>
                 <copy file="libs/${saw.api.javadoc}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
                 
