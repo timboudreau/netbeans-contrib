@@ -19,6 +19,7 @@
 package org.netbeans.modules.portalpack.servers.websynergy;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -70,8 +72,34 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                     }
                 }
             }
-            
+
             String[] libs = {"javaee.jar"};
+
+            File javaeeJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + "javaee.jar");
+            if (!javaeeJar.exists()) {
+                //Means GV3
+
+                File modulesFolder = new File(psconfig.getServerHome() + File.separator + "modules");
+                File[] files = modulesFolder.listFiles(new FilenameFilter() {
+
+                    public boolean accept(File dir, String name) {
+
+                        if (name.startsWith("javax.javaee-")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                if (files != null && files.length != 0) {
+                    try {
+                        classPath.add(fileToUrl(files[0]));
+                    } catch (MalformedURLException ex) {
+                        // Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+
             for (int k = 0; k < libs.length; k++) {
                 File libJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + libs[k]);
                 if (libJar.exists()) {
@@ -83,12 +111,12 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                 }
             }
         }
-        
-        if(psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
-            
+
+        if (psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+
             String portalLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                                        "common" + File.separator + "lib" + File.separator + "ext";
-            
+                    "common" + File.separator + "lib" + File.separator + "ext";
+
             for (int i = 0; i < libFiles.length; i++) {
                 String portalJarUri = portalLibDir + File.separator + libFiles[i];
                 File portletJar = new File(portalJarUri);
@@ -100,10 +128,10 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                     }
                 }
             }
-            
-            String[] libs = {"servlet-api.jar","jsp-api.jar"};
+
+            String[] libs = {"servlet-api.jar", "jsp-api.jar"};
             String serverLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                                        "common" + File.separator + "lib";
+                    "common" + File.separator + "lib";
             for (int k = 0; k < libs.length; k++) {
                 File libJar = new File(serverLibDir + File.separator + libs[k]);
                 if (libJar.exists()) {
