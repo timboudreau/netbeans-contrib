@@ -43,7 +43,7 @@ public class RubyPortletProjectUtil {
             try {
 
                 ClassPath cp = ClassPath.getClassPath(wm.getDocumentBase(), ClassPath.COMPILE);
-                if (cp == null || cp.findResource("org/apache/bsf/BSFManager") == null) { //NOI18N
+                if (cp == null || cp.findResource("org/apache/bsf/BSFManager.class") == null) { //NOI18N
 
                     Library bpLibrary = LibraryManager.getDefault().getLibrary("Liferay-Ruby-Portlet-Lib");
                     

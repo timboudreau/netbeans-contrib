@@ -17,5 +17,3 @@ out << """
 """;
 
 out << Custom.showNumber(renderRequest, renderResponse);
-
-out << Custom.navigation(renderResponse);

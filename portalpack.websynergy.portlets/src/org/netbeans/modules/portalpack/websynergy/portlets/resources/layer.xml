@@ -19,7 +19,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-   
     <folder name="portalpack">
         <folder name="listeners">
             <folder name="initial-page">
@@ -29,12 +28,18 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </folder>
         </folder>
     </folder>
+    <folder name="Templates">
+        <folder name="WebSynergyPortlets">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
+            <attr name="position" intvalue="311"/>
+        </folder>
+    </folder>
     
     <!-- Ruby Portlet declarations START-->
     <folder name="Templates">
-        <folder name="WebSynergy Portlets">
+        <folder name="WebSynergyPortlets">
             <file name="RubyPortlet.rb">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.ruby.Bundle"/>
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
@@ -45,7 +50,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </file>
         </folder>
     </folder>
-   
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-ruby">
@@ -59,7 +63,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </folder>
         </folder>
     </folder>
-   
     <folder name="ruby">
         <folder name="templates">
             <file name="Action.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Action.template">
@@ -89,11 +92,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <!-- Ruby Portlet declarations END-->
     
     <!-- PHP Portlet declaration START -->
-    
     <folder name="Templates">
-        <folder name="WebSynergy Portlets">
+        <folder name="WebSynergyPortlets">
             <file name="PhpPortlet.php" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/php/templates/phpportlet.template">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.php.Bundle"/>
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
@@ -104,7 +106,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </file>
         </folder>
     </folder>
-    
     <folder name="groovy">
         <folder name="templates">
             <file name="Action.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Action.template">
@@ -116,7 +117,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <file name="Info.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Info.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            
             <file name="View.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/View.template">
                 <attr name="position" intvalue="0"/>
             </file>
@@ -143,9 +143,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     
     <!-- Groovy Portlet declaration START -->
     <folder name="Templates">
-        <folder name="WebSynergy Portlets">
+        <folder name="WebSynergyPortlets">
             <file name="GroovyPortlet.groovy">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.groovy.Bundle"/>
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
@@ -156,7 +156,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </file>
         </folder>
     </folder>
-    
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-groovy">
