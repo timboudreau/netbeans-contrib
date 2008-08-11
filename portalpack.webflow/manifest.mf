@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.portalpack.webflow
+OpenIDE-Module-Layer: org/netbeans/modules/portalpack/webflow/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/webflow/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
+Name: org/netbeans/modules/portalpack/webflow/loader/WebFlowDataLoader.class
+Install-Before: org.openide.loaders.XMLDataObject, org.netbeans.modules.xml.XMLDataObject
+OpenIDE-Module-Class: Loader
+
