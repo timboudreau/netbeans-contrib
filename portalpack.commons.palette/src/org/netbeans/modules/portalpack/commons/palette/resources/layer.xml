@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+     <folder name="Editors">
+       <folder name="text">
+           <folder name="x-java">
+               <file name="PaletteFactory_portalpack.instance">
+                   <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
+                   <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.commons.palette.java.JavaPaletteFactory.getPalette"/>                                            
+               </file>
+               
+           </folder>
+       </folder> 
+    </folder> 
+    <folder name="PortalPack_JavaPalette">
+        
+    </folder>
 </filesystem>
