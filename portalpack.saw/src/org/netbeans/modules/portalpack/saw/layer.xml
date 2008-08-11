@@ -19,45 +19,39 @@
   */ -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Editors">
-       <folder name="text">
-           <folder name="x-java">
-               <file name="PaletteFactory.instance">
-                   <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
-                   <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.saw.palette.Factory.getPalette"/>                                            
-               </file>
-           </folder>
-       </folder> 
-    </folder>
     <folder name="JSPPalette">
         <folder name="WorkflowTags">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.saw.palette.Bundle"/>
+            <attr name="position" intvalue="630"/>
             <file name="CountTasks.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CountTasks.xml"/>
             <file name="GetTaskById.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/GetTaskById.xml"/>
             <file name="GetTasks.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/GetTasks.xml"/>
-            <file name="InitTaglib.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitTaglib.xml"/>
+            <!--file name="InitTaglib.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitTaglib.xml"/-->
         </folder>
     </folder>
-    <folder name="MyPalette">
-            <folder name="Workflow Code Clips">
-                <file name="CheckoutTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckoutTask.xml"/>
-                <file name="CheckInTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckInTask.xml"/>
-                <file name="DeleteTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/DeleteTask.xml"/>
-                <file name="ReassignTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/ReassignTask.xml"/>
-                <file name="SaveTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/SaveTask.xml"/>
-                <file name="CompleteTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CompleteTask.xml"/>
-                <file name="EscalateTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/EscalateTask.xml"/>
-                <file name="ShowAuditHistory.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/ShowAuditHistory.xml"/>
-                <file name="InitWorkflowImpl.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImpl.xml"/>
-                <file name="InitWorkflowImplProp.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImplProp.xml"/>
-            </folder>
+    <folder name="PortalPack_JavaPalette">
+        <folder name="WorkflowCodeClips">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.saw.palette.Bundle"/>
+            <attr name="position" intvalue="620"/>
+            <file name="CheckoutTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckoutTask.xml"/>
+            <file name="CheckInTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckInTask.xml"/>
+            <file name="DeleteTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/DeleteTask.xml"/>
+            <file name="ReassignTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/ReassignTask.xml"/>
+            <file name="SaveTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/SaveTask.xml"/>
+            <file name="CompleteTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CompleteTask.xml"/>
+            <file name="EscalateTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/EscalateTask.xml"/>
+            <file name="ShowAuditHistory.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/ShowAuditHistory.xml"/>
+            <file name="InitWorkflowImpl.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImpl.xml"/>
+            <file name="InitWorkflowImplProp.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImplProp.xml"/>
+        </folder>
     </folder>
-    
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-            <file name="portalJCAPS.xml" url="portalJCAPS.xml"/>           
+            <file name="portalJCAPS.xml" url="portalJCAPS.xml"/>
         </folder>
     </folder>
 
+    <!--
     <folder name="JSPPalette">
         <folder name="WorkflowTags">
             <file name="GetTaskById.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/GetTaskById.xml"/>
@@ -65,8 +59,7 @@
             <file name="CountTasks.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CountTasks.xml"/>
             <file name="InitTaglib.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitTaglib.xml"/>
         </folder>
-    </folder>
-
+    </folder> -->
     <folder name="j2ee">
         <folder name="webtier">
             <folder name="framework">
@@ -74,35 +67,39 @@
             </folder>
         </folder>
     </folder>
-    <folder name="velocity"> 
-        <folder name="templates">
-             <file name="checkout.template" url="nbresloc:templates/checkout.template"/>             
-             <file name="checkin.template" url="nbresloc:templates/checkin.template"/>             
-             <file name="complete.template" url="nbresloc:templates/complete.template"/>  
-             <file name="delete.template" url="nbresloc:templates/delete.template"/>             
-             <file name="escalate.template" url="nbresloc:templates/escalate.template"/> 
-             <file name="reassign.template" url="nbresloc:templates/reassign.template"/>             
-             <file name="savetask.template" url="nbresloc:templates/savetask.template"/>             
-             <file name="checkout-portlet.template" url="nbresloc:templates/checkout-portlet.template"/>             
-             <file name="checkin-portlet.template" url="nbresloc:templates/checkin-portlet.template"/>             
-             <file name="complete-portlet.template" url="nbresloc:templates/complete-portlet.template"/>  
-             <file name="count-portlet.template" url="nbresloc:templates/count-portlet.template"/>             
-             <file name="delete-portlet.template" url="nbresloc:templates/delete-portlet.template"/>             
-             <file name="escalate-portlet.template" url="nbresloc:templates/escalate-portlet.template"/> 
-             <file name="gettaskbyid-portlet.template" url="nbresloc:templates/gettaskbyid-portlet.template"/> 
-             <file name="gettasks-portlet.template" url="nbresloc:templates/gettasks-portlet.template"/> 
-             <file name="reassign-portlet.template" url="nbresloc:templates/reassign-portlet.template"/>             
-             <file name="savetask-portlet.template" url="nbresloc:templates/savetask-portlet.template"/>
-             <file name="SAW" url="nbresloc:templates/SAW"/>  
+    <folder name="templates">
+        <folder name="saw">
+            <file name="SAW.tld" url="nbresloc:templates/SAW.tld"/>
+            <file name="WorkflowConfig.template" url="nbresloc:templates/WorkflowConfig.template"/>
         </folder>
-      </folder>
-	  <folder name="portalpack">
-		  <folder name="palette">
-			  <folder name="saw">
-				  <file name="gettaskbyid.template" url="nbresloc:templates/gettaskbyid.template"/>
-				  <file name="gettasks.template" url="nbresloc:templates/gettasks.template"/>
-				  <file name="count.template" url="nbresloc:templates/count.template"/> 
-			  </folder>
-		  </folder>
-	  </folder>
+    </folder>
+    <folder name="portalpack">
+        <folder name="palette">
+            <folder name="saw">
+                <file name="gettaskbyid.template" url="nbresloc:templates/gettaskbyid.template"/>
+                <file name="gettasks.template" url="nbresloc:templates/gettasks.template"/>
+                <file name="count.template" url="nbresloc:templates/count.template"/>
+                <file name="checkout.template" url="nbresloc:templates/checkout.template"/>
+                <file name="checkout-method.xml" url="nbresloc:templates/checkout-method.xml"/>
+                <file name="checkin.template" url="nbresloc:templates/checkin.template"/>
+                <file name="checkin-method.xml" url="nbresloc:templates/checkin-method.xml"/>
+                <file name="complete.template" url="nbresloc:templates/complete.template"/>
+                <file name="complete-method.xml" url="nbresloc:templates/complete-method.xml"/>
+                <file name="delete.template" url="nbresloc:templates/delete.template"/>
+                <file name="delete-method.xml" url="nbresloc:templates/delete-method.xml"/>
+                <file name="escalate.template" url="nbresloc:templates/escalate.template"/>
+                <file name="escalate-method.xml" url="nbresloc:templates/escalate-method.xml"/>
+                <file name="getworkflow.template" url="nbresloc:templates/getworkflow.template"/>
+                <file name="getworkflow-method.xml" url="nbresloc:templates/getworkflow-method.xml"/>
+                <file name="getworkflow_prop.template" url="nbresloc:templates/getworkflow_prop.template"/>
+                <file name="getworkflow_prop-method.xml" url="nbresloc:templates/getworkflow_prop-method.xml"/>
+                <file name="reassign.template" url="nbresloc:templates/reassign.template"/>
+                <file name="reassign-method.xml" url="nbresloc:templates/reassign-method.xml"/>
+                <file name="savetask.template" url="nbresloc:templates/savetask.template"/>
+                <file name="savetask-method.xml" url="nbresloc:templates/savetask-method.xml"/>
+                <file name="showaudithistory.template" url="nbresloc:templates/showaudithistory.template"/>
+                <file name="showaudithistory-method.xml" url="nbresloc:templates/showaudithistory-method.xml"/>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>

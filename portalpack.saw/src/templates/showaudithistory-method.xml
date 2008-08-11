@@ -1,0 +1,18 @@
+<method>
+    <name>showAuditHistory</name>
+    <modifiers>
+        <modifier>
+		public
+        </modifier>
+    </modifiers>
+    <annotations>
+    </annotations>
+    <params>
+        <param type="Workflow" varname="workflowImpl"/>
+        <param type="java.util.List" varname="taskIdList"/>
+    </params>
+    <exceptions>
+        <exception>com.sun.saw.WorkflowException</exception>
+    </exceptions>
+    <return-type>com.sun.saw.vo.OutputVO</return-type>
+</method>

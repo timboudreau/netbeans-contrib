@@ -1,0 +1,8 @@
+{
+    com.sun.saw.vo.OutputVO outputVO = null;
+    com.sun.saw.vo.CheckinTaskVO checkinTaskVO = new com.sun.saw.vo.CheckinTaskVO();
+    checkinTaskVO.setTaskIdList(taskIdList);
+    checkinTaskVO.setUserId(userId);
+    outputVO = workflowImpl.checkinTasks(checkinTaskVO);
+    return outputVO;
+}

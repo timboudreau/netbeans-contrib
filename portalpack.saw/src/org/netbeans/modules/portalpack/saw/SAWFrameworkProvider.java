@@ -63,7 +63,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
 
     public WebModuleExtender createWebModuleExtender(WebModule wm, ExtenderController controller) {
 
-      //  boolean customizer = (wm != null && isInWebModule(wm));
+        //  boolean customizer = (wm != null && isInWebModule(wm));
         sawFrameworkWizardPanel1 = new SAWFrameworkWizardPanel1(this, wm, controller);
 
         return sawFrameworkWizardPanel1;
@@ -78,6 +78,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
             if (selectedValue.equals("JCAPS")) {
                 createPropertyFiles(wm, selectedValue);
                 Library bpLibrary = LibraryManager.getDefault().getLibrary("saw"); //NOI18N
+
                 if (bpLibrary != null) {
 
                     Sources sources = (Sources) project.getLookup().lookup(Sources.class);
@@ -87,7 +88,6 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                         ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, groups[i].getRootFolder(), ClassPath.COMPILE);
                     }
                 } else {
-
                 }
             }
         } catch (Exception e) {
@@ -99,11 +99,12 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
     public boolean isInWebModule(WebModule webModule) {
 
         try {
-             
-              ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
-              if(cp == null || cp.findResource("com/sun/saw/Workflow.class") == null) { //NOI18N)
-                  return false;
-                } 
+
+            ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
+            if (cp == null || cp.findResource("com/sun/saw/Workflow.class") == null) { //NOI18N)
+
+                return false;
+            }
         } catch (Exception e) {
             return false;
 
@@ -122,50 +123,62 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
             Project project = FileOwnerQuery.getOwner(documentBase);
             Sources sources = ProjectUtils.getSources(project);
             SourceGroup[] sourceGroup = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-            
-                    if(sourceGroup.length > 0) {
-                            FileObject fileObject = sourceGroup[0].getRootFolder();
-                            org.openide.filesystems.FileObject fObject10 = fileObject.createData("ImplementationType", "properties");
-                            org.openide.filesystems.FileLock fLock1 = fObject10.lock();
-                            java.io.OutputStream ostream = fObject10.getOutputStream(fLock1);
-                            ostream.write(("ImplementationType=" + selectedValue).getBytes());
-                            ostream.flush();
-                            ostream.close();
-                            fLock1.releaseLock();
-                           /* org.openide.filesystems.FileObject fObject11 = fileObjectArray[i].createData("WorkflowConfig", "properties");
-                            org.openide.filesystems.FileLock fLock2 = fObject11.lock();
-                            java.io.OutputStream ostream1 = fObject11.getOutputStream(fLock2);
-                            ostream1.write(("businessProcess=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
-                            ostream1.write(("logFileLocation=" + "Specify location of log file").getBytes());
-                            ostream1.flush();
-                            ostream1.close();
-                            fLock2.releaseLock(); */
-                            org.openide.filesystems.FileObject fObject12 = fileObject.createData("WorkflowConfig", "properties");
 
-                            org.openide.filesystems.FileLock fLock3 = fObject12.lock();
-                            java.io.OutputStream ostream2 = fObject12.getOutputStream(fLock3);
-                            ostream2.write(("#The Workflow Engine to use.\n").getBytes());
-                            ostream2.write(("sawworkflowimplclass=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
-                            ostream2.write(("# Properties that are needed by the JCAPS Implementation of SAW.\n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverhost=" + "host where jcaps is installed e.g. test.domain.com\n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.iiopport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverusername=" + "admin user name of jcaps app server e.g. admin\n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverpassword=" + "password of jcaps app server e.g. abc \n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.contextfactory=" + "context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory \n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.serviceJndi=" + "jndi context of workflow service provided by jcaps e.g. WorkflowService\n").getBytes());                            
-                            ostream2.write(("#Properties that are needed by the JBOSS Implementation of SAW.\n").getBytes());
-                            ostream2.write(("jboss.server =" + "Specific JBOSS Server on Which jBPM is running\n").getBytes());
-                            ostream2.write(("jboss.password =" + "Value for the server password\n").getBytes());                            
-                            ostream2.flush();
-                            ostream2.close();
-                            fLock3.releaseLock();
-                        }
-            
-            FileObject sawTldFileObject = Repository.getDefault().getDefaultFileSystem().findResource("velocity/templates/SAW");
-            FileUtil.copyFile(sawTldFileObject, wm.getWebInf(), "SAW", "tld");
+            if (sourceGroup.length > 0) {
+                FileObject fileObject = sourceGroup[0].getRootFolder();
+                try {
+                    org.openide.filesystems.FileObject fObject10 = fileObject.createData("ImplementationType", "properties");
+                    org.openide.filesystems.FileLock fLock1 = fObject10.lock();
+                    java.io.OutputStream ostream = fObject10.getOutputStream(fLock1);
+                    ostream.write(("ImplementationType=" + selectedValue).getBytes());
+                    ostream.flush();
+                    ostream.close();
+                    fLock1.releaseLock();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                /* org.openide.filesystems.FileObject fObject11 = fileObjectArray[i].createData("WorkflowConfig", "properties");
+                org.openide.filesystems.FileLock fLock2 = fObject11.lock();
+                java.io.OutputStream ostream1 = fObject11.getOutputStream(fLock2);
+                ostream1.write(("businessProcess=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
+                ostream1.write(("logFileLocation=" + "Specify location of log file").getBytes());
+                ostream1.flush();
+                ostream1.close();
+                fLock2.releaseLock(); */
+                /*org.openide.filesystems.FileObject fObject12 = fileObject.createData("WorkflowConfig", "properties");
+                
+                org.openide.filesystems.FileLock fLock3 = fObject12.lock();
+                java.io.OutputStream ostream2 = fObject12.getOutputStream(fLock3);
+                ostream2.write(("#The Workflow Engine to use.\n").getBytes());
+                ostream2.write(("sawworkflowimplclass=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
+                ostream2.write(("# Properties that are needed by the JCAPS Implementation of SAW.\n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverhost=" + "host where jcaps is installed e.g. test.domain.com\n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.iiopport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverusername=" + "admin user name of jcaps app server e.g. admin\n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverpassword=" + "password of jcaps app server e.g. abc \n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.contextfactory=" + "context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory \n").getBytes());
+                ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.serviceJndi=" + "jndi context of workflow service provided by jcaps e.g. WorkflowService\n").getBytes());                            
+                ostream2.write(("#Properties that are needed by the JBOSS Implementation of SAW.\n").getBytes());
+                ostream2.write(("jboss.server =" + "Specific JBOSS Server on Which jBPM is running\n").getBytes());
+                ostream2.write(("jboss.password =" + "Value for the server password\n").getBytes());                            
+                ostream2.flush();
+                ostream2.close();
+                fLock3.releaseLock();*/
+                FileObject wfc = fileObject.getFileObject("WorkflowConfig", "properties");
+                if (wfc == null) {
+                    FileObject wfcFileObject = Repository.getDefault().getDefaultFileSystem().findResource("templates/saw/WorkflowConfig.template");
+                    wfc = FileUtil.copyFile(wfcFileObject, fileObject, "WorkflowConfig", "properties");
+                }
+            }
+
+          /*  FileObject sawTld = wm.getWebInf().getFileObject("SAW", "tld");
+            if (sawTld == null) {
+                FileObject sawTldFileObject = Repository.getDefault().getDefaultFileSystem().findResource("templates/saw/SAW.tld");
+                FileUtil.copyFile(sawTldFileObject, wm.getWebInf(), "SAW", "tld");
+            }*/
 
         } catch (IOException ex) {
-           ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
@@ -173,6 +186,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
         // read the config from resource first
         StringBuffer sb = new StringBuffer();
         String lineSep = System.getProperty("line.separator");//NOI18N
+
         BufferedReader br = new BufferedReader(new InputStreamReader(is, encoding));
         String line = br.readLine();
         while (line != null) {

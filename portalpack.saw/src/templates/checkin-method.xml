@@ -1,0 +1,19 @@
+<method>
+	<name>checkInTasks</name>
+	<modifiers>
+		<modifier>
+		public
+		</modifier>
+	</modifiers>
+	<annotations>
+	</annotations>
+	<params>
+		<param type="java.lang.String" varname="userId"/>
+		<param type="java.util.List" varname="taskIdList"/>
+                <param type="Workflow" varname="workflowImpl"/>
+	</params>
+	<exceptions>
+		<exception>com.sun.saw.WorkflowException</exception>
+	</exceptions>
+	<return-type>com.sun.saw.vo.OutputVO</return-type>
+</method>

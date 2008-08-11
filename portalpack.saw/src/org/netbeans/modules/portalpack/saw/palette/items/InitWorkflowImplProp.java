@@ -39,15 +39,7 @@
 
 package org.netbeans.modules.portalpack.saw.palette.items;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.text.JTextComponent;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.editor.NbEditorUtilities;
-import org.openide.filesystems.FileObject;
-import org.openide.text.ActiveEditorDrop;
-import org.openide.util.NbBundle;
+import org.netbeans.modules.portalpack.saw.palette.SAWJavaActiveEditorDrop;
 
 /**
  *
@@ -55,30 +47,11 @@ import org.openide.util.NbBundle;
  */
 
 
+public class InitWorkflowImplProp extends SAWJavaActiveEditorDrop {
 
-public class InitWorkflowImplProp implements ActiveEditorDrop {
-    private static Logger logger = Logger.getLogger("SAW_Logger");
-    /** Creates a new instance of SecurityDomain */
-    public InitWorkflowImplProp() {
+    @Override
+    public String getTemplateName() {
+        return "getworkflow_prop.template";
     }
-
-    public boolean handleTransfer(JTextComponent targetComponent) {
-       
-        BaseDocument document = (BaseDocument) targetComponent.getDocument();
-        FileObject fObject = NbEditorUtilities.getFileObject(document);
-        logger.log(Level.INFO,this.getClass().getName() + ":",fObject.toString());
-        
-        ClassPath cp = ClassPath.getClassPath(fObject, ClassPath.COMPILE);
-        if (cp != null) {
-            logger.log(Level.INFO,this.getClass().getName() + ":","Classpath is:" + cp.toString());
-        }
-        String className = cp.getResourceName(fObject, '.', false);
-        logger.log(Level.INFO,this.getClass().getName() + ":","Class Name is:" + className);
-        
-        Class clazz = null;
-        boolean flag = false;
-        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(InitWorkflowImpl.class).getString("InitWorkflowImpl"),true);
-        
-        
-    }
+    
 }

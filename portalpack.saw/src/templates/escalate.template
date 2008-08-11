@@ -1,0 +1,8 @@
+{        
+        com.sun.saw.vo.OutputVO outputVO = null;
+        com.sun.saw.vo.EscalateTaskVO escalateTaskVO = new com.sun.saw.vo.EscalateTaskVO();
+        escalateTaskVO.setTaskIdList(taskIdList);
+        escalateTaskVO.setUserId(userId);
+        outputVO = workflowImpl.escalateTasks(escalateTaskVO);
+        return outputVO;
+}

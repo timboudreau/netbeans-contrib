@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,21 +37,18 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.portalpack.saw.palette.items;
+package org.netbeans.modules.portalpack.saw.palette;
 
-import org.netbeans.modules.portalpack.saw.palette.SAWJavaActiveEditorDrop;
+import org.netbeans.modules.portalpack.commons.palette.java.JavaActiveEditorDrop;
 
 /**
  *
- * @author Vihang
+ * @author satyaranjan
  */
-
-
-
-public class InitWorkflowImpl extends SAWJavaActiveEditorDrop {
-
+public abstract class SAWJavaActiveEditorDrop extends JavaActiveEditorDrop{
+    
     @Override
-    public String getTemplateName() {
-        return "getworkflow.template";
+    public String getTemplateFolder() {
+        return "saw";
     }
 }

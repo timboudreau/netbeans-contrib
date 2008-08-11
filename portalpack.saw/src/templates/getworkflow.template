@@ -1,0 +1,6 @@
+{
+        com.sun.saw.Workflow workflow = null;
+        com.sun.saw.WorkflowFactory workflowFactory = com.sun.saw.WorkflowFactory.getInstance();
+        workflow = workflowFactory.getWorkflowInstance();
+        return workflow;
+}
