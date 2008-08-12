@@ -219,7 +219,7 @@
         <taskdef 
             name="create-bundle" 
             classpath="${custom.tasks.cls}" 
-            classname="org.netbeans.installer.infra.build.ant.registries.CreateBundle"/>
+            classname="org.netbeans.installer.infra.build.ant.registries.CreateBundle2"/>
 
 	<set property="nb.build.type.number"
                  value="0"/>
@@ -309,36 +309,21 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     </target>
 
     <target name="build-netbeans">
-    	<antcall target="build-tools-group"/>
-    	<antcall target="build-ide-group"/>
-    	<antcall target="build-other-group"/>
-	<!-- java -cp engine/build/ssinstaller/engine/build/classes buildhelper.Main products.xml products/native -->
+    	<antcall target="build-groups"/>
+	<antcall target="build-products"/>
+	<!-- java -cp engine/build/ssinstaller/engine/build/classes buildhelper.Main products.xml products/native 
 	<java classpath="${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar" fork="true" classname="buildhelper.Main" failonerror="true">
-	    <arg value="${products.xml}"/>
+	    <arg value="1${products.xml}"/>
 	    <arg value="products/native"/>
 	</java> 
-	
+	-->
         
-	<build-product dir="C_Compiler"/>
-        <build-product dir="C++_Compiler"/>
-        <build-product dir="C++_Compiler"/>
-        <build-product dir="Fortran_95_Compiler"/>
-        <build-product dir="DBX_Debugging_Tools"/>
-        <build-product dir="build_tools"/>
-        
-        <build-product dir="support_files"/>
-        <build-product dir="Performance_Library" group="other-group"/>
-        <build-product dir="Third-party_Source" group="other-group"/>
-	<!--<build-product dir="demos"/>
-        -->
      </target>
 
-      <target name="build-tools-group">
-        <echo message="BUILDING TOOLS-GROUP ==================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/groups/tools-group" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/groups/tools-group"/>
+      <target name="build-groups">
+        <echo message="BUILDING GROUPS ==================================="/>
+        <subant target="release-all">
+	    <fileset dir="${nbi.netbeans.dir}/infra/groups/" includes="**/build.xml" excludes="**/native/build.xml"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -352,64 +337,12 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <property
                 name="release.parent.platforms"
                 value=""/>
-        </ant>
+        </subant>
      </target>
 
-      <target name="build-ide-group">
-        <echo message="BUILDING IDE-GROUP ==================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/groups/ide-group" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/groups/ide-group"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="release.parent.uid"
-                value=""/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
-     </target>
-
-      <target name="build-other-group">
-        <echo message="BUILDING OTHER-GROUP ==================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/groups/other-group" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/groups/other-group"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="release.parent.uid"
-                value=""/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
-     </target>
-
-     <macrodef name="build-product">
-         <attribute name="dir"/>
-         <attribute name="group" default="tools-group"/>
-	 <sequential>	
-            <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
-	    <property 
-                name="build.properties" 
-                value="${nbi.netbeans.dir}/infra/products/native/@{dir}/build.properties"/>
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/native"/>
+     <target name="build-products">
+            <subant target="release-all">
+	    <fileset dir="${nbi.netbeans.dir}/infra/products/native" includes="**/build.xml" excludes="**/native/build.xml"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -417,59 +350,35 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <property
                 name="dist.dir"
                 value="${output.dir}/components"/>
-		<!--
-            <property
-                name="product.platforms"
-                value="solaris-x86"/>
-            -->
-            <property
-                name="release.parent.uid"
-                value="@{group}"/>
             <property
                 name="release.parent.version"
                 value=""/>
             <property
                 name="release.parent.platforms"
                 value=""/>
-        </ant>
-         </sequential>
-     </macrodef>
+        </subant>
+     </target>
 
     <target name="generate-bundles">
         <!-- C/C++ bundles -->
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh">
-            <component uid="ss-base" version="1.0.0.0.0"/>            
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh"
+		       componentlist="native.lst">
+	    <component uid="ss-base" version="1.0.0.0.0"/>            
 	    <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-extra" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	   <component uid="cpp" version="1.0.0.0.0"/>	   
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+	    <component uid="nb-extra" version="${nb.full.version}"/>	
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        <delete file="${output.dir}/registry-temp/bundles.list" />
+        <!-- <delete file="${output.dir}/registry-temp/bundles.list" /> -->
 
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-intel-S2.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-intel-S2.sh"
+		       componentlist="native.lst">
             <component uid="ss-base" version="1.0.0.0.0"/>
-            
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
             <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
@@ -477,35 +386,21 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
         
 	<create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-Linux.sh">
-            <component uid="cc" version="1.0.0.0.0"/>
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-Linux.sh"
+		       componentlist="native.lst">
 	    <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>	
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-linux-Linux.sh">
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-linux-Linux.sh"
+                       componentlist="native.lst">
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
             <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
@@ -513,36 +408,22 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-sparc-S2.sh">            
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-sparc-S2.sh"
+                       componentlist="native.lst">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-extra" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
 
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-sparc-S2.sh">            
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-sparc-S2.sh"
+		       componentlist="native.lst"> 
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-extra" version="${nb.full.version}"/>
-	    <component uid="cc" version="1.0.0.0.0"/>            
-	    <component uid="cpp" version="1.0.0.0.0"/>
-    	    <component uid="fortran" version="1.0.0.0.0"/>
-    	    <component uid="dbx" version="1.0.0.0.0"/>
-    	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="support-files" version="1.0.0.0.0"/>
-    	    <component uid="perf-lib" version="1.0.0.0.0"/>
-    	    <component uid="third-party-source" version="1.0.0.0.0"/>
             <property name="product.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
@@ -607,6 +488,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
+
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-extra" target="release-all">
             <property 
                 name="basedir" 
@@ -654,8 +536,8 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 value=""/>
         </ant>
 	
--->    
     
+-->
     <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
                 name="basedir" 
