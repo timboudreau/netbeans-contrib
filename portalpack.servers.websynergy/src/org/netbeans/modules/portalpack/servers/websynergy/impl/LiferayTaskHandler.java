@@ -50,6 +50,7 @@ import org.netbeans.modules.portalpack.servers.websynergy.ServerDeployHandler;
 import org.netbeans.modules.portalpack.servers.websynergy.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
 //import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletService;
+import org.openide.util.Exceptions;
 //import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletServiceService;
 //import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletServiceService;
 
@@ -195,16 +196,21 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
          
         File tomcatDeployDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
-                                            + File.separator + "webapps" + appDir);
+                                            + File.separator + "webapps" + File.separator + appDir);
 
         int counter = 0;
         while (true) {
             if (tomcatDeployDir.exists()) {
                 if (tomcatDeployDir.lastModified() >= baseTime) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        //do nothing.
+                    }
                     return warName + " deployed successfully. Check log for more message.";
                 }
             }
-
+            
            /* if (deployFailFileInAppServerAutoDeployDir.exists()) {
                 if (deployFailFileInAppServerAutoDeployDir.lastModified() >= baseTime) {
                     throw new DeploymentException(warName + " deployment failed. For more into check log message. ");
