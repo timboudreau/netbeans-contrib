@@ -175,7 +175,7 @@ public abstract class SetAsInitialAction extends AbstractAction
                         if (null != currentFO) {
                             try {
                                 DataObject currentDO = DataObject.find(currentFO);
-                                ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
+                                //((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
 
                             } catch (DataObjectNotFoundException donfe) {
                                 NbBundle.getMessage(SetAsInitialAction.class,
@@ -188,9 +188,9 @@ public abstract class SetAsInitialAction extends AbstractAction
                     /**
                      * Now set the right data node with the mode icon.
                      */
-                    ((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialviewpage.png"); //NOI18N
+                    //((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialviewpage.png"); //NOI18N
 
-                    ((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialViewShortDesc"));
+                    //((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialViewShortDesc"));
                 } else if (actionCommand.equals(NbBundle.getMessage(SetAsInitialAction.class, "MNU_EDITMODE"))) {
                     /**
                      * Set the icon for the current one for this mode to the default icon.
@@ -207,7 +207,7 @@ public abstract class SetAsInitialAction extends AbstractAction
                         if (null != currentFO) {
                             try {
                                 DataObject currentDO = DataObject.find(currentFO);
-                                ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
+                            //    ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
 
                             } catch (DataObjectNotFoundException donfe) {
                                 NbBundle.getMessage(SetAsInitialAction.class,
@@ -220,9 +220,9 @@ public abstract class SetAsInitialAction extends AbstractAction
                     /**
                      * Now set the right data node with the mode icon.
                      */
-                    ((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialeditpage.png");//NOI18N
+                    //((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialeditpage.png");//NOI18N
 
-                    ((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialEditShortDesc"));
+                    //((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialEditShortDesc"));
                 } else if (actionCommand.equals(NbBundle.getMessage(SetAsInitialAction.class, "MNU_HELPMODE"))) {
                     /**
                      * Set the icon for the current one for this mode to the default icon.
@@ -238,7 +238,7 @@ public abstract class SetAsInitialAction extends AbstractAction
                     if (null != currentFO) {
                         try {
                             DataObject currentDO = DataObject.find(currentFO);
-                            ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
+                         //   ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
 
                         } catch (DataObjectNotFoundException donfe) {
                             NbBundle.getMessage(SetAsInitialAction.class,
@@ -250,9 +250,9 @@ public abstract class SetAsInitialAction extends AbstractAction
                     /**
                      * Now set the right data node with the mode icon.
                      */
-                    ((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialhelppage.png");//NOI18N
+                    //((DataNode) dataObject.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/initialhelppage.png");//NOI18N
 
-                    ((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialHelpShortDesc"));
+                    //((DataNode) dataObject.getNodeDelegate()).setShortDescription(NbBundle.getMessage(SetAsInitialAction.class, "LBL_InitialHelpShortDesc"));
                 } else if (actionCommand.equals(NbBundle.getMessage(SetAsInitialAction.class, "MNU_NONEMODE"))) {
                     /**
                      * Unset the page as an initial page.
@@ -264,7 +264,7 @@ public abstract class SetAsInitialAction extends AbstractAction
                      */
                     try {
                         DataObject currentDO = DataObject.find(fo);
-                        ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
+                       // ((DataNode) currentDO.getNodeDelegate()).setIconBaseWithExtension("org/netbeans/modules/portalpack/servers/liferay/portlets/resources/jruby.png"); //NOI18N
 
                     } catch (DataObjectNotFoundException donfe) {
                         NbBundle.getMessage(SetAsInitialAction.class,
