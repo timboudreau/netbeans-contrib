@@ -25,6 +25,7 @@
 				  <file name="contenttype-by-id.template" url="nbresloc:templates/contenttype-by-id.template"/>
 				  <file name="contentversions.template" url="nbresloc:templates/contentversions.template"/> 
                                   <file name="contentview.template" url="nbresloc:templates/contentview.template"/> 
+                                  <file name="contents-by-type-id.template" url="nbresloc:templates/contents-by-type-id.template"/> 
 			  </folder>
 		  </folder>
 	  </folder>
