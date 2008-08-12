@@ -224,6 +224,14 @@ public class PhpPortletBuilder extends NonJavaPortletBuilder {
         initParam1.setName("add-portlet-params");
         initParam1.setValue("true");
         portletType.addInitParam(initParam1);
+        
+        //add servlet-objects-factory
+        InitParamType initParam2 = portletType.newInitParamType();
+        initParam2.setDescription(new String[]{"Servlet Object Factory"});
+        initParam2.setName("servlet-objects-factory");
+        initParam2.setValue("com.liferay.portal.kernel.servlet.PortletServletObjectsFactory");
+        portletType.addInitParam(initParam2);
+        
 
         portletType.setExpirationCache(0);
 
