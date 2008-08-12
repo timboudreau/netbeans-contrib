@@ -1,1 +1,1 @@
-<saw:getTasks filterTaskVO="${sessionScope.portalTaskVO}" returnvalue="taskList"/>
+<saw:getTasks filterTaskVO="${sessionScope.filterTaskVO}" returnvalue="taskList"/>
