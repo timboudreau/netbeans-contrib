@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="BuildHelper" default="default" basedir=".">
+    <description>Builds, tests, and runs the project BuildHelper.</description>
+    <target depends="compile, jar" description="Build and test whole project." name="default"/>
+
+<property name="build" value="build"/>
+<property name="src" value="src"/>
+<property name="dist" value="dist"/>
+<property name="dist.jar" value="${dist}/BuildHelper.jar"/>
+          
+<target name="compile">
+	<mkdir dir="${build}"/>
+  <javac sourcepath="" srcdir="${src}"
+         destdir="${build}" >
+    <include name="**/*.java"/>
+  </javac>
+  </target>
+    <target name="jar">
+	<mkdir dir="${dist}"/>
+            <jar jarfile="${dist.jar}">
+                <fileset dir="${build}"/>
+            </jar>
+    </target>
+
+</project>
