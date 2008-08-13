@@ -42,7 +42,7 @@ public class InstallPanel implements WizardDescriptor.Panel,WizardDescriptor.Val
     public ConfigPanel component;
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    private Object wizardDescriptor;
+    private WizardDescriptor wizardDescriptor;
     private String className;
     private boolean isFinishPanel = false;
     
@@ -93,14 +93,14 @@ public class InstallPanel implements WizardDescriptor.Panel,WizardDescriptor.Val
     
     public void readSettings(Object settings) {
         getComponent();
-        WizardDescriptor wizardDescriptor = (WizardDescriptor) settings;
+        wizardDescriptor = (WizardDescriptor) settings;
         component.readSettings(wizardDescriptor);
     }
     
     public void storeSettings(Object settings) {
         getComponent();
-        WizardDescriptor d = (WizardDescriptor) settings;
-        component.store(d);
+        wizardDescriptor = (WizardDescriptor) settings;
+        component.store(wizardDescriptor);
     }
     
     public boolean isFinishPanel() {
