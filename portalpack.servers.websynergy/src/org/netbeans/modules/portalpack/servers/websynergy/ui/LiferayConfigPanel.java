@@ -1,22 +1,21 @@
 /*
-  * The contents of this file are subject to the terms of the Common Development
-  * and Distribution License (the License). You may not use this file except in
-  * compliance with the License.
-  *
-  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
-  * or http://www.netbeans.org/cddl.txt.
-  *
-  * When distributing Covered Code, include this CDDL Header Notice in each file
-  * and include the License file at http://www.netbeans.org/cddl.txt.
-  * If applicable, add the following below the CDDL Header, with the fields
-  * enclosed by brackets [] replaced by your own identifying information:
-  * "Portions Copyrighted [year] [name of copyright owner]"
-  *
-  * The Original Software is NetBeans. The Initial Developer of the Original
-  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-  * Microsystems, Inc. All Rights Reserved.
-  */
-
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
 package org.netbeans.modules.portalpack.servers.websynergy.ui;
 
 import java.io.File;
@@ -30,6 +29,8 @@ import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -37,22 +38,21 @@ import org.openide.util.NbBundle;
  *
  * @author  Satya
  */
-public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
-    
+public class LiferayConfigPanel extends ConfigPanel implements DocumentListener {
+
     private String psVersion;
-    private WizardDescriptor wd;
-    
+
     /** Creates new form LifeRayConfigPanel */
     public LiferayConfigPanel(String psVersion) {
         this.psVersion = psVersion;
         initComponents();
         initData();
-        
+
         portalUri.getDocument().addDocumentListener(this);
-        //adminConsoleUriTf.getDocument().addDocumentListener(this);
-        
+    //adminConsoleUriTf.getDocument().addDocumentListener(this);
+
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -107,8 +107,8 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
             .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(169, 169, 169)
-                .add(jLabel1)
-                .addContainerGap(173, Short.MAX_VALUE))
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(169, 169, 169))
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -119,21 +119,24 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
                     .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(portletUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
-                    .add(portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
-                    .add(hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
-                    .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 291, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(portletUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                        .add(102, 102, 102))
+                    .add(layout.createSequentialGroup()
+                        .add(portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                        .add(102, 102, 102))
+                    .add(layout.createSequentialGroup()
+                        .add(hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+                        .add(102, 102, 102))
+                    .add(autoDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE))
                 .add(18, 18, 18)
-                .add(browseButton)
+                .add(browseButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(41, 41, 41))
             .add(layout.createSequentialGroup()
                 .add(10, 10, 10)
                 .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
                 .addContainerGap(454, Short.MAX_VALUE))
         );
-
-        layout.linkSize(new java.awt.Component[] {hostTf, portalUri, portletUriTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -161,7 +164,7 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
                 .addContainerGap(19, Short.MAX_VALUE))
         );
 
-        browseButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "ACD_BROWSE")); // NOI18N
+        browseButton.getAccessibleContext().setAccessibleDescription("null");
     }// </editor-fold>//GEN-END:initComponents
 
     private void hostTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hostTfFocusLost
@@ -172,26 +175,11 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener{
 private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
 // TODO add your handling code here:
     String autoDeployLoc = browseAutoDeployLocation();
-    if(autoDeployLoc != null)
+    if (autoDeployLoc != null) {
         autoDeployTf.setText(autoDeployLoc);
+    }
 }//GEN-LAST:event_browseButtonActionPerformed
 
-    private boolean validatePCHome()
-    {
-//      
-//        if(!config.exists() || !lib.exists())
-//        {           
-//            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class,"MSG_INVALID_PC_HOME"));
-//            return false;
-//        }else{
-//            
-//            setErrorMessage("");
-//            return true;
-//        }
-        return true;
-    }
-        
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField autoDeployTf;
     private javax.swing.JButton browseButton;
@@ -206,42 +194,75 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JTextField portletUriTf;
     // End of variables declaration//GEN-END:variables
 
-    public void initData()
-    {
-       
-       autoDeployTf.setText(System.getProperty("user.home")+File.separator + "liferay" + 
-               File.separator + "deploy");
-       portalUri.setText("/portal");
-       portletUriTf.setText("/portal");
-       hostTf.setText("localhost");
-        
+    public void initData() {
+        portalUri.setText("/portal");
+        portletUriTf.setText("/portal");
+        hostTf.setText("localhost");
+
     }
+
     public void populateDataForCustomizer(PSConfigObject object) {
-        
+
         //hostTf.setText(object.getHost());
         //portTf.setText(object.getPort());
         portalUri.setText(object.getPortalUri());
 
         hostTf.setText(object.getHost());
-       // adminConsoleUriTf.setText(object.getProperty(LifeRayConstants.ADMIN_CONSOLE_URI));
+        // adminConsoleUriTf.setText(object.getProperty(LifeRayConstants.ADMIN_CONSOLE_URI));
         portletUriTf.setText(object.getProperty(LiferayConstants.PORTLET_URI));
-        
+        autoDeployTf.setText(object.getProperty(LiferayConstants.AUTO_DEPLOY_DIR));
+
         hostTf.setEnabled(false);
         browseButton.setEnabled(false);
-        
+
     }
 
     public void read(org.openide.WizardDescriptor wizardDescriptor) {
-        if(wd == null)
-            this.wd = wizardDescriptor;
-        
+
         WizardPropertyReader reader = new WizardPropertyReader(wizardDescriptor);
+        String autoDeployDir = autoDeployTf.getText();
         
+       // if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
+
+            if (isWebSynergy(reader)) {
+                String domainDir = reader.getDomainDir();
+                File webSynergyHomeFile = new File(domainDir, "websynergy");
+                autoDeployTf.setText(webSynergyHomeFile.getAbsolutePath() +
+                        File.separator + "deploy");
+            
+            } else {
+                 autoDeployTf.setText(System.getProperty("user.home") + File.separator + "liferay" +
+                    File.separator + "deploy");
+            
+            }
+        //}
+
+    }
+
+    private boolean isWebSynergy(WizardPropertyReader reader) {
+        
+        String serverType = reader.getServerType();
+
+        if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
+
+            String domainDir = reader.getDomainDir();
+
+            File webSynergyHomeFile = new File(domainDir, "websynergy");
+            File webSynergyConfigurator = new File(reader.getServerHome() + File.separator + "lib" + File.separator + "addons" + File.separator + "websynergy_configurator.jar");
+
+            if (webSynergyHomeFile.exists() ||
+                    webSynergyConfigurator.exists()) {
+                
+                return true;
+            }
+        } 
+        
+        return false;
     }
 
     public void store(org.openide.WizardDescriptor d) {
-             
-        WizardPropertyReader wr = new WizardPropertyReader(d);                
+
+        WizardPropertyReader wr = new WizardPropertyReader(d);
         wr.setAdminUser("admin");
         wr.setAdminPassWord("adminadmin");
         //wr.setPort(portTf.getText());
@@ -250,78 +271,110 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         wr.setPortalUri(portalUri.getText());
         wr.setHost(hostTf.getText());
 //        wr.setProperty(LifeRayConstants.ADMIN_CONSOLE_URI,adminConsoleUriTf.getText());
-        wr.setProperty(LiferayConstants.PORTLET_URI,portletUriTf.getText());
+        wr.setProperty(LiferayConstants.PORTLET_URI, portletUriTf.getText());
         wr.setProperty(LiferayConstants.AUTO_DEPLOY_DIR, autoDeployTf.getText());
-      //  wr.setPortalUri("/pcdriver");
+    //  wr.setPortalUri("/pcdriver");
     }
 
     public boolean validate(Object wizardDescriptor) {
-        if(wd == null)
+        if (wizardDescriptor == null) {
             return true;
-        WizardPropertyReader wr = new WizardPropertyReader(((WizardDescriptor)wd));                
+        }
+        WizardPropertyReader wr = new WizardPropertyReader(((WizardDescriptor) wizardDescriptor));
         //String serverHome = wr.getServerHome();
         String domainDir = wr.getDomainDir();
         String serverType = wr.getServerType();
-        if(serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
-            
+        if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
+
             File file = new File(domainDir + File.separator + "lib" + File.separator + "portal-service.jar");
-            if(!file.exists())
-            {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
-                return false;
+            if (!file.exists()) {
+                
+                if(!isWebSynergy(wr)) {
+                    setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
+                    autoDeployTf.setText("");
+                    return false;
+                } else {
+                
+                }
             }
-        } else if(serverType.equals(ServerConstants.TOMCAT_5_X)) {
-            
+        } else if (serverType.equals(ServerConstants.TOMCAT_5_X)) {
+
             File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                                        "common" + File.separator +
-                                        "lib" + File.separator +
-                                        "ext" + File.separator +
-                                        "portal-service.jar");
-            if(!file.exists())
-            {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
+                    "common" + File.separator +
+                    "lib" + File.separator +
+                    "ext" + File.separator +
+                    "portal-service.jar");
+            if (!file.exists()) {
+                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT"));
+                autoDeployTf.setText("");
                 return false;
             }
         }
-       
+        
+        String autoDeployDir = autoDeployTf.getText();
+        if(autoDeployDir == null || autoDeployDir.trim().length() == 0) {
+             setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
+             return false;
+        }
+        
+        String portalUriString = portalUri.getText();
+        if(portalUriString == null || portalUriString.trim().length() == 0) {
+            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTAL_URI"));
+            return false;
+        }
+
+        String portletUriString = portletUriTf.getText();
+        if(portletUriString == null || portletUriString.trim().length() == 0) {
+            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTLET_URI"));
+            return false;
+        }
+        
+        String host = hostTf.getText();
+        if(host == null || host.trim().length() == 0) {
+            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_HOST"));
+            return false;
+        }
+        
         setErrorMessage("");
         return true;
     }
-    
-    private String browseAutoDeployLocation(){
+
+    private String browseAutoDeployLocation() {
         String autoDeployLocation = null;
         JFileChooser chooser = getJFileChooser();
         int returnValue = chooser.showDialog(SwingUtilities.getWindowAncestor(this),
                 NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); //NOI18N
-        
-        if(returnValue == JFileChooser.APPROVE_OPTION){
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
             autoDeployLocation = chooser.getSelectedFile().getAbsolutePath();
         }
         return autoDeployLocation;
     }
-    
-    private JFileChooser getJFileChooser(){
-        
+
+    private JFileChooser getJFileChooser() {
+
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
         chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
 
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
+
         chooser.setMultiSelectionEnabled(false);
         chooser.setApproveButtonToolTipText(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
         chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
         chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
         // set the current directory
         String dir = System.getProperty("user.home");
-        if(dir != null)
+        if (dir != null) {
             chooser.setSelectedFile(new File(dir));
-
+        }
         return chooser;
     }
-
 
     public String getDescription() {
         return NbBundle.getMessage(LiferayConfigPanel.class, "DESC_LIFE_RAY");
@@ -338,10 +391,8 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     public void changedUpdate(DocumentEvent e) {
         updateText();
     }
-    
-    public void updateText()
-    {
+
+    public void updateText() {
         fireChangeEvent();
     }
-    
 }
