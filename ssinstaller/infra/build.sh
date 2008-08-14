@@ -78,8 +78,8 @@ source ../../../../build-private.sh
 INSTALLED_BITS="file://$CACHE_DIR/packages"
 NB_BUILDS_HOST="file://$CACHE_DIR/packages/nb"
 
-#rm -rf $CACHE_DIR/packages
-#bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+rm -rf $CACHE_DIR/packages
+bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
 
 cd ${DIRNAME}
 ################################################################################
