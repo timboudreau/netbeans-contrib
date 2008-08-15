@@ -37,24 +37,34 @@
 package org.netbeans.installer.utils.env;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.netbeans.installer.Installer;
 import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.product.components.NativeClusterConfigurationLogic;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ErrorManager;
+import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
 import org.netbeans.installer.utils.exceptions.InitializationException;
+import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.utils.helper.ExtendedUri;
 import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.helper.Status;
+import org.netbeans.installer.utils.silent.SilentLogManager;
+import org.netbeans.installer.wizard.components.panels.PreInstallSummaryPanel;
 
 public enum SystemCheckCategory implements ConfigurationChecker {
     
@@ -65,7 +75,8 @@ public enum SystemCheckCategory implements ConfigurationChecker {
     RIGHTS(ADMIN_CATEGORY_CAPTION, new RightsCheck()),
     REMOTE(REMOTE_CATEGORY_CAPTION, new RemotePackagesCheck()),
     PATCHES(PATCHES_CATEGORY_CAPTION, new PatchesCheck()),
-    PACKAGES(PACKAGES_CATEGORY_CAPTION, new PackagesCheck());
+    PACKAGES(PACKAGES_CATEGORY_CAPTION, new PackagesCheck()),
+    FREE_SPACE_SILENT("", new FreeSpaceSilentCheck());
     
     private String caption = null;
     private ConfigurationChecker checker = null;
@@ -577,6 +588,143 @@ class PackagesCheck implements ConfigurationChecker {
     public String getDisplayString() {
         if (statusCache == null) check();
         return statusCache.equals(CheckStatus.ERROR)? SUN_STUDIO_PACKAGES_DETECTED: SUN_STUDIO_PACKAGES_NOT_DETECTED;
+    }
+    
+}
+
+class FreeSpaceSilentCheck implements ConfigurationChecker {
+
+    private final String ERROR_NON_EXISTENT_ROOT_PROPERTY = "SCC.spacecheck.error.non.existent.root";
+    private final String ERROR_NOT_ENOUGH_SPACE_PROPERTY = "SCC.spacecheck.error.not.enough.space";
+    private final String ERROR_CANNOT_CHECK_SPACE_PROPERTY = "SCC.spacecheck.error.cannot.check.space";
+    private final String ERROR_CANNOT_WRITE_PROPERTY = "SCC.spacecheck.error.cannot.write";
+    private final String ERROR_FSROOTS_PROPERTY = "SCC.spacecheck.error.fsroots";
+    
+    private Boolean checkCache = null;
+    private String errorMessage = null;
+    
+    protected String validateSpace() {
+        try {
+            if(!Boolean.getBoolean(SystemUtils.NO_SPACE_CHECK_PROPERTY)) {
+                final List<File> roots =
+                        SystemUtils.getFileSystemRoots();
+                final List<Product> toInstall =
+                        Registry.getInstance().getProductsToInstall();
+                final Map<File, Long> spaceMap =
+                        new HashMap<File, Long>();
+
+                LogManager.log("Available roots : " + StringUtils.asString(roots));
+
+                File downloadDataDirRoot = FileUtils.getRoot(
+                        Installer.getInstance().getLocalDirectory(), roots);
+                long downloadSize = 0;
+                for (Product product: toInstall) {
+                    downloadSize+=product.getDownloadSize();
+                }
+                // the critical check point - we download all the data
+                spaceMap.put(downloadDataDirRoot, new Long(downloadSize));
+                long lastDataSize = 0;
+                for (Product product: toInstall) {
+
+                    File installLocation = product.getInstallationLocation();
+                    try {
+                        if (product.getLogic() instanceof NativeClusterConfigurationLogic) {
+                            installLocation = Registry.getInstance().getProducts(NativeClusterConfigurationLogic.SS_BASE_UID).get(0).getInstallationLocation();
+                        }
+                    } catch (InitializationException ex) {
+                        LogManager.log(ex);
+                    }
+                  //  LogManager.log("   Prouct [" + product. + "] <- " + installLocation);
+                    final File root = FileUtils.getRoot(installLocation, roots);
+                    final long productSize = product.getRequiredDiskSpace();
+
+                    LogManager.log("    [" + root + "] <- " + installLocation);
+
+                    if ( root != null ) {
+                        Long ddSize =  spaceMap.get(downloadDataDirRoot);
+                        // remove space that was freed after the remove of previos product data
+                        spaceMap.put(downloadDataDirRoot,
+                                Long.valueOf(ddSize - lastDataSize));
+
+                        // add space required for next product installation
+                        Long size = spaceMap.get(root);
+                        size = Long.valueOf(
+                                (size != null ? size.longValue() : 0L) +
+                                productSize);
+                        spaceMap.put(root, size);
+                        lastDataSize = product.getDownloadSize();
+                    } else {
+                        return StringUtils.format(
+                                ResourceUtils.getString(FreeSpaceSilentCheck.class, ERROR_NON_EXISTENT_ROOT_PROPERTY),
+                                product, installLocation);
+                    }
+                }
+
+                for (File root: spaceMap.keySet()) {
+                    try {
+                        final long availableSpace =
+                                SystemUtils.getFreeSpace(root);
+                        final long requiredSpace =
+                                spaceMap.get(root) + PreInstallSummaryPanel.REQUIRED_SPACE_ADDITION;
+
+                        if (availableSpace < requiredSpace) {
+                            return StringUtils.format(
+                                    ResourceUtils.getString(FreeSpaceSilentCheck.class, ERROR_NOT_ENOUGH_SPACE_PROPERTY),                                    
+                                    root,
+                                    StringUtils.formatSize(requiredSpace - availableSpace));
+                        }
+                    } catch (NativeException e) {
+                        ErrorManager.notifyError(
+                                ResourceUtils.getString(FreeSpaceSilentCheck.class, ERROR_CANNOT_CHECK_SPACE_PROPERTY),                                    
+                                e);
+                    }
+                }
+            }
+
+            final List<Product> toUninstall =
+                    Registry.getInstance().getProductsToUninstall();
+            for (Product product: toUninstall) {
+                if (!FileUtils.canWrite(product.getInstallationLocation())) {
+                    return StringUtils.format(
+                            ResourceUtils.getString(FreeSpaceSilentCheck.class, ERROR_CANNOT_WRITE_PROPERTY),                                                                
+                            product,
+                            product.getInstallationLocation());
+                }
+            }
+
+        } catch (IOException e) {
+            ErrorManager.notifyError(
+                    ResourceUtils.getString(FreeSpaceSilentCheck.class, ERROR_FSROOTS_PROPERTY),
+                    e);
+        }
+
+        return null;
+    }
+    
+    public CheckStatus check() {
+        if (checkCache == null) {
+            errorMessage = validateSpace(); 
+            checkCache = (errorMessage == null);
+        }
+        if (checkCache == false) return CheckStatus.ERROR;
+        return CheckStatus.OK;
+    }
+
+    public String getShortErrorMessage() {
+        return "";
+    }
+
+    public String getLongErrorMessage() {
+        if (checkCache == false) return errorMessage;
+        return "";
+    }
+
+    public boolean isMandatory() {
+        return SilentLogManager.isLogManagerActive();
+    }
+
+    public String getDisplayString() {
+        return "";
     }
     
 }

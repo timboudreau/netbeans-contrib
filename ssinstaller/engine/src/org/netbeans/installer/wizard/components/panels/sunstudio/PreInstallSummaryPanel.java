@@ -48,6 +48,7 @@ import org.netbeans.installer.Installer;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.RegistryNode;
 import org.netbeans.installer.product.RegistryType;
+import org.netbeans.installer.product.components.NativeClusterConfigurationLogic;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ErrorManager;
 import org.netbeans.installer.utils.FileUtils;
@@ -55,12 +56,14 @@ import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.utils.helper.Dependency;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
+import org.netbeans.installer.utils.silent.SilentLogManager;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelUi;
@@ -317,7 +320,14 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     long lastDataSize = 0;
                     for (Product product: toInstall) {
                                                 
-                        final File installLocation = product.getInstallationLocation();
+                        File installLocation = product.getInstallationLocation();
+                        try {
+                            if (product.getLogic() instanceof NativeClusterConfigurationLogic) {
+                                installLocation = Registry.getInstance().getProducts(NativeClusterConfigurationLogic.SS_BASE_UID).get(0).getInstallationLocation();
+                            }
+                        } catch (InitializationException ex) {
+                            LogManager.log(ex);
+                        }
                       //  LogManager.log("   Prouct [" + product. + "] <- " + installLocation);
                         final File root = FileUtils.getRoot(installLocation, roots);
                         final long productSize = product.getRequiredDiskSpace();
@@ -338,7 +348,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                             spaceMap.put(root, size);
                             lastDataSize = product.getDownloadSize();
                         } else {
-                            return StringUtils.format(
+                             return StringUtils.format(
                                     panel.getProperty(ERROR_NON_EXISTENT_ROOT_PROPERTY),
                                     product, installLocation);
                         }

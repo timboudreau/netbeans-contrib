@@ -34,56 +34,47 @@
  * copyright holder.
  */
 
-package org.netbeans.installer.wizard.components.sequences;
+package org.netbeans.installer.utils.silent;
 
-import org.netbeans.installer.product.Registry;
+import java.io.File;
+import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.ResourceUtils;
-import org.netbeans.installer.utils.env.CheckStatus;
-import org.netbeans.installer.utils.env.SystemCheckCategory;
-import org.netbeans.installer.utils.helper.ExecutionMode;
-import org.netbeans.installer.utils.helper.UiMode;
-import org.netbeans.installer.utils.silent.SilentLogManager;
-import org.netbeans.installer.wizard.components.WizardSequence;
-import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPanel;
+import org.netbeans.installer.utils.cli.CLIArgumentsList;
+import org.netbeans.installer.utils.cli.CLIOptionOneArgument;
+import org.netbeans.installer.utils.exceptions.CLIOptionException;
 
-public class SystemCheckSequence extends WizardSequence {
-    
-    private final String CRITICAL_ERROR_MESSAGE = ResourceUtils.getString(SystemCheckSequence.class, "SCS.error.message"); // NOI18N
-    
-    private SystemCheckPanel systemCheckPanel = null;
+public class SilentLogsDirectoryOption extends CLIOptionOneArgument {
 
-    public SystemCheckSequence() {
-        systemCheckPanel = new SystemCheckPanel();
+    public static final String SILENT_LOGS_DIR_ARG = "--silent-logs-dir";// NOI18N
+    
+    private final String WARNING_INCONSISTEN_LOGS_DIRECTORY_KEY = "S.warning.inconsistent.logs.directory"; // NOI18N
+    private final String WARNING_BAD_SILENT_LOGS_DIRECTORY_ARG_KEY = "S.warning.bad.silent.logs.directory.arg"; // NOI18N
+    
+    @Override
+    public String getName() {
+        return SILENT_LOGS_DIR_ARG;
     }
 
     @Override
-    public void executeForward() {
-        if (SilentLogManager.isLogManagerActive()) {
-            for(SystemCheckCategory problem: SystemCheckCategory.getProblemCategories()) {
-                String shortMessage = problem.getShortErrorMessage();
-                SilentLogManager.forceLog(problem.check(),  ((shortMessage.length() > 0)? shortMessage + ". ": "") + problem.getLongErrorMessage());
-            }
-            if (SystemCheckCategory.hasErrorCategories()) {
-                SilentLogManager.forceLog(CheckStatus.ERROR, CRITICAL_ERROR_MESSAGE);
-                getWizard().getFinishHandler().cancel();
-            }
+    public void execute(CLIArgumentsList arguments) throws CLIOptionException {
+        File dir = new File(arguments.next()).getAbsoluteFile();
+        if (dir.exists() && dir.isDirectory() && FileUtils.canWrite(dir)) {
+            System.setProperty(SilentLogManager.SILENT_LOGS_DIRECTORY_OPTION, dir.getAbsolutePath());
         } else {
-            if (SystemCheckCategory.hasProblemCategories() && System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
-                getChildren().clear();
-                addChild(systemCheckPanel);
-            }            
+            throw new CLIOptionException(ResourceUtils.getString(
+                    SilentLogsDirectoryOption.class,
+                    WARNING_INCONSISTEN_LOGS_DIRECTORY_KEY,
+                    SILENT_LOGS_DIR_ARG,
+                    dir));            
         }
-        super.executeForward();
-    }
-   
-    @Override
-    public boolean canExecuteForward() {        
-        return true;
     }
     
     @Override
-    public boolean canExecuteBackward() {
-        return true;
+    protected String getLackOfArgumentsMessage() {
+        return ResourceUtils.getString(
+                SilentLogsDirectoryOption.class,
+                WARNING_BAD_SILENT_LOGS_DIRECTORY_ARG_KEY,
+                SILENT_LOGS_DIR_ARG);
     }
-    
+
 }
