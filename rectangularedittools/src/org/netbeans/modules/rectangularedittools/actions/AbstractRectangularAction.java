@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.rectangularedittools.actions;
 
 import java.awt.Toolkit;
@@ -51,9 +50,12 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.StyledDocument;
 import org.netbeans.editor.BaseDocument;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
+import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.actions.CookieAction;
@@ -65,6 +67,7 @@ import org.openide.windows.TopComponent;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public abstract class AbstractRectangularAction extends CookieAction {
+
     private static Clipboard clipboard;
 
     protected void performAction(Node[] activatedNodes) {
@@ -83,205 +86,204 @@ public abstract class AbstractRectangularAction extends CookieAction {
         }
     }
 
-    protected void doRectangleOperation(JTextComponent textComponent) {
+    protected void doRectangleOperation(final JTextComponent textComponent) {
         if (isReplacingAction() && (!textComponent.isEditable())) {
             beep();
             return;
         }
 
-        Document doc = textComponent.getDocument();
+        final Document doc = textComponent.getDocument();
         if (requiresSelection() && textComponent.getSelectionStart() == -1) {
             beep();
             return;
         }
 
         // lock the document to capture all changes as a single Undoable change
-        if (doc instanceof BaseDocument) {
-            ((BaseDocument)doc).atomicLock();
-        }
-        try {
-            Caret caret = textComponent.getCaret();
-
-            int selectionStart = textComponent.getCaretPosition();
-            int selectionEnd = selectionStart;
-            int selectionLength = 0;
-            boolean backwardSelection = false;
-
-            // check if there is a selection and normalize it
-            if (caret.isSelectionVisible()) {
-                int selStart = caret.getDot();
-                int selEnd = caret.getMark();
-                backwardSelection = selStart > selEnd;
-                selectionStart = Math.min(selStart, selEnd);
-                selectionEnd =   Math.max(selStart, selEnd);
-            } else {
-                beep();
-                return;
-            }
-
-            // selection length
-            selectionLength = selectionEnd - selectionStart;
-
-            // get document's root element
-            Element rootElement = doc.getDefaultRootElement();
-
-            // ----- collect all necessary information -----
-            // gather information about first line of the selection
-            int startLineIndex = rootElement.getElementIndex(selectionStart);
-            Element startLineElement = rootElement.getElement(startLineIndex);
-            int startLineStartOffset = startLineElement.getStartOffset();
-            int startLineEndOffset = startLineElement.getEndOffset();
-            int startLineLength = startLineEndOffset - startLineStartOffset;
-
-            // gather information about last line of the selection
-            int endLineIndex = rootElement.getElementIndex(selectionEnd);
-            Element endLineElement   = rootElement.getElement(endLineIndex);
-            int endLineStartOffset = endLineElement.getStartOffset();
-            int endLineEndOffset = endLineElement.getEndOffset();
-            int endLineLength = endLineEndOffset - endLineStartOffset;
-
-            // the length of the not-selected prefix in every line:
-            int prefixLen = selectionStart - startLineStartOffset;
-
-            // length of the selection in the last line of the selection:
-            int selectionEndOffsetInEndLine = selectionEnd - endLineStartOffset;
-
-            // the width of the selected rectangle:
-            int rectangleWidth = selectionEndOffsetInEndLine - prefixLen;
-
-            // backward rectangle
-            if (rectangleWidth < 0) {
-                beep();
-                return;
-            }
-
-            String replacementText = getReplacementText(rectangleWidth);
-
-            String newline = "\n";
-            boolean replaceMultipleRows = false;
-            StringTokenizer replaceRows = null;
-
-            if (replacementText != null) {
-                // Tokenize text by newline
-                replaceRows = new StringTokenizer(replacementText, newline);
-                replaceMultipleRows = replaceRows.countTokens() > 1;
-            }
-
-            String replacementLine = replacementText;
-
+        if (doc instanceof StyledDocument) {
             try {
-                // Collect the string to replace
-                StringBuffer replacement = new StringBuffer();
-                StringBuffer selectedRect = new StringBuffer();
+                NbDocument.runAtomicAsUser((StyledDocument) doc, new Runnable() {
 
-                for (int i = startLineIndex; i <= endLineIndex; i++) {
-                    Element line = rootElement.getElement(i);
-                    int lineStartOffset = line.getStartOffset();
-                    int lineEndOffset = line.getEndOffset();
-                    int lineLength = lineEndOffset - lineStartOffset;
+                    public void run() {
+                        Caret caret = textComponent.getCaret();
 
-                    // Width of the text to replace
-                    int replacementTextWidth = rectangleWidth;
+                        int selectionStart = textComponent.getCaretPosition();
+                        int selectionEnd = selectionStart;
+                        int selectionLength = 0;
+                        boolean backwardSelection = false;
 
-                    if (isReplacingAction()) {
-                        // Skip lines that are shorter than the rectangle start column
-                        if ((lineLength - 1) <= prefixLen) {
-                            replacement.append(doc.getText(lineStartOffset, lineLength));
+                        // check if there is a selection and normalize it
+                        if (caret.isSelectionVisible()) {
+                            int selStart = caret.getDot();
+                            int selEnd = caret.getMark();
+                            backwardSelection = selStart > selEnd;
+                            selectionStart = Math.min(selStart, selEnd);
+                            selectionEnd = Math.max(selStart, selEnd);
                         } else {
-                            // append the prefix
-                            if (prefixLen >= 0) {
-                                replacement.append(doc.getText(lineStartOffset, prefixLen));
-                            }
+                            beep();
+                            return;
+                        }
 
-                            if (replacementText == null) {
-                                if (isPostProcessingAction()) {
-                                    int textToReplaceWidth = Math.min(lineLength - prefixLen, rectangleWidth);
-                                    if (textToReplaceWidth > 0) {
-                                        replacementLine = getPostProcessedText(doc.getText(lineStartOffset + prefixLen, textToReplaceWidth));
-                                        replacement.append(replacementLine);
-                                    }
-                                }
-                            } else {
-                                // append the replacement
-                                if (replaceMultipleRows) {
-                                    if (replaceRows.hasMoreTokens()) {
-                                        // get next replacement text
-                                        replacementLine = replaceRows.nextToken();
+                        // selection length
+                        selectionLength = selectionEnd - selectionStart;
+
+                        // get document's root element
+                        Element rootElement = doc.getDefaultRootElement();
+
+                        // ----- collect all necessary information -----
+                        // gather information about first line of the selection
+                        int startLineIndex = rootElement.getElementIndex(selectionStart);
+                        Element startLineElement = rootElement.getElement(startLineIndex);
+                        int startLineStartOffset = startLineElement.getStartOffset();
+                        int startLineEndOffset = startLineElement.getEndOffset();
+                        int startLineLength = startLineEndOffset - startLineStartOffset;
+
+                        // gather information about last line of the selection
+                        int endLineIndex = rootElement.getElementIndex(selectionEnd);
+                        Element endLineElement = rootElement.getElement(endLineIndex);
+                        int endLineStartOffset = endLineElement.getStartOffset();
+                        int endLineEndOffset = endLineElement.getEndOffset();
+                        int endLineLength = endLineEndOffset - endLineStartOffset;
+
+                        // the length of the not-selected prefix in every line:
+                        int prefixLen = selectionStart - startLineStartOffset;
+
+                        // length of the selection in the last line of the selection:
+                        int selectionEndOffsetInEndLine = selectionEnd - endLineStartOffset;
+
+                        // the width of the selected rectangle:
+                        int rectangleWidth = selectionEndOffsetInEndLine - prefixLen;
+
+                        // backward rectangle
+                        if (rectangleWidth < 0) {
+                            beep();
+                            return;
+                        }
+
+                        String replacementText = getReplacementText(rectangleWidth);
+
+                        String newline = "\n";
+                        boolean replaceMultipleRows = false;
+                        StringTokenizer replaceRows = null;
+
+                        if (replacementText != null) {
+                            // Tokenize text by newline
+                            replaceRows = new StringTokenizer(replacementText, newline);
+                            replaceMultipleRows = replaceRows.countTokens() > 1;
+                        }
+
+                        String replacementLine = replacementText;
+
+                        try {
+                            // Collect the string to replace
+                            StringBuffer replacement = new StringBuffer();
+                            StringBuffer selectedRect = new StringBuffer();
+
+                            for (int i = startLineIndex; i <= endLineIndex; i++) {
+                                Element line = rootElement.getElement(i);
+                                int lineStartOffset = line.getStartOffset();
+                                int lineEndOffset = line.getEndOffset();
+                                int lineLength = lineEndOffset - lineStartOffset;
+
+                                // Width of the text to replace
+                                int replacementTextWidth = rectangleWidth;
+
+                                if (isReplacingAction()) {
+                                    // Skip lines that are shorter than the rectangle start column
+                                    if ((lineLength - 1) <= prefixLen) {
+                                        replacement.append(doc.getText(lineStartOffset, lineLength));
                                     } else {
-                                        // ran out of replacement text, use ""
-                                        replacementLine = "";
+                                        // append the prefix
+                                        if (prefixLen >= 0) {
+                                            replacement.append(doc.getText(lineStartOffset, prefixLen));
+                                        }
+
+                                        if (replacementText == null) {
+                                            if (isPostProcessingAction()) {
+                                                int textToReplaceWidth = Math.min(lineLength - prefixLen, rectangleWidth);
+                                                if (textToReplaceWidth > 0) {
+                                                    replacementLine = getPostProcessedText(doc.getText(lineStartOffset + prefixLen, textToReplaceWidth));
+                                                    replacement.append(replacementLine);
+                                                }
+                                            }
+                                        } else {
+                                            // append the replacement
+                                            if (replaceMultipleRows) {
+                                                if (replaceRows.hasMoreTokens()) {
+                                                    // get next replacement text
+                                                    replacementLine = replaceRows.nextToken();
+                                                } else {
+                                                    // ran out of replacement text, use ""
+                                                    replacementLine = "";
+                                                }
+                                                replacementTextWidth = replacementLine.length();
+                                            }
+
+                                            replacement.append(replacementLine);
+                                        }
+
+                                        // compute suffix length
+                                        int suffixPos = lineStartOffset + prefixLen + rectangleWidth;
+                                        int suffixLen = lineStartOffset + lineLength - suffixPos;
+                                        // suffix is there
+                                        if (suffixLen >= 0) {
+                                            // append the suffix
+                                            replacement.append(doc.getText(suffixPos, suffixLen));
+                                        } else {
+                                            // simply append newline
+                                            replacement.append(newline);
+                                        }
                                     }
-                                    replacementTextWidth = replacementLine.length();
                                 }
 
-                                replacement.append(replacementLine);
-                            }
-
-                            // compute suffix length
-                            int suffixPos = lineStartOffset + prefixLen + rectangleWidth;
-                            int suffixLen = lineStartOffset + lineLength - suffixPos;
-                            // suffix is there
-                            if (suffixLen >= 0) {
-                                // append the suffix
-                                replacement.append(doc.getText(suffixPos, suffixLen));
-                            } else {
-                                // simply append newline
-                                replacement.append(newline);
-                            }
-                        }
-                    }
-
-                    if (isCopyingAction()) {
-                        // skip lines that are shorter than the start of the rectangle
-                        if (prefixLen < (lineLength - 1)) {
-                            int prefixPos = lineStartOffset + prefixLen;
-                            int postfixLen = lineStartOffset
-                                    + lineLength - 1 /* accounts for newline */
-                                    - prefixPos;
-                            if (postfixLen >= 0) {
-                                replacementTextWidth = Math.min(replacementTextWidth, postfixLen);
-                                String s = doc.getText(lineStartOffset + prefixLen,
-                                        replacementTextWidth);
-                                selectedRect.append(s);
-                                if (i != endLineIndex) {
-                                    selectedRect.append(newline);
+                                if (isCopyingAction()) {
+                                    // skip lines that are shorter than the start of the rectangle
+                                    if (prefixLen < (lineLength - 1)) {
+                                        int prefixPos = lineStartOffset + prefixLen;
+                                        int postfixLen = lineStartOffset + lineLength - 1 /* accounts for newline */ - prefixPos;
+                                        if (postfixLen >= 0) {
+                                            replacementTextWidth = Math.min(replacementTextWidth, postfixLen);
+                                            String s = doc.getText(lineStartOffset + prefixLen,
+                                                    replacementTextWidth);
+                                            selectedRect.append(s);
+                                            if (i != endLineIndex) {
+                                                selectedRect.append(newline);
+                                            }
+                                        }
+                                    }
                                 }
                             }
+
+                            // do the replacement
+                            if (isReplacingAction()) {
+                                int length = endLineEndOffset - startLineStartOffset;
+                                doc.remove(startLineStartOffset, length);
+                                doc.insertString(startLineStartOffset, replacement.toString(), null);
+                            }
+
+                            if (isCopyingAction()) {
+                                Clipboard cb = getExClipboard();
+                                cb.setContents(new StringSelection(selectedRect.toString()), null);
+                            }
+
+                            if (isRetainSelection()) {
+                                // select moved lines
+                                if (backwardSelection) {
+                                    caret.setDot(selectionEnd);
+                                    caret.moveDot(selectionStart);
+                                } else {
+                                    caret.setDot(selectionStart);
+                                    caret.moveDot(selectionEnd);
+                                }
+                            }
+                        } catch (BadLocationException e) {
+                            // should not happen
+                            beep();
+                            return;
                         }
                     }
-                }
-
-                // do the replacement
-                if (isReplacingAction()) {
-                    int length = endLineEndOffset - startLineStartOffset;
-                    doc.remove(startLineStartOffset, length);
-                    doc.insertString(startLineStartOffset, replacement.toString(), null);
-                }
-
-                if (isCopyingAction()) {
-                    Clipboard cb = getExClipboard();
-                    cb.setContents(new StringSelection(selectedRect.toString()), null);
-                }
-                
-                if (isRetainSelection()) {
-                    // select moved lines
-                    if (backwardSelection) {
-                        caret.setDot(selectionEnd);
-                        caret.moveDot(selectionStart);
-                    } else {
-                        caret.setDot(selectionStart);
-                        caret.moveDot(selectionEnd);
-                    }
-                }
-            } catch(BadLocationException e) {
-                // should not happen
-                beep();
-                return;
-            }
-        } finally {
-            // unlock
-            if (doc instanceof BaseDocument) {
-                ((BaseDocument)doc).atomicUnlock();
+                });
+            } catch (BadLocationException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
     }
@@ -293,7 +295,7 @@ public abstract class AbstractRectangularAction extends CookieAction {
     protected boolean isRetainSelection() {
         return false;
     }
-    
+
     protected boolean isPostProcessingAction() {
         return false;
     }
@@ -327,9 +329,9 @@ public abstract class AbstractRectangularAction extends CookieAction {
     }
 
     protected Class[] cookieClasses() {
-        return new Class[] {
-            EditorCookie.class
-        };
+        return new Class[]{
+                    EditorCookie.class
+                };
     }
 
     public HelpCtx getHelpCtx() {
