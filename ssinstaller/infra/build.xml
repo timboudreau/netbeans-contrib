@@ -194,6 +194,7 @@
 <!-- Added by Igor Nikiforov -->
 <!-- This addition is provided in order to have qn ability to use SSI-engine utility classes
      in custom SSI ant build task.  
+-->
         <subant buildpath="${nbi.netbeans.dir}/infra/engine" target="release-all" failonerror="true" output="core.engine.unofficial.build.output">
             <property 
                 name="basedir" 
@@ -212,7 +213,7 @@
             <fileset dir="${nbi.netbeans.dir}/infra/engine/build/ssinstaller/engine/build/classes">
                 <include name="**/*.*"/>
             </fileset>
-        </copy>-->
+        </copy>
 <!-- End of addition -->
         <javac 
             srcdir="${custom.tasks.src.3}" 
