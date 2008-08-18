@@ -432,6 +432,7 @@ class RemotePackagesCheck implements ConfigurationChecker {
     public CheckStatus check() {
         if (status == null) {
             final Registry registry = getRegistry();
+            status = CheckStatus.OK;
             for(Product product: registry.getProducts()) {
                 for(ExtendedUri euri: product.getDataUris()) {
                     String euriStr = euri.getRemote().toString();

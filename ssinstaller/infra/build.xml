@@ -404,7 +404,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>
-            <property name="product.data.all.location" value="${bundles.url}" />
+            <property name="nbi.product.bundled.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
@@ -426,7 +426,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>
-            <property name="product.data.all.location" value="${bundles.url}" />
+            <property name="nbi.product.bundled.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
 
@@ -449,7 +449,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-extra" version="${nb.full.version}"/>
-            <property name="product.data.all.location" value="${bundles.url}" />
+            <property name="nbi.product.bundled.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
 	

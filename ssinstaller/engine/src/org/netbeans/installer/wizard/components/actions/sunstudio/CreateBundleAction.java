@@ -77,6 +77,7 @@ import org.netbeans.installer.wizard.components.WizardAction;
  *
  * @author Kirill Sorokin
  */
+@Deprecated
 public class CreateBundleAction extends WizardAction {
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
