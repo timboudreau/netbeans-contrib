@@ -60,12 +60,16 @@
 
 
 <target name="-build" depends="-build-engine,.build">
-<!--Added by Igor Nikiforov
+<!-- Added by Igor Nikiforov -->
         <taskdef 
             name="esizeof"
             classname="org.netbeans.installer.infra.build.ant.ExtendedSizeOf"
             classpath="${custom.tasks.cls}"/>
-End of addition-->
+        <taskdef 
+            name="package-metadata"
+            classname="org.netbeans.installer.infra.build.ant.PackageMetadataExtractor"
+            classpath="${custom.tasks.cls}"/>
+<!-- End of addition-->
 
         <!-- init the required disk space -->
         <set property="product.disk.space" 
@@ -270,8 +274,9 @@ End of addition-->
                     <param name="data.directory" value="${current.temp.dir}"/>
                 </antcall>
                 
+		<package-metadata file="${current.temp.dir}" />
+		
                 <!-- measure its size and add it to the required disk space -->
-                <!--
 		<esizeof 
                     file="${current.temp.dir}" 
                     property="current.disk.space"/>
@@ -280,7 +285,8 @@ End of addition-->
                     arg1="${product.disk.space}" 
                     arg2="${current.disk.space}" 
                     property="product.disk.space"/>
-                -->
+
+
                 <!-- repackage (pack200, jar) and build files list -->
                 <package 
                     directory="${current.temp.dir}" 
