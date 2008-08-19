@@ -583,7 +583,7 @@ class PackagesCheck implements ConfigurationChecker {
     }
 
     public boolean isMandatory() {
-        return SystemUtils.isLinux() && !Registry.getInstance().getProducts("ss-base").get(0).getStatus().equals(Status.INSTALLED);
+        return /*SystemUtils.isLinux() &&*/ !Registry.getInstance().getProducts(NativeClusterConfigurationLogic.SS_BASE_UID).get(0).getStatus().equals(Status.INSTALLED);
     }
 
     public String getDisplayString() {
