@@ -72,7 +72,7 @@ import org.xml.sax.SAXParseException;
  * @author Jun Xu
  */
 public class EncodingOption {
-    
+
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle(
                 EncodingOption.class.getPackage().getName() + ".Bundle"); //NOI18N
@@ -83,10 +83,10 @@ public class EncodingOption {
     public static final String FIXED_LENGTH_TYPE_PREFIX = "fixedLengthType"; //NOI18N
     private static final String EMP = ""; //NOI18N
     private static final String UDS = "_"; //NOI18N
-    
+
     private static final CustomEncoding mDefaultCustomEncoding =
             CustomEncoding.Factory.newInstance();
-    
+
     private static final Map<String, String> mReverseTextMap =
             new HashMap<String, String>();
     private static final Map<String, String> mTextMap =
@@ -96,8 +96,8 @@ public class EncodingOption {
     private static List<String> mOrderTagList = new ArrayList<String>();
     private static List<String> mFixedLengthTypeTagList = new ArrayList<String>();
     private static List<String> mUndefDataPolicyTagList = new ArrayList<String>();
-    
-    static {        
+
+    static {
         //Populate the localized text map and the tag list for the node type property
         mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_group"), "group"); //NOI18N
         mReverseTextMap.put(NODE_TYPE_PREFIX + UDS + _bundle.getString("TAG_NodeType_array"), "array"); //NOI18N
@@ -115,7 +115,7 @@ public class EncodingOption {
         mNodeTypeTagList.add(_bundle.getString("TAG_NodeType_fixedLength"));
         mNodeTypeTagList.add(_bundle.getString("TAG_NodeType_transient"));
         mNodeTypeTagList = Collections.unmodifiableList(mNodeTypeTagList);
-        
+
         //Populate the localized text map and the tag list for the alignment property
         mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_blind"), "blind"); //NOI18N
         mReverseTextMap.put(ALIGNMENT_PREFIX + UDS + _bundle.getString("TAG_Alignment_exact"), "exact"); //NOI18N
@@ -142,7 +142,7 @@ public class EncodingOption {
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_oneof"));
         mAlignmentTagList.add(_bundle.getString("TAG_Alignment_regex"));
         mAlignmentTagList = Collections.unmodifiableList(mAlignmentTagList);
-        
+
         //Populate the localized text map and the tag list for the order property
         mReverseTextMap.put(ORDER_PREFIX + UDS + _bundle.getString("TAG_Order_sequence"), "sequence"); //NOI18N
         mReverseTextMap.put(ORDER_PREFIX + UDS + _bundle.getString("TAG_Order_any"), "any"); //NOI18N
@@ -154,7 +154,7 @@ public class EncodingOption {
         mOrderTagList.add(_bundle.getString("TAG_Order_any"));
         mOrderTagList.add(_bundle.getString("TAG_Order_mixed"));
         mOrderTagList = Collections.unmodifiableList(mOrderTagList);
-        
+
         //Populate the localized text map and the tag list for the fixedLengthType property
         mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_regular"), "regular"); //NOI18N
         mReverseTextMap.put(FIXED_LENGTH_TYPE_PREFIX + UDS + _bundle.getString("TAG_FixedLengthType_encoded"), "encoded"); //NOI18N
@@ -195,7 +195,7 @@ public class EncodingOption {
      * Component path from which the encoding options are read
      */
     private final SchemaComponent[] mComponentPath;
-    
+
     /* Bean property variables */
     private String mNodeType = mTextMap.get(NODE_TYPE_PREFIX + UDS + NodeProperties.NodeType.DELIMITED);
     private boolean mTop = false;
@@ -214,7 +214,7 @@ public class EncodingOption {
     private String mMaxOcc = EMP;
     private String mScvngrChars = EMP;
     private boolean mScvngrEmit1st = false;
-    
+
     // for a fixedLength field
     private String mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "regular"); //NOI18N
     private int mLength = 0;
@@ -226,11 +226,11 @@ public class EncodingOption {
     private String mEscapeSequence = EMP;
     private boolean mFineInherit = false;
     private String mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS + NodeProperties.UndefDataPolicy.PROHIBIT);
-    
+
     private CustomEncoding mCustomEncoding = null;
     private AppInfo mAppInfo = null;
     private PropertyChangeListener mSchemaPropChangeListener;
-    
+
     /**
      * Creates a new instance of EncodingOption
      * @param path - a list of SchemaComponent
@@ -249,46 +249,54 @@ public class EncodingOption {
             throws InvalidAppInfoException {
         return createFromAppInfo(path, true);
     }
-    
+
+    /**
+     * Create EncodingOption object from AppInfo.
+     *
+     * @param path list of SchemaComponent.
+     * @param hookUpListener whether or not to hookup listener.
+     * @return created EncodingOption object from AppInfo.
+     * @throws org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException
+     */
     public static EncodingOption createFromAppInfo(List<SchemaComponent> path,
             boolean hookUpListener)
             throws InvalidAppInfoException {
-        
+
         EncodingOption option = new EncodingOption(path);
         if (!option.init(hookUpListener)) {
             return null;
         }
         return option;
     }
-    
+
     public static Map<String, String> textMap() {
         return mTextMap;
     }
-    
+
     public static Map<String, String> reverseTextMap() {
         return mReverseTextMap;
     }
-    
+
     public static List<String> nodeTypeTagList() {
         return mNodeTypeTagList;
     }
-    
+
     public static List<String> alignmentTagList() {
         return mAlignmentTagList;
     }
-    
+
     public static List<String> orderTagList() {
         return mOrderTagList;
     }
-    
+
     public static List<String> fixedLengthTypeTagList() {
         return mFixedLengthTypeTagList;
     }
-    
+
     public static List<String> undefDataPolicyTagList() {
         return mUndefDataPolicyTagList;
     }
-    
+
     public String getAlignment() {
         return mAlignment;
     }
@@ -517,7 +525,7 @@ public class EncodingOption {
     }
 
     public void setMaxOcc(String maxOcc) {
-        if (maxOcc == null || maxOcc.length() == 0 
+        if (maxOcc == null || maxOcc.length() == 0
                 || _bundle.getString("encoding_node.value.unbounded").equalsIgnoreCase(maxOcc)) { //NOI18N
             mCustomEncoding.getNodeProperties().unsetMaxOcc();
         } else {
@@ -567,8 +575,8 @@ public class EncodingOption {
         if (!mCustomEncoding.getNodeProperties().isSetScvngr()
                 || mCustomEncoding.getNodeProperties().getScvngr().getChars() == null
                 || mCustomEncoding.getNodeProperties().getScvngr().getChars().length() == 0) {
-            // do nothing so that as if user can not 
-            // check the "Output First Scavenger Character" because the 
+            // do nothing so that as if user can not
+            // check the "Output First Scavenger Character" because the
             // "Scavenger Characters" field is not set to any value yet.
             mScvngrEmit1st = false;
             return;
@@ -608,8 +616,8 @@ public class EncodingOption {
 
     public void setBeginDelimiterDetached(boolean beginDelimiterDetached) {
         if (!mCustomEncoding.getNodeProperties().isSetDelimOfFixed()) {
-            // do nothing so that as if user can not 
-            // check the "Begin Delimiter Detached" because the 
+            // do nothing so that as if user can not
+            // check the "Begin Delimiter Detached" because the
             // "Begin Delimiter" field is not set to any value yet.
             mBeginDelimiterDetached = false;
             return;
@@ -733,7 +741,7 @@ public class EncodingOption {
         firePropertyChange("fixedLengthType", old, mFixedLengthType); //NOI18N
         commitToAppInfo();
     }
-    
+
     public String getUndefDataPolicy() {
         return mUndefDataPolicy;
     }
@@ -821,7 +829,7 @@ public class EncodingOption {
         commitToAppInfo();
         firePropertyChange("noMatch", old, Boolean.valueOf(mNoMatch)); //NOI18N
     }
-    
+
     public String getOrder() {
         return mOrder;
     }
@@ -908,8 +916,7 @@ public class EncodingOption {
                 mOutputCharset = EMP;
                 mCustomEncoding.getNodeProperties().unsetOutputCharset();
             }
-            if (!NodeProperties.NodeType.FIXED_LENGTH.equals(
-                    mCustomEncoding.getNodeProperties().getNodeType())) {
+            if (!NodeProperties.NodeType.FIXED_LENGTH.equals(xgetNodeType())) {
                 if (mCustomEncoding.getNodeProperties().isSetParsingCharset()) {
                     mParsingCharset = EMP;
                     mCustomEncoding.getNodeProperties().unsetParsingCharset();
@@ -923,7 +930,7 @@ public class EncodingOption {
         commitToAppInfo();
         firePropertyChange("top", old, Boolean.valueOf(mTop)); //NOI18N
     }
-    
+
     /**
      * Test if current "encoding" node belongs to an XSD global element.
      * @return true if current "encoding" node belongs to an XSD global element.
@@ -936,7 +943,7 @@ public class EncodingOption {
         }
         return annotation().getParent() instanceof GlobalElement;
     }
-    
+
     /**
      * Test if current "encoding" node belongs to a leaf node.
      * @return true if current "encoding" node belongs to a leaf node.
@@ -987,15 +994,14 @@ public class EncodingOption {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.add(listener);
     }
-    
+
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.remove(listener);
     }
 
     public void validate(ErrorHandler handler)
             throws ValidationException, SAXException {
-        if (NodeProperties.NodeType.DELIMITED.equals(
-                mCustomEncoding.getNodeProperties().getNodeType())) {
+        if (NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())) {
             //is delimited
             if (computeDelimiter() == null) {
                 handler.error(
@@ -1009,8 +1015,7 @@ public class EncodingOption {
                             -1,
                             -1));
             }
-        } else if (NodeProperties.NodeType.FIXED_LENGTH.equals(
-                mCustomEncoding.getNodeProperties().getNodeType())) {
+        } else if (NodeProperties.NodeType.FIXED_LENGTH.equals(xgetNodeType())) {
             if (getLength() == 0) {
                 handler.warning(
                         new SAXParseException(
@@ -1041,12 +1046,12 @@ public class EncodingOption {
             }
         }
     }
-    
+
     /**
      * Return all delimiters at the given delimiter level
      * as a comma separate string, e.g. "], }". It returns null
      * if there is no delimiter defined.
-     * 
+     *
      * @param delimLevel a given delimiter level
      * @return a comma separate string, e.g. "], }"
      */
@@ -1057,7 +1062,8 @@ public class EncodingOption {
         delimiters = delimLevel.getDelimiterArray();
         delim = EMP;
         for (int i = 0; i < delimiters.length; i++) {
-            if (!delimiters[i].isSetBytes() || !delimiters[i].getBytes().isSetConstant()) {
+            if (!delimiters[i].isSetBytes()
+                || !delimiters[i].getBytes().isSetConstant()) {
                 // skip non-constant delimiter(s)
                 continue;
             }
@@ -1071,25 +1077,26 @@ public class EncodingOption {
         }
         return delim;
     }
-    
+
     /**
      * Compute the delimiter value at current node.
      * @return the computed delimiter value.
      */
     private String computeDelimiter() {
-        // Only Delinited or Array node needs to compute delimiter
-        if (!NodeProperties.NodeType.DELIMITED.equals(
-                    mCustomEncoding.getNodeProperties().getNodeType())
-                && !NodeProperties.NodeType.ARRAY.equals(
-                        mCustomEncoding.getNodeProperties().getNodeType())) {
+        // Only delimited or array node needs to compute delimiter
+        if (!NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())
+                && !NodeProperties.NodeType.ARRAY.equals(xgetNodeType())) {
             return null;
         }
         String delim = null;
         DelimiterLevel delimLevel;
         Delimiter[] delimiters;
         if (mDelimiterSet != null) {
-            // get first delimiter level
+            // it means we have local delimiters defined,
+            // so we get first delimiter level
             delimLevel = mDelimiterSet.getLevelArray(0);
+            // we get all delimiters at the given delimiter level as
+            // comma separated string
             delim = getDelimitersAsString(delimLevel);
         }
         if (delim != null) {
@@ -1098,9 +1105,11 @@ public class EncodingOption {
         SchemaComponent comp;
         Annotation anno;
         CustomEncoding customEncoding;
-        //Starting from mComponentPath.length - 3, so the current element declaration can be skipped
+        // Starting from mComponentPath.length - 3, so the current element
+        // declaration can be skipped
         int level = 0;
-        for (int i = mComponentPath.length - 3; i >= 0; i--) {
+        int i = mComponentPath.length - 3;
+        for (; i >= 0; i--) {
             comp = mComponentPath[i];
             if (!(comp instanceof Element)
                     || comp instanceof ElementReference) {
@@ -1120,20 +1129,18 @@ public class EncodingOption {
                 level++;
                 continue;
             }
-            if (NodeProperties.NodeType.DELIMITED.equals(
-                    customEncoding.getNodeProperties().getNodeType())
-                || NodeProperties.NodeType.ARRAY.equals(
-                        customEncoding.getNodeProperties().getNodeType())) {
+            NodeProperties nProp = customEncoding.getNodeProperties();
+            if (NodeProperties.NodeType.DELIMITED.equals(nProp.getNodeType())
+                || NodeProperties.NodeType.ARRAY.equals(nProp.getNodeType())) {
                 level++;
             }
-            if (!customEncoding.getNodeProperties().isSetDelimiterSet()) {
+            if (!nProp.isSetDelimiterSet()) {
                 continue;
             }
-            if (customEncoding.getNodeProperties().getDelimiterSet().sizeOfLevelArray()
-                    <= level) {
+            if (nProp.getDelimiterSet().sizeOfLevelArray() <= level) {
                 break;
             }
-            delimLevel = customEncoding.getNodeProperties().getDelimiterSet().getLevelArray(level);
+            delimLevel = nProp.getDelimiterSet().getLevelArray(level);
             delimiters = delimLevel.getDelimiterArray();
             delim = EMP;
             for (int j = 0; j < delimiters.length; j++) {
@@ -1165,12 +1172,12 @@ public class EncodingOption {
         }
         return delim;
     }
-    
+
     private Annotation annotation() {
         // annotation is stored as last element
         return (Annotation) mComponentPath[mComponentPath.length - 1];
     }
-    
+
     private String elementName() {
         Element elem = (Element) annotation().getParent();
         if (elem instanceof GlobalElement) {
@@ -1183,46 +1190,55 @@ public class EncodingOption {
         }
         return null;
     }
-    
-    private boolean init(boolean hookUpListener) throws InvalidAppInfoException {
+
+    /**
+     * Initialize this EncodingOption object.
+     *
+     * @param hookUpListener whether or not to hookup listener.
+     * @return true if initialization was successful, false if no custom
+     * encoding info was found.
+     * @throws org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException
+     */
+    private boolean init(boolean hookUpListener)
+        throws InvalidAppInfoException {
         SchemaComponent comp = mComponentPath[mComponentPath.length - 1];
         if (!(comp instanceof Annotation)) {
             throw new IllegalArgumentException(
                     _bundle.getString("encoding_opt.exp.must_be_annotation")); //NOI18N
         }
+        CustomEncoding customEnc = null;
         AppInfo[] appinfoReturned = new AppInfo[1];
-        CustomEncoding customEncoding =
-                fetchCustomEncoding((Annotation) comp, appinfoReturned);
-        if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
-            if (appinfoReturned[0] != null) {
-                mAppInfo = appinfoReturned[0];
-                boolean top = false;
-                if (customEncoding != null && customEncoding.isSetTop()
-                        && customEncoding.getTop()) {
-                    top = true;
-                }
-                customEncoding = (CustomEncoding) mDefaultCustomEncoding.copy();
-                if (top) {
-                    customEncoding.setTop(true);
-                }
-            } else {
+        customEnc = fetchCustomEncoding((Annotation) comp, appinfoReturned);
+        if (customEnc == null || !customEnc.isSetNodeProperties()) {
+            if (appinfoReturned[0] == null) {
                 return false;
+            }
+            mAppInfo = appinfoReturned[0];
+            boolean top = false;
+            if (customEnc != null && customEnc.isSetTop()
+                && customEnc.getTop()) {
+                top = true;
+            }
+            customEnc = (CustomEncoding) mDefaultCustomEncoding.copy();
+            if (top) {
+                customEnc.setTop(true);
             }
         } else {
             mAppInfo = appinfoReturned[0];
         }
+        NodeProperties nProp = customEnc.getNodeProperties();
         mNodeType = mTextMap.get(NODE_TYPE_PREFIX + UDS
-                + customEncoding.getNodeProperties().getNodeType().toString());
-        if (customEncoding.getNodeProperties().isSetAlignment()) {
+                + nProp.getNodeType().toString());
+        if (nProp.isSetAlignment()) {
             mAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS
-                    + customEncoding.getNodeProperties().getAlignment().toString());
+                    + nProp.getAlignment().toString());
         }
-        if (customEncoding.getNodeProperties().isSetOrder()) {
+        if (nProp.isSetOrder()) {
             mOrder = mTextMap.get(ORDER_PREFIX + UDS
-                    + customEncoding.getNodeProperties().getOrder().toString());
+                    + nProp.getOrder().toString());
         }
-        if (customEncoding.getNodeProperties().isSetNOfN()) {
-            NOfN nOfN = customEncoding.getNodeProperties().getNOfN();
+        if (nProp.isSetNOfN()) {
+            NOfN nOfN = nProp.getNOfN();
             if (nOfN.isSetMinN()) {
                 mNOfNminN = Integer.toString(nOfN.getMinN());
             }
@@ -1230,93 +1246,94 @@ public class EncodingOption {
                 mNOfNmaxN = Integer.toString(nOfN.getMaxN());
             }
         }
-        if (customEncoding.getNodeProperties().isSetMinOcc()) {
-            mMinOcc = Long.toString(customEncoding.getNodeProperties().getMinOcc());
+        if (nProp.isSetMinOcc()) {
+            mMinOcc = Long.toString(nProp.getMinOcc());
         }
-        if (customEncoding.getNodeProperties().isSetMaxOcc()) {
-            mMaxOcc = Long.toString(customEncoding.getNodeProperties().getMaxOcc());
+        if (nProp.isSetMaxOcc()) {
+            mMaxOcc = Long.toString(nProp.getMaxOcc());
         }
-        if (customEncoding.getNodeProperties().isSetScvngr()) {
-            Scvngr scvngr = customEncoding.getNodeProperties().getScvngr();
+        if (nProp.isSetScvngr()) {
+            Scvngr scvngr = nProp.getScvngr();
             mScvngrChars = scvngr.getChars();
             if (scvngr.isSetEmit1St()) {
                 mScvngrEmit1st = scvngr.getEmit1St();
             }
         }
 
-        if (customEncoding.isSetTop()) {
-            mTop = customEncoding.getTop();
+        if (customEnc.isSetTop()) {
+            mTop = customEnc.getTop();
         }
         if (mTop) {
-            if (customEncoding.getNodeProperties().isSetInputCharset()) {
-                mInputCharset = customEncoding.getNodeProperties().getInputCharset();
+            if (nProp.isSetInputCharset()) {
+                mInputCharset = nProp.getInputCharset();
             }
-            if (customEncoding.getNodeProperties().isSetOutputCharset()) {
-                mOutputCharset = customEncoding.getNodeProperties().getOutputCharset();
+            if (nProp.isSetOutputCharset()) {
+                mOutputCharset = nProp.getOutputCharset();
             }
         }
-        if (mTop || customEncoding.getNodeProperties().getNodeType().intValue()
+        if (mTop || nProp.getNodeType().intValue()
                 == NodeProperties.NodeType.INT_FIXED_LENGTH) {
-            if (customEncoding.getNodeProperties().isSetParsingCharset()) {
-                mParsingCharset =
-                        customEncoding.getNodeProperties().getParsingCharset();
+            if (nProp.isSetParsingCharset()) {
+                mParsingCharset = nProp.getParsingCharset();
             }
-            if (customEncoding.getNodeProperties().isSetSerializingCharset()) {
-                mSerializingCharset =
-                        customEncoding.getNodeProperties().getSerializingCharset();
+            if (nProp.isSetSerializingCharset()) {
+                mSerializingCharset = nProp.getSerializingCharset();
             }
         }
-        if (customEncoding.getNodeProperties().isSetMatch()) {
-            mMatch = customEncoding.getNodeProperties().getMatch();
+        if (nProp.isSetMatch()) {
+            mMatch = nProp.getMatch();
         }
         //Populates the NoMatch field
-        if (customEncoding.getNodeProperties().isSetNoMatch()) {
-            mNoMatch = customEncoding.getNodeProperties().getNoMatch();
+        if (nProp.isSetNoMatch()) {
+            mNoMatch = nProp.getNoMatch();
         }
-        if (customEncoding.getNodeProperties().isSetLength()) {
-            mLength = customEncoding.getNodeProperties().getLength();
+        if (nProp.isSetLength()) {
+            mLength = nProp.getLength();
         }
-        if (customEncoding.getNodeProperties().isSetOffset()) {
-            mOffset = Long.toString(customEncoding.getNodeProperties().getOffset());
+        if (nProp.isSetOffset()) {
+            mOffset = Long.toString(nProp.getOffset());
         }
-        if (customEncoding.getNodeProperties().isSetPosition()) {
-            mPosition = Long.toString(customEncoding.getNodeProperties().getPosition());
+        if (nProp.isSetPosition()) {
+            mPosition = Long.toString(nProp.getPosition());
         }
-        if (customEncoding.getNodeProperties().isSetLength()) {
-            mLength = customEncoding.getNodeProperties().getLength();
+        if (nProp.isSetLength()) {
+            mLength = nProp.getLength();
         }
-        if (customEncoding.getNodeProperties().isSetLength() && mLength == 0) {
-            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "undetermined"); //NOI18N
-        } else if (customEncoding.getNodeProperties().isSetPosition()) { // && mPosition >= 0
-            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "encoded"); //NOI18N
-        } else if (customEncoding.getNodeProperties().isSetLength() && mLength < 0) {
-            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "reversed"); //NOI18N
+        if (nProp.isSetLength() && mLength == 0) {
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS
+                + "undetermined"); //NOI18N
+        } else if (nProp.isSetPosition()) { // && mPosition >= 0
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS
+                + "encoded"); //NOI18N
+        } else if (nProp.isSetLength() && mLength < 0) {
+            mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS
+                + "reversed"); //NOI18N
             mLength = mLength * (-1);
         }
-        
-        if (customEncoding.getNodeProperties().isSetDelimOfFixed()) {
-            DelimOfFixed delimOfFixed = customEncoding.getNodeProperties().getDelimOfFixed();
+
+        if (nProp.isSetDelimOfFixed()) {
+            DelimOfFixed delimOfFixed = nProp.getDelimOfFixed();
             mBeginDelimiter = delimOfFixed.getBeginBytes();
             if (delimOfFixed.isSetBeginAnch()) {
                 mBeginDelimiterDetached = !delimOfFixed.getBeginAnch();
             }
         }
-        if (customEncoding.getNodeProperties().isSetDelimiterSet()) {
-            mDelimiterSet = customEncoding.getNodeProperties().getDelimiterSet();
+        if (nProp.isSetDelimiterSet()) {
+            mDelimiterSet = nProp.getDelimiterSet();
         }
-        mCustomEncoding = customEncoding;
+        mCustomEncoding = customEnc;
         //Populates the Escape Sequence field
-        if (customEncoding.getNodeProperties().isSetEscapeSequence()) {
-            mEscapeSequence = customEncoding.getNodeProperties().getEscapeSequence();
+        if (nProp.isSetEscapeSequence()) {
+            mEscapeSequence = nProp.getEscapeSequence();
         }
         //Populates the FineInherit field
-        if (customEncoding.getNodeProperties().isSetFineInherit()) {
-            mFineInherit = customEncoding.getNodeProperties().getFineInherit();
+        if (nProp.isSetFineInherit()) {
+            mFineInherit = nProp.getFineInherit();
         }
         //Populates the UndefDataPolicy field
-        if (customEncoding.getNodeProperties().isSetUndefDataPolicy()) {
+        if (nProp.isSetUndefDataPolicy()) {
             mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS
-                    + customEncoding.getNodeProperties().getUndefDataPolicy().toString());
+                    + nProp.getUndefDataPolicy().toString());
         }
 
         // I guess that following lines will cause recursive loop when
@@ -1324,7 +1341,7 @@ public class EncodingOption {
         //if (mAppInfo == null) {
         //    commitToAppInfo();
         //}
-        
+
         if (!(((Annotation) comp).getParent() instanceof Element)) {
             throw new IllegalArgumentException(
                     _bundle.getString("encoding_opt.exp.anno_must_under_elem")); //NOI18N
@@ -1351,6 +1368,17 @@ public class EncodingOption {
         return true;
     }
 
+    /**
+     * Gets the Custom Encoding information from the given schema Annotation.
+     * If the appinfoReturned is not null, then it will be populated with
+     * schema AppInfo objects.
+     *
+     * @param anno the schema Annotation object.
+     * @param appinfoReturned if not null, will be populated with schema
+     * AppInfo objects.
+     * @return CustomEncoding info.
+     * @throws org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException
+     */
     private CustomEncoding fetchCustomEncoding(Annotation anno,
             AppInfo[] appinfoReturned)
             throws InvalidAppInfoException {
@@ -1365,7 +1393,7 @@ public class EncodingOption {
                 if (appinfoReturned != null) {
                     appinfoReturned[0] = appinfo;
                 }
-                try {                    
+                try {
                     XmlOptions xmlOptions = new XmlOptions();
                     // set this option so that the document element is replaced
                     // with the given QName (null) when parsing.
@@ -1403,7 +1431,7 @@ public class EncodingOption {
         }
         return customEncoding;
     }
-    
+
     private synchronized void commitToAppInfo() {
         boolean startedTrans = false;
         SchemaModel model = null;
@@ -1444,16 +1472,16 @@ public class EncodingOption {
             }
         }
     }
-    
+
     private void firePropertyChange(String name, Object oldObj, Object newObj) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) 
+        PropertyChangeListener[] pcls = (PropertyChangeListener[])
                 propChangeListeners.toArray(new PropertyChangeListener[0]);
         for (int i = 0; i < pcls.length; i++) {
             pcls[i].propertyChange(
                     new PropertyChangeEvent (this, name, oldObj, newObj));
         }
     }
-    
+
     private String xmlFragFromAppInfo(AppInfo appInfo) {
         StringBuffer sb = new StringBuffer("<xml-fragment"); //NOI18N
         sb.append(" ").append("source=\"").append(EncodingConst.URI).append("\""); //NOI18N
@@ -1480,7 +1508,7 @@ public class EncodingOption {
         sb.append("</xml-fragment>"); //NOI18N
         return sb.toString();
     }
-    
+
     private String contentFragFromXmlObject(XmlObject xmlObject) {
         XmlCursor cursor = null;
         try {
@@ -1500,13 +1528,13 @@ public class EncodingOption {
             }
         }
     }
-    
+
     private class SchemaPropertyChangeListener implements PropertyChangeListener {
-        
+
         private final Element mElem;
         private final Set<SchemaModel> mModelSet = new HashSet<SchemaModel>();
         private Object mXMLType;
-        
+
         SchemaPropertyChangeListener(Element elem, Object xmlType) {
             mElem = elem;
             mXMLType = xmlType;
@@ -1517,7 +1545,7 @@ public class EncodingOption {
                 }
             }
         }
-        
+
         public void propertyChange(PropertyChangeEvent evt) {
             if (mElem == evt.getSource() && "type".equals(evt.getPropertyName())) {   //NOI18N
                 mXMLType = evt.getNewValue();

@@ -26,16 +26,17 @@ import org.openide.nodes.PropertySupport;
  *
  * @author jxu
  */
-public class ReadOnlyDelimiterProperty<T> extends PropertySupport.Reflection<T> {
-    
+public class ReadOnlyDelimiterProperty<T>
+    extends PropertySupport.Reflection<T> {
+
     private EncodingOption mEncodingOption;
-    
+
     /**
      * Creates a new instance of ReadOnlyDelimiterProperty
      * @param encodingOption (Bean) object to work on
      * @param clazz type of the property
      * @param getterName name of getter method
-     * @throws java.lang.NoSuchMethodException
+     * @throws NoSuchMethodException if the getter method cannot be found
      */
     public ReadOnlyDelimiterProperty(EncodingOption encodingOption, Class clazz,
             String getterName) throws NoSuchMethodException {
@@ -45,7 +46,8 @@ public class ReadOnlyDelimiterProperty<T> extends PropertySupport.Reflection<T> 
     }
 
     @Override
-    public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public T getValue() throws IllegalAccessException, IllegalArgumentException,
+        InvocationTargetException {
         return (T) mEncodingOption.getDelimiter();
     }
 }

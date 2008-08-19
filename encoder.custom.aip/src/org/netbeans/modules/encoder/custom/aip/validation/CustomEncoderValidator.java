@@ -66,6 +66,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         super(CustomEncodingConst.STYLE, model, handler);
     }
     
+    @Override
     protected void foundNoTopElements()
             throws ValidationException, SAXException {
         
@@ -80,6 +81,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
                     -1));
     }
     
+    @Override
     protected void detectedRecursiveCondition(ValidationContext context,
             SchemaComponent schemaComponent)
             throws ValidationException, SAXException {
@@ -98,6 +100,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
                     -1));
     }
     
+    @Override
     protected void validate(ValidationContext context,
             GlobalElement globalElement)
             throws ValidationException, SAXException {
@@ -107,6 +110,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateElement(context, globalElement);
     }
 
+    @Override
     protected void validate(ValidationContext context,
             LocalElement localElement)
             throws ValidationException, SAXException {
@@ -116,6 +120,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateElement(context, localElement);
     }
 
+    @Override
     protected void validate(ValidationContext context, Sequence sequence)
             throws ValidationException, SAXException {
         
@@ -124,6 +129,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateGroup(context, sequence);
     }
 
+    @Override
     protected void validate(ValidationContext context, All all)
             throws ValidationException, SAXException {
         
@@ -132,6 +138,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateGroup(context, all);
     }
 
+    @Override
     protected void validate(ValidationContext context, Choice choice)
             throws ValidationException, SAXException {
         
@@ -140,6 +147,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateGroup(context, choice);
     }
     
+    @Override
     protected void validate(ValidationContext context, GroupReference groupRef)
             throws ValidationException, SAXException {
         
@@ -148,6 +156,7 @@ public class CustomEncoderValidator extends XsdBasedEncoderValidator {
         validateGroup(context, groupRef);
     }
 
+    @Override
     protected void validate(ValidationContext context, AnyElement anyElement)
             throws ValidationException, SAXException {
         

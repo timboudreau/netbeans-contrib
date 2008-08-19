@@ -35,12 +35,12 @@ import java.util.ResourceBundle;
  *
  * @author Jun Xu
  */
-public class DelimiterOption {
-    
+public final class DelimiterOption {
+
     public static final String KIND_PREFIX = "kind"; //NOI18N
     public static final String OPTION_MODE_PREFIX = "optionmode"; //NOI18N
     public static final String TERM_MODE_PREFIX = "termmode"; //NOI18N
-        
+
     private static final Map<String, String> mReverseTextMap =
             new HashMap<String, String>();
     private static final Map<String, String> mTextMap =
@@ -48,24 +48,27 @@ public class DelimiterOption {
     private static List<String> mKindTagList = new ArrayList<String>();
     private static List<String> mOptionModeTagList = new ArrayList<String>();
     private static List<String> mTermModeTagList = new ArrayList<String>();
-    
+
     static {
         ResourceBundle bundle =
                 ResourceBundle.getBundle(
                     DelimiterOption.class.getPackage().getName() + ".Bundle"); //NOI18N
-        
+
         //Populate the localized text map and the tag list for the delimiter kind property
-        mReverseTextMap.put(KIND_PREFIX + "_" + bundle.getString("TAG_DelimKind_escape"), "escape"); //NOI18N
         mReverseTextMap.put(KIND_PREFIX + "_" + bundle.getString("TAG_DelimKind_normal"), "normal"); //NOI18N
         mReverseTextMap.put(KIND_PREFIX + "_" + bundle.getString("TAG_DelimKind_repeat"), "repeat"); //NOI18N
-        mTextMap.put(KIND_PREFIX + "_" + "escape", bundle.getString("TAG_DelimKind_escape")); //NOI18N
+        mReverseTextMap.put(KIND_PREFIX + "_" + bundle.getString("TAG_DelimKind_escape"), "escape"); //NOI18N
+        mReverseTextMap.put(KIND_PREFIX + "_" + bundle.getString("TAG_DelimKind_quot_escape"), "quot-escape"); //NOI18N
         mTextMap.put(KIND_PREFIX + "_" + "normal", bundle.getString("TAG_DelimKind_normal")); //NOI18N
         mTextMap.put(KIND_PREFIX + "_" + "repeat", bundle.getString("TAG_DelimKind_repeat")); //NOI18N
-        mKindTagList.add(bundle.getString("TAG_DelimKind_escape")); //NOI18N
+        mTextMap.put(KIND_PREFIX + "_" + "escape", bundle.getString("TAG_DelimKind_escape")); //NOI18N
+        mTextMap.put(KIND_PREFIX + "_" + "quot-escape", bundle.getString("TAG_DelimKind_quot_escape")); //NOI18N
         mKindTagList.add(bundle.getString("TAG_DelimKind_normal")); //NOI18N
         mKindTagList.add(bundle.getString("TAG_DelimKind_repeat")); //NOI18N
+        mKindTagList.add(bundle.getString("TAG_DelimKind_escape")); //NOI18N
+        mKindTagList.add(bundle.getString("TAG_DelimKind_quot_escape")); //NOI18N
         mKindTagList = Collections.unmodifiableList(mKindTagList);
-        
+
         //Populate the localized text map and the tag list for the optionality mode property
         mReverseTextMap.put(OPTION_MODE_PREFIX + "_" + bundle.getString("TAG_OptionMode_never"), "never"); //NOI18N
         mReverseTextMap.put(OPTION_MODE_PREFIX + "_" + bundle.getString("TAG_OptionMode_allow"), "allow"); //NOI18N
@@ -80,7 +83,7 @@ public class DelimiterOption {
         mOptionModeTagList.add(bundle.getString("TAG_OptionMode_favor"));
         mOptionModeTagList.add(bundle.getString("TAG_OptionMode_force"));
         mOptionModeTagList = Collections.unmodifiableList(mOptionModeTagList);
-        
+
         //Populate the localized text map and the tag list for the optionality mode property
         mReverseTextMap.put(TERM_MODE_PREFIX + "_" + bundle.getString("TAG_TermMode_never"), "never"); //NOI18N
         mReverseTextMap.put(TERM_MODE_PREFIX + "_" + bundle.getString("TAG_TermMode_allow"), "allow"); //NOI18N
@@ -102,11 +105,11 @@ public class DelimiterOption {
             Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
 
     private final Delimiter mDelimiter;
-    
+
     /***************************\
      * Bean property variables *
     \***************************/
-    
+
     private String mKind = mTextMap.get(KIND_PREFIX + "_" + "normal"); //NOI18N
     private short mPrecedence = 10;
     private String mOptionMode = mTextMap.get(OPTION_MODE_PREFIX + "_" + "never"); //NOI18N
@@ -121,8 +124,8 @@ public class DelimiterOption {
     private boolean mBeginDetached = false;
     private boolean mSkipLeading = false;
     private boolean mCollapse = false;
-    
-    /** Creates a new instance of DelimiterOption */
+
+    /** Creates a new instance of DelimiterOption. */
     private DelimiterOption(Delimiter delim) {
         mDelimiter = delim;
     }
@@ -132,31 +135,31 @@ public class DelimiterOption {
         option.init();
         return option;
     }
-    
+
     public static Map<String, String> textMap() {
         return mTextMap;
     }
-    
+
     public static Map<String, String> reverseTextMap() {
         return mReverseTextMap;
     }
-    
+
     public static List<String> kindTagList() {
         return mKindTagList;
     }
-    
+
     public static List<String> optionModeTagList() {
         return mOptionModeTagList;
     }
-    
+
     public static List<String> termModeTagList() {
         return mTermModeTagList;
     }
-    
+
     /*****************************\
      * bean getters and setters  *
     \*****************************/
-    
+
     public String getKind() {
         return mKind;
     }
@@ -411,12 +414,12 @@ public class DelimiterOption {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.add(listener);
     }
-    
+
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propChangeListeners.remove(listener);
     }
 
-    /** initalizes the options */
+    /** initalizes the options. */
     private void init() {
         if (mDelimiter.isSetKind()) {
             mKind = mTextMap.get(KIND_PREFIX + "_" //NOI18N
@@ -470,12 +473,12 @@ public class DelimiterOption {
     }
 
     private void firePropertyChange(String name, Object oldObj, Object newObj) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) 
+        PropertyChangeListener[] pcls = (PropertyChangeListener[])
                 propChangeListeners.toArray(new PropertyChangeListener[0]);
         for (int i = 0; i < pcls.length; i++) {
             pcls[i].propertyChange(
                     new PropertyChangeEvent(this, name, oldObj, newObj));
         }
     }
-    
+
 }
