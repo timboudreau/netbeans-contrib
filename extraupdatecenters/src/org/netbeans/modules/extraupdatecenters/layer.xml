@@ -106,13 +106,6 @@ made subject to such option by the copyright holder.
         <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
         <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
       </file>
-      <file name="liguorien.instance">
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
-        <attr name="url_key" stringvalue="URL_liguorien"/>
-        <attr name="enabled" boolvalue="false"/>
-        <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
-        <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
-      </file>
       <file name="findbugs.instance">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_findbugs"/>
