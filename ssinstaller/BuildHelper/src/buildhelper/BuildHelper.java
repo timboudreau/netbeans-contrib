@@ -110,7 +110,8 @@ public class BuildHelper {
         for(Componentref ref : gui.getComponentref()) {
             toGenerate.add((Component)ref.getUid());
         }
-
+        
+        copyDir(guiDirectory + "/infra/products/native/common.properties", guiDirectory + "/infra/products/build/common.properties");
         PrintWriter writer = new PrintWriter(new File(guiDirectory + "/infra/native.lst"));
         for (Component component : toGenerate) {
             //Component component = (Component) ref.getUid();
@@ -125,7 +126,8 @@ public class BuildHelper {
 
      int offset = 1000;
     void generateInfra(Component component) throws Exception {
-        copyDir(guiDirectory + "/infra/products/native/native", guiDirectory + "/infra/products/native/" + component.getUid());
+        copyDir(guiDirectory + "/infra/products/native/native", guiDirectory + "/infra/products/build/" + component.getUid());
+
         Properties properties = new Properties();
         /* Create a component description */
         if (properties.getProperty("product.uid") == null) {
@@ -175,9 +177,9 @@ public class BuildHelper {
                 properties.setProperty("product.data." + String.valueOf(k) + ".zip", "false");
             }
         }
-        new File(guiDirectory + "/infra/products/native/" + component.getUid()).mkdirs();
+        new File(guiDirectory + "/infra/products/build/" + component.getUid()).mkdirs();
         properties.store(new FileOutputStream(
-                new File(guiDirectory + "/infra/products/native/" + component.getUid() + "/build.properties")), "");
+                new File(guiDirectory + "/infra/products/build/" + component.getUid() + "/build.properties")), "");
     }
 
     void generateInfra(Group group) throws Exception {
@@ -213,6 +215,7 @@ public class BuildHelper {
             if (p.waitFor() != 0) {
                 System.out.println("Could not remove dst : " + dst);
             }
+            new File(dst).getParentFile().mkdirs();
             p = Runtime.getRuntime().exec("/bin/cp -r " + src + " " + dst);
             if (p.waitFor() != 0) {
                 System.out.println("Could not copy " + src + " to " + dst);

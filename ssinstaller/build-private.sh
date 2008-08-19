@@ -25,5 +25,21 @@ SS_VERSION="X"
 export SS_VERSION
 
 # the distributive version
-DISTRS="intel-S2"
+#DISTRS="intel-S2"
+
+case `uname` in
+    SunOS)  
+        PLATFORM=`uname -p`
+        if [ "$PLATFORM" = "sparc" ]; then
+            DISTRS=sparc-S2
+        else
+            DISTRS=intel-S2
+        fi
+    ;;
+    Linux)
+        DISTRS=intel-Linux
+    ;;
+esac
+
+
 export DISTRS

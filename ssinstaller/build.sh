@@ -15,4 +15,4 @@ cd infra
 bash build.sh
 cd - 
 cd toolchain
-bash build.sh
+#bash build.sh

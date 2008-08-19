@@ -335,6 +335,52 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 
     <target name="build-netbeans">
     	<antcall target="build-groups"/>
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-extra" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-extra"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="prerequisites"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+    <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="ide-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+
+
 	<antcall target="build-products"/>
 	<!-- java -cp engine/build/ssinstaller/engine/build/classes buildhelper.Main products.xml products/native 
 	<java classpath="${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar" fork="true" classname="buildhelper.Main" failonerror="true">
@@ -367,7 +413,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 
      <target name="build-products">
             <subant target="release-all">
-	    <fileset dir="${nbi.netbeans.dir}/infra/products/native" includes="**/build.xml" excludes="**/native/build.xml"/>
+	    <fileset dir="${nbi.netbeans.dir}/infra/products/build" includes="**/build.xml" excludes="**/native/build.xml"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -469,28 +515,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 value=""/>
         </ant>
 
-        <ant dir="${nbi.netbeans.dir}/infra/products/nb-extra" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/nb-extra"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value=""/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
 
 <!--
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-cnd" target="release-all">
@@ -518,28 +542,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 	
     
 -->
-    <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value="ide-group"/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
 
     </target>
 

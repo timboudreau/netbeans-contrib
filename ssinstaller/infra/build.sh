@@ -72,7 +72,7 @@ cd ${DIRNAME}
 ################################################################################
 # load the properties
 source build-private.sh
-source ../../../../build-private.sh 
+#source ../../../../build-private.sh 
 
 
 CACHE_DIR=${OUTPUT_DIR}/cache
