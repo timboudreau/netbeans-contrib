@@ -29,6 +29,7 @@ public class BuildHelper {
     Product product;
     Installation gui;
     Installation toolchain;
+    String distrs;
 
     int OFFSET_STEP = 1000;
 
@@ -36,6 +37,11 @@ public class BuildHelper {
         this.xmlFileName = xmlFileName;
         this.guiDirectory = guiDirectory;
         this.toolchainDirectory = toolchainDirectory;
+        this.distrs = System.getenv("DISTRS");
+        if (distrs == null) {
+            distrs = "intel-S2 sparc-S2 intel-Linux";
+        }
+        System.out.println("Generating data for " + distrs);
         try {
             readXML();
         } catch (Exception e) {
@@ -62,7 +68,7 @@ public class BuildHelper {
         Map<Platform, PrintWriter> files = new HashMap<Platform, PrintWriter>(3);
 
         for (Platform platform : Platform.values()) {
-            String platformName = platform.equals(platform.LINUX) ? "intel-Linux" : platform.equals(platform.SOLARIS_X_86) ? "intel-S2" : "sparc-S2";
+            String platformName = platform.equals(platform.LINUX) ? "intel-Linux" : platform.equals(platform.SOLARIS_X_86) ? "intel-S2" : "sparc-S2";     
             File list = new File(toolchainDirectory + "/" + "package-list." + platformName);
             System.out.println("Creating " + list.getPath());
             if (list.exists()) {
@@ -139,6 +145,7 @@ public class BuildHelper {
         properties.setProperty("cvs.path", "components/products/" +
                 component.getUid());
         properties.setProperty("basedir", "${nbi.netbeans.dir}/infra/components/infra/native/" + component.getUid());
+
 /*
         if (component.getDependency() != null) {
             String uid = ((Component)component.getDependency()).getUid();
@@ -153,6 +160,10 @@ public class BuildHelper {
             Platform platform = block.getPlatform();
             String pkg = platform.equals(platform.LINUX) ? "rpm" : "svr";
             String platformName = platform.equals(platform.LINUX) ? "intel-Linux" : platform.equals(platform.SOLARIS_X_86) ? "intel-S2" : "sparc-S2";
+             if  (!distrs.contains(platformName)) {
+                continue;
+            }
+        
             String path = "${installed.bits.dir}/" + platformName;
             properties.setProperty("product.data.length." + platform.value(),
                     String.valueOf(block.getNbmOrSvrOrRpm().size()));
@@ -160,7 +171,7 @@ public class BuildHelper {
             for (Unit unit : block.getNbmOrSvrOrRpm()) {
                 k++;
                 String unitName = unit.getSource().replaceAll("VERSION", "12.0-1");
-                properties.setProperty("product.data." + String.valueOf(k) + ".uri." + platform.value(), path + "/" + unitName);
+                properties.setProperty("product.data." + String.valueOf(k) + ".uri."  + platform.value() , path + "/" + unitName);
                 properties.setProperty("product.data." + String.valueOf(k) + ".zip", "false");
             }
         }
@@ -224,6 +235,7 @@ public class BuildHelper {
 
     public static void main(String[] args) {
         if (args.length != 3) {
+            System.out.println("Error during run BuildHelper.");
             System.exit(-1);
         }
         new BuildHelper(args[0], args[1], args[2]).generate();

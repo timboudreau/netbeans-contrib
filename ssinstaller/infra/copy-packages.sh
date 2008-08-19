@@ -2,7 +2,7 @@
 DEST_DIR=$1
 IMAGE_DIR=$2
 
-PLATFORMS="intel-S2 intel-Linux sparc-S2"
+PLATFORMS="$DISTRS"
 
 for platform in $PLATFORMS
 do

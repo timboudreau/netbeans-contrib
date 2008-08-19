@@ -75,11 +75,26 @@ source build-private.sh
 source ../../../../build-private.sh 
 
 
+CACHE_DIR=${OUTPUT_DIR}/cache
 INSTALLED_BITS="file://$CACHE_DIR/packages"
 NB_BUILDS_HOST="file://$CACHE_DIR/packages/nb"
+NB_FILES_PREFIX=netbeans-6.1
 
-rm -rf $CACHE_DIR/packages
-bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+#rm -rf $OUTPUT_DIR
+#
+#bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+
+case $DISTRS in 
+    intel-S2)
+    	CURRENT_PLATFORM=solaris-x86
+    ;;
+    sparc-S2)
+        CURRENT_PLATFORM=solaris-sparc
+    ;;
+    intel-Linux)
+        CURRENT_PLATFORM=linux
+    ;;
+esac
 
 cd ${DIRNAME}
 ################################################################################
@@ -105,6 +120,7 @@ run() {
 	    \"-Dss.version=${SS_VERSION}\"\
 	    \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
+            \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dinstalled.bits.dir=${INSTALLED_BITS}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
@@ -138,7 +154,8 @@ run() {
 	    \"-Dss.version=${SS_VERSION}\"\
             \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
 	    \"-Doutput.dir=${OUTPUT_DIR}\" \
-            \"-Dbundles.url=${BUNDLES_ULR}\" \
+            \"-Dbundles.url=${BUNDLES_URL}\" \
+            \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
             \"-Dnb.files.prefix=${NB_FILES_PREFIX}\" \

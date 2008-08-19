@@ -47,7 +47,7 @@
 
     
     <target name="-clean">
-        <delete dir="${output.dir}"/>
+      <!--  <delete dir="${output.dir}"/> -->
     </target>
 
 
@@ -296,7 +296,7 @@ build.engine=false
 
 engine.dist.file.name=nbi-engine.jar
 engine.dist.file=${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar
-
+current.platform.name=${current.platform.name}
 packaged.data.dir=${nbi.cache.dir}/packaged
 packaged.data.dir.release=${output.dir}/packaged
 downloads.cache.dir=${nbi.cache.dir}/raw
@@ -386,8 +386,8 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     <target name="generate-bundles">
         <!-- C/C++ bundles -->
         <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-S2.sh"
+                       platform="${current.platform.name}" 
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled.sh"
 		       componentlist="native.lst">
 	    <component uid="ss-base" version="1.0.0.0.0"/>            
 	    <component uid="nb-base" version="${nb.full.version}"/>
@@ -397,8 +397,8 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
         <!-- <delete file="${output.dir}/registry-temp/bundles.list" /> -->
 
         <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-x86" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-intel-S2.sh"
+                       platform="${current.platform.name}" 
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external.sh"
 		       componentlist="native.lst">
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>
@@ -407,50 +407,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <delete file="${output.dir}/registry-temp/bundles.list" />
-        
-	<create-bundle root="${output.dir}/registry-temp" 
-                       platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-intel-Linux.sh"
-		       componentlist="native.lst">
-	    <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-extra" version="${nb.full.version}"/>	
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
-        <delete file="${output.dir}/registry-temp/bundles.list" />
-        <create-bundle root="${output.dir}/registry-temp" 
-                       platform="linux" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-linux-Linux.sh"
-                       componentlist="native.lst">
-            <component uid="ss-base" version="1.0.0.0.0"/>
-	    <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-extra" version="${nb.full.version}"/>
-            <property name="product.data.all.location" value="${bundles.url}" />
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
 
-        <delete file="${output.dir}/registry-temp/bundles.list" />
-        <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-sparc-S2.sh"
-                       componentlist="native.lst">            
-            <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-extra" version="${nb.full.version}"/>
-
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
-        <delete file="${output.dir}/registry-temp/bundles.list" />
-        <create-bundle root="${output.dir}/registry-temp" 
-                       platform="solaris-sparc" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-sparc-S2.sh"
-		       componentlist="native.lst"> 
-            <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-extra" version="${nb.full.version}"/>
-            <property name="product.data.all.location" value="${bundles.url}" />
-	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
-        </create-bundle>
 	
     </target>
     
@@ -527,7 +484,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             
             <property
                 name="release.parent.uid"
-                value="ide-group"/>
+                value=""/>
             <property
                 name="release.parent.version"
                 value=""/>
@@ -588,7 +545,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
     </target>
 
     <target name="prepare-output-dir">
-	<delete dir="${output.dir}"/>    
+	   
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${output.dir}/bundles"/>
         <mkdir dir="${output.dir}/components"/>    

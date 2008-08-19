@@ -4,7 +4,7 @@
 ################################################################################
 BUILD_NUMBER=200711261600
 NB_HOME=`pwd`/build
-OUTPUT_DIR="$NB_HOME/dist"
+#OUTPUT_DIR="$NB_HOME/dist"
 
 ADDITIONAL_PATH=/set/java-sqe/tools/apache-ant-1.6.5/bin
 

@@ -4,7 +4,7 @@
    xsi:schemaLocation='http://xml.netbeans.org/schema/ProductDescription ProductDescription.xsd'
    name="Sun Studio"  version="X">
        <installation name="GUI">
-            <group name="MARKETING_NAME compilers and tools" uid="compilers">
+            <group name="Compilers and Tools" uid="compilers">
                 <componentref uid="cc"/>
                 <componentref uid="cpp"/>
                 <componentref uid="fortran"/>
@@ -13,8 +13,10 @@
                 <componentref uid="demos"/>
                 <componentref uid="support-files"/>
             </group>
-            <componentref uid="perf-lib"/>
-            <componentref uid="third-party-source"/>
+            <group name="Other" uid="compilers">	
+                 <componentref uid="perf-lib"/>
+                 <componentref uid="third-party-source"/>
+             </group>
         </installation>
         <installation name="toolchain">
             <componentref uid="cc"/>
@@ -24,7 +26,7 @@
             <componentref uid="support-files"/>
         </installation>
 
-    <component  name="MARKETING_NAME C Compiler"
+    <component  name="C Compiler"
                        uid="cc" dependency="support-files"
                        description="The C Compiler">
         <block platform="solaris-x86">
@@ -37,7 +39,7 @@
             <rpm source="sun-cc-VERSION.i386.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME C++ Compiler" description="The C++ Compiler"
+    <component  name="C++ Compiler" description="The C++ Compiler"
                        uid="cpp" dependency="support-files">
         <block platform="solaris-x86">
             <svr source="SPROcpl"/>
@@ -64,7 +66,7 @@
             <rpm source="sun-tll7x-VERSION.x86_64.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME Fortran 95 Compiler"
+    <component  name="Fortran 95 Compiler"
                     description="The Fortran Compiler"
                     uid="fortran" dependency="support-files">
         <block platform="solaris-x86">
@@ -80,7 +82,7 @@
             <rpm source="sun-f90-VERSION.i386.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME DBX Debugging Tools"
+    <component  name="DBX Debugging Tools"
                     description="The Debugger"
                        uid="dbx" dependency="support-files">
         <block platform="solaris-x86">
@@ -105,7 +107,7 @@
             <rpm source="sun-mrdbx-VERSION.i386.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME build tools"
+    <component  name="Build Tools"
                         description="Dmake utility"
                        uid="dmake"
                        dependency="support-files">
@@ -119,7 +121,7 @@
             <rpm source="sun-dmake-VERSION.i386.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME demos"
+    <component  name="Demos"
                        description="Demos"
                        uid="demos"
                        dependency="support-files">
@@ -132,7 +134,7 @@
         <block platform="linux">
         </block>
     </component>
-    <component  name="MARKETING_NAME support files"
+    <component  name="Support Files"
                        uid="support-files" description="Support files">
         <block platform="solaris-x86">
             <svr source="SPROcmpl"/>
@@ -297,7 +299,7 @@
             <rpm source="sun-sysprp-VERSION.i386.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME Performance Library"
+    <component  name="Performance Library"
                    uid="perf-lib" description="Performance library" >
         <block platform="solaris-x86">
             <svr source="SPROplg" />
@@ -332,7 +334,7 @@
             <rpm source="sun-mripl-VERSION.noarch.rpm"/>
         </block>
     </component>
-    <component  name="MARKETING_NAME Third-party Source"
+    <component  name="Third-party Source"
                    uid="third-party-source" description="Third-party source">
         <block platform="solaris-x86">
             <svr source="SPROdwrfs"/>

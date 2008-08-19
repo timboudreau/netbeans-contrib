@@ -399,38 +399,20 @@ End of addition-->
     </target>
     <target name="build-all">
         <antcall target="build-platform">
-            <param name="product.platforms" value="solaris-x86"/>
+            <param name="product.platforms" value="${current.platform.name}"/>
 	    <param name="product.data.length" 
 		    value="${product.data.length.solaris-x86}"/>
         </antcall>
-        <antcall target="build-platform">
-            <param name="product.platforms" value="solaris-sparc"/>
-	    <param name="product.data.length" 
-		    value="${product.data.length.solaris-sparc}"/>
-        </antcall>
-        <antcall target="build-platform">
-            <param name="product.platforms" value="linux"/>
-            <param name="product.data.length" value="${product.data.1.uri.linux}"/>
-        </antcall>
+       
     </target>
 
     <target name="release-all">
         <antcall target="release-platform">
-            <param name="product.platforms" value="solaris-x86"/>
+            <param name="product.platforms" value="${current.platform.name}"/>
 	    <param name="product.data.length" 
 		    value="${product.data.length.solaris-x86}"/>
         </antcall>
-        <antcall target="release-platform">
-            <param name="product.platforms" value="solaris-sparc"/>
-	    <param name="product.data.length" 
-		    value="${product.data.length.solaris-sparc}"/>
-        </antcall>
-        <antcall target="release-platform">
-            <param name="product.platforms" value="linux"/>
-	    <param name="product.data.length" 
-		    value="${product.data.length.linux}"/>
-        </antcall>
-
+       
     </target>
 
         <target name="clean-platform" depends="clean"/>

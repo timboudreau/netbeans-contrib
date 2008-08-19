@@ -1,8 +1,8 @@
 cd `dirname "$0"`
 
 
-source build-private.sh
-source ../../../../build-private.sh 
+#source build-private.sh
+#source ../../../../build-private.sh 
 
 TARDIR=`pwd`/build/tars
 RESDIR=$OUTPUT_DIR/bundles
@@ -12,8 +12,9 @@ SRCDIR=`pwd`
 LENGTH=`wc -l installer.sh | sed s/installer.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 
-#DISTRS="intel-S2"
-DISTRS="intel-S2 sparc-S2 intel-Linux"
+#DISTRS="intel-Linux"
+#DISTRS="intel-S2 sparc-S2 intel-Linux"
+
 
 
 # The images of Sun Studio to create distribution
@@ -42,7 +43,7 @@ do
     esac
 
     IMAGES_DIR=$SUNSTUDIO_BITS_ROOT/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
-    DISTR_NAME="$RESDIR/sunstudio-${SS_VERSION}-toolchain-${distr}.sh"   
+    DISTR_NAME="$RESDIR/sunstudio-toolchain-${distr}.sh"   
     echo Generating $DISTR_NAME
     
     PACKAGE_DIR="$IMAGES_DIR"
@@ -62,7 +63,7 @@ do
         fi
 	
 	cp -r $PACKAGE_DIR/$package $TARDIR/$PACKAGES 
-    done < package-list.$distr.real
+    done < package-list.$distr
     
     cd $TARDIR
     tar cvf $TARDIR/sunstudio.$distr.tar $PACKAGES -C $SRCDIR servicetag
