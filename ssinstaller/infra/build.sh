@@ -39,7 +39,7 @@
 ################################################################################
 # build-private.sh should define the following properties
 ################################################################################
-#BUILD_NUMBER=
+BUILD_NUMBER=0
 #
 #OUTPUT_DIR=
 #
@@ -82,7 +82,7 @@ NB_FILES_PREFIX=netbeans-6.1
 
 #rm -rf $OUTPUT_DIR
 #
-#bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
 
 case $DISTRS in 
     intel-S2)
