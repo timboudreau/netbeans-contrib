@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -53,9 +53,7 @@ import com.sun.star.lib.uno.helper.Factory;
 import com.sun.star.lang.XSingleComponentFactory;
 import com.sun.star.registry.XRegistryKey;
 import com.sun.star.lib.uno.helper.WeakBase;
-import com.sun.star.uno.XInterface;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -63,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.table.TableModel;
 
 
 /**
@@ -171,6 +168,7 @@ public final class ConfigurationViewer extends WeakBase
             if ( aURL.Path.compareTo("ViewConfig") == 0 )
             {
                 try {
+                    //the default action shows top-level window with a table of configuration data
                     showAsTable();
                 } catch( Exception e ) {
                     e.printStackTrace();
@@ -192,6 +190,11 @@ public final class ConfigurationViewer extends WeakBase
         // add your own code here
     }
 
+    /**
+     * Shows configuration data in an OpenOffice spreadsheet table.
+     * 
+     * @throws java.lang.Exception
+     */
     public void showAsSpreadsheet() throws Exception {
         ConfigurationAccess configAccess = new ConfigurationAccess( m_xContext );
         
@@ -227,6 +230,11 @@ public final class ConfigurationViewer extends WeakBase
         }
     }
 
+    /**
+     * Searches for available configuration roots where the config data will be loaded from.
+     * @see ConfigManager
+     * @return List of available configuration root names.
+     */
     public List<String> findConfigurationRoots() {
         XComponentContext bootstrap = (XComponentContext)UnoRuntime.queryInterface( XComponentContext.class, 
                 m_xContext.getValueByName( "/singletons/com.sun.star.configuration.bootstrap.theBootstrapContext" ));
@@ -260,10 +268,16 @@ public final class ConfigurationViewer extends WeakBase
         }
     }
     
-    public void showAsTable() throws Exception {
+    /**
+     * Displays all available configuration data in a top-level window containing
+     * a tree of configuration nodes and a table showing configuration values
+     * for selected tree node.
+     * 
+     * @throws java.lang.Exception
+     */
+    private void showAsTable() throws Exception {
         ConfigurationAccess configAccess = new ConfigurationAccess( m_xContext );
         
-        List<TableModel> models = new LinkedList<TableModel>();
         List<String> configRoots = findConfigurationRoots();
         List<String> validatedRoots = new ArrayList<String>( configRoots.size() );
         for( String rootName : configRoots ) {
@@ -275,10 +289,15 @@ public final class ConfigurationViewer extends WeakBase
         
         ConfigFrame cf = new ConfigFrame( configManager );
         cf.pack();
+        cf.setLocationRelativeTo(null);
         cf.setVisible( true );
     }
 
-    protected XSpreadsheetDocument createSpreadsheetDocument() throws java.lang.Exception {
+    /**
+     * @return A new spredsheet document
+     * @throws java.lang.Exception
+     */
+    private XSpreadsheetDocument createSpreadsheetDocument() throws java.lang.Exception {
         // get the Desktop, we need its XComponentLoader interface to load a new document
         Object desktop = m_xContext.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", m_xContext);
         

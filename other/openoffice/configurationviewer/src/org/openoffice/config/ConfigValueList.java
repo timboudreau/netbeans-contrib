@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -45,10 +45,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * List of ConfigValue that is associated with each node in the configuration tree.
+ * 
  * @author S. Aubrecht
  */
-public class ConfigValueList {
+class ConfigValueList {
     
     private String fullPath;
     private String displayName;
@@ -64,6 +65,7 @@ public class ConfigValueList {
         return fullPath;
     }
     
+    @Override
     public String toString() {
         return displayName;
     }
