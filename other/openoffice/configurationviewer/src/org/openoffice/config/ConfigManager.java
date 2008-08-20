@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -48,50 +48,35 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XInterface;
 import com.sun.star.util.XChangesBatch;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 /**
- *
- * @author sa
+ * Converts OpenOffice configuration hierarchy into Swing's tree model. It can
+ * also modify configuration data.
+ * 
+ * @author S. Aubrecht
  */
-public class ConfigManager {
+class ConfigManager {
     
     private ConfigurationAccess configAccess;
     private List<String> roots;
-    private Map<String, TableModel> models = new HashMap<String, TableModel>();
     
-    /** Creates a new instance of ConfigManager */
+    /**
+     * C'tor
+     * @param roots Configuration roots which it is possible to read config values from.
+     * @param configAccess 
+     */
     public ConfigManager( List<String> roots, ConfigurationAccess configAccess ) {
         this.roots = roots;
         this.configAccess = configAccess;
     }
     
-    public List<? extends String> getRoots() {
-        return roots;
-    }
-    
-//    public TableModel getTableModel( String root, boolean forceRefresh ) {
-//        TableModel res = models.get( root );
-//        if( null == res || forceRefresh ) {
-//            res = createTableModel( root );
-//            models.put( root, res );
-//        }
-//        return res;
-//    }
-//    
-//    private TableModel createTableModel( String configRoot ) {
-//        TableConfigurationProcessor processor = new TableConfigurationProcessor();
-//        configAccess.browse( configRoot, processor );
-//        processor.format();
-//        return processor.getTableModel();
-//    }
-//    
+    /**
+     * @return Tree root node for the whole available configuration hierarchy.
+     */
     public TreeNode getConfigRootNode() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode( "/org.openoffice" );
         addChildren( root );
@@ -144,6 +129,12 @@ public class ConfigManager {
         return configAccess;
     }
     
+    /**
+     * Changes the given configuration value in OpenOffice config storage.
+     * 
+     * @param cv Current path and value.
+     * @param aValue New value
+     */
     public void updateValue( ConfigValue cv, Object aValue ) {
         String fullPath = cv.getFullConfigPath().substring( 0, cv.getFullConfigPath().length()-cv.getDisplayName().length()-1 );
         try {
