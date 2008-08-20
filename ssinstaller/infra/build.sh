@@ -121,7 +121,8 @@ run() {
 	    \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
-            \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
+            \"-Dss.platform.name=${DISTRS}\" \
+	    \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dinstalled.bits.dir=${INSTALLED_BITS}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
             \"-Dnb.files.prefix=${NB_FILES_PREFIX}\" \
@@ -156,7 +157,8 @@ run() {
 	    \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbundles.url=${BUNDLES_URL}\" \
             \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
-            \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
+            \"-Dss.platform.name=${DISTRS}\" \
+	    \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
             \"-Dnb.files.prefix=${NB_FILES_PREFIX}\" \
             \"-Dnb.locales=${LOCALES}\" \

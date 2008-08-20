@@ -423,18 +423,18 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
         <!-- C/C++ bundles -->
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="${current.platform.name}" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled.sh"
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-${ss.platform.name}.sh"
 		       componentlist="native.lst">
 	    <component uid="ss-base" version="1.0.0.0.0"/>            
 	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>	
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        <!-- <delete file="${output.dir}/registry-temp/bundles.list" /> -->
+        <delete file="${output.dir}/registry-temp/bundles.list" /> 
 
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="${current.platform.name}" 
-                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external.sh"
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-${ss.platform.name}.sh"
                        componentlist="native.lst">
             <component uid="ss-base" version="1.0.0.0.0"/>
 	    <component uid="nb-base" version="${nb.full.version}"/>

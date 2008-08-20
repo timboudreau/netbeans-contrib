@@ -43,7 +43,7 @@ do
     esac
 
     IMAGES_DIR=$SUNSTUDIO_BITS_ROOT/builds/$distr/c_installers/dvd_image_universal/install-$distr/packages-$distr
-    DISTR_NAME="$RESDIR/sunstudio-toolchain-${distr}.sh"   
+    DISTR_NAME="$RESDIR/sunstudio-${SS_VERSION}-toolchain-${distr}.sh"   
     echo Generating $DISTR_NAME
     
     PACKAGE_DIR="$IMAGES_DIR"

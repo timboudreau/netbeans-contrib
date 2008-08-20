@@ -11,6 +11,8 @@ CURRENT_DIR=$IMAGE_DIR/builds/$platform/c_installers/dvd_image_universal/install
 CURRENT_PACKAGES=$CURRENT_DIR/packages-$platform
 CURRENT_NB=$CURRENT_DIR/archives-$platform
 
+touch $DEST_DIR/dummy
+
 DEST_PACKAGES=$DEST_DIR/$platform
 DEST_NB=$DEST_DIR/nb
 
