@@ -192,29 +192,18 @@
             debug="true"/>
 
 <!-- Added by Igor Nikiforov -->
-<!-- This addition is provided in order to have qn ability to use SSI-engine utility classes
-     in custom SSI ant build task.  
+<!-- This addition is provided in order to have an ability to use SSI-engine utility classes
+     in custom SSI ant build task. We do not need to build all classes from SSI, but only utility ones
+     and theirs dependences. 
 -->
-        <subant buildpath="${nbi.netbeans.dir}/infra/engine" target="release-all" failonerror="true" output="core.engine.unofficial.build.output">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/engine"/>                          
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>            
-            <property 
-                name="core.engine.dist.file" 
-                value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
-            <property 
-                name="dont.build.custom.tasks"
-                value="true" /> 
-        </subant>
-        <copy todir="${custom.tasks.cls}">
-            <fileset dir="${nbi.netbeans.dir}/infra/engine/build/ssinstaller/engine/build/classes">
-                <include name="**/*.*"/>
-            </fileset>
-        </copy>
+        <javac 
+            srcdir="${nbi.netbeans.dir}/engine/src" 
+	    excludes="**/wizard/**" 
+            destdir="${custom.tasks.cls}"
+            classpath="${nbi.core.dir}/engine/build"
+            debug="true"/>
 <!-- End of addition -->
+
         <javac 
             srcdir="${custom.tasks.src.3}" 
             destdir="${custom.tasks.cls}"
