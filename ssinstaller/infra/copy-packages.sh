@@ -7,10 +7,10 @@ PLATFORMS="$DISTRS"
 for platform in $PLATFORMS
 do
 
-CURRENT_DIR=$IMAGE_DIR/builds/$platform/c_installers/dvd_image_universal/install-$platform
-CURRENT_PACKAGES=$CURRENT_DIR/packages-$platform
-CURRENT_NB=$CURRENT_DIR/archives-$platform
 
+
+
+mkdir -p $DEST_DIR
 touch $DEST_DIR/dummy
 
 DEST_PACKAGES=$DEST_DIR/$platform
@@ -20,7 +20,7 @@ echo "Generating $platform in $DEST_PACKAGES"
 
 rm -rf $DEST_PACKAGES/*
 mkdir -p $DEST_PACKAGES
-cp -r $CURRENT_PACKAGES/* $DEST_PACKAGES
+cp -r $SS_PACKAGES_DIR/* $DEST_PACKAGES
 
 if [ $platform = "intel-Linux" ]
 then 
@@ -41,7 +41,7 @@ done
 
 rm -rf $DEST_NB
 mkdir -p $DEST_NB
-cp $CURRENT_NB/* $DEST_NB
+cp $NB_ARCHIVE_DIR/* $DEST_NB
 cd $DEST_NB
 mv atd-cluster*.zip atd-cluster.zip   
 mv netbeans-6.1*.zip netbeans-6.1.zip

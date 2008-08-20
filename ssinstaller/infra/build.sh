@@ -69,11 +69,6 @@ BUILD_NUMBER=0
 DIRNAME=`dirname $0`
 cd ${DIRNAME}
 
-################################################################################
-# load the properties
-source build-private.sh
-#source ../../../../build-private.sh 
-
 
 CACHE_DIR=${OUTPUT_DIR}/cache
 INSTALLED_BITS="file://$CACHE_DIR/packages"
