@@ -167,7 +167,7 @@ public class BuildHelper {
             }
         
             String path = "${installed.bits.dir}/" + platformName;
-            properties.setProperty("product.data.length." + platform.value(),
+            properties.setProperty("product.data.length" ,
                     String.valueOf(block.getNbmOrSvrOrRpm().size()));
             int k = 0;
             for (Unit unit : block.getNbmOrSvrOrRpm()) {

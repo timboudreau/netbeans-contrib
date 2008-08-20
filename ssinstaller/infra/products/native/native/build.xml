@@ -406,8 +406,6 @@
     <target name="build-all">
         <antcall target="build-platform">
             <param name="product.platforms" value="${current.platform.name}"/>
-	    <param name="product.data.length" 
-		    value="${product.data.length.solaris-x86}"/>
         </antcall>
        
     </target>
@@ -415,8 +413,6 @@
     <target name="release-all">
         <antcall target="release-platform">
             <param name="product.platforms" value="${current.platform.name}"/>
-	    <param name="product.data.length" 
-		    value="${product.data.length.solaris-x86}"/>
         </antcall>
        
     </target>
