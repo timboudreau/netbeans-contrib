@@ -1,9 +1,9 @@
-Name: Scala Bazaar library
-Version: 2.7.1
-Description: Scala Bazaar library
+Name: Scala compiler library
+Version: 2.7.2
+Description: Scala compiler library
 License: BSD-like
 Origin: http://www.scala-lang.org/
-Files: sbaz-2.7.1.jar
+Files: scala-compiler-2.7.2.jar
 Source: http://www.scala-lang.org/downloads/license.html
 
 Copyright (c) 2002-2008 EPFL, Lausanne, unless otherwise specified.

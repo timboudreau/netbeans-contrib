@@ -129,28 +129,24 @@ made subject to such option by the copyright holder.
                 <package>scala.xml.transform</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-library-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-library-2.7.1.jar</binary-origin>
+                <runtime-relative-path>ext/scala-library-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/scala-library-2.7.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-compiler-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-compiler-2.7.1.jar</binary-origin>
+                <runtime-relative-path>ext/scala-compiler-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/scala-compiler-2.7.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
+                <runtime-relative-path>ext/scala-dbc-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/scala-dbc-2.7.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
+                <runtime-relative-path>ext/scala-dbc-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/scala-dbc-2.7.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-decoder-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-decoder-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/sbaz-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/sbaz-2.7.1.jar</binary-origin>
+                <runtime-relative-path>ext/sbaz-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/sbaz-2.7.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
