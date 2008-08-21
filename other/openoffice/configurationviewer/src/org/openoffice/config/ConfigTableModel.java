@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -41,28 +41,16 @@
 
 package org.openoffice.config;
 
-import com.sun.star.beans.Property;
-import com.sun.star.beans.XHierarchicalPropertySet;
-import com.sun.star.beans.XHierarchicalPropertySetInfo;
-import com.sun.star.beans.XPropertySet;
-import com.sun.star.container.XHierarchicalNameAccess;
-import com.sun.star.container.XNameAccess;
-import com.sun.star.lang.XComponent;
-import com.sun.star.uno.Type;
-import com.sun.star.uno.UnoRuntime;
-import com.sun.star.uno.XInterface;
-import com.sun.star.util.XChangesBatch;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * 
+ * TableModel showing configuration path, shared value and user value.
  *
  * @author S. Aubrecht
  */
-public class ConfigTableModel extends AbstractTableModel {
+class ConfigTableModel extends AbstractTableModel {
     
     private ArrayList<ConfigValue> values = new ArrayList<ConfigValue>();
     private ConfigManager manager;
@@ -104,21 +92,33 @@ public class ConfigTableModel extends AbstractTableModel {
 //        values.add( val );
 //    }
 //    
+    /**
+     * Appends another configuration value
+     * @param val
+     */
     void add( ConfigValue val ) {
         values.add( val );
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 2;
+        return false; //editing is not supported yet
+        //return columnIndex == 2;
     }
 
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if( rowIndex < 0 || rowIndex >= values.size() )
             return;
-        ConfigValue cv = values.get( rowIndex );
-        manager.updateValue( cv, aValue );
+
+        //Editing isn't supported yet, some routines are needed to convert
+        //user's input to value list, do some error checking, type conversions etc.
+        //Editing of simple text and integer values however works, just uncomment the lines below.
+//        ConfigValue cv = values.get( rowIndex );
+//        manager.updateValue( cv, aValue );
     }
 
+    @Override
     public String getColumnName(int column) {
         switch( column ) {
             case 0:

@@ -27,7 +27,7 @@
 
 package org.netbeans.modules.portalpack.saw.palette.items;
 
-import org.netbeans.modules.portalpack.saw.palette.Utilities;
+//import org.netbeans.modules.portalpack.saw.palette.Utilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.openide.text.ActiveEditorDrop;
@@ -49,11 +49,11 @@ public class InitTaglib implements ActiveEditorDrop {
 
     public boolean handleTransfer(JTextComponent targetComponent) {
         String body = createBody();
-        try {
-            Utilities.insert(body, targetComponent);
-        } catch (BadLocationException ble) {
-            return false;
-        }
+       // try {
+            //Utilities.insert(body, targetComponent);
+       // } catch (BadLocationException ble) {
+       //     return false;
+        //}
         return true;
     }
 }

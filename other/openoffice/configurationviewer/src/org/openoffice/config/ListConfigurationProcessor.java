@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -41,27 +41,16 @@
 
 package org.openoffice.config;
 
-import com.sun.star.beans.PropertyVetoException;
-import com.sun.star.beans.UnknownPropertyException;
-import com.sun.star.beans.XPropertySet;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.sheet.XSpreadsheet;
-import com.sun.star.sheet.XSpreadsheetDocument;
-import com.sun.star.sheet.XSpreadsheets;
-import com.sun.star.table.XCell;
 import com.sun.star.uno.AnyConverter;
-import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XInterface;
-import javax.swing.table.TableModel;
 
 /**
  * Stores configuration data in a list collection.
  *
  * @author S. Aubrecht
  */
-public class ListConfigurationProcessor implements ConfigurationProcessor {
+class ListConfigurationProcessor implements ConfigurationProcessor {
     
-    private int currentRow = 1;
     private ConfigValueList list;
     
     /** Creates a new instance of SpreadsheetConfigurationProcessor */

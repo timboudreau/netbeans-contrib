@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-   <folder name="Editors">
-       <folder name="text">
-           <folder name="x-java">
-               <file name="PaletteFactory.instance">
-                   <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
-                   <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.cms.palette.Factory.getPalette"/>                                            
-               </file>
-           </folder>
-       </folder> 
-    </folder>
     <folder name="JSPPalette">
         <folder name="CMS">
+            <attr name="position" intvalue="642"/>
             <file name="AuthContext.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/AuthContext.xml"/>
             <file name="Category.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/Category.xml"/>
-           <file name="ContentType.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentType.xml"/>
+            <file name="ContentType.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentType.xml"/>
             <file name="Content.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/Content.xml"/>
             <file name="ContentView.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentView.xml"/>
-             <file name="ContentVersions.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentVersions.xml"/>
+            <file name="ContentVersions.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentVersions.xml"/>
             <file name="ContentsByType.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentsByType.xml"/>
             <file name="ContentByNames.xml" url="nbresloc:org/netbeans/modules/portalpack/cms/palette/items/resources/ContentByNames.xml"/>
         </folder>
@@ -34,6 +25,7 @@
 				  <file name="contenttype-by-id.template" url="nbresloc:templates/contenttype-by-id.template"/>
 				  <file name="contentversions.template" url="nbresloc:templates/contentversions.template"/> 
                                   <file name="contentview.template" url="nbresloc:templates/contentview.template"/> 
+                                  <file name="contents-by-type-id.template" url="nbresloc:templates/contents-by-type-id.template"/> 
 			  </folder>
 		  </folder>
 	  </folder>

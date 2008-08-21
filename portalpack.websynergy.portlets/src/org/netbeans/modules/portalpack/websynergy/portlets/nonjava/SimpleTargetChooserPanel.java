@@ -58,6 +58,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import java.io.File;
 import java.util.Enumeration;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.netbeans.modules.portalpack.websynergy.portlets.nonjava.api.NonJavaPortletBuilder;
 
@@ -109,6 +110,10 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
     }
 
     public boolean isValid() {
+        
+        if(!isWebSynergyRuntime(project)) {
+            return false;
+        }
         boolean ok = ( gui != null && gui.getTargetName() != null &&
                ( bottomPanel == null || bottomPanel.isValid() ) );
 
@@ -395,5 +400,20 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         }
         
         return targetFolder;
+    }
+    
+    private boolean isWebSynergyRuntime(Project project) {
+
+        
+        FileObject docRoot = PortletProjectUtils.getDocumentRoot(project);
+        if(docRoot != null) {
+            ClassPath cp = ClassPath.getClassPath(docRoot, ClassPath.COMPILE);
+            if (cp == null || cp.findResource("com/liferay/portal/service/PortletService.class") == null) { //NOI18N
+                wizard.putProperty("WizardPanel_errorMessage", 
+                            NbBundle.getMessage(NonJavaPortletWizardIterator.class, "NOT_ALLOWED_FOR_NON_WEBSYNERGY_RUNTIME")); // NOI18N
+                return false;
+            }
+        }
+        return true;
     }
 }

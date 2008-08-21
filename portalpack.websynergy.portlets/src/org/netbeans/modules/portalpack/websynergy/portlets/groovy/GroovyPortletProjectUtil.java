@@ -21,6 +21,7 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.commons.ruby.RubyPlatformUtil;
+import org.netbeans.modules.portalpack.websynergy.portlets.util.PluginPackageUtil;
 import org.netbeans.modules.portalpack.websynergy.portlets.util.TemplateUtil;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileObject;
@@ -42,25 +43,14 @@ public class GroovyPortletProjectUtil {
         if (groups.length > 0) {
             try {
 
+                PluginPackageUtil.addPortalDependecyJar(wm.getWebInf(), "bsf.jar");
                 ClassPath cp = ClassPath.getClassPath(wm.getDocumentBase(), ClassPath.COMPILE);
-                if (cp == null || cp.findResource("org/apache/bsf/BSFManager") == null) { //NOI18N
+                if (cp == null || cp.findResource("org/codehaus/groovy/bsf/GroovyEngine.class") == null) { //NOI18N
 
                     Library bpLibrary = LibraryManager.getDefault().getLibrary("groovy-all");
                     
                     if(bpLibrary == null) {
-                        
-                        String jrubyLibDir = RubyPlatformUtil.getRubyLibDir();
-                        URL bsfJar = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "bsf.jar")).getURL();
-                        URL jrubyJar = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "jruby.jar")).getURL();
-                       
-                        
-                        List urls = new ArrayList();
-                        urls.add(bsfJar);
-                        urls.add(jrubyJar);
-                        
-                        Map content = new HashMap();
-                        content.put("classpath", urls);
-                        bpLibrary = LibraryManager.getDefault().createLibrary("j2se","Liferay-Ruby-Portlet-Lib" , content);
+                      return;
                
                     }
                     for (int i = 0; i < groups.length; i++) {

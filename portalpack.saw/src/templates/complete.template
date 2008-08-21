@@ -1,0 +1,8 @@
+{
+        com.sun.saw.vo.OutputVO outputVO = null;
+        com.sun.saw.vo.CompleteTaskVO completeTaskVO = new com.sun.saw.vo.CompleteTaskVO();
+        completeTaskVO.setTaskIdList(taskIdList);
+        completeTaskVO.setUserId(userId);
+        outputVO = workflowImpl.completeTasks(completeTaskVO);
+        return outputVO;
+}

@@ -1,9 +1,6 @@
 {
-com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
-      com.sun.saw.WorkflowTaskVO taskVO = new com.sun.saw.WorkflowTaskVO();
-   taskVO.setSelectedTaskId(taskId);
-   taskVO.setUserId(userId);
-      boolean checkOutTaskStatus = false;
-   checkOutTaskStatus = workFlowManager.checkoutTasks(taskVO);
-   return checkOutTaskStatus;
+        com.sun.saw.vo.CheckoutTaskVO checkoutVO = new com.sun.saw.vo.CheckoutTaskVO();
+        checkoutVO.setTaskIdList(taskIdList);
+        checkoutVO.setUserId(userId);
+        return workflowImpl.checkoutTasks(checkoutVO);
 }

@@ -49,6 +49,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Locale;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -142,7 +143,9 @@ public class UIPropertyPanel extends javax.swing.JPanel {
         titleLabel.setText(NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.titleLabel.text")); // NOI18N
         titleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 
+        commentButton.setIcon(new ImageIcon(getClass().getResource("/org/netbeans/modules/properties/rbe/resources/comment.png"))); // NOI18N
         commentButton.setText(NbBundle.getMessage(UIPropertyPanel.class, "UIPropertyPanel.commentButton.text_1")); // NOI18N
+        commentButton.setHorizontalTextPosition(SwingConstants.CENTER);
         commentButton.setMaximumSize(new Dimension(25, 25));
         commentButton.setMinimumSize(new Dimension(25, 25));
         commentButton.setPreferredSize(new Dimension(25, 25));
@@ -159,13 +162,13 @@ public class UIPropertyPanel extends javax.swing.JPanel {
             .add(GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                 .add(titleLabel, GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                 .addPreferredGap(LayoutStyle.RELATED)
-                .add(commentButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .add(commentButton, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
 
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
             .add(jPanel1Layout.createParallelGroup(GroupLayout.BASELINE)
-                .add(commentButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(commentButton, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
                 .add(titleLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
 
         );

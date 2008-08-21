@@ -4,6 +4,7 @@ import javax.portlet.RenderResponse;
 
 class Custom {
 
+        /*
 	static String navigation(RenderResponse res) { 
 		"""
 			<div class='separator'></div>
@@ -17,7 +18,7 @@ class Custom {
 				${LiferayPortlet.renderLink(res, "Invoke Java", "/WEB-INF/groovy/java.groovy", [:])}
 			</div>
 		"""
-	}
+	}*/
 
 	static String sayHello() {
 		return """

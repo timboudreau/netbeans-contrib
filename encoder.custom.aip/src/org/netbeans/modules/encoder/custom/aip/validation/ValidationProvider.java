@@ -71,6 +71,7 @@ public class ValidationProvider extends XsdBasedValidator {
         return _bundle.getString("validator_provider.lbl.provider_name");
     }
 
+    @Override
     protected void validate(Model model, Schema schema, XsdBasedValidator.Handler handler) {
         try {
             new CustomEncoderValidator((SchemaModel) model, handler).validate();
@@ -79,6 +80,7 @@ public class ValidationProvider extends XsdBasedValidator {
         }
     }
 
+    @Override
     public DocumentModel resolveResource(String systemId, Model model) {
         try {
             CatalogModel cm = (CatalogModel) model.getModelSource().getLookup()

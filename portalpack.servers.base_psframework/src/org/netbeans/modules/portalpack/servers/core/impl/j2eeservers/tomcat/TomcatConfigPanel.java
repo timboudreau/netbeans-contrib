@@ -46,6 +46,7 @@ import org.xml.sax.SAXException;
 public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
+    private static String DEFAULT_DEBUG_PORT = "11589";
     /** Creates new form TomcatConfigPanel */
     public TomcatConfigPanel() {
         initComponents();
@@ -55,7 +56,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
     
     private void initData() {
         setJavaPlatform();
-        debugPortTf.setText("11540");
+        debugPortTf.setText(DEFAULT_DEBUG_PORT);
         
     }
     
@@ -347,7 +348,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         String port = configUtil.getHttpPort();
         portTf.setText(port);
         
-        debugPortTf.setText(port);
+        debugPortTf.setText(DEFAULT_DEBUG_PORT);
         fireChangeEvent();
     }
     public void populateDataForCustomizer(PSConfigObject object) {

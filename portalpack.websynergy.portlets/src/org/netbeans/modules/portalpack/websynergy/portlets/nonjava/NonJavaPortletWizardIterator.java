@@ -16,10 +16,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.websynergy.portlets.nonjava.api.NonJavaPortletBuilder;
@@ -80,46 +82,45 @@ public abstract class NonJavaPortletWizardIterator implements TemplateWizard.Ite
         DataFolder df = DataFolder.findFolder(dir);
         ///FileObject template = Templates.getTemplate(wizard);
         Project project = Templates.getProject(wizard);
-       //// DataObject dTemplate = DataObject.find(template);
+        //// DataObject dTemplate = DataObject.find(template);
         String targetName = Templates.getTargetName(wizard);
         String packageName = (String) wizard.getProperty("PACKAGE_NAME");//NOI18N
 
         Set result = Collections.EMPTY_SET;
 
         NonJavaPortletBuilder builder = (NonJavaPortletBuilder) wizard.getProperty(NonJavaPortletConstants.PORTLET_BUILDER);
-        
+
         DataObject obj = null;
         if (targetName == null) {
             // Default name.
-           //// obj = dTemplate.createFromTemplate(df);
-            
+            //// obj = dTemplate.createFromTemplate(df);
         } else {
             Map<String, String> templateParameters = new HashMap<String, String>();
 
-            
+
 
             if (builder == null) {
                 return result;
             }
-          /*  if (builder.getExtension().equals(template.getExt())) { // NOI18N
+        /*  if (builder.getExtension().equals(template.getExt())) { // NOI18N
+        
+        FileObject webDocbase = PortletProjectUtils.getDocumentRoot(project);
+        String folder;
+        if (dir == webDocbase) {
+        folder = "";
+        } else {
+        folder = FileUtil.getRelativePath(webDocbase, dir);
+        if (folder == null) {
+        folder = "";
+        } else {
+        folder = folder.replace('/', '$') + "$";
+        }
+        }
+        templateParameters.put("folder", folder); //NOI18N
+        
+        }*/
 
-                FileObject webDocbase = PortletProjectUtils.getDocumentRoot(project);
-                String folder;
-                if (dir == webDocbase) {
-                    folder = "";
-                } else {
-                    folder = FileUtil.getRelativePath(webDocbase, dir);
-                    if (folder == null) {
-                        folder = "";
-                    } else {
-                        folder = folder.replace('/', '$') + "$";
-                    }
-                }
-                templateParameters.put("folder", folder); //NOI18N
-
-            }*/
-
-            //obj = dTemplate.createFromTemplate(df, targetName, templateParameters);
+        //obj = dTemplate.createFromTemplate(df, targetName, templateParameters);
 
 
         }
@@ -136,15 +137,15 @@ public abstract class NonJavaPortletWizardIterator implements TemplateWizard.Ite
         String[] globalfiles = RubyPortletProjectUtil.createRubyFiles(wm,dir);
         
          */
-        
-         boolean isNewPortlet = (Boolean)wizard.getProperty("is_new_portlet");
 
-        result = builder.handleCreate(wizard,isNewPortlet);
+        boolean isNewPortlet = (Boolean) wizard.getProperty("is_new_portlet");
 
-       /* if (result == Collections.EMPTY_SET) {
-            result = Collections.singleton(obj);
+        result = builder.handleCreate(wizard, isNewPortlet);
+
+        /* if (result == Collections.EMPTY_SET) {
+        result = Collections.singleton(obj);
         } else {
-            result.add(obj);
+        result.add(obj);
         }*/
 
         /*      String rubyFolderRelativePath = FileUtil.getRelativePath(wm.getDocumentBase(), dir);
@@ -174,15 +175,15 @@ public abstract class NonJavaPortletWizardIterator implements TemplateWizard.Ite
         // obtaining target folder
         Project project = Templates.getProject(wizard);
         SourceGroup[] sourceGroups = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        
+
         wizard.putProperty(NonJavaPortletConstants.PORTLET_BUILDER, getNonJavaPortletBuilder());
 
-       //// List<NonJavaPortletBuilder> builders = NonJavaLayerXMLHelper.getNonJavaPortletBuilders();
+        //// List<NonJavaPortletBuilder> builders = NonJavaLayerXMLHelper.getNonJavaPortletBuilders();
         //WizardDescriptor.Panel packagePanel = new PagebeanPackagePanel(project);
         WizardDescriptor.Panel portletDtlPanel = new PortletDetailsPanel(wizard, new ArrayList(), project);
         WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, portletDtlPanel, false);
 
-       ///// WizardDescriptor.Panel typePanel = new PortletTypesPanel(builders);
+        ///// WizardDescriptor.Panel typePanel = new PortletTypesPanel(builders);
         /// String templateType = Templates.getTemplate(wizard).getExt();
         panels = new WizardDescriptor.Panel[]{javaPanel};
 
@@ -211,7 +212,7 @@ public abstract class NonJavaPortletWizardIterator implements TemplateWizard.Ite
             return;
         }
 
-
+        
         // Always start with the document root or under
         FileObject docRoot = PortletProjectUtils.getDocumentRoot(project);
         FileObject jspDir = Templates.getTargetFolder(wizard);
@@ -234,8 +235,8 @@ public abstract class NonJavaPortletWizardIterator implements TemplateWizard.Ite
     }
     }*/
     }
-    
-    public abstract NonJavaPortletBuilder getNonJavaPortletBuilder();
+
+   public abstract NonJavaPortletBuilder getNonJavaPortletBuilder();
 
     public void previousPanel() {
         if (!hasPrevious()) {

@@ -27,78 +27,82 @@
     </folder>
     <folder name="Menu">
         <folder name="Edit">
-            <attr name="org-netbeans-modules-editor-MainMenuAction$StopMacroRecordingAction.instance/Rectangle" boolvalue="true"/>
+            <file name="RectangleSeparator1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="5000"/>
+            </file>
             <folder name="Rectangle">
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.instance"/>
+                    <attr name="position" intvalue="1000"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance"/>
-                </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow" boolvalue="true"/>
-                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+                    <attr name="position" intvalue="1100"/>
                 </file>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance"/>
+                    <attr name="position" intvalue="1200"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance"/>
+                    <attr name="position" intvalue="1300"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance"/>
+                    <attr name="position" intvalue="1400"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
+                    <attr name="position" intvalue="1500"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+                    <attr name="position" intvalue="1600"/>
+                </file>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.instance"/>
+                    <attr name="position" intvalue="1700"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow" boolvalue="true"/>
+                <attr name="position" intvalue="5010"/>
             </folder>
         </folder>
     </folder>
     <folder name="Toolbars">
-        <attr name="Edit/Rectangle" boolvalue="true"/>
         <folder name="Rectangle">
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.instance"/>
+                <attr name="position" intvalue="1000"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+                <attr name="position" intvalue="1100"/>
             </file>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance"/>
+                <attr name="position" intvalue="1200"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance"/>
+                <attr name="position" intvalue="1300"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance"/>
+                <attr name="position" intvalue="1400"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
+                <attr name="position" intvalue="1500"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+                <attr name="position" intvalue="1600"/>
+            </file>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.instance"/>
+                <attr name="position" intvalue="1700"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow" boolvalue="true"/>
         </folder>
-        <attr name="Rectangle/File" boolvalue="true"/>
     </folder>
     <folder name="Shortcuts">
         <file name="D-O-X.shadow">

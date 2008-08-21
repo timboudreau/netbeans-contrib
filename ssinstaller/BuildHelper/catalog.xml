@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/home/lm153972/ws/test/BuildHelper/src/data/ProductDescription.xsd" uri="xml-resources/jaxb/description/ProductDescription.xsd"/>
+</catalog>

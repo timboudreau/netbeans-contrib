@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -42,10 +42,11 @@
 package org.openoffice.config;
 
 /**
- *
+ * Filter to show/hide some config path - value pairs.
+ * 
  * @author S. Aubrecht
  */
-public abstract class ConfigValueFilter {
+abstract class ConfigValueFilter {
     
     /** Creates a new instance of ConfigValueFilter */
     private ConfigValueFilter() {
@@ -53,10 +54,17 @@ public abstract class ConfigValueFilter {
     
     public abstract boolean isDisplayAble( ConfigValue value );
     
+    /**
+     * @return Filter that displays all configuration values.
+     */
     public static ConfigValueFilter getDefaultFilter() {
         return new EmptyFilter();
     }
     
+    /**
+     * @return Filter that shows only configuration value where the user value
+     * differs from shared value.
+     */
     public static ConfigValueFilter getUserValuesOnlyFilter() {
         return new UserValueOnlyFilter();
     }

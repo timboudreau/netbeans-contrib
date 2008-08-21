@@ -1,0 +1,17 @@
+
+<method>
+    <name>getWorkflowImpl</name>
+    <modifiers>
+        <modifier>
+		public
+        </modifier>
+    </modifiers>
+    <annotations>
+    </annotations>
+    <params>
+    </params>
+    <exceptions>
+        <exception>com.sun.saw.WorkflowException</exception>
+    </exceptions>
+    <return-type>com.sun.saw.Workflow</return-type>
+</method>

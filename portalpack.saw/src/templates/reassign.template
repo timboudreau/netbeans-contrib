@@ -1,0 +1,9 @@
+{
+        com.sun.saw.vo.OutputVO outputVO = null;
+        com.sun.saw.vo.ReassignTaskVO reassignTaskVO = new com.sun.saw.vo.ReassignTaskVO();
+        reassignTaskVO.setTaskIdList(taskIdList);
+        reassignTaskVO.setUserId(userId);
+        reassignTaskVO.setReassignUserIdList(reassignUserIdList);
+        outputVO = workflowImpl.reassignTasks(reassignTaskVO);
+        return outputVO;
+}

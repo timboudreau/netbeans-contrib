@@ -44,16 +44,10 @@ import org.apache.tools.ant.Task;
 import org.netbeans.installer.infra.build.ant.utils.Utils;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
+import org.netbeans.installer.utils.env.PackageType;
 
-/**
- * This class is an ant task which is capable of calculating the size of a file (or
- * a directory) and storing it as the value of a given property.
- * 
- * @author Kirill Sorokin
- */
 public class ExtendedSizeOf extends Task {
-    
-    private final String QUERY_OPTIONS = "\"%{NAME} %{VERSION} %{SIZE} %{ARCH}\\n\"";
     
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -97,7 +91,7 @@ public class ExtendedSizeOf extends Task {
         Utils.setProject(getProject());
         
         String[] fields = null;
-        if (isRPMSupported()) {
+        if (LinuxRPMPackagesAnalyzer.isRPMSupported()) {
             log("For rpm-packages real content size will be used");
             long realSize = extendedSize(file);
             long size = Utils.size(file);
@@ -120,47 +114,10 @@ public class ExtendedSizeOf extends Task {
             }
         }
         
-        String[] fields = null;
-        if ((fields = getPackageFields(file.getAbsolutePath())) != null) {
-            size += Long.parseLong(fields[2]);
-        } else {
-            size += file.length();
-        }
+        size += PackageType.LINUX_RPM.getPackageContentSize(file.getAbsolutePath());
         
         return size;
     }    
-    
-    private String[] getPackageFields(String packageFilePath) {
-        try {
-            Process p = new ProcessBuilder("rpm", "-qp", packageFilePath, "--qf", QUERY_OPTIONS).start();
-            if (p.waitFor() == 0) {
-                BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = null;
-                if ((line = input.readLine()) != null) {
-                    return line.split("[ ]");
-                }
-            }
-        } catch (InterruptedException ex) {
-            LogManager.log(ex);            
-        } catch (IOException ex) {
-            LogManager.log(ex);            
-        }
-        return null;
-    }    
-    
-    private boolean isRPMSupported() {
-        boolean result = SystemUtils.isLinux();
-        if (result) {
-            try {
-               Process p = new ProcessBuilder("rpm", "--version").start();
-               result = (p.waitFor() == 0);
-            } catch (InterruptedException ex) {
-               LogManager.log(ex);
-            } catch (IOException ex) {
-               LogManager.log(ex);
-            }    
-        }
-        return result;
-    }    
-    
+   
 }
+

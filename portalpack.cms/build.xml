@@ -10,11 +10,11 @@
 		<mkdir dir="${cluster}/modules/ext/portalpack/cms"/>
 		<mkdir dir="libs"/>
 		<get src="${cms.api.download.url}" 
-                        dest="libs/${cms.api}" usetimestamp="true"/>
+                        dest="libs/${cms.api}" usetimestamp="true" ignoreerrors="true"/>
 		<copy file="libs/${cms.api}"
 	        todir="${cluster}/modules/ext/portalpack/cms"/>
 		<get src="${cms.impl.jcr.download.url}" 
-                        dest="libs/${cms.impl.jcr}" usetimestamp="true"/>
+                        dest="libs/${cms.impl.jcr}" usetimestamp="true" ignoreerrors="true"/>
 		<copy file="libs/${cms.impl.jcr}"
 	        todir="${cluster}/modules/ext/portalpack/cms"/>
                 
@@ -23,12 +23,12 @@
                 <copy file="libs/${cms.api.javadoc}"
 	        todir="${cluster}/modules/ext/portalpack/cms"/ -->
 		<get src="${cms.taglib.download.url}" 
-                        dest="libs/${cms.taglib}" usetimestamp="true"/>
+                        dest="libs/${cms.taglib}" usetimestamp="true" ignoreerrors="true"/>
 		<copy file="libs/${cms.taglib}"
 	        todir="${cluster}/modules/ext/portalpack/cms"/>
 			
 		<get src="${usermanager.download.url}" 
-                        dest="libs/${usermanager.api}" usetimestamp="true"/>
+                        dest="libs/${usermanager.api}" usetimestamp="true" ignoreerrors="true"/>
 		<copy file="libs/${usermanager.api}"
 	        todir="${cluster}/modules/ext/portalpack/cms"/>
 	</target>

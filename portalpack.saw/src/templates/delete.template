@@ -1,0 +1,8 @@
+{
+        com.sun.saw.vo.OutputVO outputVO = null;
+        com.sun.saw.vo.DeleteTaskVO deleteTaskVO = new com.sun.saw.vo.DeleteTaskVO();
+        deleteTaskVO.setTaskIdList(taskIdList);
+        deleteTaskVO.setUserId(userId);
+        outputVO = workflowImpl.deleteTasks(deleteTaskVO);
+        return outputVO;
+}

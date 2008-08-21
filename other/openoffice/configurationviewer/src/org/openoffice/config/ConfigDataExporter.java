@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -54,7 +54,7 @@ import javax.swing.JOptionPane;
  *
  * @author S. Aubrecht
  */
-public class ConfigDataExporter {
+class ConfigDataExporter {
     
     private static File initialDir = new File( System.getProperty("user.home") );
     /** Creates a new instance of ConfigDataExporter */

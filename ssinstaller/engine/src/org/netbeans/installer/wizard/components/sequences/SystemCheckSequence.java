@@ -37,11 +37,18 @@
 package org.netbeans.installer.wizard.components.sequences;
 
 import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
+import org.netbeans.installer.utils.helper.ExecutionMode;
+import org.netbeans.installer.utils.helper.UiMode;
+import org.netbeans.installer.utils.silent.SilentLogManager;
 import org.netbeans.installer.wizard.components.WizardSequence;
 import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPanel;
 
 public class SystemCheckSequence extends WizardSequence {
+    
+    private final String CRITICAL_ERROR_MESSAGE = ResourceUtils.getString(SystemCheckSequence.class, "SCS.error.message"); // NOI18N
     
     private SystemCheckPanel systemCheckPanel = null;
 
@@ -51,9 +58,20 @@ public class SystemCheckSequence extends WizardSequence {
 
     @Override
     public void executeForward() {
-        if (SystemCheckCategory.hasProblemCategories() && System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
-            getChildren().clear();
-            addChild(systemCheckPanel);
+        if (SilentLogManager.isLogManagerActive()) {
+            for(SystemCheckCategory problem: SystemCheckCategory.getProblemCategories()) {
+                String shortMessage = problem.getShortErrorMessage();
+                SilentLogManager.forceLog(problem.check(),  ((shortMessage.length() > 0)? shortMessage + ". ": "") + problem.getLongErrorMessage());
+            }
+            if (SystemCheckCategory.hasErrorCategories()) {
+                SilentLogManager.forceLog(CheckStatus.ERROR, CRITICAL_ERROR_MESSAGE);
+                getWizard().getFinishHandler().cancel();
+            }
+        } else {
+            if (SystemCheckCategory.hasProblemCategories() && System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
+                getChildren().clear();
+                addChild(systemCheckPanel);
+            }            
         }
         super.executeForward();
     }

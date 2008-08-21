@@ -65,13 +65,13 @@ public class ResourceBundleEditorOpen extends CloneableOpenSupport implements Op
 
     @Override
     protected String messageOpening() {
-        return "messageOpening"; //FIXME
+        return "Opening..."; //FIXME
 
     }
 
     @Override
     protected String messageOpened() {
-        return "messageOpened"; //FIXME
+        return "Opened"; //FIXME
 
     }
 }

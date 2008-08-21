@@ -1,0 +1,10 @@
+{
+        com.sun.saw.vo.OutputVO outputVO = null;
+        com.sun.saw.vo.SaveTaskVO saveTaskVO = new com.sun.saw.vo.SaveTaskVO();
+        saveTaskVO.setTaskIdList(taskIdList);
+        saveTaskVO.setUserId(userId);
+        saveTaskVO.setOutput(output);
+        saveTaskVO.setCustomAttributesMap(customAttributesMap);
+        outputVO = workflowImpl.saveTasks(saveTaskVO);
+        return outputVO;
+}

@@ -212,7 +212,9 @@ public class SystemCheckPanel extends ErrorMessagePanel {
         
         @Override
         public void evaluateCancelButtonClick() {
-            component.getWizard().getFinishHandler().cancel();
+            if (SystemCheckCategory.hasErrorCategories()) {
+                component.getWizard().getFinishHandler().cancel();
+            } else super.evaluateCancelButtonClick();
         }
         
     }

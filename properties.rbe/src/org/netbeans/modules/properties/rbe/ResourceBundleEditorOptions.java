@@ -44,19 +44,17 @@ import org.openide.util.NbPreferences;
 
 /**
  * The Resource Bundle Editor options
- * TODO
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
 public class ResourceBundleEditorOptions {
 
     /** Constants */
     public final static String SEPARATOR_OPTION = "SEPARATOR_OPTION";
-    public final static String DEFAULT_SEPARATOR = ".";
     /** Separators */
-    public final static String[] SEPARATORS = {".", "-"};
+    public final static String[] SEPARATORS = {".", "-", "_"};
 
     public static String getSeparator() {
-        return getOption(SEPARATOR_OPTION, DEFAULT_SEPARATOR);
+        return getOption(SEPARATOR_OPTION, SEPARATORS[0]);
     }
 
     public static void setSeparator(String separator) {

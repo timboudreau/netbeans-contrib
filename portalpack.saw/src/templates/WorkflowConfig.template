@@ -1,0 +1,34 @@
+#The Workflow Engine to use.
+sawworkflowimplclass=com.sun.saw.impls.jcaps.JCAPSWorkflow
+
+#-------------------------------------------------------------------
+# Properties that are needed by the JCAPS Implementation of SAW.
+#------------------------------------------------------------------
+
+#host where jcaps is installed e.g. test.domain.com
+com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverhost=localhost
+
+#port where jcaps workflow service is available e.g. 8080
+com.sun.saw.impls.jcaps.JCAPSWorkflow.iiopport=8080
+
+#admin user name of jcaps app server e.g. admin
+com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverusername=
+
+#password of jcaps app server e.g. abc 
+com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverpassword=
+
+#context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory 
+com.sun.saw.impls.jcaps.JCAPSWorkflow.contextfactory=
+
+#jndi context of workflow service provided by jcaps e.g. WorkflowService
+com.sun.saw.impls.jcaps.JCAPSWorkflow.serviceJndi=
+
+#-------------------------------------------------------------------
+#Properties that are needed by the JBOSS Implementation of SAW.
+#-------------------------------------------------------------------
+
+#Specific JBOSS Server on Which jBPM is running
+jboss.server =
+
+#Value for the server password
+jboss.password =
