@@ -46,6 +46,6 @@ export DISTRS
 SS_PACKAGES_DIR=$SUNSTUDIO_BITS_ROOT/builds/$DISTRS/c_installers/dvd_image_universal/install-$DISTRS/packages-$DISTRS
 export SS_PACKAGES_DIR
 
-NB_ZIP_DIR=$SUNSTUDIO_BITS_ROOT/builds/$DISTRS/c_installers/dvd_image_universal/install-$DISTRS/archives-$DISTRS
-export NB_PACKAGES_DIR
+NB_ARCHIVE_DIR=$SUNSTUDIO_BITS_ROOT/builds/$DISTRS/c_installers/dvd_image_universal/install-$DISTRS/archives-$DISTRS
+export NB_ARCHIVE_DIR
 
