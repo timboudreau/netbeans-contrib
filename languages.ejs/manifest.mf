@@ -2,7 +2,6 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.languages.ejs/1
 OpenIDE-Module-Layer: org/netbeans/modules/languages/ejs/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/languages/ejs/resources/Bundle.properties
-OpenIDE-Module-Install: org/netbeans/modules/languages/ejs/EJSModuleInstaller.class
 
 Name: org/netbeans/modules/languages/ejs/loaders/EJSDataLoader.class
 OpenIDE-Module-Class: Loader

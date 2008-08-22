@@ -43,7 +43,7 @@ package org.netbeans.modules.languages.ejs.editor;
 
 
 
-import org.netbeans.modules.editor.html.HTMLKit;
+import org.netbeans.modules.html.editor.HTMLKit;
 import org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId;
 
 
