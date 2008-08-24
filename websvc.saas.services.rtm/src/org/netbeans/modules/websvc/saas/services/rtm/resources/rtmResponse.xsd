@@ -1,51 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+ Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 2 only ("GPL") or the Common
+ Development and Distribution License("CDDL") (collectively, the
+ "License"). You may not use this file except in compliance with the
+ License. You can obtain a copy of the License at
+ http://www.netbeans.org/cddl-gplv2.html
+ or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ specific language governing permissions and limitations under the
+ License.  When distributing the software, include this License Header
+ Notice in each file and include the License file at
+ nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ particular file as subject to the "Classpath" exception as provided
+ by Sun in the GPL Version 2 section of the License file that
+ accompanied this code. If applicable, add the following below the
+ License Header, with the fields enclosed by brackets [] replaced by
+ your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+
+ Contributor(s):
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+ Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ Microsystems, Inc. All Rights Reserved.
+
+ If you wish your version of this file to be governed by only the CDDL
+ or only the GPL Version 2, indicate your decision by adding
+ "[Contributor] elects to include this software in this distribution
+ under the [CDDL or GPL Version 2] license." If you do not indicate a
+ single choice of license, a recipient has the option to distribute
+ your version of this file under either the CDDL, the GPL Version 2 or
+ to extend the choice of license to its licensees as provided above.
+ However, if you add GPL Version 2 code and therefore, elected the GPL
+ Version 2 license, then the option applies only if the new code is
+ made subject to such option by the copyright holder.
+-->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified">
     <xsd:element name="rsp">
         <xsd:complexType>
             <xsd:choice>
-                <xsd:element name="contact" type="contactType" minOccurs="0"></xsd:element>
-                <xsd:element name="contacts" type="contactsType" minOccurs="0"></xsd:element>
-                <xsd:element name="group" type="groupType" minOccurs="0"></xsd:element>
-                <xsd:element name="groups" type="groupsType" minOccurs="0"></xsd:element>
-                <xsd:element name="list" type="listType" minOccurs="0"></xsd:element>
-                <xsd:element name="lists" type="listsType" minOccurs="0"></xsd:element>
-                <xsd:element name="locations" type="locationsType" minOccurs="0"></xsd:element>
-                <xsd:element name="settings" type="settingsType" minOccurs="0"></xsd:element>
-                <xsd:element name="tasks" type="tasksType" minOccurs="0"></xsd:element>
-                <xsd:element name="methods" type="methodsType" minOccurs="0"></xsd:element>
-                <xsd:element name="method" type="methodType" minOccurs="0"></xsd:element>
-                <xsd:element name="note" type="noteType" minOccurs="0"></xsd:element>
-                <xsd:element name="timezones" type="timezonesType" minOccurs="0"></xsd:element>
-                <xsd:element name="timeline" type="timelineType" minOccurs="0"></xsd:element>
-                <xsd:element name="time" type="timeType" minOccurs="0"></xsd:element>
-                <xsd:element name="user" type="userType" minOccurs="0"></xsd:element>
+                <xsd:element name="auth" type="authType" minOccurs="0"/>
+                <xsd:element name="contact" type="contactType" minOccurs="0"/>
+                <xsd:element name="contacts" type="contactsType" minOccurs="0"/>
+                <xsd:element name="frob" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="group" type="groupType" minOccurs="0"/>
+                <xsd:element name="groups" type="groupsType" minOccurs="0"/>
+                <xsd:element name="list" type="listType" minOccurs="0"/>
+                <xsd:element name="lists" type="listsType" minOccurs="0"/>
+                <xsd:element name="locations" type="locationsType" minOccurs="0"/>
+                <xsd:element name="settings" type="settingsType" minOccurs="0"/>
+                <xsd:element name="tasks" type="tasksType" minOccurs="0"/>
+                <xsd:element name="methods" type="methodsType" minOccurs="0"/>
+                <xsd:element name="method" type="methodType" minOccurs="0"/>
+                <xsd:element name="note" type="noteType" minOccurs="0"/>
+                <xsd:element name="timezones" type="timezonesType" minOccurs="0"/>
+                <xsd:element name="timeline" type="timelineType" minOccurs="0"/>
+                <xsd:element name="time" type="timeType" minOccurs="0"/>
+                <xsd:element name="user" type="userType" minOccurs="0"/>
             </xsd:choice>
             <xsd:attribute name="stat" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
+    <xsd:complexType name="authType">
+        <xsd:sequence>
+            <xsd:element name="token" type="xsd:string"/>
+            <xsd:element name="perms" type="xsd:string"/>
+            <xsd:element name="user" type="userType"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="contactType">
-        <xsd:sequence/>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="fullname" type="xsd:string"/>
         <xsd:attribute name="username" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="contactsType">
         <xsd:sequence>
-            <xsd:element name="contact" type="contactType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="contact" type="contactType" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="groupType">
         <xsd:sequence>
-            <xsd:element name="contacts" type="contactsType"></xsd:element>
+            <xsd:element name="contacts" type="contactsType"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="groupsType">
         <xsd:sequence>
-            <xsd:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="listType">
@@ -55,7 +103,7 @@
                     <xsd:restriction base="xsd:string"/>
                 </xsd:simpleType>
             </xsd:element>
-            <xsd:element name="taskseries" type="taskseriesType" minOccurs="0"></xsd:element>
+            <xsd:element name="taskseries" type="taskseriesType" minOccurs="0"/>
         </xsd:choice>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
@@ -68,11 +116,10 @@
     </xsd:complexType>
     <xsd:complexType name="listsType">
         <xsd:sequence>
-            <xsd:element name="list" type="listType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="list" type="listType" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="locationType">
-        <xsd:sequence/>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="name" type="xsd:string"/>
         <xsd:attribute name="longitude" type="xsd:double"/>
@@ -83,27 +130,26 @@
     </xsd:complexType>
     <xsd:complexType name="locationsType">
         <xsd:sequence>
-            <xsd:element name="location" type="locationType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="location" type="locationType" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="tagsType">
         <xsd:sequence>
-            <xsd:element name="tag" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="tag" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="participantsType">
         <xsd:sequence>
             <!-- TODO: not clear from sample responses, have to be verified/revisited -->
-            <xsd:element name="participant" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="participant" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="notesType">
         <xsd:sequence>
-            <xsd:element name="note" type="noteType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+            <xsd:element name="note" type="noteType" maxOccurs="unbounded" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="taskType">
-        <xsd:sequence/>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="due" type="xsd:string"/>
         <xsd:attribute name="has_due_time" type="xsd:string"/>
@@ -116,11 +162,11 @@
     </xsd:complexType>
     <xsd:complexType name="taskseriesType">
         <xsd:sequence>
-            <xsd:element name="rrule" type="rruleType" minOccurs="0"></xsd:element>
-            <xsd:element name="tags" type="tagsType"></xsd:element>
-            <xsd:element name="participants" type="participantsType"></xsd:element>
-            <xsd:element name="notes" type="notesType"></xsd:element>
-            <xsd:element name="task" type="taskType"></xsd:element>
+            <xsd:element name="rrule" type="rruleType" minOccurs="0"/>
+            <xsd:element name="tags" type="tagsType"/>
+            <xsd:element name="participants" type="participantsType"/>
+            <xsd:element name="notes" type="notesType"/>
+            <xsd:element name="task" type="taskType"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="created" type="xsd:dateTime"/>
@@ -139,37 +185,37 @@
     </xsd:complexType>
     <xsd:complexType name="tasksType">
         <xsd:sequence>
-            <xsd:element name="list" type="listType" minOccurs="0"></xsd:element>
+            <xsd:element name="list" type="listType" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="settingsType">
         <xsd:sequence>
-            <xsd:element name="timezone" type="xsd:string"></xsd:element>
-            <xsd:element name="dateformat" type="xsd:string"></xsd:element>
-            <xsd:element name="timeformat" type="xsd:string"></xsd:element>
-            <xsd:element name="defaultlist" type="xsd:string"></xsd:element>
+            <xsd:element name="timezone" type="xsd:string"/>
+            <xsd:element name="dateformat" type="xsd:string"/>
+            <xsd:element name="timeformat" type="xsd:string"/>
+            <xsd:element name="defaultlist" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="methodsType">
         <xsd:sequence>
-            <xsd:element name="method" type="xsd:string" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+            <xsd:element name="method" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="methodType" mixed="true">
         <xsd:sequence minOccurs="0">
-            <xsd:element name="description" type="xsd:string"></xsd:element>
-            <xsd:element name="response" type="xsd:string"></xsd:element>
+            <xsd:element name="description" type="xsd:string"/>
+            <xsd:element name="response" type="xsd:string"/>
             <xsd:element name="arguments">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element name="argument" type="argumentType" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+                        <xsd:element name="argument" type="argumentType" minOccurs="0" maxOccurs="unbounded"/>
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
             <xsd:element name="errors">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element name="error" type="errorType" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+                        <xsd:element name="error" type="errorType" minOccurs="0" maxOccurs="unbounded"/>
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
@@ -180,17 +226,14 @@
         <xsd:attribute name="requiredperms" type="xsd:int"/>
     </xsd:complexType>
     <xsd:complexType name="argumentType" mixed="true">
-        <xsd:sequence/>
         <xsd:attribute name="name" type="xsd:string"/>
         <xsd:attribute name="optional" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="errorType" mixed="true">
-        <xsd:sequence/>
         <xsd:attribute name="code" type="xsd:int"/>
         <xsd:attribute name="message" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="noteType" mixed="true">
-        <xsd:sequence/>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
         <xsd:attribute name="created" type="xsd:dateTime"/>
         <xsd:attribute name="modified" type="xsd:dateTime"/>
@@ -200,7 +243,6 @@
         <xsd:sequence>
             <xsd:element name="timezone" maxOccurs="unbounded">
                 <xsd:complexType>
-                    <xsd:sequence/>
                     <xsd:attribute name="id" type="xsd:int" use="required"/>
                     <xsd:attribute name="name" type="xsd:string"/>
                     <xsd:attribute name="dst" type="xsd:int"/>
@@ -224,13 +266,11 @@
         </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="userType">
-        <xsd:sequence>
-            <xsd:element name="username">
-                <xsd:simpleType>
-                    <xsd:restriction base="xsd:string"/>
-                </xsd:simpleType>
-            </xsd:element>
-        </xsd:sequence>
+        <xsd:choice>
+            <xsd:element name="username" type="xsd:string" minOccurs="0"/>
+        </xsd:choice>
         <xsd:attribute name="id" type="xsd:int" use="required"/>
+        <xsd:attribute name="fullname" type="xsd:string"/>
+        <xsd:attribute name="username" type="xsd:string"/>
     </xsd:complexType>
 </xsd:schema>
