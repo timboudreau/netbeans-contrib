@@ -19,6 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.netbeans.saas.RestConnection;
+import org.netbeans.saas.RestResponse;
+import rememberthemilk.rtm.rtmresponse.AuthType;
+import rememberthemilk.rtm.rtmresponse.Rsp;
 
 /**
  *
@@ -29,6 +32,7 @@ public class ${name} {
     private static String apiKey;
     private static String secret;
     private static String authToken;
+    private static String authUser;
     private static boolean readOnly = false;
     private static final String PROP_FILE = ${name}.class.getSimpleName().toLowerCase() + ".properties";
 
@@ -65,6 +69,13 @@ public class ${name} {
         return authToken;
     }
 
+    public static String getAuthUserID() throws IOException {
+        if (authUser == null || authUser.length() == 0) {
+            throw new IOException("Failed to get a valid authenticated user id.");
+        }
+        return authUser;
+    }
+
     public static void login() throws IOException {
         if (authToken == null) {
             String frob = getFrob();
@@ -85,13 +96,14 @@ public class ${name} {
                         {"api_sig", apiSig},
                         {"frob", frob}
                     });
-            String result = conn.get().getDataAsString();
+            RestResponse result = conn.get();
 
             try {
-                authToken = result.substring(result.indexOf("<token>") + 7,
-                        result.indexOf("</token>"));
+                AuthType auth = result.getDataAsObject(Rsp.class).getAuth();
+                authToken = auth.getToken();
+                authUser = auth.getUser().getId();
             } catch (Exception ex) {
-                throw new IOException("Failed to get authentication token: " + result);
+                throw new IOException("Failed to authenticate: " + result.getDataAsString());
             }
         }
     }
@@ -117,12 +129,12 @@ public class ${name} {
                     {"api_key", apiKey},
                     {"api_sig", apiSig}
                 });
-        String result = conn.get().getDataAsString();
+        RestResponse result = conn.get();
 
         try {
-            frob = result.substring(result.indexOf("<frob>") + 6, result.indexOf("</frob>"));
+            frob = result.getDataAsObject(Rsp.class).getFrob();
         } catch (Exception ex) {
-            throw new IOException("Failed to get frob: " + result);
+            throw new IOException("Failed to get frob: " + result.getDataAsString());
         }
 
         String perms = (readOnly) ? "read" : "delete";

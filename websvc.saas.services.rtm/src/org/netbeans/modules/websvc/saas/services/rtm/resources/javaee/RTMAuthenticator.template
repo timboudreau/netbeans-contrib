@@ -10,7 +10,6 @@ package ${package};
 </#if>
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Properties;
@@ -22,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.netbeans.saas.RestConnection;
+import org.netbeans.saas.RestResponse;
+import rememberthemilk.rtm.rtmresponse.AuthType;
+import rememberthemilk.rtm.rtmresponse.Rsp;
 
 /**
  *
@@ -106,14 +108,14 @@ public class ${name} {
                         {"api_sig", apiSig},
                         {"frob", frob}
                     });
-            String result = conn.get().getDataAsString();
+            RestResponse result = conn.get();
 
             try {
-                authToken = result.substring(result.indexOf("<token>") + 7,
-                        result.indexOf("</token>"));
+                AuthType auth = result.getDataAsObject(Rsp.class).getAuth();
+                authToken = auth.getToken();
                 session.setAttribute("rtm_auth_token", authToken);
             } catch (Exception ex) {
-                throw new IOException("Failed to get authentication token: " + result);
+                throw new IOException("Failed to get authentication token: " + result.getDataAsString());
             }
 
             String returnUrl = (String) session.getAttribute("rtm_return_url");
