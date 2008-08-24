@@ -71,7 +71,13 @@
         <xsd:sequence>
             <xsd:element name="token" type="xsd:string"/>
             <xsd:element name="perms" type="xsd:string"/>
-            <xsd:element name="user" type="userType"/>
+            <xsd:element name="user">
+                <xsd:complexType>
+                    <xsd:attribute name="id" type="xsd:string" use="required"/>
+                    <xsd:attribute name="fullname" type="xsd:string"/>
+                    <xsd:attribute name="username" type="xsd:string"/>
+                </xsd:complexType>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="contactType">
@@ -269,8 +275,6 @@
         <xsd:choice>
             <xsd:element name="username" type="xsd:string" minOccurs="0"/>
         </xsd:choice>
-        <xsd:attribute name="id" type="xsd:int" use="required"/>
-        <xsd:attribute name="fullname" type="xsd:string"/>
-        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
     </xsd:complexType>
 </xsd:schema>
