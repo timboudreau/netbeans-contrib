@@ -57,7 +57,6 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
-import org.openide.util.Union2;
 
 /**
  * Displays source roots etc. for the project.
@@ -71,7 +70,7 @@ public class NodeFactoryImpl implements NodeFactory {
         return new SourceChildren(p);
     }
 
-    private class SourceChildren implements NodeList<Union2<SourceGroup,FileObject>>, ChangeListener {
+    private class SourceChildren implements NodeList<Object>, ChangeListener {
 
         private final Project p;
         private final Sources src;
@@ -90,16 +89,18 @@ public class NodeFactoryImpl implements NodeFactory {
             src.removeChangeListener(this);
         }
 
-        public Node node(Union2<SourceGroup,FileObject> key) {
-            if (key.hasFirst()) {
-                return PackageView.createPackageView(key.first());
-            } else {
+        public Node node(Object key) {
+            if (key instanceof SourceGroup) {
+                return PackageView.createPackageView((SourceGroup) key);
+            } else if (key instanceof FileObject) {
                 try {
-                    return DataObject.find(key.second()).getNodeDelegate().cloneNode();
+                    return DataObject.find((FileObject) key).getNodeDelegate().cloneNode();
                 } catch (DataObjectNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                     return null;
                 }
+            } else {
+                return new LibrariesNode(p);
             }
         }
 
@@ -107,15 +108,16 @@ public class NodeFactoryImpl implements NodeFactory {
             cs.fireChange();
         }
 
-        public List<Union2<SourceGroup,FileObject>> keys() {
-            List<Union2<SourceGroup, FileObject>> keys = new ArrayList<Union2<SourceGroup, FileObject>>();
+        public List<Object> keys() {
+            List<Object> keys = new ArrayList<Object>();
             for (SourceGroup g : src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-                keys.add(Union2.<SourceGroup, FileObject>createFirst(g));
+                keys.add(g);
             }
             FileObject f = p.getProjectDirectory().getFileObject("build.xml");
             if (f != null) {
-                keys.add(Union2.<SourceGroup, FileObject>createSecond(f));
+                keys.add(f);
             }
+            keys.add("libraries");
             return keys;
         }
 
