@@ -66,12 +66,14 @@ public class LabelsWithSameAnchorTest {
         connectionLayer.addChild (edge);
 
         LabelWidget label1 = new LabelWidget (scene, "First Center Node");
+        label1.setOpaque(true);
         label1.getActions ().addAction (ActionFactory.createMoveAction ());
         edge.addChild (label1);
         edge.setConstraint (label1, LayoutFactory.ConnectionWidgetLayoutAlignment.CENTER_RIGHT, 0.5f);
         label1.getActions ().addAction (action);
 
         LabelWidget label2 = new LabelWidget (scene, "Second Center Node");
+        label2.setOpaque(true);
         label2.getActions ().addAction (ActionFactory.createMoveAction ());
         edge.addChild (label2);
         edge.setConstraint (label2, LayoutFactory.ConnectionWidgetLayoutAlignment.CENTER_RIGHT, 0.5f);
