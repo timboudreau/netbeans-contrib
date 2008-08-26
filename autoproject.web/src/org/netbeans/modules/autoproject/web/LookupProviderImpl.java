@@ -37,47 +37,27 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoproject.core;
+package org.netbeans.modules.autoproject.web;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
-import org.netbeans.spi.project.support.LookupProviderSupport;
-import org.openide.filesystems.FileObject;
+import org.netbeans.spi.project.LookupProvider;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
-/**
- * Automatic project object.
- */
-class AutomaticProject implements Project {
+public class LookupProviderImpl implements LookupProvider {
 
-    private final FileObject dir;
-    private final Lookup lkp;
+    /** public for layer */
+    public LookupProviderImpl() {}
 
-    AutomaticProject(FileObject projectDirectory) {
-        dir = projectDirectory;
-        // XXX consider adding:
-        // CacheDirectoryProvider
-        // CreateFromTemplateAttributesProvider
-        // SearchInfo
-        // SharabilityQueryImplementation
-        // CustomizerProvider
-        // AuxiliaryProperties
-        // XXX introduce LookupMerger for ActionProvider, ProjectInformation
-        lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
-                new AutomaticProjectMarker(),
-                LookupProviderSupport.createSourcesMerger(),
-                new FileEncodingQueryImpl(this),
-                new LogicalViewImpl(this),
-                this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
-    }
-
-    public FileObject getProjectDirectory() {
-        return dir;
-    }
-
-    public Lookup getLookup() {
-        return lkp;
+    public Lookup createAdditionalLookup(Lookup baseContext) {
+        Project p = baseContext.lookup(Project.class);
+        assert p != null;
+        ClassPathProviderImpl cpp = new ClassPathProviderImpl(p);
+        return Lookups.fixed(
+                cpp,
+                new SourcesImpl(p),
+                new OpenHook(p, cpp));
+                //new ActionProviderImpl(p));
     }
 
 }

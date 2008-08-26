@@ -56,6 +56,7 @@ import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
 import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
 import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
@@ -82,7 +83,7 @@ public class BuildSniffer extends AntLogger {
         if (p == null) {
             return false;
         }
-        return p.getLookup().lookup(ClassPathProviderImpl.class) != null;
+        return p.getLookup().lookup(AutomaticProjectMarker.class) != null;
     }
 
     @Override

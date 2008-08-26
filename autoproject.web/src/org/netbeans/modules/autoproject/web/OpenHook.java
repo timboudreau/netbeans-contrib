@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,53 +31,38 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoproject.core;
+package org.netbeans.modules.autoproject.web;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
-import org.netbeans.spi.project.support.LookupProviderSupport;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.spi.project.ui.ProjectOpenedHook;
 
 /**
- * Automatic project object.
+ * Registers classpaths.
  */
-class AutomaticProject implements Project {
+class OpenHook extends ProjectOpenedHook {
 
-    private final FileObject dir;
-    private final Lookup lkp;
+    private final Project p;
+    private final ClassPathProviderImpl cppi;
 
-    AutomaticProject(FileObject projectDirectory) {
-        dir = projectDirectory;
-        // XXX consider adding:
-        // CacheDirectoryProvider
-        // CreateFromTemplateAttributesProvider
-        // SearchInfo
-        // SharabilityQueryImplementation
-        // CustomizerProvider
-        // AuxiliaryProperties
-        // XXX introduce LookupMerger for ActionProvider, ProjectInformation
-        lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
-                new AutomaticProjectMarker(),
-                LookupProviderSupport.createSourcesMerger(),
-                new FileEncodingQueryImpl(this),
-                new LogicalViewImpl(this),
-                this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
+    public OpenHook(Project p, ClassPathProviderImpl cppi) {
+        this.p = p;
+        this.cppi = cppi;
     }
 
-    public FileObject getProjectDirectory() {
-        return dir;
+    @Override
+    protected void projectOpened() {
+        cppi.open();
     }
 
-    public Lookup getLookup() {
-        return lkp;
+    @Override
+    protected void projectClosed() {
+        cppi.close();
     }
 
 }

@@ -37,47 +37,29 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoproject.core;
+package org.netbeans.modules.autoproject.web;
 
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
-import org.netbeans.spi.project.support.LookupProviderSupport;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+public class WebCacheConstants {
 
-/**
- * Automatic project object.
- */
-class AutomaticProject implements Project {
+    private WebCacheConstants() {}
 
-    private final FileObject dir;
-    private final Lookup lkp;
+    //public static final String SOURCE = "#source";
+    //public static final String CLASSPATH = "#classpath";
+    public static final String BOOTCLASSPATH = "#bootclasspath";
+    //public static final String BINARY = "#binary";
+    //public static final String SOURCE_LEVEL = "#sourcelevel";
 
-    AutomaticProject(FileObject projectDirectory) {
-        dir = projectDirectory;
-        // XXX consider adding:
-        // CacheDirectoryProvider
-        // CreateFromTemplateAttributesProvider
-        // SearchInfo
-        // SharabilityQueryImplementation
-        // CustomizerProvider
-        // AuxiliaryProperties
-        // XXX introduce LookupMerger for ActionProvider, ProjectInformation
-        lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
-                new AutomaticProjectMarker(),
-                LookupProviderSupport.createSourcesMerger(),
-                new FileEncodingQueryImpl(this),
-                new LogicalViewImpl(this),
-                this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
-    }
-
-    public FileObject getProjectDirectory() {
-        return dir;
-    }
-
-    public Lookup getLookup() {
-        return lkp;
-    }
-
+    
+    public static final String WAR_FILE = "#warfile";
+    public static final String WEB_XML = "#webxml";
+    public static final String CLASSPATH = "#webclasspath";
+    public static final String DOCROOT = "#docroot";
+    public static final String WEBINF = "#webinf";
+    
+    // war= destfile/warfile attr
+    // web.xml = webxml attr
+    // classpath=lib files + classes fileset
+    // docroot= war-task's fileset
+    // webinf dir=webinf's fileset attribute
+    
 }
