@@ -43,6 +43,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.java.actions.ActionProviderImpl;
 import org.netbeans.spi.java.project.support.LookupMergerSupport;
 import org.netbeans.spi.project.LookupProvider;
+import org.netbeans.spi.project.ui.support.UILookupMergerSupport;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
@@ -64,7 +65,7 @@ public class LookupProviderImpl implements LookupProvider {
                 new ProjectInformationImpl(p),
                 new SourcesImpl(p),
                 new SourceLevelQueryImpl(p),
-                new OpenHook(p, cpp),
+                UILookupMergerSupport.createProjectOpenHookMerger(new OpenHook(p, cpp)),
                 new ActionProviderImpl(p));
         // XXX consider adding:
         // AntArtifactProvider

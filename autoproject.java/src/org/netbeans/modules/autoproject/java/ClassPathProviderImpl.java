@@ -210,6 +210,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
     }
 
     void open() {
+        LOG.fine("opening " + prj);
         synchronized (registeredPaths) {
             String[] TYPES = {ClassPath.SOURCE, ClassPath.COMPILE, ClassPath.EXECUTE, ClassPath.BOOT};
             for (String type : TYPES) {

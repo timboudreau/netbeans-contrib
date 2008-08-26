@@ -43,6 +43,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
@@ -78,6 +79,11 @@ class AutomaticProject implements Project {
 
     public Lookup getLookup() {
         return lkp;
+    }
+
+    @Override
+    public String toString() {
+        return "AutomaticProject[" + FileUtil.getFileDisplayName(dir) + "]";
     }
 
 }
