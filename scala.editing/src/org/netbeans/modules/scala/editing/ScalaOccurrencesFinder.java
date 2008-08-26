@@ -54,6 +54,7 @@ import org.netbeans.modules.scala.editing.ast.AstRef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -64,6 +65,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
     private boolean cancelled;
     private int caretPosition;
     private Map<OffsetRange, ColoringAttributes> occurrences;
+    private FileObject file;
 
     public ScalaOccurrencesFinder() {
     }
@@ -93,6 +95,13 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         if (isCancelled()) {
             return;
+        }
+
+        FileObject currentFile = info.getFileObject();
+        if (currentFile != file) {
+            // Ensure that we don't reuse results from a different file
+            occurrences = null;
+            file = currentFile;
         }
 
         ScalaParserResult result = AstUtilities.getParserResult(info);
