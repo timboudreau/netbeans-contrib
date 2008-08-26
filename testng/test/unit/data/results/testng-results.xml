@@ -1,0 +1,199 @@
+<testng-results>
+  <reporter-output>
+  </reporter-output>
+  <suite name="Ant suite">
+    <groups>
+    </groups>
+    <test name="Ant test">
+      <class name="test.FailingTest">
+        <test-method status="PASS" signature="cleanUp()" name="cleanUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="FAIL" signature="aTest()" name="aTest" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+          <exception class="java.lang.AssertionError">
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError
+	at test.FailingTest.aTest(FailingTest.java:25)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.testng.internal.MethodHelper.invokeMethod(MethodHelper.java:580)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:478)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:617)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:885)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:126)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:110)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:712)
+	at org.testng.TestRunner.privateRun(TestRunner.java:582)
+	at org.testng.TestRunner.run(TestRunner.java:477)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:324)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:319)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:292)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:198)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:823)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:790)
+	at org.testng.TestNG.run(TestNG.java:708)
+	at org.testng.TestNG.privateMain(TestNG.java:860)
+	at org.testng.TestNG.main(TestNG.java:833)
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+        <test-method status="PASS" signature="setUp()" name="setUp" is-config="true" duration-ms="1" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+      </class>
+      <class name="test.FailedExceptionTest">
+        <test-method status="FAIL" signature="aTest()" name="aTest" duration-ms="1" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+          <exception class="org.testng.TestException">
+            <message>
+              <![CDATA[
+Expected an exception in test method test.FailedExceptionTest.aTest()]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.testng.TestException: 
+Expected an exception in test method test.FailedExceptionTest.aTest()
+	at org.testng.internal.Invoker.handleInvocationResults(Invoker.java:1122)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:898)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:126)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:110)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:712)
+	at org.testng.TestRunner.privateRun(TestRunner.java:582)
+	at org.testng.TestRunner.run(TestRunner.java:477)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:324)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:319)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:292)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:198)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:823)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:790)
+	at org.testng.TestNG.run(TestNG.java:708)
+	at org.testng.TestNG.privateMain(TestNG.java:860)
+	at org.testng.TestNG.main(TestNG.java:833)
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+      </class>
+      <class name="test.ExceptionTest">
+        <test-method status="PASS" signature="aTest()" name="aTest" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+          <exception class="java.lang.NullPointerException">
+            <message>
+              <![CDATA[expected]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.NullPointerException: expected
+	at test.ExceptionTest.aTest(ExceptionTest.java:18)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.testng.internal.MethodHelper.invokeMethod(MethodHelper.java:580)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:478)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:617)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:885)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:126)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:110)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:712)
+	at org.testng.TestRunner.privateRun(TestRunner.java:582)
+	at org.testng.TestRunner.run(TestRunner.java:477)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:324)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:319)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:292)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:198)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:823)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:790)
+	at org.testng.TestNG.run(TestNG.java:708)
+	at org.testng.TestNG.privateMain(TestNG.java:860)
+	at org.testng.TestNG.main(TestNG.java:833)
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+      </class>
+      <class name="test.CleanUpTest">
+        <test-method status="PASS" signature="aTest()" name="aTest" duration-ms="3" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="PASS" signature="setUp()" name="setUp" is-config="true" duration-ms="9" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="FAIL" signature="cleanUp()" name="cleanUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[some message]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: some message
+	at test.CleanUpTest.cleanUp(CleanUpTest.java:30)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.testng.internal.MethodHelper.invokeMethod(MethodHelper.java:580)
+	at org.testng.internal.Invoker.invokeConfigurationMethod(Invoker.java:398)
+	at org.testng.internal.Invoker.invokeConfigurations(Invoker.java:145)
+	at org.testng.internal.Invoker.invokeConfigurations(Invoker.java:82)
+	at org.testng.internal.TestMethodWorker.invokeAfterClassMethods(TestMethodWorker.java:210)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:113)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:712)
+	at org.testng.TestRunner.privateRun(TestRunner.java:582)
+	at org.testng.TestRunner.run(TestRunner.java:477)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:324)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:319)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:292)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:198)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:823)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:790)
+	at org.testng.TestNG.run(TestNG.java:708)
+	at org.testng.TestNG.privateMain(TestNG.java:860)
+	at org.testng.TestNG.main(TestNG.java:833)
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+      </class>
+      <class name="test.SetUpTest">
+        <test-method status="FAIL" signature="setUp()" name="setUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+          <exception class="java.lang.AssertionError">
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError
+	at test.SetUpTest.setUp(SetUpTest.java:20)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.testng.internal.MethodHelper.invokeMethod(MethodHelper.java:580)
+	at org.testng.internal.Invoker.invokeConfigurationMethod(Invoker.java:398)
+	at org.testng.internal.Invoker.invokeConfigurations(Invoker.java:145)
+	at org.testng.internal.Invoker.invokeConfigurations(Invoker.java:82)
+	at org.testng.internal.TestMethodWorker.invokeBeforeClassMethods(TestMethodWorker.java:167)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:104)
+	at org.testng.TestRunner.runWorkers(TestRunner.java:712)
+	at org.testng.TestRunner.privateRun(TestRunner.java:582)
+	at org.testng.TestRunner.run(TestRunner.java:477)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:324)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:319)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:292)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:198)
+	at org.testng.TestNG.createAndRunSuiteRunners(TestNG.java:823)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:790)
+	at org.testng.TestNG.run(TestNG.java:708)
+	at org.testng.TestNG.privateMain(TestNG.java:860)
+	at org.testng.TestNG.main(TestNG.java:833)
+]]>
+            </full-stacktrace>
+          </exception>
+        </test-method>
+        <test-method status="SKIP" signature="cleanUp()" name="cleanUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="SKIP" signature="aTest()" name="aTest" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+      </class>
+      <class name="test.NewTestNGTest">
+        <test-method status="PASS" signature="aTest()" name="aTest" duration-ms="1" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="PASS" signature="cleanUp()" name="cleanUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+        <test-method status="PASS" signature="setUp()" name="setUp" is-config="true" duration-ms="0" started-at="2008-08-21T16:47:03Z" finished-at="2008-08-21T16:47:03Z">
+        </test-method>
+      </class>
+    </test>
+  </suite>
+</testng-results>
