@@ -39,26 +39,58 @@
 
 package org.netbeans.modules.autoproject.web;
 
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.LookupProvider;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import java.io.File;
+import org.netbeans.modules.autoproject.spi.Cache;
+import org.netbeans.modules.j2ee.dd.api.web.WebAppMetadata;
+import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
+import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
-public class LookupProviderImpl implements LookupProvider {
+public class WebModuleImpl implements WebModuleImplementation  {
 
-    /** public for layer */
-    public LookupProviderImpl() {}
+    private FileObject docBase;
+    private String root;
 
-    public Lookup createAdditionalLookup(Lookup baseContext) {
-        Project p = baseContext.lookup(Project.class);
-        assert p != null;
-        ClassPathProviderImpl cpp = new ClassPathProviderImpl(p);
-        return Lookups.fixed(
-                cpp,
-                new SourcesImpl(p),
-                new WebModuleProviderImpl(p),
-                new OpenHook(p, cpp));
-                //new ActionProviderImpl(p));
+    public WebModuleImpl(FileObject docBase, String root) {
+        this.docBase = docBase;
+        this.root = root;
+    }
+
+    public FileObject getDocumentBase() {
+        return docBase;
+    }
+
+    public String getContextPath() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getJ2eePlatformVersion() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public FileObject getWebInf() {
+        return getFile(WebCacheConstants.WEBINF);
+    }
+
+    public FileObject getDeploymentDescriptor() {
+        return getFile(WebCacheConstants.WEB_XML);
+    }
+    
+    private FileObject getFile(String constantName) {
+        String file = Cache.get(root + constantName);
+        if (file != null) {
+            return FileUtil.toFileObject(new File(file));
+        }
+        return null;
+    }
+
+    public FileObject[] getJavaSources() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public MetadataModel<WebAppMetadata> getMetadataModel() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
