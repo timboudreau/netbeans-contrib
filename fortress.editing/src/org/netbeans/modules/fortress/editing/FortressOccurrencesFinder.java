@@ -52,6 +52,7 @@ import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
 import org.netbeans.modules.fortress.editing.visitors.Signature;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.openide.filesystems.FileObject;
 
 /**
  *
