@@ -268,6 +268,7 @@ public class ActionProviderImpl implements ActionProvider {
                         String name = sourcepath.getResourceName(fo, '.', false);
                         assert name != null : fo;
                         TypeElement runType = cc.getElements().getTypeElement(name);
+                        assert runType != null : name;
                         TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
                         if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
                             isActuallyTest.set(true);
