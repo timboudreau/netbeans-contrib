@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".">
+    <target name="profile">
+        <translate-classpath classpath="${classpath}" targetProperty="classpath-translated"/>
+        <nbprofiledirect>
+            <classpath path="${classpath-translated}"/>
+        </nbprofiledirect>
+        <property environment="env"/>
+        <java classname="${classname}" fork="true" failonerror="true" dir="${profiler.session.working.dir}" jvm="${profiler.info.jvm}">
+            <classpath path="${classpath-translated}"/>
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
+            <jvmarg line="${profiler.info.jvmargs}"/>
+            <env key="LD_LIBRARY_PATH" path="${profiler.info.agentpath}:${env.LD_LIBRARY_PATH}"/>
+            <env key="Path" path="${profiler.info.agentpath};${Path}"/>
+            <arg line="${args}"/>
+        </java>
+    </target>
+</project>

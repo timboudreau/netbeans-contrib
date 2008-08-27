@@ -5,6 +5,7 @@
         <ant dir="../autoproject.core" target="netbeans"/>
         <ant dir="../autoproject.java" target="netbeans"/>
         <ant dir="../autoproject.web" target="netbeans"/>
+        <ant dir="../autoproject.profiler" target="netbeans"/>
         <path id="clusters">
             <dirset dir="../../nbbuild/netbeans">
                 <include name="extra"/>
@@ -14,6 +15,7 @@
                 <include name="gsf*"/>
                 <include name="websvccommon*"/>
                 <include name="enterprise*"/>
+                <include name="profiler*"/>
                 <include name="nb*"/>
             </dirset>
         </path>
