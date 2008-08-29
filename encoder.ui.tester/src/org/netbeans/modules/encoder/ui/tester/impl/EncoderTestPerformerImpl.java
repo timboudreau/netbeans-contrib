@@ -35,7 +35,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
@@ -72,14 +71,14 @@ import org.xml.sax.SAXException;
  * @author Cannis Meng
  */
 public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionListener {
-    
+
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle");
     private static final String PROCESS = _bundle.getString("test_performer.lbl.process");
     private static final String CANCEL = _bundle.getString("test_performer.lbl.cancel");
     public static final String ENCODE = "Encode";  //NOI18N
     public static final String DECODE = "Decode";  //NOI18N
-    
+
     public static final QName TOP_PROPERTY_ELEMENT = new QName(EncodingConst.URI, EncodingConst.TOP_FLAG);
     private static final XmlBoolean XML_BOOLEAN_TRUE = XmlBoolean.Factory.newValue(Boolean.TRUE);
     private static final String VERBOSE_LOGGING_PKG_NAME = "com.sun.encoder.custom";;
@@ -89,16 +88,16 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
     private EncoderTestTask mEncoderTestTask;
     private File metaFile;
     private EncoderType mEncoderType;
-    
+
     public void performTest(File xsdFile, EncoderType encoderType) {
         metaFile = xsdFile;
         mEncoderType = encoderType;
         if (mEncoderTestTask == null) {
             mEncoderTestTask = new EncoderTestTaskImpl();
         }
-        showDialog();                       
+        showDialog();
     }
-    
+
     private void showDialog() {
         try {
             QName[] qnames = getTopElementDecls(metaFile);
@@ -118,16 +117,16 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             ErrorManager.getDefault().notify(ex);
             return;
         }
-        dialogDescriptor = new DialogDescriptor(testerPanel, 
+        dialogDescriptor = new DialogDescriptor(testerPanel,
                 _bundle.getString("test_performer.lbl.test_encoding"),
                 true,
                 new Object[] {PROCESS, CANCEL},
                 PROCESS,
                 DialogDescriptor.BOTTOM_ALIGN,
-                HelpCtx.DEFAULT_HELP, 
+                HelpCtx.DEFAULT_HELP,
                 this);
         dialogDescriptor.setClosingOptions(new Object[] {CANCEL});
-        dialogDescriptor.setButtonListener(this);        
+        dialogDescriptor.setButtonListener(this);
         dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
         dialog.setModal(true);
         dialog.setVisible(true);
@@ -141,15 +140,15 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             } catch (BackingStoreException ex) {
                 //Ignore
             }
-            process();            
+            process();
         }
     }
-    
+
     /**
      * Gets the top level element declaractions (the declarations that define
      * messages) from an XSD file.  It only search within the XSD specified,
      * not any of the referenced XSDs.
-     * 
+     *
      * @param xsdFile the XSD file
      */
     private QName[] getTopElementDecls(File xsdFile)
@@ -197,8 +196,8 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
         }
         return topElemList.toArray(new QName[0]);
     }
-    
-    private void process() {               
+
+    private void process() {
 
         // if verbose mode is checked, then output debug information
         final boolean isVerbose = testerPanel.isVerbose();
@@ -214,7 +213,7 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
 
             // craete a StreamHandler based on ByteArrayOutputStream
             byteArrOS = new ByteArrayOutputStream();
-            logHandler = new StreamHandler(byteArrOS, new SimpleFormatter());
+            logHandler = new StreamHandler(byteArrOS, new LogFormatter());
             logHandler.setLevel(Level.FINE);
             // add to logger
             logger4Verbose.addHandler(logHandler);
@@ -227,18 +226,18 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
                     _bundle.getString("test_performer.lbl.select_top_element"));
             return;
         }
-        
+
         String type = testerPanel.getActionType();
         File processFile = new File(testerPanel.getProcessFile());
-        
+
         if (!processFile.exists()) {
             JOptionPane.showMessageDialog(testerPanel,
                     _bundle.getString("test_performer.lbl.enter_process_file"));
             return;
-        }        
-        
+        }
+
         String oFile = testerPanel.getOutputFile();
-        File outputFile = new File(oFile);       
+        File outputFile = new File(oFile);
         if (testerPanel.getOutputFileName() == null
                 || testerPanel.getOutputFileName().equals("")) {  //NOI18N
             //no outputfile
@@ -254,13 +253,13 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
          */
         if (outputFile.exists()) {
             if (!testerPanel.isOverwrite()) {
-                String ext = FileUtil.getExtension(outputFile.getAbsolutePath());   
+                String ext = FileUtil.getExtension(outputFile.getAbsolutePath());
                 String parent = outputFile.getParent();
                 String name = outputFile.getName().replaceAll("." + ext, "");  //NOI18N
                 outputFile = new File(parent + File.separatorChar + name + "_1." + ext);  //NOI18N
             }
         }
-        
+
         boolean result = true;
 
         if (type.equals(ENCODE)) {
@@ -284,15 +283,15 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             } catch (SAXException ex) {
                 displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                result = false;            
+                result = false;
             } catch (EncoderConfigurationException ex) {
                 displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                result = false;            
+                result = false;
             } finally {
                 testerPanel.setCursor(null);
             }
-        } else {            
+        } else {
             try {
                 testerPanel.setCursor(Utilities.createProgressCursor(testerPanel));
                 mEncoderTestTask.decode(mEncoderType, metaFile, rootElement,
@@ -317,17 +316,17 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             } catch (EncoderConfigurationException ex) {
                 displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
-                result = false;            
+                result = false;
             } finally {
                 testerPanel.setCursor(null);
             }
         }
-        
+
         if (!result) {
             return;
         }
-        
-        try {            
+
+        try {
             DataObject dObj = DataLoaderPool.getDefault().
                             findDataObject(FileUtil.toFileObject(outputFile));
             if (dObj != null) {
@@ -343,13 +342,13 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
 
         displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
     }
-    
+
     private void displayVerboseMessages(boolean isVerbose,
             ByteArrayOutputStream byteArrOS,
             Handler logHandler,
             Logger logger4Verbose,
             Level origLevel) {
-        if (!isVerbose || logHandler == null || byteArrOS == null 
+        if (!isVerbose || logHandler == null || byteArrOS == null
                 || logger4Verbose == null) {
             return;
         }
