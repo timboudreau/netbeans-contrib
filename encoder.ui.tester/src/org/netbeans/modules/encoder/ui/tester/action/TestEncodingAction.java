@@ -44,9 +44,10 @@ import org.openide.windows.WindowManager;
  * @author Jun Xu
  */
 public class TestEncodingAction extends NodeAction {
-    
+
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/action/Bundle");
+
     protected void performAction(Node[] node) {
         SchemaModel model;
         try {
@@ -82,7 +83,7 @@ public class TestEncodingAction extends NodeAction {
                     WindowManager.getDefault().getMainWindow(), sb.toString());
             return;
         }
-        
+
         EncodingMark mark = ModelUtils.getEncodingMark(model);
         EncoderType encoderType;
         try {
@@ -94,7 +95,7 @@ public class TestEncodingAction extends NodeAction {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), msg);
             return;
         }
-        
+
         EncoderTestPerformer testPerformer = EncoderTestPerformer.Factory.getDefault();
         testPerformer.performTest(new File(xsdPath), encoderType);
     }
@@ -107,10 +108,11 @@ public class TestEncodingAction extends NodeAction {
         return HelpCtx.DEFAULT_HELP;
     }
 
+    @Override
     protected boolean asynchronous() {
         return false;
     }
-    
+
     protected boolean enable(Node[] node) {
         //Check if it is writable
         if (node == null || node.length == 0 || node.length > 1) {

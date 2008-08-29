@@ -38,11 +38,11 @@ import org.xml.sax.SAXException;
  * @author Cannis Meng
  */
 public interface EncoderTestTask {
-    
+
     /**
      * Decodes the input file according the the xsd meta file and
      * generate a output xml file.
-     * 
+     *
      * @param type encoder type.
      * @param metaFile the xsd meta file.
      * @param rootElement root element for decoding.
@@ -51,7 +51,7 @@ public interface EncoderTestTask {
      * @param predecodeCoding pre-decode coding.
      * @param charBased whether or not character based.
      * @return output file.
-     * 
+     *
      * @throws com.sun.encoder.EncoderException
      * @throws java.io.IOException
      * @throws javax.xml.transform.TransformerConfigurationException
@@ -67,7 +67,7 @@ public interface EncoderTestTask {
     /**
      * Encodes the xml file with the xsd meta file and generate the encoded
      * output file.
-     * 
+     *
      * @param type encoder type.
      * @param metaFile the xsd meta file.
      * @param rootElement root element for encoding.
@@ -76,7 +76,7 @@ public interface EncoderTestTask {
      * @param postencodeCoding post-encode coding.
      * @param charBased whether or not character based.
      * @return null.
-     * 
+     *
      * @throws com.sun.encoder.EncoderException
      * @throws java.io.IOException
      * @throws javax.xml.parsers.ParserConfigurationException
@@ -87,6 +87,6 @@ public interface EncoderTestTask {
             File xmlFile, File outputFile, String postencodeCoding,
             boolean charBased) throws EncoderException, IOException,
                     ParserConfigurationException, SAXException,
-                    EncoderConfigurationException;    
-    
+                    EncoderConfigurationException;
+
 }

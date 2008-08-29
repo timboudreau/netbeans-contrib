@@ -24,20 +24,29 @@ import java.io.File;
 import org.netbeans.modules.encoder.ui.tester.impl.EncoderTestPerformerImpl;
 
 /**
- * The encoder test performer interface
+ * The encoder test performer interface.
  *
  * @author Cannis Meng, Jun Xu
  */
 public interface EncoderTestPerformer {
-    
+
     /**
      * Performs test on an encoder represented by the XSD file.
      *
-     * @param model the XSD schema model
+     * @param xsdFile the XSD schema model.
+     * @param encoderType EncoderType object.
      */
-    public void performTest(File xsdFile, EncoderType encoderType);
-    
+    void performTest(File xsdFile, EncoderType encoderType);
+
+    /**
+     * Factory class.
+     */
     public static class Factory {
+
+        /**
+         *
+         * @return EncoderTestPerformer implementation instance.
+         */
         public static EncoderTestPerformer getDefault() {
             return new EncoderTestPerformerImpl();
         }

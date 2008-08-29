@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
  * @author Cannis Meng
  */
 public class TesterUtil {
-    
+
     /**
      * Loads a byte array from a file
      */
@@ -54,7 +54,7 @@ public class TesterUtil {
         }
         return bytes;
     }
-    
+
     /**
      * Writes a byte array to a file
      */
@@ -68,17 +68,17 @@ public class TesterUtil {
                 os.close();
             }
         }
-    }    
-    
+    }
+
     /**
      * Loads a DOM document from a file
      */
     public static Document loadDocument(File docFile)
             throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory domFactory 
+        DocumentBuilderFactory domFactory
             = DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         return builder.parse(docFile);
-    } 
+    }
 }
