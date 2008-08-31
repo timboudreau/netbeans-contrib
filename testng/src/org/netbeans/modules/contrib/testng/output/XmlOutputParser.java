@@ -41,7 +41,6 @@ package org.netbeans.modules.contrib.testng.output;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
-import org.openide.ErrorManager;
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -209,7 +208,7 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_TEST_METHOD:
                 assert "test-method".equals(qName) : "was " + qName; //NOI18N
                 assert testcase != null;
-                suiteResult.reportTest(testcase);//XXX, Report.InfoSource.XML_FILE);
+                suiteResult.reportTest(testcase, Report.InfoSource.XML_FILE);
                 testcase = null;
                 state = STATE_CLASS;
                 break;
