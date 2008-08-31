@@ -41,21 +41,19 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.platform.JavaPlatformManager;
-import org.netbeans.modules.contrib.testng.output.antutils.AntProject;
-import org.netbeans.modules.contrib.testng.output.antutils.TestCounter;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.xml.sax.SAXException;
 
 /**
  * Ant logger interested in task &quot;junit&quot;,
@@ -83,9 +81,7 @@ public final class TestNGAntLogger extends AntLogger {
     public static final String TASK_TESTNG = "testng";                    //NOI18N
     private static final String[] INTERESTING_TASKS = {TASK_JAVA, TASK_TESTNG};
     private static final String ANT_TEST_RUNNER_CLASS_NAME =
-            "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";//NOI18N
-    private static final String XML_FORMATTER_CLASS_NAME =
-            "org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter";//NOI18N
+            "org.testng.TestNG";//NOI18N
 
     /**
      * Default constructor for lookup
@@ -142,17 +138,21 @@ public final class TestNGAntLogger extends AntLogger {
             }
 
             className = event.evaluate(className);
-            if (className.equals("junit.textui.TestRunner") //NOI18N
-                    || className.startsWith("org.junit.runner.") //NOI18N
-                    || className.equals(
-                    "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner")) {  //NOI18N
+            if (className.equals("org.testng.TestNG")) { //NOI18N
                 TaskStructure[] nestedElems = taskStructure.getChildren();
                 for (TaskStructure ts : nestedElems) {
                     if (ts.getName().equals("jvmarg")) {                //NOI18N
-                        String value = ts.getAttribute("value");        //NOI18N
-                        if ((value != null) && event.evaluate(value).equals("-Xdebug")) {                //NOI18N
-                            LOGGER.info("re: DEBUGGING_TEST_TASK");
-                            return TaskType.DEBUGGING_TEST_TASK;
+                        String a;
+                        if ((a = ts.getAttribute("value")) != null) {   //NOI18N
+                            if (event.evaluate(a).equals("-Xdebug")) {  //NOI18N
+                                return TaskType.DEBUGGING_TEST_TASK;
+                            }
+                        } else if ((a = ts.getAttribute("line")) != null) {//NOI18N
+                            for (String part : parseCmdLine(event.evaluate(a))) {
+                                if (part.equals("-Xdebug")) {           //NOI18N
+                                    return TaskType.DEBUGGING_TEST_TASK;
+                                }
+                            }
                         }
                     }
                 }
@@ -166,6 +166,92 @@ public final class TestNGAntLogger extends AntLogger {
 
         assert false : "Unhandled task name";                           //NOI18N
         return TaskType.OTHER_TASK;
+    }
+
+    /**
+     * Parses the given command-line string into individual arguments.
+     * @param  cmdLine  command-line to be parsed
+     * @return  list of invidividual parts of the given command-line,
+     *          or an empty list if the command-line was empty
+     */
+    private static final List<String> parseCmdLine(String cmdLine) {
+        cmdLine = cmdLine.trim();
+
+        /* maybe the command-line is empty: */
+        if (cmdLine.length() == 0) {
+            return Collections.<String>emptyList();
+        }
+
+        final char[] chars = cmdLine.toCharArray();
+
+        /* maybe the command-line contains just one part: */
+        boolean simple = true;
+        for (char c : chars) {
+            if ((c == ' ') || (c == '"') || (c == '\'')) {
+                simple = false;
+                break;
+            }
+        }
+        if (simple) {
+            return Collections.<String>singletonList(cmdLine);
+        }
+
+        /* OK, so it is not trivial: */
+        List<String> result = new ArrayList<String>(4);
+        StringBuilder buf = new StringBuilder(20);
+        final int stateBeforeWord = 0;
+        final int stateAfterWord = 1;
+        final int stateInSingleQuote = 2;
+        final int stateInDoubleQuote = 3;
+        int state = stateBeforeWord;
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            switch (state) {
+                case stateBeforeWord:
+                    if (c == '"') {
+                        state = stateInDoubleQuote;
+                    } else if (c == '\'') {
+                        state = stateInSingleQuote;
+                    } else if (c == ' ') {
+                        //do nothing - remain in state "before word"
+                    } else {
+                        buf.append(c);
+                        state = stateAfterWord;
+                    }
+                    break;
+                case stateInDoubleQuote:
+                    if (c == '"') {
+                        state = stateAfterWord;
+                    } else {
+                        buf.append(c);
+                    }
+                    break;
+                case stateInSingleQuote:
+                    if (c == '\'') {
+                        state = stateAfterWord;
+                    } else {
+                        buf.append(c);
+                    }
+                    break;
+                case stateAfterWord:
+                    if (c == '"') {
+                        state = stateInDoubleQuote;
+                    } else if (c == '\'') {
+                        state = stateInSingleQuote;
+                    } else if (c == ' ') {
+                        result.add(buf.toString());
+                        buf = new StringBuilder(20);
+                        state = stateBeforeWord;
+                    }
+                    break;
+                default:
+                    assert false;
+            }
+        }
+        assert state != stateBeforeWord;        //thanks to cmdLine.trim()
+        result.add(buf.toString());
+
+        return result;
     }
 
     /**
@@ -193,70 +279,16 @@ public final class TestNGAntLogger extends AntLogger {
      */
     @Override
     public void messageLogged(final AntEvent event) {
-        if (isTestTaskRunning(event)) {
-            final String msg = event.getMessage();
-            AntSession session = event.getSession();
-            int messageLevel = event.getLogLevel();
-            AntSessionInfo data = getSessionData(session);
-            assert msg != null;
-
-            // Look for classpaths.
-            if (messageLevel == AntEvent.LOG_VERBOSE) {
-                Matcher m2 = CLASSPATH_ARGS.matcher(msg);
-                if (m2.find()) {
-                    String cp = m2.group(1);
-                    data.setClasspath(cp);
-                }
-                // XXX should also probably clear classpath when taskFinished called
-                m2 = JAVA_EXECUTABLE.matcher(msg);
-                if (m2.find()) {
-                    String executable = m2.group(1);
-                    ClassPath platformSources = findPlatformSources(executable);
-                    if (platformSources != null) {
-                        data.setPlatformSources(platformSources);
-                    }
-                }
-            }
-
-            if (event.getLogLevel() != AntEvent.LOG_VERBOSE) {
-                getOutputReader(event).messageLogged(event);
-            } else {
-                /* verbose messages are logged no matter which task produced them */
-                getOutputReader(event).verboseMessageLogged(event);
-            }
-        }
+        LOGGER.info("msgLogged does nothing...");
+//        if (isTestTaskRunning(event)) {
+//            if (event.getLogLevel() != AntEvent.LOG_VERBOSE) {
+//                getOutputReader(event).messageLogged(event);
+//            } else {
+//                /* verbose messages are logged no matter which task produced them */
+//                getOutputReader(event).verboseMessageLogged(event);
+//            }
+//        }
     }
-    
-    /**
-     * Regexp matching one line (not the first) of a stack trace.
-     * Captured groups:
-     * <ol>
-     * <li>package
-     * <li>filename
-     * <li>line number
-     * </ol>
-     */
-    private static final Pattern STACK_TRACE = Pattern.compile(
-            //"(?:\t|\\[catch\\] )at ((?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)*)[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$<][a-zA-Z0-9_$>]*\\(([a-zA-Z_$][a-zA-Z0-9_$]*\\.java):([0-9]+)\\)"); // NOI18N
-            "(\\s)*at ((?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)*)[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$<][a-zA-Z0-9_$>]*\\(([a-zA-Z_$][a-zA-Z0-9_$]*\\.java):(([0-9]+))\\)"); // NOI18N
-
-    /**
-     * Regexp matching part of a Java task's invocation debug message
-     * that specifies the classpath.
-     * Hack to find the classpath an Ant task is using.
-     * Cf. Commandline.describeArguments, issue #28190.
-     * Captured groups:
-     * <ol>
-     * <li>the classpath
-     * </ol>
-     */
-    private static final Pattern CLASSPATH_ARGS = Pattern.compile("\r?\n'-classpath'\r?\n'(.*)'\r?\n"); // NOI18N
-    /**
-     * Regexp matching part of a Java task's invocation debug message
-     * that specifies java executable.
-     * Hack to find JDK used for execution.
-     */
-    private static final Pattern JAVA_EXECUTABLE = Pattern.compile("^Executing '(.*)' with arguments:$", Pattern.MULTILINE); // NOI18N
 
     /**
      */
@@ -269,42 +301,65 @@ public final class TestNGAntLogger extends AntLogger {
      */
     @Override
     public void taskStarted(final AntEvent event) {
-        TaskType taskType = detectTaskType(event);
-        if (isTestTaskType(taskType)) {
-            AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
-            assert !isTestTaskType(sessionInfo.currentTaskType);
-            sessionInfo.timeOfTestTaskStart = System.currentTimeMillis();
-            sessionInfo.currentTaskType = taskType;
-            if (sessionInfo.sessionType == null) {
-                sessionInfo.sessionType = taskType;
-            }
+        LOGGER.info("tskStarted does nothing...");
 
-            /*
-             * Count the test classes in the try-catch block so that
-             * 'testTaskStarted(...)' is called even if counting fails
-             * (throws an exception):
-             */
-            int testClassCount;
-            try {
-                testClassCount = TestCounter.getTestClassCount(event);
-            } catch (Exception ex) {
-                testClassCount = 0;
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
-            }
-
-            final boolean hasXmlOutput = hasXmlOutput(event);
-            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput);
-        }
+//        TaskType taskType = detectTaskType(event);
+//        if (isTestTaskType(taskType)) {
+//            AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
+//            assert !isTestTaskType(sessionInfo.currentTaskType);
+//            sessionInfo.timeOfTestTaskStart = System.currentTimeMillis();
+//            sessionInfo.currentTaskType = taskType;
+//            if (sessionInfo.sessionType == null) {
+//                sessionInfo.sessionType = taskType;
+//            }
+//
+//            /*
+//             * Count the test classes in the try-catch block so that
+//             * 'testTaskStarted(...)' is called even if counting fails
+//             * (throws an exception):
+//             */
+//            int testClassCount;
+//            try {
+//                testClassCount = TestCounter.getTestClassCount(event);
+//            } catch (Exception ex) {
+//                testClassCount = 0;
+//                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+//            }
+//
+//            final boolean hasXmlOutput = hasXmlOutput(event);
+//            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput);
+//        }
     }
 
     /**
      */
     @Override
     public void taskFinished(final AntEvent event) {
-        AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
-        if (isTestTaskType(sessionInfo.currentTaskType)) {
-            getOutputReader(event).testTaskFinished();
-            sessionInfo.currentTaskType = null;
+        LOGGER.info("tskFinished does nothing...");
+//        AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
+//        if (isTestTaskType(sessionInfo.currentTaskType)) {
+//            getOutputReader(event).testTaskFinished();
+//            sessionInfo.currentTaskType = null;
+//        }
+        AntSession session = event.getSession();
+        AntSessionInfo sessionInfo = getSessionInfo(session);
+        LOGGER.info(event.getTaskName());
+
+//        if (isTestTaskType(sessionInfo.sessionType)) {
+        if ("testng".equals(event.getTaskName())) {
+            LOGGER.info("bf in parsing");
+            File reportDir = new File(event.evaluate("${basedir}"), event.evaluate("${build.test.results.dir}"));
+            File reportFile = new File(reportDir, "testng-results.xml");//NOI18N
+            try {
+                Report report = XmlOutputParser.parseXmlOutput(new InputStreamReader(
+                        new FileInputStream(reportFile), "UTF-8"));
+                Manager.getInstance().displayReport(session, sessionInfo.sessionType, report);
+            } catch (IOException ioe) {
+                LOGGER.log(Level.INFO, "parser ...", ioe);
+            } catch (SAXException se) {
+                LOGGER.log(Level.INFO, "parser2...", se);
+            }
+        //getOutputReader(event).buildFinished(event);
         }
 
     }
@@ -313,11 +368,23 @@ public final class TestNGAntLogger extends AntLogger {
      */
     @Override
     public void buildFinished(final AntEvent event) {
+        LOGGER.info("bf");
         AntSession session = event.getSession();
         AntSessionInfo sessionInfo = getSessionInfo(session);
 
         if (isTestTaskType(sessionInfo.sessionType)) {
-            getOutputReader(event).buildFinished(event);
+            LOGGER.info("bf in parsing");
+            File reportFile = new File(event.evaluate("${build.test.results.dir}"), "testng-results.xml");//NOI18N
+            try {
+                Report report = XmlOutputParser.parseXmlOutput(new InputStreamReader(
+                        new FileInputStream(reportFile), "UTF-8"));
+                Manager.getInstance().displayReport(session, sessionInfo.sessionType, report);
+            } catch (IOException ioe) {
+                LOGGER.log(Level.INFO, "parser ...", ioe);
+            } catch (SAXException se) {
+                LOGGER.log(Level.INFO, "parser2...", se);
+            }
+        //getOutputReader(event).buildFinished(event);
         }
 
         session.putCustomData(this, null);          //forget AntSessionInfo
@@ -365,97 +432,7 @@ public final class TestNGAntLogger extends AntLogger {
      * Finds whether the test report will be generated in XML format.
      */
     private static boolean hasXmlOutput(AntEvent event) {
-        final String taskName = event.getTaskName();
-        if (taskName.equals(TASK_TESTNG)) {
-            return hasXmlOutputJunit(event);
-        } else if (taskName.equals(TASK_JAVA)) {
-            return hasXmlOutputJava(event);
-        } else {
-            assert false;
-            return false;
-        }
-    }
-
-    /**
-     * Finds whether the test report will be generated in XML format.
-     */
-    private static boolean hasXmlOutputJunit(AntEvent event) {
-        TaskStructure taskStruct = event.getTaskStructure();
-        for (TaskStructure child : taskStruct.getChildren()) {
-            String childName = child.getName();
-            if (childName.equals("formatter")) {                        //NOI18N
-                String type = child.getAttribute("type");               //NOI18N
-                type = (type != null) ? event.evaluate(type) : null;
-                String usefile = child.getAttribute("usefile");         //NOI18N
-                usefile = (usefile != null) ? event.evaluate(usefile) : null;
-                if ((type != null) && type.equals("xml") //NOI18N
-                        && (usefile != null) && !AntProject.toBoolean(usefile)) {
-                    String ifPropName = child.getAttribute("if");       //NOI18N
-                    String unlessPropName = child.getAttribute("unless");//NOI18N
-
-                    if ((ifPropName == null || event.getProperty(ifPropName) != null) && (unlessPropName == null || event.getProperty(unlessPropName) == null)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Finds whether the test report will be generated in XML format.
-     */
-    private static boolean hasXmlOutputJava(AntEvent event) {
-        TaskStructure taskStruct = event.getTaskStructure();
-
-        String classname = taskStruct.getAttribute("classname");        //NOI18N
-        if ((classname == null) ||
-                !event.evaluate(classname).equals(ANT_TEST_RUNNER_CLASS_NAME)) {
-            return false;
-        }
-
-        for (TaskStructure child : taskStruct.getChildren()) {
-            String childName = child.getName();
-            if (childName.equals("arg")) {                              //NOI18N
-                String argValue = child.getAttribute("value");          //NOI18N
-                if (argValue == null) {
-                    argValue = child.getAttribute("line");              //NOI18N
-                }
-                if (argValue == null) {
-                    continue;
-                }
-                argValue = event.evaluate(argValue);
-                if (argValue.startsWith("formatter=")) {                //NOI18N
-                    String formatter = argValue.substring("formatter=".length());//NOI18N
-                    int commaIndex = formatter.indexOf(',');
-                    if ((commaIndex != -1) && formatter.substring(0, commaIndex).equals(XML_FORMATTER_CLASS_NAME)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private AntSessionInfo getSessionData(AntSession session) {
-        AntSessionInfo data = (AntSessionInfo) session.getCustomData(this);
-        if (data == null) {
-            data = new AntSessionInfo();
-            session.putCustomData(this, data);
-        }
-        return data;
-    }
-
-    private ClassPath findPlatformSources(String javaExecutable) {
-        for (JavaPlatform p : JavaPlatformManager.getDefault().getInstalledPlatforms()) {
-            FileObject fo = p.findTool("java"); // NOI18N
-            if (fo != null) {
-                File f = FileUtil.toFile(fo);
-                if (f.getAbsolutePath().startsWith(javaExecutable)) {
-                    return p.getSourceFolders();
-                }
-            }
-        }
-        return null;
+        //we have only xml one for now
+        return true;
     }
 }

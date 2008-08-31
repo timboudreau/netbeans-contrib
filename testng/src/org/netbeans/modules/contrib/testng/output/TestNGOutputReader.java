@@ -54,16 +54,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Collection;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
@@ -737,6 +734,9 @@ final class TestNGOutputReader {
              */
             progressHandle.progress(PROGRESS_WORKUNITS);
         }
+
+        //HEREHERE
+
     }
 
     /**
@@ -993,7 +993,7 @@ final class TestNGOutputReader {
 
             File reportFile = new File(
                     report.resultsDir,
-                    "TEST-" + report.suiteClassName + ".xml");//NOI18N
+                    "testng-results.xml");//NOI18N
             if (reportFile.exists() && isValidReportFile(reportFile)) {
                 final long fileSize = reportFile.length();
                 if ((fileSize > 0l) && (fileSize <= MAX_REPORT_FILE_SIZE)) {
