@@ -46,12 +46,12 @@ import org.openide.util.NbBundle;
  *
  * @author Satyaranjan
  */
-public class PortletProjectUtil {
+public class PortletFrameworkUtil {
 
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
 
-    /** Creates a new instance of PortletProjectUtil */
-    public PortletProjectUtil() {
+    /** Creates a new instance of PortletFrameworkUtil */
+    public PortletFrameworkUtil() {
     }
 
     public static void createPkgAndClass(FileObject subfolder, Project prj, WebModule wm, String orgPkg, PortletContext context) {
@@ -130,6 +130,53 @@ public class PortletProjectUtil {
             }
         }
     }
+    
+     public static void createJSPs(FileObject webInf, String folderName, PortletContext context) {
+
+        FileObject templateFileObj = TemplateHelper.getTemplateFile("jsptemplate.jsp");
+
+        FileObject jspFileObj = null;
+        if (!new File(FileUtil.toFile(webInf), folderName).exists()) {
+            try {
+                jspFileObj = webInf.createFolder(folderName);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            jspFileObj = FileUtil.toFileObject(new File(FileUtil.toFile(webInf), folderName));
+        }
+        String[] modes = context.getModes();
+        for (int i = 0; i < modes.length; i++) {
+            String mode = modes[i];
+            if (modes[i].equals("VIEW")) {
+                try {
+                  
+                    if (createJsp(jspFileObj, context.getViewJsp())) {
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - VIEW MODE",getJspName(context.getViewJsp()),context);
+                    }
+                } catch (IOException ex) {
+                    logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
+                }
+            } else if (modes[i].equals("EDIT")) {
+                try {
+                    if (createJsp(jspFileObj, context.getEditJsp())) {
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - EDIT MODE", getJspName(context.getEditJsp()),context);
+                    }
+                } catch (IOException ex) {
+                    logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
+                }
+            }
+            if (modes[i].equals("HELP")) {
+                try {
+                    if (createJsp(jspFileObj, context.getHelpJsp())) {
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - Help MODE", getJspName(context.getHelpJsp()),context);
+                    }
+                } catch (IOException ex) {
+                    logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
+                }
+            }
+        }
+    }
 
     private static String getJspName(String jspWithExt) {
         String jspName = null;
@@ -158,7 +205,7 @@ public class PortletProjectUtil {
                     try{
                         jspObj.delete();
                     }catch(IOException e){
-                        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getBundle(PortletProjectUtil.class).getString("FILE_COULD_NOT_BE_OVERWRITTEN"),NotifyDescriptor.WARNING_MESSAGE);
+                        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getBundle(PortletFrameworkUtil.class).getString("FILE_COULD_NOT_BE_OVERWRITTEN"),NotifyDescriptor.WARNING_MESSAGE);
                         DialogDisplayer.getDefault().notify(nd);
                     }
                 }

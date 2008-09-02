@@ -176,7 +176,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     </folder>
     <folder name="Templates">
         
-        <folder name="JSP_Servlet">
+        <folder name="Portlets">
       
             <file name="Portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>

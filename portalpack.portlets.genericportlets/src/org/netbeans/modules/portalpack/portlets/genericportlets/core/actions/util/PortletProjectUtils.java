@@ -48,6 +48,7 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
 import org.openide.util.NbBundle;
@@ -594,5 +595,18 @@ public class PortletProjectUtils {
         else {
             return true;
         }
+    }
+    
+    public static String getPackage(FileObject fileObj) {
+        
+        if(fileObj == null)
+            return "";
+        
+        ClassPath classPath = ClassPath.getClassPath(fileObj,ClassPath.SOURCE);
+        String pkg = classPath.getResourceName(fileObj,'.',false);
+        
+        if(pkg == null) return "";
+        else
+            return pkg;
     }
 }

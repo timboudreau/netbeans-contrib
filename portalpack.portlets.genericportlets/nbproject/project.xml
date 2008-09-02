@@ -350,6 +350,7 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <friend-packages>
+                <friend>org.netbeans.modules.portalpack.portlets.spring</friend>
                 <friend>org.netbeans.modules.portalpack.servers.websynergy</friend>
                 <friend>org.netbeans.modules.portalpack.visualweb</friend>
                 <friend>org.netbeans.modules.portalpack.websynergy.portlets</friend>
@@ -365,6 +366,7 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.util</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.ddapi</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing</package>
+                <package>org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders</package>
             </friend-packages>
         </data>

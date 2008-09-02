@@ -45,7 +45,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
-import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletFrameworkUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.InitialPageNode;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletNode;
 import org.openide.cookies.OpenCookie;

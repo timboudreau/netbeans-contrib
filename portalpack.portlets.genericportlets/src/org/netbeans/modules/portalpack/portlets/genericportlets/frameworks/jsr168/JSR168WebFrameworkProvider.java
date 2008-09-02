@@ -34,7 +34,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletFrameworkUtil;
 import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
@@ -108,7 +108,7 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
          if(pkg == null) pkg = "";
          if(((String)data.get("generate_portlet")).equals("true"))
          {
-            PortletProjectUtil.createPkgAndClass(srcFolder, project, wm,pkg,context);
+            PortletFrameworkUtil.createPkgAndClass(srcFolder, project, wm,pkg,context);
             resultSet.add(srcFolder);
          }
          else

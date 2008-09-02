@@ -44,7 +44,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.Web
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.impl.NewJSR168CreatePortletComponent;
-import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletFrameworkUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
@@ -188,7 +188,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
                  else
                      context.setPortletVersion(NetbeanConstants.PORTLET_1_0);
             } 
-            PortletProjectUtil.createJSPs(FileUtil.toFileObject(new File(component.getWebInfDir())),context);
+            PortletFrameworkUtil.createJSPs(FileUtil.toFileObject(new File(component.getWebInfDir())),context);
         }
         ResultContext retVal = new ResultContext();
         try {
