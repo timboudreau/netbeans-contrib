@@ -40,7 +40,9 @@ package org.netbeans.modules.contrib.testng;
 
 import java.awt.Component;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -74,7 +76,6 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
     private transient WizardDescriptor.Panel[] panels;
     private transient WizardDescriptor wiz;
 
-
     public static NewTestWizardIterator create() {
         return new NewTestWizardIterator();
     }
@@ -88,6 +89,17 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         Sources sources = ProjectUtils.getSources(project);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         assert groups != null : "Cannot return null from Sources.getSourceGroups: " + sources;
+
+        //XXX - have to filter out regular source roots, there should
+        //be better way to do this...
+        List<SourceGroup> result = new ArrayList<SourceGroup>(2);
+        for (SourceGroup sg : groups) {
+            if (sg.getName().startsWith("${test")) { //NOI18N
+                result.add(sg);
+            }
+        }
+        groups = result.toArray(new SourceGroup[result.size()]);
+        
         if (groups.length == 0) {
             groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
             return new WizardDescriptor.Panel[]{
@@ -235,5 +247,4 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         }
         return packageName;
     }
-
 }
