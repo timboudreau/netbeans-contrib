@@ -116,7 +116,9 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>
     <folder name="Templates">
-        <folder name="JUnit">
+        <folder name="TestNG">
+            <attr name="position" intvalue="1250"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.contrib.testng.Bundle"/>
             <file name="TestNGTest.java" url="testng.template">
                 <attr name="position" intvalue="1000"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
