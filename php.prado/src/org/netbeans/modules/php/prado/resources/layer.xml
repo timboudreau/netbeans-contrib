@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="PHPPradoMimeResolver.xml" url="PHPPradoMimeResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.prado.resources.Bundle"/>
+                <attr name="position" intvalue="283"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-prado+x-php5">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/prado/resources/pradoPage16.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/php/prado/resources/pradoPage16.png"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="GsfPlugins">
+        <folder name="text">
+            <folder name="x-prado+x-php5">
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.prado.PageLanguage"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-prado+x-php5">
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.prado.lexer.PageTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-php-prado-fontsColors.xml" url="fontsColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.prado.resources.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-prado-template_control">
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.prado.lexer.TemplateControlTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

@@ -204,7 +204,7 @@ public class TreeCreator implements Visitor {
 
     public void visit(ASTError astError) {
         TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "ASTError", 
-                astError.getStartOffset(), astError.getStartOffset());
+                astError.getStartOffset(), astError.getEndOffset());
         parentNode.addChild(adapter);
     }
 
