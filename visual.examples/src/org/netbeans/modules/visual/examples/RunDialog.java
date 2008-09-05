@@ -80,6 +80,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.inplace.InvokeInplaceEditorTest",
         "test.inplace.JustifyAlignmentTest",
         "test.inplace.RequestFocusTest",
+        "test.inplace.TypedInplaceEditorTest",
         "test.justify.JustifyTest",
         "test.keyboard.EnterKeyProcessingTest",
         "test.keyboard.EnterKeyTest",
