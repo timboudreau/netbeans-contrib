@@ -111,7 +111,7 @@ public final class CreateTestAction extends CookieAction {
                         public void run() {
                             //XXX - should find correct line # programatically
                             Line l = lc.getLineSet().getOriginal(16);
-                            l.show(Line.SHOW_GOTO);
+                            l.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FOCUS);
                         }
                     });
                 } else {
