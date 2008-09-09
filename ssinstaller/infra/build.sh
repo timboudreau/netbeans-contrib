@@ -77,7 +77,9 @@ NB_FILES_PREFIX=netbeans-6.1
 
 #rm -rf $OUTPUT_DIR
 #
-bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+if [ -z "$REBUILD" ]; then
+    bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+fi
 
 case $DISTRS in 
     intel-S2)

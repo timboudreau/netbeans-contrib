@@ -38,6 +38,7 @@ package org.netbeans.installer.products.nb.base;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,19 +67,17 @@ import org.netbeans.installer.wizard.components.WizardComponent;
 public class ConfigurationLogic extends ProductConfigurationLogic {
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
+    /*
     public static final String WIZARD_COMPONENTS_URI =
             FileProxy.RESOURCE_SCHEME_PREFIX +
             "org/netbeans/installer/products/nb/base/wizard.xml"; // NOI18N
-    
+    */
    
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
-    private List<WizardComponent> wizardComponents;
     
-    public ConfigurationLogic() throws InitializationException {
-        wizardComponents = Wizard.loadWizardComponents(
-                WIZARD_COMPONENTS_URI,
-                getClass().getClassLoader());
+    
+    public ConfigurationLogic() throws InitializationException {        
     }
     
    public void install(final Progress progress) throws InstallationException {
@@ -97,9 +96,14 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             LogManager.log("... final   : "  + (!info.isNonFinal()));
             NetBeansUtils.setJavaHome(installLocation, jreHome);
         } catch (IOException e) {
+            // Not fatal to NB, because sunstuio set JDK explicitly .... 
+            LogManager.log(getString("CL.install.error.jdk.home"), // NOI18N
+                    e);            
+            /*
             throw new InstallationException(
                     getString("CL.install.error.jdk.home"), // NOI18N
                     e);
+             */
         }             
                
         try {
@@ -124,7 +128,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     }
     
     public List<WizardComponent> getWizardComponents() {
-        return wizardComponents;
+        return Collections.emptyList();
     }
     
     @Override

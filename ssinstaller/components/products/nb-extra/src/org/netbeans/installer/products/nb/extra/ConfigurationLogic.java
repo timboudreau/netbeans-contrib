@@ -36,23 +36,30 @@
 
 package org.netbeans.installer.products.nb.extra;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
 import org.netbeans.installer.utils.FileProxy;
+import org.netbeans.installer.utils.FileUtils;
+import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.RemovalMode;
+import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.utils.progress.Progress;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.Wizard;
 import org.netbeans.installer.wizard.components.WizardComponent;
 
 /**
  *
- * @author Kirill Sorokin
+ * @author Leonid Mesnik
  */
-public class ConfigurationLogic extends ProductConfigurationLogic {
+public class ConfigurationLogic extends ProductConfigurationLogic {    
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
     private List<WizardComponent> wizardComponents;
@@ -65,7 +72,9 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     
     
     public List<WizardComponent> getWizardComponents() {
-        return wizardComponents;
+        // The location is gotten from Sun Studio location.
+        return Collections.EMPTY_LIST;
+        //return wizardComponents;
     }
     
     @Override
@@ -95,11 +104,40 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     public static final String WIZARD_COMPONENTS_URI =
             FileProxy.RESOURCE_SCHEME_PREFIX + // NOI18N
             "org/netbeans/installer/products/nb/extra/wizard.xml"; // NOI18N
-     
+    
+    private final static String SUNSTUDIO_NBHOME="default_netbeans_home="; // NOI18N
 
+    // This methos is not used now.
+    private void setNBLocation(File installationDirectory, File nbHome) throws IOException {        
+        final File confFile = new File(installationDirectory.getAbsolutePath() + File.separator 
+                + Utils.getMainDirectory() + File.separator + "prod" + File.separator
+                + "etc" + File.separator + "sunstudio.conf");
+        LogManager.log("Setting NB home in file " + confFile.getAbsolutePath());
+        String contents = FileUtils.readFile(confFile);        
+        String nbHomePath = StringUtils.escapeRegExp(nbHome.getAbsolutePath());        
+        contents = contents.replaceAll(
+                "#?" + "ext_class_path=" + "\".*?\"",
+                SUNSTUDIO_NBHOME + "\"" + nbHomePath + "\"");        
+        FileUtils.writeFile(confFile, contents);
+    }
+    
     @Override
     public void install(Progress progress) throws InstallationException {
-        this.getProduct().setParent(Registry.getInstance().getProducts("ss-base").get(0));        
+        if (Utils.getSSBase() != null 
+                && Utils.getSSBase().getStatus().equals(Status.INSTALLED)
+                || Utils.getSSBase().getStatus().equals(Status.TO_BE_INSTALLED)) {
+            this.getProduct().setParent(Utils.getSSBase());
+            /*
+             * The code to set up Sun Studio is not used
+             *
+            try {
+                setNBLocation(Utils.getSSBase().getInstallationLocation(),
+                        Utils.getNBBase().getInstallationLocation());
+            } catch (IOException ex) {
+                // the error not critical ???
+                LogManager.log("Unable to set NB location" + ex.getMessage());                
+            }*/
+        }        
     }
 
     @Override

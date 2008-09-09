@@ -33,15 +33,33 @@
  * the option applies only if the new code is made subject to such option by the
  * copyright holder.
  */
-
 package org.netbeans.installer.wizard;
 
+import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.helper.Platform;
 
 public class Utils {
+
     public static String getMainDirectory() {
-         return Platform.LINUX.equals(SystemUtils.getCurrentPlatform()) 
-                 ? "sunstudioceres" : "SUNWspro";
+        return Platform.LINUX.equals(SystemUtils.getCurrentPlatform())
+                ? "sunstudioceres" : "SUNWspro";
+    }
+
+    public static Product getSSBase() {
+        return Registry.getInstance().getProducts("ss-base").get(0);
+    }
+
+    public static Product getNBExtra() {
+        return Registry.getInstance().getProducts("nb-extra").get(0);
+    }
+
+    public static boolean isPrerequisite(Product product) {
+        return product.getUid().startsWith("nb");
+    }
+
+    public static String getMainUid() {
+        return "ss-base";
     }
 }

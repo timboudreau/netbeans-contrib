@@ -88,6 +88,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                 
         CompositeProgress compositeProgress = new CompositeProgress(); 
         progress.synchronizeFrom(compositeProgress);
+        File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
         
         for (Product product : products) {
           //  try {
@@ -99,14 +100,14 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
           //      LogManager.log("Unexpected exception during removal of " 
            //             + product.getDisplayName(), ex);
            // }
-        }       
-        File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
-        
+        }                       
         try {
             FileUtils.deleteFile(new File(mainDirectory, "uninstall.sh"));
             FileUtils.deleteFile(new File(mainDirectory, "modify-install.sh"));
+            FileUtils.deleteFile(new File(mainDirectory, "prod/lib/condev"), true);
 
             // workaround for SS bug
+            // the removal of condev should be moved to the beginning
             FileUtils.deleteFile(new File(mainDirectory, "prod"), true);
             // end
             // delete only if empty

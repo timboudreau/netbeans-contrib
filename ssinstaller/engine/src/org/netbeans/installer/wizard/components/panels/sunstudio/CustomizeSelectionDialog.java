@@ -50,6 +50,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,6 +94,7 @@ import org.netbeans.installer.utils.helper.swing.NbiList;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiScrollPane;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
+import org.netbeans.installer.wizard.Utils;
 import static org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi.ERROR_ICON;
 import static org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi.EMPTY_ICON;
 
@@ -445,7 +448,15 @@ public class CustomizeSelectionDialog extends NbiDialog {
         final List<Product> toUninstall =
                 registry.getProducts(Status.TO_BE_UNINSTALLED);
         
-        if ((toInstall.size() == 0) && (toUninstall.size() == 0)) {
+        List<Product> ccToInstall = new ArrayList<Product>();
+        for (Product product : toInstall) {
+           if (Utils.isPrerequisite(product) || product.getUid().equals(Utils.getMainUid())) {
+               continue;
+           }
+           ccToInstall.add(product);
+        }
+        
+        if ((ccToInstall.size() == 0) && (toUninstall.size() == 0)) {
             if (isThereAnythingVisibleToInstall() &&
                     Boolean.getBoolean(Registry.SUGGEST_INSTALL_PROPERTY)) {
                 return panel.getProperty(panel.ERROR_NO_CHANGES_INSTALL_ONLY_PROPERTY);

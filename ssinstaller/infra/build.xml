@@ -324,6 +324,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 
     <target name="build-netbeans">
     	<antcall target="build-groups"/>
+	
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-extra" target="release-all">
             <property 
                 name="basedir" 
@@ -346,7 +347,8 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-    <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
+        <!--
+	<ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
                 name="basedir" 
                 value="${nbi.netbeans.dir}/infra/products/nb-base"/>
@@ -368,7 +370,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-
+	-->
 
 	<antcall target="build-products"/>
 	<!-- java -cp engine/build/ssinstaller/engine/build/classes buildhelper.Main products.xml products/native 
@@ -426,7 +428,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-${ss.platform.name}.sh"
 		       componentlist="native.lst">
 	    <component uid="ss-base" version="1.0.0.0.0"/>            
-	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>	
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
@@ -437,7 +438,6 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-${ss.platform.name}.sh"
                        componentlist="native.lst">
             <component uid="ss-base" version="1.0.0.0.0"/>
-	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="nb-extra" version="${nb.full.version}"/>
             <property name="nbi.product.bundled.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>

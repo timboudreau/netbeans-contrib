@@ -56,14 +56,12 @@ import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.NativeException;
-import org.netbeans.installer.utils.helper.Dependency;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
-import org.netbeans.installer.utils.silent.SilentLogManager;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelUi;
@@ -79,37 +77,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 DEFAULT_TITLE);
         setProperty(DESCRIPTION_PROPERTY,
                 DEFAULT_DESCRIPTION);
-        
-        setProperty(INSTALLATION_FOLDER_PROPERTY,
-                DEFAULT_INSTALLATION_FOLDER);
-        setProperty(INSTALLATION_FOLDER_NETBEANS_PROPERTY,
-                DEFAULT_INSTALLATION_FOLDER_NETBEANS);
-        setProperty(UNINSTALL_LIST_LABEL_TEXT_PROPERTY,
-                DEFAULT_UNINSTALL_LIST_LABEL_TEXT);
-        setProperty(INSTALLATION_SIZE_PROPERTY,
-                DEFAULT_INSTALLATION_SIZE);
-        setProperty(DOWNLOAD_SIZE_PROPERTY,
-                DEFAULT_DOWNLOAD_SIZE);
-        setProperty(NB_ADDONS_LOCATION_TEXT_PROPERTY,
-                DEFAULT_NB_ADDONS_LOCATION_TEXT);
-        setProperty(SS_ADDONS_LOCATION_TEXT_PROPERTY,
-                DEFAULT_SS_ADDONS_LOCATION_TEXT);
-        
         setProperty(NEXT_BUTTON_TEXT_PROPERTY,
-                DEFAULT_NEXT_BUTTON_TEXT);
-        
-        setProperty(ERROR_NOT_ENOUGH_SPACE_PROPERTY,
-                DEFAULT_ERROR_NOT_ENOUGH_SPACE);
-        setProperty(ERROR_CANNOT_CHECK_SPACE_PROPERTY,
-                DEFAULT_ERROR_CANNOT_CHECK_SPACE);
-        setProperty(ERROR_LOGIC_ACCESS_PROPERTY,
-                DEFAULT_ERROR_LOGIC_ACCESS);
-        setProperty(ERROR_FSROOTS_PROPERTY,
-                DEFAULT_ERROR_FSROOTS);
-        setProperty(ERROR_NON_EXISTENT_ROOT_PROPERTY,
-                DEFAULT_ERROR_NON_EXISTENT_ROOT);
-        setProperty(ERROR_CANNOT_WRITE_PROPERTY,
-                DEFAULT_ERROR_CANNOT_WRITE);
+                DEFAULT_NEXT_BUTTON_TEXT);         
     }
     
     @Override
@@ -198,8 +167,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
         @Override
         protected void initialize() {
             final Registry registry = Registry.getInstance();
-            
-            final StringBuilder text = new StringBuilder();
+                        
             long installationSizeSS = 0;
             long installationSizeNb = 0;
             long downloadSize = 0;
@@ -210,7 +178,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             for (Product product: registry.getProductsToInstall()) {                
                 downloadSize += product.getDownloadSize();                
                     // TODO change to real dependency checking ....
-                    if (product.getUid().startsWith("nb-")) {
+                    if (Utils.isPrerequisite(product)) {
                         dependentOnNb.add(product);
                         installationSizeNb += product.getRequiredDiskSpace();
                     } else {
@@ -219,43 +187,50 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     }               
             }
             
-            Product ssProduct = registry.getProducts("ss-base").get(0);
+            Product ssProduct = Utils.getSSBase();
             dependentOnSS.remove(ssProduct);
           //  Product nbProduct = registry.getProducts("nb-extra").get(0);
 
             uninstallListLabel.setText(
-                    panel.getProperty(UNINSTALL_LIST_LABEL_TEXT_PROPERTY));
+                    panel.getProperty(UNINSTALL_LIST_LABEL_TEXT));
             uninstallListPane.setText(
                     StringUtils.asString(registry.getProductsToUninstall()));
             
             installationSSSummary.setText(
-               //     StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY), 
-                 //   Registry.getInstance().getProducts("ss-base").get(0)));
-                    "Sun Studio will be installed in folder: " 
-                    + ssProduct.getInstallationLocation().getAbsolutePath());
-            installationSSSize.setText("Required Size: "+  StringUtils.formatSize(
-                    installationSizeSS));
+                    StringUtils.format(INSTALLATION_FOLDER, 
+                    ssProduct, 
+                    ssProduct.getInstallationLocation().getAbsolutePath()
+                    + File.separator + Utils.getMainDirectory()));
+                    
+            installationSSSize.setText(StringUtils.format(INSTALLATION_SIZE,
+                    StringUtils.formatSize(installationSizeSS)));
             
             
             installationSSComponenets.setText(
                     //StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY), 
                     //Registry.getInstance().getProducts("nb-base").get(0)))
-                    "Installed components: " + StringUtils.asString(dependentOnSS));
+                    StringUtils.format(ADDONS_INSTALL_TEXT, StringUtils.asString(dependentOnSS)));
             if (dependentOnNb.size() > 0) {
-                Product nbProduct = registry.getProducts("nb-base").get(0);
+                Product nbProduct = Utils.getNBExtra();
+                /*
                 String action = dependentOnNb.contains(nbProduct) ? "installed" : "updated";
                 installationNBSummary.setText("NetBeans will be " + action + " in folder: "
-                        + registry.getProducts("nb-extra").get(0).getInstallationLocation()
+                        + Utils.getNBExtra().getInstallationLocation()
                         .getAbsolutePath());
-                installationNBSize.setText("Required Size: "+  StringUtils.formatSize(
-                    installationSizeNb));
+                 */
+                installationNBSummary.setText(
+                    StringUtils.format(INSTALLATION_FOLDER, 
+                    nbProduct,
+                    nbProduct.getInstallationLocation().getAbsolutePath()));
+                installationNBSize.setText(StringUtils.format(INSTALLATION_SIZE,
+                    StringUtils.formatSize(installationSizeNb)));
             } else {
                 installationNBSummary.setText("");
             }
             
             
             downloadSizeLabel.setText(
-                    panel.getProperty(DOWNLOAD_SIZE_PROPERTY));
+                    panel.getProperty(INSTALLATION_SIZE));
             downloadSizeValue.setText(StringUtils.formatSize(
                     downloadSize));
             
@@ -349,7 +324,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                             lastDataSize = product.getDownloadSize();
                         } else {
                              return StringUtils.format(
-                                    panel.getProperty(ERROR_NON_EXISTENT_ROOT_PROPERTY),
+                                    panel.getProperty(ERROR_NON_EXISTENT_ROOT),
                                     product, installLocation);
                         }
                     }
@@ -363,13 +338,13 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                             
                             if (availableSpace < requiredSpace) {
                                 return StringUtils.format(
-                                        panel.getProperty(ERROR_NOT_ENOUGH_SPACE_PROPERTY),
+                                        panel.getProperty(ERROR_NOT_ENOUGH_SPACE),
                                         root,
                                         StringUtils.formatSize(requiredSpace - availableSpace));
                             }
                         } catch (NativeException e) {
                             ErrorManager.notifyError(
-                                    panel.getProperty(ERROR_CANNOT_CHECK_SPACE_PROPERTY),
+                                    panel.getProperty(ERROR_CANNOT_CHECK_SPACE),
                                     e);
                         }
                     }
@@ -380,7 +355,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 for (Product product: toUninstall) {
                     if (!FileUtils.canWrite(product.getInstallationLocation())) {
                         return StringUtils.format(
-                                panel.getProperty(ERROR_CANNOT_WRITE_PROPERTY),
+                                panel.getProperty(ERROR_CANNOT_WRITE),
                                 product,
                                 product.getInstallationLocation());
                     }
@@ -388,7 +363,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 
             } catch (IOException e) {
                 ErrorManager.notifyError(
-                        panel.getProperty(ERROR_FSROOTS_PROPERTY), e);
+                        panel.getProperty(ERROR_FSROOTS), e);
             }
             
             return null;
@@ -527,9 +502,10 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
     
 /////////////////////////////////////////////////////////////////////////////////
 // Constants
-    public static final String INSTALLATION_FOLDER_PROPERTY =
-            "installation.folder"; // NOI18N
-    public static final String INSTALLATION_FOLDER_NETBEANS_PROPERTY =
+    
+    //public static final String INSTALLATION_FOLDER =
+    //        "installation.folder"; // NOI18N
+    /*public static final String INSTALLATION_FOLDER_NETBEANS_PROPERTY =
             "installation.folder.netbeans"; // NOI18N
     public static final String UNINSTALL_LIST_LABEL_TEXT_PROPERTY =
             "uninstall.list.label.text"; // NOI18N
@@ -554,7 +530,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             "error.non.existent.root"; // NOI18N
     public static final String ERROR_CANNOT_WRITE_PROPERTY =
             "error.cannot.write"; // NOI18N
-    
+    */
     public static final String DEFAULT_TITLE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.title"); // NOI18N
@@ -565,27 +541,24 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.description.uninstall"); // NOI18N
     
-    public static final String DEFAULT_INSTALLATION_FOLDER =
+    public static final String INSTALLATION_FOLDER =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.installation.folder"); // NOI18N
-    public static final String DEFAULT_INSTALLATION_FOLDER_NETBEANS =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.installation.folder.netbeans"); // NOI18N
-    public static final String DEFAULT_UNINSTALL_LIST_LABEL_TEXT =
+    public static final String UNINSTALL_LIST_LABEL_TEXT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.uninstall.list.label.text"); // NOI18N
-    public static final String DEFAULT_INSTALLATION_SIZE =
+    public static final String INSTALLATION_SIZE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.installation.size"); // NOI18N
-    public static final String DEFAULT_DOWNLOAD_SIZE =
+    //public static final String DOWNLOAD_SIZE =
+    //        ResourceUtils.getString(PreInstallSummaryPanel.class,
+    //        "NPrISP.download.size"); // NOI18N
+     public static final String ADDONS_INSTALL_TEXT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.download.size"); // NOI18N
-    public static final String DEFAULT_SS_ADDONS_LOCATION_TEXT =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.addons.ss.install.location.text"); // NOI18N
-    public static final String DEFAULT_NB_ADDONS_LOCATION_TEXT =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.addons.nb.install.location.text"); // NOI18N
+            "NPrISP.addons.install.location.text"); // NOI18N
+    //public static final String DEFAULT_NB_ADDONS_LOCATION_TEXT =
+    //        ResourceUtils.getString(PreInstallSummaryPanel.class,
+    //       "NPrISP.addons.nb.install.location.text"); // NOI18N
     
     public static final String DEFAULT_NEXT_BUTTON_TEXT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
@@ -593,25 +566,26 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
     public static final String DEFAULT_NEXT_BUTTON_TEXT_UNINSTALL =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.next.button.text.uninstall"); // NOI18N
-    public static final String ADDITIONAL_RUNTIMES_TO_DELETE =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.additional.runtimes.to.delete");//NOI18N
-    public static final String DEFAULT_ERROR_NOT_ENOUGH_SPACE =
+
+    //public static final String ADDITIONAL_RUNTIMES_TO_DELETE =
+    //        ResourceUtils.getString(PreInstallSummaryPanel.class,
+    //        "NPrISP.additional.runtimes.to.delete");//NOI18N
+    public static final String ERROR_NOT_ENOUGH_SPACE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.not.enough.space"); // NOI18N
-    public static final String DEFAULT_ERROR_CANNOT_CHECK_SPACE =
+    public static final String ERROR_CANNOT_CHECK_SPACE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.cannot.check.space");// NOI18N
-    public static final String DEFAULT_ERROR_LOGIC_ACCESS =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.error.logic.access");// NOI18N
-    public static final String DEFAULT_ERROR_FSROOTS =
+ //   public static final String RROR_LOGIC_ACCESS =
+   //         ResourceUtils.getString(PreInstallSummaryPanel.class,
+   //         "NPrISP.error.logic.access");// NOI18N
+    public static final String ERROR_FSROOTS =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.fsroots"); // NOI18N
-    public static final String DEFAULT_ERROR_NON_EXISTENT_ROOT =
+    public static final String ERROR_NON_EXISTENT_ROOT =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.non.existent.root"); // NOI18N
-    public static final String DEFAULT_ERROR_CANNOT_WRITE =
+    public static final String ERROR_CANNOT_WRITE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.cannot.write"); // NOI18N
     

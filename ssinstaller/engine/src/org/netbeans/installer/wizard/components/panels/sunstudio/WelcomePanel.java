@@ -239,8 +239,8 @@ public class WelcomePanel extends ErrorMessagePanel {
         }   
         // TODO make common solution
         defaultRegistry.getProducts("ss-base").get(0).setVisible(false);
-        defaultRegistry.getProducts("nb-base").get(0).setVisible(false);
-        defaultRegistry.getProducts("nb-base").get(0).setStatus(Status.NOT_INSTALLED);
+        //defaultRegistry.getProducts("nb-base").get(0).setVisible(false);
+        //defaultRegistry.getProducts("nb-base").get(0).setStatus(Status.NOT_INSTALLED);
         registriesFiltered = true;
     }
     

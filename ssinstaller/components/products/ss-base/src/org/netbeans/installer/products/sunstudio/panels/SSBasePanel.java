@@ -36,7 +36,11 @@
 
 package org.netbeans.installer.products.sunstudio.panels;
 
+import java.io.File;
+import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel.DestinationPanelUi;
 import org.netbeans.installer.wizard.ui.SwingUi;
@@ -124,7 +128,15 @@ public class SSBasePanel extends DestinationPanel {
         
         @Override
         protected void saveInput() {
-            super.saveInput();                        
+            super.saveInput();
+            // configure NB prerequisite
+            Product nbProduct = Utils.getNBExtra();
+          //  nbProduct.setStatus(Status.NOT_INSTALLED);
+            String nbLocation =  component.getWizard().getProperty(
+                        Product.INSTALLATION_LOCATION_PROPERTY);
+            nbLocation = nbLocation + File.separator + "netbeans-6.1ss";
+            nbProduct.setInstallationLocation(new File(nbLocation));
+            nbProduct.setParent(Utils.getSSBase());
         }
         
         @Override

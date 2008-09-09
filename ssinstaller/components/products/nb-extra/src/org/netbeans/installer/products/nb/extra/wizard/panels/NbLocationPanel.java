@@ -42,9 +42,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
+import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.ResourceUtils;
-import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.helper.Status;
+import org.netbeans.installer.wizard.FileLocationValidator;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.panels.ApplicationLocationPanel;
 import org.netbeans.installer.wizard.components.panels.sunstudio.PreInstallSummaryPanel;
 
@@ -58,6 +61,7 @@ public class NbLocationPanel extends ApplicationLocationPanel {
     private File selectedLocation;
     private List<File> locations;
     private List<String> labels;
+    FileLocationValidator flv;
 
     public NbLocationPanel() {            
         setProperty(LOCATION_LABEL_TEXT_PROPERTY, 
@@ -80,7 +84,8 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         
         for(File location : locations) {
             labels.add(readNBDescription(location));
-        }              
+        }
+        flv = new FileLocationValidator();
     }
 
     @Override
@@ -109,20 +114,10 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         return selectedLocation;
     }
     
-        
-    public static final String DEFAULT_TITLE =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.title"); // NOI18N
-    public static final String DEFAULT_DESCRIPTION =
-            ResourceUtils.getString(PreInstallSummaryPanel.class,
-            "NPrISP.description"); // NOI18N
     
-    private String validateNetBeansLocation(File nbRoot) {
-        if (nbRoot.getName().equals("netbeans")) {
-            return "Don install here, I'm working";
-        }
+    private String validateNetBeansLocation(File nbRoot) {       
         if (!nbRoot.isDirectory()) {
-            return "NetBeans location is not directory";
+            return ERROR_FAILED_NOT_DIRECTORY;
         }
         
         if (nbRoot.listFiles(new FilenameFilter() {
@@ -130,7 +125,7 @@ public class NbLocationPanel extends ApplicationLocationPanel {
                 return name.equals(NB_DIR);
             }
         }).length == 0) {
-            return "NB directroy does not contain nb61";
+            return StringUtils.format(ERROR_FAILED_NOT_CONTAIN, NB_DIR);
         }
                
         if (nbRoot.listFiles(new FilenameFilter() {
@@ -138,7 +133,7 @@ public class NbLocationPanel extends ApplicationLocationPanel {
                 return name.equals(NB_CND_DIR);
             }
         }).length == 0) {
-            return "NB directroy does not contain cnd2";
+            return StringUtils.format(ERROR_FAILED_NOT_CONTAIN, NB_CND_DIR);
         }
         
         Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
@@ -146,9 +141,10 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         nbExtra.setInstallationLocation(nbRoot);
         nbProduct.setStatus(Status.NOT_INSTALLED);
         nbProduct.setInstallationLocation(nbRoot);        
-        nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
-        nbExtra.setParent(Registry.getInstance().getProducts("ss-base").get(0));
+        nbProduct.setParent(Utils.getSSBase());
+        nbExtra.setParent(Utils.getSSBase());
         // install CND pack if needed
+        // looks not planned in current release...
         /*
         if (nbRoot.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -164,21 +160,24 @@ public class NbLocationPanel extends ApplicationLocationPanel {
         return null;
     }
 
+    
     @Override
     public String validateLocation(String value) {
-        File file = new File(value);        
+        File file = FileUtils.eliminateRelativity(value);
         if (locations.contains(file)) {
             return validateNetBeansLocation(file);
-        }       
-                 
+        }
+        String error = flv.validateInput(value);
+        if (error != null) {
+            return error;
+        }
         Product nbProduct = Registry.getInstance().getProducts(NB_PRODUCT_UID).get(0);
         Product nbExtra = Registry.getInstance().getProducts(NB_EXTRA_UID).get(0);
         nbProduct.setStatus(Status.TO_BE_INSTALLED);
         nbProduct.setInstallationLocation(file);
         nbExtra.setInstallationLocation(file);
-        nbProduct.setParent(Registry.getInstance().getProducts("ss-base").get(0));
-        nbExtra.setParent(Registry.getInstance().getProducts("ss-base").get(0));
-          
+        nbProduct.setParent(Utils.getSSBase());
+        nbExtra.setParent(Utils.getSSBase());
         // TODO : create correct checks       
         return null;
     }
@@ -240,6 +239,14 @@ public class NbLocationPanel extends ApplicationLocationPanel {
     final static String NB_DIRECTORY_NAME = "netbeans";
     final static String NB_CND_DIR = "cnd2";
     final static String NB_DIR = "nb6.1";
+
+            
+    public static final String DEFAULT_TITLE =
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
+            "NPrISP.title"); // NOI18N
+    public static final String DEFAULT_DESCRIPTION =
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
+            "NPrISP.description"); // NOI18N
     
     public static final String LOCATION_LABEL_TEXT = 
             ResourceUtils.getString(NbLocationPanel.class, 
@@ -248,7 +255,15 @@ public class NbLocationPanel extends ApplicationLocationPanel {
             ResourceUtils.getString(NbLocationPanel.class, 
             "NBP.list.label.text"); // NOI18N
   
+    public static final String ERROR_FAILED_NOT_DIRECTORY =
+            ResourceUtils.getString(NbLocationPanel.class,
+            "NBP.error.not.directory");//NOI18N
 
+    public static final String ERROR_FAILED_NOT_CONTAIN =
+            ResourceUtils.getString(NbLocationPanel.class,
+            "NBP.error.not.contain");//NOI18N
+
+    
       // public static final String ERROR_FAILED_VERIFY_INPUT_TEXT =
         //    ResourceUtils.getString(NbLocationPanel.class,
           //  "NBP.error.failed.input.verify");//NOI18N
