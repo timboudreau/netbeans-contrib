@@ -9,6 +9,8 @@ import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.DebuggerManagerAdapter;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
@@ -44,10 +46,20 @@ public final class RetryAction extends CallableSystemAction {
     }
     
     public void performAction() {
-        ActionsManager am = getEngineActionsManager();
+        final ActionsManager am = getEngineActionsManager();
         if (am != null) {
-            am.doAction(ActionsManager.ACTION_POP_TOPMOST_CALL);
-            am.doAction(ActionsManager.ACTION_STEP_INTO);
+            Task task = am.postAction(ActionsManager.ACTION_POP_TOPMOST_CALL);
+            if (!task.isFinished()) {
+                task.addTaskListener(new TaskListener() {
+
+                    public void taskFinished(Task task) {
+                        am.postAction(ActionsManager.ACTION_STEP_INTO);
+                    }
+
+                });
+            } else {
+                am.postAction(ActionsManager.ACTION_STEP_INTO);
+            }
         }
     }
     
