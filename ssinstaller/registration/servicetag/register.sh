@@ -4,32 +4,23 @@
 #
 #
 
-trap "on_exit; exit" 1 2 15 EXIT
 
-PID=$$
-TMPDIR=/tmp/ssregister.${PID}
-mkdir -p ${TMPDIR}
-CWD=`pwd`
-# on exit remove all temporary data
-on_exit() {
-   cd /
-   if [ -d "$TMPDIR" ]; then
-      rm -fr $TMPDIR;
-      
-   fi
-   
-   if [ -d "$CWD/servicetag" ]; then
-      rm -rf $CWD/servicetag
-   fi   
-   
-}
+# There are 2 variables should be defined
+# 
+# SUNSTUDIO_DIR - the Sun Studio root directory (/opt/SUNWspro)
+SUNSTUDIO_DIR=${SUNSTUDIO_DIR-/opt/SUNWspro}
+# REGISTRATION_DIR - the directory where registration XML should be created
+REGISTRATION_DIR="${REGISTRATION_DIR-./result}"
+# 
+# Also next variables have some default values.
+# 
+# DOINSTALL - should be service tags installed if they are created, default is yes 
+DOINSTALL=${DOINSTALL-1}
+# DOREGISTER - is always 1, that means reigstration is always on
+# DOCREATE - is 1 if only registration.xml is found, 0 otherwise (should be created)
 
-
-if [ `uname` != "__os_name" ]
-then
-  echo "The incorrect platform. Should be __os_name. Exiting." 
-  exit 1
-fi
+TMPDIR=${TMP_DIR-/tmp/ss-registration}
+mkdir -p $TMPDIR
 
 #
 # Below are some customization properties ...
@@ -41,29 +32,13 @@ PRODUCT="Sun Studio"
 # PRODUCTID - id that is used for identifying registration page on SysNet.
 PRODUCTID="ss"
 
-# REGISTRATION_DIR - a directory to store UIDs for
-#      already registered instances of product
-
-SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
-
-NETBEANS_DIR="netbeans-6.1"
-
-REGISTRATION_DIR="${SUNSTUDIO_DIR}/prod/lib/condev"
-
 # REGISTRATION_PAGE - location of a generated registration page
-REGISTRATION_PAGE=$CWD/"${REGISTRATION_DIR}/register-sunstudio.html"
-
 HOME_SUNSTUDIO_DIR=$HOME/.sunstudio/condev
-HOME_REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
-
-TMP_SUNSTUDIO_DIR=/tmp/.sunstudio/condev
-TMP_REGISTRATION_PAGE="$TMP_SUNSTUDIO_DIR/register-sunstudio.html"
-
-
+REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
 
 # INSTANCES_REGISTRY - file that stores UIDs of already registered
 #      instances of a product
-INSTANCES_REGISTRY="${REGISTRATION_DIR}/instances"
+INSTANCES_REGISTRY="${REGISTRATION_DIR}/servicetag"
 
 PRODUCT_VENDOR="Sun Microsystems, Inc"
 
@@ -72,20 +47,15 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
 
 # STDIR - directory that contains swordfish.data and templates for
 #      registration page generating (relative to sunstudio installation dir)
-STDIR="./servicetag"
+STDIR="."
 
 ################################################################
 
-
-#cd `dirname "$0"`
-PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:$CWD/${SUNSTUDIO_DIR}/bin
-#:$PATH
-MYNAME=`basename "$0"`
-
+PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:${SUNSTUDIO_DIR}/bin
 
 # script can be invoked with specifying locale that is used
 # to determine which template file to use for registration 
@@ -138,22 +108,20 @@ fi
 }
 
 
-# This script allows to install/uninstall servicetags for 
-# LOCALLY installed products only.
-# isLocalyInstalled checks whether BASEDIR is on local system or not.
+# isLocalyInstalled checks whether Sun Studio is on local system or not.
 # Routine returns:
 #    "yes" if local
 #    "no"  otherwise
 
 isLocalyInstalled() {
-  dfout=`df -l ${BASEDIR} 2>/dev/null`
+  dfout=`df -l ${SUNSTUDIO_DIR} 2>/dev/null`
   status=$?
-  dfout=`echo $dfout | sed "s/Filesystem.*Mounted on//"`
+  dfout=`df -l ${SUNSTUDIO_DIR} 2>/dev/null | grep ^-`
 
-  if [ $status -ne 0 -o "_${dfout}_" = "__" ]; then
-     echo "no"
-  else
+  if [ $status -eq 0 -a "_${dfout}_" = "__" ]; then
      echo "yes"
+  else
+     echo "no"
   fi
 }
 
@@ -191,8 +159,8 @@ validate_locale() {
 # Also does an initialization of component-independent 
 # servicetag/registration variables
 
-init() {
-   BINDIR=${CWD}
+init_registration() {
+   BINDIR=.
    BASEDIR="$BINDIR"
    if [ -f /bin/gawk ]; then
       AWK="gawk"
@@ -208,12 +176,9 @@ init() {
 
    ALLCOMPONENTS=`cat ${SWORDFISHDATA} | grep -v "^product_parent" | cut -f1 -d. | sort -u`
 
-   DOINSTALL=0
    DOUNINSTALL=0
-   DOREGISTER=0
+   DOREGISTER=1
 
-   PRODUCT_PARENT=`ExtractSWValue product_parent`
-   PARENT_URN=`ExtractSWValue product_parent_urn`
    PLATFORM_ARCH=`uname -p`  
    if [ -f /sbin/zonename ]; then
       CONTAINER=`/sbin/zonename`
@@ -223,12 +188,22 @@ init() {
 
    SOURCE="cli"
 
-   REGISTRATION_DATAFILE="${REGISTRATION_DIR}/servicetag.xml"
+   mkdir -p ${REGISTRATION_DIR}
+   REGISTRATION_DATAFILE="${REGISTRATION_DIR}/registration.xml"
    validate_locale ${LANG}
-
+   
+   # if we found registration file, then only try to register product
+   DOCREATE=1
+   if [ -f "${REGISTRATION_DATAFILE}" ]; then
+	DOINSTALL=0
+	DOCREATE=0
+   fi
+   
+   ISLOCAL=`isLocalyInstalled`
+   
    STSUPPORTED=0
    if [ -f "`which stclient 2>/dev/null`" ]; then
-	STSUPPORTED=1
+    STSUPPORTED=1
    fi
 }
 
@@ -261,9 +236,11 @@ ParseSWData() {
    PRODUCT_NAME=`ExtractSWValue $1.product_name`
    PRODUCT_VERSION=`ExtractSWValue $1.product_version`
    PRODUCT_URN=`ExtractSWValue $1.product_urn`
+   PRODUCT_PARENT=`ExtractSWValue $1.product_parent_name`
+   PARENT_URN=`ExtractSWValue $1.product_parent_urn`
    PRODUCT_INSTANCE_ID=`echo "id=${PRODUCT_VERSION},dir=${BASEDIR}" | sed 's/\(.\{1,255\}\).*/\1/'`
    INSTANCES_REGISTRY_FILE=`echo ${INSTANCES_REGISTRY} | sed "s/%PRODUCT_VERSION%/${PRODUCT_VERSION}/"`
-   REGISTRATION_PAGE_FILE=`echo ${REGISTRATION_PAGE} | sed "s/%PRODUCT_VERSION%/${PRODUCT_VERSION}/"`
+   REGISTRATION_PAGE_FILE=`echo ${REGISTRATION_PAGE} | sed "s/%PRODUCT_VERSION%/${PRODUCT_VERSION}/"`   
    mkdir -p `dirname "${INSTANCES_REGISTRY_FILE}"`
    mkdir -p `dirname "${REGISTRATION_PAGE_FILE}"`
 }
@@ -281,17 +258,7 @@ findServiceTag() {
          last=$i
       fi
    done
-   echo "$last"
-}
-
-cleanServiceTags() {
-   UINS=`stclient -f -t $PRODUCT_URN`
-   for i in ${UINS}; do
-      DEFID=`stclient -g -i $i | grep product_defined_inst_id | cut -d= -f2-`
-      if [ "${DEFID}" = "${PRODUCT_INSTANCE_ID}" ]; then
-         stclient -d -i $i >/dev/null 2>/dev/null
-      fi
-   done
+   echo "$last" 
 }
 
 #
@@ -300,16 +267,8 @@ cleanServiceTags() {
 #
 
 installServiceTag() {
-   cleanServiceTags; 
-   #if [ "`findServiceTag`" = "" ]; then
-      RC=`stclient -a -p "$PRODUCT_NAME" -e "$PRODUCT_VERSION" -t $PRODUCT_URN -I "$PRODUCT_INSTANCE_ID" -F $PARENT_URN -P "$PRODUCT_PARENT" -m "$PRODUCT_VENDOR" -A "$PLATFORM_ARCH" -z "$CONTAINER" -S "$SOURCE"`
-
-   #   if [ $? -eq 0 ]; then
-   #      echo "$RC"
-   #   fi
-   #else 
-   #      echo "ServiceTag for this instance of $1 is already installed"
-   #fi
+    #echo stclient -a -p "$PRODUCT_NAME" -e "$PRODUCT_VERSION" -t $PRODUCT_URN -I "$PRODUCT_INSTANCE_ID" -F $PARENT_URN -P "$PRODUCT_PARENT" -m "$PRODUCT_VENDOR" -A "$PLATFORM_ARCH" -z "$CONTAINER" -S "$SOURCE"
+    stclient -a -i "$INSTANCE_URN" -p "$PRODUCT_NAME" -e "$PRODUCT_VERSION" -t $PRODUCT_URN -I "$PRODUCT_INSTANCE_ID" -F $PARENT_URN -P "$PRODUCT_PARENT" -m "$PRODUCT_VENDOR" -A "$PLATFORM_ARCH" -z "$CONTAINER" -S "$SOURCE"    
 }
 
 #
@@ -346,7 +305,6 @@ initEnvironmentFromSystemRegistry() {
    SYSTEMMANUFACTURER=`parseAgentInfo manufacturer`
    CPUMANUFACTORER=`parseAgentInfo cpu_manufacturer`
    SERIALNUMBER=`parseAgentInfo serial_number`
-
    REGISTRY_URN=`stclient -x | grep "registry urn" | sed 's/.*urn="\(.*\)" .*/\1/'`
 }
 
@@ -408,7 +366,7 @@ getInstanceURN() {
    line=`cat ${INSTANCES_REGISTRY_FILE} 2>/dev/null | grep "$1#${HOSTID}#$2"`
    if [ $? -ne 0 ]; then
       result="urn:st:"`generateUUID`
-      echo "$1#${HOSTID}#$2#$result" >> ${INSTANCES_REGISTRY_FILE}
+      echo "$result" >> ${INSTANCES_REGISTRY_FILE}
    else
       result=`echo $line | cut -d# -f4`
    fi
@@ -453,13 +411,13 @@ EOF
 #
 
 createRegistrationDocument() {
-   agentInfoFile="${TMPDIR}/environment.xml"
+    agentInfoFile="${TMPDIR}/environment.xml"
 
-   if [ ${STSUPPORTED} -eq 1 ] && [ -f "/usr/bin/curl" ]; then
-      initEnvironmentFromSystemRegistry
-   else 
-      initEnvironment
-   fi
+    if [ ${STSUPPORTED} -eq 1 ] && [ -f "/usr/bin/curl" ]; then
+        initEnvironmentFromSystemRegistry
+    else 
+        initEnvironment
+    fi
 
    # if by any reason we could not use Service Tags 
    if [ "${HOST}" = "" ]; then
@@ -484,20 +442,12 @@ EOF
 
    echo "<registry urn=\"${REGISTRY_URN}\" version=\"1.0\">" >> $REGISTRATION_DATAFILE
 
-   for i in $COMPONENTS; do 
-      statusOK=no
-
-      if [ ${STSUPPORTED} -eq 1 ]; then
-         fetchServiceTagFromSystemRegistry $i >> $REGISTRATION_DATAFILE
-         if [ $? -eq 0 ]; then 
-            statusOK=yes
-         fi
-      fi
-
-      if [ "$statusOK" = "no" ]; then
-         createServiceTagFor $i >> $REGISTRATION_DATAFILE
-      fi
-   done
+    for i in $COMPONENTS; do 
+        createServiceTagFor $i >> $REGISTRATION_DATAFILE      
+	    if [ ${STSUPPORTED} -eq 1 -a $DOINSTALL -eq 1 ]; then
+	        installServiceTag $i
+   	    fi
+    done
 
    cat << EOF >> $REGISTRATION_DATAFILE
 </registry>
@@ -561,7 +511,6 @@ browse() {
    URL=$1
    if [ "$DISPLAY" = "" ]; then
       echo "No display was found. Registration page has been generated."
-      echo "Please open following link with your browser to proceed with registration."
       echo "${URL}"
       return
    fi
@@ -578,73 +527,25 @@ browse() {
    fi
 }
 
-unpack() {
-    echo "Please wait while Sun Studio is unpacked into this directory."
-    
-    mkdir ${SUNSTUDIO_DIR} || exit 1;
-    rm -r ${SUNSTUDIO_DIR}
-    
-    mkdir ${NETBEANS_DIR} || exit 1;
-    rm -r ${NETBEANS_DIR}
-
-    tail +__tail_length > ${TMPDIR}/sunstudio.tar.bz2
-    bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf - || exit "Sun Studio instllation failed."
-    rm ${TMPDIR}/sunstudio.tar.bz2
-    echo "Sun Studio was successfully installed."
-}
-
 
 register() {
-COMPONENTS=${ALLCOMPONENTS}
-DOINSTALL=1
-DOREGISTER=1
+COMPONENTS=${PRODUCTS-"ss"}
 
-#ISLOCAL=`isLocalyInstalled`
-#if [ $DOUNINSTALL -eq 1 -a "$ISLOCAL" = "no" -o $DOINSTALL -eq 1 -a "$ISLOCAL" = "no" ]; then
-#   exit 1
-#fi
 
-for i in $COMPONENTS; do
-   ParseSWData $i    
-   if [ ${STSUPPORTED} -eq 1 -a $DOINSTALL -eq 1 ]; then
-	installServiceTag $i
-   fi
-done
 
-if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
-   createRegistrationDocument 1>/dev/null 2>/dev/null
-   generateRegistrationHTML 1>/dev/null 2>/dev/null
-   # 
-   # The HTML page is loaded from users home to be correctly shown if firefox is already run.
-   # The '/root' on Linux could not be read by other users page from Sun Studio is used.
-   #
-   if [ `uname` = "Linux" -a "$UID" -eq 0 ]
-   then
-        mkdir -p $TMP_SUNSTUDIO_DIR
-	cp -r $REGISTRATION_PAGE $TMP_SUNSTUDIO_DIR 
-	rm -rf $REGISTRATION_DIR
-	browse "file://$TMP_REGISTRATION_PAGE"
-   else
-        mkdir -p $HOME_SUNSTUDIO_DIR
-	cp  $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 2>/dev/null
-	if [ "$?" -ne 0 ]
-	then
-	    HOME_SUNSTUDIO_DIR=$TMP_SUNSTUDIO_DIR
-	    mkdir -p $HOME_SUNSTUDIO_DIR
-	    cp -r $REGISTRATION_PAGE $HOME_SUNSTUDIO_DIR 2>/dev/null 
-	    HOME_REGISTRATION_PAGE=$TMP_REGISTRATION_PAGE
-	fi
-	rm -rf $REGISTRATION_DIR
-	browse "file://$HOME_REGISTRATION_PAGE"
-   fi
+if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then   
+    if [ ${DOCREATE} -eq 1 ]; then
+    createRegistrationDocument 1>/dev/null 2>/dev/null
+fi
+    generateRegistrationHTML 1>/dev/null 2>/dev/null
+    browse "file://$REGISTRATION_PAGE"
 fi
 
-exit 0;
 
 }
 
 ########### Everything starts here ############
 
-unpack
-init
+init_registration
 register
+

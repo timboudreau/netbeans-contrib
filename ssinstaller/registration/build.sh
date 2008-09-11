@@ -3,17 +3,18 @@ TARDIR=`pwd`/build/tars
 RESDIR=`pwd`/build/result
 SRCDIR=`pwd`
 
-# The length of register.sh is used to untar archive 
-LENGTH=`wc -l register.sh | sed s/register.sh// | sed s/' '//g`
+# The length of install.sh is used to untar archive 
+LENGTH=`wc -l install.sh | sed s/install.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 
 DISTRS="intel-S2 sparc-S2 intel-Linux"
 
 # The images of Sun Studio to create distribution
-BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
-#IMAGES_DIR=/shared/dp/sstrunk/biweekly/inst
-IMAGES_DIR=/home/lm153972/ws/ssx
-BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
+#BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
+#IMAGES_DIR=/shared/dp/sstrunk/latest/inst
+IMAGES_DIR=/export/home/lm153972/ws/images/empty
+#BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
+BUILD_DATE=none
 
 rm -rf build
 mkdir -p $RESDIR
@@ -25,16 +26,19 @@ do
 	TARGET_OS=SunOS
 	TARGET_PLATFORM=x86
 	IMAGE_SUB=opt
+	TAIL_ARG="+$LENGTH"
     ;;
     sparc-S2)
 	TARGET_OS=SunOS
 	TARGET_PLATFORM=sparc
 	IMAGE_SUB=opt
+	TAIL_ARG="+$LENGTH"
     ;;
     intel-Linux)
 	TARGET_OS=Linux
 	TARGET_PLATFORM=x86
 	IMAGE_SUB=opt/sun
+	TAIL_ARG="--lines=+$LENGTH"
     ;;
     esac
 
@@ -49,7 +53,7 @@ do
     done
     tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
     bzip2 $TARDIR/sunstudio.$distr.tar
-    cat $SRCDIR/register.sh | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$LENGTH \$0"/ >  $DISTR_NAME
+    cat $SRCDIR/install.sh | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$TAIL_ARG \$0"/ >  $DISTR_NAME
     cat $TARDIR/sunstudio.$distr.tar.bz2 >>  $DISTR_NAME
     chmod u+x  $DISTR_NAME
     echo
