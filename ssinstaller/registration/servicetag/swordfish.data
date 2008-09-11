@@ -1,10 +1,11 @@
-sstools.product_urn=urn:uuid:603a8d1f-3656-11dd-9b49-080020a9ed93
-sstools.product_name=Sun Studio Express 07/08
-sstools.product_version=Express
-product_parent_urn=urn:uuid:5072b0f1-b54a-4567-81e6-89b75772edbb
-product_parent=Sun Studio
-nb.product_urn=urn:uuid:5a381dd1-a4f2-11dc-8f02-080020a9ed93
-nb.product_name=NetBeans Integrated Development Environment 6.1
-nb.product_version=6.1
-nb.parent.product_urn=urn:uuid:bc76c157-8a3c-4da7-97d2-41d561ffe234
-nb.parent.product_name=Development Tools
+ss.product_urn=urn:uuid:7a49580a-7abc-11dd-938b-080020a9ed93
+ss.product_name=Sun Studio Express 11/08
+ss.product_version=Express
+ss.product_parent_urn=urn:uuid:5072b0f1-b54a-4567-81e6-89b75772edbb
+ss.product_parent_name=Sun Studio
+
+nb.product_urn=urn:uuid:4f402a90-68b4-11dd-938b-080020a9ed93
+nb.product_name=NetBeans Integrated Development Environment 6.5
+nb.product_version=6.5
+nb.product_parent_urn=urn:uuid:bc76c157-8a3c-4da7-97d2-41d561ffe234
+nb.product_parent_name=Development Tools
