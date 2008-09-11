@@ -83,6 +83,7 @@ public class EncodingOption {
     public static final String FIXED_LENGTH_TYPE_PREFIX = "fixedLengthType"; //NOI18N
     private static final String EMP = ""; //NOI18N
     private static final String UDS = "_"; //NOI18N
+    private static final String MULTI_DELIM_SEPARATOR = ", "; //NOI18N
 
     private static final CustomEncoding mDefaultCustomEncoding =
             CustomEncoding.Factory.newInstance();
@@ -312,8 +313,8 @@ public class EncodingOption {
         commitToAppInfo();
     }
 
-    public String getDelimiter() {
-        String delim = computeDelimiter();
+    public String getEndDelimiter() {
+        String delim = computeEndDelimiter();
         if (delim == null) {
             delim = _bundle.getString("encoding_opt.lbl.delim_not_set"); //NOI18N
         }
@@ -1003,7 +1004,7 @@ public class EncodingOption {
             throws ValidationException, SAXException {
         if (NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())) {
             //is delimited
-            if (computeDelimiter() == null) {
+            if (computeEndDelimiter() == null) {
                 handler.error(
                         new SAXParseException(
                             NbBundle.getMessage(
@@ -1056,67 +1057,75 @@ public class EncodingOption {
      * @return a comma separate string, e.g. "], }"
      */
     private String getDelimitersAsString(DelimiterLevel delimLevel) {
-        String delim = null;
-        Delimiter[] delimiters;
+        String delimString = EMP;
         // get all delimiters at this delimiter level
-        delimiters = delimLevel.getDelimiterArray();
-        delim = EMP;
+        Delimiter[] delimiters = delimLevel.getDelimiterArray();
         for (int i = 0; i < delimiters.length; i++) {
             if (!delimiters[i].isSetBytes()
                 || !delimiters[i].getBytes().isSetConstant()) {
-                // skip non-constant delimiter(s)
+                // skip non-constant (i.e. embedded) delimiter(s)
                 continue;
             }
-            if (delim.length() > 0) {
-                delim += ", "; //NOI18N
+            if (delimString.length() > 0) {
+                // add separator due to multiple delimiters.
+                delimString += MULTI_DELIM_SEPARATOR;
             }
-            delim += delimiters[i].getBytes().getConstant();
+            delimString += delimiters[i].getBytes().getConstant();
         }
-        if (delim.length() == 0) {
-            delim = null;
+        if (delimString.length() == 0) {
+            delimString = null;
         }
-        return delim;
+        return delimString;
     }
 
     /**
-     * Compute the delimiter value at current node.
-     * @return the computed delimiter value.
+     * Compute the end delimiter value at current node.
+     * @return the computed end delimiter value.
      */
-    private String computeDelimiter() {
+    private String computeEndDelimiter() {
         // Only delimited or array node needs to compute delimiter
         if (!NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())
                 && !NodeProperties.NodeType.ARRAY.equals(xgetNodeType())) {
             return null;
         }
-        String delim = null;
+        String delimAsString = null;
         DelimiterLevel delimLevel;
         Delimiter[] delimiters;
+        // Check to see if there are local delimiters defined. If so, they
+        // takes precedence,
         if (mDelimiterSet != null) {
-            // it means we have local delimiters defined,
-            // so we get first delimiter level
+            // So we get first delimiter level out of it.
             delimLevel = mDelimiterSet.getLevelArray(0);
-            // we get all delimiters at the given delimiter level as
+            // We get all delimiters at the given delimiter level as
             // comma separated string
-            delim = getDelimitersAsString(delimLevel);
+            delimAsString = getDelimitersAsString(delimLevel);
         }
-        if (delim != null) {
-            return delim;
+        if (delimAsString != null) {
+            return delimAsString;
         }
         SchemaComponent comp;
         Annotation anno;
         CustomEncoding customEncoding;
-        // Starting from mComponentPath.length - 3, so the current element
-        // declaration can be skipped
+        // Starting from (mComponentPath.length - 3) and doing bottom-up
+        // traverse up the ladder, so the current element declaration can be
+        // skipped (i.e. this will skip last 2 SchemaComponent objects in the
+        // ladder array, namely, its parent "annotation" node and its
+        // grandparent localElement node.) It traverses up the ladder, until it
+        // finds an upper hierachy element or elementReference who has
+        // annotation that has custom encoding that has node properties with
+        // delimiters defined.
         int level = 0;
         int i = mComponentPath.length - 3;
         for (; i >= 0; i--) {
             comp = mComponentPath[i];
             if (!(comp instanceof Element)
                     || comp instanceof ElementReference) {
+                // continue to search up in the ladder
                 continue;
             }
             anno = ((Element) comp).getAnnotation();
             if (anno == null) {
+                // continue to search up, and record delimiter level number
                 level++;
                 continue;
             }
@@ -1126,32 +1135,39 @@ public class EncodingOption {
                 return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
             }
             if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
+                // continue to search up, and record delimiter level number
                 level++;
                 continue;
             }
             NodeProperties nProp = customEncoding.getNodeProperties();
             if (NodeProperties.NodeType.DELIMITED.equals(nProp.getNodeType())
                 || NodeProperties.NodeType.ARRAY.equals(nProp.getNodeType())) {
+                // record delimiter level number
                 level++;
             }
             if (!nProp.isSetDelimiterSet()) {
+                // continue to search up
                 continue;
             }
             if (nProp.getDelimiterSet().sizeOfLevelArray() <= level) {
+                // defined delimiter level is less than expected. something
+                // is not correct.
                 break;
             }
             delimLevel = nProp.getDelimiterSet().getLevelArray(level);
             delimiters = delimLevel.getDelimiterArray();
-            delim = EMP;
+            delimAsString = EMP;
             for (int j = 0; j < delimiters.length; j++) {
                 if (!delimiters[j].isSetBytes()) {
                     continue;
                 }
                 if (delimiters[j].getBytes().isSetEmbedded()) {
-                    if (delim.length() > 0) {
-                        delim += ", "; //NOI18N
+                    // i.e. embedded delimiter
+                    if (delimAsString.length() > 0) {
+                        delimAsString += MULTI_DELIM_SEPARATOR;
                     }
-                    delim += (
+                    // output as e.g. "...., {embedded:10,2}"
+                    delimAsString += (
                             "{" //NOI18N
                             + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
                             + delimiters[j].getBytes().getEmbedded().getOffset()
@@ -1159,18 +1175,19 @@ public class EncodingOption {
                             + delimiters[j].getBytes().getEmbedded().getLength()
                             + "}"); //NOI18N
                 } else if (delimiters[j].getBytes().isSetConstant()) {
-                    if (delim.length() > 0) {
-                        delim += ", "; //NOI18N
+                    // i.e. regular constant delimiter
+                    if (delimAsString.length() > 0) {
+                        delimAsString += MULTI_DELIM_SEPARATOR;
                     }
-                    delim += delimiters[j].getBytes().getConstant();
+                    delimAsString += delimiters[j].getBytes().getConstant();
                 }
-            }
-            if (delim.length() == 0) {
-                delim = null;
+            } // end-- for (int j = 0 ...)
+            if (delimAsString.length() == 0) {
+                delimAsString = null;
             }
             break;
-        }
-        return delim;
+        } // end-- for (; i >= 0; i--)
+        return delimAsString;
     }
 
     private Annotation annotation() {

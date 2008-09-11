@@ -356,7 +356,7 @@ public class EncodingNode extends AbstractNode
                     || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
                 PropertySupport.Reflection<String> prop =
                         new ReadOnlyDelimiterProperty<String>(mEncodingOption,
-                                String.class, "getDelimiter");  //NOI18N
+                                String.class, "getEndDelimiter");  //NOI18N
                 prop.setName("delimiter");  //NOI18N
                 prop.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
                 propSet.put(prop);
