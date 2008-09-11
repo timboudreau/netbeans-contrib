@@ -48,6 +48,6 @@ public class ReadOnlyDelimiterProperty<T>
     @Override
     public T getValue() throws IllegalAccessException, IllegalArgumentException,
         InvocationTargetException {
-        return (T) mEncodingOption.getDelimiter();
+        return (T) mEncodingOption.getEndDelimiter();
     }
 }

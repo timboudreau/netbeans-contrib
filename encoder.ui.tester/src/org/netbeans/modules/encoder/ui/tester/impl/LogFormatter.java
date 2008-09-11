@@ -45,26 +45,26 @@ public class LogFormatter extends SimpleFormatter {
     public synchronized String format(final LogRecord record) {
         StringBuffer sb = new StringBuffer();
         // Minimize memory allocations here.
-        String srcClassName = record.getSourceClassName();
-        if (srcClassName != null) {
-            int dot = srcClassName.lastIndexOf(".");
-            if (dot > 0) {
-                srcClassName = srcClassName.substring(dot + 1);
-            }
-            sb.append(srcClassName);
-        } else {
-            sb.append(record.getLoggerName());
-        }
-        if (record.getSourceMethodName() != null) {
-            sb.append("#");
-            sb.append(record.getSourceMethodName()).append("()");
-        }
+//        String srcClassName = record.getSourceClassName();
+//        if (srcClassName != null) {
+//            int dot = srcClassName.lastIndexOf(".");
+//            if (dot > 0) {
+//                srcClassName = srcClassName.substring(dot + 1);
+//            }
+//            sb.append(srcClassName);
+//        } else {
+//            sb.append(record.getLoggerName());
+//        }
+//        if (record.getSourceMethodName() != null) {
+//            sb.append("#");
+//            sb.append(record.getSourceMethodName()).append("()");
+//        }
         /*
         String debugLevel = record.getLevel().getLocalizedName();
         sb.append(" [").append(debugLevel).append("]");
         */
-        sb.append(":");
-        sb.append(lineSeparator);
+//        sb.append(":");
+//        sb.append(lineSeparator);
         String message = formatMessage(record);
         sb.append(message);
         sb.append(lineSeparator);
