@@ -49,16 +49,30 @@ import java.util.Set;
 public class ServiceM {
     private String serviceClass;
     private Set<ContractM> contracts;
-    
+    private InstantiatorM instantiator;
+
     public ServiceM(String className) {
+        this(className, InstantiatorM.DEFAULT);
+    }
+
+    public ServiceM(String className, InstantiatorM instantiateWith) {
         serviceClass = className;
+        instantiator = instantiateWith;
         contracts = new HashSet<ContractM>();
     }
     
     public String getServiceClass() {
         return serviceClass;
     }
-    
+
+    public InstantiatorM getInstantiator() {
+        return instantiator;
+    }
+
+    public void setInstantiator(InstantiatorM instantiator) {
+        this.instantiator = instantiator;
+    }
+
     public Set<ContractM> getContracts() {
         return contracts;
     }
@@ -72,7 +86,7 @@ public class ServiceM {
             return false;
         }
         final ServiceM other = (ServiceM) obj;
-        if (this.serviceClass != other.serviceClass && (this.serviceClass == null || !this.serviceClass.equals(other.serviceClass))) {
+        if ((this.serviceClass == null) ? (other.serviceClass != null) : !this.serviceClass.equals(other.serviceClass)) {
             return false;
         }
         return true;
@@ -80,10 +94,9 @@ public class ServiceM {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + (this.serviceClass != null ? this.serviceClass.hashCode() : 0);
+        int hash = 3;
+        hash = 79 * hash + (this.serviceClass != null ? this.serviceClass.hashCode() : 0);
         return hash;
     }
-    
     
 }
