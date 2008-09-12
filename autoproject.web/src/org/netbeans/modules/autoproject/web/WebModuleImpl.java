@@ -47,6 +47,7 @@ import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
+@SuppressWarnings("deprecation") // getJavaSources
 public class WebModuleImpl implements WebModuleImplementation  {
 
     private FileObject docBase;
@@ -62,11 +63,11 @@ public class WebModuleImpl implements WebModuleImplementation  {
     }
 
     public String getContextPath() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
     public String getJ2eePlatformVersion() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
     public FileObject getWebInf() {
@@ -86,11 +87,11 @@ public class WebModuleImpl implements WebModuleImplementation  {
     }
 
     public FileObject[] getJavaSources() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
     public MetadataModel<WebAppMetadata> getMetadataModel() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
 }
