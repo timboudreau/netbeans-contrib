@@ -19,6 +19,11 @@ DOINSTALL=${DOINSTALL-1}
 # DOREGISTER - is always 1, that means reigstration is always on
 # DOCREATE - is 1 if only registration.xml is found, 0 otherwise (should be created)
 
+# DATA_DIR - directory that contains swordfish.data and templates for
+#      registration page generating (relative to sunstudio installation dir)
+DATA_DIR=${DATA_DIR-`pwd`}
+
+
 TMPDIR=${TMP_DIR-/tmp/ss-registration}
 mkdir -p $TMPDIR
 
@@ -49,9 +54,6 @@ BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
 REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
 
-# STDIR - directory that contains swordfish.data and templates for
-#      registration page generating (relative to sunstudio installation dir)
-STDIR="."
 
 ################################################################
 
@@ -61,10 +63,10 @@ PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:${SUNSTUDIO_DIR}/bin
 # to determine which template file to use for registration 
 # page generating
 # getSupportedLocales provides a list of locales that is 'supported'
-# i.e. register_XX.tmpl exists in STDIR directory
+# i.e. register_XX.tmpl exists in DATA_DIR directory
 
 getSupportedLocales() {
-   find ${BASEDIR}/${STDIR} -name register*.tmpl | sed 's/.*_\(.*\)\.tmpl/\1/'
+   find ${DATA_DIR} -name register*.tmpl | sed 's/.*_\(.*\)\.tmpl/\1/'
 }
 
 # extracts specified value from swordfish data file.
@@ -168,7 +170,7 @@ init_registration() {
       AWK="nawk"
    fi
 
-   SWORDFISHDATA=${BASEDIR}/${STDIR}/swordfish.data
+   SWORDFISHDATA=${DATA_DIR}/swordfish.data
    if [ ! -f ${SWORDFISHDATA} ]; then
       echo "${SWORDFISHDATA} not found."
       exit 1
@@ -462,8 +464,8 @@ EOF
 #
 
 generateRegistrationHTML() {      
-   #cp "${BASEDIR}/${STDIR}/sslogo_${LOCALE}.jpg" "${REGISTRATION_DIR}"
-   TEMPLATE="${BASEDIR}/${STDIR}/register_${LOCALE}.tmpl"
+   #cp "${DATA_DIR}/sslogo_${LOCALE}.jpg" "${REGISTRATION_DIR}"
+   TEMPLATE="${DATA_DIR}/register_${LOCALE}.tmpl"
    SCRIPT="${TMPDIR}/genReg.awk"
    cat << EOF > ${SCRIPT}
 BEGIN {
