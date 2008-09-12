@@ -62,20 +62,33 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementScanner6;
 import javax.lang.model.util.SimpleAnnotationValueVisitor6;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.netbeans.modules.lookup.annotations.annotations.Contract;
 import org.netbeans.modules.lookup.annotations.annotations.ContractProvided;
 import org.netbeans.modules.lookup.annotations.annotations.ContractsProvided;
+import org.netbeans.modules.lookup.annotations.annotations.Instantiator;
 import org.netbeans.modules.lookup.annotations.annotations.Service;
 import org.netbeans.modules.lookup.annotations.model.ContractM;
+import org.netbeans.modules.lookup.annotations.model.InstantiatorM;
 import org.netbeans.modules.lookup.annotations.model.ServiceM;
+import org.netbeans.modules.lookup.annotations.model.Services;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 /**
  * Simple META-INF/services registrator
@@ -85,47 +98,51 @@ import org.netbeans.modules.lookup.annotations.model.ServiceM;
 @SupportedAnnotationTypes(value = {"*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class NBServiceRegistrator extends AbstractProcessor {
+
     /**
      * Annotation visitor for traversing all {@linkplain ContractProvided} annotations
      * contained in a {@linkplain ContractsProvided} annotation
      */
     private class ContractsProvidedAnnotationVisitor extends SimpleAnnotationValueVisitor6<Void, Set<ContractM>> {
+
         @Override
         public Void visitAnnotation(AnnotationMirror a, Set<ContractM> contracts) {
             processContractProvided(a, contracts);
             return null;
         }
-        
     }
-    
     private Collection<ServiceM> globalServices = new ArrayList<ServiceM>();
-    
+    private Document layerDocument;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver()) {
             try {
+                processingEnv.getMessager().printMessage(Kind.NOTE, "Processing annotated services");
                 writeRegistrations(globalServices);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                processingEnv.getMessager().printMessage(Kind.ERROR, "Processing failed!");
+                processingEnv.getMessager().printMessage(Kind.ERROR, e.getLocalizedMessage());
                 return false;
             }
             return true;
         }
-        
-        Map<String, ServiceM> services = new HashMap<String, ServiceM>();
 
-        Map<String, ServiceM> persistedServices = new HashMap<String, ServiceM>();
+        Services services = new Services();
+        Services persistedServices = new Services();
+
         loadMetaInfServices(persistedServices, StandardLocation.SOURCE_PATH);
-        
+
         loadMetaInfServices(services, StandardLocation.CLASS_OUTPUT);
         processAnnotatedServices(roundEnv, services);
 
         invalidateMetaInfServices(services);
-        mergeServices(services, persistedServices);
-        
+        services.mergeFrom(persistedServices);
+
         globalServices.addAll(services.values());
-        
+
 //        debugRegistrations(services);
-        
+
         return true;
     }
 
@@ -136,7 +153,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param roundEnv {@link RoundEnvironment} instance
      * @param services A bag to put the created services
      */
-    private void processAnnotatedServices(RoundEnvironment roundEnv, Map<String, ServiceM> services) {
+    private void processAnnotatedServices(RoundEnvironment roundEnv, Services services) {
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Service.class)) {
             if (element.getKind() == ElementKind.CLASS) {
@@ -145,45 +162,49 @@ public class NBServiceRegistrator extends AbstractProcessor {
 
                 ServiceM service = services.get(serviceName);
                 if (service == null) {
-                    service = new ServiceM(processingEnv.getElementUtils().getBinaryName(serviceElement).toString());
-                    services.put(serviceName, service);
+                    service = new ServiceM(serviceName);
+                    services.put(service);
                 }
                 service.getContracts().addAll(findDefinedContracts(serviceElement));
                 service.getContracts().addAll(findInheritedContracts(serviceElement));
+                service.setInstantiator(findInstantiator(serviceElement));
             }
         }
     }
-    
-    /**
-     * A utility method to merge two bags of services
-     * @param toServices The bag to merge to
-     * @param fromServices The to merge from
-     */
-    private void mergeServices(Map<String, ServiceM> toServices, Map<String, ServiceM> fromServices) {
-        for(Map.Entry<String, ServiceM> entry : fromServices.entrySet()) {
-            ServiceM currentService = toServices.get(entry.getKey());
-            if (currentService == null) {
-                currentService = new ServiceM(entry.getKey());
-                toServices.put(entry.getKey(), currentService);
-            }
-            currentService.getContracts().addAll(entry.getValue().getContracts());
-        }
-    }
-    
+
     /**
      * This method checks the services from the bag against the actual state
      * All services not comforming to the definition of a service are pruned from the bag
      * @param services The bag of services
      */
-    private void invalidateMetaInfServices(Map<String, ServiceM> services) {
-        for(Map.Entry<String, ServiceM> entry : services.entrySet()) {
-            TypeElement serviceElement = processingEnv.getElementUtils().getTypeElement(entry.getKey());
-            Set<ContractM> actualContracts = new HashSet<ContractM>();
-            actualContracts.addAll(findInheritedContracts(serviceElement));
-            actualContracts.addAll(findDefinedContracts(serviceElement));
-            
-            entry.getValue().getContracts().retainAll(actualContracts);
-        }        
+    private void invalidateMetaInfServices(Services services) {
+        services.forEach(new Services.Functor() {
+
+            public void execute(ServiceM service) {
+                TypeElement serviceElement = processingEnv.getElementUtils().getTypeElement(service.getServiceClass());
+                Set<ContractM> actualContracts = new HashSet<ContractM>();
+                actualContracts.addAll(findInheritedContracts(serviceElement));
+                actualContracts.addAll(findDefinedContracts(serviceElement));
+
+                service.getContracts().retainAll(actualContracts);
+            }
+        });
+    }
+
+    private File getLocation(Location serviceLocation) throws Exception {
+        // ********** This is a hack to get hold of the source file location; there is no other way :( *******
+        Field fManagerFld = processingEnv.getFiler().getClass().getDeclaredField("fileManager"); // NOI18N
+        fManagerFld.setAccessible(true);
+
+        StandardJavaFileManager jfm = (StandardJavaFileManager) fManagerFld.get(processingEnv.getFiler());
+        // ********* End of hack *****************************************************************************
+
+        for (File location : jfm.getLocation(serviceLocation)) {
+            if (location != null) {
+                return location;
+            }
+        }
+        return null;
     }
 
     /**
@@ -191,19 +212,11 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param services The services bag to load the new services to
      * @param serviceLocation A {@link Location} specifying where to load the services from
      */
-    private void loadMetaInfServices(Map<String, ServiceM> services, Location serviceLocation) {
+    private void loadMetaInfServices(Services services, Location serviceLocation) {
         try {
-            // ********** This is a hack to get hold of the source file location; there is no other way :( *******
-            Field fManagerFld = processingEnv.getFiler().getClass().getDeclaredField("fileManager"); // NOI18N
-            fManagerFld.setAccessible(true);
-
-            StandardJavaFileManager jfm = (StandardJavaFileManager) fManagerFld.get(processingEnv.getFiler());
-            // ********* End of hack *****************************************************************************
-            for (File location : jfm.getLocation(serviceLocation)) {
-                if (location != null) {
-                    processingEnv.getMessager().printMessage(Kind.NOTE, location.getAbsolutePath());
-                    loadMetaInfServices(services, location.getAbsolutePath() + File.separator + "META-INF" + File.separator + "services"); // NOI18N
-                }
+            File location = getLocation(serviceLocation);
+            if (location != null) {
+                loadMetaInfServices(services, location.getAbsolutePath() + File.separator + "META-INF" + File.separator + "services"); // NOI18N
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,7 +229,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param srcPath The path to look for <i>META-INF/services</i>
      * @throws java.io.IOException
      */
-    private void loadMetaInfServices(Map<String, ServiceM> services, String srcPath) throws IOException {
+    private static void loadMetaInfServices(Services services, String srcPath) throws IOException {
         File servicesFolder = new File(srcPath);
         if (!servicesFolder.exists() || !servicesFolder.isDirectory()) {
             return;
@@ -224,25 +237,85 @@ public class NBServiceRegistrator extends AbstractProcessor {
         for (File serviceFile : servicesFolder.listFiles()) {
             if (serviceFile.isFile()) {
                 ContractM contract = new ContractM(serviceFile.getName());
-                BufferedReader br = new BufferedReader(new FileReader(serviceFile));
-                String line;
-                try {
-                    do {
-                        line = br.readLine();
-                        if (line != null) {
-                            ServiceM service = services.get(line);
-                            if (service == null) {
-                                service = new ServiceM(line);
-                                services.put(line, service);
-                            }
-                            service.getContracts().add(contract);
-                        }
-                    } while (line != null);
-                } finally {
-                    br.close();
+                List<String> lines = loadLines(serviceFile);
+                for (String line : lines) {
+                    ServiceM service = services.get(line);
+                    if (service == null) {
+                        service = new ServiceM(line);
+                        services.put(service);
+                    }
+                    service.getContracts().add(contract);
                 }
             }
         }
+    }
+
+    private void loadLayer() throws Exception {
+        File layerFile = getLayerFile(StandardLocation.SOURCE_PATH);
+        if (layerFile != null) {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            layerDocument = builder.parse(layerFile);
+            layerDocument.setXmlStandalone(true);
+
+        }
+    }
+
+    private File getManifest() throws Exception {
+        File location = getLocation(StandardLocation.SOURCE_PATH);
+        if (location != null) {
+            return new File(location.getParent() + File.separator + "manifest.mf"); // NOI18N
+        }
+        return null;
+    }
+
+    private File getLayerFile(Location location) throws Exception {
+        String layerPath = getLayerRelativePath();
+        if (layerPath != null) {
+            return new File(getLocation(location) + File.separator + layerPath);
+        }
+        return null;
+    }
+
+    private String getLayerRelativePath() {
+        String layerPath = null;
+        try {
+            File manifest = getManifest();
+            if (manifest != null) {
+
+                for (String line : loadLines(manifest)) {
+                    if (line.startsWith("OpenIDE-Module-Layer:")) { // NOI18N
+                        int startIndex = line.lastIndexOf(":");
+                        if (startIndex > -1) {
+                            layerPath = line.substring(startIndex + 1).trim();
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+        }
+        return layerPath;
+    }
+
+    private static List<String> loadLines(File file) {
+        List<String> lines = new ArrayList<String>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            try {
+                do {
+                    line = br.readLine();
+                    if (line != null) {
+                        lines.add(line);
+                    }
+                } while (line != null);
+            } finally {
+                br.close();
+            }
+        } catch (Exception e) {
+            lines.clear();
+        }
+        return lines;
     }
 
     /**
@@ -268,6 +341,37 @@ public class NBServiceRegistrator extends AbstractProcessor {
     }
 
     /**
+     * This method will try to find a public static method annotated by {@linkplain Instantiator} annotation
+     * @param serviceElement The service element to search for instantiator
+     * @return Returns an instantiator if found or {@linkplain InstantiatorM.DEFAULT}
+     */
+    private InstantiatorM findInstantiator(TypeElement serviceElement) {
+        if (serviceElement == null) {
+            return InstantiatorM.DEFAULT;
+        }
+        InstantiatorM result = serviceElement.accept(new ElementScanner6<InstantiatorM, Void>() {
+
+            InstantiatorM instantiator = InstantiatorM.DEFAULT;
+
+            @Override
+            public InstantiatorM visitExecutable(ExecutableElement e, Void p) {
+                if (instantiator != InstantiatorM.DEFAULT) {
+                    return instantiator;
+                }
+
+                if (e.getAnnotation(Instantiator.class) != null) {
+                    if (e.getModifiers().contains(Modifier.STATIC) && e.getModifiers().contains(Modifier.PUBLIC)) {
+                        instantiator = new InstantiatorM(e.getSimpleName().toString());
+                    }
+                }
+
+                return instantiator;
+            }
+        }, null);
+        return result != null ? result : InstantiatorM.DEFAULT;
+    }
+
+    /**
      * Retrieves a set of contracts defined by {@linkplain ContractProvided} annotations on a class
      * @param serviceElement The class to inspect
      * @return Returns a set of defined contracts
@@ -284,15 +388,14 @@ public class NBServiceRegistrator extends AbstractProcessor {
             if (annTypeName.equals(ContractsProvided.class.getName())) {
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annMirror.getElementValues().entrySet()) {
                     if (entry.getKey().getSimpleName().toString().equals("value")) { // NOI18N
-                        
-                        List<AnnotationValue> contractList = (List<AnnotationValue>)entry.getValue().getValue();
-                        for(AnnotationValue contr : contractList) {
+
+                        List<AnnotationValue> contractList = (List<AnnotationValue>) entry.getValue().getValue();
+                        for (AnnotationValue contr : contractList) {
                             contr.accept(new ContractsProvidedAnnotationVisitor(), contracts);
                         }
                     }
                 }
             }
-            processingEnv.getMessager().printMessage(Kind.NOTE, annTypeName);
             if (annTypeName.equals(ContractProvided.class.getName())) {
                 processContractProvided(annMirror, contracts);
             }
@@ -308,25 +411,30 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param services Bag of services
      */
     private void debugRegistrations(Map<String, ServiceM> services) {
-        for(Map.Entry<String, ServiceM> entry : services.entrySet()) {
+        for (Map.Entry<String, ServiceM> entry : services.entrySet()) {
             processingEnv.getMessager().printMessage(Kind.NOTE, "Service: " + entry.getKey()); // NOI18N
             processingEnv.getMessager().printMessage(Kind.NOTE, "=============================================================="); // NOI18N
-            for(ContractM contract : entry.getValue().getContracts()) {
+            for (ContractM contract : entry.getValue().getContracts()) {
                 processingEnv.getMessager().printMessage(Kind.NOTE, "* " + contract.getContractClass()); // NOI18N
             }
         }
     }
-    
+
     /**
      * Writes the defined services to <i>META-INF/services</i> location
      * @param services The services to write
-     * @throws java.io.IOException
+     * @throws Exception
      */
-    private void writeRegistrations(Collection<ServiceM> services) throws IOException {
-        Map<String, Set<String>> registrations = preprocessRegistrations(services);
-        
+    private void writeRegistrations(Collection<ServiceM> services) throws Exception {
+        writeLayer(services);
+        writeMetaInf(services);
+    }
+
+    private void writeMetaInf(Collection<ServiceM> services) throws IOException {
+        Map<String, Set<String>> registrations = preprocessMetaInf(services);
+
         String servicesPath = null;
-        for(Map.Entry<String, Set<String>> entry : registrations.entrySet()) {
+        for (Map.Entry<String, Set<String>> entry : registrations.entrySet()) {
             final String METAINF = "META-INF/services"; // NOI18N
             String resourcePath = METAINF + "/" + entry.getKey();
             Writer writer = null;
@@ -337,7 +445,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
                     servicesPath = servicesPath.substring(0, servicesPath.lastIndexOf(METAINF) + METAINF.length());
                 }
                 writer = fo.openWriter();
-                for(String serviceClass : entry.getValue()) {
+                for (String serviceClass : entry.getValue()) {
                     writer.write(serviceClass + "\n"); // NOI18N
                 }
             } finally {
@@ -348,7 +456,54 @@ public class NBServiceRegistrator extends AbstractProcessor {
                 }
             }
         }
-        cleanupRegistrations(servicesPath, registrations);
+        cleanupMetaInf(servicesPath, registrations);
+    }
+
+    private void writeLayer(Collection<ServiceM> services) throws Exception {
+        org.w3c.dom.Element insertionPoint = prepareLayer();
+
+        for (ServiceM service : services) {
+            if (service.getInstantiator() != InstantiatorM.DEFAULT) {
+                String instanceName = service.getServiceClass().replace('.', '-') + ".instance";
+                org.w3c.dom.Element regElement = layerDocument.createElement("file");
+                regElement.setAttribute("name", instanceName);
+                org.w3c.dom.Element instAttr = layerDocument.createElement("attr");
+                instAttr.setAttribute("name", "instanceCreate");
+                instAttr.setAttribute("methodvalue", service.getServiceClass() + "." + service.getInstantiator().getMethodName());
+                regElement.appendChild(instAttr);
+                for(ContractM contract : service.getContracts()) {
+                    org.w3c.dom.Element contractElem = layerDocument.createElement("attr");
+                    contractElem.setAttribute("name", "instanceOf");
+                    contractElem.setAttribute("stringvalue", contract.getContractClass());
+                    regElement.appendChild(contractElem);
+                }
+                insertionPoint.appendChild(regElement);
+            }
+        }
+
+        FileObject fo = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", getLayerRelativePath(), (Element) null); // NOI18N
+
+        DOMSource domSource = new DOMSource(layerDocument);
+        StreamResult streamResult = new StreamResult(fo.openWriter());
+        TransformerFactory.newInstance().newTransformer().transform(domSource, streamResult);
+    }
+
+    private org.w3c.dom.Element prepareLayer() throws Exception {
+        org.w3c.dom.Element annotatedElement = null;
+        loadLayer();
+        org.w3c.dom.Element servicesElement = findFolder("Services");
+        if (servicesElement == null) {
+            servicesElement = layerDocument.createElement("folder");
+            servicesElement.setAttribute("name", "Services");
+            layerDocument.getDocumentElement().appendChild(servicesElement);
+        }
+        annotatedElement = findFolder(servicesElement, "Annotated");
+        if (annotatedElement == null) {
+            annotatedElement = layerDocument.createElement("folder");
+            annotatedElement.setAttribute("name", "Annotated");
+            servicesElement.appendChild(annotatedElement);
+        }
+        return annotatedElement;
     }
 
     /**
@@ -358,9 +513,10 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param services The services to process
      * @return Returns an in-memory representation of the <i>META-INF/services</i> registrations
      */
-    private Map<String, Set<String>> preprocessRegistrations(Collection<ServiceM> services) {
+    private Map<String, Set<String>> preprocessMetaInf(Collection<ServiceM> services) {
         Map<String, Set<String>> registrations = new HashMap<String, Set<String>>();
         for (ServiceM service : services) {
+            if (service.getInstantiator() != InstantiatorM.DEFAULT) continue;
             for (ContractM contract : service.getContracts()) {
                 Set<String> registeredServices = registrations.get(contract.getContractClass());
                 if (registeredServices == null) {
@@ -372,7 +528,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
         }
         return registrations;
     }
-    
+
     /**
      * A helper method to process the contents of {@linkplain ContractProvided} annotation
      * @param annMirror The annotation mirror
@@ -385,7 +541,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
             }
         }
     }
-    
+
     /**
      * Checks the <i>META-INF/services</i> style registrations in the given path
      * It removes all file-based registrations without their corresponding in-memory
@@ -393,7 +549,7 @@ public class NBServiceRegistrator extends AbstractProcessor {
      * @param servicesPath The path to look for the registrations
      * @param registrations The in-memory registrations
      */
-    private void cleanupRegistrations(String servicesPath, Map<String, Set<String>> registrations) {
+    private void cleanupMetaInf(String servicesPath, Map<String, Set<String>> registrations) {
         if (servicesPath != null) {
             File servicesDir = new File(servicesPath);
             if (servicesDir != null && servicesDir.isDirectory()) {
@@ -404,5 +560,25 @@ public class NBServiceRegistrator extends AbstractProcessor {
                 }
             }
         }
+    }
+
+    private org.w3c.dom.Element findFolder(String folderName) {
+        if (layerDocument != null) {
+            return findFolder(layerDocument.getDocumentElement(), folderName);
+        } else {
+            return null;
+        }
+    }
+
+    private org.w3c.dom.Element findFolder(org.w3c.dom.Element parent, String folderName) {
+        NodeList folders = parent.getElementsByTagName("folder");
+        if (folders != null) {
+            for (int i = 0; i < folders.getLength(); i++) {
+                if (folders.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(folderName)) {
+                    return (org.w3c.dom.Element) folders.item(i);
+                }
+            }
+        }
+        return null;
     }
 }

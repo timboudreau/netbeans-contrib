@@ -50,5 +50,5 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-public @interface Service {    
+public @interface Service {
 }
