@@ -216,11 +216,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return null;
     }
 
-    private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
-
-
+    private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, final boolean indentOnly) {
         try {
-            BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
+            final BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
 
             syncOptions(doc, codeStyle);
 
@@ -229,7 +227,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             }
 
             startOffset = Utilities.getRowStart(doc, startOffset);
-            int lineStart = startOffset; //Utilities.getRowStart(doc, startOffset);
+            final int lineStart = startOffset; //Utilities.getRowStart(doc, startOffset);
 
             int initialOffset = 0;
             int initialIndent = 0;
@@ -246,8 +244,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // a lot of things will work better: breakpoints and other line annotations
             // will be left in place, semantic coloring info will not be temporarily
             // damaged, and the caret will stay roughly where it belongs.
-            List<Integer> offsets = new ArrayList<Integer>();
-            List<Integer> indents = new ArrayList<Integer>();
+            final List<Integer> offsets = new ArrayList<Integer>();
+            final List<Integer> indents = new ArrayList<Integer>();
 
             // When we're formatting sections, include whitespace on empty lines; this
             // is used during live code template insertions for example. However, when
@@ -262,57 +260,60 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // TODO - remove initialbalance etc.
             computeIndents(doc, initialIndent, initialOffset, endOffset, info, offsets, indents, indentEmptyLines, includeEnd);
 
-            try {
-                doc.atomicLock();
+            doc.runAtomic(new Runnable() {
 
-                // Iterate in reverse order such that offsets are not affected by our edits
-                assert indents.size() == offsets.size();
-                org.netbeans.editor.Formatter editorFormatter = doc.getFormatter();
-                for (int i = indents.size() - 1; i >= 0; i--) {
-                    int indent = indents.get(i);
-                    int lineBegin = offsets.get(i);
+                public void run() {
+                    try {
+                        // Iterate in reverse order such that offsets are not affected by our edits
+                        assert indents.size() == offsets.size();
+                        org.netbeans.editor.Formatter editorFormatter = doc.getFormatter();
+                        for (int i = indents.size() - 1; i >= 0; i--) {
+                            int indent = indents.get(i);
+                            int lineBegin = offsets.get(i);
 
-                    if (lineBegin < lineStart) {
-                        // We're now outside the region that the user wanted reformatting;
-                        // these offsets were computed to get the correct continuation context etc.
-                        // for the formatter
-                        break;
-                    }
+                            if (lineBegin < lineStart) {
+                                // We're now outside the region that the user wanted reformatting;
+                                // these offsets were computed to get the correct continuation context etc.
+                                // for the formatter
+                                break;
+                            }
 
-                    if (lineBegin == lineStart && i > 0) {
-                        // Look at the previous line, and see how it's indented
-                        // in the buffer.  If it differs from the computed position,
-                        // offset my computed position (thus, I'm only going to adjust
-                        // the new line position relative to the existing editing.
-                        // This avoids the situation where you're inserting a newline
-                        // in the middle of "incorrectly" indented code (e.g. different
-                        // size than the IDE is using) and the newline position ending
-                        // up "out of sync"
-                        int prevOffset = offsets.get(i - 1);
-                        int prevIndent = indents.get(i - 1);
-                        int actualPrevIndent = ScalaLexUtilities.getLineIndent(doc, prevOffset);
-                        if (actualPrevIndent != prevIndent) {
-                            // For blank lines, indentation may be 0, so don't adjust in that case
-                            if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
-                                indent = actualPrevIndent + (indent - prevIndent);
+                            if (lineBegin == lineStart && i > 0) {
+                                // Look at the previous line, and see how it's indented
+                                // in the buffer.  If it differs from the computed position,
+                                // offset my computed position (thus, I'm only going to adjust
+                                // the new line position relative to the existing editing.
+                                // This avoids the situation where you're inserting a newline
+                                // in the middle of "incorrectly" indented code (e.g. different
+                                // size than the IDE is using) and the newline position ending
+                                // up "out of sync"
+                                int prevOffset = offsets.get(i - 1);
+                                int prevIndent = indents.get(i - 1);
+                                int actualPrevIndent = ScalaLexUtilities.getLineIndent(doc, prevOffset);
+                                if (actualPrevIndent != prevIndent) {
+                                    // For blank lines, indentation may be 0, so don't adjust in that case
+                                    if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
+                                        indent = actualPrevIndent + (indent - prevIndent);
+                                    }
+                                }
+                            }
+
+                            // Adjust the indent at the given line (specified by offset) to the given indent
+                            int currentIndent = ScalaLexUtilities.getLineIndent(doc, lineBegin);
+
+                            if (currentIndent != indent) {
+                                editorFormatter.changeRowIndent(doc, lineBegin, indent);
                             }
                         }
-                    }
 
-                    // Adjust the indent at the given line (specified by offset) to the given indent
-                    int currentIndent = ScalaLexUtilities.getLineIndent(doc, lineBegin);
-
-                    if (currentIndent != indent) {
-                        editorFormatter.changeRowIndent(doc, lineBegin, indent);
+                        if (!indentOnly && codeStyle.reformatComments()) {
+                            //reformatComments(doc, startOffset, endOffset);
+                        }
+                    } catch (BadLocationException ble) {
+                        Exceptions.printStackTrace(ble);
                     }
                 }
-
-                if (!indentOnly && codeStyle.reformatComments()) {
-//                    reformatComments(doc, startOffset, endOffset);
-                }
-            } finally {
-                doc.atomicUnlock();
-            }
+            });
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
