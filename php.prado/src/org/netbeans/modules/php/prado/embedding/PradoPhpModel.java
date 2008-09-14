@@ -118,7 +118,7 @@ public class PradoPhpModel {
             code = buffer.toString();
         }
 
-        System.out.println(dumpCode());
+        //System.out.println(dumpCode());
 
         if (LOG) {
             LOGGER.log(Level.FINE, dumpCode());
@@ -141,13 +141,13 @@ public class PradoPhpModel {
             Token<PageTokenId> pageToken = ts.token();
             TokenId pageId = pageToken.id();
             if (pageId == PageTokenId.T_TEMPLATE_CONTROL) {
-                System.out.println("%%%%TemplateCOntrol: " + pageToken.text());
+                //System.out.println("%%%%TemplateCOntrol: " + pageToken.text());
             }
             if (pageId == PageTokenId.T_PHP) {
-                System.out.println("%%%%php: " + pageToken.text());
-                buffer.append("protected function phpMethod");
+                //System.out.println("%%%%php: " + pageToken.text());
+                buffer.append("protected function phpMethod");   //NOI18N
                 buffer.append(phpMethodCounter);
-                buffer.append("() {\n");
+                buffer.append("() {\n");        //NOI18N
                 int sourceStart = ts.offset();
                 String text = pageToken.text().toString();
                 int sourceEnd = sourceStart + text.length();
@@ -157,14 +157,14 @@ public class PradoPhpModel {
                 CodeBlockData blockData = new CodeBlockData(sourceStart, sourceEnd, generatedStart,
                         generatedEnd);
                 codeBlocks.add(blockData);
-                if (!text.trim().endsWith(";")) {
-                    buffer.append(";");
+                if (!text.trim().endsWith(";")) {   //NOI18N
+                    buffer.append(";"); //NOI18N
                 }
-                buffer.append("\n}\n");
+                buffer.append("\n}\n"); //NOI18N
                 phpMethodCounter++;
             }
         }
-        buffer.append("}\n");
+        buffer.append("}\n");   //NOI18N
     }
 
     //TODO: move this out to a generic suppport

@@ -126,7 +126,6 @@ public enum PageTokenId implements TokenId {
             }.language();
 
     public static Language<PageTokenId> language() {
-        System.out.println("PageTokenId.language() created.");
         return language;
     }
 }

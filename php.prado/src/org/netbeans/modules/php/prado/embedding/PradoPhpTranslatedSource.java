@@ -60,13 +60,11 @@ public class PradoPhpTranslatedSource implements TranslatedSource {
 
     public int getAstOffset(int lexicalOffset) {
         int offset = model.sourceToGeneratedPos(lexicalOffset);
-        System.out.println("getAstOffser " + lexicalOffset +" -> " + offset);
         return offset;
     }
 
     public int getLexicalOffset(int astOffset) {
         int offset =  model.generatedToSourcePos(astOffset);
-        System.out.println("getLexicalOffset " + astOffset + " -> " + offset);
         return offset;
     }
 

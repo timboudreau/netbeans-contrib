@@ -173,7 +173,6 @@ public class GSFPageLexer implements Lexer<PageTokenId> {
                         }
                         break;
                 }
-                System.out.print((char) c);
                 c = input.read();
             }
             return PageTokenId.T_INLINE_HTML;

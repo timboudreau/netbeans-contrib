@@ -58,7 +58,6 @@ public class PradoPhpEmbeddingModel implements EmbeddingModel {
     final Set<String> sourceMimeTypes = new HashSet<String>();
 
     public PradoPhpEmbeddingModel() {
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&PradoPhpEmbedingModel created");
         sourceMimeTypes.add(PageLanguage.PHP_PRADO_MIME_TYPE);
     }
 

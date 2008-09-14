@@ -62,8 +62,8 @@ public class PageLanguage extends DefaultLanguageConfig {
 
     @Override
     public String getDisplayName() {
-        System.out.println("######################### get display name ##############");
-        return "Prado Page File";
+        // TODO have to be done correctly from bundle.
+        return "Prado Page File";   //NOI18N
     }
 
     @Override
