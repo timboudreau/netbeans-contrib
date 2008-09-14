@@ -79,8 +79,17 @@ public class TemplateControlLexer implements Lexer<TemplateControlTokenId>{
     public void release() {}
 
     public enum State {
-        PROPERTY_NAME,
-        PROPERTY_VALUE
+        INIT,
+        IN_PROPERTY_NAME,
+        IN_STRING,
+        IN_WHITESPACE
+
+
+
+
+
+
+
     }
 
     private class TemplateControlColoringLexer {
@@ -91,7 +100,7 @@ public class TemplateControlLexer implements Lexer<TemplateControlTokenId>{
         public TemplateControlColoringLexer(LexerRestartInfo<TemplateControlTokenId> info, State state) {
             this.input = info.input();
             if (state == null) {
-                this.state = State.PROPERTY_NAME;
+                this.state = State.INIT;
             }
             else {
                 this.state = state;
@@ -107,32 +116,81 @@ public class TemplateControlLexer implements Lexer<TemplateControlTokenId>{
             if (c == LexerInput.EOF) {
                 return null;
             }
+            char previous = (char)c;
             while (c != LexerInput.EOF) {
                 char cc = (char)c;
 
-//                if (cc == ' ') {
-//                    return TemplateControlTokenId.T_WHITESPACE;
-//                }
-                if (state == State.PROPERTY_NAME){
-                    if (cc == '=') {
-                        if (input.readLength() > 1) {
+
+                switch (state) {
+                    case INIT:
+                        if (isWhitespace(cc)) {
+                            state = State.IN_WHITESPACE;
+                        }
+                        else {
+                            switch (cc) {
+                                case '=':
+                                    return TemplateControlTokenId.T_EQUAL;
+                                case '"':
+                                    state = State.IN_STRING;
+                                    break;
+                                default:
+                                    if (isSeparator(cc)) {
+                                        return TemplateControlTokenId.T_SEPARATOR;
+                                    }
+                                    else {
+                                        state = State.IN_PROPERTY_NAME;
+                                    }
+                            }
+                        }
+                        break;
+                    case IN_PROPERTY_NAME:
+                        if (isWhitespace(cc) || isSeparator(cc)) {
+                            state = State.INIT;
                             input.backup(1);
                             return TemplateControlTokenId.T_PROPERTY;
                         }
-                        else {
-                            state = State.PROPERTY_VALUE;
-                            return TemplateControlTokenId.T_EQUAL;
+                        else if (cc == '=' || cc == '"') {
+                            state = State.INIT;
+                            input.backup(1);
+                            return TemplateControlTokenId.T_PROPERTY;
                         }
-                    }
+                        break;
+                    case IN_STRING:
+                        if (cc == '"' && previous != '\\') {
+                            state = State.INIT;
+                            return TemplateControlTokenId.T_VALUE;
+                        }
+                        break;
+                    case IN_WHITESPACE:
+                        if (!isWhitespace(cc)) {
+                            state = State.INIT;
+                            input.backup(1);
+                            return TemplateControlTokenId.T_WHITESPACE;
+                        }
+                        break;
                 }
+
+                previous = cc;
                 c = input.read();
             }
-            if (state == State.PROPERTY_NAME) {
-                return TemplateControlTokenId.T_PROPERTY;
+
+            switch (state){
+                case IN_PROPERTY_NAME:
+                    return TemplateControlTokenId.T_PROPERTY;
+                case IN_WHITESPACE:
+                    return TemplateControlTokenId.T_WHITESPACE;
+                case IN_STRING:
+                    return TemplateControlTokenId.T_VALUE;
             }
-            else {
-                return TemplateControlTokenId.T_VALUE;
-            }
+            return null;
+        }
+
+        private boolean isWhitespace(char c) {
+            return (c == ' ' || c == '\n' || c == '\r'|| c == '\t');
+        }
+
+        private boolean isSeparator(char c) {
+            return (c == ',' || c == ';');
         }
     }
 

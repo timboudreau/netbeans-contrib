@@ -39,8 +39,9 @@
 
 package org.netbeans.modules.php.prado.embedding;
 
-import javax.swing.text.Document;
+import org.netbeans.modules.gsf.api.EditHistory;
 import org.netbeans.modules.gsf.api.EmbeddingModel;
+import org.netbeans.modules.gsf.api.IncrementalEmbeddingModel;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 
 /**
@@ -50,38 +51,31 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 public class PradoPhpTranslatedSource implements TranslatedSource {
 
     private PradoPhpEmbeddingModel embeddingModel;
-    private Document docuemnt;
+    private PradoPhpModel model;
 
-    String source = "<?\n" +
-                "class Pr {\n" +
-                "public $total;\n" +
-                "function render(){\n" +
-                "$this->total->ClientID;" +
-                "}\n" +
-                "}\n";
-
-
-    public PradoPhpTranslatedSource(PradoPhpEmbeddingModel embeddingModel, Document document) {
+    public PradoPhpTranslatedSource(PradoPhpEmbeddingModel embeddingModel, PradoPhpModel model) {
         this.embeddingModel = embeddingModel;
+        this.model = model;
+    }
+
+    public int getAstOffset(int lexicalOffset) {
+        int offset = model.sourceToGeneratedPos(lexicalOffset);
+        System.out.println("getAstOffser " + lexicalOffset +" -> " + offset);
+        return offset;
+    }
+
+    public int getLexicalOffset(int astOffset) {
+        int offset =  model.generatedToSourcePos(astOffset);
+        System.out.println("getLexicalOffset " + astOffset + " -> " + offset);
+        return offset;
+    }
+
+    public String getSource() {
+        return model.getCode();
     }
 
     public EmbeddingModel getModel() {
         return embeddingModel;
-    }
-
-    public String getSource() {
-        
-        return source;
-    }
-
-    public int getAstOffset(int lexicalOffset) {
-        System.out.println("getAstOffset: " + lexicalOffset);
-        return 52;
-    }
-
-    public int getLexicalOffset(int astOffset) {
-        System.out.println("getLexicalOffset: " + astOffset);
-        return 52;
     }
 
     public int getSourceStartOffset() {
@@ -89,7 +83,11 @@ public class PradoPhpTranslatedSource implements TranslatedSource {
     }
 
     public int getSourceEndOffset() {
-        return source.length();
+        return model.getCode().length();
+    }
+
+    IncrementalEmbeddingModel.UpdateState incrementalUpdate(EditHistory history) {
+        return model.incrementalUpdate(history);
     }
 
 }

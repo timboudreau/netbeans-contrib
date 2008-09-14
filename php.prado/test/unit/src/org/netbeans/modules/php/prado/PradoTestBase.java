@@ -36,39 +36,39 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.php.prado;
 
-import org.netbeans.modules.php.prado.completion.PageCodeCompletion;
-import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
+import org.netbeans.modules.gsf.GsfTestBase;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
-import org.netbeans.modules.php.prado.lexer.PageTokenId;
-
-
 
 /**
  *
  * @author Petr Pisl
  */
-public class PageLanguage extends DefaultLanguageConfig {
-    
-    public static final String PHP_PRADO_MIME_TYPE = "text/x-prado"; // NOI18N
+public class PradoTestBase extends GsfTestBase {
 
-    @Override
-    public Language getLexerLanguage() {
-        return PageTokenId.language();
+    public PradoTestBase(String testName) {
+        super(testName);
     }
 
     @Override
-    public String getDisplayName() {
-        System.out.println("######################### get display name ##############");
-        return "Prado Page File";
+    protected void setUp() throws Exception {
+        super.setUp();
+        clearWorkDir();
     }
 
     @Override
-    public CodeCompletionHandler getCompletionHandler() {
-        return new PageCodeCompletion();
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
-    
+
+    @Override
+    protected String getPreferredMimeType() {
+        return PageLanguage.PHP_PRADO_MIME_TYPE;
+    }
+
+    @Override
+    protected DefaultLanguageConfig getPreferredLanguage() {
+        return new PageLanguage();
+    }
 }

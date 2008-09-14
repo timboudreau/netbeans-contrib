@@ -37,47 +37,94 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.php.prado.embedding;
+package org.netbeans.modules.php.prado.completion;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.EmbeddingModel;
-import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.php.editor.PHPLanguage;
-import org.netbeans.modules.php.prado.PageLanguage;
+import javax.swing.ImageIcon;
+import org.netbeans.modules.gsf.api.CodeCompletionContext;
+import org.netbeans.modules.gsf.api.CompletionProposal;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.Modifier;
 
 /**
  *
  * @author Petr Pisl
  */
-public class PradoPhpEmbeddingModel implements EmbeddingModel {
+public class PradoCompletionItem implements CompletionProposal {
 
-    final Set<String> sourceMimeTypes = new HashSet<String>();
+    private static final String PRADO_ICON = "org/netbeans/modules/php/prado/resources/prado_icon_16x16.png"; //NOI18N
+    protected static ImageIcon icon = null;
+    protected final CodeCompletionContext context;
+    private final String name;
+    private final String prefix;
 
-    public PradoPhpEmbeddingModel() {
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&PradoPhpEmbedingModel created");
-        sourceMimeTypes.add(PageLanguage.PHP_PRADO_MIME_TYPE);
+    PradoCompletionItem (CodeCompletionContext context, String name, String prefix) {
+        this.context = context;
+        this.name = name;
+        this.prefix = prefix;
+        if (icon == null) {
+            icon = new ImageIcon(org.openide.util.Utilities.loadImage(PRADO_ICON));
+        }
     }
 
-    public String getTargetMimeType() {
-        return PHPLanguage.PHP_MIME_TYPE;
+    public int getAnchorOffset() {
+        return context.getCaretOffset();
     }
 
-    public Set<String> getSourceMimeTypes() {
-        return sourceMimeTypes;
+    public ElementHandle getElement() {
+        return null;
     }
 
-    public Collection<? extends TranslatedSource> translate(Document doc) {
-        PradoPhpModel model = PradoPhpModel.get(doc);
-        return Collections.singletonList(new PradoPhpTranslatedSource(this, model));
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public String toString() {
-        return "PradoPhpEmbeddingModel(target=" + getTargetMimeType() + ",sources=" + getSourceMimeTypes() + ")";
+    public String getInsertPrefix() {
+        return name.substring(prefix.length());
+    }
+
+    public String getSortText() {
+        return name;
+    }
+
+    public String getLhsHtml(HtmlFormatter formatter) {
+        return name;
+    }
+
+    public String getRhsHtml(HtmlFormatter formatter) {
+        return null;
+    }
+
+    public ElementKind getKind() {
+        return ElementKind.PROPERTY;
+    }
+
+    public ImageIcon getIcon() {
+        return icon;
+    }
+
+    public Set<Modifier> getModifiers() {
+        return Collections.EMPTY_SET;
+    }
+
+    public boolean isSmart() {
+        return false;
+    }
+
+    public String getCustomInsertTemplate() {
+        return null;
+    }
+
+    public List<String> getInsertParams() {
+        return null;
+    }
+
+    public String[] getParamListDelimiters() {
+        return null;
     }
 
 }

@@ -61,11 +61,11 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
  */
 public enum PageTokenId implements TokenId {
 
-    T_INLINE_HTML(null, "prado"),
-    T_CONTROL_OPEN_TAG("<%@", "prado-delimiter"),
-    T_CLOSE_TAG("%>", "prado-delimiter"),
-    T_TEMPLATE_CONTROL(null, "prado"),
-    T_PHP(null, "prado");
+    T_INLINE_HTML(null, "prado"),                   //NOI18N
+    T_CONTROL_OPEN_TAG("<%@", "prado-delimiter"),   //NOI18N
+    T_CLOSE_TAG("%>", "prado-delimiter"),           //NOI18N
+    T_TEMPLATE_CONTROL(null, "prado"),              //NOI18N
+    T_PHP(null, "prado");                           //NOI18N
     
     private final String fixedText;
     private final String primaryCategory;
@@ -114,7 +114,7 @@ public enum PageTokenId implements TokenId {
                         return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, true);
                     } 
                     else if (id == T_PHP) {
-                        return LanguageEmbedding.create(PHPTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, true);
                     }
                     else if (id == T_TEMPLATE_CONTROL) {
                         return LanguageEmbedding.create(TemplateControlTokenId.language(), 0, 0, false);
@@ -126,6 +126,7 @@ public enum PageTokenId implements TokenId {
             }.language();
 
     public static Language<PageTokenId> language() {
+        System.out.println("PageTokenId.language() created.");
         return language;
     }
 }

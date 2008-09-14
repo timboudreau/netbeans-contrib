@@ -39,6 +39,8 @@
 package org.netbeans.modules.php.prado.lexer;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.php.editor.lexer.PHP5ColoringLexer;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
@@ -134,6 +136,7 @@ public class GSFPageLexer implements Lexer<PageTokenId> {
                         switch (cc) {
                             case '@':
                             case '=':
+                            case '%':
                                 if (input.readLength() > 3) {
                                     input.backup(3);
                                     state = State.OUTER;

@@ -37,38 +37,25 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.php.prado;
+package org.netbeans.modules.php.prado.completion;
 
-import org.netbeans.modules.php.prado.completion.PageCodeCompletion;
-import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
-import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
-import org.netbeans.modules.php.prado.lexer.PageTokenId;
-
-
+import java.util.List;
+import org.netbeans.modules.gsf.api.CodeCompletionContext;
+import org.netbeans.modules.gsf.api.CompletionProposal;
+import org.netbeans.modules.gsf.spi.DefaultCompletionResult;
 
 /**
  *
  * @author Petr Pisl
  */
-public class PageLanguage extends DefaultLanguageConfig {
-    
-    public static final String PHP_PRADO_MIME_TYPE = "text/x-prado"; // NOI18N
+public class PradoCompletionResult extends DefaultCompletionResult {
 
-    @Override
-    public Language getLexerLanguage() {
-        return PageTokenId.language();
+    private CodeCompletionContext completionContext;
+
+    public PradoCompletionResult(CodeCompletionContext completionContext, List<CompletionProposal> list) {
+        super(list, false);
+        this.completionContext = completionContext;
     }
 
-    @Override
-    public String getDisplayName() {
-        System.out.println("######################### get display name ##############");
-        return "Prado Page File";
-    }
-
-    @Override
-    public CodeCompletionHandler getCompletionHandler() {
-        return new PageCodeCompletion();
-    }
     
 }

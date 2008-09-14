@@ -37,38 +37,42 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.php.prado;
+package org.netbeans.modules.php.prado.lexer;
 
-import org.netbeans.modules.php.prado.completion.PageCodeCompletion;
+import junit.framework.TestCase;
 import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
-import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
-import org.netbeans.modules.php.prado.lexer.PageTokenId;
-
-
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenId;
+import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.lib.lexer.test.LexerTestUtilities;
 
 /**
  *
  * @author Petr Pisl
  */
-public class PageLanguage extends DefaultLanguageConfig {
-    
-    public static final String PHP_PRADO_MIME_TYPE = "text/x-prado"; // NOI18N
+public class LexerUtils extends TestCase {
 
-    @Override
-    public Language getLexerLanguage() {
-        return PageTokenId.language();
+    public static TokenSequence<?> seqForText(String text, Language<? extends TokenId> language) {
+        TokenHierarchy<?> hi = TokenHierarchy.create(text, language);
+        return hi.tokenSequence();
     }
 
-    @Override
-    public String getDisplayName() {
-        System.out.println("######################### get display name ##############");
-        return "Prado Page File";
+    public static void next(TokenSequence<?> ts, TokenId id, String fixedText) {
+        assertTrue(ts.moveNext());
+        LexerTestUtilities.assertTokenEquals("Token index[" + ts.index() + "]", ts, id, fixedText, -1);
     }
 
-    @Override
-    public CodeCompletionHandler getCompletionHandler() {
-        return new PageCodeCompletion();
+    /** This is used for debugging purposes
+     *
+     * @param ts
+     * @param name
+     */
+    public static void printTokenSequence (TokenSequence<?> ts, String name) {
+        System.out.println("--- " + name + " ---");
+        while (ts.moveNext()) {
+            System.out.println(ts.token().id()+"\t"+ts.token());
+        }
+        System.out.println("-----------------------");
     }
     
 }

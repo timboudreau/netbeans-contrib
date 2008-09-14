@@ -58,6 +58,7 @@ public enum TemplateControlTokenId implements TokenId {
     T_PROPERTY,
     T_VALUE,
     T_EQUAL,
+    T_SEPARATOR,
     T_ERROR,
     T_WHITESPACE;
 
