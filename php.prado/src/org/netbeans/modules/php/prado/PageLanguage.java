@@ -55,6 +55,9 @@ public class PageLanguage extends DefaultLanguageConfig {
     
     public static final String PHP_PRADO_MIME_TYPE = "text/x-prado"; // NOI18N
 
+    // TODO This is a hack. Should be taken from php editor.
+    public static final String PHP_MIME_TYPE = "text/x-php5"; // NOI18N
+
     @Override
     public Language getLexerLanguage() {
         return PageTokenId.language();

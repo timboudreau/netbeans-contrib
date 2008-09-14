@@ -57,11 +57,11 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.ParameterInfo;
-import org.netbeans.modules.php.editor.PHPLanguage;
 import org.netbeans.modules.php.editor.index.IndexedFunction;
 import org.netbeans.modules.php.editor.index.PHPIndex;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.netbeans.modules.php.editor.parser.astnodes.BodyDeclaration.Modifier;
+import org.netbeans.modules.php.prado.PageLanguage;
 import org.netbeans.modules.php.prado.lexer.LexerUtilities;
 import org.netbeans.modules.php.prado.lexer.TemplateControlTokenId;
 
@@ -149,10 +149,10 @@ public class PageCodeCompletion implements CodeCompletionHandler {
     }
 
     private void addTemplateProperties(final List<CompletionProposal> proposals, final CodeCompletionContext context, final String className, final String prefix) {
-        PHPParseResult phpresult = (PHPParseResult) context.getInfo().getEmbeddedResult(PHPLanguage.PHP_MIME_TYPE, context.getCaretOffset());
+        PHPParseResult phpresult = (PHPParseResult) context.getInfo().getEmbeddedResult(PageLanguage.PHP_MIME_TYPE, context.getCaretOffset());
 
         if (phpresult != null) {
-            Index index = context.getInfo().getIndex(PHPLanguage.PHP_MIME_TYPE);
+            Index index = context.getInfo().getIndex(PageLanguage.PHP_MIME_TYPE);
             if (index != null) {
                 PHPIndex phpIndex = PHPIndex.get(index);
                 Collection<IndexedFunction> methods =  phpIndex.getAllMethods(phpresult, className, "set" + prefix, NameKind.PREFIX, Modifier.PUBLIC); //NOI18N
