@@ -63,6 +63,7 @@ import org.openide.util.WeakListeners;
 public class SourcesImpl implements Sources, PropertyChangeListener {
 
     public static final String SOURCES_TYPE_DOCROOT = "web-docroot"; // NOI18N
+    public static final String SOURCES_TYPE_WEBINF = "web-inf"; // NOI18N
     
     private static final Logger LOG = Logger.getLogger(SourcesImpl.class.getName());
 
@@ -76,13 +77,26 @@ public class SourcesImpl implements Sources, PropertyChangeListener {
 
     public SourceGroup[] getSourceGroups(String type) {
         List<SourceGroup> groups = new ArrayList<SourceGroup>();
-        if (type.equals(SourcesImpl.SOURCES_TYPE_DOCROOT)) {
+        if (type.equals(SourcesImpl.SOURCES_TYPE_WEBINF)) {
+            String root = FileUtil.getFileDisplayName(p.getProjectDirectory());
+            String file = Cache.get(root + WebCacheConstants.WEBINF);
+            if (file != null) {
+                FileObject fo = FileUtil.toFileObject(new File(file));
+                // TODO: perhaps do not show WEB-INF if presented under a DOCROOT
+                if (fo != null) {
+                    groups.add(GenericSources.group(p, fo, "WEB-INF", file, null, null)); // NOI18N
+                }
+            }
+        } else if (type.equals(SourcesImpl.SOURCES_TYPE_DOCROOT)) {
             String top = FileUtil.getFileDisplayName(p.getProjectDirectory());
             for (Map.Entry<String,String> entry : Cache.pairs()) {
                 String k = entry.getKey();
                 if (k.equals(top+WebCacheConstants.DOCROOT)) {
                     for (String piece : entry.getValue().split("[:;]")) {
                         FileObject root = FileUtil.toFileObject(FileUtil.normalizeFile(new File(piece)));
+                        if (root == null) {
+                            continue;
+                        }
                         String path = FileUtil.getRelativePath(p.getProjectDirectory(), root);
                         if (path == null) {
                             path = piece;

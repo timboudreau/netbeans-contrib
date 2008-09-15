@@ -104,6 +104,9 @@ public class NodeFactoryImpl implements NodeFactory {
             for (SourceGroup g : src.getSourceGroups(SourcesImpl.SOURCES_TYPE_DOCROOT)) {
                 keys.add(g);
             }
+            for (SourceGroup g : src.getSourceGroups(SourcesImpl.SOURCES_TYPE_WEBINF)) {
+                keys.add(g);
+            }
             return keys;
         }
 
