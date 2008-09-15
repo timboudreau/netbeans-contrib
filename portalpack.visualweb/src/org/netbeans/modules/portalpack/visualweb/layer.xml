@@ -80,7 +80,7 @@ made subject to such option by the copyright holder.
                 <folder name="Actions">
                   <!-- Add Set As Initial Page action -->
                   <file name="SetPortletModeAction.instance">
-                     <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.visualweb.actions.SetAsInitialAction"/>
+                     <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.visualweb.actions.JsfSetAsInitialAction"/>
                      <attr name="position" intvalue="150"/>
                    </file>
                 </folder>
@@ -88,6 +88,14 @@ made subject to such option by the copyright holder.
               </folder>
           </folder>
      </folder>
+     
+      <folder name="portalpack">
+        <folder name="listeners">
+            <folder name="initial-page">
+                <file name="org-netbeans-modules-portalpack-visualweb-JsfPageInitialPageListener.instance"/>
+            </folder>
+        </folder>
+    </folder>
                  
                         
 </filesystem>

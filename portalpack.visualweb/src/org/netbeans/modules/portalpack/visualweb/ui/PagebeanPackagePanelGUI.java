@@ -72,7 +72,7 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
     private Project project;
     private final List/*<ChangeListener>*/ listeners = new ArrayList();
     private List availablePortlets = null;
-    private boolean isCreateNewPortlet = true;
+   /// private boolean isCreateNewPortlet = true;
     /** Creates new form SimpleTargetChooserGUI */
     public PagebeanPackagePanelGUI(Project project) {
         this.project = project;
@@ -108,6 +108,16 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
             return text;
         }
     }
+    
+    public void enableComponents(boolean status)
+    {
+        pnameTf.setEnabled(status);
+        portletTitleTf.setEnabled(status);
+        portletShortTitleTf.setEnabled(status);
+        portletDisplayNameTf.setEnabled(status);
+        portletDescTf.setEnabled(status);
+        
+    }
 
     public synchronized void addChangeListener(ChangeListener l) {
         listeners.add(l);
@@ -123,7 +133,11 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
         portletShortTitleTf.setEnabled(false);
         portletDisplayNameTf.setEnabled(false);
         portletDescTf.setEnabled(false);
-        isCreateNewPortlet = false;
+    }
+    
+    public void enableNewPortletCreateOption() {
+        isCreatePortlet.setSelected(true);
+        isCreatePortlet.setEnabled(false);
     }
     
     private void fireChange() {
@@ -143,7 +157,9 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
         if(wizardDescriptor == null) 
             return true;
         
-        if(!isCreateNewPortlet) return true;
+        //if(!isCreateNewPortlet) return true;
+        boolean newPortlet = isCreatePortlet.isSelected();
+        if(!newPortlet) return true;
         
         String packageName = getPackageName();
         if (!JsfProjectUtils.isValidJavaPackageName(packageName)) {
@@ -206,6 +222,9 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
             
         context.setModes((String [])modeList.toArray(new String[0]));
             
+        boolean isNewPortlet = isCreatePortlet.isSelected();
+        
+        d.putProperty("create_portlet", isNewPortlet);
         d.putProperty("context",context);
         d.putProperty("PACKAGE_NAME", getPackageName());
         
@@ -243,6 +262,7 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
         portletTitleTf = new javax.swing.JTextField();
         portletShortTitleLabel = new javax.swing.JLabel();
         portletShortTitleTf = new javax.swing.JTextField();
+        isCreatePortlet = new javax.swing.JCheckBox();
 
         packageLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MNE_PagebeanPackage_Label").charAt(0));
         packageLabel.setLabelFor(packageTextField);
@@ -263,36 +283,62 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
         portletShortTitleLabel.setLabelFor(portletShortTitleTf);
         portletShortTitleLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_SHORT_TITLE")); // NOI18N
 
+        isCreatePortlet.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_CREATE_A_NEW_PORTLET")); // NOI18N
+        isCreatePortlet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                isCreatePortletActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(packageLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(packageTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                .add(62, 62, 62))
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(packageLabel)
-                    .add(portletDescLabel)
-                    .add(portletTitleLabel)
-                    .add(portletShortTitleLabel)
-                    .add(portletNameLabel)
-                    .add(portletDisplayNameLabel))
+                    .add(layout.createSequentialGroup()
+                        .add(portletDescLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
+                        .add(16, 16, 16))
+                    .add(layout.createSequentialGroup()
+                        .add(portletTitleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                        .add(49, 49, 49))
+                    .add(layout.createSequentialGroup()
+                        .add(portletShortTitleLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                        .add(20, 20, 20))
+                    .add(layout.createSequentialGroup()
+                        .add(portletNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+                        .add(42, 42, 42))
+                    .add(layout.createSequentialGroup()
+                        .add(portletDisplayNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                        .add(5, 5, 5)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(packageTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletShortTitleTf)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletTitleTf)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletDescTf)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletDisplayNameTf)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, pnameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))
+                    .add(isCreatePortlet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(pnameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE))
+                        .add(56, 56, 56)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(packageLabel)
                     .add(packageTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(29, 29, 29)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 26, Short.MAX_VALUE)
+                .add(isCreatePortlet)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(portletNameLabel)
                     .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -312,7 +358,7 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(portletShortTitleLabel)
                     .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         packageTextField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_packageTextField")); // NOI18N
@@ -329,8 +375,17 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
 
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_PagebeanPackagePanelGUI")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
+
+private void isCreatePortletActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isCreatePortletActionPerformed
+// TODO add your handling code here:
+         if(isCreatePortlet.isSelected())
+             enableComponents(true);
+         else
+             enableComponents(false);
+}//GEN-LAST:event_isCreatePortletActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox isCreatePortlet;
     private javax.swing.JLabel packageLabel;
     private javax.swing.JTextField packageTextField;
     private javax.swing.JTextField pnameTf;

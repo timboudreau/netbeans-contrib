@@ -106,6 +106,10 @@ final class PagebeanPackagePanel implements WizardDescriptor.Panel, ChangeListen
     {
         gui.disableNewPortletCreateOption();
     }
+    
+    public void enableNewPortletCreateOption() {
+        gui.enableNewPortletCreateOption();
+    }
 
     public synchronized void addChangeListener(ChangeListener l) {
         listeners.add(l);

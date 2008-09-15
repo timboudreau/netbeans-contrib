@@ -52,7 +52,6 @@ import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -94,7 +93,6 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.*;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /** A template wizard iterator for new JSF page action
@@ -159,6 +157,8 @@ public class PageIterator implements TemplateWizard.Iterator {
                     PortletApp portletApp = getPortletApp(portletXml);
                     if(isJSFPortletEntryPresent(portletApp))
                         packagePanel.disableNewPortletCreateOption();
+                    else
+                        packagePanel.enableNewPortletCreateOption();
 
                 }
             }
@@ -198,7 +198,7 @@ public class PageIterator implements TemplateWizard.Iterator {
     public Set instantiate(TemplateWizard wizard) throws IOException/*, IllegalStateException*/ {
         // Here is the default plain behavior. Simply takes the selected
         // template (you need to have included the standard second panel
-        // in createPanels(), or at least set the properties targetName and
+        // in createPanels(), or at least set the properties pageName and
         // targetFolder correctly), instantiates it in the provided
         // position, and returns the result.
         // More advanced wizards can create multiple objects from template
@@ -210,6 +210,7 @@ public class PageIterator implements TemplateWizard.Iterator {
         Project project = Templates.getProject(wizard);
         DataObject dTemplate = DataObject.find(template);
         String targetName = Templates.getTargetName(wizard);
+        boolean createPortlet = (Boolean)wizard.getProperty("create_portlet");
         
         PortletContext context = (PortletContext)wizard.getProperty("context");
         Set result = Collections.EMPTY_SET;
@@ -231,103 +232,8 @@ public class PageIterator implements TemplateWizard.Iterator {
                     // Note: VisualWeb will skip the start page "/" since it's already existed.
                     // JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
                     JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, "/");
-
-                    // Create portlet.xml if not exist
-                    File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
                     
-                    //create messages.properties if doesn't exis
-                    FileObject sourceRoot = JsfProjectUtils.getSourceRoot(project);
-                    if (sourceRoot != null) {
-                        try {
-                            FileObject mObj = sourceRoot.getFileObject("messages.properties");
-                            if (mObj == null) {
-                                FileObject data = sourceRoot.createData("messages", "properties");
-                             
-                                if(data == null)
-                                    logger.log(Level.WARNING,"messages.properties could not be created");
-                            }
-                        } catch (IOException ex) {
-                            //ignore any error
-                        }
-                    }
-
-                    String jsfPortletFolderRelativePath = JsfProjectUtils.getRelativePathForJsfPortlet(webModule.getDocumentBase(), dir);
-
-                    if (!filePortlet.exists()) {
-                        
-                        context.setPortletVersion(NetbeanConstants.PORTLET_1_0);
-                        context.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
-                        WebDescriptorGenerator wGen = new WebDescriptorGenerator();
-                        try {
-                            wGen.createPortletXml(FileUtil.toFile(webModule.getWebInf()).getAbsolutePath(), context, new HashMap());
-                        } catch (Exception ex) {
-                            logger.log(Level.SEVERE,"Unable to create portlet.xml",ex);
-                        }
-                        
-                    } 
-                    
-                    {
-                        //If portlet.xml exists, may be created by PortletSupport framework.
-                        //Check if a JSF portlet entry is there in portlet.xml.
-                        //If yes, then do nothing in portlet.xml
-                        //If no then add an entry for JSF portlet
-                        PortletApp portletApp = getPortletApp(filePortlet);
-                        if (portletApp != null && !isJSFPortletEntryPresent(portletApp)) {
-                            PortletType portletType = portletApp.newPortletType();
-                            portletType.addDescription(context.getPortletDescription());
-                            portletType.setPortletName(context.getPortletName());
-                            portletType.addDisplayName(context.getPortletDisplayName());
-                            portletType.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
-
-                            InitParamType initParam = portletType.newInitParamType();
-                            initParam.setDescription(new String[]{"Portlet Init View Page"});
-                            initParam.setName("com.sun.faces.portlet.INIT_VIEW"); //NOI18N
-
-                            initParam.setValue(jsfPortletFolderRelativePath + targetName + "." + template.getExt()); //NOI18N
-
-                            portletType.addInitParam(initParam);
-                            portletType.setExpirationCache(0);
-
-                            SupportsType support = portletType.newSupportsType();
-                            support.setMimeType("text/html"); //NOI18N
-
-                            support.addPortletMode("VIEW");   //NOI18N
-
-                            portletType.addSupports(support);
-                            portletType.setSupportedLocale(new String[]{"en"}); //NOI18N
-
-                            PortletInfoType portletInfo = portletType.newPortletInfoType();
-                            portletInfo.setTitle(context.getPortletTitle());
-                            portletInfo.setShortTitle(context.getPortletShortTitle());
-
-                            portletType.setPortletInfo(portletInfo);
-                            portletType.setResourceBundle("messages");//NOI18N
-                            
-                            //add VisualJSFPortlet page as the first portlet entry in portlet.xml
-                            PortletType[] portletTypes = portletApp.getPortlet();
-                            if (portletTypes.length == 0) {
-                                portletApp.addPortlet(portletType);
-                            } else {
-
-                                PortletType firstPortlet = portletApp.getPortlet(0);
-                                portletApp.setPortlet(0, portletType);
-                                portletApp.addPortlet(firstPortlet);
-
-
-                            }
-
-                            savePortletXML(portletApp, filePortlet);
-
-                            //fire add portlet event
-                            context.setPortletClass("com.sun.faces.portlet.FacesPortlet");
-                            if (webModule.getWebInf() != null) {
-                                String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
-                                PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, new AppContext(), webInfPath);
-                            }
-
-                        }
-
-                    }
+                   // addPortletXMLEntry(webModule, project, dir, context, targetName, template);
 
                     // Add OpenPortal JSF Portlet Bridge Support library
                     ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
@@ -352,6 +258,12 @@ public class PageIterator implements TemplateWizard.Iterator {
                     }
                 }
             }
+        }
+        
+        WebModule webModule = JsfProjectUtils.getWebModule(project);
+        if(webModule != null) {
+            if(createPortlet)
+                addPortletXMLEntry(webModule, project, dir, context, targetName, template);
         }
 
         DataObject obj;
@@ -404,13 +316,103 @@ public class PageIterator implements TemplateWizard.Iterator {
         return result;
     }
 
+    private void addPortletXMLEntry(WebModule webModule, Project project, FileObject jspFolder, PortletContext context, String pageName, FileObject template) {
+
+        // Create portlet.xml if not exist
+        File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
+        //create messages.properties if doesn't exis
+        FileObject sourceRoot = JsfProjectUtils.getSourceRoot(project);
+        if (sourceRoot != null) {
+            try {
+                FileObject mObj = sourceRoot.getFileObject("messages.properties");
+                if (mObj == null) {
+                    FileObject data = sourceRoot.createData("messages", "properties");
+
+                    if (data == null) {
+                        logger.log(Level.WARNING, "messages.properties could not be created");
+                    }
+                }
+            } catch (IOException ex) {
+                //ignore any error
+            }
+        }
+
+        String jsfPortletFolderRelativePath = JsfProjectUtils.getRelativePathForJsfPortlet(webModule.getDocumentBase(), jspFolder);
+
+        if (!filePortlet.exists()) {
+
+            context.setPortletVersion(NetbeanConstants.PORTLET_1_0);
+            context.setPortletClass(JsfProjectConstants.JSF_PORTLET); //NOI18N
+            WebDescriptorGenerator wGen = new WebDescriptorGenerator();
+            try {
+                wGen.createPortletXml(FileUtil.toFile(webModule.getWebInf()).getAbsolutePath(), context, new HashMap());
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Unable to create portlet.xml", ex);
+            }
+        }
+
+        {
+            //If portlet.xml exists, may be created by PortletSupport framework.
+            //Check if a JSF portlet entry is there in portlet.xml.
+            //If yes, then do nothing in portlet.xml
+            //If no then add an entry for JSF portlet
+            PortletApp portletApp = getPortletApp(filePortlet);
+            if (portletApp != null) {
+                PortletType portletType = portletApp.newPortletType();
+                portletType.addDescription(context.getPortletDescription());
+                portletType.setPortletName(context.getPortletName());
+                portletType.addDisplayName(context.getPortletDisplayName());
+                portletType.setPortletClass(JsfProjectConstants.JSF_PORTLET); //NOI18N
+                InitParamType initParam = portletType.newInitParamType();
+                initParam.setDescription(new String[]{"Portlet Init View Page"});
+                initParam.setName("com.sun.faces.portlet.INIT_VIEW"); //NOI18N
+                initParam.setValue(jsfPortletFolderRelativePath + pageName + "." + template.getExt()); //NOI18N
+                portletType.addInitParam(initParam);
+                portletType.setExpirationCache(0);
+
+                SupportsType support = portletType.newSupportsType();
+                support.setMimeType("text/html"); //NOI18N
+                support.addPortletMode("VIEW"); //NOI18N
+                portletType.addSupports(support);
+                portletType.setSupportedLocale(new String[]{"en"}); //NOI18N
+                PortletInfoType portletInfo = portletType.newPortletInfoType();
+                portletInfo.setTitle(context.getPortletTitle());
+                portletInfo.setShortTitle(context.getPortletShortTitle());
+
+                portletType.setPortletInfo(portletInfo);
+                portletType.setResourceBundle("messages"); //NOI18N
+                
+                portletApp.addPortlet(portletType);
+                //add VisualJSFPortlet page as the first portlet entry in portlet.xml
+                /*PortletType[] portletTypes = portletApp.getPortlet();
+                if (portletTypes.length == 0) {
+                    portletApp.addPortlet(portletType);
+                } else {
+
+                    PortletType firstPortlet = portletApp.getPortlet(0);
+                    portletApp.setPortlet(0, portletType);
+                    portletApp.addPortlet(firstPortlet);
+                }*/
+
+                savePortletXML(portletApp, filePortlet);
+
+                //fire add portlet event
+                context.setPortletClass(JsfProjectConstants.JSF_PORTLET);
+                if (webModule.getWebInf() != null) {
+                    String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
+                    PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, new AppContext(), webInfPath);
+                }
+            }
+        }
+    }
+
     private boolean isJSFPortletEntryPresent(PortletApp portletApp) {
         if (portletApp == null) {
             return false;
         }
         PortletType[] portletTypes = portletApp.getPortlet();
         for (PortletType portletType : portletTypes) {
-            if (portletType.getPortletClass().equals("com.sun.faces.portlet.FacesPortlet")) { //NOI18N
+            if (portletType.getPortletClass().equals(JsfProjectConstants.JSF_PORTLET)) { //NOI18N
 
                 return true;
             }

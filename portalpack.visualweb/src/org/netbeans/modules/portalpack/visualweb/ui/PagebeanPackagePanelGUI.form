@@ -20,38 +20,64 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <Component id="packageLabel" pref="108" max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Component id="packageTextField" pref="281" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
+          </Group>
           <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="packageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="portletDescLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="portletTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="portletShortTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="portletNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="portletDisplayNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="packageTextField" alignment="0" pref="286" max="32767" attributes="0"/>
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="portletShortTitleTf" alignment="0" max="32767" attributes="1"/>
-                      <Component id="portletTitleTf" alignment="0" max="32767" attributes="1"/>
-                      <Component id="portletDescTf" alignment="0" max="32767" attributes="1"/>
-                      <Component id="portletDisplayNameTf" alignment="0" max="32767" attributes="1"/>
-                      <Component id="pnameTf" alignment="0" pref="202" max="32767" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="portletDescLabel" pref="114" max="32767" attributes="0"/>
+                      <EmptySpace min="16" pref="16" max="16" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="portletTitleLabel" pref="81" max="32767" attributes="0"/>
+                      <EmptySpace min="49" pref="49" max="49" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="portletShortTitleLabel" pref="110" max="32767" attributes="0"/>
+                      <EmptySpace min="20" pref="20" max="20" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="portletNameLabel" pref="88" max="32767" attributes="0"/>
+                      <EmptySpace min="42" pref="42" max="42" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="portletDisplayNameLabel" pref="125" max="32767" attributes="0"/>
+                      <EmptySpace min="5" pref="5" max="5" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="isCreatePortlet" alignment="0" pref="319" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="portletShortTitleTf" pref="263" max="32767" attributes="2"/>
+                          <Component id="portletTitleTf" alignment="0" pref="263" max="32767" attributes="2"/>
+                          <Component id="portletDescTf" alignment="0" pref="263" max="32767" attributes="2"/>
+                          <Component id="portletDisplayNameTf" alignment="0" pref="263" max="32767" attributes="2"/>
+                          <Component id="pnameTf" alignment="0" pref="263" max="32767" attributes="2"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="56" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="packageLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="packageTextField" min="-2" max="-2" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="packageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="packageTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+              <EmptySpace pref="26" max="32767" attributes="0"/>
+              <Component id="isCreatePortlet" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="portletNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="pnameTf" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -76,7 +102,7 @@
                   <Component id="portletShortTitleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portletShortTitleTf" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="20" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -201,6 +227,16 @@
       </AccessibilityProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="portletShortTitleTf">
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="isCreatePortlet">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/portalpack/visualweb/ui/Bundle.properties" key="LBL_CREATE_A_NEW_PORTLET" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="isCreatePortletActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
