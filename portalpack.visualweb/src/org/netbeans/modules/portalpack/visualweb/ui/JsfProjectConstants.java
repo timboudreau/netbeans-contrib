@@ -64,4 +64,6 @@ public class JsfProjectConstants {
         PROP_JSF_PROJECT_LIBRARIES_DIR,
         PROP_START_PAGE
     };
+    
+    public final static String JSF_PORTLET = "com.sun.faces.portlet.FacesPortlet";
 }
