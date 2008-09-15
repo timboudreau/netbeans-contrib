@@ -99,6 +99,10 @@ class ClassPathProviderImpl implements ClassPathProvider {
             LOG.log(Level.FINE, "Found no classpath definition for {0} in {1}", new Object[] {type, f});
             return null;
         }
+        return findClassPathImpl(root, type);
+    }
+
+    ClassPath findClassPathImpl(File root, String type) {
         Map<String,ClassPathImpl> m = classpaths.get(root);
         if (m == null) {
             m = new HashMap<String,ClassPathImpl>();

@@ -48,22 +48,32 @@ import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.spi.Cache;
+import org.netbeans.modules.j2ee.deployment.common.api.EjbChangeDescriptor;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.ModuleChangeReporter;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleFactory;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.WebModuleFactory;
 import org.netbeans.modules.web.spi.webmodule.WebModuleProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
-public class WebModuleProviderImpl implements WebModuleProvider {
+class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvider {
 
     private static final Logger LOG = Logger.getLogger(WebModuleProviderImpl.class.getName());
     private static final Map<Project,Map<FileObject, WebModule>> webModules = new WeakHashMap<Project,Map<FileObject, WebModule>>();
     
     private Project p;
     private String root;
+    private ClassPathProviderImpl cpp;
+    private J2eeModule j2eeModule;
+    private ModuleChangeReporterImpl moduleChangeReporter;
 
-    public WebModuleProviderImpl(Project p) {
+    public WebModuleProviderImpl(Project p, ClassPathProviderImpl cpp) {
         this.p = p;
+        this.cpp = cpp;
         root = FileUtil.toFile(p.getProjectDirectory()).getAbsolutePath();
     }
     
@@ -93,10 +103,79 @@ public class WebModuleProviderImpl implements WebModuleProvider {
         }
         WebModule wm = projectWebModules.get(docRoot);
         if (wm == null) {
-            wm = WebModuleFactory.createWebModule(new WebModuleImpl(docRoot, root));
+            wm = WebModuleFactory.createWebModule(new WebModuleImpl(docRoot, root, cpp, this));
             projectWebModules.put(docRoot, wm);
         }
         return wm;
+    }
+
+    @Override
+    public J2eeModule getJ2eeModule() {
+        if (j2eeModule == null) {
+            String docBaseFolders = Cache.get(root + WebCacheConstants.DOCROOT);
+            if (docBaseFolders == null) {
+                return null;
+            }
+            FileObject docRoot = null;
+            for (String piece : docBaseFolders.split("[:;]")) {
+                FileObject aRoot = FileUtil.toFileObject(new File(piece));
+                if (aRoot != null) {
+                    docRoot = aRoot;
+                    break;
+                }
+            }
+            if (docRoot != null) {
+                j2eeModule = J2eeModuleFactory.createJ2eeModule(new WebModuleImpl(docRoot, root, cpp, this));
+            }
+        }
+        return j2eeModule;
+    }
+
+    @Override
+    public synchronized ModuleChangeReporter getModuleChangeReporter() {
+        if (moduleChangeReporter == null) {
+            moduleChangeReporter = new ModuleChangeReporterImpl();
+        }
+        return moduleChangeReporter;
+    }
+
+    @Override
+    public void setServerInstanceID(String severInstanceID) {
+        Cache.put(root + WebCacheConstants.SERVER, severInstanceID);
+    }
+
+    @Override
+    public String getServerInstanceID() {
+        String v = Cache.get(root + WebCacheConstants.SERVER);
+        if (v == null) {
+            v = Deployment.getDefault().getServerInstanceIDs().length > 0 ? Deployment.getDefault().getServerInstanceIDs()[0] : null;
+        }
+        return v;
+    }
+
+    @Override
+    public String getServerID() {
+        String inst = getServerInstanceID ();
+        if (inst != null) {
+            String id = Deployment.getDefault().getServerID(inst);
+            if (id != null) {
+                return id;
+            }
+        }
+        return "J2EE"; // NOI18N
+    }
+    
+    // TODO
+    private class ModuleChangeReporterImpl implements ModuleChangeReporter {
+        
+        public EjbChangeDescriptor getEjbChanges(long param) {
+            return null;
+        }
+        
+        public boolean isManifestChanged(long param) {
+            return false;
+        }
+        
     }
     
 }
