@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.portalpack.cms
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/cms/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/cms/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.95
+OpenIDE-Module-Specification-Version: 0.96
 
