@@ -1,0 +1,80 @@
+package ${PACKAGE};
+
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import javax.portlet.PortletMode;
+import javax.portlet.PortletRequest;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import org.springframework.validation.BindException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+import org.springframework.web.portlet.ModelAndView;
+import org.springframework.web.portlet.bind.PortletRequestDataBinder;
+import org.springframework.web.portlet.multipart.MultipartActionRequest;
+import org.springframework.web.portlet.mvc.SimpleFormController;
+
+public class ${CONTROLLER_CLASS} extends SimpleFormController {
+    
+   /*
+   @Override
+    protected ModelAndView handleRenderRequestInternal(RenderRequest request,
+            RenderResponse response) throws Exception {
+
+        <#foreach mode in pc.getModes()>
+        <#if mode == "VIEW">
+        if (request.getPortletMode().equals(PortletMode.VIEW)) 
+            super.handleRenderRequestInternal(request, response);
+        </#if> 
+        <#if mode == "EDIT">
+        if (request.getPortletMode().equals(PortletMode.EDIT))
+            return _doEdit(request,response);
+        </#if>
+        <#if mode == "HELP">
+        if(request.getPortletMode().equals(PortletMode.HELP))
+            return _doHelp(request,response);
+        </#if>
+        </#foreach>
+        
+        return null;
+    }*/
+    
+<#assign enctype = "">
+<#foreach ip in input_params>
+    <#if ip.getDataType().getType() == "file">
+        <#assign enctype = "multipart/form-data">
+    </#if>
+</#foreach>
+
+    public void onSubmitAction(ActionRequest request, ActionResponse response,
+            Object command, BindException errors) throws Exception {
+        
+        ${CMD_CLASS} cmdBean = (${CMD_CLASS})command;
+
+        request.setAttribute("bean",cmdBean);
+    
+    }
+
+    protected void initBinder(PortletRequest request, PortletRequestDataBinder binder) throws Exception {
+        binder.registerCustomEditor(byte[].class, new ByteArrayMultipartFileEditor());
+        //binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    }
+
+    /*
+    <#foreach mode in pc.getModes()>
+    <#if mode == "EDIT">
+    private ModelAndView _doEdit(RenderRequest request, RenderResponse response) {
+        ModelAndView modelAndView = new ModelAndView("${EDIT_PAGE}");
+        return modelAndView;
+    }
+    </#if>
+    <#if mode == "HELP">
+    private ModelAndView _doHelp(RenderRequest request, RenderResponse response) {
+        ModelAndView modelAndView = new ModelAndView("${HELP_PAGE}");
+        return modelAndView;
+    }
+    </#if>
+    </#foreach>*/
+
+}

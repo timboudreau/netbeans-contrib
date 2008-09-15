@@ -1,0 +1,49 @@
+package ${PACKAGE};
+import java.io.Serializable;
+
+/**
+ *
+ * Command Bean
+ */
+public class ${CMD_CLASS} implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    public ${CMD_CLASS}() {
+        super();
+    }
+
+    <#foreach ip in input_params>
+    <#if ip.getDataType().getType() == "file">
+    private byte[] ${ip.getName()};
+    public byte[] ${ip.getGetterName()} () {
+        return ${ip.getName()};
+    }
+    public void ${ip.getSetterName()} (byte[] ${ip.getName()}) {
+        this.${ip.getName()} = ${ip.getName()};
+    }
+    </#if>
+    <#if ip.getComponentType() == "checkbox">
+    <#if ip.getDataType().getType() != "file">
+    private ${ip.getDataType().getType()}[] ${ip.getName()};
+    public ${ip.getDataType().getType()}[] ${ip.getGetterName()} () {
+        return ${ip.getName()};
+    }
+    public void ${ip.getSetterName()} (${ip.getDataType().getType()}[] ${ip.getName()}) {
+        this.${ip.getName()} = ${ip.getName()};
+    }
+    </#if>
+    <#else>
+    <#if ip.getDataType().getType() != "file">
+    private ${ip.getDataType().getType()} ${ip.getName()};
+    public ${ip.getDataType().getType()} ${ip.getGetterName()} () {
+        return ${ip.getName()};
+    }
+    public void ${ip.getSetterName()} (${ip.getDataType().getType()} ${ip.getName()}) {
+        this.${ip.getName()} = ${ip.getName()};
+    }
+    </#if>
+    </#if>
+
+    </#foreach>
+}

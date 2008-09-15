@@ -1,0 +1,61 @@
+package ${PACKAGE};
+
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletMode;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import org.springframework.web.portlet.ModelAndView;
+import org.springframework.web.portlet.mvc.AbstractController;
+
+public class ${CONTROLLER_CLASS} extends AbstractController {
+
+    @Override
+    protected void handleActionRequestInternal(ActionRequest arg0, ActionResponse arg1) 
+            throws Exception {
+        super.handleActionRequestInternal(arg0, arg1);
+    }
+    
+    @Override
+    protected ModelAndView handleRenderRequestInternal(RenderRequest request,
+            RenderResponse response) throws Exception {
+
+        <#foreach mode in pc.getModes()>
+        <#if mode == "VIEW">
+        if (request.getPortletMode().equals(PortletMode.VIEW)) 
+            return _doView(request, response);
+        </#if> 
+        <#if mode == "EDIT">
+        if (request.getPortletMode().equals(PortletMode.EDIT))
+            return _doEdit(request,response);
+        </#if>
+        <#if mode == "HELP">
+        if(request.getPortletMode().equals(PortletMode.HELP))
+            return _doHelp(request,response);
+        </#if>
+        </#foreach>
+        
+        return null;
+    }
+    
+    <#foreach mode in pc.getModes()>
+    <#if mode == "VIEW">
+    public ModelAndView _doView(RenderRequest request, RenderResponse response) {
+        ModelAndView modelAndView = new ModelAndView("${VIEW_PAGE}");
+        return modelAndView;
+    }
+    </#if>
+    <#if mode == "EDIT">
+    private ModelAndView _doEdit(RenderRequest request, RenderResponse response) {
+        ModelAndView modelAndView = new ModelAndView("${EDIT_PAGE}");
+        return modelAndView;
+    }
+    </#if>
+    <#if mode == "HELP">
+    private ModelAndView _doHelp(RenderRequest request, RenderResponse response) {
+        ModelAndView modelAndView = new ModelAndView("${HELP_PAGE}");
+        return modelAndView;
+    }
+    </#if>
+    </#foreach>
+}

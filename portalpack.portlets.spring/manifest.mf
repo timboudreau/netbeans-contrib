@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.portalpack.portlets.spring
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/portlets/spring/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/portlets/spring/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 0.96
 
