@@ -20,7 +20,6 @@
 package org.netbeans.modules.encoder.custom.aip;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException;
 import org.netbeans.modules.encoder.ui.basic.ModelUtils;
@@ -43,24 +42,25 @@ import org.openide.util.lookup.Lookups;
  * @author Jun Xu
  */
 public class CustomEncoderAppInfoProvider extends AppInfoProvider {
-    
+
     public boolean isActive(SchemaModel schemaModel) {
         return ModelUtils.isEncodedWith(schemaModel, CustomEncodingConst.STYLE);
     }
 
     public Node getNode(List<Node> nodes) {
-        List<SchemaComponent> listComponents = new ArrayList<SchemaComponent>();
-        SchemaComponent comp;
+        List<SchemaComponent> componentList = new ArrayList<SchemaComponent>();
+        SchemaComponent comp = null;
         SchemaComponent prevComp = null;
         for (Node node : nodes) {
-            comp = (SchemaComponent) node.getLookup().lookup(SchemaComponent.class);
+            comp = (SchemaComponent) node.getLookup()
+                .lookup(SchemaComponent.class);
             if (comp != null && comp != prevComp) {
-                listComponents.add(comp);
+                componentList.add(comp);
                 prevComp = comp;
             }
         }
-        Annotation annotation = 
-                (Annotation) nodes.get(nodes.size() - 1).getLookup().lookup(Annotation.class);
+        Annotation annotation = (Annotation) nodes.get(nodes.size() - 1)
+            .getLookup().lookup(Annotation.class);
         if (!(annotation.getParent() instanceof Element)
                 || annotation.getParent() instanceof ElementReference) {
             return null;
@@ -70,9 +70,9 @@ public class CustomEncoderAppInfoProvider extends AppInfoProvider {
             return null;
         }
         Lookup lookup = Lookups.singleton(encAppinfo);
-        EncodingOption encodingOption;
+        EncodingOption encodingOption = null;
         try {
-            encodingOption = EncodingOption.createFromAppInfo(listComponents);
+            encodingOption = EncodingOption.createFromAppInfo(componentList);
         } catch (InvalidAppInfoException e) {
             ErrorManager.getDefault().notify(e);
             return null;
