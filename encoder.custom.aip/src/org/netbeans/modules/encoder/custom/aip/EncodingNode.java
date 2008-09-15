@@ -341,6 +341,14 @@ public class EncodingNode extends AbstractNode
                 prop.setName("beginDelimiter");  //NOI18N
                 prop.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter"));
                 propSet.put(prop);
+            } else if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())) {
+                // reuse same real estate
+                PropertySupport.Reflection<String> prop =
+                        new ReadOnlyBeginDelimiterProperty<String>(mEncodingOption,
+                                String.class, "getBeginDelimitersAsString");  //NOI18N
+                prop.setName("beginDelimiter");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.begin_delimiter"));
+                propSet.put(prop);
             }
 
             if (NodeProperties.NodeType.FIXED_LENGTH.equals(mEncodingOption.xgetNodeType())) {
@@ -352,13 +360,21 @@ public class EncodingNode extends AbstractNode
                 propSet.put(prop);
             }
 
-            if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())
-                    || NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
+            if (NodeProperties.NodeType.DELIMITED.equals(mEncodingOption.xgetNodeType())) {
                 PropertySupport.Reflection<String> prop =
                         new ReadOnlyDelimiterProperty<String>(mEncodingOption,
-                                String.class, "getEndDelimiter");  //NOI18N
+                                String.class, "getEndDelimitersAsString");  //NOI18N
                 prop.setName("delimiter");  //NOI18N
                 prop.setDisplayName(_bundle.getString("encoding_node.lbl.delimiter"));
+                propSet.put(prop);
+            }
+
+            if (NodeProperties.NodeType.ARRAY.equals(mEncodingOption.xgetNodeType())) {
+                PropertySupport.Reflection<String> prop =
+                        new ReadOnlyArrayDelimiterProperty<String>(mEncodingOption,
+                                String.class, "getArrayDelimitersAsString");  //NOI18N
+                prop.setName("arrayDelimiter");  //NOI18N
+                prop.setDisplayName(_bundle.getString("encoding_node.lbl.array_delimiter"));
                 propSet.put(prop);
             }
 

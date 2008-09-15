@@ -74,8 +74,8 @@ import org.xml.sax.SAXParseException;
 public class EncodingOption {
 
     private static final ResourceBundle _bundle =
-            ResourceBundle.getBundle(
-                EncodingOption.class.getPackage().getName() + ".Bundle"); //NOI18N
+        ResourceBundle.getBundle(
+        EncodingOption.class.getPackage().getName() + ".Bundle"); //NOI18N
     public static final String NODE_TYPE_PREFIX = "nodeType"; //NOI18N
     public static final String ALIGNMENT_PREFIX = "align"; //NOI18N
     public static final String ORDER_PREFIX = "order"; //NOI18N
@@ -190,7 +190,7 @@ public class EncodingOption {
 
     /* Bean property change listeners */
     private final List<PropertyChangeListener> propChangeListeners =
-            Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
+        Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
 
     /**
      * Component path from which the encoding options are read
@@ -198,26 +198,30 @@ public class EncodingOption {
     private final SchemaComponent[] mComponentPath;
 
     /* Bean property variables */
-    private String mNodeType = mTextMap.get(NODE_TYPE_PREFIX + UDS + NodeProperties.NodeType.DELIMITED);
+    private String mNodeType = mTextMap.get(NODE_TYPE_PREFIX
+        + UDS + NodeProperties.NodeType.DELIMITED);
     private boolean mTop = false;
     private String mInputCharset = EMP;
     private String mParsingCharset = EMP;
     private String mSerializingCharset = EMP;
     private String mOutputCharset = EMP;
     private DelimiterSet mDelimiterSet = null;
-    private String mOrder = mTextMap.get(ORDER_PREFIX + UDS + NodeProperties.Order.SEQUENCE);
+    private String mOrder = mTextMap.get(ORDER_PREFIX
+        + UDS + NodeProperties.Order.SEQUENCE);
     private String mNOfNminN = EMP;
     private String mNOfNmaxN = EMP;
     private String mMatch = EMP;
     private boolean mNoMatch = false;
-    private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX + UDS + NodeProperties.Alignment.BLIND);
+    private String mAlignment = mTextMap.get(ALIGNMENT_PREFIX
+        + UDS + NodeProperties.Alignment.BLIND);
     private String mMinOcc = EMP;
     private String mMaxOcc = EMP;
     private String mScvngrChars = EMP;
     private boolean mScvngrEmit1st = false;
 
     // for a fixedLength field
-    private String mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX + UDS + "regular"); //NOI18N
+    private String mFixedLengthType = mTextMap.get(FIXED_LENGTH_TYPE_PREFIX
+        + UDS + "regular"); //NOI18N
     private int mLength = 0;
     private String mOffset = EMP;
     private String mPosition = EMP;
@@ -226,7 +230,8 @@ public class EncodingOption {
     // global
     private String mEscapeSequence = EMP;
     private boolean mFineInherit = false;
-    private String mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX + UDS + NodeProperties.UndefDataPolicy.PROHIBIT);
+    private String mUndefDataPolicy = mTextMap.get(UNDEFINED_DATA_POLICY_PREFIX
+        + UDS + NodeProperties.UndefDataPolicy.PROHIBIT);
 
     private CustomEncoding mCustomEncoding = null;
     private AppInfo mAppInfo = null;
@@ -238,10 +243,12 @@ public class EncodingOption {
      */
     private EncodingOption(List<SchemaComponent> path) {
         if (path == null) {
-            throw new NullPointerException(_bundle.getString("encoding_opt.exp.no_component_path")); //NOI18N
+            throw new NullPointerException(
+                _bundle.getString("encoding_opt.exp.no_component_path")); //NOI18N
         }
         if (path.size() < 1) {
-            throw new IllegalArgumentException(_bundle.getString("encoding_opt.exp.illegal_comp_path")); //NOI18N
+            throw new IllegalArgumentException(
+                _bundle.getString("encoding_opt.exp.illegal_comp_path")); //NOI18N
         }
         mComponentPath = path.toArray(new SchemaComponent[0]);
     }
@@ -306,19 +313,51 @@ public class EncodingOption {
         String old = mAlignment;
         mAlignment = alignment;
         NodeProperties.Alignment.Enum enumAlignment =
-                NodeProperties.Alignment.Enum.forString(
-                    mReverseTextMap.get(ALIGNMENT_PREFIX + UDS + mAlignment));
+            NodeProperties.Alignment.Enum.forString(
+            mReverseTextMap.get(ALIGNMENT_PREFIX + UDS + mAlignment));
         firePropertyChange("alignment", old, mAlignment); //NOI18N
         mCustomEncoding.getNodeProperties().setAlignment(enumAlignment);
         commitToAppInfo();
     }
 
-    public String getEndDelimiter() {
-        String delim = computeEndDelimiter();
-        if (delim == null) {
-            delim = _bundle.getString("encoding_opt.lbl.delim_not_set"); //NOI18N
+    public String getEndDelimitersAsString() {
+        String delimString = null;
+        try {
+            delimString = computeEndDelimiters();
+        } catch (InvalidAppInfoException ex) {
+            return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
         }
-        return delim;
+        // ensure that end delimiter(s) exist (not null).
+        if (delimString == null) {
+            delimString = _bundle.getString("encoding_opt.lbl.delim_not_set"); //NOI18N
+        }
+        return delimString;
+    }
+
+    public String getBeginDelimitersAsString() {
+        String delimString = null;
+        try {
+            delimString = computeBeginDelimiters();
+        } catch (InvalidAppInfoException ex) {
+            return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
+        }
+        if (delimString == null) {
+            delimString = EMP;
+        }
+        return delimString;
+    }
+
+    public String getArrayDelimitersAsString() {
+        String delimString = null;
+        try {
+            delimString = computeArrayDelimiters();
+        } catch (InvalidAppInfoException ex) {
+            return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
+        }
+        if (delimString == null) {
+            delimString = EMP;
+        }
+        return delimString;
     }
 
     public DelimiterSet getDelimiterSet() {
@@ -1004,7 +1043,13 @@ public class EncodingOption {
             throws ValidationException, SAXException {
         if (NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())) {
             //is delimited
-            if (computeEndDelimiter() == null) {
+            String delimAsString = null;
+            try {
+                delimAsString = computeEndDelimiters();
+            } catch (InvalidAppInfoException ex) {
+                delimAsString = _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
+            }
+            if (delimAsString == null) {
                 handler.error(
                         new SAXParseException(
                             NbBundle.getMessage(
@@ -1049,40 +1094,158 @@ public class EncodingOption {
     }
 
     /**
-     * Return all delimiters at the given delimiter level
+     * Check to see if global 'Fine Inherit" flag is true.
+     * @return true if global 'Fine Inherit" flag is true.
+     * @throws org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException
+     */
+    private boolean testIsGlobalFineInherit() throws InvalidAppInfoException {
+        SchemaComponent comp;
+        Annotation anno;
+        CustomEncoding customEncoding;
+        // we need to find out if fine-grained inheritance global flag is set
+        boolean globalFineInheritFlag = false;
+        comp = mComponentPath[1];
+        if (comp instanceof GlobalElement) {
+            anno = ((Element) comp).getAnnotation();
+            if (anno != null) {
+                customEncoding = fetchCustomEncoding(anno, null);
+                if (customEncoding != null && customEncoding.getTop()
+                    && customEncoding.isSetNodeProperties()) {
+                    NodeProperties nProp = customEncoding.getNodeProperties();
+                    if (nProp.isSetFineInherit()) {
+                        globalFineInheritFlag = nProp.getFineInherit();
+                    }
+                }
+            }
+        }
+        return globalFineInheritFlag;
+    }
+
+    /**
+     * Return all end delimiters at the given delimiter level
      * as a comma separate string, e.g. "], }". It returns null
      * if there is no delimiter defined.
      *
      * @param delimLevel a given delimiter level
      * @return a comma separate string, e.g. "], }"
      */
-    private String getDelimitersAsString(DelimiterLevel delimLevel) {
-        String delimString = EMP;
+    private String getEndDelimitersAsString(DelimiterLevel delimLevel) {
+        String delimAsString = EMP;
         // get all delimiters at this delimiter level
-        Delimiter[] delimiters = delimLevel.getDelimiterArray();
-        for (int i = 0; i < delimiters.length; i++) {
-            if (!delimiters[i].isSetBytes()
-                || !delimiters[i].getBytes().isSetConstant()) {
-                // skip non-constant (i.e. embedded) delimiter(s)
+        Delimiter[] delimArr = delimLevel.getDelimiterArray();
+        for (int i = 0; i < delimArr.length; i++) {
+            if (Delimiter.Kind.REPEAT.equals(delimArr[i].getKind())) {
+                // skip repeat/array delimiter(s)
                 continue;
             }
-            if (delimString.length() > 0) {
-                // add separator due to multiple delimiters.
-                delimString += MULTI_DELIM_SEPARATOR;
+            if (!delimArr[i].isSetBytes()) {
+                continue;
             }
-            delimString += delimiters[i].getBytes().getConstant();
+            if (delimAsString.length() > 0) {
+                // add separator due to multiple delimiters.
+                delimAsString += MULTI_DELIM_SEPARATOR;
+            }
+            if (delimArr[i].getBytes().isSetConstant()) {
+                // i.e. regular constant delimiter
+                delimAsString += delimArr[i].getBytes().getConstant();
+            } else if (delimArr[i].getBytes().isSetEmbedded()) {
+                // i.e. embedded delimiter
+                // output as e.g. "...., {embedded:10,2}"
+                delimAsString += (
+                        "{" //NOI18N
+                        + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
+                        + delimArr[i].getBytes().getEmbedded().getOffset()
+                        + "," //NOI18N
+                        + delimArr[i].getBytes().getEmbedded().getLength()
+                        + "}"); //NOI18N
+            }
         }
-        if (delimString.length() == 0) {
-            delimString = null;
+        if (delimAsString.length() == 0) {
+            delimAsString = null;
         }
-        return delimString;
+        return delimAsString;
+    }
+
+    private String getBeginDelimitersAsString(DelimiterLevel delimLevel) {
+        String delimAsString = EMP;
+        // get all delimiters at this delimiter level
+        Delimiter[] delimArr = delimLevel.getDelimiterArray();
+        for (int i = 0; i < delimArr.length; i++) {
+            if (Delimiter.Kind.REPEAT.equals(delimArr[i].getKind())) {
+                // skip repeat/array delimiter(s)
+                continue;
+            }
+            if (!delimArr[i].isSetBeginBytes()) {//CCC
+                continue;
+            }
+            if (delimAsString.length() > 0) {
+                // add separator due to multiple delimiters.
+                delimAsString += MULTI_DELIM_SEPARATOR;
+            }
+            if (delimArr[i].getBeginBytes().isSetConstant()) {//CCC
+                // i.e. regular constant delimiter
+                delimAsString += delimArr[i].getBeginBytes().getConstant();//CCC
+            } else if (delimArr[i].getBeginBytes().isSetEmbedded()) {
+                // i.e. embedded delimiter
+                // output as e.g. "...., {embedded:10,2}"
+                delimAsString += (
+                        "{" //NOI18N
+                        + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
+                        + delimArr[i].getBeginBytes().getEmbedded().getOffset()//CCC
+                        + "," //NOI18N
+                        + delimArr[i].getBeginBytes().getEmbedded().getLength()//CCC
+                        + "}"); //NOI18N
+            }
+        }
+        if (delimAsString.length() == 0) {
+            delimAsString = null;
+        }
+        return delimAsString;
+    }
+
+    private String getArrayDelimitersAsString(DelimiterLevel delimLevel) {
+        String delimAsString = EMP;
+        // get all delimiters at this delimiter level
+        Delimiter[] delimArr = delimLevel.getDelimiterArray();
+        for (int i = 0; i < delimArr.length; i++) {
+            if (!Delimiter.Kind.REPEAT.equals(delimArr[i].getKind())) {//CCC
+                // skip non-repeat/array delimiter(s)
+                continue;
+            }
+            if (!delimArr[i].isSetBytes()) {
+                continue;
+            }
+            if (delimAsString.length() > 0) {
+                // add separator due to multiple delimiters.
+                delimAsString += MULTI_DELIM_SEPARATOR;
+            }
+            if (delimArr[i].getBytes().isSetConstant()) {
+                // i.e. regular constant delimiter
+                delimAsString += delimArr[i].getBytes().getConstant();
+            } else if (delimArr[i].getBytes().isSetEmbedded()) {
+                // i.e. embedded delimiter
+                // output as e.g. "...., {embedded:10,2}"
+                delimAsString += (
+                        "{" //NOI18N
+                        + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
+                        + delimArr[i].getBytes().getEmbedded().getOffset()
+                        + "," //NOI18N
+                        + delimArr[i].getBytes().getEmbedded().getLength()
+                        + "}"); //NOI18N
+            }
+        }
+        if (delimAsString.length() == 0) {
+            delimAsString = null;
+        }
+        return delimAsString;
     }
 
     /**
      * Compute the end delimiter value at current node.
      * @return the computed end delimiter value.
      */
-    private String computeEndDelimiter() {
+    private String computeEndDelimiters()
+        throws InvalidAppInfoException {
         // Only delimited or array node needs to compute delimiter
         if (!NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())
                 && !NodeProperties.NodeType.ARRAY.equals(xgetNodeType())) {
@@ -1090,22 +1253,24 @@ public class EncodingOption {
         }
         String delimAsString = null;
         DelimiterLevel delimLevel;
-        Delimiter[] delimiters;
         // Check to see if there are local delimiters defined. If so, they
         // takes precedence,
         if (mDelimiterSet != null) {
             // So we get first delimiter level out of it.
-            delimLevel = mDelimiterSet.getLevelArray(0);
-            // We get all delimiters at the given delimiter level as
+            int lvl = 0;
+            delimLevel = mDelimiterSet.getLevelArray(lvl);
+            // We get all end delimiters at the given delimiter level as
             // comma separated string
-            delimAsString = getDelimitersAsString(delimLevel);
-        }
-        if (delimAsString != null) {
-            return delimAsString;
+            delimAsString = getEndDelimitersAsString(delimLevel);
+            if (delimAsString != null) {
+                return delimAsString;
+            }
         }
         SchemaComponent comp;
         Annotation anno;
         CustomEncoding customEncoding;
+        boolean isFineInherit = testIsGlobalFineInherit();
+
         // Starting from (mComponentPath.length - 3) and doing bottom-up
         // traverse up the ladder, so the current element declaration can be
         // skipped (i.e. this will skip last 2 SchemaComponent objects in the
@@ -1114,19 +1279,20 @@ public class EncodingOption {
         // finds an upper hierachy element or elementReference who has
         // annotation that has custom encoding that has node properties with
         // delimiters defined.
-        int level = 0;
+        int lvl = 0;
         int i = mComponentPath.length - 3;
         for (; i >= 0; i--) {
             comp = mComponentPath[i];
             if (!(comp instanceof Element)
                     || comp instanceof ElementReference) {
-                // continue to search up in the ladder
+                // skip non-element or non-elementReference, and continue to
+                // search up in the XSD structure ladder
                 continue;
             }
             anno = ((Element) comp).getAnnotation();
             if (anno == null) {
                 // continue to search up, and record delimiter level number
-                level++;
+                lvl++;
                 continue;
             }
             try {
@@ -1136,54 +1302,227 @@ public class EncodingOption {
             }
             if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
                 // continue to search up, and record delimiter level number
-                level++;
+                lvl++;
                 continue;
             }
             NodeProperties nProp = customEncoding.getNodeProperties();
             if (NodeProperties.NodeType.DELIMITED.equals(nProp.getNodeType())
                 || NodeProperties.NodeType.ARRAY.equals(nProp.getNodeType())) {
                 // record delimiter level number
-                level++;
+                lvl++;
             }
             if (!nProp.isSetDelimiterSet()) {
                 // continue to search up
                 continue;
             }
-            if (nProp.getDelimiterSet().sizeOfLevelArray() <= level) {
-                // defined delimiter level is less than expected. something
-                // is not correct.
-                break;
-            }
-            delimLevel = nProp.getDelimiterSet().getLevelArray(level);
-            delimiters = delimLevel.getDelimiterArray();
-            delimAsString = EMP;
-            for (int j = 0; j < delimiters.length; j++) {
-                if (!delimiters[j].isSetBytes()) {
+            if (nProp.getDelimiterSet().sizeOfLevelArray() <= lvl) {
+                // no delim Level corresponding to lvl is defined
+                if (isFineInherit) {
+                    // continue to search up
                     continue;
+                } else {
+                    // no delimiters defined, break loop
+                    break;
                 }
-                if (delimiters[j].getBytes().isSetEmbedded()) {
-                    // i.e. embedded delimiter
-                    if (delimAsString.length() > 0) {
-                        delimAsString += MULTI_DELIM_SEPARATOR;
-                    }
-                    // output as e.g. "...., {embedded:10,2}"
-                    delimAsString += (
-                            "{" //NOI18N
-                            + _bundle.getString("encoding_opt.lbl.embedded") //NOI18N
-                            + delimiters[j].getBytes().getEmbedded().getOffset()
-                            + "," //NOI18N
-                            + delimiters[j].getBytes().getEmbedded().getLength()
-                            + "}"); //NOI18N
-                } else if (delimiters[j].getBytes().isSetConstant()) {
-                    // i.e. regular constant delimiter
-                    if (delimAsString.length() > 0) {
-                        delimAsString += MULTI_DELIM_SEPARATOR;
-                    }
-                    delimAsString += delimiters[j].getBytes().getConstant();
-                }
-            } // end-- for (int j = 0 ...)
+            }
+            delimLevel = nProp.getDelimiterSet().getLevelArray(lvl);
+            delimAsString = getEndDelimitersAsString(delimLevel);
             if (delimAsString.length() == 0) {
                 delimAsString = null;
+            }
+            if (delimAsString == null && isFineInherit) {
+                // continue to search up
+                continue;
+            }
+            break;
+        } // end-- for (; i >= 0; i--)
+        return delimAsString;
+    }
+
+    private String computeBeginDelimiters()
+        throws InvalidAppInfoException {
+        // Only delimited or array node needs to compute delimiter
+        if (!NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())
+                && !NodeProperties.NodeType.ARRAY.equals(xgetNodeType())) {
+            return null;
+        }
+        String delimAsString = null;
+        DelimiterLevel delimLevel;
+        // Check to see if there are local delimiters defined. If so, they
+        // takes precedence,
+        if (mDelimiterSet != null) {
+            // So we get first delimiter level out of it.
+            int lvl = 0;
+            delimLevel = mDelimiterSet.getLevelArray(lvl);
+            // We get all end delimiters at the given delimiter level as
+            // comma separated string
+            delimAsString = getBeginDelimitersAsString(delimLevel);//CCC
+            if (delimAsString != null) {
+                return delimAsString;
+            }
+        }
+        SchemaComponent comp;
+        Annotation anno;
+        CustomEncoding customEncoding;
+        boolean isFineInherit = testIsGlobalFineInherit();
+
+        // Starting from (mComponentPath.length - 3) and doing bottom-up
+        // traverse up the ladder, so the current element declaration can be
+        // skipped (i.e. this will skip last 2 SchemaComponent objects in the
+        // ladder array, namely, its parent "annotation" node and its
+        // grandparent localElement node.) It traverses up the ladder, until it
+        // finds an upper hierachy element or elementReference who has
+        // annotation that has custom encoding that has node properties with
+        // delimiters defined.
+        int lvl = 0;
+        int i = mComponentPath.length - 3;
+        for (; i >= 0; i--) {
+            comp = mComponentPath[i];
+            if (!(comp instanceof Element)
+                    || comp instanceof ElementReference) {
+                // skip non-element or non-elementReference, and continue to
+                // search up in the XSD structure ladder
+                continue;
+            }
+            anno = ((Element) comp).getAnnotation();
+            if (anno == null) {
+                // continue to search up, and record delimiter level number
+                lvl++;
+                continue;
+            }
+            try {
+                customEncoding = fetchCustomEncoding(anno, null);
+            } catch (InvalidAppInfoException ex) {
+                return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
+            }
+            if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
+                // continue to search up, and record delimiter level number
+                lvl++;
+                continue;
+            }
+            NodeProperties nProp = customEncoding.getNodeProperties();
+            if (NodeProperties.NodeType.DELIMITED.equals(nProp.getNodeType())
+                || NodeProperties.NodeType.ARRAY.equals(nProp.getNodeType())) {
+                // record delimiter level number
+                lvl++;
+            }
+            if (!nProp.isSetDelimiterSet()) {
+                // continue to search up
+                continue;
+            }
+            if (nProp.getDelimiterSet().sizeOfLevelArray() <= lvl) {
+                // no delim Level corresponding to lvl is defined
+                if (isFineInherit) {
+                    // continue to search up
+                    continue;
+                } else {
+                    // no delimiters defined, break loop
+                    break;
+                }
+            }
+            delimLevel = nProp.getDelimiterSet().getLevelArray(lvl);
+            delimAsString = getBeginDelimitersAsString(delimLevel);//CCC
+            if (delimAsString.length() == 0) {
+                delimAsString = null;
+            }
+            if (delimAsString == null && isFineInherit) {
+                // continue to search up
+                continue;
+            }
+            break;
+        } // end-- for (; i >= 0; i--)
+        return delimAsString;
+    }
+
+    private String computeArrayDelimiters()
+        throws InvalidAppInfoException {
+        // Only delimited or array node needs to compute delimiter
+        if (!NodeProperties.NodeType.DELIMITED.equals(xgetNodeType())
+                && !NodeProperties.NodeType.ARRAY.equals(xgetNodeType())) {
+            return null;
+        }
+        String delimAsString = null;
+        DelimiterLevel delimLevel;
+        // Check to see if there are local delimiters defined. If so, they
+        // takes precedence,
+        if (mDelimiterSet != null) {
+            // So we get first delimiter level out of it.
+            int lvl = 0;
+            delimLevel = mDelimiterSet.getLevelArray(lvl);
+            // We get all end delimiters at the given delimiter level as
+            // comma separated string
+            delimAsString = getArrayDelimitersAsString(delimLevel);//CCC
+            if (delimAsString != null) {
+                return delimAsString;
+            }
+        }
+        SchemaComponent comp;
+        Annotation anno;
+        CustomEncoding customEncoding;
+        boolean isFineInherit = testIsGlobalFineInherit();
+
+        // Starting from (mComponentPath.length - 3) and doing bottom-up
+        // traverse up the ladder, so the current element declaration can be
+        // skipped (i.e. this will skip last 2 SchemaComponent objects in the
+        // ladder array, namely, its parent "annotation" node and its
+        // grandparent localElement node.) It traverses up the ladder, until it
+        // finds an upper hierachy element or elementReference who has
+        // annotation that has custom encoding that has node properties with
+        // delimiters defined.
+        int lvl = 0;
+        int i = mComponentPath.length - 3;
+        for (; i >= 0; i--) {
+            comp = mComponentPath[i];
+            if (!(comp instanceof Element)
+                    || comp instanceof ElementReference) {
+                // skip non-element or non-elementReference, and continue to
+                // search up in the XSD structure ladder
+                continue;
+            }
+            anno = ((Element) comp).getAnnotation();
+            if (anno == null) {
+                // continue to search up, and record delimiter level number
+                lvl++;
+                continue;
+            }
+            try {
+                customEncoding = fetchCustomEncoding(anno, null);
+            } catch (InvalidAppInfoException ex) {
+                return _bundle.getString("encoding_opt.lbl.error_retrieving_delim"); //NOI18N
+            }
+            if (customEncoding == null || !customEncoding.isSetNodeProperties()) {
+                // continue to search up, and record delimiter level number
+                lvl++;
+                continue;
+            }
+            NodeProperties nProp = customEncoding.getNodeProperties();
+            if (NodeProperties.NodeType.DELIMITED.equals(nProp.getNodeType())
+                || NodeProperties.NodeType.ARRAY.equals(nProp.getNodeType())) {
+                // record delimiter level number
+                lvl++;
+            }
+            if (!nProp.isSetDelimiterSet()) {
+                // continue to search up
+                continue;
+            }
+            if (nProp.getDelimiterSet().sizeOfLevelArray() <= lvl) {
+                // no delim Level corresponding to lvl is defined
+                if (isFineInherit) {
+                    // continue to search up
+                    continue;
+                } else {
+                    // no delimiters defined, break loop
+                    break;
+                }
+            }
+            delimLevel = nProp.getDelimiterSet().getLevelArray(lvl);
+            delimAsString = getArrayDelimitersAsString(delimLevel);//CCC
+            if (delimAsString.length() == 0) {
+                delimAsString = null;
+            }
+            if (delimAsString == null && isFineInherit) {
+                // continue to search up
+                continue;
             }
             break;
         } // end-- for (; i >= 0; i--)
@@ -1221,7 +1560,7 @@ public class EncodingOption {
         SchemaComponent comp = mComponentPath[mComponentPath.length - 1];
         if (!(comp instanceof Annotation)) {
             throw new IllegalArgumentException(
-                    _bundle.getString("encoding_opt.exp.must_be_annotation")); //NOI18N
+                _bundle.getString("encoding_opt.exp.must_be_annotation")); //NOI18N
         }
         CustomEncoding customEnc = null;
         AppInfo[] appinfoReturned = new AppInfo[1];
@@ -1391,13 +1730,13 @@ public class EncodingOption {
      * schema AppInfo objects.
      *
      * @param anno the schema Annotation object.
-     * @param appinfoReturned if not null, will be populated with schema
+     * @param appinfosReturned if not null, will be populated with schema
      * AppInfo objects.
      * @return CustomEncoding info.
      * @throws org.netbeans.modules.encoder.ui.basic.InvalidAppInfoException
      */
     private CustomEncoding fetchCustomEncoding(Annotation anno,
-            AppInfo[] appinfoReturned)
+            AppInfo[] appinfosReturned)
             throws InvalidAppInfoException {
         CustomEncoding customEncoding = null;
         Collection<AppInfo> appinfos = anno.getAppInfos();
@@ -1407,8 +1746,8 @@ public class EncodingOption {
                 if (!EncodingConst.URI.equals(appinfo.getURI())) {
                     continue;
                 }
-                if (appinfoReturned != null) {
-                    appinfoReturned[0] = appinfo;
+                if (appinfosReturned != null) {
+                    appinfosReturned[0] = appinfo;
                 }
                 try {
                     XmlOptions xmlOptions = new XmlOptions();
@@ -1428,20 +1767,20 @@ public class EncodingOption {
                     }
                 } catch (XmlException ex) {
                     throw new InvalidAppInfoException(
-                            NbBundle.getMessage(
-                                    EncodingOption.class,
-                                    "encoding_opt.exp.invalid_appinfo", //NOI18N
-                                    SchemaUtility.getNCNamePath(mComponentPath),
-                                    ex.getMessage()),
-                            ex);
+                        NbBundle.getMessage(
+                        EncodingOption.class,
+                        "encoding_opt.exp.invalid_appinfo", //NOI18N
+                        SchemaUtility.getNCNamePath(mComponentPath),
+                        ex.getMessage()),
+                        ex);
                 } catch (IOException ex) {
                     throw new InvalidAppInfoException(
-                            NbBundle.getMessage(
-                                    EncodingOption.class,
-                                    "encoding_opt.exp.io_exception", //NOI18N
-                                    SchemaUtility.getNCNamePath(mComponentPath),
-                                    ex.getMessage()),
-                            ex);
+                        NbBundle.getMessage(
+                        EncodingOption.class,
+                        "encoding_opt.exp.io_exception", //NOI18N
+                        SchemaUtility.getNCNamePath(mComponentPath),
+                        ex.getMessage()),
+                        ex);
                 }
                 break;
             }
@@ -1500,8 +1839,8 @@ public class EncodingOption {
     }
 
     private String xmlFragFromAppInfo(AppInfo appInfo) {
-        StringBuffer sb = new StringBuffer("<xml-fragment"); //NOI18N
-        sb.append(" ").append("source=\"").append(EncodingConst.URI).append("\""); //NOI18N
+        StringBuffer sb = new StringBuffer("<xml-fragment "); //NOI18N
+        sb.append("source=\"").append(EncodingConst.URI).append("\""); //NOI18N
         if (appInfo.getPeer() != null) {
             String prefix = appInfo.getPeer().lookupPrefix(EncodingConst.URI);
             if (prefix != null) {
@@ -1546,7 +1885,8 @@ public class EncodingOption {
         }
     }
 
-    private class SchemaPropertyChangeListener implements PropertyChangeListener {
+    private class SchemaPropertyChangeListener
+        implements PropertyChangeListener {
 
         private final Element mElem;
         private final Set<SchemaModel> mModelSet = new HashSet<SchemaModel>();
@@ -1564,7 +1904,8 @@ public class EncodingOption {
         }
 
         public void propertyChange(PropertyChangeEvent evt) {
-            if (mElem == evt.getSource() && "type".equals(evt.getPropertyName())) {   //NOI18N
+            if (mElem == evt.getSource()
+                && "type".equals(evt.getPropertyName())) {   //NOI18N
                 mXMLType = evt.getNewValue();
                 if (mXMLType instanceof SchemaComponent) {
                     SchemaModel refModel = ((SchemaComponent) mXMLType).getModel();
