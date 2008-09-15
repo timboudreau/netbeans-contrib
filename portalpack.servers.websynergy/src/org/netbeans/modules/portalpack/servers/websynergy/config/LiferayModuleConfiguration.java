@@ -228,7 +228,7 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         props.setProperty("module-group-id", "liferay"); //NOI18N
         props.setProperty("module-incremental-version", "1"); //NOI18N
         props.setProperty("tags", "portlet");
-        props.setProperty("portal.dependency.jars","commons-logging.jar");
+        props.setProperty("portal.dependency.jars","commons-logging.jar,commons-fileupload.jar");
         try{
             OutputStream out = new FileOutputStream(pluginPackageProp);
             props.store(out, name);
