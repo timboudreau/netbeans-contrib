@@ -56,7 +56,7 @@ public class LookupProviderImpl implements LookupProvider {
         return Lookups.fixed(
                 cpp,
                 new SourcesImpl(p),
-                new WebModuleProviderImpl(p),
+                new WebModuleProviderImpl(p, cpp),
                 new OpenHook(p, cpp));
                 //new ActionProviderImpl(p));
     }

@@ -55,6 +55,7 @@ public class WebCacheConstants {
     public static final String CLASSPATH = "#webclasspath";
     public static final String DOCROOT = "#docroot";
     public static final String WEBINF = "#webinf";
+    public static final String SERVER = "#server";
     
     // war= destfile/warfile attr
     // web.xml = webxml attr
