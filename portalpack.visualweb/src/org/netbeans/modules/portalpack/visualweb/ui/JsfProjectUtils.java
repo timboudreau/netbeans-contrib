@@ -83,6 +83,7 @@ import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 // import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 // import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
 import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupport;
 import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupportImpl;
 
@@ -307,15 +308,15 @@ public class JsfProjectUtils {
 
     public static boolean supportProjectProperty(Project project) {
         if (isWebProject(project)) {
-            
+
             //Comment the following section to compile against NB 6.5
           /*  AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
-                return false;
-            }*/ 
+            return false;
+            }*/
             //Uncomment the following line to compile against NB 6.5
             AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement != null) {
                 return true;
@@ -343,15 +344,15 @@ public class JsfProjectUtils {
 
     public static String getProjectProperty(Project project, String propName) {
         if (isWebProject(project)) {
-            
+
             //Comment the following line to compile against NB 6.5
             AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
                 return "";
-            } 
+            }
             //Uncomment following line to compile against NB 6.5
             //AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {  // Creator 2 project
 
@@ -448,10 +449,10 @@ public class JsfProjectUtils {
             AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
                 return;
-            } 
+            }
             //Uncomment following line to compile against NB 6.5
             //AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(project);
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -660,7 +661,7 @@ public class JsfProjectUtils {
         return NbBundle.getMessage(JsfProjectUtils.class, "LBL_MissingNBM", RI, nbms);
     }
 
-    public static String getRelativePathForJsfPortlet(FileObject docBase,FileObject jsfPortletFolder) {
+    public static String getRelativePathForJsfPortlet(FileObject docBase, FileObject jsfPortletFolder) {
         String jsfportletFolderRelativePath = FileUtil.getRelativePath(docBase, jsfPortletFolder);
         if (jsfportletFolderRelativePath != null) {
             if (!jsfportletFolderRelativePath.startsWith("/") && !jsfportletFolderRelativePath.startsWith("\\")) {
@@ -670,9 +671,16 @@ public class JsfProjectUtils {
                 jsfportletFolderRelativePath += "/";
             }
             jsfportletFolderRelativePath = jsfportletFolderRelativePath.replace("\\", "/");
-        }else
+        } else {
             jsfportletFolderRelativePath = "/";
-        
+        }
         return jsfportletFolderRelativePath;
+    }
+
+    public static boolean isJSFPortlet(PortletType portletType) {
+
+        if (portletType.getPortletClass().equals(JsfProjectConstants.JSF_PORTLET))
+            return true;
+        return false;
     }
 }
