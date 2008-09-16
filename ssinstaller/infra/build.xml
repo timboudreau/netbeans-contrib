@@ -534,6 +534,46 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 
     </target>
 
+    <target name="rebuild-engine" depends="-init">
+       
+        <echo message="BUILDING SUN STUDIO INSTALLER ENGINE =================================="/>
+        <ant dir="${nbi.netbeans.dir}/infra/engine" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/engine"/>                          
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>            
+            <property 
+                name="core.engine.dist.file" 
+                value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
+        </ant>
+  <!--
+	<ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value="tools-group"/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+   -->
+    </target>
+
     <target name="prepare-output-dir">
 	   
         <mkdir dir="${output.dir}"/>

@@ -75,10 +75,12 @@ INSTALLED_BITS="file://$CACHE_DIR/packages"
 NB_BUILDS_HOST="file://$CACHE_DIR/packages/nb"
 NB_FILES_PREFIX=netbeans-6.1
 
+TARGET=build
 #rm -rf $OUTPUT_DIR
 #
 if [ -z "$REBUILD" ]; then
     bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
+    TARGET=build-engine
 fi
 
 case $DISTRS in 
@@ -111,7 +113,7 @@ export ANT_OPTS
 run() {
     ################################################################################
     # run the build
-    ant build \
+    ant ${TARGET} \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\

@@ -36,23 +36,22 @@
 
 package org.netbeans.installer.utils.env;
 
-import java.util.Map;
+import java.util.Collection;
 import java.util.Set;
-import java.util.Vector;
 import org.netbeans.installer.utils.helper.Platform;
 
 public interface PackagesInfo {
     
-    Map<String, String> getInstalledPackages();
+    public Collection<PackageDescr> getInstalledPackages();
+    public Collection<String> getPackageNames(String pathToPackage);
     
     Set<String> getInstalledPatches();
     
     boolean isCorrectPackageFile(String pathToPackage);
     
     long getPackageContentSize(String pathToPackage);
-    
-    Vector<String> getPackageNames(String pathToPackage);
-    
+
     Platform getPackagePlatform(String pathToPackage);
 
 }
+

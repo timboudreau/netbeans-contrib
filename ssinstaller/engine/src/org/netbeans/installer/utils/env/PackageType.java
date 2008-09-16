@@ -40,11 +40,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.impl.LinuxDebianPackagesAnalyzer;
@@ -55,20 +56,18 @@ import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.nativepackages.NativeInstallerFactory;
 import org.netbeans.installer.utils.nativepackages.NativePackageInstaller;
 
+
 public enum PackageType implements PackagesInfo {
     
     SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), new PackagesInfo() {
-        
-        public Map<String, String> getInstalledPackages() {
-            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer();
-            Map<String, String> result = null;
+
+        @Override
+        public Collection<PackageDescr> getInstalledPackages() {
+            SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer();            
             if (spa.isActual()) {
-                result = new HashMap<String, String>();
-                for(String name: spa) {
-                    result.put(name, spa.getPackageVersion(name));
-                }
+                return Collections.unmodifiableCollection(spa.getInstalledPackageList());
             }
-            return result;      
+            return null;
         }
 
         public Set<String> getInstalledPatches() {
@@ -108,17 +107,15 @@ public enum PackageType implements PackagesInfo {
         public long getPackageContentSize(String pathToPackage) {
             return (new File(pathToPackage)).length();
         }
-
-        public Vector<String> getPackageNames(String pathToPackage) {
-            Vector<String> result = new Vector<String>();            
+        
+        
+        public Collection<String> getPackageNames(String pathToPackage) {
+            Collection<String> result = new ArrayList<String>();
             if (SystemUtils.isSolaris()) {
                 SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
                 if (spa.isActual()) {
-                    for(String name: spa) {
-                        result.add(name);
-                    }
-                }
-                return result;
+                    return Collections.unmodifiableCollection(spa.getInstalledPackageNames());
+                }               
             } else {
                 result.add((new File(pathToPackage)).getName());
             }
@@ -128,8 +125,8 @@ public enum PackageType implements PackagesInfo {
         public Platform getPackagePlatform(String pathToPackage) {
             SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
             if (spa.isActual()) {                
-                for(String name: spa) {
-                  String arch = spa.getPackageArchitecture(name);
+                for(PackageDescr name: spa.getInstalledPackageList()) {
+                  String arch = name.getArch();
                   if (arch.equals("i386")) return Platform.SOLARIS_X86;
                   if (arch.equals("i486")) return Platform.SOLARIS_X86;
                   if (arch.equals("i586")) return Platform.SOLARIS_X86;
@@ -141,11 +138,14 @@ public enum PackageType implements PackagesInfo {
             }
             return null;
         }
+
+
+       
         
     }),
     LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), new PackagesInfo() {
         
-        public Map<String, String> getInstalledPackages() {
+        public Collection<PackageDescr> getInstalledPackages() {
             return LinuxPackagesInfo.getInstalledPackages(new LinuxRPMPackagesAnalyzer(false));
         }
 
@@ -153,7 +153,7 @@ public enum PackageType implements PackagesInfo {
             LinuxPackagesAnalyzer lpa = new LinuxRPMPackagesAnalyzer(true);
             Set<String> result = null;
             if (lpa.isActual()) {
-                for(String name: lpa) {
+                for(String name: lpa.getInstalledPackageNames()) {
                     result.add(name);
                 }
             }
@@ -170,13 +170,13 @@ public enum PackageType implements PackagesInfo {
             return (new File(pathToPackage)).length();
         }
 
-        public Vector<String> getPackageNames(String pathToPackage) {
+        public Collection<String> getPackageNames(String pathToPackage) {
             if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackageNames(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
-            Vector<String> result = null;
+            Collection<String> result = null;
             if (pathToPackage.endsWith(".rpm")) {                
                 String[] fields = LinuxRPMPackagesAnalyzer.getRPMPackageFieldsFromFileName(pathToPackage);
                 if (fields != null) {
-                    result = new Vector<String>();
+                    result = new ArrayList<String>();
                     result.add(fields[0]);
                     return result;
                 }
@@ -197,7 +197,7 @@ public enum PackageType implements PackagesInfo {
     }),
     LINUX_DEB(null, new PackagesInfo() {
 
-        public Map<String, String> getInstalledPackages() {
+        public Collection<PackageDescr> getInstalledPackages() {
             return LinuxPackagesInfo.getInstalledPackages(new LinuxDebianPackagesAnalyzer());
         }
 
@@ -213,7 +213,7 @@ public enum PackageType implements PackagesInfo {
             return LinuxPackagesInfo.getPackageContentSize(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
         }
 
-        public Vector<String> getPackageNames(String pathToPackage) {
+        public Collection<String> getPackageNames(String pathToPackage) {
             return LinuxPackagesInfo.getPackageNames(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
         }
 
@@ -235,10 +235,12 @@ public enum PackageType implements PackagesInfo {
         return packageInstaller;
     }
 
-    public Map<String, String> getInstalledPackages() {
+    public Collection<PackageDescr> getInstalledPackages() {
         return info.getInstalledPackages();
     }
-
+    public Collection<String> getPackageNames(String pathToPackage) {
+        return info.getPackageNames(pathToPackage);
+    }
     public Set<String> getInstalledPatches() {
         return info.getInstalledPatches();
     }
@@ -250,26 +252,21 @@ public enum PackageType implements PackagesInfo {
     public long getPackageContentSize(String pathToPackage) {
         return info.getPackageContentSize(pathToPackage);
     }
-
-    public Vector<String> getPackageNames(String pathToPackage) {
-        return info.getPackageNames(pathToPackage);
-    }
+  
 
     public Platform getPackagePlatform(String pathToPackage) {
         return info.getPackagePlatform(pathToPackage);
     }
+
         
 }
-
 class LinuxPackagesInfo {
     
-    public static Map<String, String> getInstalledPackages(LinuxPackagesAnalyzer lpa) {
-        Map<String, String> result = null;
+    public static Collection<PackageDescr> getInstalledPackages(LinuxPackagesAnalyzer lpa) {
+        Collection<PackageDescr> result = null;
         if (lpa.isActual()) {
-            result = new HashMap<String, String>();
-            for(String name: lpa) {
-                result.put(name, lpa.getPackageVersion(name));
-            }
+            return lpa.getInstalledPackageList();
+            
         }
         return result;
     }
@@ -280,18 +277,18 @@ class LinuxPackagesInfo {
 
     public static long getPackageContentSize(String pathToPackage, LinuxPackagesAnalyzer lpa) {
         if (lpa.isActual()) {
-            for(String name: lpa) {
-                return lpa.getPackageSize(name);
+            for(PackageDescr name: lpa.getInstalledPackageList()) {
+                return name.getSize();
             }                
         }
         return -1;
     }
 
-    public static Vector<String> getPackageNames(String pathToPackage, LinuxPackagesAnalyzer lpa) {
-        Vector<String> result = null;
+    public static Collection<String> getPackageNames(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        Collection<String> result = null;
         if (lpa.isActual()) {
-            result = new Vector<String>();
-            for(String name: lpa) {
+            result = new ArrayList<String>();
+            for(String name: lpa.getInstalledPackageNames()) {
                 result.add(name);
             }
         }
@@ -300,8 +297,8 @@ class LinuxPackagesInfo {
 
     public static Platform getPackagePlatform(String pathToPackage, LinuxPackagesAnalyzer lpa) {
         if (lpa.isActual()) {
-            for(String name: lpa) {
-              return  archStringToPlatform(lpa.getPackageArchitecture(name));
+            for(PackageDescr name: lpa.getInstalledPackageList()) {
+              return  archStringToPlatform(name.getArch());
             }                
         }
         return null;

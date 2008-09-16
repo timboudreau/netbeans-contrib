@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +65,7 @@ import org.netbeans.installer.utils.helper.ExtendedUri;
 import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.utils.silent.SilentLogManager;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.panels.PreInstallSummaryPanel;
 
 public enum SystemCheckCategory implements ConfigurationChecker {
@@ -74,8 +76,8 @@ public enum SystemCheckCategory implements ConfigurationChecker {
     MEMORY(MEMORY_CATEGORY_CAPTION, new MemoryCheck()),
     RIGHTS(ADMIN_CATEGORY_CAPTION, new RightsCheck()),
     REMOTE(REMOTE_CATEGORY_CAPTION, new RemotePackagesCheck()),
-    PATCHES(PATCHES_CATEGORY_CAPTION, new PatchesCheck()),
-    PACKAGES(PACKAGES_CATEGORY_CAPTION, new PackagesCheck()),
+    //PATCHES(PATCHES_CATEGORY_CAPTION, new PatchesCheck()),
+    //PACKAGES(PACKAGES_CATEGORY_CAPTION, new PackagesCheck()),
     FREE_SPACE_SILENT("", new FreeSpaceSilentCheck());
     
     private String caption = null;
@@ -540,58 +542,7 @@ class PatchesCheck implements ConfigurationChecker {
     
 }
 
-class PackagesCheck implements ConfigurationChecker {
 
-    private final String SUN_STUDIO_PACKAGES_NOT_DETECTED = ResourceUtils.getString(PatchesCheck.class, "SCC.packagescheck.packages_not_detected"); // NOI18N;
-    private final String SUN_STUDIO_PACKAGES_DETECTED = ResourceUtils.getString(PatchesCheck.class, "SCC.packagescheck.packages_detected"); // NOI18N;
-    private final String PACKAGES_HAVE_TO_BE_UNINSTALLED_SHORT = ResourceUtils.getString(PatchesCheck.class, "SCC.packagescheck.packages_have_to_be_uninstalled_short"); // NOI18N;
-    private final String PACKAGES_HAVE_TO_BE_UNINSTALLED_LONG = ResourceUtils.getString(PatchesCheck.class, "SCC.packagescheck.packages_have_to_be_uninstalled_long"); // NOI18N;    
-    
-    private final String PACKAGES_LENGTH_PROPERTY = "packages_length";
-    private final String PACKAGE_NAME_PROPERTY_PATTERN = "package_%1$d_name";
-
-    private CheckStatus statusCache = null;
-    
-    public CheckStatus check() {
-        if (statusCache == null) {
-            statusCache = CheckStatus.OK;
-            for (Product product: Registry.getInstance().getProductsToInstall()) {
-                String count = product.getProperty(PACKAGES_LENGTH_PROPERTY);
-                if (count != null && count.length() > 0) {
-                    for(int i=0; i<Integer.parseInt(count); i++) {
-                        if (EnvironmentInfoFactory.getInstance().isPackageInstalled(product.getProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, i)))) {
-                            statusCache = CheckStatus.ERROR;
-                            return CheckStatus.ERROR;
-                        }
-                    }
-                }
-            }
-        }
-        return statusCache;
-    }
-
-    public String getShortErrorMessage() {
-        if (statusCache == null) check();
-        if (statusCache.equals(CheckStatus.ERROR)) return PACKAGES_HAVE_TO_BE_UNINSTALLED_SHORT;
-        return "";
-    }
-
-    public String getLongErrorMessage() {
-        if (statusCache == null) check();
-        if (statusCache.equals(CheckStatus.ERROR)) return PACKAGES_HAVE_TO_BE_UNINSTALLED_LONG;
-        return "";
-    }
-
-    public boolean isMandatory() {
-        return /*SystemUtils.isLinux() &&*/ !Registry.getInstance().getProducts(NativeClusterConfigurationLogic.SS_BASE_UID).get(0).getStatus().equals(Status.INSTALLED);
-    }
-
-    public String getDisplayString() {
-        if (statusCache == null) check();
-        return statusCache.equals(CheckStatus.ERROR)? SUN_STUDIO_PACKAGES_DETECTED: SUN_STUDIO_PACKAGES_NOT_DETECTED;
-    }
-    
-}
 
 class FreeSpaceSilentCheck implements ConfigurationChecker {
 

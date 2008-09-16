@@ -39,11 +39,12 @@ package org.netbeans.installer.wizard.components.sequences;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.env.CheckStatus;
+import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
-import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.UiMode;
 import org.netbeans.installer.utils.silent.SilentLogManager;
 import org.netbeans.installer.wizard.components.WizardSequence;
+import org.netbeans.installer.wizard.components.panels.sunstudio.ExistingSunStudioPanel;
 import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPanel;
 
 public class SystemCheckSequence extends WizardSequence {
@@ -51,9 +52,11 @@ public class SystemCheckSequence extends WizardSequence {
     private final String CRITICAL_ERROR_MESSAGE = ResourceUtils.getString(SystemCheckSequence.class, "SCS.error.message"); // NOI18N
     
     private SystemCheckPanel systemCheckPanel = null;
+    private ExistingSunStudioPanel existingSunStudioPanel = null;
 
     public SystemCheckSequence() {
         systemCheckPanel = new SystemCheckPanel();
+        existingSunStudioPanel = new ExistingSunStudioPanel();
     }
 
     @Override
@@ -68,9 +71,14 @@ public class SystemCheckSequence extends WizardSequence {
                 getWizard().getFinishHandler().cancel();
             }
         } else {
-            if (SystemCheckCategory.hasProblemCategories() && System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
+            if (System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
                 getChildren().clear();
-                addChild(systemCheckPanel);
+                if (SystemCheckCategory.hasProblemCategories()) {
+                    addChild(systemCheckPanel);
+                }
+                if (ExistingSunStudioChecker.getInstance().isSunStudioInstallationFound()) {
+                    addChild(existingSunStudioPanel);
+                }
             }            
         }
         super.executeForward();

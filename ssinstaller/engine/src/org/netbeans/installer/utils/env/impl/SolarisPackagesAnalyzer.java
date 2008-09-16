@@ -41,22 +41,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.env.PackageDescr;
 
-public class SolarisPackagesAnalyzer implements Iterable<String> {
-    
-    private File dataFile = null;;
-    private Map<String, String> versions = new HashMap<String, String>();
-    private Map<String, String> archictectures = new HashMap<String, String>();
-    
+public class SolarisPackagesAnalyzer extends AbstractPackageAnalyzer {
+        
     public SolarisPackagesAnalyzer() {
         try {
             dataFile  = File.createTempFile("ssinstaller", ".tmp");
             dataFile.deleteOnExit();
-            Process p = new ProcessBuilder("sh", "-c", "pkginfo -x > " + dataFile.getAbsolutePath()).start();
+            Process p = new ProcessBuilder("sh", "-c", "pkginfo -l > " + dataFile.getAbsolutePath()).start();
             p.waitFor();
         } catch (InterruptedException ex) {
             dataFile = null;
@@ -71,7 +65,7 @@ public class SolarisPackagesAnalyzer implements Iterable<String> {
         try {
             dataFile  = File.createTempFile("ssinstaller", ".tmp");
             dataFile.deleteOnExit();
-            Process p = new ProcessBuilder("sh", "-c", "pkginfo -d " + deviceFilePath + " -x > " + dataFile.getAbsolutePath()).start();
+            Process p = new ProcessBuilder("sh", "-c", "pkginfo -d " + deviceFilePath + " -l > " + dataFile.getAbsolutePath()).start();
             p.waitFor();
         } catch (InterruptedException ex) {
             dataFile = null;
@@ -82,27 +76,32 @@ public class SolarisPackagesAnalyzer implements Iterable<String> {
         }
     }
     
-    public boolean containsPackageInfo(String packageName) {
-        return versions.containsKey(packageName);
-    }
+
     
-    private void initPackagesInfo() {
+    protected  void initPackagesInfo() {
         BufferedReader output = null;
         try {
             output = new BufferedReader(new FileReader(dataFile));
             String line = null;
             int n = 0;
-            String name = null;
+            PackageDescr packageDescr = null;
             while((line = output.readLine()) != null) {
-                String[] fields = line.trim().split("\\s");
-                if (fields.length >= 2) {
-                    if (n % 2 == 0) name = fields[0].trim();
-                    if (n % 2 == 1) {
-                        versions.put(name, fields[1].trim());
-                        archictectures.put(name, fields[0].trim().replaceAll("[()]", ""));
-                    }
+                String[] pair = line.trim().split(":");
+                if (pair.length != 2) {
+                    packageDescr = null;
+                    continue;
+                }              
+                pair[1] = pair[1].trim();
+                if (pair[0].equals("PKGINST")) {
+                    packageDescr = new PackageDescr(pair[1]);
+                    installedPackages.put(pair[1], packageDescr);
+                } else if (pair[0].equals("VERSION")) {
+                    packageDescr.setVersion(pair[1].split(",")[0].trim());
+                } else if (pair[0].equals("ARCH")) {
+                    packageDescr.setArch(pair[1]);
+                } else if (pair[0].equals("BASEDIR")) {
+                    packageDescr.setBaseDirectory(pair[1]);
                 }
-                n++;
             }
         } catch (FileNotFoundException ex) {
             LogManager.log(ex);
@@ -116,34 +115,5 @@ public class SolarisPackagesAnalyzer implements Iterable<String> {
             }
         }
     }
-    
-    public String getPackageVersion(String packageName) {
-        if (dataFile != null) {
-            if (versions.isEmpty()) initPackagesInfo();
-            return versions.get(packageName);
-        }
-        return null;
-    }
-    
-    public String getPackageArchitecture(String packageName) {
-        if (dataFile != null) {
-            if (archictectures.isEmpty()) initPackagesInfo();
-            return archictectures.get(packageName);
-        }
-        return null;
-    }
 
-    public Iterator<String> iterator() {
-        if (dataFile != null && versions.isEmpty()) initPackagesInfo();
-        return versions.keySet().iterator();
-    }
-    
-    public boolean isActual() {
-        if (dataFile != null) {
-            if (archictectures.isEmpty()) initPackagesInfo();
-            return !versions.isEmpty();
-        }
-        return false;        
-    }
-    
 }

@@ -36,70 +36,62 @@
 
 package org.netbeans.installer.utils.env;
 
-import java.util.Set;
-import org.netbeans.installer.utils.env.impl.LinuxDistribution;
-import org.netbeans.installer.utils.env.impl.LinuxDistributionInfo;
-import org.netbeans.installer.utils.env.impl.LinuxProcFileSystemReader;
+public class PackageDescr {
+    private String name;
+    private String version;
+    private String baseDirectory;
+    private String arch;
+    private Long size;
 
+    public PackageDescr(String name) {
+        this.name = name;
+    }
 
-public class LinuxEnvironmentInfo extends EnvironmentInfo {
+    public PackageDescr(String name, String version, String baseDirectory, String arch, Long size) {
+        this.name = name;
+        this.version = version;
+        this.baseDirectory = baseDirectory;
+        this.arch = arch;
+    }
 
-    private final String CPU_MODEL_FIELD_NAME = "model name";
-    private final String CPU_SPEED_FIELD_NAME = "cpu MHz";
-    private final String MEMORY_SIZE_FIELD_NAME = "MemTotal";
-    
-    private LinuxDistributionInfo info = null;
-    
-    LinuxEnvironmentInfo() {}
-    
-    private LinuxDistributionInfo getLinuxDistributionInfo() {
-        if (info == null) info = LinuxDistribution.getCurrentDistribution().getInfo();        
-        return info;
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
+
+    public String getBaseDirectory() {
+        return baseDirectory;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setBaseDirectory(String baseDirectory) {
+        this.baseDirectory = baseDirectory;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getArch() {
+        return arch;
+    }
+
+    public void setArch(String arch) {
+        this.arch = arch;
     }
     
-    @Override
-    public String getOSName() {
-        return getLinuxDistributionInfo().getDistributionName();
-    }
-
-    @Override
-    public String getOSVersion() {
-        return getLinuxDistributionInfo().getDistributionVersion();
-    }
-
-    @Override
-    protected Set<String> createInstalledPatchesSet() {
-        return getPackageType().getInstalledPatches();
-    }
-
-  
-    @Override
-    public long getPhisicalMemorySize() {
-        LinuxProcFileSystemReader pfsr = new LinuxProcFileSystemReader("meminfo");
-        if (pfsr.containsField(MEMORY_SIZE_FIELD_NAME)) { 
-            String[] memInfo = pfsr.getFieldValue(MEMORY_SIZE_FIELD_NAME).split(" ");
-            if (memInfo.length == 2) return Long.parseLong(memInfo[0]);
-        }
-        return 0;
-    }
-
-    @Override
-    public String getCPUInformation() {
-        LinuxProcFileSystemReader pfsr = new LinuxProcFileSystemReader("cpuinfo");
-        if (pfsr.containsField(CPU_MODEL_FIELD_NAME)) return pfsr.getFieldValue(CPU_MODEL_FIELD_NAME);
-        return null;
-    }
-
-    @Override
-    public PackageType getPackageType() {
-        return getLinuxDistributionInfo().getPackageType();
-    }
-
-    @Override
-    public float getCPUClock() {
-        LinuxProcFileSystemReader pfsr = new LinuxProcFileSystemReader("cpuinfo");
-        if (pfsr.containsField(CPU_SPEED_FIELD_NAME)) return Float.parseFloat(pfsr.getFieldValue(CPU_SPEED_FIELD_NAME));
-        return 0;
-    }
-
 }

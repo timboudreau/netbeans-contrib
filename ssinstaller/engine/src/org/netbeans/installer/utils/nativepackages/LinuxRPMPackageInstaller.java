@@ -65,9 +65,9 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
             return Collections.EMPTY_LIST;
         }
         
-        Vector<String> packagesNames = PackageType.LINUX_RPM.getPackageNames(pathToPackage);
+        Collection<String> packagesNames = PackageType.LINUX_RPM.getPackageNames(pathToPackage);
         if (packagesNames != null && !packagesNames.isEmpty()) {
-            String packageName = packagesNames.get(0);
+            String packageName = packagesNames.iterator().next();
             try {
                 //  LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;

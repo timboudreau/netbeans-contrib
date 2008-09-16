@@ -40,6 +40,8 @@ import java.io.File;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.StringUtils;
+import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel.DestinationPanelUi;
@@ -149,6 +151,19 @@ public class SSBasePanel extends DestinationPanel {
                     getProperty(DestinationPanel.ERROR_NOT_EMPTY_PROPERTY))) {
                 errorMessage = null;
             }
+            ExistingSunStudioChecker checker = ExistingSunStudioChecker.getInstance();
+            final File file = new File(getDestinationField().getText().trim());
+            if (checker.getAllowedDirectory() != null) {                 
+                 if (!file.equals(new File(checker.getAllowedDirectory()))) {
+                     errorMessage = StringUtils.format(ONLY_ONE_LOCATION_ALLOWED_TEXT,
+                             checker.getAllowedDirectory());
+                 }
+            }
+            for (String dirName : checker.getRestrictedDirectories()) {
+                if (file.equals(new File (dirName))) {
+                    errorMessage = ALREADY_INSTALLED_LOCATION_TEXT;
+                }
+            }
             return errorMessage;
         }
         
@@ -170,5 +185,13 @@ public class SSBasePanel extends DestinationPanel {
     public static final String DEFAULT_DESTINATION_BUTTON_TEXT =
             ResourceUtils.getString(SSBasePanel.class,
             "NBP.destination.button.text"); // NOI18N
+    
+    public static final String ONLY_ONE_LOCATION_ALLOWED_TEXT =
+            ResourceUtils.getString(SSBasePanel.class,
+            "NBP.destination.only.location.allowed");//NOI18N 
+    
+    public static final String ALREADY_INSTALLED_LOCATION_TEXT =
+            ResourceUtils.getString(SSBasePanel.class,
+            "NBP.destination.already.installed");//NOI18N 
 
 }
