@@ -45,6 +45,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import org.netbeans.installer.utils.ResourceUtils;
@@ -53,6 +54,7 @@ import org.netbeans.installer.utils.env.SystemCheckCategory;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
+import org.netbeans.installer.utils.helper.swing.NbiTabbedPane;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi;
 import org.netbeans.installer.wizard.containers.SwingContainer;
@@ -207,7 +209,7 @@ public class SystemCheckPanel extends ErrorMessagePanel {
             mainPanel.add(longDescription, mainConstraints);           
             mainPanel.revalidate();
             setLayout(new GridBagLayout());
-            add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));            
+            add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));         
         }
         
         @Override
@@ -218,7 +220,7 @@ public class SystemCheckPanel extends ErrorMessagePanel {
         }
         
     }
-  
+
 }
 
 class MoreInfoActionListener implements ActionListener {

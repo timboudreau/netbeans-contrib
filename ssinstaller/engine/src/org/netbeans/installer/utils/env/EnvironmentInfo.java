@@ -39,7 +39,9 @@ package org.netbeans.installer.utils.env;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.installer.utils.LogManager;
@@ -49,8 +51,8 @@ import org.netbeans.installer.utils.helper.Platform;
 
 public abstract class EnvironmentInfo {
     
-    private Map<String, String> installedPackages = null;
-    private Set<String> installedPatches = null;
+    protected Map<String, String> installedPackages = null;
+    protected Set<String> installedPatches = null;
     
     public abstract String getOSName();
     
@@ -95,18 +97,7 @@ public abstract class EnvironmentInfo {
     }
     
     protected abstract Set<String> createInstalledPatchesSet();
-    
-    public Map<String, String> getInstalledPackages() {
-        if (installedPackages == null) installedPackages = createInstalledPackagesSet();
-        return (installedPackages == null)? null: Collections.unmodifiableMap(installedPackages);
-    }
-    
-    public boolean isPackageInstalled(String packageName) {
-        if (installedPackages == null) installedPackages = createInstalledPackagesSet();
-        return (installedPackages != null)? installedPackages.containsKey(packageName): false;
-    }
-    
-    protected abstract Map<String, String> createInstalledPackagesSet();
+       
     
     public void clearChachedData() {
         installedPackages = null;

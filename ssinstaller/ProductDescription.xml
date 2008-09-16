@@ -6,16 +6,16 @@
        <installation name="GUI">
             <group name="Compilers and Tools" uid="compilers">
                 <componentref uid="cc"/>
-                <componentref uid="cpp"/>
+              <!--  <componentref uid="cpp"/>
                 <componentref uid="fortran"/>
                 <componentref uid="dbx"/>
                 <componentref uid="dmake"/>
                 <componentref uid="support-files"/> 
-            </group>
-            <group name="Other" uid="other">
+          -->  </group>
+          <!--  <group name="Other" uid="other">
                  <componentref uid="perf-lib"/> 
                  <componentref uid="third-party-source"/>
-             </group>
+             </group>-->
 	     <group name="Prerequisites" uid="prerequisites"/>
         </installation>
         <installation name="toolchain">
@@ -31,6 +31,7 @@
                        description="The C Compiler">
         <block platform="solaris-x86">
             <svr source="SPROcc"/>
+            <svr source="SPROidext"/>
         </block>
         <block platform="solaris-sparc">
             <svr source="SPROcc"/>

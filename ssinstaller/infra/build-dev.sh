@@ -69,10 +69,11 @@
 DIRNAME=`dirname $0`
 cd ${DIRNAME}
 
+
 ################################################################################
 # load the properties
-source build-private.sh
-source ../../../../build-private.sh 
+. ../build-private.sh
+source ../build-private.sh 
 
 ################################################################################
 # define the temp file location
@@ -95,7 +96,7 @@ export ANT_OPTS
 run() {
     ################################################################################
     # run the build
-    ant build-engine \
+    ant rebuild-engine \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\

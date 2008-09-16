@@ -39,7 +39,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.env.impl.Solaris10CPUInfoParser;
@@ -103,11 +102,7 @@ public class SolarisEnvironmentInfo extends EnvironmentInfo {
         return getPackageType().getInstalledPatches();
     }
 
-    @Override
-    protected Map<String, String> createInstalledPackagesSet() {
-        return getPackageType().getInstalledPackages();
-    }
-
+ 
     @Override
     public long getPhisicalMemorySize() {
             try {
@@ -161,4 +156,5 @@ public class SolarisEnvironmentInfo extends EnvironmentInfo {
         if (cpuInfoParser == null) createCPUInfoParser();
         return (cpuInfoParser == null)? 0: cpuInfoParser.getCPUSpeed();
     }
+         
 }

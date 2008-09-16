@@ -36,49 +36,62 @@
 
 package org.netbeans.installer.utils.env.impl;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import org.netbeans.installer.utils.LogManager;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.netbeans.installer.utils.env.PackageDescr;
 
-public abstract class LinuxPackagesAnalyzer extends AbstractPackageAnalyzer {
-    
-    private final int FIELDS_COUNT = 4;
-    
-    
-    protected  void initPackagesInfo() {
-        BufferedReader output = null;
-        try {
-            output = new BufferedReader(new FileReader(dataFile));
-            String line = null;
-            while((line = output.readLine()) != null) {
-                String[] fields = line.trim().split(" ");
-                if (fields.length == FIELDS_COUNT) {
-                    installedPackages.put(fields[0].trim(),
-                            // TODO now basedirectory
-                            new PackageDescr(fields[0].trim(), fields[1].trim(), "/opt" ,  fields[3].trim(), Long.parseLong(fields[2].trim())));
-                   
-                }
+public abstract class AbstractPackageAnalyzer implements Iterable<PackageDescr> {
+
+    protected Map<String, PackageDescr> installedPackages = new HashMap();
+    protected File dataFile = null;
+
+    abstract void initPackagesInfo();
+
+    public PackageDescr findPackage(String packageName) {
+        if (dataFile != null) {
+            if (installedPackages.isEmpty()) {
+                initPackagesInfo();
             }
-        } catch (FileNotFoundException ex) {
-            LogManager.log(ex);            
-        } catch (IOException ex) {
-            LogManager.log(ex);            
-        } finally {
-            try {
-                output.close();
-            } catch (IOException ex) {
-                LogManager.log(ex);              
-            }
+            return installedPackages.get(packageName);
         }
+        return null;
     }
 
+    public Collection<PackageDescr> getInstalledPackageList() {
+        if (dataFile != null && installedPackages.isEmpty()) {
+            initPackagesInfo();
+        }
+        return installedPackages.values();
+    }
 
-    public Long getPackageSize(String packageName) {
-       //TODO add size.
-        return null;
-    }    
- 
+    public Collection<String> getInstalledPackageNames() {
+        if (dataFile != null && installedPackages.isEmpty()) {
+            initPackagesInfo();
+        }
+        return installedPackages.keySet();
+    }
+
+    public Iterator<PackageDescr> iterator() {
+        if (dataFile != null && installedPackages.isEmpty()) {
+            initPackagesInfo();
+        }
+        return installedPackages.values().iterator();
+    }
+
+    public boolean containsPackageInfo(String packageName) {
+        return installedPackages.containsKey(packageName);
+    }
+
+    public boolean isActual() {
+        if (dataFile != null) {
+            if (installedPackages.isEmpty()) {
+                initPackagesInfo();
+            }
+            return !installedPackages.isEmpty();
+        }
+        return false;
+    }
 }

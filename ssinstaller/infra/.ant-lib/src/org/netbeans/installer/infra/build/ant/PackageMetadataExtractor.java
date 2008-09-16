@@ -111,9 +111,9 @@ public class PackageMetadataExtractor extends Task {
             }
         } else {        
             if (PackageType.LINUX_RPM.isCorrectPackageFile(file.getAbsolutePath())) {
-                addPackageName(PackageType.LINUX_RPM.getPackageNames(file.getAbsolutePath()).get(0), packagesCountProperty);
+                addPackageName(PackageType.LINUX_RPM.getPackageNames(file.getAbsolutePath()).iterator().next(), packagesCountProperty);
             } else {
-                addPackageName(PackageType.SOLARIS_PKG.getPackageNames(file.getAbsolutePath()).get(0), packagesCountProperty);
+                addPackageName(PackageType.SOLARIS_PKG.getPackageNames(file.getAbsolutePath()).iterator().next(), packagesCountProperty);
             }
         }
     }   
