@@ -79,8 +79,7 @@ TARGET=build
 #rm -rf $OUTPUT_DIR
 #
 if [ -z "$REBUILD" ]; then
-    bash copy-packages.sh $CACHE_DIR/packages $SUNSTUDIO_BITS_ROOT
-    TARGET=build-engine
+    bash copy-packages.sh $CACHE_DIR/packages || exit 1
 fi
 
 case $DISTRS in 
