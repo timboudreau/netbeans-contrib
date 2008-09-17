@@ -1,6 +1,5 @@
-[ "$#" -eq 2 ] || exit 65
+[ "$#" -eq 1 ] || exit 65
 DEST_DIR=$1
-IMAGE_DIR=$2
 
 PLATFORMS="$DISTRS"
 
@@ -16,7 +15,10 @@ touch $DEST_DIR/dummy
 DEST_PACKAGES=$DEST_DIR/$platform
 DEST_NB=$DEST_DIR/nb
 
-echo "Generating $platform in $DEST_PACKAGES"
+echo "Copy packages $platform in $DEST_PACKAGES from $SS_PACKAGES_DIR"
+
+[ ! -d $SS_PACKAGES_DIR ] && echo "There is no directory $SS_PACKAGES_DIR" &&  exit 1
+
 
 rm -rf $DEST_PACKAGES/*
 mkdir -p $DEST_PACKAGES
