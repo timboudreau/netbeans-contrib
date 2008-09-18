@@ -45,20 +45,19 @@ import org.netbeans.installer.utils.env.PackageDescr;
 
 public abstract class LinuxPackagesAnalyzer extends AbstractPackageAnalyzer {
     
-    private final int FIELDS_COUNT = 4;
-    
-    
+    private final int FIELDS_COUNT = 5;
+        
     protected  void initPackagesInfo() {
         BufferedReader output = null;
         try {
             output = new BufferedReader(new FileReader(dataFile));
             String line = null;
             while((line = output.readLine()) != null) {
+                LogManager.log(line);
                 String[] fields = line.trim().split(" ");
                 if (fields.length == FIELDS_COUNT) {
                     installedPackages.put(fields[0].trim(),
-                            // TODO now basedirectory
-                            new PackageDescr(fields[0].trim(), fields[1].trim(), "/opt" ,  fields[3].trim(), Long.parseLong(fields[2].trim())));
+                            new PackageDescr(fields[0].trim(), fields[1].trim(), fields[4].trim(),  fields[3].trim(), Long.parseLong(fields[2].trim())));
                    
                 }
             }
@@ -75,10 +74,5 @@ public abstract class LinuxPackagesAnalyzer extends AbstractPackageAnalyzer {
         }
     }
 
-
-    public Long getPackageSize(String packageName) {
-       //TODO add size.
-        return null;
-    }    
  
 }

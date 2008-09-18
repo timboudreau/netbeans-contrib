@@ -177,7 +177,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
         
         @Override
         public void evaluateCancelButtonClick() {
-            if (checker.isInstallationPossible()) {
+            if (!checker.isInstallationPossible()) {
                 component.getWizard().getFinishHandler().cancel();
             } else {
                 super.evaluateCancelButtonClick();

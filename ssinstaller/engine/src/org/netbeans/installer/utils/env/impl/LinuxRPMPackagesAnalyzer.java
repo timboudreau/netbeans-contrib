@@ -45,7 +45,7 @@ import org.netbeans.installer.utils.SystemUtils;
 
 public class LinuxRPMPackagesAnalyzer extends LinuxPackagesAnalyzer {
     
-    private final String QUERY_OPTIONS = " --qf \"%{NAME} %{VERSION} %{SIZE} %{ARCH}\\n\" ";
+    private final String QUERY_OPTIONS = " --qf \"%{NAME} %{VERSION} %{SIZE} %{ARCH} %{DIRNAMES}\\n\" ";
     
     private static Boolean isRPMSupported = null;
     

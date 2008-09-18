@@ -54,6 +54,7 @@ public class PackageMetadataExtractor extends Task {
     private final String PROPERTY_VALUE_PATTERN = "product.properties.%1$d.value";
     private final String PACKAGES_LENGTH_PROPERTY = "packages_length";
     private final String PACKAGE_NAME_PROPERTY_PATTERN = "package_%1$d_name";
+    private final String PACKAGE_VERSION_PROPERTY_PATTERN = "package_%1$d_version";
     
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -110,16 +111,19 @@ public class PackageMetadataExtractor extends Task {
                 fillPackagesFields(child, packagesCountProperty);
             }
         } else {        
-            if (PackageType.LINUX_RPM.isCorrectPackageFile(file.getAbsolutePath())) {
-                addPackageName(PackageType.LINUX_RPM.getPackageNames(file.getAbsolutePath()).iterator().next(), packagesCountProperty);
+            String packageFile = file.getAbsolutePath();
+            if (PackageType.LINUX_RPM.isCorrectPackageFile(packageFile)) {
+                addPackagesMetadata(PackageType.LINUX_RPM.getPackageNames(packageFile).iterator().next(), PackageType.LINUX_RPM.getPackageVersion(packageFile), packagesCountProperty);
             } else {
-                addPackageName(PackageType.SOLARIS_PKG.getPackageNames(file.getAbsolutePath()).iterator().next(), packagesCountProperty);
+                addPackagesMetadata(PackageType.SOLARIS_PKG.getPackageNames(packageFile).iterator().next(), PackageType.SOLARIS_PKG.getPackageVersion(packageFile), packagesCountProperty);
             }
         }
     }   
     
-    private void addPackageName(String name, String packagesCountProperty) {
-        addProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, increasePropertyValue(packagesCountProperty)), name);
+    private void addPackagesMetadata(String name, String version, String packagesCountProperty) {
+        int count = increasePropertyValue(packagesCountProperty);
+        addProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, count), name);
+        if (version != null) addProperty(String.format(PACKAGE_VERSION_PROPERTY_PATTERN, count), version);
     }
    
 }

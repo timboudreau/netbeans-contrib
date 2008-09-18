@@ -45,6 +45,7 @@ import java.util.Set;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.SystemUtils;
 
 /**
  *
@@ -58,6 +59,7 @@ public class ExistingSunStudioChecker {
 
     private final String PACKAGES_LENGTH_PROPERTY = "packages_length";
     private final String PACKAGE_NAME_PROPERTY_PATTERN = "package_%1$d_name";
+    private final String PACKAGE_VERSION_PROPERTY_PATTERN = "package_%1$d_version";
 
     List<PackageDescr> packagesToInstall;
     
@@ -71,8 +73,9 @@ public class ExistingSunStudioChecker {
             if (count != null && count.length() > 0) {
                 for (int i = 1; i <= Integer.parseInt(count); i++) {
                     String packageName = product.getProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, i));
+                    String packageVersion = product.getProperty(String.format(PACKAGE_VERSION_PROPERTY_PATTERN, i));
                     PackageDescr descr = new PackageDescr(packageName);
-                    descr.setVersion(VERSION);
+                    descr.setVersion(packageVersion == null? VERSION: packageVersion);
                     packagesToInstall.add(descr);
                 }
             }
@@ -81,9 +84,14 @@ public class ExistingSunStudioChecker {
         LogManager.log("Already installed Sun Studion packages are:");
         for (PackageDescr installedPackage : installedPackages) {
             for (PackageDescr packageToInstall : packagesToInstall) {
-                // special Solaris
-                if (installedPackage.getName().equals(packageToInstall.getName())
-                        || installedPackage.getName().startsWith(packageToInstall.getName() + ".")) {
+                // special for Linux
+                if (SystemUtils.isLinux() && installedPackage.getName().equals(packageToInstall.getName())) {
+                    conflictedPackages.add(installedPackage);
+                    LogManager.log(installedPackage.getName());
+                }                
+                // special for Solaris
+                if (SystemUtils.isSolaris() && (installedPackage.getName().equals(packageToInstall.getName())
+                        || installedPackage.getName().startsWith(packageToInstall.getName() + "."))) {
                     conflictedPackages.add(installedPackage);
                     LogManager.log(installedPackage.getName());
                 }
@@ -138,9 +146,10 @@ public class ExistingSunStudioChecker {
         return new ArrayList<String>(names);
     }
     
-    public int getResolutionForVersion(String version) {
-        if (version.equals(VERSION)) {
-            return getBaseDirsForVersion(version).size() ==1 
+    public int getResolutionForVersion(String version) {        
+        if (SystemUtils.isLinux()) return INSTALLATION_BLOCKED;
+        if (version.equals(VERSION)) {            
+            return getBaseDirsForVersion(version).size() == 1 
                     ? ONLY_THIS_LOCATION_USED : INSTALLATION_BLOCKED;
         }
         return LOCATION_COULD_NOT_BE_USED;

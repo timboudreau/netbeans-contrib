@@ -139,8 +139,17 @@ public enum PackageType implements PackagesInfo {
             return null;
         }
 
-
-       
+        public String getPackageVersion(String pathToPackage) {
+            if (SystemUtils.isSolaris()) {
+                SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer(pathToPackage);
+                if (spa.isActual()) {
+                    for(PackageDescr name: spa) {
+                        return name.getVersion();
+                    }
+                }               
+            }
+            return null;
+        }
         
     }),
     LINUX_RPM(NativeInstallerFactory.getPlatformNativePackageInstaller(false), new PackagesInfo() {
@@ -193,6 +202,18 @@ public enum PackageType implements PackagesInfo {
             }
             return result;            
         }
+
+        public String getPackageVersion(String pathToPackage) {
+            if (LinuxRPMPackagesAnalyzer.isRPMSupported()) return LinuxPackagesInfo.getPackageVersion(pathToPackage, new LinuxRPMPackagesAnalyzer(pathToPackage));
+            String result = null;
+            if (pathToPackage.endsWith(".rpm")) {                
+                String[] fields = LinuxRPMPackagesAnalyzer.getRPMPackageFieldsFromFileName(pathToPackage);
+                if (fields != null) {
+                    result = fields[1];
+                }
+            }
+            return result;            
+        }
        
     }),
     LINUX_DEB(null, new PackagesInfo() {
@@ -220,6 +241,10 @@ public enum PackageType implements PackagesInfo {
         public Platform getPackagePlatform(String pathToPackage) {
             return LinuxPackagesInfo.getPackagePlatform(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
         }
+        
+        public String getPackageVersion(String pathToPackage) {
+            return LinuxPackagesInfo.getPackageVersion(pathToPackage, new LinuxDebianPackagesAnalyzer(pathToPackage));
+        }        
         
     });
     
@@ -258,6 +283,10 @@ public enum PackageType implements PackagesInfo {
         return info.getPackagePlatform(pathToPackage);
     }
 
+    public String getPackageVersion(String pathToPackage) {
+        return info.getPackageVersion(pathToPackage);
+    }
+
         
 }
 class LinuxPackagesInfo {
@@ -284,6 +313,15 @@ class LinuxPackagesInfo {
         return -1;
     }
 
+    public static String getPackageVersion(String pathToPackage, LinuxPackagesAnalyzer lpa) {
+        if (lpa.isActual()) {
+            for(PackageDescr name: lpa.getInstalledPackageList()) {
+                return name.getVersion();
+            }                
+        }
+        return null;
+    }    
+    
     public static Collection<String> getPackageNames(String pathToPackage, LinuxPackagesAnalyzer lpa) {
         Collection<String> result = null;
         if (lpa.isActual()) {

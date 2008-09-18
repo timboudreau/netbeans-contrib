@@ -52,6 +52,7 @@ public class PackageDescr {
         this.version = version;
         this.baseDirectory = baseDirectory;
         this.arch = arch;
+        this.size = size;
     }
 
     public Long getSize() {

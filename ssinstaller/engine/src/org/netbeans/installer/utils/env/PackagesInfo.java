@@ -52,6 +52,8 @@ public interface PackagesInfo {
     long getPackageContentSize(String pathToPackage);
 
     Platform getPackagePlatform(String pathToPackage);
+    
+    String getPackageVersion(String pathToPackage);
 
 }
 

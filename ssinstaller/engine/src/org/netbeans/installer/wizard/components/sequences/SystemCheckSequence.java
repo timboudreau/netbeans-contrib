@@ -71,7 +71,7 @@ public class SystemCheckSequence extends WizardSequence {
                 getWizard().getFinishHandler().cancel();
             }
         } else {
-            if (System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
+            if (System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null && System.getProperty(Registry.CREATE_BUNDLE_PATH_PROPERTY) == null) {
                 getChildren().clear();
                 if (SystemCheckCategory.hasProblemCategories()) {
                     addChild(systemCheckPanel);
