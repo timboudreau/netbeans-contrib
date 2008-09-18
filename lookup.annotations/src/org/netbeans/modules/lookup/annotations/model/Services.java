@@ -39,10 +39,53 @@
 
 package org.netbeans.modules.lookup.annotations.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  *
  * @author Jaroslav Bachorik
  */
 public class Services {
+    final private Map<String, ServiceM> delegate = new HashMap<String, ServiceM>();
 
+    public static interface Functor {
+        void execute(ServiceM service);
+    }
+
+    public ServiceM get(String serviceName) {
+        return delegate.get(serviceName);
+    }
+
+    public void put(ServiceM service) {
+        delegate.put(service.getServiceClass(), service);
+    }
+
+    public void mergeFrom(Services otherServices) {
+        for(Map.Entry<String, ServiceM> entry : otherServices.delegate.entrySet()) {
+            ServiceM currentService = delegate.get(entry.getKey());
+            if (currentService == null) {
+                currentService = new ServiceM(entry.getKey());
+                delegate.put(entry.getKey(), currentService);
+            }
+            currentService.getContracts().addAll(entry.getValue().getContracts());
+        }
+    }
+
+    public void forEach(Functor functor) {
+        for(Map.Entry<String, ServiceM> entry : delegate.entrySet()) {
+            functor.execute(entry.getValue());
+        }
+    }
+
+    public Collection<ServiceM> values() {
+        Collection<ServiceM> services = new ArrayList<ServiceM>(delegate.entrySet().size());
+        for(Map.Entry<String, ServiceM> entry : delegate.entrySet()) {
+            services.add(entry.getValue());
+        }
+        return services;
+    }
 }
