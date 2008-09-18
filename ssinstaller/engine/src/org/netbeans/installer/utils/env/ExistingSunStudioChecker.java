@@ -37,13 +37,16 @@
 package org.netbeans.installer.utils.env;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
+import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
 
@@ -133,9 +136,34 @@ public class ExistingSunStudioChecker {
                 baseDirs.add(descr.getBaseDirectory());
             }
         }
-        return new ArrayList<String>(baseDirs);
+        return new ArrayList<String>(getDirsRoots(baseDirs));
     }
 
+    private Set<String> getDirsRoots(Collection<String> dirs) {
+        Set<String> result = new HashSet();
+        List<File> dirsList = new LinkedList<File>();
+        for(String dir: dirs) {
+            dirsList.add(new File(dir));
+        }
+        File[] dirsArray = new File[dirsList.size()];
+        dirsList.toArray(dirsArray);
+        for(int i=0; i<dirsArray.length; i++) {
+            if (dirsArray[i] == null) continue;
+            for(int j=i+1; j<dirsArray.length; j++) {
+                if (dirsArray[j] == null) continue;
+                if (FileUtils.isParent(dirsArray[i], dirsArray[j])) {
+                    dirsArray[j] = null;
+                } else if (FileUtils.isParent(dirsArray[j], dirsArray[i])) {
+                    dirsArray[i] = null;
+                }
+            }   
+        }
+        for(File dir: dirsArray) {
+            if (dir != null) result.add(dir.getAbsolutePath());
+        }
+        return result;
+    }
+    
     public List<String> getPackagesForVersion(String version) {
         Set<String> names = new HashSet();
         for (PackageDescr descr : conflictedPackages) {
