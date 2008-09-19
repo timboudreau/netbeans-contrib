@@ -46,7 +46,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -71,6 +70,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.w3c.dom.Element;
 
 /**
  * Alert in case a common global action is invoked by the user but there is no binding.
@@ -108,9 +108,11 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
+            Element projectEl = AntScriptUtils.antProjectCookieFor(script).getProjectElement();
+            String defaultTarget = projectEl != null ? projectEl.getAttribute("default") : ""; // NOI18N
             if (targets != null) {
                 targetCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
-                targetCombo.setSelectedItem(guessTarget(command, targets));
+                targetCombo.setSelectedItem(guessTarget(command, targets, defaultTarget));
             }
         }
     }
@@ -121,16 +123,17 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
         DEFAULT_TARGETS.put(ActionProvider.COMMAND_BUILD, Arrays.asList("build", "compile", "jar", "dist", "all", ".*jar.*")); // NOI18N
         DEFAULT_TARGETS.put(ActionProvider.COMMAND_CLEAN, Arrays.asList("clean", ".*clean.*")); // NOI18N
         DEFAULT_TARGETS.put(ActionProvider.COMMAND_RUN, Arrays.asList("run", "start", ".*run.*", ".*start.*")); // NOI18N
-        DEFAULT_TARGETS.put(ActionProvider.COMMAND_TEST, Arrays.asList("test", ".*test.*")); // NOI18N
+        DEFAULT_TARGETS.put(ActionProvider.COMMAND_TEST, Arrays.asList("test", "tests", ".*test.*")); // NOI18N
         DEFAULT_TARGETS.put(JavaProjectConstants.COMMAND_JAVADOC, Arrays.asList("javadoc", "javadocs", "docs", "doc", ".*javadoc.*", ".*doc.*")); // NOI18N
     }
     /**
      * Guess at a likely Ant target for a command.
      * @param command an action as in {@link ActionProvider}
      * @param targets available Ant target names
+     * @param defaultTarget the script's default target name, or ""
      * @return the most plausible target to bind, or ""
      */
-    private static String guessTarget(String command, List<String> targets) {
+    private static String guessTarget(String command, List<String> targets, String defaultTarget) {
         if (DEFAULT_TARGETS.containsKey(command)) {
             for (String pattern : DEFAULT_TARGETS.get(command)) {
                 for (String target : targets) {
@@ -139,6 +142,9 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
                     }
                 }
             }
+        }
+        if (command.equals(ActionProvider.COMMAND_BUILD)) {
+            return defaultTarget;
         }
         return "";
     }
