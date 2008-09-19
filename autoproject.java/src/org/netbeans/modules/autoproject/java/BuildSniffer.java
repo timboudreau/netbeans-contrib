@@ -99,7 +99,7 @@ public class BuildSniffer extends AntLogger {
     @Override
     public String[] interestedInTasks(AntSession session) {
         // XXX may also want/need: jar, delete, copy, javadoc, ...
-        return new String[] {"javac"};
+        return new String[] {"javac", "fileset"};
     }
 
     /**
@@ -123,10 +123,33 @@ public class BuildSniffer extends AntLogger {
          */
         final Map<String,Set<String>> sourceForBinary = new HashMap<String,Set<String>>();
 
+        /**
+         * Base dirs of filesets.
+         * Since AbstractFileSet.toString prints only relative path names,
+         * we need to keep track of these when the fileset is defined,
+         * so we can later handle appending of <fileset refid='...'/> to a CP.
+         * The values are not resolved yet, as necessary properties might not yet be defined.
+         */
+        final Map<String,String> filesetBasedirs = new HashMap<String,String>();
+
     }
 
     @Override
     public void taskFinished(AntEvent event) {
+        State state = (State) event.getSession().getCustomData(this);
+        if (state == null) {
+            state = new State();
+            event.getSession().putCustomData(this, state);
+        }
+        if (event.getTaskName().equals("fileset")) {
+            String id = event.getTaskStructure().getAttribute("id");
+            String dir = event.getTaskStructure().getAttribute("dir");
+            if (id != null && dir != null) {
+                state.filesetBasedirs.put(id, dir);
+            }
+            return;
+        }
+        assert event.getTaskName().equals("javac") : event;
         TaskStructure task = event.getTaskStructure();
         if (task == null) {
             return;
@@ -150,6 +173,8 @@ public class BuildSniffer extends AntLogger {
         }
         List<String> classpath = new ArrayList<String>();
         if (buildSysclasspath.matches("only|first")) {
+            // XXX would be good to exclude items in ${netbeans.home}/lib/*.jar and dt.jar
+            // XXX probably also safe to collapse ant/lib/*.jar to ant/lib/ant.jar
             appendPath(System.getProperty("java.class.path"), event, classpath, true);
         }
         if (!buildSysclasspath.equals("only")) {
@@ -160,9 +185,9 @@ public class BuildSniffer extends AntLogger {
             }
             for (TaskStructure child : task.getChildren()) {
                 if (child.getName().equals("src")) {
-                    appendPathStructure(child, event, sources);
+                    appendPathStructure(child, event, sources, state);
                 } else if (child.getName().equals("classpath")) {
-                    appendPathStructure(child, event, classpath);
+                    appendPathStructure(child, event, classpath, state);
                 }
             }
         }
@@ -183,11 +208,6 @@ public class BuildSniffer extends AntLogger {
                     sourcesIt.set(realRoot.getAbsolutePath());
                 }
             }
-        }
-        State state = (State) event.getSession().getCustomData(this);
-        if (state == null) {
-            state = new State();
-            event.getSession().putCustomData(this, state);
         }
         if (destdir != null) {
             Set<String> otherSourceRoots = state.sourceForBinary.get(destdir);
@@ -258,7 +278,7 @@ public class BuildSniffer extends AntLogger {
         return FileUtil.normalizeFile(f);
     }
 
-    private static void appendPathStructure(TaskStructure s, AntEvent event, List<String> entries) {
+    private static void appendPathStructure(TaskStructure s, AntEvent event, List<String> entries, State state) {
         appendPath(s.getAttribute("path"), event, entries, true);
         String ref = s.getAttribute("refid");
         if (ref != null) {
@@ -266,7 +286,7 @@ public class BuildSniffer extends AntLogger {
         }
         for (TaskStructure c : s.getChildren()) {
             if (c.getName().equals("path")) {
-                appendPathStructure(c, event, entries);
+                appendPathStructure(c, event, entries, state);
             } else if (c.getName().equals("pathelement")) {
                 appendPath(c.getAttribute("path"), event, entries, true);
                 appendPath(c.getAttribute("location"), event, entries, false);
@@ -304,6 +324,22 @@ public class BuildSniffer extends AntLogger {
                     }
                     PathMatcher m = new PathMatcher(includes, excludes, d);
                     scanPath(d, "", m, entries);
+                }
+                ref = c.getAttribute("refid");
+                if (ref != null) {
+                    String basedir = state.filesetBasedirs.get(ref);
+                    if (basedir != null) {
+                        String includedFiles = event.getProperty(ref);
+                        if (includedFiles != null) {
+                            for (String include : includedFiles.split("[:;]")) {
+                                appendPath(basedir + "/" + include, event, entries, false);
+                            }
+                        } else {
+                            LOG.warning("Cannot evaluate <fileset refid='" + ref + "'/> in " + event.getScriptLocation());
+                        }
+                    } else {
+                        LOG.warning("Unknown basedir for <fileset refid='" + ref + "'/> in " + event.getScriptLocation());
+                    }
                 }
             } else if (c.getName().equals("dirset")) {
                 // OpenDS uses the silly construct:
