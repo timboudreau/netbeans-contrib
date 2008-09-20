@@ -81,7 +81,7 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
 
     public static final QName TOP_PROPERTY_ELEMENT = new QName(EncodingConst.URI, EncodingConst.TOP_FLAG);
     private static final XmlBoolean XML_BOOLEAN_TRUE = XmlBoolean.Factory.newValue(Boolean.TRUE);
-    private static final String VERBOSE_LOGGING_PKG_NAME = "com.sun.encoder.custom";;
+    private static final String DEBUG_PKG_NAME = "com.sun.encoder";;
     private TesterPanel testerPanel;
     private DialogDescriptor dialogDescriptor;
     private Dialog dialog;
@@ -199,24 +199,36 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
 
     private void process() {
 
-        // if verbose mode is checked, then output debug information
-        final boolean isVerbose = testerPanel.isVerbose();
+        int debugLevelIndex = testerPanel.getDebugLevelIndex();
+        // if debugLevel is other than "None", then output debug information
+        boolean debugging = debugLevelIndex > 0;
         ByteArrayOutputStream byteArrOS = null;
         Handler logHandler = null;
-        Logger logger4Verbose = null;
+        Logger logger = null;
         Level origLevel = null;
+        Level currLevel = null;
 
-        if (isVerbose) {
-            logger4Verbose = Logger.getLogger(VERBOSE_LOGGING_PKG_NAME);
-            origLevel = logger4Verbose.getLevel();
-            logger4Verbose.setLevel(Level.FINE);
+        if (debugging) {
+            if (debugLevelIndex == 1) {
+                currLevel = Level.INFO;
+            } else if (debugLevelIndex == 2) {
+                currLevel = Level.FINE;
+            } else if (debugLevelIndex == 3) {
+                currLevel = Level.FINER;
+            } else if (debugLevelIndex == 4) {
+                currLevel = Level.FINEST;
+            }
+            logger = Logger.getLogger(DEBUG_PKG_NAME);
+            // remember original debug level
+            origLevel = logger.getLevel();
+            logger.setLevel(currLevel);
 
             // craete a StreamHandler based on ByteArrayOutputStream
             byteArrOS = new ByteArrayOutputStream();
             logHandler = new StreamHandler(byteArrOS, new LogFormatter());
-            logHandler.setLevel(Level.FINE);
+            logHandler.setLevel(currLevel);
             // add to logger
-            logger4Verbose.addHandler(logHandler);
+            logger.addHandler(logHandler);
         }
 
         //verify the input first
@@ -269,23 +281,23 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
                         processFile, outputFile, testerPanel.getPostencodeCoding(),
                         testerPanel.isToString());
             } catch (IOException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (ParserConfigurationException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (EncoderException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (SAXException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (EncoderConfigurationException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } finally {
@@ -298,23 +310,23 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
                         processFile, outputFile, testerPanel.getPredecodeCoding(),
                         testerPanel.isFromString());
             } catch (TransformerConfigurationException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (final TransformerException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (EncoderException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (IOException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } catch (EncoderConfigurationException ex) {
-                displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+                displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 result = false;
             } finally {
@@ -340,22 +352,23 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
 
-        displayVerboseMessages(isVerbose, byteArrOS, logHandler, logger4Verbose, origLevel);
+        displayDebugMsgs(debugging, byteArrOS, logHandler, logger, origLevel);
     }
 
-    private void displayVerboseMessages(boolean isVerbose,
+    private void displayDebugMsgs(boolean debugging,
             ByteArrayOutputStream byteArrOS,
             Handler logHandler,
-            Logger logger4Verbose,
+            Logger logger,
             Level origLevel) {
-        if (!isVerbose || logHandler == null || byteArrOS == null
-                || logger4Verbose == null) {
+        if (!debugging || logHandler == null || byteArrOS == null
+                || logger == null) {
             return;
         }
         // flush the Handler.
         logHandler.flush();
-        InputOutput io = IOProvider.getDefault().getIO("Encoder Test ["
-                + metaFile.getName() + "]", true);
+        String title = "Encoder Test [" + metaFile.getName() + "]";
+        boolean newIO = true;
+        InputOutput io = IOProvider.getDefault().getIO(title, newIO);
         // Ensure this I/O output pane is visible.
         io.select();
         // now writes to the output pane.
@@ -371,8 +384,8 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
         writer.close();
         // close and remove the Handler.
         logHandler.close();
-        logger4Verbose.removeHandler(logHandler);
+        logger.removeHandler(logHandler);
         // reset to its original logging level
-        logger4Verbose.setLevel(origLevel);
+        logger.setLevel(origLevel);
     }
 }
