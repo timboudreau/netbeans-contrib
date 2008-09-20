@@ -45,7 +45,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private static final String[] CHARSET_NAMES_EXTRA = Utils.getCharsetNames(true);
     private static final ResourceBundle _bundle =
             ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle");
-    
+
     private static final String PREF_XSD_FILE = "xsd-file";  //NOI18N
     private static final String PREF_TOP_ELEM = "top-elem";  //NOI18N
     private static final String PREF_ACTION = "action";  //NOI18N
@@ -56,11 +56,12 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private static final String PREF_DOC_CODING = "doc_coding"; //NOI18N
     private static final String ACTION_ENCODE = "encode";  //NOI18N
     private static final String ACTION_DECODE = "decode";  //NOI18N
-    private static final String PREF_VERBOSE = "verbose";  //NOI18N
-    
+    private static final String PREF_DEBUG_LEVEL = "debug_level";  //NOI18N
+    private static final String[] DEBUG_LEVELS = new String[] {"NONE", "INFO", "FINE", "FINER", "FINEST"};
+
     private String xsdFilePath;
     private Preferences mPrefs = Preferences.userNodeForPackage(this.getClass());
-    
+
     /** Creates new form TesterPanel */
     public TesterPanel(String xsdFile) {
         xsdFilePath = xsdFile;
@@ -85,10 +86,12 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jComboBoxResultCoding.setSelectedIndex(-1);
         setComboBoxList(jComboBoxSourceCoding, CHARSET_NAMES_EXTRA);
         jComboBoxSourceCoding.setSelectedIndex(-1);
+        setComboBoxList(selectDebugLevel, DEBUG_LEVELS);
+        selectDebugLevel.setSelectedIndex(0);
         applyPreferences();
-        updateComponents();        
+        updateComponents();
     }
-    
+
     private void setComboBoxList(JComboBox comboBox, String[] list) {
         comboBox.removeAllItems();
         for (int i = 0; i < list.length; i++) {
@@ -96,7 +99,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         comboBox.setSelectedIndex(-1);
     }
-    
+
     private void applyPreferences() {
         if (sameAsPreviousLaunch()) {
             String value = mPrefs.get(PREF_ACTION, null);
@@ -148,10 +151,10 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
             mFolderText.setText(outputFile.getParent());
             mOverwrite.setSelected(mPrefs.getBoolean(PREF_OVERWRITE, true));
-            jVerbose.setSelected(mPrefs.getBoolean(PREF_VERBOSE, false));
+            selectDebugLevel.setSelectedIndex(mPrefs.getInt(PREF_DEBUG_LEVEL, 0));
         }
     }
-    
+
     public void savePreferences() throws BackingStoreException {
         mPrefs.put(PREF_XSD_FILE, xsdFilePath);
         if (this.getActionType().equals(EncoderTestPerformerImpl.DECODE)) {
@@ -173,7 +176,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             mPrefs.put(PREF_OUTPUT, getOutputFile());
         }
         mPrefs.putBoolean(PREF_OVERWRITE, isOverwrite());
-        mPrefs.putBoolean(PREF_VERBOSE, isVerbose());
+        mPrefs.putInt(PREF_DEBUG_LEVEL, getDebugLevelIndex());
         mPrefs.flush();
     }
 
@@ -201,10 +204,10 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             jComboBoxSourceCoding.setEnabled(true);
             jCheckBoxFromString.setEnabled(true);
         }
-        
-        updateCreatedFolder();        
+
+        updateCreatedFolder();
     }
-    
+
     private boolean sameAsPreviousLaunch() {
         String prefXsdFile = mPrefs.get(PREF_XSD_FILE, null);
         if (prefXsdFile == null) {
@@ -216,7 +219,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     public String getOutputFileName() {
         return mOutputResult.getText();
     }
-    
+
     /**
      * Gets the generated output file in full path.
      *
@@ -235,9 +238,9 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         return jRadioEncode.isSelected() ? EncoderTestPerformerImpl.ENCODE : EncoderTestPerformerImpl.DECODE;
     }
 
-    
+
     /**
-     * Gets the process file. For encode, it will be an xml file; 
+     * Gets the process file. For encode, it will be an xml file;
      * for decode, it will be any data file with the decoded string.
      *
      * @return process file full path
@@ -256,23 +259,23 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     public boolean isOverwrite() {
         return mOverwrite.isSelected();
     }
-    
+
     /**
      * Is encoding to string?
      */
     public boolean isToString() {
         return jCheckBoxToString.isSelected();
     }
-    
+
     /**
      * Is decoding from string?
      */
     public boolean isFromString() {
         return jCheckBoxFromString.isSelected();
     }
-    
+
     /**
-     * Gets the pre-decoding coding
+     * Gets the pre-decoding coding.
      */
     public String getPredecodeCoding() {
         Object obj = jComboBoxSourceCoding.getEditor().getItem();
@@ -280,7 +283,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     }
 
     /**
-     * Gets the post-encoding coding
+     * Gets the post-encoding coding.
      */
     public String getPostencodeCoding() {
         Object obj = jComboBoxResultCoding.getEditor().getItem();
@@ -288,13 +291,21 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     }
 
     /**
-     * Returns true if the "Verbose Mode" is checked, or false otherwise.
-     * @return true if the "Verbose Mode" is checked, or false otherwise.
+     * Returns the debug level selection index starting from 0.
+     * @return the debug level selection index starting from 0.
      */
-    public boolean isVerbose() {
-        return jVerbose.isSelected();
+    public int getDebugLevelIndex() {
+        return selectDebugLevel.getSelectedIndex();
     }
-    
+
+    /**
+     * Returns the debug level string.
+     * @return the debug level string.
+     */
+    public String getDebugLevel() {
+        return selectDebugLevel.getSelectedItem().toString();
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -334,7 +345,8 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jSeparator2 = new javax.swing.JSeparator();
         jSeparator3 = new javax.swing.JSeparator();
         jSeparator4 = new javax.swing.JSeparator();
-        jVerbose = new javax.swing.JCheckBox();
+        jLabelDebugLevel = new javax.swing.JLabel();
+        selectDebugLevel = new javax.swing.JComboBox();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle"); // NOI18N
         jLabel1.setText(bundle.getString("test_panel.lbl.xsd_file")); // NOI18N
@@ -414,8 +426,9 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jComboBoxSourceCoding.setEditable(true);
         jComboBoxSourceCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jVerbose.setText("Verbose Mode");
-        jVerbose.setToolTipText("Detailed Encode/Decode logging in the Output window.");
+        jLabelDebugLevel.setText("Debug Level:");
+
+        selectDebugLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -441,7 +454,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                                             .add(layout.createSequentialGroup()
                                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                                     .add(jLabel3)
-                                                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE))
+                                                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
                                                 .add(6, 6, 6))
                                             .add(layout.createSequentialGroup()
                                                 .add(jLabel4)
@@ -463,18 +476,18 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                                 .add(jLabel1)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-                            .add(mOutputResult, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-                            .add(mCreatedFileText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                            .add(mOutputResult, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                            .add(mCreatedFileText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                             .add(mOverwrite)
-                            .add(mFolderText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-                            .add(jComboBoxSourceCoding, 0, 327, Short.MAX_VALUE)
-                            .add(mInputDataText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                            .add(mFolderText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                            .add(jComboBoxSourceCoding, 0, 328, Short.MAX_VALUE)
+                            .add(mInputDataText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                             .add(jCheckBoxFromString)
-                            .add(jComboBoxResultCoding, 0, 327, Short.MAX_VALUE)
-                            .add(mXMLSourceText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                            .add(jComboBoxResultCoding, 0, 328, Short.MAX_VALUE)
+                            .add(mXMLSourceText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                             .add(jCheckBoxToString)
-                            .add(selectElementComboBox, 0, 327, Short.MAX_VALUE))
+                            .add(selectElementComboBox, 0, 328, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, mFolderBtn)
@@ -488,8 +501,10 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jVerbose)
-                .addContainerGap(455, Short.MAX_VALUE))
+                .add(jLabelDebugLevel)
+                .add(58, 58, 58)
+                .add(selectDebugLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 327, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(96, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -556,7 +571,9 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
-                .add(jVerbose)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabelDebugLevel)
+                    .add(selectDebugLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -567,7 +584,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             public boolean accept(File file) {
                 return file.isDirectory();
             }
-            
+
             public String getDescription() {
                 return _bundle.getString("test_panel.lbl.all_directories");
             }
@@ -581,11 +598,11 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         chooser.setCurrentDirectory(new File(whereToLook));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        
+
         File selectedFile = null;
         if ( chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ) {
             selectedFile = chooser.getSelectedFile();
-        }                
+        }
         if (selectedFile != null) {
             this.mFolderText.setText(selectedFile.getAbsolutePath());
             updateCreatedFolder();
@@ -599,7 +616,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         } else {
             whereToLook = mPrefs.get(PREF_INPUT, xsdFilePath);
         }
-        File selectedFile = this.getFileFromChooser(whereToLook, null);        
+        File selectedFile = this.getFileFromChooser(whereToLook, null);
         if (selectedFile == null) {
             return;
         }
@@ -620,7 +637,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     }//GEN-LAST:event_mDataButtonActionPerformed
 
     private void mXMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mXMLButtonActionPerformed
-        
+
         String whereToLook;
         if (mXMLSourceText.getText() != null && mXMLSourceText.getText().length() != 0) {
             whereToLook = mXMLSourceText.getText();
@@ -660,16 +677,16 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     /** Open the file chooser and return the file.
      *@param oldUrl url where to start browsing
      */
-    private File getFileFromChooser(String oldUrl, final String[][] extensions) {        
+    private File getFileFromChooser(String oldUrl, final String[][] extensions) {
         javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
-                
+
         if (extensions != null) {
             FileFilter filter = new FileFilter() {
                 public boolean accept(File f) {
                     if (f.isDirectory()) {
                         return true;
                     }
-                    
+
                     String extension = FileUtil.getExtension(f.getAbsolutePath());
                     //String extension = getExtension(f);
                     if (extension != null) {
@@ -682,7 +699,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                     }
                     return false;
                 }
-                
+
                 public String getDescription() {
                     if (extensions == null) {
                         return ""; //NOI18N
@@ -696,10 +713,10 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                     }
                     return desc.toString();
                 }
-            };            
+            };
             chooser.setFileFilter(filter);
         }
-        
+
         if (oldUrl!=null) {
             try {
                 File file = new File(oldUrl);
@@ -716,11 +733,11 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             selectedFile = chooser.getSelectedFile();
         }
         return selectedFile;
-    }    
-    
+    }
+
     /*
      * Get the extension of a file.
-     */  
+     */
     public static String getExtension(File f) {
         String ext = null;
         String s = f.getName();
@@ -731,7 +748,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         return ext;
     }
-        
+
     private void updateCreatedFolder() {
         String expectedExtension = "";  //NOI18N
         if (getActionType().equals(EncoderTestPerformerImpl.DECODE)) {
@@ -741,13 +758,13 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         String folderName = mFolderText.getText().trim();
         String outputName = mOutputResult.getText().trim();
-        
+
         File f = new File(xsdFilePath);
-        String createdFileName = folderName + 
+        String createdFileName = folderName +
             ( folderName.endsWith("/") || folderName.endsWith( File.separator ) || folderName.length() == 0 ? "" : "/" ) + // NOI18N
             outputName + expectedExtension;
-            
-        mCreatedFileText.setText( createdFileName.replace( '/', File.separatorChar ) ); // NOI18N        
+
+        mCreatedFileText.setText( createdFileName.replace( '/', File.separatorChar ) ); // NOI18N
     }
 
     public void insertUpdate(DocumentEvent e) {
@@ -761,7 +778,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     public void changedUpdate(DocumentEvent e) {
         updateCreatedFolder();
     }
-    
+
     public void setTopElementDecls(QName[] elements, QName select) {
         if (select == null && sameAsPreviousLaunch()) {
             String topElem = mPrefs.get(PREF_TOP_ELEM, null);
@@ -783,7 +800,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             selectElementComboBox.setSelectedItem(selectDispQName);
         }
     }
-    
+
     public QName getSelectedTopElementDecl() {
         DisplayQName dispQName = (DisplayQName) selectElementComboBox.getSelectedItem();
         if (dispQName == null) {
@@ -791,23 +808,23 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         return dispQName.getQName();
     }
-    
+
     @Override
     public boolean contains(int x, int y) {
         return true;
     }
-        
+
     /**
      * Used for displaying qualified name using local part.
      */
     private static class DisplayQName {
-        
+
         private final QName mQName;
-        
+
         public DisplayQName(QName qName) {
             mQName = qName;
         }
-        
+
         public QName getQName() {
             return mQName;
         }
@@ -831,6 +848,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabelDebugLevel;
     private javax.swing.JLabel jLabelResultCoding;
     private javax.swing.JLabel jLabelSourceCoding;
     private javax.swing.JRadioButton jRadioDecode;
@@ -840,7 +858,6 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JCheckBox jVerbose;
     private javax.swing.JTextField mCreatedFileText;
     private javax.swing.JButton mDataButton;
     private javax.swing.JButton mFolderBtn;
@@ -850,6 +867,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private javax.swing.JCheckBox mOverwrite;
     private javax.swing.JButton mXMLButton;
     private javax.swing.JTextField mXMLSourceText;
+    private javax.swing.JComboBox selectDebugLevel;
     private javax.swing.JComboBox selectElementComboBox;
     // End of variables declaration//GEN-END:variables
 
