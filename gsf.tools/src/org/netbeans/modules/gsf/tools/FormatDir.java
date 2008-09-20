@@ -6,8 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
-import javax.swing.text.Document;
+import javax.swing.text.BadLocationException;
 
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
 import org.openide.awt.StatusDisplayer;
@@ -68,7 +69,7 @@ public final class FormatDir extends CallableSystemAction {
             return;
         }
 
-        Document doc = null;
+        BaseDocument doc = null;
         DataObject dobj = null;
 
         try {
@@ -93,7 +94,7 @@ public final class FormatDir extends CallableSystemAction {
         }
 
         try {
-            doc = ec.openDocument();
+            doc = (BaseDocument)ec.openDocument();
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
         }
@@ -119,10 +120,19 @@ public final class FormatDir extends CallableSystemAction {
                 " - no formatter");
         }
 
-        int indentSize = language.getFormatter().indentSize();
+        //int indentSize = language.getFormatter().indentSize();
+        //language.getFormatter().reindent(null, doc, startOffset, endOffset);
         int startOffset = 0;
         int endOffset = doc.getLength();
-        language.getFormatter().reindent(doc, startOffset, endOffset);
+        final org.netbeans.editor.Formatter f = doc.getFormatter();
+        try {
+            f.reformatLock();
+            int reformattedLen = f.reformat(doc, startOffset, endOffset);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            f.reformatUnlock();
+        }
 
         // Save
         SaveCookie sc = dobj.getCookie(SaveCookie.class);

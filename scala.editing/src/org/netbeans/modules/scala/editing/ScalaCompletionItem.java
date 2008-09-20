@@ -103,6 +103,10 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         return getName();
     }
 
+    public int getSortPrioOverride() {
+        return 0;
+    }
+
     public ElementHandle getElement() {
         return element;
     }
@@ -208,15 +212,6 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     public boolean isSmart() {
         return false;
     //return indexedElement != null ? indexedElement.isSmart() : true;
-    }
-
-    public List<String> getInsertParams() {
-        return null;
-    }
-
-    public String[] getParamListDelimiters() {
-        return new String[]{"(", ")"}; // NOI18N
-
     }
 
     public String getCustomInsertTemplate() {
@@ -348,7 +343,6 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             return formatter.getText();
         }
 
-        @Override
         public List<String> getInsertParams() {
             List<? extends VariableElement> params = function.getParameters();
             if (!params.isEmpty()) {

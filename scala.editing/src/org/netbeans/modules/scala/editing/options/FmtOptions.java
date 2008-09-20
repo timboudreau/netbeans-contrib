@@ -258,8 +258,8 @@ public class FmtOptions {
 
                 doc.insertString(0, previewText, null);
 
-                Formatter formatter = new ScalaFormatter(codeStyle, rm);
-                formatter.reformat(doc, 0, doc.getLength(), null);
+                ScalaFormatter formatter = new ScalaFormatter(codeStyle, rm);
+                formatter.reindent(null, doc, 0, doc.getLength(), null, false);
 
                 String formatted = doc.getText(0, doc.getLength());
                 pane.setText(formatted);
