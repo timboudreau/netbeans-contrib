@@ -1,4 +1,5 @@
-package ${PACKAGE};
+<#if PACKAGE != "">package ${PACKAGE};
+</#if>
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;

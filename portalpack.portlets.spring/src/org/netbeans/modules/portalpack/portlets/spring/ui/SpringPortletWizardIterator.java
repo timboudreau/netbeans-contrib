@@ -118,7 +118,11 @@ public class SpringPortletWizardIterator implements TemplateWizard.Iterator {
         
         handler.createAdditionalJsps(webModule, pc, values, wizard,result);
 
-        util.addSpringPortletContext(handler, webModule, packageName + "." + targetName, configFolder, contextFile, pc, values, wizard);
+        String controllerClass = targetName;
+        if(packageName != null && packageName.trim().length() != 0)
+            controllerClass = packageName + "." + targetName;
+        
+        util.addSpringPortletContext(handler, webModule, controllerClass, configFolder, contextFile, pc, values, wizard);
         util.addPortletToPortletXML(project, pc);
 
         return result;

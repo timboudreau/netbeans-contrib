@@ -13,7 +13,6 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.spring.api.ConfigPanel;
 import org.openide.WizardDescriptor;
@@ -24,9 +23,6 @@ import org.openide.windows.WindowManager;
  * @author  satyaranjan
  */
 public class FormConfigPanel extends ConfigPanel implements ItemListener {
-
-    private DataType[] types = TypesHelper.getDefaultDataTypes();
-    private String[] componentTypes = TypesHelper.getDefaultComponentTypes();
 
     /** Creates new form FormConfigPanel */
     public FormConfigPanel() {
