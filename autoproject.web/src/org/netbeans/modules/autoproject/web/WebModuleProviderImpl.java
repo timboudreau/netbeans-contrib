@@ -157,6 +157,7 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
     public String getServerID() {
         String inst = getServerInstanceID ();
         if (inst != null) {
+            @SuppressWarnings("deprecation") // XXX can it in fact be replaced acc. to Javadoc?
             String id = Deployment.getDefault().getServerID(inst);
             if (id != null) {
                 return id;
