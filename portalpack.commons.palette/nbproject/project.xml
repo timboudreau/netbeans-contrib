@@ -187,6 +187,7 @@
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.cms</friend>
                 <friend>org.netbeans.modules.portalpack.saw</friend>
+                <friend>org.netbeans.modules.portalpack.websynergy.palette</friend>
                 <package>org.netbeans.modules.portalpack.commons.palette.java</package>
                 <package>org.netbeans.modules.portalpack.commons.palette.java.util</package>
                 <package>org.netbeans.modules.portalpack.commons.palette.jsp</package>
