@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="JSPPalette">
+        <folder name="WebSynergy_Journals">
+            <attr name="position" intvalue="642"/>
+            <file name="authContext.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/items/resources/authContext.xml"/>
+        </folder>
+    </folder>
+    <folder name="portalpack">
+        <folder name="palette">
+            <folder name="journals">
+                <file name="authcontext.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/templates/authcontext.template"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
