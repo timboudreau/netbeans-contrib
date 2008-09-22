@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,49 +31,58 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.autoproject.java;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.java.actions.ActionProviderImpl;
-import org.netbeans.spi.java.project.support.LookupMergerSupport;
-import org.netbeans.spi.project.LookupProvider;
-import org.netbeans.spi.project.ui.support.UILookupMergerSupport;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.spi.project.SubprojectProvider;
+import org.openide.filesystems.FileObject;
 
-/**
- * Inserts extra items into autoproject lookup suited for Java projects.
- */
-public class LookupProviderImpl implements LookupProvider {
+class SubprojectProviderImpl implements SubprojectProvider {
 
-    /** public for lookup */
-    public LookupProviderImpl() {}
+    private final Project p;
 
-    public Lookup createAdditionalLookup(Lookup baseContext) {
-        Project p = baseContext.lookup(Project.class);
-        assert p != null;
-        ClassPathProviderImpl cpp = new ClassPathProviderImpl(p);
-        return Lookups.fixed(
-                LookupMergerSupport.createClassPathProviderMerger(cpp),
-                new SourceForBinaryImpl(p),
-                new ProjectInformationImpl(p),
-                new SourcesImpl(p),
-                new SourceLevelQueryImpl(p),
-                UILookupMergerSupport.createProjectOpenHookMerger(new OpenHook(p, cpp)),
-                new ActionProviderImpl(p),
-                new SubprojectProviderImpl(p));
-        // XXX consider adding:
-        // AntArtifactProvider
-        // BinaryForSourceQueryImplementation
-        // FileBuiltQueryImplementation
-        // JavadocForBinaryQueryImplementation
-        // MultipleRootsUnitTestForSourceQueryImplementation
+    public SubprojectProviderImpl(Project p) {
+        this.p = p;
     }
+
+    public Set<? extends Project> getSubprojects() {
+        Set<Project> kids = new LinkedHashSet<Project>();
+        for (SourceGroup g : ProjectUtils.getSources(p).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
+            ClassPath cp = ClassPath.getClassPath(g.getRootFolder(), ClassPath.COMPILE);
+            if (cp != null) {
+                for (ClassPath.Entry entry : cp.entries()) {
+                    for (FileObject sourceRoot : SourceForBinaryQuery.findSourceRoots(entry.getURL()).getRoots()) {
+                        Project kid = FileOwnerQuery.getOwner(sourceRoot);
+                        if (kid != null && kid != p) {
+                            // XXX might also want to check that sourceRoot is among SOURCES_TYPE_JAVA of kid?
+                            kids.add(kid);
+                        }
+                    }
+                }
+            }
+        }
+        return kids;
+    }
+
+    public void addChangeListener(ChangeListener listener) {
+        // XXX important to implement? probably not
+    }
+
+    public void removeChangeListener(ChangeListener listener) {}
 
 }
