@@ -42,7 +42,6 @@
 package org.netbeans.modules.erd.io;
 
 import java.io.IOException;
-import org.netbeans.modules.dbschema.SchemaElement;
 import org.netbeans.modules.erd.editor.ERDEditorSupport;
 import org.netbeans.modules.erd.model.DocumentSerializer;
 import org.netbeans.modules.erd.model.ERDDocumentAwareness;
@@ -54,6 +53,7 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 
 public class ERDDataObject extends MultiDataObject {
     
@@ -76,7 +76,11 @@ public class ERDDataObject extends MultiDataObject {
     protected Node createNodeDelegate() {
         return new ERDDataNode(this);
     }
-    
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
+    }
 
     public void addSaveCookie (SaveCookie save) {
         getCookieSet ().add (save);

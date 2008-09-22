@@ -63,6 +63,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.WeakListeners;
 
 public class CarDataObject extends PojoDataObject<Car> {
@@ -76,6 +77,10 @@ public class CarDataObject extends PojoDataObject<Car> {
     protected PojoDataNode createNode() {
         CarDataNode node = new CarDataNode(this);
         return node;
+    }
+
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
 
     @Override

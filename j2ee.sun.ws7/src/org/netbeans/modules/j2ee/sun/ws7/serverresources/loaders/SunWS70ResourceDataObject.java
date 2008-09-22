@@ -41,6 +41,7 @@
 package org.netbeans.modules.j2ee.sun.ws7.serverresources.loaders;
 
 import java.io.InputStream;
+import org.openide.util.Lookup;
 import org.xml.sax.InputSource;
 
 import org.openide.filesystems.*;
@@ -72,6 +73,7 @@ import org.netbeans.modules.j2ee.sun.ws7.serverresources.beans.WS70JdbcResourceB
 import org.netbeans.modules.j2ee.sun.ws7.serverresources.beans.WS70JdbcResourceBeanDataNode;
 
 import org.netbeans.modules.j2ee.sun.ws7.serverresources.wizards.WS70WizardConstants;
+import org.openide.nodes.CookieSet;
 import org.openide.util.WeakListeners;
 
 /** Represents a Sun Webserver70 Resource object in the Repository.
@@ -95,33 +97,15 @@ public class SunWS70ResourceDataObject extends XMLDataObject implements FileChan
     
     public SunWS70ResourceDataObject(FileObject pf, SunWS70ResourceDataLoader loader) throws DataObjectExistsException {
         super(pf, loader);
+        CookieSet cookies = getCookieSet();
+        InputSource in = DataObjectAdapters.inputSource(this);
+        CheckXMLSupport checkCookieImpl = new CheckXMLSupport(in);
+        ValidateXMLSupport validateCookieImpl = new ValidateXMLSupport(in);
+        cookies.add(checkCookieImpl);
+        cookies.add(validateCookieImpl);
         pf.addFileChangeListener((FileChangeListener) WeakListeners.create(FileChangeListener.class, this, pf));
-        
         resType = getResource(pf);
     }    
-    
-    public org.openide.nodes.Node.Cookie getCookie(Class c) {
-        Node.Cookie retValue = null;
-        if (ValidateXMLCookie.class.isAssignableFrom(c)) {
-            if (validateCookie == null) {
-                InputSource in = DataObjectAdapters.inputSource(this);
-                validateCookie = new ValidateXMLSupport(in);
-            }
-            return validateCookie;
-        } else if (CheckXMLCookie.class.isAssignableFrom(c)) {
-            if (checkCookie == null) {
-                InputSource in = DataObjectAdapters.inputSource(this);
-                checkCookie = new CheckXMLSupport(in);
-            }
-            return checkCookie;
-        }
-        
-        if (retValue == null) {
-            retValue = super.getCookie(c);
-        }
-        return retValue;
-    }
-    
     
     public HelpCtx getHelpCtx() {
         return null; // HelpCtx.DEFAULT_HELP;
@@ -151,6 +135,11 @@ public class SunWS70ResourceDataObject extends XMLDataObject implements FileChan
         }
         return new SunWS70ResourceDataNode(this);        
          
+    }
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
     
     private String getResource(FileObject primaryFile) {
