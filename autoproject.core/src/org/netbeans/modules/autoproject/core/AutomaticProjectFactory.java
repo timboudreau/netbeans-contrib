@@ -39,13 +39,16 @@
 
 package org.netbeans.modules.autoproject.core;
 
+import java.io.File;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.modules.autoproject.spi.ProjectDetector;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 
 /**
@@ -57,6 +60,12 @@ public class AutomaticProjectFactory implements ProjectFactory {
     public AutomaticProjectFactory() {}
 
     public boolean isProject(FileObject projectDirectory) {
+        File d = FileUtil.toFile(projectDirectory);
+        if (d != null) {
+            if (Boolean.parseBoolean(Cache.get(d + Cache.PROJECT))) {
+                return true;
+            }
+        }
         boolean detected = false;
         for (ProjectDetector detector : Lookup.getDefault().lookupAll(ProjectDetector.class)) {
             if (detector.isProject(projectDirectory)) {
