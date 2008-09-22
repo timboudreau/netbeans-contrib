@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-#  Copyright note...
+# %W% %E%
+# Copyright 2008 Sun Microsystems, Inc. All Rights Reserved
+# @VER_STRING_WITH_MAGIC@
 #
-#
-
 
 # There are 2 variables should be defined
 # 
@@ -52,7 +52,8 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 #      a list of browsers to try
 BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
 
-REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
+#REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
+REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
 
 
 ################################################################
@@ -66,7 +67,7 @@ PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:${SUNSTUDIO_DIR}/bin
 # i.e. register_XX.tmpl exists in DATA_DIR directory
 
 getSupportedLocales() {
-   find ${DATA_DIR} -name register*.tmpl | sed 's/.*_\(.*\)\.tmpl/\1/'
+   find ${DATA_DIR} -name 'register*.tmpl' | sed 's/.*_\(.*\)\.tmpl/\1/'
 }
 
 # extracts specified value from swordfish data file.
@@ -156,6 +157,55 @@ validate_locale() {
    return 1
 }
 
+
+# if servicetags are supported by the system, registration information
+# that will be send to Sun will contain environment section filled 
+# with the information that is provided by stagent
+
+initEnvironmentFromSystemRegistry() {
+   curl -x "" -s http://127.0.0.1:6481/stv1/agent/ -o ${agentInfoFile}
+   HOST=`parseAgentInfo host`
+   HOSTID=`parseAgentInfo hostid`
+   OSNAME=`parseAgentInfo system`
+   OSVERSION=`parseAgentInfo release`
+   PLATFORM_ARCH=`parseAgentInfo architecture`
+   SYSTEMMODEL=`parseAgentInfo platform`
+   SYSTEMMANUFACTURER=`parseAgentInfo manufacturer`
+   CPUMANUFACTORER=`parseAgentInfo cpu_manufacturer`
+   SERIALNUMBER=`parseAgentInfo serial_number`
+   REGISTRY_URN=`stclient -x | grep "registry urn" | sed 's/.*urn="\(.*\)" .*/\1/'`
+}
+
+# opposite to initEnvironmentFromSystemRegistry this routine tries to
+# fill environment section using a number of system utilities.
+
+initEnvironment() {
+   HOST=`uname -n`
+   HOSTID=`uname -n`
+   if [ -f "`which hostid 2>/dev/null`" ]; then
+       HOSTID=`hostid | sed 's/[0x]*//'`
+   fi
+   OSNAME=`uname -s`
+   OSVERSION=`uname -r`
+   PLATFORM_ARCH=`uname -p`
+   SYSTEMMODEL=`uname -i`
+   SYSTEMMANUFACTURER=""
+   CPUMANUFACTORER=""
+   SERIALNUMBER=""
+
+   if [ `smbios 2> /dev/null 1>/dev/null` ]; then
+      SYSTEMMANUFACTURER=`smbios -t SMB_TYPE_SYSTEM | grep Manufacturer | cut -d: -f2-`
+      CPUMANUFACTORER=`smbios -t SMB_TYPE_PROCESSOR | grep Manufacturer | cut -d: -f2-`
+      SERIALNUMBER=`smbios -t SMB_TYPE_CHASSIS | grep "Serial Number" | cut -d: -f2-`
+   else
+      CPUMANUFACTORER=`grep vendor /proc/cpuinfo | cut -d: -f2 |uniq`   
+   fi
+
+   UUID=`generateUUID`
+   REGISTRY_URN="urn:st:${UUID}"
+}
+
+
 # First routine to call.
 # Initializes variables like BINDIR, BASEDIR, etc.
 # Also does an initialization of component-independent 
@@ -207,6 +257,13 @@ init_registration() {
    if [ -f "`which stclient 2>/dev/null`" ]; then
     STSUPPORTED=1
    fi
+
+    if [ ${STSUPPORTED} -eq 1 ] && [ -f "/usr/bin/curl" ]; then
+        initEnvironmentFromSystemRegistry
+    else 
+        initEnvironment
+    fi
+
 }
 
 # user may pass components to register/install ST for.
@@ -241,10 +298,8 @@ ParseSWData() {
    PRODUCT_PARENT=`ExtractSWValue $1.product_parent_name`
    PARENT_URN=`ExtractSWValue $1.product_parent_urn`
    PRODUCT_INSTANCE_ID=`echo "id=${PRODUCT_VERSION},dir=${BASEDIR}" | sed 's/\(.\{1,255\}\).*/\1/'`
-   INSTANCES_REGISTRY_FILE=`echo ${INSTANCES_REGISTRY} | sed "s/%PRODUCT_VERSION%/${PRODUCT_VERSION}/"`
-   REGISTRATION_PAGE_FILE=`echo ${REGISTRATION_PAGE} | sed "s/%PRODUCT_VERSION%/${PRODUCT_VERSION}/"`   
-   mkdir -p `dirname "${INSTANCES_REGISTRY_FILE}"`
-   mkdir -p `dirname "${REGISTRATION_PAGE_FILE}"`
+   mkdir -p `dirname "${INSTANCES_REGISTRY}"`
+   mkdir -p `dirname "${REGISTRATION_PAGE}"`
 }
 
 # searches for instance ID of product with PRODUCT_URN in system registry
@@ -292,53 +347,6 @@ parseAgentInfo() {
    cat ${agentInfoFile} | grep "<$1>" | sed "s/.*<$1>\(.*\)<\/$1>/\1/"
 }
 
-# if servicetags are supported by the system, registration information
-# that will be send to Sun will contain environment section filled 
-# with the information that is provided by stagent
-
-initEnvironmentFromSystemRegistry() {
-   curl -x "" -s http://127.0.0.1:6481/stv1/agent/ -o ${agentInfoFile}
-   HOST=`parseAgentInfo host`
-   HOSTID=`parseAgentInfo hostid`
-   OSNAME=`parseAgentInfo system`
-   OSVERSION=`parseAgentInfo release`
-   PLATFORM_ARCH=`parseAgentInfo architecture`
-   SYSTEMMODEL=`parseAgentInfo platform`
-   SYSTEMMANUFACTURER=`parseAgentInfo manufacturer`
-   CPUMANUFACTORER=`parseAgentInfo cpu_manufacturer`
-   SERIALNUMBER=`parseAgentInfo serial_number`
-   REGISTRY_URN=`stclient -x | grep "registry urn" | sed 's/.*urn="\(.*\)" .*/\1/'`
-}
-
-# opposite to initEnvironmentFromSystemRegistry this routine tries to
-# fill environment section using a number of system utilities.
-
-initEnvironment() {
-   HOST=`uname -n`
-   HOSTID=`uname -n`
-   if [ -f "`which hostid 2>/dev/null`" ]; then
-       HOSTID=`hostid | sed 's/[0x]*//'`
-   fi
-   OSNAME=`uname -s`
-   OSVERSION=`uname -r`
-   PLATFORM_ARCH=`uname -p`
-   SYSTEMMODEL=`uname -i`
-   SYSTEMMANUFACTURER=""
-   CPUMANUFACTORER=""
-   SERIALNUMBER=""
-
-   if [ `smbios 2> /dev/null 1>/dev/null` ]; then
-      SYSTEMMANUFACTURER=`smbios -t SMB_TYPE_SYSTEM | grep Manufacturer | cut -d: -f2-`
-      CPUMANUFACTORER=`smbios -t SMB_TYPE_PROCESSOR | grep Manufacturer | cut -d: -f2-`
-      SERIALNUMBER=`smbios -t SMB_TYPE_CHASSIS | grep "Serial Number" | cut -d: -f2-`
-   else
-      CPUMANUFACTORER=`grep vendor /proc/cpuinfo | cut -d: -f2 |uniq`   
-   fi
-
-   UUID=`generateUUID`
-   REGISTRY_URN="urn:st:${UUID}"
-}
-
 # when servicetags are supported by the system, script tries to 
 # fetch service tag information from system registry to avoid 
 # duplicate registrations
@@ -358,17 +366,17 @@ fetchServiceTagFromSystemRegistry() {
 }
 
 # when product is registered, it's instance ID is written to 
-# INSTANCES_REGISTRY_FILE 
+# INSTANCES_REGISTRY 
 # to avoid instance ids regeneration (in case of several attempts to
 # register a product) this routine tries to read out instance ID from 
 # this file. On failure it will generate new ID and add it to the 
-# INSTANCES_REGISTRY_FILE
+# INSTANCES_REGISTRY
 
 getInstanceURN() {
-   line=`cat ${INSTANCES_REGISTRY_FILE} 2>/dev/null | grep "$1#${HOSTID}#$2"`
+   line=`cat ${INSTANCES_REGISTRY} 2>/dev/null | grep "$1#${HOSTID}#$2"`
    if [ $? -ne 0 ]; then
       result="urn:st:"`generateUUID`
-      echo "$result" >> ${INSTANCES_REGISTRY_FILE}
+      echo "$result" >> ${INSTANCES_REGISTRY}
    else
       result=`echo $line | cut -d# -f4`
    fi
@@ -481,7 +489,7 @@ while ( getline str < plfile ) { gsub(/"/, "%22", str); payload = payload str }
 { print }
 EOF
 
-   cat ${TEMPLATE} | ${AWK} -v plfile=${REGISTRATION_DATAFILE} -v version="${PRODUCT_VERSION}" -v product="${PRODUCT}" -v logo="sslogo_${LOCALE}.jpg" -v product_vendor="${PRODUCT_VENDOR}" -v url="${REGISTER_URL}/${REGISTRY_URN}?product=${PRODUCTID}\\\&locale=${LOCALE}" -f ${SCRIPT} > ${REGISTRATION_PAGE_FILE}
+   cat ${TEMPLATE} | ${AWK} -v plfile=${REGISTRATION_DATAFILE} -v version="${PRODUCT_VERSION}" -v product="${PRODUCT}" -v logo="sslogo_${LOCALE}.jpg" -v product_vendor="${PRODUCT_VENDOR}" -v url="${REGISTER_URL}/${REGISTRY_URN}?product=${PRODUCTID}\\\&locale=${LOCALE}" -f ${SCRIPT} > ${REGISTRATION_PAGE}
 
 }
 
@@ -533,13 +541,11 @@ browse() {
 register() {
 COMPONENTS=${PRODUCTS-"ss"}
 
-
-
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then   
     if [ ${DOCREATE} -eq 1 ]; then
-    createRegistrationDocument 1>/dev/null 2>/dev/null
-fi
-    generateRegistrationHTML 1>/dev/null 2>/dev/null
+	createRegistrationDocument 1>/dev/null 2>/dev/null
+    fi
+    generateRegistrationHTML
     browse "file://$REGISTRATION_PAGE"
 fi
 
@@ -549,5 +555,6 @@ fi
 ########### Everything starts here ############
 
 init_registration
+
 register
 

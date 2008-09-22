@@ -49,6 +49,9 @@ import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.helper.Status;
+import org.netbeans.installer.wizard.Utils;
+
 
 /**
  *
@@ -69,8 +72,13 @@ public class ExistingSunStudioChecker {
     List<PackageDescr> conflictedPackages;
     public final String VERSION="12.0";
     private ExistingSunStudioChecker() {
+        conflictedPackages = new ArrayList<PackageDescr>();
+        if (Utils.getSSBase().getStatus().equals(Status.INSTALLED)) {
+            LogManager.log("Sun Studio is modifying. The Existing Sun Studio are not checked.");
+            return;
+        }
         packagesToInstall = new ArrayList<PackageDescr>();
-        Collection<PackageDescr> installedPackages = EnvironmentInfoFactory.getInstance().getPackageType().getInstalledPackages();
+        Collection<PackageDescr> installedPackages = EnvironmentInfoFactory.getInstance().getPackageType().getInstalledPackages();        
         for (Product product : Registry.getInstance().getProductsToInstall()) {
             String count = product.getProperty(PACKAGES_LENGTH_PROPERTY);
             if (count != null && count.length() > 0) {
@@ -82,9 +90,8 @@ public class ExistingSunStudioChecker {
                     packagesToInstall.add(descr);
                 }
             }
-        }
-        conflictedPackages = new ArrayList<PackageDescr>();
-        LogManager.log("Already installed Sun Studion packages are:");
+        }        
+        LogManager.log("Already installed Sun Studio packages are:");
         for (PackageDescr installedPackage : installedPackages) {
             for (PackageDescr packageToInstall : packagesToInstall) {
                 // special for Linux

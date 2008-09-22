@@ -36,13 +36,18 @@
 
 package org.netbeans.installer.products.sunstudio.panels;
 
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.io.File;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
+import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.helper.Status;
+import org.netbeans.installer.utils.helper.swing.NbiCheckBox;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel.DestinationPanelUi;
 import org.netbeans.installer.wizard.ui.SwingUi;
@@ -103,12 +108,11 @@ public class SSBasePanel extends DestinationPanel {
     
     private static class SSBaseDestinationPanelSwingUi extends DestinationPanelSwingUi {
        // protected SSBasePanel panel;
-        
+        private NbiCheckBox createSymLinks;
         /*
         private NbiTextField alternateRoot;
         private NbiButton alternateRootButton;
-        private NbiCheckBox copySystemPrequesties;
-        private NbiCheckBox createSymLinks;
+        private NbiCheckBox copySystemPrequesties;        
         private NbiCheckBox installPatches;
         private NbiCheckBox currentZoneOnly;
         
@@ -119,13 +123,23 @@ public class SSBasePanel extends DestinationPanel {
                 final SwingContainer container) {
             super(panel, container);            
             this.panel = panel;            
-          //  initComponents();
+            initComponents();
         }
         
-        // protected ////////////////////////////////////////////////////////////////
-        @Override
-        protected void initialize() {
-            super.initialize();
+        // protected ////////////////////////////////////////////////////////////////        
+        private void initComponents() {
+            if (SystemUtils.getCurrentPlatform().isCompatibleWith(Platform.SOLARIS)) {
+                createSymLinks = new NbiCheckBox();
+                createSymLinks.setText("Create symbolic links in /usr/bin");
+                createSymLinks.setSelected(true);
+                Utils.getSSBase().setProperty(Utils.getSPROsslnkPropertyName(), "true");
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.gridx = 0;
+                constraints.gridy = GridBagConstraints.RELATIVE;
+                constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+                constraints.insets = new Insets(11, 11, 11, 11);
+                add(createSymLinks, constraints);                
+            }
         }
         
         @Override
@@ -136,9 +150,16 @@ public class SSBasePanel extends DestinationPanel {
           //  nbProduct.setStatus(Status.NOT_INSTALLED);
             String nbLocation =  component.getWizard().getProperty(
                         Product.INSTALLATION_LOCATION_PROPERTY);
-            nbLocation = nbLocation + File.separator + "netbeans-6.1ss";
+            nbLocation = nbLocation + File.separator + Utils.getNBDirectory();
             nbProduct.setInstallationLocation(new File(nbLocation));
             nbProduct.setParent(Utils.getSSBase());
+            
+            Product ssProduct = Utils.getSSBase();
+            if (createSymLinks.isSelected()) {
+                ssProduct.setProperty(Utils.getSPROsslnkPropertyName(), "true");
+            } else {
+                ssProduct.setProperty(Utils.getSPROsslnkPropertyName(), "false");
+            }
         }
         
         @Override
