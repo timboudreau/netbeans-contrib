@@ -55,6 +55,7 @@ import org.netbeans.installer.utils.helper.Text;
 import org.netbeans.installer.utils.nativepackages.NativeInstallerFactory;
 import org.netbeans.installer.utils.nativepackages.NativePackageInstaller;
 import org.netbeans.installer.utils.progress.Progress;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardComponent;
 
 
@@ -81,6 +82,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     public void install(Progress progress) throws InstallationException {
         LogManager.logEntry("Installing native package...");
         String installationLocation = Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath();
+        boolean shouldBeSymLinkCreated = "true".equals(Utils.getSSBase().getProperty(Utils.getSPROsslnkPropertyName()));
         final Platform platform = SystemUtils.getCurrentPlatform();
 //        if (!PackageType.isPlatformSupported(platform)) {
 //            throw new InstallationException("Platform is not supported!");
@@ -95,8 +97,13 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
             final int percentageLeak = Progress.COMPLETE % getProduct().getInstalledFiles().getSize();
             for (FileEntry installedFile : getProduct().getInstalledFiles()) {
                 if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
+                    LogManager.log("shouldBe=" + shouldBeSymLinkCreated);
+                    LogManager.log("inatalledFile=" + installedFile.getName());
+                    if (!shouldBeSymLinkCreated && installedFile.getName().endsWith(Utils.getSPROsslnkName())) {
+                        continue;
+                    }
                     String value = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
-                    int i = parseInteger(value) + 1;
+                    int i = parseInteger(value) + 1;                    
                     Iterable<String> installedPackageNames = packageInstaller.install(installedFile.getFile().getAbsolutePath());
                     progress.addPercentage(percentageChunk);
                     progress.setDetail("Installing package" + installedFile.getName());

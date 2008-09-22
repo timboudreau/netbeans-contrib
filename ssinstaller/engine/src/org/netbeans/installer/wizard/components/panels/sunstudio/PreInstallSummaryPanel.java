@@ -195,21 +195,28 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     panel.getProperty(UNINSTALL_LIST_LABEL_TEXT));
             uninstallListPane.setText(
                     StringUtils.asString(registry.getProductsToUninstall()));
-            
-            installationSSSummary.setText(
-                    StringUtils.format(INSTALLATION_FOLDER, 
-                    ssProduct, 
-                    ssProduct.getInstallationLocation().getAbsolutePath()
-                    + File.separator + Utils.getMainDirectory()));
-                    
-            installationSSSize.setText(StringUtils.format(INSTALLATION_SIZE,
-                    StringUtils.formatSize(installationSizeSS)));
-            
-            
-            installationSSComponenets.setText(
-                    //StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY), 
-                    //Registry.getInstance().getProducts("nb-base").get(0)))
-                    StringUtils.format(ADDONS_INSTALL_TEXT, StringUtils.asString(dependentOnSS)));
+            if (dependentOnSS.size() > 0) {
+                installationSSSummary.setText(
+                        StringUtils.format(INSTALLATION_FOLDER,
+                        ssProduct,
+                        ssProduct.getInstallationLocation().getAbsolutePath() + File.separator + Utils.getMainDirectory()));
+
+                installationSSSize.setText(StringUtils.format(INSTALLATION_SIZE,
+                        StringUtils.formatSize(installationSizeSS)));
+
+                installationSSComponenets.setText(
+                        //StringUtils.format(panel.getProperty(INSTALLATION_SIZE_PROPERTY),
+                        //Registry.getInstance().getProducts("nb-base").get(0)))
+                        StringUtils.format(ADDONS_INSTALL_TEXT, StringUtils.asString(dependentOnSS)));
+                installationSSSummary.setVisible(true);
+                installationSSSize.setVisible(true);
+                installationSSComponenets.setVisible(true);
+            } else {
+                installationSSSummary.setVisible(false);
+                installationSSSize.setVisible(false);   
+                installationSSComponenets.setVisible(false);                
+
+            }
             if (dependentOnNb.size() > 0) {
                 Product nbProduct = Utils.getNBExtra();
                 /*
@@ -224,8 +231,12 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     nbProduct.getInstallationLocation().getAbsolutePath()));
                 installationNBSize.setText(StringUtils.format(INSTALLATION_SIZE,
                     StringUtils.formatSize(installationSizeNb)));
+                installationNBSummary.setVisible(true);
+                installationNBSize.setVisible(true);
             } else {
                 installationNBSummary.setText("");
+                installationNBSummary.setVisible(false);
+                installationNBSize.setVisible(false);   
             }
             
             
@@ -236,18 +247,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
             
             if (registry.getProductsToInstall().size() == 0) {
                 locationsPane.setVisible(false);
-                installationSSSummary.setVisible(false);
-                installationSSSize.setVisible(false);   
-                installationSSComponenets.setVisible(false);
-                installationNBSummary.setVisible(false);
-                installationNBSize.setVisible(false);   
             } else {
                 locationsPane.setVisible(true);
-                installationSSSummary.setVisible(true);
-                installationSSSize.setVisible(true);
-                installationSSComponenets.setVisible(true);
-                installationNBSummary.setVisible(true);
-                installationNBSize.setVisible(true);
             }
             
             

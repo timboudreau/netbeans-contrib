@@ -45,12 +45,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JSeparator;
+import javax.swing.border.EtchedBorder;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
 import org.netbeans.installer.utils.helper.swing.NbiDialog;
-import org.netbeans.installer.utils.helper.swing.NbiFrame;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
 import org.netbeans.installer.utils.helper.swing.NbiTextPane;
@@ -64,8 +64,7 @@ import org.netbeans.installer.wizard.ui.WizardUi;
 public class ExistingSunStudioPanel extends ErrorMessagePanel {
     
     public static final String DEFAULT_TITLE = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.title"); // NOI18N
-    public static final String DEFAULT_DESCRIPTION = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.description"); // NOI18N
-    public static final String MORE_INFO_BUTTON_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.more.info.button.text"); // NOI18N
+    public static final String DEFAULT_DESCRIPTION = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.description"); // NOI18N    
     public static final String CLOSE_BUTTON_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.close.button.text"); // NOI18N
     public static final String GET_LIST_BUTTON_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.get.list.button.text"); // NOI18N
     public static final String ALREADY_INSTALLED_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.already.installed.text"); // NOI18N
@@ -73,6 +72,9 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
     public static final String NOT_POSSIBLE_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.installation.not.possible.text"); // NOI18N
     public static final String ONLY_THIS_DIRECTORY_USED_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.only.directory.used.installed.text"); // NOI18N
     public static final String LIST_INSTALLED_PACKAGES_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.list.packages.text"); // NOI18N
+    public static final String WARNING_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "ESSP.warning.text"); // NOI18N
+    public static final String ERROR_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "ESSP.error.text"); // NOI18N
+
 
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -97,7 +99,6 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
     public boolean canExecuteForward() {
         return true;
     }
-
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +135,11 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
             this.component = component;
             initComponents();
         }
+    
         
+        
+
+ 
         // protected ////////////////////////////////////////////////////////////////
         @Override
         protected void initializeContainer() {
@@ -152,7 +157,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
         ConflictedPackagesDialog conflictedPackagesDialog;
         private void initComponents() {
             //List<SSInstallationInfo> infoList = new ArrayList<SSInstallationInfo>();
-            this.setLayout(new GridBagLayout());
+            
             GridBagConstraints constraints = new GridBagConstraints();
             constraints.anchor = GridBagConstraints.PAGE_START;
             constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -161,7 +166,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
             constraints.gridx = 0;
             constraints.gridheight = 1;
             constraints.gridheight = 1;
-            constraints.weightx = 1.0;
+            constraints.weightx = 1.0;            
        //     constraints.weighty = 0.5;
             
             for(String version : checker.getInstalledVersions()) {            
@@ -183,6 +188,22 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                 super.evaluateCancelButtonClick();
             }
         }
+        
+                @Override
+        protected String getWarningMessage() {
+            if (checker.isSunStudioInstallationFound()) {
+                return WARNING_TEXT;
+            }
+            return null;
+        }
+
+        @Override
+        protected String validateInput() {
+            if (!checker.isInstallationPossible()) {
+                return ERROR_TEXT;
+            }
+            return null;
+        }
 
         private class SSInstallationInfo extends NbiPanel {
             NbiLabel descriptionLabel;
@@ -198,8 +219,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                 initComponents();
             }
 
-            void initComponents() {
-                this.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+            void initComponents() {                
                 descriptionLabel = new NbiLabel();
                 locationsLabel = new NbiLabel();
                 resolutionLabel = new NbiLabel();
@@ -210,19 +230,26 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                 constraints.gridy = 0;
                 constraints.gridwidth = 1;
                 constraints.fill = GridBagConstraints.HORIZONTAL;
-                constraints.anchor = GridBagConstraints.NORTH;
-                constraints.weightx = 1;
+                constraints.anchor = GridBagConstraints.PAGE_START;
+                constraints.weightx = 0.5;
                 constraints.weighty = 1;
-                constraints.insets = new Insets(5, 5, 5, 5);
+                constraints.insets = new Insets(6, 11, 6, 11);
                 
-                descriptionLabel.setText(StringUtils.format(ALREADY_INSTALLED_TEXT, version)); 
+                descriptionLabel.setText(StringUtils.format(ALREADY_INSTALLED_TEXT,
+                        version, StringUtils.asString(checker.getBaseDirsForVersion(version), ", "))); 
                 Font bf = descriptionLabel.getFont(); 
-                descriptionLabel.setFont(bf.deriveFont(Font.BOLD, bf.getSize2D()));
+                //descriptionLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+                //descriptionLabel.setFont(bf.deriveFont(Font.BOLD, bf.getSize2D()));
                 this.add(descriptionLabel, constraints);
                 
-                locationsLabel.setText(StringUtils.asString(checker.getBaseDirsForVersion(version), ", "));
+                //locationsLabel.setText(StringUtils.asString(checker.getBaseDirsForVersion(version), ", "));
                 constraints.gridx = 1;
-                this.add(locationsLabel, constraints);
+               // constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+               // constraints.weightx = 1.0;
+                //locationsLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+                //this.add(locationsLabel, constraints);
+                //constraints.weightx = 0.5;
+               // constraints.anchor = GridBagConstraints.PAGE_START;
                 String text = COULD_NOT_BE_USED_TEXT;
                 if (checker.getResolutionForVersion(version) == ExistingSunStudioChecker.INSTALLATION_BLOCKED) {
                     text = NOT_POSSIBLE_TEXT;

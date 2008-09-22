@@ -43,14 +43,18 @@ import org.netbeans.installer.utils.helper.Platform;
 public class Utils {
 
     public static String getMainDirectory() {
-        return Platform.LINUX.equals(SystemUtils.getCurrentPlatform())
+        return SystemUtils.getCurrentPlatform().isCompatibleWith(Platform.LINUX)
                 ? "sunstudioceres" : "SUNWspro";
+    }
+    
+    public static String getNBDirectory() {
+        return "netbeans-6.1ss";
     }
 
     public static Product getSSBase() {
         return Registry.getInstance().getProducts("ss-base").get(0);
     }
-
+    
     public static Product getNBExtra() {
         return Registry.getInstance().getProducts("nb-extra").get(0);
     }
@@ -62,4 +66,13 @@ public class Utils {
     public static String getMainUid() {
         return "ss-base";
     }
+    
+    public static String getSPROsslnkName() {
+        return "SPROsslnk";
+    }
+    
+    public static String getSPROsslnkPropertyName() {
+        return "install.SPROsymlink";
+    }
+    
 }

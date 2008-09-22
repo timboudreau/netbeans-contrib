@@ -36,13 +36,17 @@
 
 package org.netbeans.installer.wizard.components.sequences;
 
+
+import java.io.File;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ResourceUtils;
+import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
-import org.netbeans.installer.utils.helper.UiMode;
+import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.silent.SilentLogManager;
+import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardSequence;
 import org.netbeans.installer.wizard.components.panels.sunstudio.ExistingSunStudioPanel;
 import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPanel;
@@ -61,6 +65,10 @@ public class SystemCheckSequence extends WizardSequence {
 
     @Override
     public void executeForward() {
+        if (ExecutionMode.getCurrentExecutionMode().equals(ExecutionMode.CREATE_BUNDLE)) {
+            super.executeForward();
+            return;
+        }
         if (SilentLogManager.isLogManagerActive()) {
             for(SystemCheckCategory problem: SystemCheckCategory.getProblemCategories()) {
                 String shortMessage = problem.getShortErrorMessage();
@@ -70,8 +78,37 @@ public class SystemCheckSequence extends WizardSequence {
                 SilentLogManager.forceLog(CheckStatus.ERROR, CRITICAL_ERROR_MESSAGE);
                 getWizard().getFinishHandler().cancel();
             }
+            ExistingSunStudioChecker checker = ExistingSunStudioChecker.getInstance();
+            if (checker.isSunStudioInstallationFound()) {                
+                for (String version : checker.getInstalledVersions()) {
+                    SilentLogManager.forceLog(
+                            checker.getResolutionForVersion(version) == checker.INSTALLATION_BLOCKED ?
+                                CheckStatus.ERROR : CheckStatus.WARNING, "Sun Studio " + version
+                            + " was found in " + StringUtils.asString(checker.getBaseDirsForVersion(version)));
+                }
+                if (!checker.isInstallationPossible()) {
+                    SilentLogManager.forceLog(CheckStatus.ERROR, "Installation is not possible");
+                    getWizard().getFinishHandler().cancel();
+                }
+                File defaultDirectory = Utils.getSSBase().getInstallationLocation();
+                if (checker.getAllowedDirectory() != null && !defaultDirectory.equals(new File(checker.getAllowedDirectory()))) {
+                    SilentLogManager.forceLog(CheckStatus.ERROR, "Installation is not possible. Sun Studio could" +
+                            " be installed only in " + checker.getAllowedDirectory() + " However installation location is " + defaultDirectory.getAbsolutePath());
+                    getWizard().getFinishHandler().cancel();
+                }
+                
+                if (checker.getRestrictedDirectories() != null) {
+                    for (String dir : checker.getRestrictedDirectories()) {
+                        if (defaultDirectory.equals(new File(dir)))  {
+                            SilentLogManager.forceLog(CheckStatus.ERROR, "Installation is not possible. Sun Studio could not "
+                            + " be installed in defualt folder " + dir);
+                            getWizard().getFinishHandler().cancel();
+                        }
+                    }                    
+                }
+            }            
         } else {
-            if (System.getProperty(Registry.FORCE_UNINSTALL_PROPERTY) == null) {
+            if (Registry.getInstance().getProductsToInstall().size() > 0) {
                 getChildren().clear();
                 if (SystemCheckCategory.hasProblemCategories()) {
                     addChild(systemCheckPanel);

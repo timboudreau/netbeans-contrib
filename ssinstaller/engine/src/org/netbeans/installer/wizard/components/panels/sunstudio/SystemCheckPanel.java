@@ -45,16 +45,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.helper.swing.NbiPanel;
-import org.netbeans.installer.utils.helper.swing.NbiTabbedPane;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel;
 import org.netbeans.installer.wizard.components.panels.ErrorMessagePanel.ErrorMessagePanelSwingUi;
 import org.netbeans.installer.wizard.containers.SwingContainer;
@@ -66,7 +65,9 @@ public class SystemCheckPanel extends ErrorMessagePanel {
     
     public static final String DEFAULT_TITLE = ResourceUtils.getString(SystemCheckPanel.class, "SCP.title"); // NOI18N
     public static final String DEFAULT_DESCRIPTION = ResourceUtils.getString(SystemCheckPanel.class, "SCP.description"); // NOI18N
-    public static final String MORE_INFO_BUTTON_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "SCP.more_info_button_text"); // NOI18N
+    public static final String MORE_INFO_BUTTON_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "SCP.more.info.button.text"); // NOI18N
+    public static final String WARNING_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "SCP.warning.text"); // NOI18N
+    public static final String ERROR_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "SCP.error.text"); // NOI18N
     
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -132,8 +133,8 @@ public class SystemCheckPanel extends ErrorMessagePanel {
                 container.getBackButton().setVisible(false);
                 container.getCancelButton().setText(component.getProperty(FINISH_BUTTON_TEXT_PROPERTY));
             }
-        }
-        
+        }        
+
         // private //////////////////////////////////////////////////////////////////
         private void initComponents() {
             NbiPanel mainPanel = new NbiPanel();
@@ -206,20 +207,39 @@ public class SystemCheckPanel extends ErrorMessagePanel {
             mainPanel.add(shortDescription, mainConstraints);        
             mainConstraints.gridy = 3;
             mainConstraints.insets = new Insets(10, 10, 0, 10);
-            mainPanel.add(longDescription, mainConstraints);           
+            mainPanel.add(longDescription, mainConstraints);            
             mainPanel.revalidate();
-            setLayout(new GridBagLayout());
-            add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));         
+           // setLayout(new GridBagLayout());
+            add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL, new Insets(11, 11, 11, 11), 0, 0));
         }
-        
+  /*
         @Override
         public void evaluateCancelButtonClick() {
             if (SystemCheckCategory.hasErrorCategories()) {
                 component.getWizard().getFinishHandler().cancel();
             } else super.evaluateCancelButtonClick();
         }
+    */    
+               
+        @Override
+        protected String getWarningMessage() {
+            if (SystemCheckCategory.hasProblemCategories()) {
+                return WARNING_TEXT;
+            }
+            return null;
+        }
+
+        @Override
+        protected String validateInput() {
+            if (SystemCheckCategory.hasErrorCategories()) {
+                return ERROR_TEXT;
+            }
+            return null;
+        }
         
     }
+
+
 
 }
 
