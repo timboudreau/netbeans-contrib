@@ -57,6 +57,7 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.editor.indent.spi.Context;
 import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileUtil;
@@ -237,7 +238,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             if (startOffset > 0) {
                 int prevOffset = Utilities.getRowStart(doc, startOffset - 1);
                 initialOffset = getFormatStableStart(doc, prevOffset);
-                initialIndent = ScalaLexUtilities.getLineIndent(doc, initialOffset);
+                initialIndent = GsfUtilities.getLineIndent(doc, initialOffset);
             }
 
             // Build up a set of offsets and indents for lines where I know I need
@@ -292,7 +293,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                 // up "out of sync"
                                 int prevOffset = offsets.get(i - 1);
                                 int prevIndent = indents.get(i - 1);
-                                int actualPrevIndent = ScalaLexUtilities.getLineIndent(doc, prevOffset);
+                                int actualPrevIndent = GsfUtilities.getLineIndent(doc, prevOffset);
                                 if (actualPrevIndent != prevIndent) {
                                     // For blank lines, indentation may be 0, so don't adjust in that case
                                     if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
@@ -302,7 +303,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                             }
 
                             // Adjust the indent at the given line (specified by offset) to the given indent
-                            int currentIndent = ScalaLexUtilities.getLineIndent(doc, lineBegin);
+                            int currentIndent = GsfUtilities.getLineIndent(doc, lineBegin);
 
                             if (currentIndent != indent) {
                                 if (context != null) {
@@ -383,7 +384,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                 if (indent == -1) {
                     // Skip this line - leave formatting as it is prior to reformatting
-                    indent = ScalaLexUtilities.getLineIndent(doc, offset);
+                    indent = GsfUtilities.getLineIndent(doc, offset);
                 }
 
                 if (indent < 0) {

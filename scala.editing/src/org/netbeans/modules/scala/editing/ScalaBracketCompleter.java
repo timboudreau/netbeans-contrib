@@ -60,6 +60,7 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.KeystrokeHandler;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
@@ -187,14 +188,14 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
             StringBuilder sb = new StringBuilder();
             if (offset > afterLastNonWhite) {
                 sb.append("\n"); // XXX On Windows, do \r\n?
-                ScalaLexUtilities.indent(sb, indent);
+                GsfUtilities.indent(sb, indent);
             } else {
                 // I'm inserting a newline in the middle of a sentence, such as the scenario in #118656
                 // I should insert the end AFTER the text on the line
                 String restOfLine = doc.getText(offset, Utilities.getRowEnd(doc, afterLastNonWhite) - offset);
                 sb.append(restOfLine);
                 sb.append("\n");
-                ScalaLexUtilities.indent(sb, indent);
+                GsfUtilities.indent(sb, indent);
                 doc.remove(offset, restOfLine.length());
             }
 
@@ -216,13 +217,13 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
             // See if it's a block comment opener
             String text = token.text().toString();
             if (text.startsWith("/*") && ts.offset() == Utilities.getRowFirstNonWhite(doc, offset)) {
-                int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+                int indent = GsfUtilities.getLineIndent(doc, offset);
                 StringBuilder sb = new StringBuilder();
-                sb.append(ScalaLexUtilities.getIndentString(indent));
+                sb.append(GsfUtilities.getIndentString(indent));
                 sb.append(" * "); // NOI18N
                 int offsetDelta = sb.length() + 1;
                 sb.append("\n"); // NOI18N
-                sb.append(ScalaLexUtilities.getIndentString(indent));
+                sb.append(GsfUtilities.getIndentString(indent));
                 sb.append(" */"); // NOI18N
                 // TODO - possibly populate associated types in JS-doc style!
                 //if (text.startsWith("/**")) {
@@ -237,7 +238,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         if (id == ScalaTokenId.StringLiteral ||
                 (id == ScalaTokenId.STRING_END) && offset < ts.offset() + ts.token().length()) {
             // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
-            //int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+            //int indent = GsfUtilities.getLineIndent(doc, offset);
             //int delimiterOffset = id == ScalaTokenId.STRING_END ? ts.offset() : ts.offset()-1;
             //char delimiter = doc.getText(delimiterOffset,1).charAt(0);
             //doc.insertString(offset, delimiter + " + " + delimiter, null);
@@ -254,7 +255,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         if (id == ScalaTokenId.REGEXP_LITERAL ||
                 (id == ScalaTokenId.REGEXP_END) && offset < ts.offset() + ts.token().length()) {
             // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
-            //int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+            //int indent = GsfUtilities.getLineIndent(doc, offset);
             //doc.insertString(offset, "/ + /", null);
             //caret.setDot(offset+3);
             //return offset + 5 + indent;
@@ -283,11 +284,11 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
                 ScalaTokenId prevTokenId = prevToken.id();
                 if (id == ScalaTokenId.RBrace && prevTokenId == ScalaTokenId.LBrace ||
                         id == ScalaTokenId.RBracket && prevTokenId == ScalaTokenId.LBracket) {
-                    int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+                    int indent = GsfUtilities.getLineIndent(doc, offset);
                     StringBuilder sb = new StringBuilder();
                     // XXX On Windows, do \r\n?
                     sb.append("\n"); // NOI18N
-                    ScalaLexUtilities.indent(sb, indent);
+                    GsfUtilities.indent(sb, indent);
                     int insertOffset = offset; // offset < length ? offset+1 : offset;
                     doc.insertString(insertOffset, sb.toString(), null);
                     caret.setDot(insertOffset);
@@ -318,12 +319,12 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
             String line = doc.getText(begin, end - begin);
             boolean isBlockStart = line.startsWith("/*");
             if (isBlockStart || line.startsWith("*")) {
-                int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+                int indent = GsfUtilities.getLineIndent(doc, offset);
                 StringBuilder sb = new StringBuilder();
                 if (isBlockStart) {
                     indent++;
                 }
-                ScalaLexUtilities.indent(sb, indent);
+                GsfUtilities.indent(sb, indent);
                 sb.append("*"); // NOI18N
                 // Copy existing indentation
                 int afterStar = isBlockStart ? begin + 2 : begin + 1;
@@ -428,9 +429,9 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
 
             if (continueComment) {
                 // Line comments should continue
-                int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+                int indent = GsfUtilities.getLineIndent(doc, offset);
                 StringBuilder sb = new StringBuilder();
-                ScalaLexUtilities.indent(sb, indent);
+                GsfUtilities.indent(sb, indent);
                 sb.append("//"); // NOI18N
                 // Copy existing indentation
                 int afterSlash = begin + 2;
@@ -514,7 +515,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         if ((beginEndBalance == 1 || braceBalance.size() == 1) && offset > braceBalance.peek().offset(th)) {
             // There is one more opening token on the line than a corresponding
             // closing token.  (If there's is more than one we don't try to help.)
-            int indent = ScalaLexUtilities.getLineIndent(doc, offset);
+            int indent = GsfUtilities.getLineIndent(doc, offset);
 
             // Look for the next nonempty line, and if its indent is > indent,
             // or if its line balance is -1 (e.g. it's an end) we're done
@@ -528,7 +529,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
                     continue;
                 }
 
-                int nextIndent = ScalaLexUtilities.getLineIndent(doc, next);
+                int nextIndent = GsfUtilities.getLineIndent(doc, next);
 
                 if (nextIndent > indent) {
                     insertEnd = false;
@@ -591,7 +592,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         //dumpTokens(doc, caretOffset);
 
         if (target.getSelectionStart() != -1) {
-            boolean isCodeTemplateEditing = false; // NbUtilities.isCodeTemplateEditing(doc)
+            boolean isCodeTemplateEditing = false; // GsfUtilities.isCodeTemplateEditing(doc)
             if (isCodeTemplateEditing) {
                 int start = target.getSelectionStart();
                 int end = target.getSelectionEnd();
@@ -772,7 +773,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
                     ts.move(dotPos);
 
                     if (ts.moveNext() && (ts.offset() < dotPos)) {
-                        ScalaLexUtilities.setLineIndentation(doc, dotPos, previousAdjustmentIndent);
+                        GsfUtilities.setLineIndentation(doc, dotPos, previousAdjustmentIndent);
                     }
                 }
             }
@@ -956,9 +957,9 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
 
                 if (begin != OffsetRange.NONE) {
                     int beginOffset = begin.getStart();
-                    int indent = ScalaLexUtilities.getLineIndent(doc, beginOffset);
-                    previousAdjustmentIndent = ScalaLexUtilities.getLineIndent(doc, offset);
-                    ScalaLexUtilities.setLineIndentation(doc, offset, indent);
+                    int indent = GsfUtilities.getLineIndent(doc, beginOffset);
+                    previousAdjustmentIndent = GsfUtilities.getLineIndent(doc, offset);
+                    GsfUtilities.setLineIndentation(doc, offset, indent);
                     previousAdjustmentOffset = caret.getDot();
                 }
             }

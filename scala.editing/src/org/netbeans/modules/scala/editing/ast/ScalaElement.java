@@ -54,8 +54,8 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.JavaUtilities;
-import org.netbeans.modules.scala.editing.NbUtilities;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaUtils;
@@ -222,7 +222,7 @@ public class ScalaElement implements ScalaElementHandle {
     public BaseDocument getDoc() {
         FileObject srcFo = getFileObject();
         if (srcFo != null) {
-            return doc = doc == null ? NbUtilities.getDocument(srcFo, true) : doc;
+            return doc = doc == null ? GsfUtilities.getDocument(srcFo, true) : doc;
         } else {
             return null;
         }

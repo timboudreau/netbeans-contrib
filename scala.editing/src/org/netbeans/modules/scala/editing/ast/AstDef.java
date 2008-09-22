@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.scala.editing.NbUtilities;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.filesystems.FileObject;
@@ -179,7 +179,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
     public BaseDocument getDoc() {
         FileObject srcFo = getFileObject();
         if (srcFo != null) {
-            return NbUtilities.getDocument(srcFo, true);
+            return GsfUtilities.getDocument(srcFo, true);
         } else {
             return null;
         }

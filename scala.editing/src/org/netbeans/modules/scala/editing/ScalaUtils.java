@@ -47,6 +47,7 @@ import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -701,7 +702,7 @@ public class ScalaUtils {
             return null;
         }
 
-        BaseDocument doc = NbUtilities.getDocument(info.getFileObject(), true);
+        BaseDocument doc = GsfUtilities.getDocument(info.getFileObject(), true);
         if (doc == null) {
             return null;
         }
