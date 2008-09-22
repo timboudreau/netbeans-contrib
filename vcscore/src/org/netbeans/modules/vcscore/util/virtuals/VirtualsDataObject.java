@@ -45,6 +45,7 @@ import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -72,6 +73,10 @@ public class VirtualsDataObject extends MultiDataObject {
     protected Node createNodeDelegate () {
         DataNode node = new VirtualsDataNode (this, Children.LEAF);
         return node;
+    }
+
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
 
     public class VirtualsDataNode extends DataNode {

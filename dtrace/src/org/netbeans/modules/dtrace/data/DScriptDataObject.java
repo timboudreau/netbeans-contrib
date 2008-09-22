@@ -49,6 +49,7 @@ import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.text.DataEditorSupport;
+import org.openide.util.Lookup;
 
 public class DScriptDataObject extends MultiDataObject {
     
@@ -61,5 +62,9 @@ public class DScriptDataObject extends MultiDataObject {
     protected Node createNodeDelegate() {
         return new DScriptDataNode(this);
     }
-    
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
+    }
 }

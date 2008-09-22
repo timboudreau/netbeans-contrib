@@ -51,6 +51,7 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -114,6 +115,10 @@ public class MDRDataObject extends MultiDataObject {
         DataNode dataNode = (DataNode) super.createNodeDelegate();
         dataNode.setIconBase("/org/netbeans/modules/mdr/resources/repository");
         return dataNode;
+    }
+
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
     
     private static final String TAG_START = "{";

@@ -41,15 +41,14 @@
 
 package org.netbeans.modules.lexer.editorbridge.calc;
 
-import java.io.IOException;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.UniFileLoader;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 /**
  * Data object that represents calc file.
@@ -71,6 +70,11 @@ public class CalcDataObject extends MultiDataObject {
 
     protected Node createNodeDelegate() {
         return new CalcDataNode(this);
+    }
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
 
     public HelpCtx getHelpCtx() {

@@ -41,12 +41,12 @@
 
 package org.netbeans.modules.archiver;
 
-import org.openide.actions.*;
 import org.openide.cookies.*;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 public class ArchiveDataObject extends MultiDataObject {
 
@@ -76,5 +76,8 @@ public class ArchiveDataObject extends MultiDataObject {
     final void removeSaveCookie(SaveCookie save) {
         getCookieSet().remove(save);
     }
-    
+
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
+    }
 }

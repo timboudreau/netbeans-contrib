@@ -43,14 +43,11 @@ package org.netbeans.modules.visual.examples.shapes.dataobject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.openide.cookies.EditorCookie;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
-import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
+import org.openide.util.Lookup;
 
 public class ShapeDataObject extends MultiDataObject {
 
@@ -74,5 +71,10 @@ public class ShapeDataObject extends MultiDataObject {
     protected Node createNodeDelegate() {
         return new ShapeDataNode(this, data );
     }
-    
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
+    }
+
 }

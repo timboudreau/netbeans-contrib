@@ -11,6 +11,7 @@ import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.text.DataEditorSupport;
+import org.openide.util.Lookup;
 
 
 public class ExternalToolDataObject extends MultiDataObject {
@@ -34,6 +35,10 @@ public class ExternalToolDataObject extends MultiDataObject {
     
     protected Node createNodeDelegate () {
         return new ExternalToolDataNode (this);
+    }
+
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
     
     class ETAction extends AbstractAction {
