@@ -69,12 +69,16 @@ public class SilentLogManager {
     public SilentLogManager(String logsDirectory, boolean dublicateToMainLog) {
         this.dublicateToMainLog = dublicateToMainLog || logsDirectory == null;
         if (logsDirectory != null) {
-            String hostName = UNKNOWN_HOST;
-            try {
-                InetAddress addr = InetAddress.getLocalHost();
-                hostName = addr.getHostName();
-            } catch (UnknownHostException ex) {}
-            logFile = new File(logsDirectory, String.format("ssi-%1$s-%2$s.log", hostName, DateUtils.getTimestamp()));
+            File logsDir = new File(logsDirectory);
+            if (!logsDir.exists()) logsDir.mkdirs();
+            if (logsDir.canWrite()) {
+                String hostName = UNKNOWN_HOST;
+                try {
+                    InetAddress addr = InetAddress.getLocalHost();
+                    hostName = addr.getHostName();
+                } catch (UnknownHostException ex) {}
+                logFile = new File(logsDirectory, String.format("ssi-%1$s-%2$s.log", hostName, DateUtils.getTimestamp()));
+            }
         }
     }
     
