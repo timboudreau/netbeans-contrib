@@ -54,7 +54,6 @@ import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardAction;
-import org.netbeans.modules.reglib.NbBundle;
 import org.netbeans.modules.servicetag.RegistrationData;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_SUCCESSFULLY;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_WITH_WARNINGS;
@@ -199,7 +198,7 @@ public class ServiceTagCreateAction extends WizardAction {
     }
 
     private static String getInstanceURN(String uid) {
-        String productURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag."
+        String productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag."
                 + uid.substring(0,2) +".urn");
         for (ServiceTag st : registrationData.getServiceTags()) {
             if (st.getProductURN().equals(productURN)) {
@@ -213,11 +212,11 @@ public class ServiceTagCreateAction extends WizardAction {
         // Determine the product URN and name
         String productURN, productName, productVersion, parentURN, parentName;
 
-        productURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.urn");
-        productName = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.name");
-        productVersion = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.version");
-        parentURN = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.parent.urn");
-        parentName = NbBundle.getMessage(ServiceTagCreateAction.class,"servicetag.nb.parent.name");
+        productURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.nb.urn");
+        productName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.nb.name");
+        productVersion = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.nb.version");
+        parentURN = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.nb.parent.urn");
+        parentName = ResourceUtils.getString(ServiceTagCreateAction.class,"servicetag.nb.parent.name");
 
         return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
                                       productName,
