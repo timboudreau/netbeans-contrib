@@ -66,14 +66,14 @@ public class LookupProviderImpl implements LookupProvider {
                 new SourcesImpl(p),
                 new SourceLevelQueryImpl(p),
                 UILookupMergerSupport.createProjectOpenHookMerger(new OpenHook(p, cpp)),
-                new ActionProviderImpl(p));
+                new ActionProviderImpl(p),
+                new SubprojectProviderImpl(p));
         // XXX consider adding:
         // AntArtifactProvider
         // BinaryForSourceQueryImplementation
         // FileBuiltQueryImplementation
         // JavadocForBinaryQueryImplementation
         // MultipleRootsUnitTestForSourceQueryImplementation
-        // SubprojectProvider
     }
 
 }

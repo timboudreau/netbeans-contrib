@@ -46,10 +46,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
@@ -147,8 +147,8 @@ final class LibrariesNode extends AbstractNode {
             setKeys(Collections.<FileObject>emptySet());
         }
 
-        private List<FileObject> getKeys() {
-            List<FileObject> keys = new ArrayList<FileObject>();
+        private Collection<FileObject> getKeys() {
+            Collection<FileObject> keys = new LinkedHashSet<FileObject>();
             for (SourceGroup g : sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
                 FileObject root = g.getRootFolder();
                 // XXX add in bootcp later?

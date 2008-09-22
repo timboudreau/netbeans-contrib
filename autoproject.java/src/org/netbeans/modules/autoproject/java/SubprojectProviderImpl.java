@@ -37,29 +37,52 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoproject.core;
+package org.netbeans.modules.autoproject.java;
 
-import java.io.File;
-import org.netbeans.modules.autoproject.spi.Cache;
-import org.netbeans.modules.autoproject.spi.ProjectDetector;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.spi.project.SubprojectProvider;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 
-/**
- * Notices projects specifically marked as such.
- */
-public class MarkedProjectDetector implements ProjectDetector {
+class SubprojectProviderImpl implements SubprojectProvider {
 
-    /** public for lookup */
-    public MarkedProjectDetector() {}
+    private final Project p;
 
-    public boolean isProject(FileObject projectDirectory) {
-        File d = FileUtil.toFile(projectDirectory);
-        if (d != null) {
-            return Boolean.parseBoolean(Cache.get(d + Cache.PROJECT));
-        } else {
-            return false;
-        }
+    public SubprojectProviderImpl(Project p) {
+        this.p = p;
     }
+
+    public Set<? extends Project> getSubprojects() {
+        Set<Project> kids = new LinkedHashSet<Project>();
+        for (SourceGroup g : ProjectUtils.getSources(p).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
+            ClassPath cp = ClassPath.getClassPath(g.getRootFolder(), ClassPath.COMPILE);
+            if (cp != null) {
+                for (ClassPath.Entry entry : cp.entries()) {
+                    for (FileObject sourceRoot : SourceForBinaryQuery.findSourceRoots(entry.getURL()).getRoots()) {
+                        Project kid = FileOwnerQuery.getOwner(sourceRoot);
+                        if (kid != null && kid != p) {
+                            // XXX might also want to check that sourceRoot is among SOURCES_TYPE_JAVA of kid?
+                            kids.add(kid);
+                        }
+                    }
+                }
+            }
+        }
+        return kids;
+    }
+
+    public void addChangeListener(ChangeListener listener) {
+        // XXX important to implement? probably not
+    }
+
+    public void removeChangeListener(ChangeListener listener) {}
 
 }

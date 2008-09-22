@@ -58,6 +58,7 @@ import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
+@SuppressWarnings("deprecation") // getJavaSources
 class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation  {
 
     private FileObject docBase;
@@ -77,13 +78,11 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
     }
 
     public String getContextPath() {
-        // XXX: will have to ask user for context
-        return "UNKNOWN";
+        return "UNKNOWN"; // XXX: will have to ask user for context
     }
 
     public String getJ2eePlatformVersion() {
-        // XXX: will have to ask user
-        return WebModule.JAVA_EE_5_LEVEL;
+        return WebModule.JAVA_EE_5_LEVEL; // XXX: will have to ask user
     }
 
     public FileObject getWebInf() {
@@ -104,7 +103,7 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
 
     public FileObject[] getJavaSources() {
         // is deprecated in base class so perhaps not needed
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
     public MetadataModel<WebAppMetadata> getMetadataModel() {
@@ -116,7 +115,7 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
                 cpProvider.findClassPathImpl(rt, ClassPath.BOOT),
                 cpProvider.findClassPathImpl(rt, ClassPath.COMPILE),
                 cpProvider.findClassPathImpl(rt, ClassPath.SOURCE),
-                // XXX: add listening on deplymentDescriptor
+                // XXX: add listening on deploymentDescriptor
                 ddFile);
             webAppMetadataModel = WebAppMetadataModelFactory.createMetadataModel(metadataUnit, true);
         }
@@ -148,8 +147,7 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
     }
 
     public String getUrl() {
-        // XXX:
-        return "";
+        return ""; // XXX
     }
 
     public FileObject getArchive() throws IOException {
@@ -176,7 +174,7 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
 
     public File getResourceDirectory() {
         // XXX: do not have any
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(); // XXX
     }
 
     public File getDeploymentConfigurationFile(String name) {

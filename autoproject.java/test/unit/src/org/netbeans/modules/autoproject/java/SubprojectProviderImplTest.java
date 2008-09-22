@@ -37,65 +37,56 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoproject.core;
+package org.netbeans.modules.autoproject.java;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Collections;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
-import org.netbeans.modules.autoproject.spi.ProjectDetector;
-import org.netbeans.spi.project.ProjectFactory;
-import org.netbeans.spi.project.ProjectState;
+import org.netbeans.spi.project.SubprojectProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Lookup;
+import org.openide.util.test.TestFileUtils;
 
-/**
- * Recognizer for automatic projects.
- */
-public class AutomaticProjectFactory implements ProjectFactory {
+public class SubprojectProviderImplTest extends NbTestCase {
 
-    /** Default constructor for lookup. */
-    public AutomaticProjectFactory() {}
-
-    public boolean isProject(FileObject projectDirectory) {
-        File d = FileUtil.toFile(projectDirectory);
-        if (d != null) {
-            if (Boolean.parseBoolean(Cache.get(d + Cache.PROJECT))) {
-                return true;
-            }
-        }
-        boolean detected = false;
-        for (ProjectDetector detector : Lookup.getDefault().lookupAll(ProjectDetector.class)) {
-            if (detector.isProject(projectDirectory)) {
-                detected = true;
-                break;
-            }
-        }
-        if (!detected) {
-            return false;
-        }
-        for (FileObject parent = projectDirectory.getParent(); parent != null; parent = parent.getParent()) {
-            if (ProjectManager.getDefault().isProject(parent)) {
-                // Do not ever load a subdir of another project.
-                // Otherwise you get effects like $module/test/unit/src being considered a separate project.
-                return false;
-            }
-        }
-        return true;
+    public SubprojectProviderImplTest(String n) {
+        super(n);
     }
 
-    public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
-        if (isProject(projectDirectory)) {
-            return new AutomaticProject(projectDirectory);
-        } else {
-            return null;
-        }
-    }
-
-    public void saveProject(Project project) throws IOException, ClassCastException {
-        // no configuration, nothing to do...
+    public void testSubprojects() throws Exception {
+        clearWorkDir();
+        Cache.clear();
+        File p1 = new File(getWorkDir(), "p1");
+        File p2 = new File(getWorkDir(), "p2");
+        TestFileUtils.writeFile(new File(p1, "build.xml"), "<project name='p1'/>");
+        TestFileUtils.writeFile(new File(p2, "build.xml"), "<project name='p2'/>");
+        Cache.put(p1.getAbsolutePath() + Cache.PROJECT, "true");
+        File p1Src = new File(p1, "src");
+        p1Src.mkdirs();
+        String p1SrcPath = p1Src.getAbsolutePath();
+        Cache.put(p1SrcPath + JavaCacheConstants.SOURCE, p1SrcPath);
+        String p2BinPath = new File(p2, "build/p2.jar").getAbsolutePath();
+        Cache.put(p1SrcPath + JavaCacheConstants.CLASSPATH, p2BinPath);
+        Cache.put(p2.getAbsolutePath() + Cache.PROJECT, "true");
+        File p2Src = new File(p2, "src");
+        p2Src.mkdirs();
+        String p2SrcPath = p2Src.getAbsolutePath();
+        Cache.put(p2SrcPath + JavaCacheConstants.SOURCE, p2SrcPath);
+        Cache.put(p2SrcPath + JavaCacheConstants.BINARY, p2BinPath);
+        FileObject p1FO = FileUtil.toFileObject(p1);
+        assertNotNull(p1FO);
+        Project p1P = ProjectManager.getDefault().findProject(p1FO);
+        assertNotNull(p1P);
+        FileObject p2FO = FileUtil.toFileObject(p2);
+        assertNotNull(p2FO);
+        Project p2P = ProjectManager.getDefault().findProject(p2FO);
+        assertNotNull(p2P);
+        SubprojectProvider spp = p1P.getLookup().lookup(SubprojectProvider.class);
+        assertNotNull(spp);
+        assertEquals(Collections.singleton(p2P), spp.getSubprojects());
     }
 
 }

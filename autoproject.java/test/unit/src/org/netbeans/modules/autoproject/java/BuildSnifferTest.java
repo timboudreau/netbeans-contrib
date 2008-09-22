@@ -121,11 +121,12 @@ public class BuildSnifferTest extends NbTestCase {
     public void testComplexClasspath() throws Exception {
         File lib = new File(getWorkDir(), "lib");
         lib.mkdir();
-        for (String jar : new String[] {"b", "ax", "ay", "aw", "c"}) {
+        for (String jar : new String[] {"b", "ax", "ay", "aw", "c", "r1", "r2"}) {
             TestFileUtils.writeZipFile(new File(lib, jar + ".jar"), "META-INF/MANIFEST.MF:Manifest-Version: 1.0\n\n");
         }
         write("build.xml",
                 "<project default='c'>\n" +
+                " <fileset id='stuff' dir='lib' includes='r*.jar'/>\n" +
                 " <target name='c'>\n" +
                 "  <mkdir dir='s'/>\n" +
                 "  <mkdir dir='c'/>\n" +
@@ -143,6 +144,7 @@ public class BuildSnifferTest extends NbTestCase {
                 "     </fileset>\n" +
                 "    </path>\n" +
                 "    <dirset dir='c'/>\n" +
+                "    <fileset refid='stuff'/>\n" +
                 "   </classpath>\n" +
                 "  </javac>\n" +
                 " </target>\n" +
@@ -153,6 +155,7 @@ public class BuildSnifferTest extends NbTestCase {
             "direct1.jar", "direct2.jar", "from-p1.jar", "from-p2.jar",
             "pe-loc.jar", "pe-path-1.jar", "pe-path-2.jar",
             "lib/aw.jar", "lib/b.jar", "c",
+            "lib/r1.jar", "lib/r2.jar",
         }) {
             cp.add(prefix + entry);
         }
