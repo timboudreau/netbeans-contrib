@@ -44,6 +44,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.JSeparator;
 import javax.swing.border.EtchedBorder;
 import org.netbeans.installer.utils.ResourceUtils;
@@ -290,10 +291,12 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
     public static class ConflictedPackagesDialog extends NbiDialog {        
         
         private NbiButton okButton;
+        private NbiButton removeButton;
         private NbiPanel buttonsPanel;
         private NbiPanel componentPanel;
         private NbiLabel header;
         private NbiTextPane descriptionPane;
+        private NbiTextPane packageListPane;
         
         public ConflictedPackagesDialog() {
             super();
@@ -302,7 +305,10 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
         }
         
         private void initComponents() {
+            packageListPane = new NbiTextPane();
+            packageListPane.setBorder(BorderFactory.createEtchedBorder());
             descriptionPane = new NbiTextPane();
+            descriptionPane.setBorder(BorderFactory.createEtchedBorder());
             okButton = new NbiButton();
             okButton.setText(CLOSE_BUTTON_TEXT);
             okButton.addActionListener(new ActionListener() {
@@ -311,20 +317,59 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                     setVisible(false);
                 }
             });
+            removeButton = new NbiButton();
+            removeButton.setText("Remove it now");
+            removeButton.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    
+                }
+            });
             componentPanel = new NbiPanel();
-            header = new NbiLabel();            
-            componentPanel.setLayout(new BorderLayout(6, 0));
-            componentPanel.add(header, BorderLayout.NORTH);
-            componentPanel.add(descriptionPane, BorderLayout.CENTER);
+            header = new NbiLabel();
+            componentPanel.setLayout(new GridBagLayout());            
+            componentPanel.add(header, new GridBagConstraints(
+                    0, 0, // x, y
+                    2, 1, // width, height
+                    0.0, 0.0, // weight-x, weight-y
+                    GridBagConstraints.PAGE_START, // anchor
+                    GridBagConstraints.HORIZONTAL, // fill
+                    new Insets(10, 10, 10, 10), // padding
+                    0, 0));
+            componentPanel.add(packageListPane, new GridBagConstraints(
+                    0, 1, // x, y
+                    1, 1, // width, height
+                    1.0, 1.0, // weight-x, weight-y
+                    GridBagConstraints.LINE_START, // anchor
+                    GridBagConstraints.BOTH, // fill
+                    new Insets(10, 10, 10, 10), // padding
+                    0, 0));
+            componentPanel.add(descriptionPane, new GridBagConstraints(
+                    1, 1, // x, y
+                    1, 1, // width, height
+                    1.0, 1.0, // weight-x, weight-y
+                    GridBagConstraints.LINE_END, // anchor
+                    GridBagConstraints.BOTH, // fill
+                    new Insets(10, 10, 10, 10), // padding
+                    0, 0));
             buttonsPanel = new NbiPanel();
             buttonsPanel.add(okButton, new GridBagConstraints(
                     0, 0, // x, y
+                    1, 1, // width, height
+                    0.0, 0.0, // weight-x, weight-y
+                    GridBagConstraints.CENTER, // anchor
+                    GridBagConstraints.NONE, // fill
+                    new Insets(0, 0, 0, 0), // padding
+                    0, 0));                           // padx, pady - ???)
+          /*  buttonsPanel.add(removeButton, new GridBagConstraints(
+                    1, 0, // x, y
                     1, 1, // width, height
                     1.0, 0.0, // weight-x, weight-y
                     GridBagConstraints.CENTER, // anchor
                     GridBagConstraints.NONE, // fill
                     new Insets(0, 0, 0, 0), // padding
                     0, 0));                           // padx, pady - ???)
+*/
             getContentPane().add(componentPanel, new GridBagConstraints(
                     0, 0, // x, y
                     1, 1, // width, height
@@ -346,8 +391,11 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
 
         
         public void show(String version, List<String> names) {
-            descriptionPane.setText(StringUtils.asString(names, "\n"));
-            header.setText(StringUtils.format(LIST_INSTALLED_PACKAGES_TEXT, version));
+            packageListPane.setText(StringUtils.asString(names, "\n"));
+            descriptionPane.setText("To uninstall this Sun Studio you could:\n 1) Use Product Registry (/usr/bin/prodreg)\n 2)Run uninstaller \n 3)Remove packages with pkgrm");
+            String headerString = LIST_INSTALLED_PACKAGES_TEXT;
+            header.setText(StringUtils.format(headerString, version));
+            this.setTitle("Sun Studio " + version);
             setVisible(true);
             requestFocus();
         }                

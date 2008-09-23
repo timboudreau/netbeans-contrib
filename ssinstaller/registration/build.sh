@@ -7,12 +7,12 @@ SRCDIR=`pwd`
 LENGTH=`wc -l install.sh | sed s/install.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 
-DISTRS="intel-S2 sparc-S2 intel-Linux"
+#DISTRS="intel-S2 sparc-S2 intel-Linux"
 
 # The images of Sun Studio to create distribution
 #BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
-#IMAGES_DIR=/shared/dp/sstrunk/latest/inst
-IMAGES_DIR=/export/home/lm153972/ws/images/empty
+#IMAGE_DIR=/shared/dp/sstrunk/latest/inst
+#IMAGE_DIR=/export/home/lm153972/ws/images/empty
 #BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
 BUILD_DATE=none
 
@@ -42,14 +42,14 @@ do
     ;;
     esac
 
-    DISTR_NAME="$RESDIR/StudioExpress-${TARGET_OS}-${TARGET_PLATFORM}-${BUILD_DATE}-ii.sh"   
-    echo Generating $DISTR_NAME
+    DISTR_NAME="$RESDIR/StudioExpress-${TARGET_OS}-${TARGET_PLATFORM}-script.sh"   
+    echo Generating $DISTR_NAME from $IMAGE_DIR
     
-    DIRS=`ls $IMAGES_DIR/$distr`
+    DIRS=`ls $IMAGE_DIR`
     ARGS=""
     for dir in $DIRS
     do 
-	ARGS="$ARGS -C $IMAGES_DIR/$distr $dir" 
+	ARGS="$ARGS -C $IMAGE_DIR $dir" 
     done
     tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
     bzip2 $TARDIR/sunstudio.$distr.tar
