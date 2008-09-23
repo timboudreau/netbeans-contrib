@@ -47,6 +47,26 @@
             dest="${build.classes.dir}" 
             overwrite="false"/>
         
+	<!-- Patch launcher.sh. This is very nasty, but quick way. This is TEMPORARY implementation!!! -->
+<echo file="${basedir}/launcher_patch.diff" >
+540,542c540,542
+&lt; 	out "$msg6"
+&lt; 	out "$msg7"
+&lt; 	out "$msg8"
+---
+&gt; #	out "$msg6"
+&gt; #	out "$msg7"
+&gt; #	out "$msg8"
+545a546,548
+&gt; 	out "`echo '\\t--record\\t&lt;state&gt;.xml\\tRecords the states of components to the specified state file when you exit the installer.\\n\\t\\t\\t\\t\\tUse this option to generate state files.'`" 
+&gt; 	out "`echo '\\t--state\\t\\t&lt;state&gt;.xml\\tLoads the states of components from the specified state file.\\n\\t\\t\\t\\t\\tThis option is required for --silent.'`"
+&gt; 	out "`echo '\\t--silent-logs-dir\\t&lt;dir&gt;\\tOutput silent logs to the specific directory'`" 
+</echo>	
+	<exec executable="patch">
+		<arg value="${build.classes.dir}/native/launcher/unix/launcher.sh"/>
+		<arg value="${basedir}/launcher_patch.diff"/>
+	</exec>
+
         <write-jar-content-list 
             dir="${basedir}/${build.classes.dir}" 
             output="${basedir}/${build.classes.dir}/${jar.contents.list}"
