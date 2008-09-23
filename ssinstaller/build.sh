@@ -17,5 +17,10 @@ cd infra
 bash build.sh
 cd - 
 
+if [ -z "$REBUILD" ]; then
+    cd registration
+    bash build.sh
+fi
+
 #cd toolchain
 #bash build.sh

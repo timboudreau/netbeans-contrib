@@ -23,7 +23,8 @@ export SS_VERSION
 case `uname` in
     SunOS)  
         PLATFORM=`uname -p`
-        if [ "$PLATFORM" = "sparc" ]; then
+        INST_DIR=opt
+	if [ "$PLATFORM" = "sparc" ]; then
             DISTRS=sparc-S2
         else
             DISTRS=intel-S2
@@ -31,6 +32,7 @@ case `uname` in
     ;;
     Linux)
         DISTRS=intel-Linux
+	INST_DIR=opt/sun
     ;;
 esac
 
@@ -44,6 +46,9 @@ export SS_PACKAGES_DIR
 
 NB_ARCHIVE_DIR=${NB_ARCHIVE_DIR-$SUNSTUDIO_BITS_ROOT/builds/$DISTRS/c_installers/dvd_image_universal/install-$DISTRS/archives-$DISTRS}
 export NB_ARCHIVE_DIR
+
+IMAGE_DIR=${SUNSTUDIO_BITS_ROOT}/inst/${DISTRS}.inst/${INST_DIR}
+export IMAGE_DIR
 
 # The path to the product xml file
 PRODUCTS_XML_FILE=${PRODUCTS_XML_FILE-`pwd`/ProductDescription.xml}
