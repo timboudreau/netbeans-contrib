@@ -46,8 +46,11 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -112,12 +115,12 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
     private boolean highlightGroups;
 
     private Map<JTextComponent, FileObject> comp2FO;
-    private Map<FileObject, Collection<JTextComponent>> fo2Comp;
+    private Map<FileObject, Collection<Reference<JTextComponent>>> fo2Comp;
     private Map<JTextComponent,List</*tag*/Object>> comp2Highlights;
 
     public RegExpHighlighter() {
         comp2FO = new WeakHashMap<JTextComponent, FileObject>();
-        fo2Comp = new WeakHashMap<FileObject, Collection<JTextComponent>>();
+        fo2Comp = new WeakHashMap<FileObject, Collection<Reference<JTextComponent>>>();
         comp2Highlights = new WeakHashMap<JTextComponent,List<Object>>();
     }
 
@@ -235,10 +238,15 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
         FileObject old = comp2FO.put(c, null);
 
         if (old != null) {
-            Collection<JTextComponent> components = fo2Comp.get(old);
+            Collection<Reference<JTextComponent>> components = fo2Comp.get(old);
 
             if (components != null) {
-                components.remove(old);
+                Iterator<Reference<JTextComponent>> it = components.iterator();
+                while (it.hasNext()) {
+                    if (c == it.next().get()) {
+                        it.remove();
+                    }
+                }
             }
         }
 
@@ -246,15 +254,15 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
             FileObject fo = ((DataObject) stream).getPrimaryFile();
 
             comp2FO.put(c, fo);
-            getComponents(fo).add(c);
+            getComponents(fo).add(new WeakReference<JTextComponent>(c));
         }
     }
 
-    private Collection<JTextComponent> getComponents(FileObject fo) {
-        Collection<JTextComponent> components = fo2Comp.get(fo);
+    private Collection<Reference<JTextComponent>> getComponents(FileObject fo) {
+        Collection<Reference<JTextComponent>> components = fo2Comp.get(fo);
 
         if (components == null) {
-            fo2Comp.put(fo, components = new ArrayList<JTextComponent>());
+            fo2Comp.put(fo, components = new ArrayList<Reference<JTextComponent>>());
         }
 
         return components;
@@ -336,7 +344,11 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
     }
 
     private void setHighlights(FileObject fo, Collection<RegExpHighlight> highlights) {
-        for (JTextComponent c : getComponents(fo)) {
+        for (Reference<JTextComponent> r : getComponents(fo)) {
+            JTextComponent c = r.get();
+            if (c == null) {
+                continue;
+            }
             Highlighter highlighter = c.getHighlighter();
 
             // Clear existing highlights
@@ -356,7 +368,11 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
     }
 
     private void clearHighlights(FileObject fo, boolean repaint) {
-        for (JTextComponent c : getComponents(fo)) {
+        for (Reference<JTextComponent> r : getComponents(fo)) {
+            JTextComponent c = r.get();
+            if (c == null) {
+                continue;
+            }
             Highlighter highlighter = c.getHighlighter();
 
             // Clear existing highlights
