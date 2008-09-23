@@ -48,7 +48,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -112,14 +111,14 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
      */
     private boolean highlightGroups;
 
-    private Map/*<JTextComponent, FileObject>*/ comp2FO;
-    private Map/*<FileObject, Collection<JTextComponent>>*/ fo2Comp;
-    private Map/*<JTextComponent, HighlightLayer>*/ comp2Highlights;
+    private Map<JTextComponent, FileObject> comp2FO;
+    private Map<FileObject, Collection<JTextComponent>> fo2Comp;
+    private Map<JTextComponent,List</*tag*/Object>> comp2Highlights;
 
     public RegExpHighlighter() {
-        comp2FO = new WeakHashMap/*<JTextComponent, FileObject>*/();
-        fo2Comp = new WeakHashMap/*<FileObject, Collection<JTextComponent>>*/();
-        comp2Highlights = new WeakHashMap/*<JTextComponent, HighlightLayer>*/();
+        comp2FO = new WeakHashMap<JTextComponent, FileObject>();
+        fo2Comp = new WeakHashMap<FileObject, Collection<JTextComponent>>();
+        comp2Highlights = new WeakHashMap<JTextComponent,List<Object>>();
     }
 
     public void stateChanged(ChangeEvent e) {
@@ -226,17 +225,17 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
         comp2FO.put(c, null);
         c.addPropertyChangeListener(this);
         updateFileObjectMapping(c);
-        comp2Highlights.put(c, new ArrayList());
+        comp2Highlights.put(c, new ArrayList<Object>());
     }
 
     private synchronized void updateFileObjectMapping(JTextComponent c) {
         Document doc = c.getDocument();
         Object   stream = doc.getProperty(Document.StreamDescriptionProperty);
 
-        FileObject old = (FileObject) comp2FO.put(c, null);
+        FileObject old = comp2FO.put(c, null);
 
         if (old != null) {
-            Collection/*<JTextComponent>*/ components = (Collection) fo2Comp.get(old);
+            Collection<JTextComponent> components = fo2Comp.get(old);
 
             if (components != null) {
                 components.remove(old);
@@ -251,19 +250,18 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
         }
     }
 
-    private Collection/*<JTextComponent>*/ getComponents(FileObject fo) {
-        Collection/*<JTextComponent>*/ components = (Collection) fo2Comp.get(fo);
+    private Collection<JTextComponent> getComponents(FileObject fo) {
+        Collection<JTextComponent> components = fo2Comp.get(fo);
 
         if (components == null) {
-            fo2Comp.put(fo, components = new ArrayList/*<JTextComponent>*/());
+            fo2Comp.put(fo, components = new ArrayList<JTextComponent>());
         }
 
         return components;
     }
 
     private void clearAllHighlights() {
-        for (Iterator it = fo2Comp.keySet().iterator(); it.hasNext();) {
-            FileObject fileObject = (FileObject) it.next();
+        for (FileObject fileObject : fo2Comp.keySet()) {
             clearHighlights(fileObject);
         }
     }
@@ -291,14 +289,14 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
             return;
         }
 
-        String regExp = getRegExp();
-        if (regExp == null || regExp.length() == 0) {
+        String rx = getRegExp();
+        if (rx == null || rx.length() == 0) {
             clearHighlights(fileObject);
         } else {
             if (isHighlight()) {
                 try {
                     // is it a valid regexp?
-                    Pattern compiledRegExp = compileRegExp(regExp);
+                    Pattern compiledRegExp = compileRegExp(rx);
 
                     Document document = textComponent.getDocument();
                     int length = document.getLength();
@@ -306,7 +304,7 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
                     Matcher matcher = compiledRegExp.matcher(text);
 
                     clearHighlights(fileObject, false);
-                    List regExpMatches = new ArrayList();
+                    List<RegExpHighlight> regExpMatches = new ArrayList<RegExpHighlight>();
                     while (matcher.find()) {
                         for (int i = 0 ; i < Math.min(colors.length, matcher.groupCount() + 1); i++) {
                             int start = matcher.start(i);
@@ -337,41 +335,33 @@ public final class RegExpHighlighter implements PropertyChangeListener, ChangeLi
         }
     }
 
-    private void setHighlights(FileObject fo, Collection/*<Highlight>*/ highlights) {
-        for (Iterator i = getComponents(fo).iterator(); i.hasNext(); ) {
-            JTextComponent c = (JTextComponent) i.next();
-
-            //
+    private void setHighlights(FileObject fo, Collection<RegExpHighlight> highlights) {
+        for (JTextComponent c : getComponents(fo)) {
             Highlighter highlighter = c.getHighlighter();
 
             // Clear existing highlights
             clearHighlights(fo, false);
 
             // Add new highlights
-            List compHighlights = (List) comp2Highlights.get(c);
-            for (Iterator it = highlights.iterator(); it.hasNext();) {
-                RegExpHighlight regExpHighlight = (RegExpHighlight) it.next();
+            List<Object> compHighlights = comp2Highlights.get(c);
+            for (RegExpHighlight regExpHighlight : highlights) {
                 try {
                     Object tag = highlighter.addHighlight(regExpHighlight.getStart(),
                             regExpHighlight.getEnd() - 1, new RegExpHighlightPainter(regExpHighlight.getColor()));
                     compHighlights.add(tag);
-                } catch (BadLocationException ble) {
-
-                }
+                } catch (BadLocationException ble) {}
             }
             c.repaint();
         }
     }
 
     private void clearHighlights(FileObject fo, boolean repaint) {
-        for (Iterator i = getComponents(fo).iterator(); i.hasNext(); ) {
-            JTextComponent c = (JTextComponent) i.next();
+        for (JTextComponent c : getComponents(fo)) {
             Highlighter highlighter = c.getHighlighter();
 
             // Clear existing highlights
-            List compHighlights = (List) comp2Highlights.get(c);
-            for (Iterator it = compHighlights.iterator(); it.hasNext();) {
-                Object tag = (Object) it.next();
+            List<Object> compHighlights = comp2Highlights.get(c);
+            for (Object tag : compHighlights) {
                 highlighter.removeHighlight(tag);
             }
             compHighlights.clear();
