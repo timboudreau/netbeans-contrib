@@ -85,10 +85,9 @@ public class SolarisPackagesAnalyzer extends AbstractPackageAnalyzer {
             String line = null;
             int n = 0;
             PackageDescr packageDescr = null;
-            while((line = output.readLine()) != null) {
+            while((line = output.readLine()) != null) {                
                 String[] pair = line.trim().split(":");
-                if (pair.length != 2) {
-                    packageDescr = null;
+                if (pair.length < 2) {                 
                     continue;
                 }              
                 pair[1] = pair[1].trim();
