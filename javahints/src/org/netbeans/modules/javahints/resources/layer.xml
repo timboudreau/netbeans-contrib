@@ -43,6 +43,12 @@ made subject to such option by the copyright holder.
 -->
 <filesystem>
 
+    <folder name="Actions">
+        <folder name="Source">
+            <file name="org-netbeans-modules-javahints-batch-BatchApplyAction.instance"/>
+        </folder>
+    </folder>
+    
     <folder name="org-netbeans-modules-java-hints">
         <folder name="rules">
             <folder name="errors">
