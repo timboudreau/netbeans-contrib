@@ -166,7 +166,6 @@
             <svr source="SPROmride"/>
             <svr source="SPROmrpan"/>
             <svr source="SPROmrpgn"/>
-            <svr source="SPROmrsbe"/>
             <svr source="SPROmrstd"/>
             <svr source="SPROmrtcv"/>
             <svr source="SPROpnsn"/>
@@ -234,7 +233,6 @@
             <svr source="SPROmride"/>
             <svr source="SPROmrpan"/>
             <svr source="SPROmrpgn"/>
-            <svr source="SPROmrsbe"/>
             <svr source="SPROmrstd"/>
             <svr source="SPROmrtcv"/>
             <svr source="SPROpnsn"/>
