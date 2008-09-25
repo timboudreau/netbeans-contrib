@@ -42,16 +42,4 @@ made subject to such option by the copyright holder.
 -->
 <project name="contrib/javahints" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="do-test-build" depends="-build-javahints-tests,-build-jbrowse-tests,projectized-common.do-test-build">
-    </target>
-    
-    <target name="-build-javahints-tests">
-        <ant dir="../../java.hints/test" target="buildtests" inheritall="false" />
-    </target>
-    
-    <target name="-build-jbrowse-tests">
-        <ant dir="../../java.source/test" target="buildtests" inheritall="false" />
-    </target>
-    
 </project>
