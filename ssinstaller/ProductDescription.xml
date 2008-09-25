@@ -186,6 +186,7 @@
             <svr source="SPROstl4y"/>
             <svr source="SPROsunms"/>
             <svr source="SPROsvc"/>
+            <svr source="SPROsslnk"/>
             <svr source="SPROtdemo"/>
             <svr source="SPROutool"/>
             <svr source="SPROlklnt"/>
