@@ -471,7 +471,7 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
                 ModuleBean bean = nodes[0].getLookup().lookup(ModuleBean.class);
                 if (bean != null) {
                     try {
-                        text = "<b>" + XMLUtil.toElementContent(bean.getModuleInfo().getDisplayName()) + "</b>"; // NOI18N
+                        text = "<b>" + XMLUtil.toElementContent(bean.getModule().getDisplayName()) + "</b>"; // NOI18N
                         String longDesc = bean.getLongDescription();
                         if (longDesc != null) {
                             text += "<br>" + XMLUtil.toElementContent(longDesc); // NOI18N

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -44,25 +44,26 @@ package org.netbeans.modules.modulemanager;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.swing.*;
 
+import org.netbeans.Module;
+import org.netbeans.ModuleManager;
+import org.netbeans.core.startup.Main;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.NbBundle;
 
-/** XXX
+/**
  * @author Jirka Rechtacek (jrechtacek@netbeans.org)
  * @see "#20323"
  */
 class ModuleUninstallPanel extends JPanel {
-    Set<ModuleInfo> modules;
+    Set<Module> modules;
     String category;
     
-    public ModuleUninstallPanel (Set<ModuleInfo> m, String category) {
+    public ModuleUninstallPanel (Set<Module> m, String category) {
         this.modules = m;
         this.category = category;
         initComponents ();
@@ -98,10 +99,10 @@ class ModuleUninstallPanel extends JPanel {
     
     private void postInitComponents () {
         
-        Set<ModuleInfo> disableCandidates = new HashSet<ModuleInfo> ();
-        ModuleManager manager = Hacks.getModuleManager ();
-        for (ModuleInfo module : modules) {
-            if (module.isEnabled () && ! Hacks.isAutoload (module) && ! Hacks.isEager (module)) {
+        Set<Module> disableCandidates = new HashSet<Module> ();
+        ModuleManager manager = Main.getModuleSystem ().getManager ();
+        for (Module module : modules) {
+            if (module.isEnabled () && ! module.isAutoload () && ! module.isEager ()) {
                 disableCandidates.add (module);
             }
         }
@@ -110,9 +111,9 @@ class ModuleUninstallPanel extends JPanel {
         
         if (! disableCandidates.isEmpty ()) {
             
-            SortedSet<ModuleInfo> others = new TreeSet<ModuleInfo> (ModuleBean.AllModulesBean.getDefault ());
-            for (ModuleInfo m : manager.simulateDisable (disableCandidates)) {
-                if (! Hacks.isAutoload (m) && ! Hacks.isEager (m) && ! modules.contains (m)) {
+            SortedSet<Module> others = new TreeSet<Module> (ModuleBean.AllModulesBean.getDefault ());
+            for (Module m : manager.simulateDisable (disableCandidates)) {
+                if (! m.isAutoload () && ! m.isEager () && ! modules.contains (m)) {
                     others.add (m);
                 }
             }

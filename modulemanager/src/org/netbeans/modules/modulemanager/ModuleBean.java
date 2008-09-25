@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -42,18 +42,41 @@
 package org.netbeans.modules.modulemanager;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.logging.Logger;
-import org.netbeans.*;
-import java.util.*;
 import javax.swing.SwingUtilities;
 import org.openide.modules.SpecificationVersion;
 import java.io.File;
-import java.beans.*;
-import org.openide.*;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
+import org.netbeans.core.startup.Main;
+import org.netbeans.Module;
+import org.netbeans.ModuleManager;
+import org.netbeans.core.startup.ModuleHistory;
+import org.netbeans.core.startup.NbProblemDisplayer;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.modules.ModuleInfo;
-import org.openide.util.*;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
+import org.openide.util.Union2;
+import org.openide.util.WeakListeners;
 
 /** Bean representing a module.
  * Mirrors its properties but provides safe access from the event thread.
@@ -65,7 +88,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     
     private static final Logger err = Logger.getLogger (ModuleBean.class.getName ());
     
-    private final ModuleInfo moduleInfo;
+    private final Module module;
     
     private String codeName;
     private String codeNameBase;
@@ -87,56 +110,56 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     private String classpath;
     
     /** Must be created within mutex. */
-    private ModuleBean(ModuleInfo m) {
-        moduleInfo = m;
+    private ModuleBean(Module m) {
+        module = m;
         loadProps();
-        moduleInfo.addPropertyChangeListener(WeakListeners.propertyChange(this, moduleInfo));
+        module.addPropertyChangeListener(WeakListeners.propertyChange(this, module));
     }
     
     /** If necessary, get the underlying module. */
-    public ModuleInfo getModuleInfo () {
-        return moduleInfo;
+    public Module getModule () {
+        return module;
     }
     
     private void loadProps() {
         if (SwingUtilities.isEventDispatchThread()) throw new IllegalStateException();
-        err.log(Level.FINE, "loadProps: module=" + moduleInfo);
-        if (! Hacks.isValid (moduleInfo)) {
+        err.log(Level.FINE, "loadProps: module=" + module);
+        if (! module.isValid ()) {
             err.log(Level.FINE, "invalid, forget it...");
             return;
         }
         // Set fields. Called inside read mutex.
-        codeName = moduleInfo.getCodeName();
-        codeNameBase = moduleInfo.getCodeNameBase();
-        SpecificationVersion sv = moduleInfo.getSpecificationVersion();
+        codeName = module.getCodeName();
+        codeNameBase = module.getCodeNameBase();
+        SpecificationVersion sv = module.getSpecificationVersion();
         specVers = (sv == null ? null : sv.toString());
-        implVers = moduleInfo.getImplementationVersion ();
-        buildVers = moduleInfo.getBuildVersion ();
-        provides = moduleInfo.getProvides();
-        jar = Hacks.getJarFile (moduleInfo);
-        enabled = moduleInfo.isEnabled();
-        reloadable = Hacks.isReloadable (moduleInfo);
-        autoload = Hacks.isAutoload (moduleInfo);
-        eager = Hacks.isEager (moduleInfo);
-        Set problems = Hacks.getProblems (moduleInfo);
+        implVers = module.getImplementationVersion ();
+        buildVers = module.getBuildVersion ();
+        provides = module.getProvides();
+        jar = module.getJarFile ();
+        enabled = module.isEnabled();
+        reloadable = module.isReloadable ();
+        autoload = module.isAutoload ();
+        eager = module.isEager ();
+        Set problems = module.getProblems ();
         problematic = !problems.isEmpty();
         if (problematic) {
             problemDescriptions = new String[problems.size()];
             Iterator it = problems.iterator();
             int i = 0;
             while (it.hasNext()) {
-                problemDescriptions[i++] = Hacks.messageForProblem(moduleInfo, it.next());
+                problemDescriptions[i++] = NbProblemDisplayer.messageForProblem(module, it.next());
             }
         } else {
             problemDescriptions = null;
         }
-        err.log (Level.FINE, "IZ #82480: Module.getJarFile() " + Hacks.getJarFile (moduleInfo) + // NOI18N
-                (Hacks.getJarFile (moduleInfo) != null ? " exists " + Boolean.toString (Hacks.getJarFile (moduleInfo).exists ()) : "")); // NOI18N
-        displayName = moduleInfo.getDisplayName();
-        shortDescription = (String)moduleInfo.getLocalizedAttribute("OpenIDE-Module-Short-Description"); // NOI18N
-        longDescription = (String)moduleInfo.getLocalizedAttribute("OpenIDE-Module-Long-Description"); // NOI18N
-        category = (String)moduleInfo.getLocalizedAttribute("OpenIDE-Module-Display-Category"); // NOI18N
-        classpath = Hacks.getEffectiveClasspath (moduleInfo);
+        err.log (Level.FINE, "IZ #82480: Module.getJarFile() " + module.getJarFile () + // NOI18N
+                (module.getJarFile () != null ? " exists " + Boolean.toString (module.getJarFile ().exists ()) : "")); // NOI18N
+        displayName = module.getDisplayName();
+        shortDescription = (String)module.getLocalizedAttribute("OpenIDE-Module-Short-Description"); // NOI18N
+        longDescription = (String)module.getLocalizedAttribute("OpenIDE-Module-Long-Description"); // NOI18N
+        category = (String)module.getLocalizedAttribute("OpenIDE-Module-Display-Category"); // NOI18N
+        classpath = Main.getModuleSystem ().getEffectiveClasspath (module);
     }
     
     /** Get the code name. */
@@ -197,10 +220,10 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     public void setEnabled(boolean e) {
         if (enabled == e) return;
         if (jar == null || autoload || eager || problematic) throw new IllegalStateException();
-        err.log(Level.FINE, "setEnabled: module=" + moduleInfo + " enabled=" + e);
+        err.log(Level.FINE, "setEnabled: module=" + module + " enabled=" + e);
         enabled = e; // optimistic change
         supp.firePropertyChange("enabled", null, null); // NOI18N
-        Update u = new Update(e ? "enable" : "disable", moduleInfo); // NOI18N
+        Update u = new Update(e ? "enable" : "disable", module); // NOI18N
         AllModulesBean.getDefault().update(u);
     }
     
@@ -224,18 +247,18 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
         // XXX sanity-check
         if (reloadable == r) return;
         err.log(Level.FINE,
-                "setReloadable: module=" + moduleInfo + " reloadable=" + r);
+                "setReloadable: module=" + module + " reloadable=" + r);
         reloadable = r; // optimistic change
         supp.firePropertyChange("reloadable", null, null); // NOI18N
-        Update u = new Update(r ? "makeReloadable" : "makeUnreloadable", moduleInfo); // NOI18N
+        Update u = new Update(r ? "makeReloadable" : "makeUnreloadable", module); // NOI18N
         AllModulesBean.getDefault().update(u);
     }
     
     /** Delete the module. */
     public void delete() {
         if (jar == null) throw new IllegalStateException();
-        err.log(Level.FINE, "delete: module=" + moduleInfo);
-        Update u = new Update("delete", moduleInfo); // NOI18N
+        err.log(Level.FINE, "delete: module=" + module);
+        Update u = new Update("delete", module); // NOI18N
         AllModulesBean.getDefault().update(u);
     }
     
@@ -300,7 +323,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         if (SwingUtilities.isEventDispatchThread()) throw new IllegalStateException();
         // Something on the module changed. Inside read mutex.
-        err.log(Level.FINE, "got changes: module=" + moduleInfo + " evt=" + evt);
+        err.log(Level.FINE, "got changes: module=" + module + " evt=" + evt);
          if (/* #13834 */ evt != null && "classLoader".equals(evt.getPropertyName())) {
             err.log(Level.FINE, "ignoring PROP_CLASS_LOADER");
             // Speed optimization.
@@ -313,7 +336,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     public void run() {
         if (! SwingUtilities.isEventDispatchThread()) throw new IllegalStateException();
         // Inside event thread after a change.
-        err.log(Level.FINE, "firing changes: module=" + moduleInfo);
+        err.log(Level.FINE, "firing changes: module=" + module);
         supp.firePropertyChange(null, null, null);
         ModuleSelectionPanel.getGUI (false).setWaitingState (false, false);
     }
@@ -347,7 +370,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
         }
         private AllModulesBean() {}
         
-        private final ModuleManager mgr = Hacks.getModuleManager ();
+        private final ModuleManager mgr = Main.getModuleSystem ().getManager ();
         
         private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
         
@@ -419,12 +442,10 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                 }
                 err.log(Level.FINE, "first time, finding module list");
                 // First time. We are in read mutex and need to find out what is here.
-                Set modulesSet = mgr.getModules();
+                Set<Module> modulesSet = mgr.getModules();
                 ModuleBean[] _modules = new ModuleBean[modulesSet.size()];
-                Iterator it = modulesSet.iterator();
                 int i = 0;
-                while (it.hasNext()) {
-                    ModuleInfo m = (ModuleInfo)it.next();
+                for (Module m : modulesSet) {
                     _modules[i++] = new ModuleBean(m);
                 }
                 synchronized (AllModulesBean.this) {
@@ -452,14 +473,14 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
             ModuleSelectionPanel.getGUI (false).setWaitingState (true, true);
             if (ModuleManager.PROP_MODULES.equals(evt.getPropertyName())) {
                 // Later on. Something changed. Again in read mutex.
-                Map<ModuleInfo, ModuleBean> modules2Beans = new HashMap<ModuleInfo, ModuleBean> (modules.length * 4 / 3 + 1);
+                Map<Module, ModuleBean> modules2Beans = new HashMap<Module, ModuleBean> (modules.length * 4 / 3 + 1);
                 for (int i = 0; i < modules.length; i++) {
-                    modules2Beans.put(modules[i].getModuleInfo(), modules[i]);
+                    modules2Beans.put(modules[i].getModule(), modules[i]);
                 }
-                Set<ModuleInfo> modulesSet = mgr.getModules();
+                Set<Module> modulesSet = mgr.getModules();
                 ModuleBean[] themodules = new ModuleBean[modulesSet.size()];
                 int i = 0;
-                for (ModuleInfo m : modulesSet) {
+                for (Module m : modulesSet) {
                     ModuleBean existing = modules2Beans.get(m);
                     if (existing == null) existing = new ModuleBean(m);
                     themodules[i++] = existing;
@@ -546,13 +567,13 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                         return;
                     }
                     ModuleSelectionPanel.getGUI (false).setWaitingState (true, true);
-                    Set<Union2<ModuleInfo, File>> toEnable = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toDisable = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toMakeReloadable = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toMakeUnreloadable = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toDelete = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toCreate = new HashSet<Union2<ModuleInfo, File>> ();
-                    Set<Union2<ModuleInfo, File>> toCreateReloable = new HashSet<Union2<ModuleInfo, File>> ();
+                    Set<Union2<Module, File>> toEnable = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toDisable = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toMakeReloadable = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toMakeUnreloadable = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toDelete = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toCreate = new HashSet<Union2<Module, File>> ();
+                    Set<Union2<Module, File>> toCreateReloable = new HashSet<Union2<Module, File>> ();
                     List<Update> updatesL = null;
                     synchronized (updates) {
                         if (updates.isEmpty()) {
@@ -596,19 +617,19 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                             throw new IllegalStateException();
                         }
                     }
-                    doDelete(takeModuleInfos (toDelete));
-                    doDisable(takeModuleInfos (toDisable), true);
-                    for (Union2<ModuleInfo, File> infoOrJar : toMakeReloadable) {
+                    doDelete(takeModules (toDelete));
+                    doDisable(takeModules (toDisable), true);
+                    for (Union2<Module, File> infoOrJar : toMakeReloadable) {
                         if (infoOrJar.hasFirst ()) {
-                            Hacks.setReloadable (infoOrJar.first (), true);
+                            infoOrJar.first ().setReloadable (true);
                         }
                     }
-                    for (Union2<ModuleInfo, File> infoOrJar : toMakeUnreloadable) {
+                    for (Union2<Module, File> infoOrJar : toMakeUnreloadable) {
                         if (infoOrJar.hasFirst ()) {
-                            Hacks.setReloadable (infoOrJar.first (), false);
+                            infoOrJar.first ().setReloadable (false);
                         }
                     }
-                    doEnable(takeModuleInfos (toEnable));
+                    doEnable(takeModules (toEnable));
                     doCreate(toCreate, false);
                     doCreate(toCreateReloable, true);
                 } catch (RuntimeException re) {
@@ -630,9 +651,9 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
             
         }
         
-        private static Set<ModuleInfo> takeModuleInfos (Collection<Union2<ModuleInfo, File>> infoOrJars) {
-            Set<ModuleInfo> res = new HashSet<ModuleInfo> ();
-            for (Union2<ModuleInfo, File> u : infoOrJars) {
+        private static Set<Module> takeModules (Collection<Union2<Module, File>> infoOrJars) {
+            Set<Module> res = new HashSet<Module> ();
+            for (Union2<Module, File> u : infoOrJars) {
                 if (u.hasFirst ()) {
                     res.add (u.first ());
                 } else {
@@ -647,15 +668,13 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
         // is OK to block on the event thread here indirectly, by means of
         // calling TopManager.notify and waiting for the result.
         
-        private void doDelete(Set<ModuleInfo> modules) {
+        private void doDelete(Set<Module> modules) {
             if (modules.isEmpty()) return;
             err.log(Level.FINE, "doDelete: " + modules);
             // Have to be turned off first:
             doDisable(modules, false);
-            Iterator it = modules.iterator();
-            while (it.hasNext()) {
-                ModuleInfo m = (ModuleInfo)it.next();
-                if (Hacks.isFixed (m)) {
+            for (Module m : modules) {
+                if (m.isFixed ()) {
                     // Hmm, ignore.
                     continue;
                 }
@@ -672,21 +691,21 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
             }
         }
 
-        private void doDisable(Set<ModuleInfo> modules, boolean cancelable) {
+        private void doDisable(Set<Module> modules, boolean cancelable) {
             if (modules.isEmpty()) return;
             err.log(Level.FINE, "doDisable: " + modules);
-            SortedSet<ModuleInfo> realModules = new TreeSet<ModuleInfo> (this);
-            for (ModuleInfo m : modules) {
-                if (! m.isEnabled () || Hacks.isAutoload (m) || Hacks.isEager (m) || Hacks.isFixed (m)) {
+            SortedSet<Module> realModules = new TreeSet<Module> (this);
+            for (Module m : modules) {
+                if (! m.isEnabled () || m.isAutoload () || m.isEager () || m.isFixed ()) {
                     // In here by mistake, ignore.
                 } else {
                     realModules.add (m);
                 }
             }
             // Check if there are any non-autoloads/eagers added.
-            SortedSet<ModuleInfo> others = new TreeSet<ModuleInfo> (this); // SortedSet<Module>
-            for (ModuleInfo m : mgr.simulateDisable (realModules)) {
-                if (! Hacks.isAutoload (m) && ! Hacks.isEager (m) && !realModules.contains(m)) {
+            SortedSet<Module> others = new TreeSet<Module> (this); // SortedSet<Module>
+            for (Module m : mgr.simulateDisable (realModules)) {
+                if (! m.isAutoload () && ! m.isEager () && !realModules.contains(m)) {
                     others.add(m);
                 }
             }
@@ -704,7 +723,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                     ModuleBean[] _modules = this.modules;
                     if (_modules != null) {
                         for (int i = 0; i < _modules.length; i++) {
-                            if (realModules.contains(_modules[i].moduleInfo)) {
+                            if (realModules.contains(_modules[i].module)) {
                                 _modules[i].propertyChange(null);
                             }
                         }
@@ -717,21 +736,21 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
             mgr.disable(realModules);
         }
         
-        private void doEnable(Set<ModuleInfo> modules) {
+        private void doEnable(Set<Module> modules) {
             if (modules.isEmpty()) return;
             err.log(Level.FINE, "doEnable: " + modules);
-            SortedSet<ModuleInfo> realModules = new TreeSet<ModuleInfo> (this);
-            for (ModuleInfo m : modules) {
-                if (m.isEnabled() || Hacks.isAutoload (m) || Hacks.isEager (m) || Hacks.isFixed (m) || ! Hacks.getProblems (m).isEmpty ()) {
+            SortedSet<Module> realModules = new TreeSet<Module> (this);
+            for (Module m : modules) {
+                if (m.isEnabled() || m.isAutoload () || m.isEager () || m.isFixed () || ! m.getProblems ().isEmpty ()) {
                     // In here by mistake, ignore.
                 } else {
                     realModules.add (m);
                 }
             }
             // Check if there are any non-autoloads/eagers added.
-            SortedSet<ModuleInfo> others = new TreeSet<ModuleInfo> (this);
-            for (ModuleInfo m : mgr.simulateEnable(realModules)) {
-                if (! Hacks.isAutoload (m) && ! Hacks.isEager (m) && ! realModules.contains (m)) {
+            SortedSet<Module> others = new TreeSet<Module> (this);
+            for (Module m : mgr.simulateEnable(realModules)) {
+                if (! m.isAutoload () && ! m.isEager () && ! realModules.contains (m)) {
                     others.add(m);
                 }
             }
@@ -749,7 +768,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                     ModuleBean[] _modules = this.modules;
                     if (_modules != null) {
                         for (int i = 0; i < _modules.length; i++) {
-                            if (realModules.contains(_modules[i].moduleInfo)) {
+                            if (realModules.contains(_modules[i].module)) {
                                 _modules[i].propertyChange(null);
                             }
                         }
@@ -759,8 +778,8 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                 realModules.addAll(others);
             }
             // Ready to go. First reload any test modules.
-            for (ModuleInfo m : mgr.simulateEnable(realModules)) {
-                if (Hacks.isReloadable (m)) {
+            for (Module m : mgr.simulateEnable(realModules)) {
+                if (m.isReloadable ()) {
                     try {
                         mgr.reload(m);
                     } catch (IOException ioe) {
@@ -769,7 +788,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                         ModuleBean[] _modules = this.modules;
                         if (_modules != null) {
                             for (int i = 0; i < _modules.length; i++) {
-                                if (realModules.contains(_modules[i].moduleInfo)) {
+                                if (realModules.contains(_modules[i].module)) {
                                     _modules[i].propertyChange(null);
                                 }
                             }
@@ -789,7 +808,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                 ModuleBean[] _modules = this.modules;
                 if (_modules != null) {
                     for (int i = 0; i < _modules.length; i++) {
-                        if (realModules.contains (_modules[i].moduleInfo)) {
+                        if (realModules.contains (_modules[i].module)) {
                             _modules[i].propertyChange(null);
                         }
                     }
@@ -809,7 +828,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                 File jar = (File)it.next();
                 ModuleInfo nue;
                 try {
-                    nue = mgr.create (jar, Hacks.createModuleHistory (jar.getAbsolutePath()), reloadable, false, false);
+                    nue = mgr.create (jar, new ModuleHistory (jar.getAbsolutePath ()), reloadable, false, false);
                 } catch (IOException ioe) {
                     DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Exception(ioe));
                     continue;
@@ -874,16 +893,16 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                     type != RELATION_DIRECTLY_NEEDED_BY && type != RELATION_TRANSITIVELY_NEEDED_BY) {
                 throw new IllegalArgumentException("bad type: " + type); // NOI18N
             }
-            RELATION_COMPUTER_RP.post(new RelationComputer(mb.moduleInfo, type, callback));
+            RELATION_COMPUTER_RP.post(new RelationComputer(mb.module, type, callback));
         }
         
         private class RelationComputer implements Runnable {
             private int stage;
-            private final ModuleInfo m;
+            private final Module m;
             private final int type;
             private final RelationCallback callback;
             private Set result; // Set<Module>
-            public RelationComputer(ModuleInfo m, int type, RelationCallback callback) {
+            public RelationComputer(Module m, int type, RelationCallback callback) {
                 this.stage = 0;
                 this.m = m;
                 this.type = type;
@@ -905,7 +924,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                         Set<ModuleBean> mbresult = new HashSet<ModuleBean> (result.size() * 2 + 1);
                         ModuleBean[] _modules = getModules();
                         for (int i = 0; i < _modules.length; i++) {
-                            if (result.contains(_modules[i].moduleInfo)) {
+                            if (result.contains(_modules[i].module)) {
                                 mbresult.add(_modules[i]);
                             }
                         }
@@ -941,8 +960,8 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     /** One update to run. */
     private static final class Update {
         public final String command;
-        public final Union2<ModuleInfo, File> arg;
-        public Update(String command, ModuleInfo info) {
+        public final Union2<Module, File> arg;
+        public Update(String command, Module info) {
             this.command = command;
             arg = org.openide.util.Union2.createFirst (info);
             assert arg != null : "Union2<ModuleInfo, File> cannot be null when create Update for command " + command;

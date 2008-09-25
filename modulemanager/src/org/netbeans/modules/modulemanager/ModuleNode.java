@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -119,6 +119,7 @@ public class ModuleNode extends AbstractNode {
         setName("Modules"); // NOI18N
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return new HelpCtx(ModuleNode.class);
     }
@@ -148,10 +149,10 @@ public class ModuleNode extends AbstractNode {
         void uninstall() {
             ModuleDeleter deleter = getModuleDeleter();
             assert deleter != null : "ModuleDeleter must be available.";
-            boolean canUninstall = deleter.canDelete(item.getModuleInfo());
+            boolean canUninstall = deleter.canDelete(item.getModule());
             if (canUninstall) {
                 try {
-                    deleter.delete(item.getModuleInfo());
+                    deleter.delete(item.getModule());
                 } catch (IOException ioe) {
                     DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Exception(ioe));
                 }
@@ -174,10 +175,12 @@ public class ModuleNode extends AbstractNode {
             firePropertyChange(null, null, null);
         }
 
+        @Override
         public HelpCtx getHelpCtx() {
             return new HelpCtx(Item.class);
         }
 
+        @Override
         public Action[] getActions(boolean context) {
             return new Action[] {
                 SystemAction.get(ModuleNodeActions.EnableDisableAction.class),
@@ -191,27 +194,31 @@ public class ModuleNode extends AbstractNode {
             };
         }
 
+        @Override
         public Action getPreferredAction() {
             return SystemAction.get(PropertiesAction.class);
         }
 
+        @Override
         public void destroy() {
             if (ModuleNodeUtils.confirmUninstall(new Node [] { this })) {
                 uninstall();
             }
         }
 
+        @Override
         public boolean canDestroy() {
-            boolean canUninstall = getModuleDeleter().canDelete(item.getModuleInfo());
+            boolean canUninstall = getModuleDeleter().canDelete(item.getModule());
             if (! canUninstall) {
                 // #65568: allow delete an standalone module
-                return item.getJar() != null && ModuleNodeUtils.isUninstallAllowed(item.getModuleInfo());
+                return item.getJar() != null && ModuleNodeUtils.isUninstallAllowed(item.getModule());
             }
             return true;
         }
 
         /** Creates properties.
          */
+        @Override
         protected Sheet createSheet() {
             Sheet s = Sheet.createDefault();
             Sheet.Set ss = s.get(Sheet.PROPERTIES);
@@ -548,6 +555,7 @@ public class ModuleNode extends AbstractNode {
             }
         }
 
+        @Override
         public void addNotify() {
             prefsListener = new PreferenceChangeListener(){
                 public void preferenceChange(PreferenceChangeEvent evt) {
@@ -559,6 +567,7 @@ public class ModuleNode extends AbstractNode {
             refreshKeys();
         }
 
+        @Override
         public void removeNotify() {
             if (prefsListener != null) {
                 getPreferences().removePreferenceChangeListener(prefsListener);
@@ -571,6 +580,7 @@ public class ModuleNode extends AbstractNode {
         }
 
         /** Make sure hierarchy lookups get the proper module list first. */
+        @Override
         public Node findChild(String name) {
             getAllModules().waitForModules().waitFinished();
             refreshKeys();
@@ -606,22 +616,27 @@ public class ModuleNode extends AbstractNode {
             super(ch);
         }
 
+        @Override
         public boolean canDestroy() {
             return ModuleNodeUtils.canUninstall(new Node [] { this });
         }
 
+        @Override
         public void destroy() {
             ModuleNodeUtils.doUninstall(new Node [] { this });
         }
 
+        @Override
         public boolean canRename() {
             return false;
         }
 
+        @Override
         public boolean canCut() {
             return false;
         }
 
+        @Override
         public HelpCtx getHelpCtx() {
             return new HelpCtx(ModuleNode.class);
         }
@@ -637,6 +652,7 @@ public class ModuleNode extends AbstractNode {
             setIconBaseWithExtension(b != null && b.booleanValue() ? MODULE_ITEM_DISABLED_BASE : MODULES_ICON_BASE);
         }
 
+        @Override
         public Action[] getActions(boolean context) {
             return new Action[] {
                 SystemAction.get(ModuleNodeActions.EnableDisableAction.class),
@@ -656,6 +672,7 @@ public class ModuleNode extends AbstractNode {
 
         /** Creates property.
          */
+        @Override
         protected Sheet createSheet() {
             if (!supportsEnabledProperty()) {
                 return super.createSheet();
@@ -701,6 +718,7 @@ public class ModuleNode extends AbstractNode {
                     }
                     getAllModules().resume();
                 }
+                @Override
                 public boolean canWrite() {
                     for (ModuleBean m : modules) {
                         if (m.isAutoload() || m.getJar() == null || m.isEager() || m.isProblematic()) {
@@ -727,6 +745,7 @@ public class ModuleNode extends AbstractNode {
                     calculateModules();
                 }
                 private PropertyEditor editor=null;
+                @Override
                 public PropertyEditor getPropertyEditor() {
                     //issue 38019, cache the property editor for TTV performance
                     if (editor == null) {
@@ -829,17 +848,20 @@ public class ModuleNode extends AbstractNode {
 
     private static abstract class DirectModuleChildren extends Children.Keys<ModuleBean> implements PropertyChangeListener {
 
+        @Override
         protected void addNotify() {
             refreshKeys();
             getAllModules().addPropertyChangeListener(this);
         }
 
+        @Override
         protected void removeNotify() {
             getAllModules().removePropertyChangeListener(this);
             setKeys(Collections.<ModuleBean>emptySet());
         }
 
         /** Make sure hierarchy lookups get the proper module list first. */
+        @Override
         public Node findChild(String name) {
             getAllModules().waitForModules().waitFinished();
             refreshKeys();

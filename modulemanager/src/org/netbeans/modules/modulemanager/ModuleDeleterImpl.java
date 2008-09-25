@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -52,8 +52,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-import org.netbeans.modules.modulemanager.Hacks;
-import org.netbeans.modules.modulemanager.ModuleDeleter;
+import org.netbeans.Module;
+import org.netbeans.core.startup.Main;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -89,39 +89,39 @@ public final class ModuleDeleterImpl implements ModuleDeleter {
         return INSTANCE;
     }
     
-    public boolean canDelete (ModuleInfo moduleInfo) {
-        if (moduleInfo == null || Hacks.getModule (moduleInfo) == null) { // XXX: how null moduleInfo?
+    public boolean canDelete (Module module) {
+        if (module == null) {
             return false;
         }
-        if (Hacks.isFixed (moduleInfo)) {
+        if (module.isFixed ()) {
             err.log(Level.FINE,
                     "Cannot delete module because module " +
-                    moduleInfo.getCodeName() + " isFixed.");
+                    module.getCodeName() + " isFixed.");
         }
-        return isUninstallAllowed (moduleInfo) && findUpdateTracking (moduleInfo);
+        return isUninstallAllowed (module) && findUpdateTracking (module);
     }
     
-    private static boolean isUninstallAllowed(final ModuleInfo m) {
-        return ! (Hacks.isFixed (m));
+    private static boolean isUninstallAllowed(final Module m) {
+        return ! (m.isFixed ());
     }
     
-    public void delete (ModuleInfo... modules) throws IOException {
+    public void delete (Module... modules) throws IOException {
         if (modules == null) {
             throw new IllegalArgumentException ("ModuleInfo argument cannot be null.");
         }
         
-        for (ModuleInfo moduleInfo : modules) {
+        for (Module moduleInfo : modules) {
             err.log(Level.FINE,"Locate and remove config file of " + moduleInfo.getCodeNameBase ());           
             removeControlModuleFile(moduleInfo);
         }
 
         new HackModuleListRefresher().run();
         int rerunWaitCount = 0;
-        for (ModuleInfo moduleInfo : modules) {
+        for (Module moduleInfo : modules) {
             err.log(Level.FINE,"Locate and remove config file of " + moduleInfo.getCodeNameBase ());                       
             for (; rerunWaitCount < 100 && !isModuleUninstalled (moduleInfo) ;rerunWaitCount++) {
                 try {
-                    Thread.currentThread().sleep(100);
+                    Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
@@ -130,10 +130,10 @@ public final class ModuleDeleterImpl implements ModuleDeleter {
         }
     }
     
-    private boolean isModuleUninstalled(ModuleInfo moduleInfo) {
-        return (! moduleInfo.isEnabled () &&
-                (Hacks.getModuleManager ().get (moduleInfo.getCodeNameBase()) == null) &&
-                Hacks.isValid (moduleInfo)
+    private boolean isModuleUninstalled(Module module) {
+        return (! module.isEnabled () &&
+                (Main.getModuleSystem ().getManager ().get (module.getCodeNameBase()) == null) &&
+                module.isValid ()
                 );
     }
 

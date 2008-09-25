@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -44,9 +44,9 @@ package org.netbeans.modules.modulemanager;
 import java.awt.Component;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.Module;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.modules.ModuleInfo;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -113,10 +113,10 @@ class ModuleNodeUtils {
         return res;
     }
     
-    static boolean isEnableAllowed (ModuleInfo m) {
-        if (! Hacks.isValid (m)) return false;
+    static boolean isEnableAllowed (Module m) {
+        if (! m.isValid ()) return false;
         // XXX: now we can uninstall eager/autoload
-        return ! ( ! (Hacks.getProblems (m).isEmpty ()) || Hacks.isAutoload (m) || Hacks.isEager (m) || Hacks.getJarFile (m) == null );
+        return ! ( ! (m.getProblems ().isEmpty ()) || m.isAutoload () || m.isEager () || m.getJarFile () == null );
     }
     
     static String getUninstallActionName (Node [] activatedNodes, String oldName) {
@@ -140,9 +140,9 @@ class ModuleNodeUtils {
         return name;
     }
     
-    static boolean isUninstallAllowed (ModuleInfo m) {
+    static boolean isUninstallAllowed (Module m) {
         // XXX: we can uninstall eager/autoload
-        return ! (Hacks.isAutoload (m) || Hacks.isEager (m) || Hacks.isFixed (m));
+        return ! (m.isAutoload () || m.isEager () || m.isFixed ());
     }
     
     static boolean canUninstall (Node[] activatedNodes) {
@@ -187,9 +187,9 @@ class ModuleNodeUtils {
             category = activatedNodes [0].getDisplayName ();
         }
 
-        Set<ModuleInfo> modules = new HashSet<ModuleInfo>(items.size());
+        Set<Module> modules = new HashSet<Module>(items.size());
         for (ModuleNode.Item item : items) {
-            modules.add(item.getItem().getModuleInfo());
+            modules.add(item.getItem().getModule());
         }
 
         Component c = new ModuleUninstallPanel (modules, category);

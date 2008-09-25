@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -48,8 +48,8 @@ import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
+import org.netbeans.Module;
 import org.openide.awt.Mnemonics;
-import org.openide.modules.ModuleInfo;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -88,7 +88,7 @@ public class ModuleNodeActions {
             boolean allowed = ! items.isEmpty ();
             String moduleName = ""; // NOI18N
             for (ModuleNode.Item item : items) {
-                ModuleInfo m = item.getItem().getModuleInfo();
+                Module m = item.getItem().getModule();
                 moduleName = m.getDisplayName ();
                 if (!ModuleNodeUtils.isEnableAllowed(m)) {
                     allowed = false;
@@ -124,6 +124,7 @@ public class ModuleNodeActions {
             return null;
         }
 
+        @Override
         protected boolean asynchronous() {
             return true;
         }
@@ -137,7 +138,7 @@ public class ModuleNodeActions {
             // fix of 62480: join all enable/disable to one group
             ModuleBean.AllModulesBean.getDefault ().pause ();
             for (ModuleBean bean : ModuleBean.AllModulesBean.getDefault().getModules()) {
-                if (!bean.isEnabled() && ModuleNodeUtils.isEnableAllowed(bean.getModuleInfo())) {
+                if (!bean.isEnabled() && ModuleNodeUtils.isEnableAllowed(bean.getModule())) {
                     bean.setEnabled(true);
                 }
             }
@@ -158,6 +159,7 @@ public class ModuleNodeActions {
             return null;
         }
 
+        @Override
         protected boolean asynchronous() {
             return true;
         }
@@ -184,6 +186,7 @@ public class ModuleNodeActions {
             return null;
         }
 
+        @Override
         protected boolean asynchronous() {
             return true;
         }
@@ -212,6 +215,7 @@ public class ModuleNodeActions {
             return null;
         }
         
+        @Override
         public JMenuItem getPopupPresenter() {
             return getSubmenuPopupPresenter();
         }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -42,7 +42,7 @@
 package org.netbeans.modules.modulemanager;
 
 import java.io.IOException;
-import org.openide.modules.ModuleInfo;
+import org.netbeans.Module;
 
 /** <code>ModuleDeleter</code> deletes module's files from installation if possible.
  * Checks if all information about files are known and deletes file from disk.
@@ -57,13 +57,13 @@ public interface ModuleDeleter {
      * @param module
      * @return true if info is available
      */
-    public boolean canDelete (ModuleInfo module);
+    public boolean canDelete (Module module);
     
     /** Deletes all module's file from installation.
      * 
      * @param module 
      * @throws java.io.IOException 
      */
-    public void delete (ModuleInfo... modules) throws IOException;
+    public void delete (Module... modules) throws IOException;
     
 }

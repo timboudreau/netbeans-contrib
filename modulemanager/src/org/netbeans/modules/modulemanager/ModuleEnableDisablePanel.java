@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -43,28 +43,23 @@ package org.netbeans.modules.modulemanager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Font;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import javax.swing.*;
 
+import org.netbeans.Module;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.NbBundle;
 
-/** XXX
+/**
  * @author Jirka Rechtacek (jrechtacek@netbeans.org)
  * @see "#20323"
  */
 class ModuleEnableDisablePanel extends JPanel {
-    Set<ModuleInfo> explicit;
-    Set<ModuleInfo> modules;
+    Set<Module> explicit;
+    Set<Module> modules;
     private boolean toEnable;
     
-    public ModuleEnableDisablePanel (boolean enable, Set<ModuleInfo> explicit, Set<ModuleInfo> implied) {
+    public ModuleEnableDisablePanel (boolean enable, Set<Module> explicit, Set<Module> implied) {
         this.explicit = explicit;
         this.modules = implied;
         this.toEnable = enable;
