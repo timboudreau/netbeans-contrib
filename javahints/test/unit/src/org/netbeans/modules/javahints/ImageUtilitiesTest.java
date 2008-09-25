@@ -74,7 +74,7 @@ public class ImageUtilitiesTest extends TreeRuleTestBase {
                        "}\n",
                        "4:18-4:27:verifier:Use of Utilities.loadImage",
                        "FixImpl",
-                       "package test; import org.openide.util.Utilities; public class Test { private void test(Object o) { org.openide.util.ImageUtilities.loadImage(\"Ahoj\"); } } ");
+                       "package test; import org.openide.util.ImageUtilities; import org.openide.util.Utilities; public class Test { private void test(Object o) { ImageUtilities.loadImage(\"Ahoj\"); } } ");
     }
 
     public void testLoadImageLocalized() throws Exception {
@@ -88,7 +88,7 @@ public class ImageUtilitiesTest extends TreeRuleTestBase {
                        "}\n",
                        "4:18-4:27:verifier:Use of Utilities.loadImage",
                        "FixImpl",
-                       "package test; import org.openide.util.Utilities; public class Test { private void test(Object o) { org.openide.util.ImageUtilities.loadImage(\"Ahoj\", true); } } ");
+                       "package test; import org.openide.util.ImageUtilities; import org.openide.util.Utilities; public class Test { private void test(Object o) { ImageUtilities.loadImage(\"Ahoj\", true); } } ");
     }
 
     public void testIcon2Image() throws Exception {
@@ -102,7 +102,7 @@ public class ImageUtilitiesTest extends TreeRuleTestBase {
                        "}\n",
                        "4:18-4:28:verifier:Use of Utilities.icon2Image",
                        "FixImpl",
-                       "package test; import org.openide.util.Utilities; public class Test { private void test(Object o) { org.openide.util.ImageUtilities.icon2Image(null); } } ");
+                       "package test; import org.openide.util.ImageUtilities; import org.openide.util.Utilities; public class Test { private void test(Object o) { ImageUtilities.icon2Image(null); } } ");
     }
 
     public void testMergeImages() throws Exception {
@@ -116,7 +116,7 @@ public class ImageUtilitiesTest extends TreeRuleTestBase {
                        "}\n",
                        "4:18-4:29:verifier:Use of Utilities.mergeImages",
                        "FixImpl",
-                       "package test; import org.openide.util.Utilities; public class Test { private void test(Object o) { org.openide.util.ImageUtilities.mergeImages(null, null); } } ");
+                       "package test; import org.openide.util.ImageUtilities; import org.openide.util.Utilities; public class Test { private void test(Object o) { ImageUtilities.mergeImages(null, null); } } ");
     }
         
     @Override
