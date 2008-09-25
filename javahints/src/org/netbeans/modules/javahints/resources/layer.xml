@@ -60,6 +60,7 @@ made subject to such option by the copyright holder.
 <!--                <file name="org-netbeans-modules-javahints-DeclarationFixer.instance" />-->
                 <folder name="experimental">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javahints.resources.Bundle"/>
+                    <file name="org-netbeans-modules-javahints-ImageUtilitiesDeprecation.instance"/>
                     <file name="org-netbeans-modules-javahints-NPECheck.instance"/>
                     <file name="org-netbeans-modules-javahints-NoFileToURL.instance"/>
                 </folder>
