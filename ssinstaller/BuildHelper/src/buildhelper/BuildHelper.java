@@ -148,16 +148,16 @@ public class BuildHelper {
                 component.getUid());
         properties.setProperty("basedir", "${nbi.netbeans.dir}/infra/components/infra/native/" + component.getUid());
 
-/*
+
         if (component.getDependency() != null) {
             String uid = ((Component)component.getDependency()).getUid();
-            
+
             properties.setProperty("product.requirements.length", "1");
-            properties.setProperty("product.requirement.1.uid", ((Component)component.getDependency()).getUid());
+            properties.setProperty("product.requirements.1.uid", ((Component)component.getDependency()).getUid());
             properties.setProperty("product.requirements.1.version-lower", "1.0.0.0.0");
             properties.setProperty("product.requirements.1.version-upper", "1.0.0.0.0");
         }
-  */
+  
     for (Block block : component.getBlock()) {
             Platform platform = block.getPlatform();
             String pkg = platform.equals(platform.LINUX) ? "rpm" : "svr";
