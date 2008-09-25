@@ -48,6 +48,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -154,14 +155,15 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
                     wc.toPhase(Phase.PARSED);
                     
                     TreePath tp = methodCall.resolve(wc);
+                    TypeElement imageUtilities = wc.getElements().getTypeElement("org.openide.util.ImageUtilities");
                     
-                    if (tp == null || Kind.METHOD_INVOCATION != tp.getLeaf().getKind()) {
+                    if (tp == null || Kind.METHOD_INVOCATION != tp.getLeaf().getKind() || imageUtilities == null) {
                         return ;
                     }
 
                     MethodInvocationTree mit = (MethodInvocationTree) tp.getLeaf();
                     MemberSelectTree mst = (MemberSelectTree)mit.getMethodSelect();
-                    wc.rewrite(mst.getExpression(), wc.getTreeMaker().Identifier("org.openide.util.ImageUtilities"));
+                    wc.rewrite(mst.getExpression(), wc.getTreeMaker().QualIdent(imageUtilities));
                 }
             }).commit();
             return null;
