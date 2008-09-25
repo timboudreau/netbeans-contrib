@@ -31,7 +31,6 @@
                        description="The C Compiler">
         <block platform="solaris-x86">
             <svr source="SPROcc"/>
-            <svr source="SPROidext"/>
         </block>
         <block platform="solaris-sparc">
             <svr source="SPROcc"/>
@@ -187,6 +186,7 @@
             <svr source="SPROstl4y"/>
             <svr source="SPROsunms"/>
             <svr source="SPROsvc"/>
+            <svr source="SPROsslnk"/>
             <svr source="SPROtdemo"/>
             <svr source="SPROutool"/>
             <svr source="SPROlklnt"/>
