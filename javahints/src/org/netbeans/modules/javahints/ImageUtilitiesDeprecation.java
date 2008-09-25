@@ -117,7 +117,7 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
                 return null;
             }
 
-            List<Fix> fix = Collections.<Fix>singletonList(new FixImpl(info.getJavaSource(), TreePathHandle.create(treePath, info)));
+            List<Fix> fix = Collections.<Fix>singletonList(new FixImpl(TreePathHandle.create(treePath, info)));
             ErrorDescription w = ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), "Use of Utilities." + e.getSimpleName().toString(), fix, info.getFileObject(), span[0], span[1]);
             return Collections.singletonList(w);
         }
@@ -137,11 +137,9 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
 
     static final class FixImpl implements Fix {
 
-        private JavaSource js;
         private TreePathHandle methodCall;
 
-        public FixImpl(JavaSource js, TreePathHandle methodCall) {
-            this.js = js;
+        public FixImpl(TreePathHandle methodCall) {
             this.methodCall = methodCall;
         }
         
@@ -150,6 +148,7 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
         }
 
         public ChangeInfo implement() throws Exception {
+            JavaSource js = JavaSource.forFileObject(methodCall.getFileObject());
             js.runModificationTask(new Task<WorkingCopy>() {
                 public void run(WorkingCopy wc) throws Exception {
                     wc.toPhase(Phase.PARSED);

@@ -57,9 +57,9 @@ import org.openide.util.Utilities;
  *
  * @author Jaroslav Tulach
  */
-public class ImageUtilitiesTest extends TreeRuleTestBase {
+public class ImageUtilitiesDeprecationTest extends TreeRuleTestBase {
     
-    public ImageUtilitiesTest(String testName) {
+    public ImageUtilitiesDeprecationTest(String testName) {
         super(testName);
     }
 
