@@ -44,13 +44,13 @@ made subject to such option by the copyright holder.
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="unziplibs" depends="init">
-        <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.2.RC1.tar.gz"/>
+        <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.2.RC2.tgz"/>
         <!-- do not unzip these jar files, since Scala's ClassPath needs them to be jar
-        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-library-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/sbaz-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-compiler-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-dbc-src.jar"/>
-        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-decoder-src.jar"/>
-        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/sbaz-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-library-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-swing-src.jar"/>
         <delete>
             <fileset dir="${scala.dir}/src" includes="*.jar"/>
         </delete>
