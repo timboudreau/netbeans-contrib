@@ -145,6 +145,7 @@
             <svr source="SPROgc"/>
             <svr source="SPROgcx"/>
             <svr source="SPROidext"/>
+            <svr source="SPROatd"/>
             <svr source="SPROudchk"/>
             <svr source="SPROl90"/>
             <svr source="SPROl90s"/>
@@ -200,6 +201,7 @@
             <svr source="SPROgc"/>
             <svr source="SPROgcx"/>
             <svr source="SPROidext"/>
+	    <svr source="SPROatd"/>
             <svr source="SPROipl"/>
             <svr source="SPROiplg"/>
             <svr source="SPROiplx"/>
