@@ -212,15 +212,14 @@ public class SystemCheckPanel extends ErrorMessagePanel {
            // setLayout(new GridBagLayout());
             add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL, new Insets(11, 11, 11, 11), 0, 0));
         }
-  /*
+  
         @Override
         public void evaluateCancelButtonClick() {
             if (SystemCheckCategory.hasErrorCategories()) {
                 component.getWizard().getFinishHandler().cancel();
             } else super.evaluateCancelButtonClick();
         }
-    */    
-               
+                   
         @Override
         protected String getWarningMessage() {
             if (SystemCheckCategory.hasProblemCategories()) {

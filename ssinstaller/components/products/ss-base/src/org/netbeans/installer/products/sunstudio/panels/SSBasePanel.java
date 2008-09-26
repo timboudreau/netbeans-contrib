@@ -84,7 +84,10 @@ public class SSBasePanel extends DestinationPanel {
     
     @Override
     public void initialize() {
-        super.initialize();                
+        super.initialize();
+	if (SystemUtils.getCurrentPlatform().isCompatibleWith(Platform.LINUX)) {
+	    getWizard().setProperty(Product.INSTALLATION_LOCATION_PROPERTY, "/opt/sun");
+	}                
     }
         
     /////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +111,7 @@ public class SSBasePanel extends DestinationPanel {
     
     private static class SSBaseDestinationPanelSwingUi extends DestinationPanelSwingUi {
        // protected SSBasePanel panel;
-        private NbiCheckBox createSymLinks;
+        private NbiCheckBox createSymLinks = null;
         /*
         private NbiTextField alternateRoot;
         private NbiButton alternateRootButton;
@@ -155,7 +158,7 @@ public class SSBasePanel extends DestinationPanel {
             nbProduct.setParent(Utils.getSSBase());
             
             Product ssProduct = Utils.getSSBase();
-            if (createSymLinks.isSelected()) {
+            if (createSymLinks != null && createSymLinks.isSelected()) {
                 ssProduct.setProperty(Utils.getSPROsslnkPropertyName(), "true");
             } else {
                 ssProduct.setProperty(Utils.getSPROsslnkPropertyName(), "false");
