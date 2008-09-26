@@ -49,6 +49,7 @@ import javax.swing.JSeparator;
 import javax.swing.border.EtchedBorder;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
 import org.netbeans.installer.utils.helper.swing.NbiDialog;
@@ -75,7 +76,8 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
     public static final String LIST_INSTALLED_PACKAGES_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class, "ESSP.list.packages.text"); // NOI18N
     public static final String WARNING_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "ESSP.warning.text"); // NOI18N
     public static final String ERROR_TEXT = ResourceUtils.getString(SystemCheckPanel.class, "ESSP.error.text"); // NOI18N
-
+    public static final String UNINSTALL_DESCRIPTION_TEXT = ResourceUtils.getString(ExistingSunStudioPanel.class,
+            SystemUtils.isSolaris() ? "ESPP.uninstall.instructions.solaris.text" : "ESPP.uninstall.instructions.linux.text"  ); // NOI18N
 
     /////////////////////////////////////////////////////////////////////////////////
     // Instance
@@ -392,7 +394,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
         
         public void show(String version, List<String> names) {
             packageListPane.setText(StringUtils.asString(names, "\n"));
-            descriptionPane.setText("To uninstall this Sun Studio you could:\n 1) Use Product Registry (/usr/bin/prodreg)\n 2)Run uninstaller \n 3)Remove packages with pkgrm");
+            descriptionPane.setText(UNINSTALL_DESCRIPTION_TEXT);
             String headerString = LIST_INSTALLED_PACKAGES_TEXT;
             header.setText(StringUtils.format(headerString, version));
             this.setTitle("Sun Studio " + version);
