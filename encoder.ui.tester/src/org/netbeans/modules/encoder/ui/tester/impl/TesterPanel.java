@@ -368,6 +368,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jLabelXSDFile.setText(bundle.getString("test_panel.lbl.xsd_file")); // NOI18N
 
         jTextFieldXSDFile.setBackground(new java.awt.Color(240, 240, 240));
+        jTextFieldXSDFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xsd_file.description")); // NOI18N
         jTextFieldXSDFile.setPreferredSize(new java.awt.Dimension(94, 19));
 
         jRadioButtonEncode.setMnemonic('E');
