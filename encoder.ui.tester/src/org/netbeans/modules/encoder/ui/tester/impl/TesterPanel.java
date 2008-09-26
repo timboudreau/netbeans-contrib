@@ -66,28 +66,28 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     public TesterPanel(String xsdFile) {
         xsdFilePath = xsdFile;
         initComponents();
-        buttonGroup1.add(this.jRadioEncode);
-        buttonGroup1.add(this.jRadioDecode);
-        jTextField1.setText(xsdFile);
-        jTextField1.setEditable(false);
+        buttonGroup1.add(this.jRadioButtonEncode);
+        buttonGroup1.add(this.jRadioButtonDecode);
+        jTextFieldXSDFile.setText(xsdFile);
+        jTextFieldXSDFile.setEditable(false);
         File f = new File(xsdFile);
-        mFolderText.setText(f.getParent());
-        this.mOutputResult.getDocument().addDocumentListener(this);
-        this.mFolderText.getDocument().addDocumentListener(this);
-        this.mCreatedFileText.setEditable(false);
-        jRadioEncode.setSelected(true);
+        jTextFieldFolder.setText(f.getParent());
+        this.jTextFieldFileName.getDocument().addDocumentListener(this);
+        this.jTextFieldFolder.getDocument().addDocumentListener(this);
+        this.jTextFieldCreatedFile.setEditable(false);
+        jRadioButtonDecode.setSelected(true);
         if (xsdFilePath != null) {
             File file = new File(xsdFilePath);
             if (file.getParent() != null) {
-                mFolderText.setText(file.getParent());
+                jTextFieldFolder.setText(file.getParent());
             }
         }
         setComboBoxList(jComboBoxResultCoding, CHARSET_NAMES_EXTRA);
         jComboBoxResultCoding.setSelectedIndex(-1);
         setComboBoxList(jComboBoxSourceCoding, CHARSET_NAMES_EXTRA);
         jComboBoxSourceCoding.setSelectedIndex(-1);
-        setComboBoxList(selectDebugLevel, DEBUG_LEVELS);
-        selectDebugLevel.setSelectedIndex(0);
+        setComboBoxList(jComboBoxVerboseLevel, DEBUG_LEVELS);
+        jComboBoxVerboseLevel.setSelectedIndex(0);
         applyPreferences();
         updateComponents();
     }
@@ -107,16 +107,16 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                 return;
             }
             if (ACTION_DECODE.equals(value)) {
-                jRadioDecode.setSelected(true);
+                jRadioButtonDecode.setSelected(true);
             } else {
-                jRadioEncode.setSelected(true);
+                jRadioButtonEncode.setSelected(true);
             }
             value = mPrefs.get(PREF_INPUT, null);
             if (value == null) {
                 return;
             }
-            if (jRadioEncode.isSelected()) {
-                mXMLSourceText.setText(value);
+            if (jRadioButtonEncode.isSelected()) {
+                jTextFieldXMLSourceFile.setText(value);
                 value = mPrefs.get(PREF_CHAR_BASED, null);
                 if (value != null) {
                     jCheckBoxToString.setSelected(Boolean.valueOf(value));
@@ -126,7 +126,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                     jComboBoxResultCoding.getEditor().setItem(value);
                 }
             } else {
-                mInputDataText.setText(value);
+                jTextFieldDataFile.setText(value);
                 value = mPrefs.get(PREF_CHAR_BASED, null);
                 if (value != null) {
                     jCheckBoxFromString.setSelected(Boolean.valueOf(value));
@@ -144,14 +144,14 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             if (outputFile.getName() != null) {
                 int pos = outputFile.getName().lastIndexOf('.');
                 if (pos >= 0) {
-                    mOutputResult.setText(outputFile.getName().substring(0, pos));
+                    jTextFieldFileName.setText(outputFile.getName().substring(0, pos));
                 } else {
-                    mOutputResult.setText(outputFile.getName());
+                    jTextFieldFileName.setText(outputFile.getName());
                 }
             }
-            mFolderText.setText(outputFile.getParent());
-            mOverwrite.setSelected(mPrefs.getBoolean(PREF_OVERWRITE, true));
-            selectDebugLevel.setSelectedIndex(mPrefs.getInt(PREF_DEBUG_LEVEL, 0));
+            jTextFieldFolder.setText(outputFile.getParent());
+            jCheckBoxOverwriteOutput.setSelected(mPrefs.getBoolean(PREF_OVERWRITE, true));
+            jComboBoxVerboseLevel.setSelectedIndex(mPrefs.getInt(PREF_DEBUG_LEVEL, 0));
         }
     }
 
@@ -181,26 +181,34 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     }
 
     private void updateComponents() {
-        if (!jRadioEncode.isSelected()) {
-            mXMLSourceText.setEditable(false);
-            mXMLButton.setEnabled(false);
+        if (!jRadioButtonEncode.isSelected()) {
+            jLabelXMLSourceFile.setEnabled(false);
+            jTextFieldXMLSourceFile.setEnabled(false);
+            jButtonBrowseXMLSourceFile.setEnabled(false);
+            jLabelResultCoding.setEnabled(false);
             jComboBoxResultCoding.setEnabled(false);
             jCheckBoxToString.setEnabled(false);
         } else {
-            mXMLSourceText.setEditable(true);
-            mXMLButton.setEnabled(true);
+            jLabelXMLSourceFile.setEnabled(true);
+            jTextFieldXMLSourceFile.setEnabled(true);
+            jButtonBrowseXMLSourceFile.setEnabled(true);
+            jLabelResultCoding.setEnabled(true);
             jComboBoxResultCoding.setEnabled(true);
             jCheckBoxToString.setEnabled(true);
         }
 
-        if (!jRadioDecode.isSelected()) {
-            mInputDataText.setEditable(false);
-            mDataButton.setEnabled(false);
+        if (!jRadioButtonDecode.isSelected()) {
+            jLabelDataFile.setEnabled(false);
+            jTextFieldDataFile.setEnabled(false);
+            jButtonBrowseDataFile.setEnabled(false);
+            jLabelSourceCoding.setEnabled(false);
             jComboBoxSourceCoding.setEnabled(false);
             jCheckBoxFromString.setEnabled(false);
         } else {
-            mInputDataText.setEditable(true);
-            mDataButton.setEnabled(true);
+            jLabelDataFile.setEnabled(true);
+            jTextFieldDataFile.setEnabled(true);
+            jButtonBrowseDataFile.setEnabled(true);
+            jLabelSourceCoding.setEnabled(true);
             jComboBoxSourceCoding.setEnabled(true);
             jCheckBoxFromString.setEnabled(true);
         }
@@ -217,7 +225,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     }
 
     public String getOutputFileName() {
-        return mOutputResult.getText();
+        return jTextFieldFileName.getText();
     }
 
     /**
@@ -226,7 +234,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      * @return output file path
      */
     public String getOutputFile() {
-        return mCreatedFileText.getText();
+        return jTextFieldCreatedFile.getText();
     }
 
     /**
@@ -235,7 +243,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      * @return action string
      */
     public String getActionType() {
-        return jRadioEncode.isSelected() ? EncoderTestPerformerImpl.ENCODE : EncoderTestPerformerImpl.DECODE;
+        return jRadioButtonEncode.isSelected() ? EncoderTestPerformerImpl.ENCODE : EncoderTestPerformerImpl.DECODE;
     }
 
 
@@ -247,9 +255,9 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      */
     public String getProcessFile() {
         if (this.getActionType().equals(EncoderTestPerformerImpl.ENCODE)) {
-            return mXMLSourceText.getText();
+            return jTextFieldXMLSourceFile.getText();
         } else {
-            return mInputDataText.getText();
+            return jTextFieldDataFile.getText();
         }
     }
 
@@ -257,7 +265,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      * Overwrites the output file?
      */
     public boolean isOverwrite() {
-        return mOverwrite.isSelected();
+        return jCheckBoxOverwriteOutput.isSelected();
     }
 
     /**
@@ -279,7 +287,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      */
     public String getPredecodeCoding() {
         Object obj = jComboBoxSourceCoding.getEditor().getItem();
-        return obj == null ? "" : obj.toString();
+        return obj == null ? "" : obj.toString(); //NOI18N
     }
 
     /**
@@ -287,7 +295,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      */
     public String getPostencodeCoding() {
         Object obj = jComboBoxResultCoding.getEditor().getItem();
-        return obj == null ? "" : obj.toString();
+        return obj == null ? "" : obj.toString(); //NOI18N
     }
 
     /**
@@ -295,7 +303,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      * @return the debug level selection index starting from 0.
      */
     public int getDebugLevelIndex() {
-        return selectDebugLevel.getSelectedIndex();
+        return jComboBoxVerboseLevel.getSelectedIndex();
     }
 
     /**
@@ -303,7 +311,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
      * @return the debug level string.
      */
     public String getDebugLevel() {
-        return selectDebugLevel.getSelectedItem().toString();
+        return jComboBoxVerboseLevel.getSelectedItem().toString();
     }
 
     /** This method is called from within the constructor to
@@ -315,270 +323,414 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jRadioEncode = new javax.swing.JRadioButton();
-        jRadioDecode = new javax.swing.JRadioButton();
-        mXMLSourceText = new javax.swing.JTextField();
-        mInputDataText = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        mOutputResult = new javax.swing.JTextField();
-        mOverwrite = new javax.swing.JCheckBox();
-        mXMLButton = new javax.swing.JButton();
-        mDataButton = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        mFolderText = new javax.swing.JTextField();
-        mFolderBtn = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
-        mCreatedFileText = new javax.swing.JTextField();
-        selectElementComboBox = new javax.swing.JComboBox();
-        jLabel7 = new javax.swing.JLabel();
+        jLabelXSDFile = new javax.swing.JLabel();
+        jTextFieldXSDFile = new javax.swing.JTextField();
+        jRadioButtonEncode = new javax.swing.JRadioButton();
+        jRadioButtonDecode = new javax.swing.JRadioButton();
+        jTextFieldXMLSourceFile = new javax.swing.JTextField();
+        jTextFieldDataFile = new javax.swing.JTextField();
+        jLabelFileName = new javax.swing.JLabel();
+        jTextFieldFileName = new javax.swing.JTextField();
+        jCheckBoxOverwriteOutput = new javax.swing.JCheckBox();
+        jButtonBrowseXMLSourceFile = new javax.swing.JButton();
+        jButtonBrowseDataFile = new javax.swing.JButton();
+        jLabelDataFile = new javax.swing.JLabel();
+        jLabelXMLSourceFile = new javax.swing.JLabel();
+        jLabelFolder = new javax.swing.JLabel();
+        jTextFieldFolder = new javax.swing.JTextField();
+        jButtonBrowseFolder = new javax.swing.JButton();
+        jLabelCreatedFile = new javax.swing.JLabel();
+        jTextFieldCreatedFile = new javax.swing.JTextField();
+        jComboBoxSelectElement = new javax.swing.JComboBox();
+        jLabelSelectAnElement = new javax.swing.JLabel();
         jCheckBoxToString = new javax.swing.JCheckBox();
         jLabelResultCoding = new javax.swing.JLabel();
         jComboBoxResultCoding = new javax.swing.JComboBox();
         jCheckBoxFromString = new javax.swing.JCheckBox();
         jLabelSourceCoding = new javax.swing.JLabel();
         jComboBoxSourceCoding = new javax.swing.JComboBox();
-        jSeparator1 = new javax.swing.JSeparator();
-        jSeparator2 = new javax.swing.JSeparator();
-        jSeparator3 = new javax.swing.JSeparator();
-        jSeparator4 = new javax.swing.JSeparator();
-        jLabelDebugLevel = new javax.swing.JLabel();
-        selectDebugLevel = new javax.swing.JComboBox();
+        jSeparatorMeta = new javax.swing.JSeparator();
+        jSeparatorDecodeEncode = new javax.swing.JSeparator();
+        jSeparatorInputOutput = new javax.swing.JSeparator();
+        jSeparatorDebug = new javax.swing.JSeparator();
+        jLabelVerboseLevel = new javax.swing.JLabel();
+        jComboBoxVerboseLevel = new javax.swing.JComboBox();
+        jLabelMeta = new javax.swing.JLabel();
+        jLabelInput = new javax.swing.JLabel();
+        jLabelOutput = new javax.swing.JLabel();
+        jLabelDebug = new javax.swing.JLabel();
 
+        setFocusTraversalPolicy(null);
+
+        jLabelXSDFile.setDisplayedMnemonic('X');
+        jLabelXSDFile.setLabelFor(jTextFieldXSDFile);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle"); // NOI18N
-        jLabel1.setText(bundle.getString("test_panel.lbl.xsd_file")); // NOI18N
+        jLabelXSDFile.setText(bundle.getString("test_panel.lbl.xsd_file")); // NOI18N
 
-        jRadioEncode.setText(bundle.getString("test_panel.lbl.encode")); // NOI18N
-        jRadioEncode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioEncode.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        jRadioEncode.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldXSDFile.setBackground(new java.awt.Color(240, 240, 240));
+        jTextFieldXSDFile.setPreferredSize(new java.awt.Dimension(94, 19));
+
+        jRadioButtonEncode.setMnemonic('E');
+        jRadioButtonEncode.setText(bundle.getString("test_panel.lbl.encode")); // NOI18N
+        jRadioButtonEncode.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.encode.description")); // NOI18N
+        jRadioButtonEncode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jRadioButtonEncode.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jRadioButtonEncode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioEncodeActionPerformed(evt);
+                jRadioButtonEncodeActionPerformed(evt);
             }
         });
 
-        jRadioDecode.setText(bundle.getString("test_panel.lbl.decode")); // NOI18N
-        jRadioDecode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioDecode.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        jRadioDecode.addActionListener(new java.awt.event.ActionListener() {
+        jRadioButtonDecode.setMnemonic('D');
+        jRadioButtonDecode.setText(bundle.getString("test_panel.lbl.decode")); // NOI18N
+        jRadioButtonDecode.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.decode.description")); // NOI18N
+        jRadioButtonDecode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jRadioButtonDecode.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jRadioButtonDecode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioDecodeActionPerformed(evt);
+                jRadioButtonDecodeActionPerformed(evt);
             }
         });
 
-        jLabel2.setText(bundle.getString("test_panel.lbl.output_file_name")); // NOI18N
+        jTextFieldXMLSourceFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xml_source_file.description")); // NOI18N
 
-        mOverwrite.setText(bundle.getString("test_panel.lbl.overwrite_output")); // NOI18N
-        mOverwrite.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        mOverwrite.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jTextFieldDataFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.data_file.description")); // NOI18N
 
-        mXMLButton.setText(bundle.getString("test_panel.lbl.browse2")); // NOI18N
-        mXMLButton.addActionListener(new java.awt.event.ActionListener() {
+        jLabelFileName.setDisplayedMnemonic('N');
+        jLabelFileName.setLabelFor(jTextFieldFileName);
+        jLabelFileName.setText(bundle.getString("test_panel.lbl.output_file_name")); // NOI18N
+
+        jTextFieldFileName.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_file_name.description")); // NOI18N
+
+        jCheckBoxOverwriteOutput.setMnemonic('O');
+        jCheckBoxOverwriteOutput.setText(bundle.getString("test_panel.lbl.overwrite_output")); // NOI18N
+        jCheckBoxOverwriteOutput.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.overwrite_output.description")); // NOI18N
+        jCheckBoxOverwriteOutput.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBoxOverwriteOutput.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jButtonBrowseXMLSourceFile.setMnemonic('B');
+        jButtonBrowseXMLSourceFile.setText(bundle.getString("test_panel.lbl.browse2")); // NOI18N
+        jButtonBrowseXMLSourceFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_xml_source_file.browse.description")); // NOI18N
+        jButtonBrowseXMLSourceFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mXMLButtonActionPerformed(evt);
+                jButtonBrowseXMLSourceFileActionPerformed(evt);
             }
         });
 
-        mDataButton.setText(bundle.getString("test_panel.lbl.browse3")); // NOI18N
-        mDataButton.addActionListener(new java.awt.event.ActionListener() {
+        jButtonBrowseDataFile.setMnemonic('B');
+        jButtonBrowseDataFile.setText(bundle.getString("test_panel.lbl.browse1")); // NOI18N
+        jButtonBrowseDataFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_data_file.browse.description")); // NOI18N
+        jButtonBrowseDataFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mDataButtonActionPerformed(evt);
+                jButtonBrowseDataFileActionPerformed(evt);
             }
         });
 
-        jLabel3.setText(bundle.getString("test_panel.lbl.input_data_file")); // NOI18N
+        jLabelDataFile.setDisplayedMnemonic('A');
+        jLabelDataFile.setLabelFor(jTextFieldDataFile);
+        jLabelDataFile.setText(bundle.getString("test_panel.lbl.input_data_file")); // NOI18N
 
-        jLabel4.setText(bundle.getString("test_panel.lbl.xml_source")); // NOI18N
+        jLabelXMLSourceFile.setDisplayedMnemonic('M');
+        jLabelXMLSourceFile.setLabelFor(jTextFieldXMLSourceFile);
+        jLabelXMLSourceFile.setText(bundle.getString("test_panel.lbl.xml_source")); // NOI18N
 
-        jLabel5.setText(bundle.getString("test_panel.lbl.output_folder")); // NOI18N
+        jLabelFolder.setDisplayedMnemonic('F');
+        jLabelFolder.setLabelFor(jTextFieldFolder);
+        jLabelFolder.setText(bundle.getString("test_panel.lbl.output_folder")); // NOI18N
 
-        mFolderBtn.setText(bundle.getString("test_panel.lbl.browse3")); // NOI18N
-        mFolderBtn.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldFolder.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.description")); // NOI18N
+
+        jButtonBrowseFolder.setMnemonic('W');
+        jButtonBrowseFolder.setText(bundle.getString("test_panel.lbl.browse3")); // NOI18N
+        jButtonBrowseFolder.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.browse.description")); // NOI18N
+        jButtonBrowseFolder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mFolderBtnActionPerformed(evt);
+                jButtonBrowseFolderActionPerformed(evt);
             }
         });
 
-        jLabel6.setText(bundle.getString("test_panel.lbl.created_file")); // NOI18N
+        jLabelCreatedFile.setDisplayedMnemonic('L');
+        jLabelCreatedFile.setLabelFor(jTextFieldCreatedFile);
+        jLabelCreatedFile.setText(bundle.getString("test_panel.lbl.created_file")); // NOI18N
 
-        selectElementComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jTextFieldCreatedFile.setBackground(new java.awt.Color(240, 240, 240));
+        jTextFieldCreatedFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.created_file.description")); // NOI18N
 
-        jLabel7.setText(bundle.getString("test_panel.lbl.select_an_element")); // NOI18N
+        jComboBoxSelectElement.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxSelectElement.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.select_an_element.description")); // NOI18N
 
-        jCheckBoxToString.setText("To String");
+        jLabelSelectAnElement.setDisplayedMnemonic('S');
+        jLabelSelectAnElement.setLabelFor(jComboBoxSelectElement);
+        jLabelSelectAnElement.setText(bundle.getString("test_panel.lbl.select_an_element")); // NOI18N
+
+        jCheckBoxToString.setMnemonic('T');
+        jCheckBoxToString.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.to_string")); // NOI18N
+        jCheckBoxToString.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.to_string.description")); // NOI18N
         jCheckBoxToString.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxToString.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabelResultCoding.setText("Result Coding:");
+        jLabelResultCoding.setDisplayedMnemonic('R');
+        jLabelResultCoding.setLabelFor(jComboBoxResultCoding);
+        jLabelResultCoding.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.result_coding")); // NOI18N
 
         jComboBoxResultCoding.setEditable(true);
         jComboBoxResultCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxResultCoding.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.result_coding.description")); // NOI18N
 
-        jCheckBoxFromString.setText("From String");
+        jCheckBoxFromString.setMnemonic('G');
+        jCheckBoxFromString.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.from_string")); // NOI18N
+        jCheckBoxFromString.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.from_string.description")); // NOI18N
         jCheckBoxFromString.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxFromString.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabelSourceCoding.setText("Source Coding:");
+        jLabelSourceCoding.setDisplayedMnemonic('U');
+        jLabelSourceCoding.setLabelFor(jComboBoxSourceCoding);
+        jLabelSourceCoding.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.source_coding")); // NOI18N
 
         jComboBoxSourceCoding.setEditable(true);
         jComboBoxSourceCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxSourceCoding.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.source_coding.description")); // NOI18N
 
-        jLabelDebugLevel.setText("Debug Level:");
+        jLabelVerboseLevel.setDisplayedMnemonic('V');
+        jLabelVerboseLevel.setLabelFor(jComboBoxVerboseLevel);
+        jLabelVerboseLevel.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.verbose_level")); // NOI18N
 
-        selectDebugLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxVerboseLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxVerboseLevel.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.verbose_level.description")); // NOI18N
+
+        jLabelMeta.setFont(new java.awt.Font("Tahoma", 0, 12));
+        jLabelMeta.setLabelFor(jLabelMeta);
+        jLabelMeta.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.meta_section")); // NOI18N
+
+        jLabelInput.setFont(new java.awt.Font("Tahoma", 0, 12));
+        jLabelInput.setLabelFor(jLabelInput);
+        jLabelInput.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.input_section")); // NOI18N
+
+        jLabelOutput.setFont(new java.awt.Font("Tahoma", 0, 12));
+        jLabelOutput.setLabelFor(jLabelOutput);
+        jLabelOutput.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.output_section")); // NOI18N
+
+        jLabelDebug.setFont(new java.awt.Font("Tahoma", 0, 12));
+        jLabelDebug.setLabelFor(jLabelDebug);
+        jLabelDebug.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.debug_section")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(10, 10, 10)
-                        .add(jRadioEncode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(jLabel6)
-                                            .add(jLabel5))
-                                        .add(22, 22, 22))
-                                    .add(layout.createSequentialGroup()
-                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(layout.createSequentialGroup()
-                                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                    .add(jLabel3)
-                                                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
-                                                .add(6, 6, 6))
-                                            .add(layout.createSequentialGroup()
-                                                .add(jLabel4)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                                            .add(layout.createSequentialGroup()
-                                                .add(jLabelResultCoding, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 99, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                                            .add(layout.createSequentialGroup()
-                                                .add(jRadioDecode)
-                                                .add(67, 67, 67))
-                                            .add(layout.createSequentialGroup()
-                                                .add(jLabelSourceCoding)
-                                                .add(47, 47, 47)))
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                                .add(layout.createSequentialGroup()
-                                    .add(jLabel2)
-                                    .add(33, 33, 33)))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel1)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(mOutputResult, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(mCreatedFileText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(mOverwrite)
-                            .add(mFolderText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(jComboBoxSourceCoding, 0, 328, Short.MAX_VALUE)
-                            .add(mInputDataText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(jCheckBoxFromString)
-                            .add(jComboBoxResultCoding, 0, 328, Short.MAX_VALUE)
-                            .add(mXMLSourceText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                            .add(jCheckBoxToString)
-                            .add(selectElementComboBox, 0, 328, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mFolderBtn)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(mDataButton)
-                                .add(mXMLButton)))))
-                .addContainerGap())
-            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
-            .add(jSeparator4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
-            .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
-            .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
-            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabelDebugLevel)
-                .add(58, 58, 58)
-                .add(selectDebugLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 327, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(96, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabelDebug)
+                    .add(jLabelOutput, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)
+                    .add(jLabelInput)
+                    .add(jLabelMeta))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jRadioButtonEncode)
+                    .add(jLabelXMLSourceFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+                    .add(jLabelResultCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+                    .add(jLabelFileName)
+                    .add(jLabelFolder)
+                    .add(jLabelVerboseLevel)
+                    .add(jLabelSourceCoding)
+                    .add(jLabelDataFile)
+                    .add(jRadioButtonDecode)
+                    .add(jLabelXSDFile)
+                    .add(jLabelSelectAnElement)
+                    .add(jLabelCreatedFile))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jComboBoxResultCoding, 0, 339, Short.MAX_VALUE)
+                    .add(jTextFieldXMLSourceFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jCheckBoxToString)
+                    .add(jTextFieldFileName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jTextFieldFolder, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jCheckBoxOverwriteOutput)
+                    .add(jTextFieldCreatedFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jComboBoxSourceCoding, 0, 339, Short.MAX_VALUE)
+                    .add(jTextFieldDataFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jCheckBoxFromString)
+                    .add(jTextFieldXSDFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                    .add(jComboBoxSelectElement, 0, 339, Short.MAX_VALUE)
+                    .add(jComboBoxVerboseLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 337, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                    .add(jButtonBrowseFolder)
+                    .add(jButtonBrowseXMLSourceFile)
+                    .add(jButtonBrowseDataFile))
+                .addContainerGap(19, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jSeparatorDecodeEncode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 553, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jSeparatorMeta, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparatorDebug, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparatorInputOutput, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(selectElementComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
-                .add(8, 8, 8)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(5, 5, 5)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jCheckBoxToString)
-                    .add(jRadioEncode))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(mXMLSourceText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(mXMLButton)
-                    .add(jLabel4))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(2, 2, 2)
-                        .add(jLabelResultCoding))
-                    .add(jComboBoxResultCoding, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(13, 13, 13)
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jRadioDecode)
-                    .add(jCheckBoxFromString))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(mInputDataText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(mDataButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabelSourceCoding)
-                    .add(jComboBoxSourceCoding, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(mOutputResult, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(mFolderBtn)
-                    .add(jLabel5)
-                    .add(mFolderText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                        .add(82, 82, 82)
+                        .add(jLabelInput))
                     .add(layout.createSequentialGroup()
-                        .add(mOverwrite)
-                        .add(28, 28, 28))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel6)
-                        .add(mCreatedFileText, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabelDebugLevel)
-                    .add(selectDebugLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                        .add(6, 6, 6)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(9, 9, 9)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jLabelSelectAnElement)
+                                    .add(jComboBoxSelectElement, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(8, 8, 8)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jLabelXSDFile)
+                                    .add(jTextFieldXSDFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(jLabelMeta))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jSeparatorMeta, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(30, 30, 30)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jRadioButtonDecode)
+                            .add(jCheckBoxFromString))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                            .add(jButtonBrowseDataFile)
+                            .add(jTextFieldDataFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabelDataFile))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                                    .add(jComboBoxSourceCoding, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(jLabelSourceCoding))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSeparatorDecodeEncode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jRadioButtonEncode)
+                                    .add(jCheckBoxToString))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                                    .add(jLabelXMLSourceFile)
+                                    .add(jTextFieldXMLSourceFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(jButtonBrowseXMLSourceFile))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabelResultCoding)
+                                .add(11, 11, 11)
+                                .add(jSeparatorInputOutput, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabelOutput)
+                                .add(11, 11, 11)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jLabelFileName)
+                                    .add(jTextFieldFileName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                                    .add(jButtonBrowseFolder)
+                                    .add(jTextFieldFolder, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(jLabelFolder))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jCheckBoxOverwriteOutput)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jTextFieldCreatedFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(jLabelCreatedFile))
+                                .add(16, 16, 16)
+                                .add(jSeparatorDebug, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(5, 5, 5)
+                                        .add(jLabelDebug))
+                                    .add(layout.createSequentialGroup()
+                                        .add(18, 18, 18)
+                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                            .add(jLabelVerboseLevel)
+                                            .add(jComboBoxVerboseLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                            .add(layout.createSequentialGroup()
+                                .add(84, 84, 84)
+                                .add(jComboBoxResultCoding, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
+
+        jLabelXSDFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.xsd_file")); // NOI18N
+        jLabelXSDFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.xsd_file")); // NOI18N
+        jTextFieldXSDFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xsd_file.name")); // NOI18N
+        jTextFieldXSDFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xsd_file.description")); // NOI18N
+        jRadioButtonEncode.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.encode.name")); // NOI18N
+        jRadioButtonEncode.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.encode.description")); // NOI18N
+        jRadioButtonDecode.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.decode.name")); // NOI18N
+        jRadioButtonDecode.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.decode.description")); // NOI18N
+        jTextFieldXMLSourceFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xml_source_file.name")); // NOI18N
+        jTextFieldXMLSourceFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xml_source_file.description")); // NOI18N
+        jTextFieldDataFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_data_file.name")); // NOI18N
+        jTextFieldDataFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.data_file.description")); // NOI18N
+        jLabelFileName.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.output_file_name")); // NOI18N
+        jLabelFileName.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.output_file_name")); // NOI18N
+        jTextFieldFileName.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panell.output_file_name.name")); // NOI18N
+        jTextFieldFileName.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_file_name.description")); // NOI18N
+        jCheckBoxOverwriteOutput.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.overwrite_output.name")); // NOI18N
+        jCheckBoxOverwriteOutput.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.overwrite_output.description")); // NOI18N
+        jButtonBrowseXMLSourceFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_xml_source_file.browse.name")); // NOI18N
+        jButtonBrowseXMLSourceFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_xml_source_file.browse.description")); // NOI18N
+        jButtonBrowseDataFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_data_file.browse.name")); // NOI18N
+        jButtonBrowseDataFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_data_file.browse.description")); // NOI18N
+        jLabelDataFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.input_data_file")); // NOI18N
+        jLabelDataFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.input_data_file")); // NOI18N
+        jLabelXMLSourceFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.xml_source")); // NOI18N
+        jLabelXMLSourceFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.xml_source")); // NOI18N
+        jLabelFolder.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.output_folder")); // NOI18N
+        jLabelFolder.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.output_folder")); // NOI18N
+        jTextFieldFolder.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.name")); // NOI18N
+        jTextFieldFolder.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.description")); // NOI18N
+        jButtonBrowseFolder.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.browse.name")); // NOI18N
+        jButtonBrowseFolder.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.browse.description")); // NOI18N
+        jLabelCreatedFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.created_file")); // NOI18N
+        jLabelCreatedFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.created_file")); // NOI18N
+        jTextFieldCreatedFile.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.created_file.name")); // NOI18N
+        jTextFieldCreatedFile.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.created_file.description")); // NOI18N
+        jComboBoxSelectElement.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.select_an_element.name")); // NOI18N
+        jComboBoxSelectElement.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.select_an_element.description")); // NOI18N
+        jLabelSelectAnElement.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.select_an_element")); // NOI18N
+        jLabelSelectAnElement.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.select_an_element")); // NOI18N
+        jCheckBoxToString.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.to_string.name")); // NOI18N
+        jCheckBoxToString.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.to_string.description")); // NOI18N
+        jLabelResultCoding.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.result_coding")); // NOI18N
+        jLabelResultCoding.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.result_coding")); // NOI18N
+        jComboBoxResultCoding.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.result_coding.name")); // NOI18N
+        jComboBoxResultCoding.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.result_coding.description")); // NOI18N
+        jCheckBoxFromString.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.from_string.name")); // NOI18N
+        jCheckBoxFromString.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.from_string.description")); // NOI18N
+        jLabelSourceCoding.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.source_coding")); // NOI18N
+        jLabelSourceCoding.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.source_coding")); // NOI18N
+        jComboBoxSourceCoding.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.source_coding.name")); // NOI18N
+        jComboBoxSourceCoding.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.source_coding.description")); // NOI18N
+        jSeparatorMeta.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.meta")); // NOI18N
+        jSeparatorMeta.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.meta")); // NOI18N
+        jSeparatorDecodeEncode.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.decode_encode")); // NOI18N
+        jSeparatorDecodeEncode.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.decode_encode")); // NOI18N
+        jSeparatorInputOutput.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.input_output")); // NOI18N
+        jSeparatorInputOutput.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.input_output")); // NOI18N
+        jSeparatorDebug.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.debug")); // NOI18N
+        jSeparatorDebug.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.separator.debug")); // NOI18N
+        jLabelVerboseLevel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.verbose_level")); // NOI18N
+        jLabelVerboseLevel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.verbose_level")); // NOI18N
+        jComboBoxVerboseLevel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.verbose_level.name")); // NOI18N
+        jComboBoxVerboseLevel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.verbose_level.description")); // NOI18N
+        jLabelMeta.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.meta_section.description")); // NOI18N
+        jLabelMeta.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.meta_section.description")); // NOI18N
+        jLabelInput.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_section.description")); // NOI18N
+        jLabelInput.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_section.description")); // NOI18N
+        jLabelOutput.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_section.description")); // NOI18N
+        jLabelOutput.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_section.description")); // NOI18N
+        jLabelDebug.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.debug_section.description")); // NOI18N
+        jLabelDebug.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.debug_section.description")); // NOI18N
+
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.name")); // NOI18N
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.description")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
-    private void mFolderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mFolderBtnActionPerformed
+    private void jButtonBrowseFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseFolderActionPerformed
         javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
         FileFilter fileFilter = new FileFilter() {
             public boolean accept(File file) {
@@ -586,13 +738,13 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
 
             public String getDescription() {
-                return _bundle.getString("test_panel.lbl.all_directories");
+                return _bundle.getString("test_panel.lbl.all_directories"); //NOI18N
             }
         };
         chooser.setFileFilter(fileFilter);
         String whereToLook;
-        if (mFolderText.getText() != null && mFolderText.getText().length() != 0) {
-            whereToLook = mFolderText.getText();
+        if (jTextFieldFolder.getText() != null && jTextFieldFolder.getText().length() != 0) {
+            whereToLook = jTextFieldFolder.getText();
         } else {
             whereToLook = xsdFilePath;
         }
@@ -604,15 +756,15 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             selectedFile = chooser.getSelectedFile();
         }
         if (selectedFile != null) {
-            this.mFolderText.setText(selectedFile.getAbsolutePath());
+            this.jTextFieldFolder.setText(selectedFile.getAbsolutePath());
             updateCreatedFolder();
         }
-    }//GEN-LAST:event_mFolderBtnActionPerformed
+}//GEN-LAST:event_jButtonBrowseFolderActionPerformed
 
-    private void mDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mDataButtonActionPerformed
+    private void jButtonBrowseDataFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseDataFileActionPerformed
         String whereToLook;
-        if (mInputDataText.getText() != null && mInputDataText.getText().length() != 0) {
-            whereToLook = mInputDataText.getText();
+        if (jTextFieldDataFile.getText() != null && jTextFieldDataFile.getText().length() != 0) {
+            whereToLook = jTextFieldDataFile.getText();
         } else {
             whereToLook = mPrefs.get(PREF_INPUT, xsdFilePath);
         }
@@ -622,25 +774,25 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         if (!selectedFile.exists()) {
             NotifyDescriptor desc = new NotifyDescriptor.Message(
-                    _bundle.getString("test_panel.lbl.file_does_not_exist"),
+                    _bundle.getString("test_panel.lbl.file_does_not_exist"), //NOI18N
                     NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(desc);
             return;
         }
-        mInputDataText.setText(selectedFile.getAbsolutePath());
-        if (mOutputResult.getText() == null || mOutputResult.getText().length() == 0) {
+        jTextFieldDataFile.setText(selectedFile.getAbsolutePath());
+        if (jTextFieldFileName.getText() == null || jTextFieldFileName.getText().length() == 0) {
             String name = selectedFile.getName();
             name = name.indexOf('.') >= 0 ?
                 name.substring(0, name.indexOf('.')) : name;
-            mOutputResult.setText(name);
+            jTextFieldFileName.setText(name);
         }
-    }//GEN-LAST:event_mDataButtonActionPerformed
+}//GEN-LAST:event_jButtonBrowseDataFileActionPerformed
 
-    private void mXMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mXMLButtonActionPerformed
+    private void jButtonBrowseXMLSourceFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseXMLSourceFileActionPerformed
 
         String whereToLook;
-        if (mXMLSourceText.getText() != null && mXMLSourceText.getText().length() != 0) {
-            whereToLook = mXMLSourceText.getText();
+        if (jTextFieldXMLSourceFile.getText() != null && jTextFieldXMLSourceFile.getText().length() != 0) {
+            whereToLook = jTextFieldXMLSourceFile.getText();
         } else {
             whereToLook = mPrefs.get(PREF_INPUT, xsdFilePath);
         }
@@ -652,27 +804,27 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         }
         if (!selectedFile.exists()) {
             NotifyDescriptor desc = new NotifyDescriptor.Message(
-                    _bundle.getString("test_panel.lbl.xml_file_does_not_exist"),
+                    _bundle.getString("test_panel.lbl.xml_file_does_not_exist"), //NOI18N
                     NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(desc);
             return;
         }
-        mXMLSourceText.setText(selectedFile.getAbsolutePath());
-        if (mOutputResult.getText() == null || mOutputResult.getText().length() == 0) {
+        jTextFieldXMLSourceFile.setText(selectedFile.getAbsolutePath());
+        if (jTextFieldFileName.getText() == null || jTextFieldFileName.getText().length() == 0) {
             String name = selectedFile.getName();
             name = name.indexOf('.') >= 0 ?
                 name.substring(0, name.indexOf('.')) : name;
-            mOutputResult.setText(name);
+            jTextFieldFileName.setText(name);
         }
-    }//GEN-LAST:event_mXMLButtonActionPerformed
+}//GEN-LAST:event_jButtonBrowseXMLSourceFileActionPerformed
 
-    private void jRadioDecodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioDecodeActionPerformed
+    private void jRadioButtonDecodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonDecodeActionPerformed
         updateComponents();
-    }//GEN-LAST:event_jRadioDecodeActionPerformed
+}//GEN-LAST:event_jRadioButtonDecodeActionPerformed
 
-    private void jRadioEncodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioEncodeActionPerformed
+    private void jRadioButtonEncodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonEncodeActionPerformed
         updateComponents();
-    }//GEN-LAST:event_jRadioEncodeActionPerformed
+}//GEN-LAST:event_jRadioButtonEncodeActionPerformed
 
     /** Open the file chooser and return the file.
      *@param oldUrl url where to start browsing
@@ -756,15 +908,15 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         } else if (getActionType().equals(EncoderTestPerformerImpl.ENCODE)) {
             expectedExtension = ".out";  //NOI18N
         }
-        String folderName = mFolderText.getText().trim();
-        String outputName = mOutputResult.getText().trim();
+        String folderName = jTextFieldFolder.getText().trim();
+        String outputName = jTextFieldFileName.getText().trim();
 
         File f = new File(xsdFilePath);
         String createdFileName = folderName +
             ( folderName.endsWith("/") || folderName.endsWith( File.separator ) || folderName.length() == 0 ? "" : "/" ) + // NOI18N
             outputName + expectedExtension;
 
-        mCreatedFileText.setText( createdFileName.replace( '/', File.separatorChar ) ); // NOI18N
+        jTextFieldCreatedFile.setText( createdFileName.replace( '/', File.separatorChar ) ); // NOI18N
     }
 
     public void insertUpdate(DocumentEvent e) {
@@ -786,7 +938,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                 select = QName.valueOf(topElem);
             }
         }
-        selectElementComboBox.removeAllItems();
+        jComboBoxSelectElement.removeAllItems();
         DisplayQName selectDispQName = null;
         DisplayQName dispQName;
         for (int i = 0; i < elements.length; i++) {
@@ -794,15 +946,15 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             if (elements[i].equals(select)) {
                 selectDispQName = dispQName;
             }
-            selectElementComboBox.addItem(dispQName);
+            jComboBoxSelectElement.addItem(dispQName);
         }
         if (selectDispQName != null) {
-            selectElementComboBox.setSelectedItem(selectDispQName);
+            jComboBoxSelectElement.setSelectedItem(selectDispQName);
         }
     }
 
     public QName getSelectedTopElementDecl() {
-        DisplayQName dispQName = (DisplayQName) selectElementComboBox.getSelectedItem();
+        DisplayQName dispQName = (DisplayQName) jComboBoxSelectElement.getSelectedItem();
         if (dispQName == null) {
             return null;
         }
@@ -837,38 +989,42 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButtonBrowseDataFile;
+    private javax.swing.JButton jButtonBrowseFolder;
+    private javax.swing.JButton jButtonBrowseXMLSourceFile;
     private javax.swing.JCheckBox jCheckBoxFromString;
+    private javax.swing.JCheckBox jCheckBoxOverwriteOutput;
     private javax.swing.JCheckBox jCheckBoxToString;
     private javax.swing.JComboBox jComboBoxResultCoding;
+    private javax.swing.JComboBox jComboBoxSelectElement;
     private javax.swing.JComboBox jComboBoxSourceCoding;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabelDebugLevel;
+    private javax.swing.JComboBox jComboBoxVerboseLevel;
+    private javax.swing.JLabel jLabelCreatedFile;
+    private javax.swing.JLabel jLabelDataFile;
+    private javax.swing.JLabel jLabelDebug;
+    private javax.swing.JLabel jLabelFileName;
+    private javax.swing.JLabel jLabelFolder;
+    private javax.swing.JLabel jLabelInput;
+    private javax.swing.JLabel jLabelMeta;
+    private javax.swing.JLabel jLabelOutput;
     private javax.swing.JLabel jLabelResultCoding;
+    private javax.swing.JLabel jLabelSelectAnElement;
     private javax.swing.JLabel jLabelSourceCoding;
-    private javax.swing.JRadioButton jRadioDecode;
-    private javax.swing.JRadioButton jRadioEncode;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField mCreatedFileText;
-    private javax.swing.JButton mDataButton;
-    private javax.swing.JButton mFolderBtn;
-    private javax.swing.JTextField mFolderText;
-    private javax.swing.JTextField mInputDataText;
-    private javax.swing.JTextField mOutputResult;
-    private javax.swing.JCheckBox mOverwrite;
-    private javax.swing.JButton mXMLButton;
-    private javax.swing.JTextField mXMLSourceText;
-    private javax.swing.JComboBox selectDebugLevel;
-    private javax.swing.JComboBox selectElementComboBox;
+    private javax.swing.JLabel jLabelVerboseLevel;
+    private javax.swing.JLabel jLabelXMLSourceFile;
+    private javax.swing.JLabel jLabelXSDFile;
+    private javax.swing.JRadioButton jRadioButtonDecode;
+    private javax.swing.JRadioButton jRadioButtonEncode;
+    private javax.swing.JSeparator jSeparatorDebug;
+    private javax.swing.JSeparator jSeparatorDecodeEncode;
+    private javax.swing.JSeparator jSeparatorInputOutput;
+    private javax.swing.JSeparator jSeparatorMeta;
+    private javax.swing.JTextField jTextFieldCreatedFile;
+    private javax.swing.JTextField jTextFieldDataFile;
+    private javax.swing.JTextField jTextFieldFileName;
+    private javax.swing.JTextField jTextFieldFolder;
+    private javax.swing.JTextField jTextFieldXMLSourceFile;
+    private javax.swing.JTextField jTextFieldXSDFile;
     // End of variables declaration//GEN-END:variables
 
 }
