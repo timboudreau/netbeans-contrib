@@ -310,6 +310,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <friend>org.netbeans.modules.portalpack.servers.opensourcepc</friend>
                 <friend>org.netbeans.modules.portalpack.servers.sunps</friend>
                 <friend>org.netbeans.modules.portalpack.servers.websynergy</friend>
+                <friend>org.netbeans.modules.portalpack.websynergy.servicebuilder</friend>
                 <package>org.netbeans.modules.portalpack.servers.core</package>
                 <package>org.netbeans.modules.portalpack.servers.core.api</package>
                 <package>org.netbeans.modules.portalpack.servers.core.common</package>
