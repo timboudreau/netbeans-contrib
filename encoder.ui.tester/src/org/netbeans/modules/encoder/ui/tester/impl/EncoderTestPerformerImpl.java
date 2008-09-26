@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 import java.util.prefs.BackingStoreException;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,6 +60,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
@@ -73,15 +75,15 @@ import org.xml.sax.SAXException;
 public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionListener {
 
     private static final ResourceBundle _bundle =
-            ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle");
-    private static final String PROCESS = _bundle.getString("test_performer.lbl.process");
-    private static final String CANCEL = _bundle.getString("test_performer.lbl.cancel");
+        ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle"); //NOI18N
+    private static final String PROCESS = _bundle.getString("test_performer.lbl.process"); //NOI18N
+    private static final String CANCEL = _bundle.getString("test_performer.lbl.cancel"); //NOI18N
     public static final String ENCODE = "Encode";  //NOI18N
     public static final String DECODE = "Decode";  //NOI18N
 
     public static final QName TOP_PROPERTY_ELEMENT = new QName(EncodingConst.URI, EncodingConst.TOP_FLAG);
     private static final XmlBoolean XML_BOOLEAN_TRUE = XmlBoolean.Factory.newValue(Boolean.TRUE);
-    private static final String DEBUG_PKG_NAME = "com.sun.encoder";;
+    private static final String DEBUG_PKG_NAME = "com.sun.encoder";  //NOI18N
     private TesterPanel testerPanel;
     private DialogDescriptor dialogDescriptor;
     private Dialog dialog;
@@ -117,16 +119,36 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             ErrorManager.getDefault().notify(ex);
             return;
         }
-        dialogDescriptor = new DialogDescriptor(testerPanel,
-                _bundle.getString("test_performer.lbl.test_encoding"),
-                true,
-                new Object[] {PROCESS, CANCEL},
-                PROCESS,
-                DialogDescriptor.BOTTOM_ALIGN,
-                HelpCtx.DEFAULT_HELP,
-                this);
-        dialogDescriptor.setClosingOptions(new Object[] {CANCEL});
+        // "Process" and "Cancel" buttons
+        JButton processButton = new JButton();
+        JButton cancelButton = new JButton();
+        processButton.setText(PROCESS);
+        processButton.setMnemonic('P');
+        String msg = NbBundle.getMessage(EncoderTestPerformerImpl.class,
+            "test_performer.process.description"); //NOI18N
+        processButton.setToolTipText(msg);
+        processButton.getAccessibleContext().setAccessibleName(msg);
+        processButton.getAccessibleContext().setAccessibleDescription(msg);
+        msg = NbBundle.getMessage(EncoderTestPerformerImpl.class,
+            "test_performer.cancel.description"); //NOI18N
+        cancelButton.setText(CANCEL);
+        cancelButton.setMnemonic('C');
+        cancelButton.setToolTipText(msg);
+        cancelButton.getAccessibleContext().setAccessibleName(msg);
+        cancelButton.getAccessibleContext().setAccessibleDescription(msg);
+        // DialogDescriptor object
+        dialogDescriptor = new DialogDescriptor(
+            testerPanel, // inner component of the dialog
+            _bundle.getString("test_performer.lbl.test_encoding"), //NOI18N //title of the dialog
+            true, //modal status
+            new Object[]{processButton, cancelButton}, //array of custom options
+            processButton, //default option from custom option array
+            DialogDescriptor.BOTTOM_ALIGN, //specifies where to place options in the dialog
+            HelpCtx.DEFAULT_HELP, //help context specifying help page
+            this); //listener for the user's button presses
+        dialogDescriptor.setClosingOptions(new Object[]{cancelButton});
         dialogDescriptor.setButtonListener(this);
+        // the Dialog
         dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
         dialog.setModal(true);
         dialog.setVisible(true);
@@ -366,7 +388,8 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
         }
         // flush the Handler.
         logHandler.flush();
-        String title = "Encoder Test [" + metaFile.getName() + "]";
+        String title = NbBundle.getMessage(EncoderTestPerformerImpl.class,
+            "test_performer.iooutputpane.title", metaFile.getName()); //NOI18N
         boolean newIO = true;
         InputOutput io = IOProvider.getDefault().getIO(title, newIO);
         // Ensure this I/O output pane is visible.
