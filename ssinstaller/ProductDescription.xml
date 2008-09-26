@@ -171,7 +171,6 @@
             <svr source="SPROpnsn"/>
             <svr source="SPROprfan"/>
             <svr source="SPROprflb"/>
-            <svr source="SPROsbe"/>
             <svr source="SPROsbld"/>
             <svr source="SPROsbldx"/>
             <svr source="SPROscl"/>
@@ -238,7 +237,6 @@
             <svr source="SPROplck"/>
             <svr source="SPROprfan"/>
             <svr source="SPROprflb"/>           
-            <svr source="SPROsbe"/>
             <svr source="SPROsbld"/>
             <svr source="SPROsbldx"/>
             <svr source="SPROscl"/>

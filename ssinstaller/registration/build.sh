@@ -1,6 +1,6 @@
 cd `dirname "$0"`
 TARDIR=`pwd`/build/tars
-RESDIR=`pwd`/build/result
+RESDIR=$OUTPUT_DIR/bundles
 SRCDIR=`pwd`
 
 # The length of install.sh is used to untar archive 

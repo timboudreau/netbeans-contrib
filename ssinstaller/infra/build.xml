@@ -431,8 +431,9 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
 	    <component uid="nb-extra" version="${nb.full.version}"/>	
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
+	<chmod file="${output.dir}/bundles/${ss.bundle.files.prefix}-bundled-${ss.platform.name}.sh" perm="ugo+rx"/>
         <delete file="${output.dir}/registry-temp/bundles.list" /> 
-
+<!--
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="${current.platform.name}" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-external-${ss.platform.name}.sh"
@@ -442,7 +443,7 @@ ss.bundle.files.prefix=${ss.bundle.files.prefix}
             <property name="nbi.product.bundled.data.all.location" value="${bundles.url}" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        <delete file="${output.dir}/registry-temp/bundles.list" />
+-->     <delete file="${output.dir}/registry-temp/bundles.list" />
     </target>
     
     
