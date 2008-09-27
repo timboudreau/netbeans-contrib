@@ -362,7 +362,6 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
 
         setFocusTraversalPolicy(null);
 
-        jLabelXSDFile.setDisplayedMnemonic('X');
         jLabelXSDFile.setLabelFor(jTextFieldXSDFile);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle"); // NOI18N
         jLabelXSDFile.setText(bundle.getString("test_panel.lbl.xsd_file")); // NOI18N
@@ -371,8 +370,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jTextFieldXSDFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.xsd_file.description")); // NOI18N
         jTextFieldXSDFile.setPreferredSize(new java.awt.Dimension(94, 19));
 
-        jRadioButtonEncode.setMnemonic('E');
-        jRadioButtonEncode.setText(bundle.getString("test_panel.lbl.encode")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEncode, bundle.getString("test_panel.lbl.encode")); // NOI18N
         jRadioButtonEncode.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.encode.description")); // NOI18N
         jRadioButtonEncode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jRadioButtonEncode.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -382,8 +380,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
         });
 
-        jRadioButtonDecode.setMnemonic('D');
-        jRadioButtonDecode.setText(bundle.getString("test_panel.lbl.decode")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonDecode, org.openide.util.NbBundle.getBundle(TesterPanel.class).getString("test_panel.lbl.decode")); // NOI18N
         jRadioButtonDecode.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.decode.description")); // NOI18N
         jRadioButtonDecode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jRadioButtonDecode.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -397,20 +394,17 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
 
         jTextFieldDataFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.data_file.description")); // NOI18N
 
-        jLabelFileName.setDisplayedMnemonic('N');
         jLabelFileName.setLabelFor(jTextFieldFileName);
-        jLabelFileName.setText(bundle.getString("test_panel.lbl.output_file_name")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelFileName, bundle.getString("test_panel.lbl.output_file_name")); // NOI18N
 
         jTextFieldFileName.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_file_name.description")); // NOI18N
 
-        jCheckBoxOverwriteOutput.setMnemonic('O');
-        jCheckBoxOverwriteOutput.setText(bundle.getString("test_panel.lbl.overwrite_output")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxOverwriteOutput, bundle.getString("test_panel.lbl.overwrite_output")); // NOI18N
         jCheckBoxOverwriteOutput.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.overwrite_output.description")); // NOI18N
         jCheckBoxOverwriteOutput.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxOverwriteOutput.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jButtonBrowseXMLSourceFile.setMnemonic('B');
-        jButtonBrowseXMLSourceFile.setText(bundle.getString("test_panel.lbl.browse2")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonBrowseXMLSourceFile, bundle.getString("test_panel.lbl.browse2")); // NOI18N
         jButtonBrowseXMLSourceFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_xml_source_file.browse.description")); // NOI18N
         jButtonBrowseXMLSourceFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -418,8 +412,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
         });
 
-        jButtonBrowseDataFile.setMnemonic('B');
-        jButtonBrowseDataFile.setText(bundle.getString("test_panel.lbl.browse1")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonBrowseDataFile, bundle.getString("test_panel.lbl.browse1")); // NOI18N
         jButtonBrowseDataFile.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.input_data_file.browse.description")); // NOI18N
         jButtonBrowseDataFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -427,22 +420,18 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
         });
 
-        jLabelDataFile.setDisplayedMnemonic('A');
         jLabelDataFile.setLabelFor(jTextFieldDataFile);
-        jLabelDataFile.setText(bundle.getString("test_panel.lbl.input_data_file")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelDataFile, bundle.getString("test_panel.lbl.input_data_file")); // NOI18N
 
-        jLabelXMLSourceFile.setDisplayedMnemonic('M');
         jLabelXMLSourceFile.setLabelFor(jTextFieldXMLSourceFile);
-        jLabelXMLSourceFile.setText(bundle.getString("test_panel.lbl.xml_source")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelXMLSourceFile, bundle.getString("test_panel.lbl.xml_source")); // NOI18N
 
-        jLabelFolder.setDisplayedMnemonic('F');
         jLabelFolder.setLabelFor(jTextFieldFolder);
-        jLabelFolder.setText(bundle.getString("test_panel.lbl.output_folder")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelFolder, bundle.getString("test_panel.lbl.output_folder")); // NOI18N
 
         jTextFieldFolder.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.description")); // NOI18N
 
-        jButtonBrowseFolder.setMnemonic('W');
-        jButtonBrowseFolder.setText(bundle.getString("test_panel.lbl.browse3")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonBrowseFolder, bundle.getString("test_panel.lbl.browse3")); // NOI18N
         jButtonBrowseFolder.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.output_folder.browse.description")); // NOI18N
         jButtonBrowseFolder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -450,7 +439,6 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
             }
         });
 
-        jLabelCreatedFile.setDisplayedMnemonic('L');
         jLabelCreatedFile.setLabelFor(jTextFieldCreatedFile);
         jLabelCreatedFile.setText(bundle.getString("test_panel.lbl.created_file")); // NOI18N
 
@@ -460,41 +448,35 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         jComboBoxSelectElement.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBoxSelectElement.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.select_an_element.description")); // NOI18N
 
-        jLabelSelectAnElement.setDisplayedMnemonic('S');
         jLabelSelectAnElement.setLabelFor(jComboBoxSelectElement);
-        jLabelSelectAnElement.setText(bundle.getString("test_panel.lbl.select_an_element")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelSelectAnElement, bundle.getString("test_panel.lbl.select_an_element")); // NOI18N
 
-        jCheckBoxToString.setMnemonic('T');
-        jCheckBoxToString.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.to_string")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxToString, org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.to_string")); // NOI18N
         jCheckBoxToString.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.to_string.description")); // NOI18N
         jCheckBoxToString.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxToString.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabelResultCoding.setDisplayedMnemonic('R');
         jLabelResultCoding.setLabelFor(jComboBoxResultCoding);
-        jLabelResultCoding.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.result_coding")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelResultCoding, org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.result_coding")); // NOI18N
 
         jComboBoxResultCoding.setEditable(true);
         jComboBoxResultCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBoxResultCoding.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.result_coding.description")); // NOI18N
 
-        jCheckBoxFromString.setMnemonic('G');
-        jCheckBoxFromString.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.from_string")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxFromString, org.openide.util.NbBundle.getBundle(TesterPanel.class).getString("test_panel.lbl.from_string")); // NOI18N
         jCheckBoxFromString.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.from_string.description")); // NOI18N
         jCheckBoxFromString.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBoxFromString.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabelSourceCoding.setDisplayedMnemonic('U');
         jLabelSourceCoding.setLabelFor(jComboBoxSourceCoding);
-        jLabelSourceCoding.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.source_coding")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelSourceCoding, org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.source_coding")); // NOI18N
 
         jComboBoxSourceCoding.setEditable(true);
         jComboBoxSourceCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBoxSourceCoding.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.source_coding.description")); // NOI18N
 
-        jLabelVerboseLevel.setDisplayedMnemonic('V');
         jLabelVerboseLevel.setLabelFor(jComboBoxVerboseLevel);
-        jLabelVerboseLevel.setText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.verbose_level")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelVerboseLevel, org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.lbl.verbose_level")); // NOI18N
 
         jComboBoxVerboseLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBoxVerboseLevel.setToolTipText(org.openide.util.NbBundle.getMessage(TesterPanel.class, "test_panel.verbose_level.description")); // NOI18N
@@ -529,8 +511,8 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jRadioButtonEncode)
-                    .add(jLabelXMLSourceFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
-                    .add(jLabelResultCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+                    .add(jLabelXMLSourceFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                    .add(jLabelResultCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                     .add(jLabelFileName)
                     .add(jLabelFolder)
                     .add(jLabelVerboseLevel)
@@ -560,7 +542,7 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
                     .add(jButtonBrowseFolder)
                     .add(jButtonBrowseXMLSourceFile)
                     .add(jButtonBrowseDataFile))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jSeparatorDecodeEncode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 553, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
