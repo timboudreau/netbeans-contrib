@@ -44,8 +44,8 @@
               <EmptySpace pref="6" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jRadioButtonEncode" alignment="0" min="-2" max="-2" attributes="1"/>
-                  <Component id="jLabelXMLSourceFile" alignment="0" pref="94" max="32767" attributes="1"/>
-                  <Component id="jLabelResultCoding" alignment="0" pref="94" max="32767" attributes="1"/>
+                  <Component id="jLabelXMLSourceFile" alignment="0" pref="96" max="32767" attributes="1"/>
+                  <Component id="jLabelResultCoding" alignment="0" pref="96" max="32767" attributes="1"/>
                   <Component id="jLabelFileName" alignment="0" min="-2" max="-2" attributes="1"/>
                   <Component id="jLabelFolder" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabelVerboseLevel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -78,7 +78,7 @@
                   <Component id="jButtonBrowseXMLSourceFile" alignment="2" min="-2" max="-2" attributes="0"/>
                   <Component id="jButtonBrowseDataFile" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="19" max="32767" attributes="0"/>
+              <EmptySpace pref="17" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
@@ -202,7 +202,6 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabelXSDFile">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="88"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldXSDFile"/>
         </Property>
@@ -218,6 +217,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.xsd_file" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldXSDFile">
       <Properties>
@@ -242,7 +244,6 @@
     </Component>
     <Component class="javax.swing.JRadioButton" name="jRadioButtonEncode">
       <Properties>
-        <Property name="mnemonic" type="int" value="69"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.encode" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -269,12 +270,14 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButtonEncodeActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JRadioButton" name="jRadioButtonDecode">
       <Properties>
-        <Property name="mnemonic" type="int" value="68"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.decode" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.decode" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.decode.description" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
@@ -299,6 +302,9 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButtonDecodeActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldXMLSourceFile">
       <Properties>
@@ -332,7 +338,6 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelFileName">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="78"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldFileName"/>
         </Property>
@@ -348,6 +353,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.output_file_name" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldFileName">
       <Properties>
@@ -366,7 +374,6 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="jCheckBoxOverwriteOutput">
       <Properties>
-        <Property name="mnemonic" type="int" value="79"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.overwrite_output" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -390,10 +397,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.overwrite_output.description" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonBrowseXMLSourceFile">
       <Properties>
-        <Property name="mnemonic" type="int" value="66"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.browse2" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -412,10 +421,12 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonBrowseXMLSourceFileActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonBrowseDataFile">
       <Properties>
-        <Property name="mnemonic" type="int" value="66"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.browse1" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -434,10 +445,12 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonBrowseDataFileActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelDataFile">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="65"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldDataFile"/>
         </Property>
@@ -453,10 +466,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.input_data_file" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelXMLSourceFile">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="77"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldXMLSourceFile"/>
         </Property>
@@ -472,10 +487,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.xml_source" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelFolder">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="70"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldFolder"/>
         </Property>
@@ -491,6 +508,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.output_folder" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldFolder">
       <Properties>
@@ -509,7 +529,6 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButtonBrowseFolder">
       <Properties>
-        <Property name="mnemonic" type="int" value="87"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.browse3" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -528,10 +547,12 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonBrowseFolderActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelCreatedFile">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="76"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jTextFieldCreatedFile"/>
         </Property>
@@ -547,6 +568,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.created_file" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldCreatedFile">
       <Properties>
@@ -591,7 +615,6 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelSelectAnElement">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="83"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jComboBoxSelectElement"/>
         </Property>
@@ -607,10 +630,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.select_an_element" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JCheckBox" name="jCheckBoxToString">
       <Properties>
-        <Property name="mnemonic" type="int" value="84"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.to_string" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
@@ -634,10 +659,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.to_string.description" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelResultCoding">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="82"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jComboBoxResultCoding"/>
         </Property>
@@ -653,6 +680,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.result_coding" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JComboBox" name="jComboBoxResultCoding">
       <Properties>
@@ -680,9 +710,8 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="jCheckBoxFromString">
       <Properties>
-        <Property name="mnemonic" type="int" value="71"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.from_string" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.from_string" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.from_string.description" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
@@ -704,10 +733,12 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.from_string.description" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelSourceCoding">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="85"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jComboBoxSourceCoding"/>
         </Property>
@@ -723,6 +754,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.source_coding" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JComboBox" name="jComboBoxSourceCoding">
       <Properties>
@@ -790,7 +824,6 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelVerboseLevel">
       <Properties>
-        <Property name="displayedMnemonic" type="int" value="86"/>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="jComboBoxVerboseLevel"/>
         </Property>
@@ -806,6 +839,9 @@
           <ResourceString bundle="org/netbeans/modules/encoder/ui/tester/impl/Bundle.properties" key="test_panel.lbl.verbose_level" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </AccessibilityProperties>
+      <AuxValues>
+        <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JComboBox" name="jComboBoxVerboseLevel">
       <Properties>

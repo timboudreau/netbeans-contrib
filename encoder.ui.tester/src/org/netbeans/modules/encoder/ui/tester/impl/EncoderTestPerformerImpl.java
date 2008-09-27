@@ -55,6 +55,7 @@ import org.netbeans.modules.encoder.ui.tester.EncoderTestTask;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditCookie;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataLoaderPool;
@@ -77,7 +78,9 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
     private static final ResourceBundle _bundle =
         ResourceBundle.getBundle("org/netbeans/modules/encoder/ui/tester/impl/Bundle"); //NOI18N
     private static final String PROCESS = _bundle.getString("test_performer.lbl.process"); //NOI18N
+    private static final String PROCESS_DESC = _bundle.getString("test_performer.process.description"); //NOI18N
     private static final String CANCEL = _bundle.getString("test_performer.lbl.cancel"); //NOI18N
+    private static final String CANCEL_DESC = _bundle.getString("test_performer.cancel.description"); //NOI18N
     public static final String ENCODE = "Encode";  //NOI18N
     public static final String DECODE = "Decode";  //NOI18N
 
@@ -121,21 +124,15 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
         }
         // "Process" and "Cancel" buttons
         JButton processButton = new JButton();
+        org.openide.awt.Mnemonics.setLocalizedText(processButton, PROCESS);
+        processButton.setToolTipText(PROCESS_DESC);
+        processButton.getAccessibleContext().setAccessibleName(PROCESS_DESC);
+        processButton.getAccessibleContext().setAccessibleDescription(PROCESS_DESC);
         JButton cancelButton = new JButton();
-        processButton.setText(PROCESS);
-        processButton.setMnemonic('P');
-        String msg = NbBundle.getMessage(EncoderTestPerformerImpl.class,
-            "test_performer.process.description"); //NOI18N
-        processButton.setToolTipText(msg);
-        processButton.getAccessibleContext().setAccessibleName(msg);
-        processButton.getAccessibleContext().setAccessibleDescription(msg);
-        msg = NbBundle.getMessage(EncoderTestPerformerImpl.class,
-            "test_performer.cancel.description"); //NOI18N
-        cancelButton.setText(CANCEL);
-        cancelButton.setMnemonic('C');
-        cancelButton.setToolTipText(msg);
-        cancelButton.getAccessibleContext().setAccessibleName(msg);
-        cancelButton.getAccessibleContext().setAccessibleDescription(msg);
+        org.openide.awt.Mnemonics.setLocalizedText(cancelButton, CANCEL);
+        cancelButton.setToolTipText(CANCEL_DESC);
+        cancelButton.getAccessibleContext().setAccessibleName(CANCEL_DESC);
+        cancelButton.getAccessibleContext().setAccessibleDescription(CANCEL_DESC);
         // DialogDescriptor object
         dialogDescriptor = new DialogDescriptor(
             testerPanel, // inner component of the dialog
@@ -154,9 +151,29 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
         dialog.setVisible(true);
     }
 
+    private static String stripOffMnemonics(String in) {
+        if (in == null || in.length() == 0) {
+            return in;
+        }
+        int mnemonicPosition = Mnemonics.findMnemonicAmpersand(in);
+        if (mnemonicPosition < 0) {
+            // i.e. no mnemonics found
+            return in;
+        } else if (mnemonicPosition == 0) {
+            // i.e. first char is mnemonics
+            return in.substring(1);
+        } else if (mnemonicPosition == in.length() - 1) {
+            // i.e. last char is mnemonics
+            return in.substring(0, mnemonicPosition);
+        } else {
+            return in.substring(0, mnemonicPosition)
+                + in.substring(mnemonicPosition + 1);
+        }
+    }
+
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
-        if (action.equals(PROCESS)) {
+        if (action.equals(stripOffMnemonics(PROCESS))) {
             try {
                 testerPanel.savePreferences();
             } catch (BackingStoreException ex) {
