@@ -46,7 +46,6 @@ import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.SimpleValueNames;
 import org.netbeans.editor.BaseDocument;
 
-import org.netbeans.modules.gsf.api.Formatter;
 import org.netbeans.modules.scala.editing.ScalaFormatter;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.options.OptionsPanelController;
@@ -165,7 +164,7 @@ public class FmtOptions {
         String defaultValues[][] = {
             {SimpleValueNames.TEXT_LIMIT_WIDTH, "80"}, //NOI18N
             {SimpleValueNames.EXPAND_TABS, TRUE}, //NOI18N
-            {SimpleValueNames.TAB_SIZE, "4"}, //NOI18N
+            {SimpleValueNames.TAB_SIZE, "2"}, //NOI18N
             {SimpleValueNames.INDENT_SHIFT_WIDTH, "2"}, //NOI18N
             {continuationIndentSize, "2"}, //NOI18N
             {reformatComments, FALSE}, //NOI18N
