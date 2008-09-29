@@ -49,11 +49,13 @@ public final class FormatDir extends CallableSystemAction {
         }
 
         File selDir = fileHolder[0];
-        FileObject dir = FileUtil.toFileObject(selDir);
+        if (selDir != null) {
+            FileObject dir = FileUtil.toFileObject(selDir);
 
-        if (dir != null) {
-            for (FileObject fo : dir.getChildren()) {
-                reformat(fo);
+            if (dir != null) {
+                for (FileObject fo : dir.getChildren()) {
+                    reformat(fo);
+                }
             }
         }
 
