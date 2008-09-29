@@ -49,6 +49,7 @@ import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.wizard.Utils;
 
@@ -70,13 +71,10 @@ public class ExistingSunStudioChecker {
     List<PackageDescr> packagesToInstall;
     
     List<PackageDescr> conflictedPackages;
-    public final String VERSION="12.0";
+    public final String VERSION = "12.0";
+    public final String VERSION_11 = "11.0";
     private ExistingSunStudioChecker() {
-        conflictedPackages = new ArrayList<PackageDescr>();
-        if (Utils.getSSBase().getStatus().equals(Status.INSTALLED)) {
-            LogManager.log("Sun Studio is modifying. The Existing Sun Studio are not checked.");
-            return;
-        }
+        conflictedPackages = new ArrayList<PackageDescr>();       
         packagesToInstall = new ArrayList<PackageDescr>();
         Collection<PackageDescr> installedPackages = EnvironmentInfoFactory.getInstance().getPackageType().getInstalledPackages();        
         for (Product product : Registry.getInstance().getProductsToInstall()) {
@@ -102,8 +100,12 @@ public class ExistingSunStudioChecker {
                 // special for Solaris
                 if (SystemUtils.isSolaris() && (installedPackage.getName().equals(packageToInstall.getName())
                         || installedPackage.getName().startsWith(packageToInstall.getName() + "."))) {
-                    conflictedPackages.add(installedPackage);
-                    LogManager.log(installedPackage.getName());
+                    if(!Utils.getSSBase().getStatus().equals(Status.INSTALLED)
+                      || !installedPackage.getVersion().equals(VERSION)) {
+                            conflictedPackages.add(installedPackage);
+                            LogManager.log(installedPackage.getName());
+                       //  }
+                    }
                 }
             }
         }
@@ -117,6 +119,20 @@ public class ExistingSunStudioChecker {
                 
     public boolean isSunStudioInstallationFound() {
         return conflictedPackages.size() != 0;
+    }
+    
+    public boolean isOnlyLocalInstallationPossible() {
+        if (!SystemUtils.isSolaris()) {
+            return false;
+        }
+        for (String version : getInstalledVersions()) {
+            LogManager.log("Checking version: '" + version + "'" );
+            // if Sun Studio 11 is already installed then only local zone could be used.
+            if (version.equals(VERSION_11)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isInstallationPossible() {        
