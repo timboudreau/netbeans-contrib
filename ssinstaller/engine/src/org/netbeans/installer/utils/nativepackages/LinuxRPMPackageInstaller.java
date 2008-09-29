@@ -61,9 +61,9 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
     }
 
     public Iterable<String> install(String pathToPackage) throws InstallationException {
-        if (SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) && PackageType.LINUX_RPM.getPackagePlatform(pathToPackage).equals(Platform.LINUX_X64)) {
-            return Collections.EMPTY_LIST;
-        }
+        //if (SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) && PackageType.LINUX_RPM.getPackagePlatform(pathToPackage).equals(Platform.LINUX_X64)) {
+        //    return Collections.EMPTY_LIST;
+        //}
         
         Collection<String> packagesNames = PackageType.LINUX_RPM.getPackageNames(pathToPackage);
         if (packagesNames != null && !packagesNames.isEmpty()) {
@@ -73,9 +73,9 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
                 Process p = null;
 
                 if (target == null) {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage).start();
+                    p = new ProcessBuilder("rpm", "-i", "--nodeps", "--ignorearch", pathToPackage).start();
                 } else {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage, "--relocate", "/opt/sun=" + target).start();
+                    p = new ProcessBuilder("rpm", "-i", "--nodeps", "--ignorearch",  pathToPackage, "--relocate", "/opt/sun=" + target).start();
                 }
 
                 getProcessOutput(p);

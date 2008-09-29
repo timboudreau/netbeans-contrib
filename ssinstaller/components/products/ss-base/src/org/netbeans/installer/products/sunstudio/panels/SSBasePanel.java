@@ -85,9 +85,7 @@ public class SSBasePanel extends DestinationPanel {
     @Override
     public void initialize() {
         super.initialize();
-	if (SystemUtils.getCurrentPlatform().isCompatibleWith(Platform.LINUX)) {
-	    getWizard().setProperty(Product.INSTALLATION_LOCATION_PROPERTY, "/opt/sun");
-	} else {
+	if (!SystemUtils.getCurrentPlatform().isCompatibleWith(Platform.LINUX)) {
             Utils.getSSBase().setProperty(Utils.getSPROsslnkPropertyName(), "true");
         }        
     }

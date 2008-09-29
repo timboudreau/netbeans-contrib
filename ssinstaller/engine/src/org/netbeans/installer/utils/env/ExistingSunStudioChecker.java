@@ -162,6 +162,7 @@ public class ExistingSunStudioChecker {
                     dirsArray[j] = null;
                 } else if (FileUtils.isParent(dirsArray[j], dirsArray[i])) {
                     dirsArray[i] = null;
+                    break;
                 }
             }   
         }

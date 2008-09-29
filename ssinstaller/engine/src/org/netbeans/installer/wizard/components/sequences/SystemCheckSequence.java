@@ -38,9 +38,12 @@ package org.netbeans.installer.wizard.components.sequences;
 
 
 import java.io.File;
+import java.util.List;
 import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
@@ -68,6 +71,17 @@ public class SystemCheckSequence extends WizardSequence {
         if (ExecutionMode.getCurrentExecutionMode().equals(ExecutionMode.CREATE_BUNDLE)) {
             super.executeForward();
             return;
+        } else {
+            if (SystemUtils.isLinux()) {
+                final List<Product> toInstall = Registry.getInstance().getProductsToInstall();
+                final String wrongBaseDir = "/usr/local";
+                for(Product product: toInstall) {
+                    String path = product.getInstallationLocation().getAbsolutePath();
+                    if (path.startsWith(wrongBaseDir)) {
+                        product.setInstallationLocation(new File(path.replace(wrongBaseDir, "/opt/sun")));
+                    }
+                }
+            }
         }
         if (SilentLogManager.isLogManagerActive()) {
             for(SystemCheckCategory problem: SystemCheckCategory.getProblemCategories()) {
