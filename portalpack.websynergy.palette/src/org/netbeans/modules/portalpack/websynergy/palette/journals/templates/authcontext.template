@@ -1,2 +1,0 @@
-<%--Give a renderRequest object in portlet and request object webapp --%> 
- <cms:authContext reqObj="" />

@@ -25,7 +25,7 @@
  * and open the template in the editor.
  */
 
-package org.netbeans.modules.portalpack.websynergy.palette.journals;
+package org.netbeans.modules.portalpack.websynergy.palette.journal;
 
 import java.util.Map;
 import javax.swing.text.BadLocationException;
@@ -41,7 +41,7 @@ public abstract class TagLibDropDefault extends AbstractActiveEditorDrop{
     @Override
     public void preHandleTransfer(JTextComponent targetComponent, Map map) {
         try {
-            String wfs = "<%@ taglib uri=\"http://java.sun.com/journals\" prefix=\"ja\"%>";
+            String wfs = "<%@ taglib uri=\"http://liferay.com/tld/journal\" prefix=\"jnl\"%>";
             PaletteUtilities.insertLibraryDefinition(wfs, targetComponent);
         } catch (BadLocationException ex) {
             ex.printStackTrace();
@@ -56,7 +56,7 @@ public abstract class TagLibDropDefault extends AbstractActiveEditorDrop{
 
     @Override
     public String getTemplateFolder() {
-        return "journals";
+        return "journal";
     } 
     
 }

@@ -19,15 +19,15 @@
   */ -->
 
 
-<!DOCTYPE editor_palette_item PUBLIC "-//NetBeans//Editor Palette Item 1.0//EN"
-  "http://www.netbeans.org/dtds/editor-palette-item-1_0.dtd">
+<!DOCTYPE editor_palette_item PUBLIC "-//NetBeans//Editor Palette Item 1.0//EN" "http://www.netbeans.org/dtds/editor-palette-item-1_0.dtd">
 
 <editor_palette_item version="1.0">
-    <class name="org.netbeans.modules.portalpack.websynergy.palette.journals.items.AuthContext" />
+    <class name="org.netbeans.modules.portalpack.websynergy.palette.journal.items.ArticleSearchByKeywords" />
 
-     <icon16 urlvalue="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/items/resources/images/auth-context16.PNG" />
-    <icon32 urlvalue="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/items/resources/images/auth-context32.PNG" />
-    <description localizing-bundle="org.netbeans.modules.portalpack.websynergy.palette.journals.items.resources.Bundle"
-               display-name-key="NAME_AuthContext"
-               tooltip-key="HINT_AuthContext" />
+    <icon16 urlvalue="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/images/journal-tag16.PNG" />
+    <icon32 urlvalue="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/images/journal-tag32.PNG" />
+    <description localizing-bundle="org.netbeans.modules.portalpack.websynergy.palette.journal.items.resources.Bundle"
+               display-name-key="NAME_ArticleSearchByKeywords"
+               tooltip-key="HINT_ArticleSearchByKeywords" />
 </editor_palette_item>
+

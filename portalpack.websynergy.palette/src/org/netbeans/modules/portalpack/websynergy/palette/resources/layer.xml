@@ -2,15 +2,59 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="JSPPalette">
-        <folder name="WebSynergy_Journals">
+        <folder name="WebSynergy_Journal">
             <attr name="position" intvalue="642"/>
-            <file name="authContext.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/items/resources/authContext.xml"/>
+            <file name="articleResourceByPK.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleResourceByPK.xml"/>
+			<file name="articlesById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articlesById.xml"/>
+			<file name="articleSearch.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleSearch.xml"/>
+			<file name="articleSearchByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleSearchByKeywords.xml"/>
+			<file name="articleSearchCount.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleSearchCount.xml"/>
+			<file name="articleSearchCountByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleSearchCountByKeywords.xml"/>
+			<file name="feedSearch.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/feedSearch.xml"/>
+			<file name="feedSearchByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/feedSearchByKeywords.xml"/>
+			<file name="feedSearchCount.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/feedSearchCount.xml"/>
+			<file name="feedSearchCountByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/feedSearchCountByKeywords.xml"/>
+			<file name="latestArticleById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/latestArticleById.xml"/>
+			<file name="layoutIdsByArticleId.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/layoutIdsByArticleId.xml"/>
+			<file name="structureById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureById.xml"/>
+			<file name="structureSearch.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureSearch.xml"/>
+			<file name="structureSearchByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureSearchByKeywords.xml"/>
+			<file name="structureSearchCount.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureSearchCount.xml"/>
+			<file name="structureSearchCountByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureSearchCountByKeywords.xml"/>
+			<file name="structureTemplatesById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/structureTemplatesById.xml"/>
+			<file name="templateById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/templateById.xml"/>
+			<file name="templateSearch.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/templateSearch.xml"/>
+			<file name="templateSearchByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/templateSearchByKeywords.xml"/>
+			<file name="templateSearchCount.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/templateSearchCount.xml"/>
+			<file name="templateSearchCountByKeywords.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/templateSearchCountByKeywords.xml"/>			
         </folder>
     </folder>
     <folder name="portalpack">
         <folder name="palette">
-            <folder name="journals">
-                <file name="authcontext.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journals/templates/authcontext.template"/>
+            <folder name="journal">
+                <file name="articleResourceByPK.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articleResourceByPK.template"/>
+				<file name="articlesById.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articlesById.template"/>
+				<file name="articleSearch.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articleSearch.template"/>
+				<file name="articleSearchByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articleSearchByKeywords.template"/>
+				<file name="articleSearchCount.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articleSearchCount.template"/>
+				<file name="articleSearchCountByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/articleSearchCountByKeywords.template"/>
+				<file name="feedSearch.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/feedSearch.template"/>
+				<file name="feedSearchByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/feedSearchByKeywords.template"/>
+				<file name="feedSearchCount.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/feedSearchCount.template"/>
+				<file name="feedSearchCountByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/feedSearchCountByKeywords.template"/>
+				<file name="latestArticleById.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/latestArticleById.template"/>
+				<file name="layoutIdsByArticleId.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/layoutIdsByArticleId.template"/>
+				<file name="structureById.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureById.template"/>
+				<file name="structureSearch.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureSearch.template"/>
+				<file name="structureSearchByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureSearchByKeywords.template"/>
+				<file name="structureSearchCount.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureSearchCount.template"/>
+				<file name="structureSearchCountByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureSearchCountByKeywords.template"/>
+				<file name="structureTemplatesById.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/structureTemplatesById.template"/>
+				<file name="templateById.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/templateById.template"/>
+				<file name="templateSearch.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/templateSearch.template"/>
+				<file name="templateSearchByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/templateSearchByKeywords.template"/>
+				<file name="templateSearchCount.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/templateSearchCount.template"/>
+				<file name="templateSearchCountByKeywords.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/templates/templateSearchCountByKeywords.template"/>				
             </folder>
         </folder>
     </folder>
