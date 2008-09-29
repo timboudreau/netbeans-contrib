@@ -117,6 +117,7 @@ made subject to such option by the copyright holder.
     </folder>
     <folder name="Toolbars">
         <folder name="CodeTemplateTools">
+            <attr name="position" intvalue="1500"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance"/>
                 <attr name="position" intvalue="100"/>
