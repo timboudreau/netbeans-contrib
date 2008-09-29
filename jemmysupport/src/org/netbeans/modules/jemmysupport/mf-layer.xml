@@ -91,6 +91,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
     </folder>
     <folder name="Toolbars">
         <folder name="Jemmy Support">
+            <attr name="position" intvalue="2000"/>
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
