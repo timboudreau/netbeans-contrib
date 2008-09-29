@@ -46,6 +46,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 
 /**
  *
@@ -61,6 +63,7 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
     static final File TMP_DIR = new File("/tmp");
     File defaultResponse;
     File defaultAdminFile;
+    private boolean isLocalZone = false;
     
     private static String pkgRoot = System.getenv("USE_ALTERNATIVE_PACK_ROOT") == null ?
         "/usr/sbin"  : System.getenv("USE_ALTERNATIVE_PACK_ROOT");
@@ -71,6 +74,8 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
             defaultResponse.deleteOnExit();
             PrintStream out = new PrintStream(defaultResponse);
             out.println("LIST_FILE=/tmp/depend_list.\nTRLR_RESP=/tmp/response.\n");
+            // TODO should be removed to somewhere else.           
+
         } catch (IOException ex) {
             throw new Error("Unexpected Error.", ex);
         }
@@ -91,14 +96,27 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
     }
     
     public String install(String pathToPackage, String packageName) throws InstallationException {
+        String installedName = packageName;
         try {
-            Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
-            Process p = new ProcessBuilder(pkgRoot + "/pkgadd", "-n",
-                    "-a", defaultAdminFile.getAbsolutePath(),
-                    "-r", defaultResponse.getAbsolutePath(),
-                    "-d", pathToPackage,
-                    packageName).start();
-
+            Process p;
+             if (ExistingSunStudioChecker.getInstance().isOnlyLocalInstallationPossible()) {
+                isLocalZone = true;
+            }
+            if (isLocalZone) {
+                Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d -G" + pathToPackage + " " + packageName);
+                p = new ProcessBuilder(pkgRoot + "/pkgadd", "-n", "-G",
+                        "-a", defaultAdminFile.getAbsolutePath(),
+                        "-r", defaultResponse.getAbsolutePath(),
+                        "-d", pathToPackage,
+                        packageName).start();
+            } else {
+                Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
+                p = new ProcessBuilder(pkgRoot + "/pkgadd", "-n",
+                        "-a", defaultAdminFile.getAbsolutePath(),
+                        "-r", defaultResponse.getAbsolutePath(),
+                        "-d", pathToPackage,
+                        packageName).start();
+            }
             if (p.waitFor() != 0) {
                 String line;
                 StringBuffer message = new StringBuffer();
@@ -115,22 +133,33 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
                     message.append(line);
                 }
                 throw new InstallationException("Error native. " + message);
+            } else {
+                String line;
+                BufferedReader input =
+                        new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                LogManager.log("Install output");
+                while ((line = input.readLine()) != null) {
+                    LogManager.log(line);
+                    if (line.matches("Installation of <.*> was successful.")) {
+                        installedName = line.replaceAll(".*<(.*)>.*", "$1");
+                        LogManager.log("WOOOOOOOOOOOOW " + installedName);
+                    }
+                }       
             }
         } catch (InterruptedException ex) {
             throw new InstallationException("Error native.", ex);
         } catch (IOException ex) {
             throw new InstallationException("Error native.", ex);
-        }
-        return packageName;
+        }        
+        return installedName;
     }
     
     public Iterable<String> install(String pathToPackage, Collection<String> packageNames) throws InstallationException {        
         ArrayList installedPackageNames = new ArrayList(packageNames.size());
-        for(String packageName : packageNames) {
-            Logger.getAnonymousLogger().warning("Analyzed package: " + packageName);
-            install(pathToPackage, packageName);
+        for(String packageName : packageNames) {           
+            installedPackageNames.add(install(pathToPackage, packageName));
         }
-        return packageNames;
+        return installedPackageNames;
     }      
     
     public Iterable<String> install(String pathToPackage) throws InstallationException {
@@ -165,11 +194,7 @@ class SolarisNativePackageInstaller implements NativePackageInstaller {
     public boolean isCorrectPackageFile(String pathToPackage) {
         return DeviceFileAnalyzer.isCorrectPackage(pathToPackage);
     }
-
-    private int parseInteger(String value) {
-        return (value == null || value.length() == 0)? 0: Integer.parseInt(value);
-    }
-
+    
     public static class DeviceFileAnalyzer {
 
         public static int PKGINFO_OUTPUT_FILEDS_COUNT = 3;

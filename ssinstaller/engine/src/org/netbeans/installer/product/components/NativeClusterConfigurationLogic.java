@@ -81,7 +81,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     @Override
     public void install(Progress progress) throws InstallationException {
         LogManager.logEntry("Installing native package...");
-        String installationLocation = Registry.getInstance().getProducts(SS_BASE_UID).get(0).getInstallationLocation().getAbsolutePath();
+        String installationLocation = Utils.getSSBase().getInstallationLocation().getAbsolutePath();
         boolean shouldBeSymLinkCreated = "true".equals(Utils.getSSBase().getProperty(Utils.getSPROsslnkPropertyName()));
         final Platform platform = SystemUtils.getCurrentPlatform();
 //        if (!PackageType.isPlatformSupported(platform)) {
@@ -89,16 +89,12 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
 //        }
 
         try {
-            NativePackageInstaller packageInstaller =// NativeInstallerFactory.getPlatformNativePackageInstaller(platform.isCompatibleWith(Platform.SOLARIS));
-                    //PackageType.getPlatformNativePackage(platform).getPackageInstaller();
-                    EnvironmentInfoFactory.getInstance().getPackageType().getPackageInstaller();
+            NativePackageInstaller packageInstaller = EnvironmentInfoFactory.getInstance().getPackageType().getPackageInstaller();
             packageInstaller.setDestinationPath(installationLocation);
             final int percentageChunk = Progress.COMPLETE / getProduct().getInstalledFiles().getSize();
             final int percentageLeak = Progress.COMPLETE % getProduct().getInstalledFiles().getSize();
             for (FileEntry installedFile : getProduct().getInstalledFiles()) {
                 if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
-                    LogManager.log("shouldBe=" + shouldBeSymLinkCreated);
-                    LogManager.log("inatalledFile=" + installedFile.getName());
                     if (!shouldBeSymLinkCreated && installedFile.getName().endsWith(Utils.getSPROsslnkName())) {
                         continue;
                     }
