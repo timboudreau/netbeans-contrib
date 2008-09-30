@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -53,7 +55,7 @@ import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.project.runner.ProjectRunner;
+import org.netbeans.api.java.project.runner.JavaRunner;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
@@ -86,7 +88,7 @@ public class ActionProviderImpl implements ActionProvider {
 
     public String[] getSupportedActions() {
         return new String[] {
-            // ProjectRunner provides the impl:
+            // JavaRunner provides the impl:
             ActionProvider.COMMAND_RUN_SINGLE,
             ActionProvider.COMMAND_TEST_SINGLE,
             ActionProvider.COMMAND_DEBUG_SINGLE,
@@ -129,7 +131,7 @@ public class ActionProviderImpl implements ActionProvider {
                     RunSetup setup = runSetup(context, command, true);
                     if (setup != null) {
                         try {
-                            ProjectRunner.execute(setup.command, setup.props, setup.toRun);
+                            JavaRunner.execute(setup.command, setup.props);
                         } catch (IOException x) {
                             LOG.log(Level.WARNING, null, x);
                         }
@@ -194,15 +196,13 @@ public class ActionProviderImpl implements ActionProvider {
         }
     }
 
-    /** @see ProjectRunner */
+    /** @see JavaRunner */
     private static class RunSetup {
         final String command;
-        final Properties props;
-        final FileObject toRun;
-        public RunSetup(String command, Properties props, FileObject toRun) {
+        final Map<String, Object> props;
+        public RunSetup(String command, Map<String, Object> props) {
             this.command = command;
             this.props = props;
-            this.toRun = toRun;
         }
     }
     private RunSetup/*|null*/ runSetup(Lookup context, String command, boolean block) {
@@ -283,7 +283,7 @@ public class ActionProviderImpl implements ActionProvider {
                 Exceptions.printStackTrace(x);
             }
         }
-        Properties properties = new Properties();
+        Map<String, Object> properties = new HashMap<String, Object>();
         if (command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
             if (methodname == null) {
                 return null;
@@ -291,10 +291,11 @@ public class ActionProviderImpl implements ActionProvider {
             test = true;
             properties.put("methodname", methodname); // NOI18N
         }
+        properties.put(JavaRunner.PROP_EXECUTE_FILE, toRun);
         return new RunSetup(debug ?
-            (test ? ProjectRunner.QUICK_TEST_DEBUG : ProjectRunner.QUICK_DEBUG) :
-            (test ? ProjectRunner.QUICK_TEST : ProjectRunner.QUICK_RUN),
-            properties, toRun);
+            (test ? JavaRunner.QUICK_TEST_DEBUG : JavaRunner.QUICK_DEBUG) :
+            (test ? JavaRunner.QUICK_TEST : JavaRunner.QUICK_RUN),
+            properties);
     }
 
 }
