@@ -61,7 +61,7 @@ public enum PackageType implements PackagesInfo {
     
     SOLARIS_PKG(NativeInstallerFactory.getPlatformNativePackageInstaller(true), new PackagesInfo() {
 
-        @Override
+        
         public Collection<PackageDescr> getInstalledPackages() {
             SolarisPackagesAnalyzer spa = new SolarisPackagesAnalyzer();            
             if (spa.isActual()) {
