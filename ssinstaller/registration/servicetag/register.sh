@@ -238,7 +238,7 @@ init_registration() {
       CONTAINER="global"
    fi
 
-   SOURCE="cli"
+   SOURCE="script"
 
    mkdir -p ${REGISTRATION_DIR}
    REGISTRATION_DATAFILE="${REGISTRATION_DIR}/registration.xml"
