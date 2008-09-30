@@ -68,7 +68,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.netbeans.spi.project.support.GenericSources;
 import org.openide.filesystems.FileStateInvalidException;
@@ -79,7 +78,7 @@ import org.openide.util.WeakListeners;
 
 final class LibrariesNode extends AbstractNode {
 
-    private static final Image ICON_BADGE = Utilities.loadImage("org/netbeans/modules/java/j2seproject/ui/resources/libraries-badge.png"); // NOI18N
+    private static final Image ICON_BADGE = ImageUtilities.loadImage("org/netbeans/modules/java/j2seproject/ui/resources/libraries-badge.png"); // NOI18N
 
     LibrariesNode(Project project) {
         super(new LibrariesChildren(project), Lookups.singleton(project));
@@ -97,13 +96,13 @@ final class LibrariesNode extends AbstractNode {
 
     @Override
     public Image getIcon(int type) {
-        return Utilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
+        return ImageUtilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
                 getNodeDelegate().getIcon(type), ICON_BADGE, 7, 7);
     }
 
     @Override
     public Image getOpenedIcon(int type) {
-        return Utilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
+        return ImageUtilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
                 getNodeDelegate().getOpenedIcon(type), ICON_BADGE, 7, 7);
     }
     
