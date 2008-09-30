@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.autosave
+OpenIDE-Module-Install: org/netbeans/modules/autosave/AutoSaveModuleInstall.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/autosave/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
