@@ -98,7 +98,7 @@ cd ${DIRNAME}
 ################################################################################
 # define the temp file location
 TEMP_FILE=${WORK_DIR}/temp.sh.tmp
-
+USE_PACK200=false
 ################################################################################
 # define the log file location and create the directory for logs
 #LOGS_DIR=${DIRNAME}/logs
