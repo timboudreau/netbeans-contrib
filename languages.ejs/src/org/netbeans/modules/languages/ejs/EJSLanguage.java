@@ -42,6 +42,7 @@ package org.netbeans.modules.languages.ejs;
 
 
 import org.netbeans.api.lexer.Language;
+import org.netbeans.modules.gsf.api.IndexSearcher;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.javascript.editing.JsLanguage;
 import org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId;
@@ -68,6 +69,11 @@ public class EJSLanguage extends JsLanguage {
     @Override
     public Indexer getIndexer() {
         // No JSON indexing
+        return null;
+    }
+
+    @Override
+    public IndexSearcher getIndexSearcher() {
         return null;
     }
 }
