@@ -144,7 +144,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     new SourceFileReader() {
 
                         public CharSequence read(ParserFile file) throws IOException {
-                            Document doc = NbUtilities.getBaseDocument(fo, true);
+                            Document doc = GsfUtilities.getDocument(fo, true);
 
                             if (doc == null) {
                                 return "";

@@ -61,6 +61,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.BasicName;
@@ -307,7 +308,7 @@ public class IndexedElement extends AstElement {
                 return null;
             }
 
-            document = NbUtilities.getBaseDocument(fileObject, true);
+            document = GsfUtilities.getDocument(fileObject, true);
         }
 
         return document;
