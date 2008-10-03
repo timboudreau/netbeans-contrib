@@ -54,6 +54,10 @@ export IMAGE_DIR
 PRODUCTS_XML_FILE=${PRODUCTS_XML_FILE-`pwd`/ProductDescription.xml}
 export PRODUCTS_XML_FILE
 
+LICENSE_FILE=${LICENSE_FILE-`pwd`/SunStudioExpress_Eval_License.txt}
+export LICENSE_FILE
+
 echo "Sun Studio packages: $SS_PACKAGES_DIR"
 echo "NetBeans : $NB_ARCHIVE_DIR" 
 echo "XML Description: $PRODUCTS_XML_FILE"
+echo "License File: $LICENSE_FILE"

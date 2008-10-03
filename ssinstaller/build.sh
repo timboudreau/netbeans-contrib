@@ -8,13 +8,13 @@ which xjc || exit 0;
 . build-private.sh
 
 cd BuildHelper
-xjc -d src -p org.netbeans.xml.schema.productdescription xml-resources/jaxb/description/ProductDescription.xsd
-ant -f build2.xml
+#xjc -d src -p org.netbeans.xml.schema.productdescription xml-resources/jaxb/description/ProductDescription.xsd
+#ant -f build2.xml
 cd -
-java -cp BuildHelper/dist/BuildHelper.jar buildhelper.BuildHelper $PRODUCTS_XML_FILE . toolchain
+#java -cp BuildHelper/dist/BuildHelper.jar buildhelper.BuildHelper $PRODUCTS_XML_FILE . toolchain
 
 cd infra
-bash build.sh || exit 1;
+#bash build.sh || exit 1;
 cd - 
 
 if [ -z "$REBUILD" ]; then

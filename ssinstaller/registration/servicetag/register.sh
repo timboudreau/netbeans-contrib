@@ -10,7 +10,7 @@
 # SUNSTUDIO_DIR - the Sun Studio root directory (/opt/SUNWspro)
 SUNSTUDIO_DIR=${SUNSTUDIO_DIR-/opt/SUNWspro}
 # REGISTRATION_DIR - the directory where registration XML should be created
-REGISTRATION_DIR="${REGISTRATION_DIR-./result}"
+REGISTRATION_DIR="${REGISTRATION_DIR-`pwd`}"
 # 
 # Also next variables have some default values.
 # 
@@ -23,7 +23,10 @@ DOINSTALL=${DOINSTALL-1}
 #      registration page generating (relative to sunstudio installation dir)
 DATA_DIR=${DATA_DIR-`pwd`}
 
+# SOURCE - the name of register tool
+SOURCE=${SOURCE-"toolchain"}
 
+# TMPDIR - temporary directory with all access
 TMPDIR=${TMP_DIR-/tmp/ss-registration}
 mkdir -p $TMPDIR
 
@@ -39,7 +42,10 @@ PRODUCTID="ss"
 
 # REGISTRATION_PAGE - location of a generated registration page
 HOME_SUNSTUDIO_DIR=$HOME/.sunstudio/condev
+mkdir -p $HOME_SUNSTUDIO_DIR
+
 REGISTRATION_PAGE="$HOME_SUNSTUDIO_DIR/register-sunstudio.html"
+rm $REGISTRATION_PAGE
 
 # INSTANCES_REGISTRY - file that stores UIDs of already registered
 #      instances of a product
@@ -50,7 +56,7 @@ PRODUCT_VENDOR="Sun Microsystems, Inc"
 # BROWSERS_LIST - script will make an attempt to open a browser 
 #      with generated registration page. BROWSERS_LIST defines 
 #      a list of browsers to try
-BROWSERS_LIST="firefox opera konqueror epiphany mozilla netscape"
+BROWSERS_LIST="$BROWSER firefox opera konqueror epiphany mozilla netscape"
 
 #REGISTER_URL="https://inv-ws-staging2.central.sun.com/RegistrationWeb/register"
 REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
@@ -58,7 +64,7 @@ REGISTER_URL="https://inventory.sun.com/RegistrationWeb/register"
 
 ################################################################
 
-PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin:${SUNSTUDIO_DIR}/bin
+PATH=/usr/bin:/usr/sbin:/bin:/opt/sun/servicetag/bin
 
 # script can be invoked with specifying locale that is used
 # to determine which template file to use for registration 
@@ -86,28 +92,7 @@ ExtractSWValue() {
 #
 
 generateUUID() {
-if [ `uname` = "Linux" ]; then
-  echo `uuidgen`
-else
-   cd ${TMPDIR}
-   PROGNAME="./genuuid"
-
-   cat << EOF > ${PROGNAME}.c
-#include <uuid/uuid.h>
-#include <stdio.h>
-
-int main() {
-   uuid_t uuid;
-   char uuids[32];
-   uuid_generate_random(uuid);
-   uuid_unparse(uuid, uuids);
-   printf("%s\n", uuids);
-   return 0;
-}
-EOF
-  cc -luuid ${PROGNAME}.c -o ${PROGNAME}
-  echo `${PROGNAME}`
-fi
+  echo `$DATA_DIR/uuidgen`
 }
 
 
@@ -238,10 +223,14 @@ init_registration() {
       CONTAINER="global"
    fi
 
-   SOURCE="script"
-
+   # first try to use DATA_DIR as REGISTRATION_DIR
+   if [ -f "${DATA_DIR}/registration.xml" ]; then
+       REGISTRATION_DIR=${DATA_DIR}
+   fi
    mkdir -p ${REGISTRATION_DIR}
    REGISTRATION_DATAFILE="${REGISTRATION_DIR}/registration.xml"
+   INSTANCES_REGISTRY="${REGISTRATION_DIR}/servicetag"
+
    validate_locale ${LANG}
    
    # if we found registration file, then only try to register product
@@ -518,12 +507,16 @@ find_browser() {
 # 
 
 browse() {
+   if [ ! -f "$REGISTRATION_PAGE" ]; then
+      return
+   fi
    URL=$1
    if [ "$DISPLAY" = "" ]; then
       echo "No display was found. Registration page has been generated."
       echo "${URL}"
       return
    fi
+   
    BROWSER=`find_browser`
    if [ $? -ne 0 ]; then
       echo "No browser was found. Registration page has been generated."
@@ -554,7 +547,8 @@ fi
 
 ########### Everything starts here ############
 
-init_registration
+init_registration 
+#1>/dev/null 2>/dev/null
 
 register
 

@@ -1,19 +1,22 @@
 cd `dirname "$0"`
+
+cd ..
+. build-private.sh
+cd registration
+
 TARDIR=`pwd`/build/tars
 RESDIR=$OUTPUT_DIR/bundles
 SRCDIR=`pwd`
 
 # The length of install.sh is used to untar archive 
-LENGTH=`wc -l install.sh | sed s/install.sh// | sed s/' '//g`
-LENGTH=`expr $LENGTH + 1`
+LENGTH=`wc -l install.sh | sed 's/^[ \t]*//;s/[ \t]*$//' | cut -f1 -d' '`
+LENGTH2=`wc -l ${LICENSE_FILE} | sed 's/^[ \t]*//;s/[ \t]*$//' | cut -f1 -d' '`
 
-#DISTRS="intel-S2 sparc-S2 intel-Linux"
+echo $LENGTH
+echo $LENGTH2
 
-# The images of Sun Studio to create distribution
-#BUILD_NUMBER=`ls -lA /shared/dp/sstrunk/biweekly | sed s/.*' '//`
-#IMAGE_DIR=/shared/dp/sstrunk/latest/inst
-#IMAGE_DIR=/export/home/lm153972/ws/images/empty
-#BUILD_DATE=`ls -lA /shared/dp/sstrunk/${BUILD_NUMBER} | sed s/.*' '//`
+LENGTH=`expr $LENGTH + $LENGTH2`
+
 BUILD_DATE=none
 
 rm -rf build
@@ -53,7 +56,15 @@ do
     done
     tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
     bzip2 $TARDIR/sunstudio.$distr.tar
-    cat $SRCDIR/install.sh | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$TAIL_ARG \$0"/ >  $DISTR_NAME
+    cat $SRCDIR/install.sh | while read f 
+    do  
+        if [ "$f" = "__license" ] 
+	then
+	    cat ${LICENSE_FILE} 
+	else 
+	    echo $f
+	fi
+    done | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$TAIL_ARG \$0"/ >  $DISTR_NAME
     cat $TARDIR/sunstudio.$distr.tar.bz2 >>  $DISTR_NAME
     chmod u+x  $DISTR_NAME
     echo
