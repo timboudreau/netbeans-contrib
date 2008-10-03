@@ -151,6 +151,7 @@ export DATA_DIR
 
 mkdir -p $DATA_DIR
 
+SUNSTUDIO_DIR="$BASE_DIR/${SUNSTUDIO_DIR}/prod/lib/condev"
 export SUNSTUDIO_DIR
 
 PRODUCTS="nb ss"
@@ -160,6 +161,6 @@ SOURCE="script"
 export SOURCE
 
 # Disabled until registration is not completed.
-#cd $REGISTRATION_DIR
-#sh register.sh
+cd $REGISTRATION_DIR
+sh register.sh
 exit 0;
