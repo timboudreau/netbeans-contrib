@@ -24,6 +24,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.api.web.webmodule</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.10</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.libs.javacapi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -94,6 +102,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.projectapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.13</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.queries</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -109,6 +126,14 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>0.46</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.web.project</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.10</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -195,11 +220,9 @@
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.websynergy.portlets</friend>
+                <friend>org.netbeans.modules.portalpack.websynergy.servicebuilder</friend>
                 <package>org.json</package>
                 <package>org.netbeans.modules.portalpack.commons</package>
-                <package>org.netbeans.modules.portalpack.commons.palette.java</package>
-                <package>org.netbeans.modules.portalpack.commons.palette.java.util</package>
-                <package>org.netbeans.modules.portalpack.commons.palette.jsp</package>
                 <package>org.netbeans.modules.portalpack.commons.ruby</package>
             </friend-packages>
         </data>
