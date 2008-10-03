@@ -8,6 +8,15 @@
       
     <target name="build-init" depends="projectized.build-init"/>
     
+    <target name="compile" depends="projectized-common.compile">
+          <property name="build.libs.dir" value="${build.classes.dir}/libs"/>
+          <mkdir dir="${build.libs.dir}"/>
+          <copy file="external/jalopy.jar"
+          todir="${build.libs.dir}"/>
+          <copy file="external/qdox.jar"
+          todir="${build.libs.dir}"/>
+     </target>
+    
     <target name="s2binit" depends="build-init">
         <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
             <classpath>
