@@ -49,6 +49,7 @@ import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -76,6 +77,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.Comment;
 import org.netbeans.api.java.source.Comment.Style;
@@ -88,23 +90,70 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.openide.ErrorManager;
 import org.openide.execution.ExecutorTask;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
 import static org.netbeans.api.java.source.JavaSource.Phase;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 /**
  *
- * @author mkuchtiak
+ * @author Satya
  */
 public class Utils {
     
     public static boolean isEqualTo(String str1, String str2) {
         if (str1==null) return str2==null;
         else return str1.equals(str2);
+    }
+    
+    public String getLocalServiceClass(String entityName) {
+        
+        return entityName + "LocalServiceImpl";
+    }
+    
+    public String getRemoteServiceClass(String entityName) {
+        
+        return entityName + "ServiceImpl";
+    }
+    
+    
+    public void populateModel(Project project,String entityName) {
+        
+        String localClass = getLocalServiceClass(entityName);
+        String remoteClass = getRemoteServiceClass(entityName);
+        
+        FileObject[] fob = findJavaFileObj(project, localClass);
+        if(fob != null && fob.length != 0) {
+           // populateModel(implClass, serviceModel);
+        }
+            
+    }        
+    
+    private FileObject[] findJavaFileObj(Project project,String className) {
+        className = className.replace(".", File.separator);
+        Sources sources = (Sources) project.getLookup().lookup(Sources.class);
+        SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        List fileObjs = new ArrayList();
+        for (int i = 0; i < groups.length; i++) {
+            File f = new File(FileUtil.toFile(groups[i].getRootFolder()), className + ".java");
+            if (!f.exists()) {
+                f = new File(FileUtil.toFile(groups[i].getRootFolder()), className + ".JAVA");
+                if (!f.exists()) {
+                    continue;
+                } else {
+                    fileObjs.add(FileUtil.toFileObject(f));
+                }
+            } else {
+                fileObjs.add(FileUtil.toFileObject(f));
+            }
+        }
+        return (FileObject[]) fileObjs.toArray(new FileObject[0]);
     }
     
     public static void populateModel(final FileObject implClass, final ServiceModel serviceModel) {
@@ -115,64 +164,9 @@ public class Utils {
                     controller.toPhase(Phase.ELEMENTS_RESOLVED);
                     //CompilationUnitTree cut = controller.getCompilationUnit();
 
-                    TypeElement classEl = null;///TODO SourceUtils.getPublicTopLevelElement(controller);
+                    TypeElement classEl = SourceUtils.getPublicTopLevelElement(controller);
                     if (classEl !=null) {
-                        //ClassTree javaClass = srcUtils.getClassTree();
-                        // find if class is Injection Target
-                        TypeElement wsElement = controller.getElements().getTypeElement("javax.jws.WebService"); //NOI18N
-                        if (wsElement!=null) {
-                            List<? extends AnnotationMirror> annotations = classEl.getAnnotationMirrors();
-                            AnnotationMirror webServiceAn=null;
-                            for (AnnotationMirror anMirror : annotations) {
-                                if (controller.getTypes().isSameType(wsElement.asType(), anMirror.getAnnotationType())) {
-                                    webServiceAn = anMirror;
-                                    break;
-                                }
-                            }
-                            if (webServiceAn==null) {
-                                serviceModel.status = ServiceModel.STATUS_NOT_SERVICE;
-                                return;
-                            }
-
-                            Map<? extends ExecutableElement, ? extends AnnotationValue> expressions = webServiceAn.getElementValues();
-                            boolean nameFound=false;
-                            boolean serviceNameFound=false;
-                            boolean portNameFound=false;
-                            boolean tnsFound = false;
-                            for(ExecutableElement ex:expressions.keySet()) {
-                                if (ex.getSimpleName().contentEquals("serviceName")) { //NOI18N
-                                    serviceModel.serviceName = (String)expressions.get(ex).getValue();
-                                    serviceNameFound=true;
-                                } else if (ex.getSimpleName().contentEquals("name")) { //NOI18N
-                                    serviceModel.name = (String)expressions.get(ex).getValue();
-                                    nameFound=true;
-                                } else if (ex.getSimpleName().contentEquals("portName")) { //NOI18N
-                                    serviceModel.portName = (String)expressions.get(ex).getValue();
-                                    portNameFound=true;
-                                } else if (ex.getSimpleName().contentEquals("targetNamespace")) { //NOI18N
-                                    serviceModel.targetNamespace = (String)expressions.get(ex).getValue();
-                                    tnsFound = true;
-                                } else if (ex.getSimpleName().contentEquals("endpointInterface")) { //NOI18N
-                                    serviceModel.endpointInterface = (String)expressions.get(ex).getValue();
-                                } else if (ex.getSimpleName().contentEquals("wsdlLocation")) { //NOI18N
-                                    serviceModel.wsdlLocation = (String)expressions.get(ex).getValue();
-                                }
-                            }
-                            // set default names
-                            if (!nameFound) serviceModel.name=implClass.getName();
-                            if (!portNameFound) serviceModel.portName = serviceModel.getName()+"Port"; //NOI18N
-                            if (!serviceNameFound) serviceModel.serviceName = implClass.getName()+"Service"; //NOI18N
-                            if (!tnsFound) {
-                                String qualifName = classEl.getQualifiedName().toString();
-                                int ind = qualifName.lastIndexOf(".");
-                                serviceModel.targetNamespace = "http://"+(ind>=0?qualifName.substring(0,ind):"")+"/";
-                            }
-
-                            //TODO: Also have to apply JAXWS/JAXB rules regarding collision of names
-                        }
-
-
-                        // use SEI class annotations if endpointInterface annotation is specified
+                        
                         TypeElement seiClassEl = null;
                         if (serviceModel.endpointInterface!=null) {
                             seiClassEl = controller.getElements().getTypeElement(serviceModel.endpointInterface);

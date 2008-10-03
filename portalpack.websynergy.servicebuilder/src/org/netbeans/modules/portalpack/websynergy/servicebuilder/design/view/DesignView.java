@@ -65,6 +65,7 @@ import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.ComponentWidget;
 import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -109,6 +110,7 @@ public class DesignView extends JPanel {
     private ServicesTableModel st;
     private TableWidget tableWidget;
     private ServiceBuilderEditorContext context;
+    private JScrollPane panel;
 
     /**
      * Creates a new instance of GraphView.
@@ -123,6 +125,23 @@ public class DesignView extends JPanel {
         ///this.serviceModel = ServiceModel.getServiceModel(implementationClass);
         helper = context.getDataObject().getServiceBuilderHelper();
         scene = new ObjectScene();
+        
+        final JComponent sceneView = scene.createView();
+        zoomer = new ZoomManager(scene);
+
+        scene.getActions().addAction(ActionFactory.createCycleObjectSceneFocusAction());
+        scene.setKeyEventProcessingType(EventProcessingType.FOCUSED_WIDGET_AND_ITS_PARENTS);
+        
+        panel = new JScrollPane(sceneView);
+        panel.getVerticalScrollBar().setUnitIncrement(16);
+        panel.getHorizontalScrollBar().setUnitIncrement(16);
+        panel.setBorder(null);
+        add(panel);
+
+        init();
+    }
+    
+    private void init() {
         /*{
         @Override
         
@@ -130,12 +149,7 @@ public class DesignView extends JPanel {
         return new DesignerWidgetIdentityCode(scene,object);
         }
         };*/
-        final JComponent sceneView = scene.createView();
-        zoomer = new ZoomManager(scene);
-
-        scene.getActions().addAction(ActionFactory.createCycleObjectSceneFocusAction());
-        scene.setKeyEventProcessingType(EventProcessingType.FOCUSED_WIDGET_AND_ITS_PARENTS);
-
+      
         mainLayer = new LayerWidget(scene);
         mainLayer.setPreferredLocation(new Point(0, 0));
         mainLayer.setLayout(LayoutFactory.createVerticalFlowLayout(
@@ -216,16 +230,20 @@ public class DesignView extends JPanel {
         addServiceWidget.setAction(new AddEntityAction());
         removeServiceWidget.setAction(new RemoveEntityAction());
 
+        
+        Widget globalParamWidget = new Widget(scene);
+        globalParamWidget.setLayout(LayoutFactory.createVerticalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 8));
         //Package-path widget
         Widget packagePathWidget = new Widget(scene);
         packagePathWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
-        LabelWidget packagePathLabelWidget = new LabelWidget(scene, "Package Path");
+        LabelWidget packagePathLabelWidget = new LabelWidget(scene, "Package Path :");
         packagePathLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
-        packagePathLabelWidget.setForeground(Color.GRAY);
+        packagePathLabelWidget.setForeground(Color.BLUE);
         
         LabelWidget packagePathTfWidget =
-                new LabelWidget(scene, helper.getServiceBuilder().getPackagePath());
+                new LabelWidget(scene, helper.getPackagePath());
         //packagePathTfWidget.setMaximumSize(new Dimension(80,10));
+        packagePathTfWidget.setBorder(BorderFactory.createLineBorder());
         
         packagePathTfWidget.getActions().
                 addAction(ActionFactory.createInplaceEditorAction(new PackagePathInPlaceEditor()));
@@ -234,10 +252,31 @@ public class DesignView extends JPanel {
         
         packagePathWidget.addChild(packagePathLabelWidget);
         packagePathWidget.addChild(packagePathTfWidget);
-      
         //package-path end
+        //namespace widget
+        Widget namespaceWidget = new Widget(scene);
+        namespaceWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
+        LabelWidget namespaceLabelWidget = new LabelWidget(scene, "Namespace    :");
+        namespaceLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
+        namespaceLabelWidget.setForeground(Color.BLUE);
         
-        entryContentWidget.addChild(packagePathWidget);
+        LabelWidget namespaceTfWidget =
+                new LabelWidget(scene, helper.getNamespace());
+        
+        namespaceTfWidget.setBorder(BorderFactory.createLineBorder());
+        
+        namespaceTfWidget.getActions().
+                addAction(ActionFactory.createInplaceEditorAction(new NamespaceInPlaceEditor()));
+        
+        namespaceTfWidget.setAlignment(LabelWidget.Alignment.CENTER);
+        
+        namespaceWidget.addChild(namespaceLabelWidget);
+        namespaceWidget.addChild(namespaceTfWidget);
+        //namespacewidget end
+        globalParamWidget.addChild(packagePathWidget);
+        globalParamWidget.addChild(namespaceWidget);
+        
+        entryContentWidget.addChild(globalParamWidget);
 
 
         TabbedPaneWidget tabPaneWidget = new TabbedPaneWidget(scene);
@@ -273,11 +312,11 @@ public class DesignView extends JPanel {
         // contentWidget.addChild(wsitWidget);
 
         ///// sceneView.removeMouseWheelListener((MouseWheelListener)sceneView);
-        final JScrollPane panel = new JScrollPane(sceneView);
+        /***final JScrollPane panel = new JScrollPane(sceneView);
         panel.getVerticalScrollBar().setUnitIncrement(16);
         panel.getHorizontalScrollBar().setUnitIncrement(16);
         panel.setBorder(null);
-        add(panel);
+        add(panel);***/
         mainLayer.addChild(mainWidget);
 
         messageWidget = new Widget(scene);
@@ -317,8 +356,14 @@ public class DesignView extends JPanel {
 
         headerWidget.setBorder(BorderFactory.createEmptyBorder(6, 28, 0, 0));
         ButtonWidget generateServiceButton = new ButtonWidget(scene, "Genrate Services");
+        generateServiceButton.setOpaque(true);
+        generateServiceButton.setRoundedBorder(3, 4, 0, null);
+        
         headerPanelWidget.addChild(generateServiceButton);
         ButtonWidget reloadButton = new ButtonWidget(scene, "Reload");
+        reloadButton.setOpaque(true);
+        reloadButton.setRoundedBorder(3, 4, 0, null);
+        reloadButton.setAction(new ReloadAction());
         
         generateServiceButton.setAction(new GenerateAction(context.getServiceBuilderFile()));
         headerPanelWidget.addChild(reloadButton);
@@ -335,6 +380,14 @@ public class DesignView extends JPanel {
         zoomer.addToolbarActions(toolbar);
         toolbar.addSeparator();
         operationsWidget.addToolbarActions(toolbar);
+    }
+    
+    public void reloadIfDirty() {
+        if(helper.isDirty()) {
+          //  scene.removeChildren();
+          //  init();
+          //  scene.revalidate();
+        }
     }
 
     /**
@@ -372,9 +425,10 @@ public class DesignView extends JPanel {
             AddServiceUI addSrvUI = new AddServiceUI(WindowManager.getDefault().getMainWindow());
 
             if (addSrvUI.getServiceName() != null && addSrvUI.getName().trim().length() != 0) {
-                Entity entity = helper.getServiceBuilder().newEntity();
+                Entity entity = helper.newEntity();
                 entity.setName(addSrvUI.getServiceName());
-                entity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
+                if(addSrvUI.isRemoteService())
+                    entity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
                 entity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
 
                 helper.addEntity(entity);
@@ -402,6 +456,16 @@ public class DesignView extends JPanel {
             scene.revalidate();
         }
     }
+    
+    private class ReloadAction extends AbstractAction {
+
+        public void actionPerformed(ActionEvent e) {
+            scene.removeChildren();
+            init();
+            scene.revalidate();
+        }
+        
+    }
 
     private class PackagePathInPlaceEditor implements TextFieldInplaceEditor {
 
@@ -421,7 +485,30 @@ public class DesignView extends JPanel {
             if(!(widget instanceof LabelWidget))
                 return;
             ((LabelWidget)widget).setLabel(text);
-            helper.getServiceBuilder().setPackagePath(text);
+            helper.setPackagePath(text);
+            helper.save();
+        }
+    }
+    
+    private class NamespaceInPlaceEditor implements TextFieldInplaceEditor {
+
+        public boolean isEnabled(Widget widget) {
+            return true;
+        }
+
+        public String getText(Widget widget) {
+            if(widget instanceof LabelWidget) {
+                return ((LabelWidget)widget).getLabel();
+            }
+            return null;
+        }
+
+        public void setText(Widget widget, String text) {
+            
+            if(!(widget instanceof LabelWidget))
+                return;
+            ((LabelWidget)widget).setLabel(text);
+            helper.setNamespace(text);
             helper.save();
         }
     }

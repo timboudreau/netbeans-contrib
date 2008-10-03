@@ -29,14 +29,15 @@
 			<pathelement location="${app.server.classes.portal.dir}" />
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
 			<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-			<fileset dir="${lib.dir}" includes="servlet.jar,jsp.jar" />
+			<!-- fileset dir="${lib.dir}" includes="servlet.jar,jsp.jar" / -->
 		</path>
 
         <target name="build-service">
 		<mkdir dir="${docroot}/WEB-INF/classes" />
-		<mkdir dir="${project.dir}/lib" />
 		<mkdir dir="${project.dir}/service" />
-		<mkdir dir="${project.dir}/sql" />
+                <mkdir dir="${project.dir}/service/src" />
+                <mkdir dir="${project.dir}/service/lib" />
+		<mkdir dir="${docroot}/WEB-INF/sql" />
 		<!--mkdir dir="${src.dir}/WEB-INF/src" /-->
 
 		<copy todir="${docroot}/WEB-INF/classes">
@@ -47,13 +48,14 @@
 			<path refid="lib.classpath" />
 			<path refid="portal.classpath" />
 			<!--fileset dir="${docroot}/WEB-INF/lib" includes="*.jar" /-->
-                        <fileset dir="${project.dir}/lib" includes="*.jar" />
+                        <fileset dir="${project.dir}/service/lib" includes="*.jar" />
 			<pathelement location="${docroot}/WEB-INF/classes" />
 			
 			<pathelement location="${app.server.classes.portal.dir}" />
-					<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
-					<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-				<fileset dir="${lib.dir}" includes="servlet.jar,jsp.jar" />
+			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
+			<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
+			<!-- fileset dir="${lib.dir}" includes="servlet.jar,jsp.jar" / -->
+                        <pathelement path="${javaee.jars.classpath}"/>
 		</path>
 		
 		<echo message="${app.server.lib.portal.dir}-------------------------------"/>
@@ -71,13 +73,15 @@
 			<jvmarg value="-Dservice.hbm.file=${src.dir}/META-INF/portlet-hbm.xml" />
 			<jvmarg value="-Dservice.model.hints.file=${src.dir}/META-INF/portlet-model-hints.xml" />
 			<jvmarg value="-Dservice.spring.file=${src.dir}/META-INF/portlet-spring.xml" />
+                        <jvmarg value="-Dservice.spring.data.source.file=${src.dir}/META-INF/data-source-spring.xml" />
+                        <jvmarg value="-Dservice.spring.misc.file=${src.dir}/META-INF/misc-spring.xml" />
 			<jvmarg value="-Dservice.spring.base.file=${src.dir}/META-INF/base-spring.xml" />
 			<jvmarg value="-Dservice.spring.hibernate.file=${src.dir}/META-INF/hibernate-spring.xml" />
 			<jvmarg value="-Dservice.spring.infrastructure.file=${src.dir}/META-INF/infrastructure-spring.xml" />
-			<jvmarg value="-Dservice.api.dir=${project.dir}/service" />
+			<jvmarg value="-Dservice.api.dir=${project.dir}/service/src" />
 			<jvmarg value="-Dservice.impl.dir=${src.dir}" />
 			<!--<jvmarg value="-Dservice.json.file=${docroot}/js/service_unpacked.js" />-->
-			<jvmarg value="-Dservice.sql.dir=${project.dir}/sql" />
+			<jvmarg value="-Dservice.sql.dir=${docroot}/WEB-INF/sql" />
 			<jvmarg value="-Dservice.sql.file=tables.sql" />
 			<jvmarg value="-Dservice.sql.indexes.file=indexes.sql" />
 			<jvmarg value="-Dservice.sql.indexes.properties.file=indexes.properties" />
@@ -95,31 +99,35 @@
 			<param name="js.to.file" value="docroot/js/service_packed.js" />
 		</antcall>-->
 
-		<mkdir dir="${project.dir}/service-classes" />
+		<mkdir dir="${project.dir}/service/classes" />
+                <delete file="${project.dir}/service/classes/*.*"/>
 
-		<delete file="${project.dir}/lib/${project.name}-service.jar" />
+		<delete file="${project.dir}/service/lib/${project.name}-service.jar" />
 
 		<path id="service.classpath">
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
 			<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-			<fileset dir="${project.dir}/lib" excludes="${project.name}-service.jar" includes="*.jar" />
+			<fileset dir="${project.dir}/service/lib" excludes="${project.name}-service.jar" includes="*.jar" />
 		</path>
 		
 		<javac
 			classpathref="service.classpath"
 			debug="${javac.debug}"
 			deprecation="${javac.deprecation}"
-			destdir="${project.dir}/service-classes"
+			destdir="${project.dir}/service/classes"
 			nowarn="${javac.nowarn}"
-			srcdir="${project.dir}/service"
+			srcdir="${project.dir}/service/src"
 		/>
 
 		<zip
-			basedir="${project.dir}/service-classes"
-			destfile="${project.dir}/lib/${project.name}-service.jar"
+			basedir="${project.dir}/service/classes"
+			destfile="${project.dir}/service/lib/${project.name}-service.jar"
 		/>
+                
+                <copy todir="${app.server.lib.global.dir}" file="${project.dir}/service/lib/${project.name}-service.jar"/>
+                <echo message="Service api jar copied to server classpath. Please restart the server."/>
 
-		<delete dir="${project.dir}/service-classes" />
+		<!-- delete dir="${project.dir}/service-classes" / -->
 	</target>
 
 
@@ -208,14 +216,14 @@
 			basedir="${docroot}/WEB-INF/service-classes"
 			destfile="${docroot}/WEB-INF/lib/${project.name}-service.jar"
 		/>
-
+                
 		<delete dir="${docroot}/WEB-INF/service-classes" />
 	</target>
         
         <target name="download-jars">
+            <!--
             <property name="jalopy.url" value="http://repo1.maven.org/maven2/jalopy/jalopy/1.5rc3/jalopy-1.5rc3.jar"/>
             <property name="qdox.url" value="http://snapshots.repository.codehaus.org/com/thoughtworks/qdox/qdox/1.7-SNAPSHOT/qdox-1.7-20070527.154641-2.jar"/>
-            <!--property name="qdox.url" value="http://repo1.maven.org/maven2/qdox/qdox/1.6/qdox-1.6.jar"/-->
             <property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar"/>
             <property name="servlet.url" value="http://repo1.maven.org/maven2/servletapi/servletapi/2.4/servletapi-2.4.jar"/>
             <property name="jsp.url" value="http://repo1.maven.org/maven2/jspapi/jsp-api/2.0/jsp-api-2.0.jar"/>
@@ -225,7 +233,7 @@
             <get src="${qdox.url}" dest="${lib.dir}/qdox.jar" usetimestamp="true" ignoreerrors="true"/>
             <get src="${mail.url}" dest="${lib.dir}/mail.jar" usetimestamp="true" ignoreerrors="true"/>
             <get src="${servlet.url}" dest="${lib.dir}/servlet.jar" usetimestamp="true" ignoreerrors="true"/>
-            <get src="${jsp.url}" dest="${lib.dir}/jsp.jar" usetimestamp="true" ignoreerrors="true"/>
+            <get src="${jsp.url}" dest="${lib.dir}/jsp.jar" usetimestamp="true" ignoreerrors="true"/> -->
         </target>    
 
 </project>

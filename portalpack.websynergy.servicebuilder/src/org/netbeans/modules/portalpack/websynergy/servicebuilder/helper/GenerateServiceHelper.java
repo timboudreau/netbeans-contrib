@@ -41,9 +41,13 @@ package org.netbeans.modules.portalpack.websynergy.servicebuilder.helper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,13 +60,16 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
+import org.netbeans.modules.portalpack.commons.LibraryHelper;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.LibrariesHelper;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.ServiceBuilderConstant;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Task;
@@ -77,7 +84,7 @@ public class GenerateServiceHelper {
     private static Logger logger = Logger.getLogger(ServiceBuilderConstant.LOGGER_NAME);
     private static String BUILD_FILE_NAME = "build-service.xml";
     private static String LR_PREFIX = "liferay";
-    private static String SB_DIR = System.getProperty("netbeans.user") + File.separator + "servicebuilder";
+   // private static String SB_DIR = System.getProperty("netbeans.user") + File.separator + "servicebuilder";
     private static GenerateServiceHelper instance;
 
     private GenerateServiceHelper() {
@@ -148,7 +155,11 @@ public class GenerateServiceHelper {
 
     public static boolean generateService(FileObject serviceXml) {
 
-        Project project = getProject(serviceXml);
+        final Project project = getProject(serviceXml);
+        final WebModule wm = getWebModule(project);
+        
+        //copy libs if not exists
+        LibrariesHelper.getDefault().copyLibs(false);
         PSConfigObject psconfig = getSelectedServerProperties(project);
 
         final Properties props = getServerAntProperties(psconfig);
@@ -160,6 +171,8 @@ public class GenerateServiceHelper {
         } else {
             props.setProperty("src.dir", props.getProperty("docroot"));
         }
+        
+        getJavaEEJar(psconfig, props);
 
         File serviceFile = new File(System.getProperty("netbeans.user") + File.separator + "servicebuilder" + File.separator + BUILD_FILE_NAME);
         final FileObject serviceFileObj = FileUtil.toFileObject(serviceFile);
@@ -168,21 +181,39 @@ public class GenerateServiceHelper {
 
             public void run() {
                 try {
-                    ExecutorTask task = ActionUtils.runTarget(serviceFileObj, new String[]{"download-jars"}, props);
+                    
+                    ExecutorTask task = ActionUtils.runTarget(serviceFileObj, new String[]{"build-service"}, props);
                     task.addTaskListener(new TaskListener() {
 
                         public void taskFinished(Task task) {
+                             WebXmlHelper.addServiceBuilderParams(wm);
+                             
+                             FileObject fileObj = project.getProjectDirectory();
+                             FileObject lib = fileObj.getFileObject("service" + File.separator + "classes");
+                             /*if(lib != null) {
+                                 FileObject[] children = lib.getChildren();
+                                 List list = new ArrayList();
+                                 for(FileObject c:children) {
+                                    try {
+                                        list.add(c.getURL());
+                                    } catch (FileStateInvalidException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                 }*/
+                                 
                             try {
-                                ActionUtils.runTarget(serviceFileObj, new String[]{"build-service"}, props);
-                            } catch (IOException ex) {
-                                Exceptions.printStackTrace(ex);
-                            } catch (IllegalArgumentException ex) {
-                                Exceptions.printStackTrace(ex);
+                                URL url = lib.getURL();
+                                LibraryHelper.addCompileRoot(project,new URL[]{url});
+                            } catch (FileStateInvalidException ex) {
+                                ex.printStackTrace();
                             }
+                                 
+                            // }
+                            
                         }
                     });
-                   // task.result();
-                    
+                // task.result();
+
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 } catch (IllegalArgumentException ex) {
@@ -232,6 +263,7 @@ public class GenerateServiceHelper {
                     deployDir = lrDeployLoc.getAbsolutePath();
                 }
             }
+
         } else if (psConfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
 
             String tomcatHome = psConfig.getProperty(TomcatConstant.CATALINA_HOME);
@@ -256,9 +288,77 @@ public class GenerateServiceHelper {
         return props;
     }
 
+    private static void getJavaEEJar(PSConfigObject psConfig, Properties props) {
+        StringBuffer sb = new StringBuffer();
+        if (psConfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            String glassFishHome = psConfig.getServerHome();
+            File servletAPI = new File(glassFishHome + File.separator + "lib" + File.separator + "javaee.jar");
+            if (servletAPI.exists()) {
+                //Glassfish V2
+                sb.append(servletAPI.getAbsoluteFile());
+                sb.append(":");
+                
+                //props.setProperty("servlet.jar.path", servletAPI.getAbsolutePath());
+            } else {
+                //check for V3
+                File modulesFolder = new File(glassFishHome + File.separator + "modules");
+                File[] files = modulesFolder.listFiles(new FilenameFilter() {
+
+                    public boolean accept(File dir, String name) {
+
+                        if (name.startsWith("javax.javaee-")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                if (files != null && files.length != 0) {
+                    sb.append(files[0].getAbsolutePath());
+                    sb.append(":");
+                   // props.setProperty("servlet.jar.path", files[0].getAbsolutePath());
+                }
+            }
+        } else if (psConfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+            
+            String tomcatHome = psConfig.getProperty(TomcatConstant.CATALINA_HOME);
+            
+            File libDir = new File(tomcatHome + File.separator + "common" 
+                                                  + File.separator + "lib");
+            
+            if(!libDir.exists()) {
+                libDir = new File(tomcatHome + File.separator + "lib"); 
+            }
+            
+            if(libDir.exists()) {
+                //tomcat 5.x
+                File servletApi = new File(libDir,"servlet-api.jar");
+                if(servletApi.exists()) {
+                    sb.append(servletApi.getAbsolutePath());
+                    sb.append(":");
+                }
+                
+                File jspApi = new File(libDir,"jsp-api.jar");
+                if(jspApi.exists()) {
+                    sb.append(jspApi.getAbsolutePath());
+                    sb.append(":");
+                }
+                
+                File mailJar = new File(libDir,"ext" + File.separator + "mail.jar");
+                if(mailJar.exists()) {
+                    sb.append(mailJar.getAbsolutePath());
+                    sb.append(":");
+                }
+            }
+            
+        }
+        
+        props.setProperty("javaee.jars.classpath", sb.toString());
+    }
+
     private static void setAdditionalProperties(Project project, Properties props) {
 
-        props.setProperty("lib.dir", SB_DIR + File.separator + "lib");
+        props.setProperty("lib.dir", LibrariesHelper.SERVICE_BUILDER_LIB_DIR);
         props.setProperty("project.dir", FileUtil.toFile(project.getProjectDirectory()).getAbsolutePath());
         props.setProperty("project.name", project.getProjectDirectory().getName());
 

@@ -39,6 +39,17 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <user-code>
             </user-code>
 	</meta-element> 
+        
+        <meta-element>
+            <dtd-name>column</dtd-name>
+            <bean-name>Column</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column
+            </implements>
+       
+            <user-code>
+            </user-code>
+	</meta-element>
 
         <meta-element>
             <dtd-name>exceptions</dtd-name>

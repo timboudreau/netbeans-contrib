@@ -17,7 +17,7 @@ public class ServiceBuilderFlowDataLoader extends UniFileLoader {
     private static final long serialVersionUID = 1L;
 
     public ServiceBuilderFlowDataLoader() {
-        super("org.netbeans.modules.portalpack.websynergy.servicebuilder.loader.WebFlowDataObject");
+        super("org.netbeans.modules.portalpack.websynergy.servicebuilder.loader.ServiceBuilderDataObject");
     }
 
     @Override

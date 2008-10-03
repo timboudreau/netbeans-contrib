@@ -303,7 +303,7 @@ public class TableWidget extends Widget{
                     (BORDER_COLOR, 2, 2, true):new LineBorder(1,0,0,0,BORDER_COLOR));
                 
                 //Added
-                if(state.isSelected() || state.isFocused())
+                if(state.isSelected())// || state.isFocused())
                     selectionModel.setSelectionInterval(row, row);
                 revalidate(true);
             }

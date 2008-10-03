@@ -68,6 +68,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
     
     private transient Widget buttons;
     private transient ButtonWidget addButton;
+    private transient ButtonWidget deleteButton;
     private transient ImageLabelWidget headerLabelWidget;
 
     private transient ColumnsTableModel model;
@@ -102,6 +103,10 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
         addButton = new ButtonWidget(getScene(), "+");
         getHeaderWidget().addChild(addButton);
         addButton.setAction(new AddAction());
+        
+        deleteButton = new ButtonWidget(getScene(),"-");
+        getHeaderWidget().addChild(deleteButton);
+        deleteButton.setAction(new DeleteAction());
         
         buttons = new Widget(getScene());
         buttons.setLayout(LayoutFactory.createHorizontalFlowLayout(
@@ -155,7 +160,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
     }
     
     private void updateTable() {
-        List<Column> cols = getColumns(entity);
+        List<Column> cols = helper.getColumns(entity);
         
         System.out.println("Update table for entity: "+entity.getName());
         model.setColumns(cols);
@@ -169,25 +174,6 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
 
         ///columnsWidget.addChild(colTableWidget);
     }
-
-    private List<Column> getColumns(Entity entity) {
-
-        if (entity == null) {
-            return new ArrayList();
-        }
-        String[] name = entity.getColumnName();
-        List<Column> cols = new ArrayList();
-        for (int i = 0; i < name.length; i++) {
-            Column col = new Column();
-            col.setName(name[i]);
-            col.setDbName(entity.getColumnDbName(i));
-            col.setType(entity.getColumnType(i));
-            col.setPrimaryKey(entity.getColumnPrimary(i));
-            cols.add(col);
-        }
-        return cols;
-    }
-    
     private Entity getEntity(String name) {
         
         Entity[] ens = helper.getEntity();
@@ -251,11 +237,24 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
             Widget w2 = scene.findWidget(helper.getEntity()[0]);
             System.out.println("befporeeeer SAVE AddAction.........Widget for entry(0)::::::: "+w2+"  "+en.hashCode());
             
-            en.addColumn("");
-            en.addColumnName(name);
-            en.addColumnDbName(dbName);
-            en.addColumnType(type);
-            en.addColumnPrimary(Boolean.toString(primaryKey));
+            Column newCol = en.newColumn();
+            //en.addColumn("");
+           // en.addColumnName(name);
+            newCol.setName(name);
+            if(dbName != null && dbName.trim().length() != 0)
+                //en.addColumnDbName(dbName);
+                newCol.setDbName(name);
+            //else
+            //    en.addColumnDbName(null);
+            //en.addColumnType(type);
+            newCol.setType(type);
+            if(primaryKey)
+                //en.addColumnPrimary(Boolean.toString(primaryKey));
+                newCol.setPrimary(Boolean.toString(primaryKey));
+            else
+                //en.addColumnPrimary(null);
+                newCol.setPrimary(null);
+            en.addColumn(newCol);
 
             
             Widget w5 = scene.findWidget(helper.getEntity()[0]);
@@ -267,7 +266,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
             Widget w1 = scene.findWidget(helper.getEntity()[0]);
             System.out.println("After SAVE AddAction.........Widget for entry(0)::::::: "+w1+"   "+enn.hashCode());
             
-            entity = (Entity) en.clone();
+            entity = (Entity) enn.clone();
             System.out.println("Selected index is........................." + enName);
             /*
             Column c = new Column();
@@ -291,6 +290,19 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
            //// entityTable.addRow();
             //columnsWidget.revalidate();
         }
+    }
+     
+    private class DeleteAction extends AbstractAction {
+
+        public void actionPerformed(ActionEvent e) {
+
+            Column col = (Column) parameterTable.getSelectedObject();
+            if(col == null)
+                return;
+            helper.removeColumn(entity, col);
+            updateTable();
+        }
+        
     }
 
 }

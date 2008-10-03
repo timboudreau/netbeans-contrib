@@ -43,43 +43,86 @@ package org.netbeans.modules.portalpack.websynergy.servicebuilder.beans;
  *
  * @author satyaranjan
  */
-public class Column {
+public interface Column {
 
-    private String name;
-    private String dbName;
-    private String type;
-    private String primaryKey;
+        public void setComments(java.lang.String[] value);
 
-    public String getDbName() {
-        return dbName;
-    }
+	public void setComments(int index, java.lang.String value);
 
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
+	public java.lang.String[] getComments();
 
-    public String getName() {
-        return name;
-    }
+	public java.util.List fetchCommentsList();
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public java.lang.String getComments(int index);
 
-    public String getPrimaryKey() {
-        return primaryKey;
-    }
+	public int sizeComments();
 
-    public void setPrimaryKey(String primaryKey) {
-        this.primaryKey = primaryKey;
-    }
+	public int addComments(java.lang.String value);
 
-    public String getType() {
-        return type;
-    }
+	public int removeComments(java.lang.String value);
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setName(java.lang.String value);
+
+	public java.lang.String getName();
+
+	public void setDbName(java.lang.String value);
+
+	public java.lang.String getDbName();
+
+	public void setType(java.lang.String value);
+
+	public java.lang.String getType();
+
+	public void setPrimary(java.lang.String value);
+
+	public java.lang.String getPrimary();
+
+	public void setEntity(java.lang.String value);
+
+	public java.lang.String getEntity();
+
+	public void setMappingKey(java.lang.String value);
+
+	public java.lang.String getMappingKey();
+
+	public void setMappingTable(java.lang.String value);
+
+	public java.lang.String getMappingTable();
+
+	public void setIdType(java.lang.String value);
+
+	public java.lang.String getIdType();
+
+	public void setIdParam(java.lang.String value);
+
+	public java.lang.String getIdParam();
+
+	public void setConvertNull(java.lang.String value);
+
+	public java.lang.String getConvertNull();
+
+	public void setDummyElm(String[] value);
+
+	public void setDummyElm(int index, String value);
+
+	public String[] getDummyElm();
+
+	public java.util.List fetchDummyElmList();
+
+	public String getDummyElm(int index);
+
+	public int sizeDummyElm();
+
+	public int addDummyElm(String value);
+
+	public int removeDummyElm(String value);
+
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener);
+
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener);
+
+	public Object clone();
+
+	public Object cloneData();
     
 }

@@ -38,12 +38,20 @@
  */
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.helper;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.ServiceBuilder;
+import org.netbeans.modules.schema2beans.BaseBean;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.Exceptions;
 
 /**
@@ -54,10 +62,22 @@ public class ServiceBuilderHelper {
 
     private FileObject serviceBuilderFile;
     private ServiceBuilder serviceBuilder;
+    private long timestamp;
+    private ServerXMLFileListener listener;
 
     public ServiceBuilderHelper(FileObject serviceBuilderFile) {
 
         this.serviceBuilderFile = serviceBuilderFile;
+        init();
+        listener = new ServerXMLFileListener();
+        serviceBuilderFile.addFileChangeListener(listener);
+    }
+    
+    private void init() {
+        
+        if(serviceBuilderFile != null) {
+            timestamp = serviceBuilderFile.lastModified().getTime();
+        }
         try {
             serviceBuilder = ServiceBuilderFactory.createGraph(serviceBuilderFile);
         } catch (Exception ex) {
@@ -65,7 +85,25 @@ public class ServiceBuilderHelper {
         }
     }
     
+    public boolean isDirty() {
+        
+        if(serviceBuilderFile == null) return false;
+        
+        long newTimeStamp = serviceBuilderFile.lastModified().getTime();
+        if(newTimeStamp > timestamp) {
+            init();
+            System.out.println("Reload Service.xml *************************************************");
+            return true;
+        }
+        return false;
+    }
+    
+    public Entity newEntity() {
+        isDirty();
+        return serviceBuilder.newEntity();
+    }
     public void addEntity(String entityName) {
+        isDirty();
         Entity entity = serviceBuilder.newEntity();
         entity.setName(entityName);
         serviceBuilder.addEntity(entity);
@@ -73,6 +111,7 @@ public class ServiceBuilderHelper {
     }
     
     public void addEntity(Entity entity) {
+        isDirty();
         if(entity == null)
             return;
         serviceBuilder.addEntity(entity);
@@ -80,6 +119,7 @@ public class ServiceBuilderHelper {
     }
     
     public void  removeEntity(Entity entity) {
+        isDirty();
         if(entity == null)
             return;
         serviceBuilder.removeEntity(entity);
@@ -87,10 +127,88 @@ public class ServiceBuilderHelper {
     }
     
     public Entity[] getEntity() {
+        isDirty();
         return serviceBuilder.getEntity();
     }
     
-    public ServiceBuilder getServiceBuilder() {
+    public String getPackagePath() {
+        isDirty();
+        return serviceBuilder.getPackagePath();
+    }
+    
+    public void setPackagePath(String packagePath) {
+        isDirty();
+        serviceBuilder.setPackagePath(packagePath);
+    }
+    
+    public List<Column> getColumns(Entity entity) {
+
+        if (entity == null) {
+            return new ArrayList();
+        }
+        
+        Column[] cls = entity.getColumn();
+        return Arrays.asList(cls);
+        /*
+        List<Column> cols = new ArrayList();
+        
+        for(int i=0;i<entity.sizeColumn();i++) {
+            Column col = new Column();
+            col.setName(entity.getColumnName(i));
+            col.setDbName(entity.getColumnDbName(i));
+            col.setPrimaryKey(entity.getColumnPrimary(i));
+            col.setType(entity.getColumnType(i));
+            cols.add(col);
+        }
+      //  String[] name = entity.getColumnName();
+        /*BaseBean bean = (BaseBean)entity;
+        
+        BaseBean[] childBeans = bean.childBeans(false);
+        
+        List<Column> cols = new ArrayList();
+        for (int i = 0; i < childBeans.length; i++) {
+            String elmName = childBeans[i].name();
+            if(!elmName.equalsIgnoreCase("column"))
+                continue;
+            
+            Column col = new Column();
+            String  name = childBeans[i].getAttributeValue("name");
+            col.setName(name);
+            
+            String db_name = childBeans[i].getAttributeValue("db_name");
+            if(db_name != null && db_name.trim().length() != 0)
+                col.setDbName(db_name);
+            
+            String type = childBeans[i].getAttributeValue("type");
+            if(type != null && type.trim().length() != 0)
+                col.setType(type);
+            
+            String pk = childBeans[i].getAttributeValue("primary_key");
+            if(pk != null && pk.trim().length() != 0)
+                col.setPrimaryKey(pk);
+            
+            cols.add(col);
+        }*/
+        //return cols;
+    }
+    
+    public void removeColumn(Entity entity,Column col) {
+        
+        //entity.removeColumn
+       
+    }
+    
+    public String getNamespace() {
+        isDirty();
+        return serviceBuilder.getNamespace();
+    }
+    
+    public void setNamespace(String namespace) {
+        isDirty();
+        serviceBuilder.setNamespace(namespace);
+    }
+    
+    private ServiceBuilder getServiceBuilder() {
         return serviceBuilder;
     }
 
@@ -112,7 +230,36 @@ public class ServiceBuilderHelper {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            timestamp = serviceBuilderFile.lastModified().getTime();
         }
 
+    }
+    
+    private static class ServerXMLFileListener implements FileChangeListener {
+
+        public void fileFolderCreated(FileEvent fe) {
+            
+        }
+
+        public void fileDataCreated(FileEvent fe) {
+            
+        }
+
+        public void fileChanged(FileEvent fe) {
+            
+        }
+
+        public void fileDeleted(FileEvent fe) {
+            
+        }
+
+        public void fileRenamed(FileRenameEvent fe) {
+            
+        }
+
+        public void fileAttributeChanged(FileAttributeEvent fe) {
+            
+        }    
     }
 }

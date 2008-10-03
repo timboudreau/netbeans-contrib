@@ -82,7 +82,7 @@ public class ColumnsTableModel implements TableModel<Column>{
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         switch(columnIndex) {
         case 0:
-            return true;
+            return false;
         case 1:
             return false;
         default:

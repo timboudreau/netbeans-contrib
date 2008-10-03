@@ -226,6 +226,9 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
 
         public void componentShowing() {
             LOG.finest("PageFlowEditor componentShowing");
+            System.out.println("Component shown -------------------------------");
+            tc.getView().reloadIfDirty();
+            
 //TODO            tc.getPageFlowController().flushGraphIfDirty();
         }
 

@@ -1,6 +1,6 @@
 /**
- *	This generated bean class Exceptions
- *	matches the schema element 'exceptions'.
+ *	This generated bean class Column
+ *	matches the schema element 'column'.
  *  The root bean class is ServiceBuilder
  *
  * @Generated
@@ -8,39 +8,70 @@
 
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl;
 
-public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
+public class Column extends org.netbeans.modules.schema2beans.BaseBean
  implements  
-                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Exceptions
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column
             , org.netbeans.modules.schema2beans.Bean {
 	public static final String COMMENTS = "Comments";	// NOI18N
-	public static final String EXCEPTION = "Exception";	// NOI18N
+	public static final String NAME = "Name";	// NOI18N
+	public static final String DBNAME = "DbName";	// NOI18N
+	public static final String TYPE = "Type";	// NOI18N
+	public static final String PRIMARY = "Primary";	// NOI18N
+	public static final String ENTITY = "Entity";	// NOI18N
+	public static final String MAPPINGKEY = "MappingKey";	// NOI18N
+	public static final String MAPPINGTABLE = "MappingTable";	// NOI18N
+	public static final String IDTYPE = "IdType";	// NOI18N
+	public static final String IDPARAM = "IdParam";	// NOI18N
+	public static final String CONVERTNULL = "ConvertNull";	// NOI18N
+	public static final String DUMMY_ELM = "DummyElm";	// NOI18N
 
 	private static final org.netbeans.modules.schema2beans.Version baseBeanRuntimeVersion = new org.netbeans.modules.schema2beans.Version(5, 0, 0);
 	private java.util.List _Comments = new java.util.ArrayList();	// List<java.lang.String>
-	private java.util.List _Exception = new java.util.ArrayList();	// List<String>
+	private java.lang.String _Name;
+	private java.lang.String _DbName;
+	private java.lang.String _Type;
+	private java.lang.String _Primary;
+	private java.lang.String _Entity;
+	private java.lang.String _MappingKey;
+	private java.lang.String _MappingTable;
+	private java.lang.String _IdType;
+	private java.lang.String _IdParam;
+	private java.lang.String _ConvertNull;
+	private java.util.List _DummyElm = new java.util.ArrayList();	// List<String>
 	private org.netbeans.modules.schema2beans.BaseBean parent;
 	private java.beans.PropertyChangeSupport eventListeners;
-	private java.util.Map propByName = new java.util.HashMap(4, 1.0f);
+	private java.util.Map propByName = new java.util.HashMap(14, 1.0f);
 	private java.util.List beanPropList = null;	// List<org.netbeans.modules.schema2beans.BeanProp>
 
 	/**
 	 * Normal starting point constructor.
 	 */
-	public Exceptions() {
+	public Column() {
 		this(null, baseBeanRuntimeVersion);
 	}
 
 	/**
 	 * This constructor is here for BaseBean compatibility.
 	 */
-	public Exceptions(java.util.Vector comps, org.netbeans.modules.schema2beans.Version baseBeanRuntimeVersion) {
+	public Column(java.util.Vector comps, org.netbeans.modules.schema2beans.Version baseBeanRuntimeVersion) {
 		super(null, baseBeanRuntimeVersion);
+		_Name = "";
+		_Type = "";
+	}
+
+	/**
+	 * Required parameters constructor
+	 */
+	public Column(java.lang.String name, java.lang.String type) {
+		super(null, baseBeanRuntimeVersion);
+		_Name = name;
+		_Type = type;
 	}
 
 	/**
 	 * Deep copy
 	 */
-	public Exceptions(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions source) {
+	public Column(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column source) {
 		this(source, false);
 	}
 
@@ -48,14 +79,14 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	 * Deep copy
 	 * @param justData just copy the XML relevant data
 	 */
-	public Exceptions(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions source, boolean justData) {
+	public Column(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column source, boolean justData) {
 		this(source, null, justData);
 	}
 
 	/**
 	 * Deep copy
 	 */
-	public Exceptions(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData) {
+	public Column(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData) {
 		super(null, baseBeanRuntimeVersion);
 		this.parent = parent;
 		for (java.util.Iterator it = source._Comments.iterator(); 
@@ -63,10 +94,20 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 			java.lang.String srcElement = (java.lang.String)it.next();
 			_Comments.add(srcElement);
 		}
-		for (java.util.Iterator it = source._Exception.iterator(); 
+		_Name = source._Name;
+		_DbName = source._DbName;
+		_Type = source._Type;
+		_Primary = source._Primary;
+		_Entity = source._Entity;
+		_MappingKey = source._MappingKey;
+		_MappingTable = source._MappingTable;
+		_IdType = source._IdType;
+		_IdParam = source._IdParam;
+		_ConvertNull = source._ConvertNull;
+		for (java.util.Iterator it = source._DummyElm.iterator(); 
 			it.hasNext(); ) {
 			String srcElement = (String)it.next();
-			_Exception.add(srcElement);
+			_DummyElm.add(srcElement);
 		}
 		if (!justData) {
 			if (source.eventListeners != null) {
@@ -216,14 +257,204 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 		return pos;
 	}
 
+	// This attribute is mandatory
+	public void setName(java.lang.String value) {
+		if (value == null ? _Name == null : value.equals(_Name)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Name", getName(), value);
+		}
+		_Name = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getName() {
+		return _Name;
+	}
+
+	// This attribute is optional
+	public void setDbName(java.lang.String value) {
+		if (value == null ? _DbName == null : value.equals(_DbName)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DbName", getDbName(), value);
+		}
+		_DbName = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getDbName() {
+		return _DbName;
+	}
+
+	// This attribute is mandatory
+	public void setType(java.lang.String value) {
+		if (value == null ? _Type == null : value.equals(_Type)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Type", getType(), value);
+		}
+		_Type = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getType() {
+		return _Type;
+	}
+
+	// This attribute is optional
+	public void setPrimary(java.lang.String value) {
+		if (value == null ? _Primary == null : value.equals(_Primary)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Primary", getPrimary(), value);
+		}
+		_Primary = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getPrimary() {
+		return _Primary;
+	}
+
+	// This attribute is optional
+	public void setEntity(java.lang.String value) {
+		if (value == null ? _Entity == null : value.equals(_Entity)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Entity", getEntity(), value);
+		}
+		_Entity = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getEntity() {
+		return _Entity;
+	}
+
+	// This attribute is optional
+	public void setMappingKey(java.lang.String value) {
+		if (value == null ? _MappingKey == null : value.equals(_MappingKey)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/MappingKey", getMappingKey(), value);
+		}
+		_MappingKey = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getMappingKey() {
+		return _MappingKey;
+	}
+
+	// This attribute is optional
+	public void setMappingTable(java.lang.String value) {
+		if (value == null ? _MappingTable == null : value.equals(_MappingTable)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/MappingTable", getMappingTable(), value);
+		}
+		_MappingTable = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getMappingTable() {
+		return _MappingTable;
+	}
+
+	// This attribute is optional
+	public void setIdType(java.lang.String value) {
+		if (value == null ? _IdType == null : value.equals(_IdType)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/IdType", getIdType(), value);
+		}
+		_IdType = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getIdType() {
+		return _IdType;
+	}
+
+	// This attribute is optional
+	public void setIdParam(java.lang.String value) {
+		if (value == null ? _IdParam == null : value.equals(_IdParam)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/IdParam", getIdParam(), value);
+		}
+		_IdParam = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getIdParam() {
+		return _IdParam;
+	}
+
+	// This attribute is optional
+	public void setConvertNull(java.lang.String value) {
+		if (value == null ? _ConvertNull == null : value.equals(_ConvertNull)) {
+			// No change.
+			return;
+		}
+		java.beans.PropertyChangeEvent event = null;
+		if (eventListeners != null) {
+			event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/ConvertNull", getConvertNull(), value);
+		}
+		_ConvertNull = value;
+		if (event != null)
+			eventListeners.firePropertyChange(event);
+	}
+
+	public java.lang.String getConvertNull() {
+		return _ConvertNull;
+	}
+
 	// This attribute is an array, possibly empty
-	public void setException(String[] value) {
+	public void setDummyElm(String[] value) {
 		if (value == null)
 			value = new String[0];
-		if (value.length == sizeException()) {
+		if (value.length == sizeDummyElm()) {
 			boolean same = true;
 			for (int i = 0; i < value.length; ++i) {
-				if (!(value[i] == null ? getException(i) == null : value[i].equals(getException(i)))) {
+				if (!(value[i] == null ? getDummyElm(i) == null : value[i].equals(getDummyElm(i)))) {
 					same = false;
 					break;
 				}
@@ -238,24 +469,24 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 			// See if only 1 thing changed.
 			int addIndex = -1;
 			int removeIndex = -1;
-			int oldSize = sizeException();
+			int oldSize = sizeDummyElm();
 			int newSize = value.length;
 			if (oldSize + 1 == newSize || oldSize == newSize + 1) {
 				boolean checkAddOrRemoveOne = true;
 				int oldIndex = 0, newIndex = 0;
 				for (; oldIndex < oldSize && newIndex < newSize; 
 					++newIndex, ++oldIndex) {
-					if (value[newIndex] == null ? getException(oldIndex) == null : value[newIndex].equals(getException(oldIndex))) {
+					if (value[newIndex] == null ? getDummyElm(oldIndex) == null : value[newIndex].equals(getDummyElm(oldIndex))) {
 						// Same, so just continue.
 					} else if (addIndex != -1 || removeIndex != -1) {
 						// More than 1 difference detected.
 						addIndex = removeIndex = -1;
 						checkAddOrRemoveOne = false;
 						break;
-					} else if (oldIndex + 1 < oldSize && (value[newIndex] == null ? getException(oldIndex+1) == null : value[newIndex].equals(getException(oldIndex+1)))) {
+					} else if (oldIndex + 1 < oldSize && (value[newIndex] == null ? getDummyElm(oldIndex+1) == null : value[newIndex].equals(getDummyElm(oldIndex+1)))) {
 						removeIndex = oldIndex;
 						++oldIndex;
-					} else if (newIndex + 1 < newSize && (value[newIndex+1] == null ? getException(oldIndex) == null : value[newIndex+1].equals(getException(oldIndex)))) {
+					} else if (newIndex + 1 < newSize && (value[newIndex+1] == null ? getDummyElm(oldIndex) == null : value[newIndex+1].equals(getDummyElm(oldIndex)))) {
 						addIndex = newIndex;
 						++newIndex;
 					} else {
@@ -276,77 +507,77 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 				}
 			}
 			if (addIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception."+Integer.toHexString(addIndex), null, value[addIndex]);
-				_Exception.add(addIndex, value[addIndex]);
+				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm."+Integer.toHexString(addIndex), null, value[addIndex]);
+				_DummyElm.add(addIndex, value[addIndex]);
 				eventListeners.firePropertyChange(event);
 				return;
 			} else if (removeIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception."+Integer.toHexString(removeIndex), getException(removeIndex), null);
-				_Exception.remove(removeIndex);
+				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm."+Integer.toHexString(removeIndex), getDummyElm(removeIndex), null);
+				_DummyElm.remove(removeIndex);
 				eventListeners.firePropertyChange(event);
 				return;
 			} else {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception.-1", getException(), value);
+				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm.-1", getDummyElm(), value);
 			}
 		}
-		_Exception.clear();
-		((java.util.ArrayList) _Exception).ensureCapacity(value.length);
+		_DummyElm.clear();
+		((java.util.ArrayList) _DummyElm).ensureCapacity(value.length);
 		for (int i = 0; i < value.length; ++i) {
-			_Exception.add(value[i]);
+			_DummyElm.add(value[i]);
 		}
 		if (event != null)
 			eventListeners.firePropertyChange(event);
 	}
 
-	public void setException(int index, String value) {
-		if (value == null ? getException(index) == null : value.equals(getException(index))) {
+	public void setDummyElm(int index, String value) {
+		if (value == null ? getDummyElm(index) == null : value.equals(getDummyElm(index))) {
 			// No change.
 			return;
 		}
 		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception."+Integer.toHexString(index), getException(index), value);
+			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm."+Integer.toHexString(index), getDummyElm(index), value);
 			eventListeners.firePropertyChange(event);
 		}
-		_Exception.set(index, value);
+		_DummyElm.set(index, value);
 	}
 
-	public String[] getException() {
-		String[] arr = new String[_Exception.size()];
-		return (String[]) _Exception.toArray(arr);
+	public String[] getDummyElm() {
+		String[] arr = new String[_DummyElm.size()];
+		return (String[]) _DummyElm.toArray(arr);
 	}
 
-	public java.util.List fetchExceptionList() {
-		return _Exception;
+	public java.util.List fetchDummyElmList() {
+		return _DummyElm;
 	}
 
-	public String getException(int index) {
-		return (String)_Exception.get(index);
+	public String getDummyElm(int index) {
+		return (String)_DummyElm.get(index);
 	}
 
-	// Return the number of exception
-	public int sizeException() {
-		return _Exception.size();
+	// Return the number of dummyElm
+	public int sizeDummyElm() {
+		return _DummyElm.size();
 	}
 
-	public int addException(String value) {
-		_Exception.add(value);
+	public int addDummyElm(String value) {
+		_DummyElm.add(value);
 		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception."+Integer.toHexString(_Exception.size()-1), null, value);
+			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm."+Integer.toHexString(_DummyElm.size()-1), null, value);
 			eventListeners.firePropertyChange(event);
 		}
-		int positionOfNewItem = _Exception.size()-1;
+		int positionOfNewItem = _DummyElm.size()-1;
 		return positionOfNewItem;
 	}
 
 	/**
 	 * Search from the end looking for @param value, and then remove it.
 	 */
-	public int removeException(String value) {
-		int pos = _Exception.indexOf(value);
+	public int removeDummyElm(String value) {
+		int pos = _DummyElm.indexOf(value);
 		if (pos >= 0) {
-			_Exception.remove(pos);
+			_DummyElm.remove(pos);
 			if (eventListeners != null) {
-				java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/Exception."+Integer.toHexString(pos), value, null);
+				java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/DummyElm."+Integer.toHexString(pos), value, null);
 				eventListeners.firePropertyChange(event);
 			}
 		}
@@ -359,7 +590,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 
 	public String _getXPathExpr() {
 		if (parent == null) {
-			return "/exceptions";
+			return "/column";
 		} else {
 			String parentXPathExpr = parent._getXPathExpr();
 			String myExpr = parent.nameChild(this, false, false, true);
@@ -370,7 +601,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	public String _getXPathExpr(Object childObj) {
 		String childName = nameChild(childObj, false, false, true);
 		if (childName == null) {
-			throw new IllegalArgumentException("childObj ("+childObj.toString()+") is not a child of this bean (Exceptions).");
+			throw new IllegalArgumentException("childObj ("+childObj.toString()+") is not a child of this bean (Column).");
 		}
 		return _getXPathExpr() + "/" + childName;
 	}
@@ -378,11 +609,11 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	public void writeNode(java.io.Writer out) throws java.io.IOException {
 		String myName;
 		if (parent == null) {
-			myName = "exceptions";
+			myName = "column";
 		} else {
 			myName = parent.nameChild(this, false, true);
 			if (myName == null) {
-				myName = "exceptions";
+				myName = "column";
 			}
 		}
 		writeNode(out, myName, "");	// NOI18N
@@ -417,6 +648,66 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	}
 
 	protected void writeNodeAttributes(java.io.Writer out, String nodeName, String namespace, String indent, java.util.Map namespaceMap) throws java.io.IOException {
+		// name is an attribute with namespace null
+		if (_Name != null) {
+			out.write(" name='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _Name, true);
+			out.write("'");	// NOI18N
+		}
+		// db-name is an attribute with namespace null
+		if (_DbName != null) {
+			out.write(" db-name='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _DbName, true);
+			out.write("'");	// NOI18N
+		}
+		// type is an attribute with namespace null
+		if (_Type != null) {
+			out.write(" type='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _Type, true);
+			out.write("'");	// NOI18N
+		}
+		// primary is an attribute with namespace null
+		if (_Primary != null) {
+			out.write(" primary='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _Primary, true);
+			out.write("'");	// NOI18N
+		}
+		// entity is an attribute with namespace null
+		if (_Entity != null) {
+			out.write(" entity='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _Entity, true);
+			out.write("'");	// NOI18N
+		}
+		// mapping-key is an attribute with namespace null
+		if (_MappingKey != null) {
+			out.write(" mapping-key='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _MappingKey, true);
+			out.write("'");	// NOI18N
+		}
+		// mapping-table is an attribute with namespace null
+		if (_MappingTable != null) {
+			out.write(" mapping-table='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _MappingTable, true);
+			out.write("'");	// NOI18N
+		}
+		// id-type is an attribute with namespace null
+		if (_IdType != null) {
+			out.write(" id-type='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _IdType, true);
+			out.write("'");	// NOI18N
+		}
+		// id-param is an attribute with namespace null
+		if (_IdParam != null) {
+			out.write(" id-param='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _IdParam, true);
+			out.write("'");	// NOI18N
+		}
+		// convert-null is an attribute with namespace null
+		if (_ConvertNull != null) {
+			out.write(" convert-null='");
+			org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, _ConvertNull, true);
+			out.write("'");	// NOI18N
+		}
 	}
 
 	protected void writeNodeChildren(java.io.Writer out, String nodeName, String namespace, String indent, java.util.Map namespaceMap) throws java.io.IOException {
@@ -430,15 +721,14 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 				out.write("-->\n");
 			}
 		}
-		for (java.util.Iterator it = _Exception.iterator(); it.hasNext(); 
-			) {
+		for (java.util.Iterator it = _DummyElm.iterator(); it.hasNext(); ) {
 			String element = (String)it.next();
 			if (element != null) {
 				out.write(nextIndent);
-				out.write("<exception");	// NOI18N
+				out.write("<dummy_elm");	// NOI18N
 				out.write(">");	// NOI18N
 				org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, element, false);
-				out.write("</exception>\n");	// NOI18N
+				out.write("</dummy_elm>\n");	// NOI18N
 			}
 		}
 	}
@@ -474,6 +764,56 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	protected void readNodeAttributes(org.w3c.dom.Node node, java.util.Map namespacePrefixes, org.w3c.dom.NamedNodeMap attrs) {
 		org.w3c.dom.Attr attr;
 		java.lang.String attrValue;
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("name");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_Name = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("db-name");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_DbName = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("type");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_Type = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("primary");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_Primary = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("entity");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_Entity = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("mapping-key");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_MappingKey = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("mapping-table");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_MappingTable = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("id-type");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_IdType = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("id-param");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_IdParam = attrValue;
+		}
+		attr = (org.w3c.dom.Attr) attrs.getNamedItem("convert-null");
+		if (attr != null) {
+			attrValue = attr.getValue();
+			_ConvertNull = attrValue;
+		}
 	}
 
 	protected void readNodeChildren(org.w3c.dom.Node node, java.util.Map namespacePrefixes) {
@@ -499,10 +839,10 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 			aComments = ((org.w3c.dom.CharacterData)childNode).getData();
 			_Comments.add(aComments);
 		}
-		else if (childNodeName == "exception") {
-			String aException;
-			aException = childNodeValue;
-			_Exception.add(aException);
+		else if (childNodeName == "dummy_elm") {
+			String aDummyElm;
+			aDummyElm = childNodeValue;
+			_DummyElm.add(aDummyElm);
 		}
 		else {
 			return false;
@@ -514,7 +854,23 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 		boolean restrictionFailure = false;
 		boolean restrictionPassed = false;
 		// Validating property comments
-		// Validating property exception
+		// Validating property name
+		if (getName() == null) {
+			throw new org.netbeans.modules.schema2beans.ValidateException("getName() == null", org.netbeans.modules.schema2beans.ValidateException.FailureType.NULL_VALUE, "name", this);	// NOI18N
+		}
+		// Validating property dbName
+		// Validating property type
+		if (getType() == null) {
+			throw new org.netbeans.modules.schema2beans.ValidateException("getType() == null", org.netbeans.modules.schema2beans.ValidateException.FailureType.NULL_VALUE, "type", this);	// NOI18N
+		}
+		// Validating property primary
+		// Validating property entity
+		// Validating property mappingKey
+		// Validating property mappingTable
+		// Validating property idType
+		// Validating property idParam
+		// Validating property convertNull
+		// Validating property dummyElm
 	}
 
 	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
@@ -545,20 +901,60 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 			addComments((java.lang.String)value);
 		else if (name == "comments[]")
 			setComments((java.lang.String[]) value);
-		else if (name == "exception")
-			addException((String)value);
-		else if (name == "exception[]")
-			setException((String[]) value);
+		else if (name == "name")
+			setName((java.lang.String)value);
+		else if (name == "dbName")
+			setDbName((java.lang.String)value);
+		else if (name == "type")
+			setType((java.lang.String)value);
+		else if (name == "primary")
+			setPrimary((java.lang.String)value);
+		else if (name == "entity")
+			setEntity((java.lang.String)value);
+		else if (name == "mappingKey")
+			setMappingKey((java.lang.String)value);
+		else if (name == "mappingTable")
+			setMappingTable((java.lang.String)value);
+		else if (name == "idType")
+			setIdType((java.lang.String)value);
+		else if (name == "idParam")
+			setIdParam((java.lang.String)value);
+		else if (name == "convertNull")
+			setConvertNull((java.lang.String)value);
+		else if (name == "dummyElm")
+			addDummyElm((String)value);
+		else if (name == "dummyElm[]")
+			setDummyElm((String[]) value);
 		else
-			throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+			throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public Object fetchPropertyByName(String name) {
 		if (name == "comments[]")
 			return getComments();
-		if (name == "exception[]")
-			return getException();
-		throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+		if (name == "name")
+			return getName();
+		if (name == "dbName")
+			return getDbName();
+		if (name == "type")
+			return getType();
+		if (name == "primary")
+			return getPrimary();
+		if (name == "entity")
+			return getEntity();
+		if (name == "mappingKey")
+			return getMappingKey();
+		if (name == "mappingTable")
+			return getMappingTable();
+		if (name == "idType")
+			return getIdType();
+		if (name == "idParam")
+			return getIdParam();
+		if (name == "convertNull")
+			return getConvertNull();
+		if (name == "dummyElm[]")
+			return getDummyElm();
+		throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public String nameSelf() {
@@ -567,7 +963,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 			String myName = parent.nameChild(this, false, false);
 			return parentName + "/" + myName;
 		}
-		return "Exceptions";
+		return "Column";
 	}
 
 	public String nameChild(Object childObj) {
@@ -604,19 +1000,129 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 				}
 				++index;
 			}
+			if (child == _Name) {
+				if (returnConstName) {
+					return NAME;
+				} else if (returnSchemaName) {
+					return "name";
+				} else if (returnXPathName) {
+					return "@name";
+				} else {
+					return "Name";
+				}
+			}
+			if (child == _DbName) {
+				if (returnConstName) {
+					return DBNAME;
+				} else if (returnSchemaName) {
+					return "db-name";
+				} else if (returnXPathName) {
+					return "@db-name";
+				} else {
+					return "DbName";
+				}
+			}
+			if (child == _Type) {
+				if (returnConstName) {
+					return TYPE;
+				} else if (returnSchemaName) {
+					return "type";
+				} else if (returnXPathName) {
+					return "@type";
+				} else {
+					return "Type";
+				}
+			}
+			if (child == _Primary) {
+				if (returnConstName) {
+					return PRIMARY;
+				} else if (returnSchemaName) {
+					return "primary";
+				} else if (returnXPathName) {
+					return "@primary";
+				} else {
+					return "Primary";
+				}
+			}
+			if (child == _Entity) {
+				if (returnConstName) {
+					return ENTITY;
+				} else if (returnSchemaName) {
+					return "entity";
+				} else if (returnXPathName) {
+					return "@entity";
+				} else {
+					return "Entity";
+				}
+			}
+			if (child == _MappingKey) {
+				if (returnConstName) {
+					return MAPPINGKEY;
+				} else if (returnSchemaName) {
+					return "mapping-key";
+				} else if (returnXPathName) {
+					return "@mapping-key";
+				} else {
+					return "MappingKey";
+				}
+			}
+			if (child == _MappingTable) {
+				if (returnConstName) {
+					return MAPPINGTABLE;
+				} else if (returnSchemaName) {
+					return "mapping-table";
+				} else if (returnXPathName) {
+					return "@mapping-table";
+				} else {
+					return "MappingTable";
+				}
+			}
+			if (child == _IdType) {
+				if (returnConstName) {
+					return IDTYPE;
+				} else if (returnSchemaName) {
+					return "id-type";
+				} else if (returnXPathName) {
+					return "@id-type";
+				} else {
+					return "IdType";
+				}
+			}
+			if (child == _IdParam) {
+				if (returnConstName) {
+					return IDPARAM;
+				} else if (returnSchemaName) {
+					return "id-param";
+				} else if (returnXPathName) {
+					return "@id-param";
+				} else {
+					return "IdParam";
+				}
+			}
+			if (child == _ConvertNull) {
+				if (returnConstName) {
+					return CONVERTNULL;
+				} else if (returnSchemaName) {
+					return "convert-null";
+				} else if (returnXPathName) {
+					return "@convert-null";
+				} else {
+					return "ConvertNull";
+				}
+			}
 			index = 0;
-			for (java.util.Iterator it = _Exception.iterator(); 
+			for (java.util.Iterator it = _DummyElm.iterator(); 
 				it.hasNext(); ) {
 				String element = (String)it.next();
 				if (child == element) {
 					if (returnConstName) {
-						return EXCEPTION;
+						return DUMMY_ELM;
 					} else if (returnSchemaName) {
-						return "exception";
+						return "dummy_elm";
 					} else if (returnXPathName) {
-						return "exception[position()="+index+"]";
+						return "dummy_elm[position()="+index+"]";
 					} else {
-						return "Exception."+Integer.toHexString(index);
+						return "DummyElm."+Integer.toHexString(index);
 					}
 				}
 				++index;
@@ -642,10 +1148,10 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	}
 
 	public boolean equals(Object o) {
-		return o instanceof org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions && equals((org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions) o);
+		return o instanceof org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column && equals((org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column) o);
 	}
 
-	public boolean equals(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions inst) {
+	public boolean equals(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column inst) {
 		if (inst == this) {
 			return true;
 		}
@@ -663,10 +1169,40 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 				return false;
 			}
 		}
-		if (sizeException() != inst.sizeException())
+		if (!(_Name == null ? inst._Name == null : _Name.equals(inst._Name))) {
+			return false;
+		}
+		if (!(_DbName == null ? inst._DbName == null : _DbName.equals(inst._DbName))) {
+			return false;
+		}
+		if (!(_Type == null ? inst._Type == null : _Type.equals(inst._Type))) {
+			return false;
+		}
+		if (!(_Primary == null ? inst._Primary == null : _Primary.equals(inst._Primary))) {
+			return false;
+		}
+		if (!(_Entity == null ? inst._Entity == null : _Entity.equals(inst._Entity))) {
+			return false;
+		}
+		if (!(_MappingKey == null ? inst._MappingKey == null : _MappingKey.equals(inst._MappingKey))) {
+			return false;
+		}
+		if (!(_MappingTable == null ? inst._MappingTable == null : _MappingTable.equals(inst._MappingTable))) {
+			return false;
+		}
+		if (!(_IdType == null ? inst._IdType == null : _IdType.equals(inst._IdType))) {
+			return false;
+		}
+		if (!(_IdParam == null ? inst._IdParam == null : _IdParam.equals(inst._IdParam))) {
+			return false;
+		}
+		if (!(_ConvertNull == null ? inst._ConvertNull == null : _ConvertNull.equals(inst._ConvertNull))) {
+			return false;
+		}
+		if (sizeDummyElm() != inst.sizeDummyElm())
 			return false;
 		// Compare every element.
-		for (java.util.Iterator it = _Exception.iterator(), it2 = inst._Exception.iterator(); 
+		for (java.util.Iterator it = _DummyElm.iterator(), it2 = inst._DummyElm.iterator(); 
 			it.hasNext() && it2.hasNext(); ) {
 			String element = (String)it.next();
 			String element2 = (String)it2.next();
@@ -680,7 +1216,17 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	public int hashCode() {
 		int result = 17;
 		result = 37*result + (_Comments == null ? 0 : _Comments.hashCode());
-		result = 37*result + (_Exception == null ? 0 : _Exception.hashCode());
+		result = 37*result + (_Name == null ? 0 : _Name.hashCode());
+		result = 37*result + (_DbName == null ? 0 : _DbName.hashCode());
+		result = 37*result + (_Type == null ? 0 : _Type.hashCode());
+		result = 37*result + (_Primary == null ? 0 : _Primary.hashCode());
+		result = 37*result + (_Entity == null ? 0 : _Entity.hashCode());
+		result = 37*result + (_MappingKey == null ? 0 : _MappingKey.hashCode());
+		result = 37*result + (_MappingTable == null ? 0 : _MappingTable.hashCode());
+		result = 37*result + (_IdType == null ? 0 : _IdType.hashCode());
+		result = 37*result + (_IdParam == null ? 0 : _IdParam.hashCode());
+		result = 37*result + (_ConvertNull == null ? 0 : _ConvertNull.hashCode());
+		result = 37*result + (_DummyElm == null ? 0 : _DummyElm.hashCode());
 		return result;
 	}
 
@@ -715,17 +1261,87 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 					arrayWriter = getClass().getMethod("setComments", new Class[] {java.lang.String[].class});
 					adder = getClass().getMethod("addComments", new Class[] {java.lang.String.class});
 					remover = getClass().getMethod("removeComments", new Class[] {java.lang.String.class});
-				} else if (name == EXCEPTION) {
+				} else if (name == NAME) {
+					indexed = false;
+					constName = NAME;
+					schemaName = "name";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setName", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getName", new Class[] {});
+				} else if (name == DBNAME) {
+					indexed = false;
+					constName = DBNAME;
+					schemaName = "db-name";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setDbName", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getDbName", new Class[] {});
+				} else if (name == TYPE) {
+					indexed = false;
+					constName = TYPE;
+					schemaName = "type";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setType", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getType", new Class[] {});
+				} else if (name == PRIMARY) {
+					indexed = false;
+					constName = PRIMARY;
+					schemaName = "primary";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setPrimary", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getPrimary", new Class[] {});
+				} else if (name == ENTITY) {
+					indexed = false;
+					constName = ENTITY;
+					schemaName = "entity";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setEntity", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getEntity", new Class[] {});
+				} else if (name == MAPPINGKEY) {
+					indexed = false;
+					constName = MAPPINGKEY;
+					schemaName = "mapping-key";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setMappingKey", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getMappingKey", new Class[] {});
+				} else if (name == MAPPINGTABLE) {
+					indexed = false;
+					constName = MAPPINGTABLE;
+					schemaName = "mapping-table";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setMappingTable", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getMappingTable", new Class[] {});
+				} else if (name == IDTYPE) {
+					indexed = false;
+					constName = IDTYPE;
+					schemaName = "id-type";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setIdType", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getIdType", new Class[] {});
+				} else if (name == IDPARAM) {
+					indexed = false;
+					constName = IDPARAM;
+					schemaName = "id-param";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setIdParam", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getIdParam", new Class[] {});
+				} else if (name == CONVERTNULL) {
+					indexed = false;
+					constName = CONVERTNULL;
+					schemaName = "convert-null";
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_1|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					writer = getClass().getMethod("setConvertNull", new Class[] {java.lang.String.class});
+					reader = getClass().getMethod("getConvertNull", new Class[] {});
+				} else if (name == DUMMY_ELM) {
 					indexed = true;
-					constName = EXCEPTION;
-					schemaName = "exception";
+					constName = DUMMY_ELM;
+					schemaName = "dummy_elm";
 					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_N|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
-					reader = getClass().getMethod("getException", new Class[] {Integer.TYPE});
-					arrayReader = getClass().getMethod("getException", new Class[] {});
-					writer = getClass().getMethod("setException", new Class[] {Integer.TYPE, String.class});
-					arrayWriter = getClass().getMethod("setException", new Class[] {String[].class});
-					adder = getClass().getMethod("addException", new Class[] {String.class});
-					remover = getClass().getMethod("removeException", new Class[] {String.class});
+					reader = getClass().getMethod("getDummyElm", new Class[] {Integer.TYPE});
+					arrayReader = getClass().getMethod("getDummyElm", new Class[] {});
+					writer = getClass().getMethod("setDummyElm", new Class[] {Integer.TYPE, String.class});
+					arrayWriter = getClass().getMethod("setDummyElm", new Class[] {String[].class});
+					adder = getClass().getMethod("addDummyElm", new Class[] {String.class});
+					remover = getClass().getMethod("removeDummyElm", new Class[] {String.class});
 				} else {
 					// Check if name is a schema name.
 					if (name == "comment") {
@@ -733,12 +1349,62 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 						propByName.put(name, prop);
 						return prop;
 					}
-					if (name == "exception") {
-						prop = beanProp(EXCEPTION);
+					if (name == "name") {
+						prop = beanProp(NAME);
 						propByName.put(name, prop);
 						return prop;
 					}
-					throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+					if (name == "db-name") {
+						prop = beanProp(DBNAME);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "type") {
+						prop = beanProp(TYPE);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "primary") {
+						prop = beanProp(PRIMARY);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "entity") {
+						prop = beanProp(ENTITY);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "mapping-key") {
+						prop = beanProp(MAPPINGKEY);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "mapping-table") {
+						prop = beanProp(MAPPINGTABLE);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "id-type") {
+						prop = beanProp(IDTYPE);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "id-param") {
+						prop = beanProp(IDPARAM);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "convert-null") {
+						prop = beanProp(CONVERTNULL);
+						propByName.put(name, prop);
+						return prop;
+					}
+					if (name == "dummy_elm") {
+						prop = beanProp(DUMMY_ELM);
+						propByName.put(name, prop);
+						return prop;
+					}
+					throw new IllegalArgumentException(name+" is not a valid property name for Column");
 				}
 			} catch (java.lang.NoSuchMethodException e) {
 				throw new RuntimeException(e);
@@ -753,7 +1419,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 		if (parent == null) {
 			org.netbeans.modules.schema2beans.BeanProp prop = (org.netbeans.modules.schema2beans.BeanProp) propByName.get("");
 			if (prop == null) {
-				prop = new org.netbeans.modules.schema2beans.ReflectiveBeanProp(this, "exceptions", "Exceptions", org.netbeans.modules.schema2beans.Common.TYPE_1 | org.netbeans.modules.schema2beans.Common.TYPE_BEAN, Exceptions.class, isRoot(), null, null, null, null, null, null);
+				prop = new org.netbeans.modules.schema2beans.ReflectiveBeanProp(this, "column", "Column", org.netbeans.modules.schema2beans.Common.TYPE_1 | org.netbeans.modules.schema2beans.Common.TYPE_BEAN, Column.class, isRoot(), null, null, null, null, null, null);
 				propByName.put("", prop);
 			}
 			return prop;
@@ -782,7 +1448,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	public String dtdName() {
 		if (parent == null) {
 			// Not necessarily the right schema name, but make a good guess.
-			return "exceptions";
+			return "column";
 		}
 		return parent.nameChild(this, false, true);
 	}
@@ -895,18 +1561,28 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 	}
 
 	public Object clone() {
-		return new Exceptions(this, null, false);
+		return new Column(this, null, false);
 	}
 
 	public Object cloneData() {
-		return new Exceptions(this, null, true);
+		return new Column(this, null, true);
 	}
 
 	private void prepareBeanPropList() {
 		if (beanPropList == null) {
-			beanPropList = new java.util.ArrayList(2);
+			beanPropList = new java.util.ArrayList(12);
 			beanPropList.add(beanProp(COMMENTS));
-			beanPropList.add(beanProp(EXCEPTION));
+			beanPropList.add(beanProp(NAME));
+			beanPropList.add(beanProp(DBNAME));
+			beanPropList.add(beanProp(TYPE));
+			beanPropList.add(beanProp(PRIMARY));
+			beanPropList.add(beanProp(ENTITY));
+			beanPropList.add(beanProp(MAPPINGKEY));
+			beanPropList.add(beanProp(MAPPINGTABLE));
+			beanPropList.add(beanProp(IDTYPE));
+			beanPropList.add(beanProp(IDPARAM));
+			beanPropList.add(beanProp(CONVERTNULL));
+			beanPropList.add(beanProp(DUMMY_ELM));
 		}
 	}
 
@@ -917,7 +1593,7 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 
 	public org.netbeans.modules.schema2beans.BeanProp[] beanProps() {
 		prepareBeanPropList();
-		org.netbeans.modules.schema2beans.BeanProp[] ret = new org.netbeans.modules.schema2beans.BeanProp[2];
+		org.netbeans.modules.schema2beans.BeanProp[] ret = new org.netbeans.modules.schema2beans.BeanProp[12];
 		ret = (org.netbeans.modules.schema2beans.BeanProp[]) beanPropList.toArray(ret);
 		return ret;
 	}
@@ -926,47 +1602,197 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 		name = name.intern();
 		if (name == COMMENTS || name == "comment") {
 			setComments((java.lang.String[]) value);
-		} else if (name == EXCEPTION || name == "exception") {
-			setException((String[]) value);
-		} else throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+		} else if (name == NAME || name == "name") {
+			setName((java.lang.String)value);
+		} else if (name == DBNAME || name == "db-name") {
+			setDbName((java.lang.String)value);
+		} else if (name == TYPE || name == "type") {
+			setType((java.lang.String)value);
+		} else if (name == PRIMARY || name == "primary") {
+			setPrimary((java.lang.String)value);
+		} else if (name == ENTITY || name == "entity") {
+			setEntity((java.lang.String)value);
+		} else if (name == MAPPINGKEY || name == "mapping-key") {
+			setMappingKey((java.lang.String)value);
+		} else if (name == MAPPINGTABLE || name == "mapping-table") {
+			setMappingTable((java.lang.String)value);
+		} else if (name == IDTYPE || name == "id-type") {
+			setIdType((java.lang.String)value);
+		} else if (name == IDPARAM || name == "id-param") {
+			setIdParam((java.lang.String)value);
+		} else if (name == CONVERTNULL || name == "convert-null") {
+			setConvertNull((java.lang.String)value);
+		} else if (name == DUMMY_ELM || name == "dummy_elm") {
+			setDummyElm((String[]) value);
+		} else throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public void setValue(String name, int index, Object value) {
 		name = name.intern();
 		if (name == COMMENTS || name == "comment") {
 			setComments(index, (java.lang.String)value);
-		} else if (name == EXCEPTION || name == "exception") {
-			setException(index, (String)value);
-		} else throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+		} else if (name == NAME || name == "name") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == DBNAME || name == "db-name") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == TYPE || name == "type") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == PRIMARY || name == "primary") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == ENTITY || name == "entity") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == MAPPINGKEY || name == "mapping-key") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == MAPPINGTABLE || name == "mapping-table") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == IDTYPE || name == "id-type") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == IDPARAM || name == "id-param") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == CONVERTNULL || name == "convert-null") {
+			throw new IllegalArgumentException(name+" is not an indexed property for Column");
+		} else if (name == DUMMY_ELM || name == "dummy_elm") {
+			setDummyElm(index, (String)value);
+		} else throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public Object getValue(String name) {
 		name = name.intern();
 		if (name == COMMENTS || name == "comment") {
 			return getComments();
-		} else if (name == EXCEPTION || name == "exception") {
-			return getException();
-		} else throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+		} else if (name == NAME || name == "name") {
+			return getName();
+		} else if (name == DBNAME || name == "db-name") {
+			return getDbName();
+		} else if (name == TYPE || name == "type") {
+			return getType();
+		} else if (name == PRIMARY || name == "primary") {
+			return getPrimary();
+		} else if (name == ENTITY || name == "entity") {
+			return getEntity();
+		} else if (name == MAPPINGKEY || name == "mapping-key") {
+			return getMappingKey();
+		} else if (name == MAPPINGTABLE || name == "mapping-table") {
+			return getMappingTable();
+		} else if (name == IDTYPE || name == "id-type") {
+			return getIdType();
+		} else if (name == IDPARAM || name == "id-param") {
+			return getIdParam();
+		} else if (name == CONVERTNULL || name == "convert-null") {
+			return getConvertNull();
+		} else if (name == DUMMY_ELM || name == "dummy_elm") {
+			return getDummyElm();
+		} else throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public Object getValue(String name, int index) {
 		name = name.intern();
 		if (name == COMMENTS || name == "comment") {
 			return getComments(index);
-		} else if (name == EXCEPTION || name == "exception") {
-			return getException(index);
-		} else throw new IllegalArgumentException(name+" is not a valid property name for Exceptions");
+		} else if (name == DUMMY_ELM || name == "dummy_elm") {
+			return getDummyElm(index);
+		} else if (name == NAME || name == "name") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getName();
+		} else if (name == DBNAME || name == "db-name") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getDbName();
+		} else if (name == TYPE || name == "type") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getType();
+		} else if (name == PRIMARY || name == "primary") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getPrimary();
+		} else if (name == ENTITY || name == "entity") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getEntity();
+		} else if (name == MAPPINGKEY || name == "mapping-key") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getMappingKey();
+		} else if (name == MAPPINGTABLE || name == "mapping-table") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getMappingTable();
+		} else if (name == IDTYPE || name == "id-type") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getIdType();
+		} else if (name == IDPARAM || name == "id-param") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getIdParam();
+		} else if (name == CONVERTNULL || name == "convert-null") {
+			if (index > 0) {
+				throw new IllegalArgumentException("index > 0");
+			}
+			return getConvertNull();
+		} else throw new IllegalArgumentException(name+" is not a valid property name for Column");
 	}
 
 	public void mergeUpdate(org.netbeans.modules.schema2beans.BaseBean sourceBean) {
-		org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions source = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Exceptions) sourceBean;
+		org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column source = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.Column) sourceBean;
 		{
 			java.lang.String[] srcProperty = source.getComments();
 			setComments(srcProperty);
 		}
 		{
-			String[] srcProperty = source.getException();
-			setException(srcProperty);
+			java.lang.String srcProperty = source.getName();
+			setName(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getDbName();
+			setDbName(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getType();
+			setType(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getPrimary();
+			setPrimary(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getEntity();
+			setEntity(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getMappingKey();
+			setMappingKey(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getMappingTable();
+			setMappingTable(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getIdType();
+			setIdType(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getIdParam();
+			setIdParam(srcProperty);
+		}
+		{
+			java.lang.String srcProperty = source.getConvertNull();
+			setConvertNull(srcProperty);
+		}
+		{
+			String[] srcProperty = source.getDummyElm();
+			setDummyElm(srcProperty);
 		}
 	}
 
@@ -986,6 +1812,9 @@ public class Exceptions extends org.netbeans.modules.schema2beans.BaseBean
 		pw.flush();
 	}
 
+
+	
+            
 }
 
 
@@ -1104,7 +1933,11 @@ programs. The default value is true.
 <!--
 The column element represents a column in the database.
 -->
-<!ELEMENT column (#PCDATA)>
+<!-- original <!ELEMENT column (#PCDATA)> -->
+<!-- modified -->
+
+<!ELEMENT column (dummy_elm*)>
+<!ELEMENT dummy_elm (#PCDATA)>
 
 <!--
 The name value specifies the getter and setter name in the entity.

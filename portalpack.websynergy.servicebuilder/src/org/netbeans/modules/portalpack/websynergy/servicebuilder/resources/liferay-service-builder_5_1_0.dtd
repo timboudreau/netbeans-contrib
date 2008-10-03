@@ -110,7 +110,11 @@ programs. The default value is true.
 <!--
 The column element represents a column in the database.
 -->
-<!ELEMENT column (#PCDATA)>
+<!-- original <!ELEMENT column (#PCDATA)> -->
+<!-- modified -->
+
+<!ELEMENT column (dummy_elm*)>
+<!ELEMENT dummy_elm (#PCDATA)>
 
 <!--
 The name value specifies the getter and setter name in the entity.

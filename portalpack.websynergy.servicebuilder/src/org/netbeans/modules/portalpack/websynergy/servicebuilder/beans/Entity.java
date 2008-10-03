@@ -64,181 +64,25 @@ public interface Entity {
 
 	public java.lang.String getCacheEnabled();
 
-	public void setColumn(String[] value);
+	public void setColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column[] value);
 
-	public void setColumn(int index, String value);
+	public void setColumn(int index, org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column value);
 
-	public String[] getColumn();
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column[] getColumn();
 
 	public java.util.List fetchColumnList();
 
-	public String getColumn(int index);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column getColumn(int index);
 
 	public int sizeColumn();
 
-	public int addColumn(String value);
+	public int addColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column value);
 
-	public int removeColumn(String value);
+	public int removeColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column value);
 
-	public void setColumnName(java.lang.String[] value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column newColumn();
 
-	public void setColumnName(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnName();
-
-	public java.util.List fetchColumnNameList();
-
-	public java.lang.String getColumnName(int index);
-
-	public int sizeColumnName();
-
-	public int addColumnName(java.lang.String value);
-
-	public int removeColumnName(java.lang.String value);
-
-	public void setColumnDbName(java.lang.String[] value);
-
-	public void setColumnDbName(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnDbName();
-
-	public java.util.List fetchColumnDbNameList();
-
-	public java.lang.String getColumnDbName(int index);
-
-	public int sizeColumnDbName();
-
-	public int addColumnDbName(java.lang.String value);
-
-	public int removeColumnDbName(java.lang.String value);
-
-	public void setColumnType(java.lang.String[] value);
-
-	public void setColumnType(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnType();
-
-	public java.util.List fetchColumnTypeList();
-
-	public java.lang.String getColumnType(int index);
-
-	public int sizeColumnType();
-
-	public int addColumnType(java.lang.String value);
-
-	public int removeColumnType(java.lang.String value);
-
-	public void setColumnPrimary(java.lang.String[] value);
-
-	public void setColumnPrimary(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnPrimary();
-
-	public java.util.List fetchColumnPrimaryList();
-
-	public java.lang.String getColumnPrimary(int index);
-
-	public int sizeColumnPrimary();
-
-	public int addColumnPrimary(java.lang.String value);
-
-	public int removeColumnPrimary(java.lang.String value);
-
-	public void setColumnEntity(java.lang.String[] value);
-
-	public void setColumnEntity(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnEntity();
-
-	public java.util.List fetchColumnEntityList();
-
-	public java.lang.String getColumnEntity(int index);
-
-	public int sizeColumnEntity();
-
-	public int addColumnEntity(java.lang.String value);
-
-	public int removeColumnEntity(java.lang.String value);
-
-	public void setColumnMappingKey(java.lang.String[] value);
-
-	public void setColumnMappingKey(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnMappingKey();
-
-	public java.util.List fetchColumnMappingKeyList();
-
-	public java.lang.String getColumnMappingKey(int index);
-
-	public int sizeColumnMappingKey();
-
-	public int addColumnMappingKey(java.lang.String value);
-
-	public int removeColumnMappingKey(java.lang.String value);
-
-	public void setColumnMappingTable(java.lang.String[] value);
-
-	public void setColumnMappingTable(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnMappingTable();
-
-	public java.util.List fetchColumnMappingTableList();
-
-	public java.lang.String getColumnMappingTable(int index);
-
-	public int sizeColumnMappingTable();
-
-	public int addColumnMappingTable(java.lang.String value);
-
-	public int removeColumnMappingTable(java.lang.String value);
-
-	public void setColumnIdType(java.lang.String[] value);
-
-	public void setColumnIdType(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnIdType();
-
-	public java.util.List fetchColumnIdTypeList();
-
-	public java.lang.String getColumnIdType(int index);
-
-	public int sizeColumnIdType();
-
-	public int addColumnIdType(java.lang.String value);
-
-	public int removeColumnIdType(java.lang.String value);
-
-	public void setColumnIdParam(java.lang.String[] value);
-
-	public void setColumnIdParam(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnIdParam();
-
-	public java.util.List fetchColumnIdParamList();
-
-	public java.lang.String getColumnIdParam(int index);
-
-	public int sizeColumnIdParam();
-
-	public int addColumnIdParam(java.lang.String value);
-
-	public int removeColumnIdParam(java.lang.String value);
-
-	public void setColumnConvertNull(java.lang.String[] value);
-
-	public void setColumnConvertNull(int index, java.lang.String value);
-
-	public java.lang.String[] getColumnConvertNull();
-
-	public java.util.List fetchColumnConvertNullList();
-
-	public java.lang.String getColumnConvertNull(int index);
-
-	public int sizeColumnConvertNull();
-
-	public int addColumnConvertNull(java.lang.String value);
-
-	public int removeColumnConvertNull(java.lang.String value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column newColumn(Column source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData);
 
 	public void setOrder(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Order value);
 
