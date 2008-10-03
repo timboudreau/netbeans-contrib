@@ -48,12 +48,13 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
  *
  * @author Petr Pisl
  */
-public class PradoPhpTranslatedSource implements TranslatedSource {
+public class PradoPhpTranslatedSource extends TranslatedSource {
 
     private PradoPhpEmbeddingModel embeddingModel;
     private PradoPhpModel model;
 
     public PradoPhpTranslatedSource(PradoPhpEmbeddingModel embeddingModel, PradoPhpModel model) {
+        super(embeddingModel);
         this.embeddingModel = embeddingModel;
         this.model = model;
     }
