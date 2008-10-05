@@ -1,0 +1,1750 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+package org.netbeans.modules.ada.editor.parser;
+
+import java.util.*;
+import org.netbeans.modules.ada.editor.lexer.Ada95ASTLexer;
+import org.netbeans.modules.ada.editor.ast.*;
+import org.netbeans.modules.ada.editor.ast.nodes.*;
+
+parser code {:
+        private ErrorStrategy defaultStrategy = new DefaultErrorStrategy();;
+        private ErrorStrategy errorStrategy = defaultStrategy;
+
+        private ParserErrorHandler errorHandler = null;
+
+        public void setErrorHandler (ParserErrorHandler handler) {
+            this.errorHandler = handler;
+        }
+
+        public ParserErrorHandler getErrorHandler () {
+            return this.errorHandler;
+        }
+
+/*
+	public Dispatch createDispatch(DeclarationBase dispatcher, DeclarationBase property) {
+		Dispatch dispatch = null;
+		if (property instanceof Variable) {
+			dispatch = new FieldAccess(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (Variable)property);
+		} else if (property instanceof FunctionInvocation) {
+			dispatch = new MethodInvocation(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (FunctionInvocation)property);
+		} else {
+			throw new IllegalArgumentException();
+		}
+		return dispatch;
+	}
+*/
+
+    interface ErrorStrategy {
+        public boolean errorRecovery(boolean debug) throws Exception;
+    }
+
+    class DefaultErrorStrategy implements ErrorStrategy {
+
+        public boolean errorRecovery(boolean debug) throws Exception {
+            return Ada95ASTParser.super.error_recovery(debug);
+        }
+    }
+
+    /**
+     * Attempt to recover from a syntax error.  This returns false if recovery fails,
+     * true if it succeeds.
+     * @param debug should we produce debugging messages as we parse.
+     */
+    protected boolean error_recovery(boolean debug) throws java.lang.Exception {
+        return errorStrategy.errorRecovery(debug);
+    }
+
+    /**
+     * Report a non fatal error (or warning).  This method takes a message
+     * string and an additional object (to be used by specializations implemented in subclasses).
+     * The super class prints the message to System.err.
+     * @param message an error message.
+     * @param info    an extra object reserved for use by specialized subclasses.
+     */
+    public void report_error(String message, Object info) {
+		 System.out.print("report_eror"  + message);
+  		/* if (info instanceof Symbol)
+			if (((Symbol)info).left != -1)
+				System.err.println(" at character " + ((Symbol)info).left + " of input");
+			else System.err.println("");
+	     else 
+	   		System.err.println("");*/
+    }	
+
+    /**
+     * This method is called when a syntax error has been detected and recovery is about to be invoked.
+     * The super class just emit a "Syntax error" error message.
+     * @param cur_token the current lookahead Symbol.
+     */
+    public void syntax_error(java_cup.runtime.Symbol cur_token) {
+        java_cup.runtime.Symbol symbol = (java_cup.runtime.Symbol)stack.peek();
+        int state = symbol.parse_state;
+        short[] rowOfProbe = action_tab[state];
+        if (errorHandler != null) {
+            errorHandler.handleError(ParserErrorHandler.Type.SYNTAX_ERROR, rowOfProbe, cur_token, symbol);
+        }
+     }
+
+    /**
+     * This method is called when a syntax error has been detected during action.
+     * @param message an error message.
+     */
+    public void message_error(String message) {
+        java_cup.runtime.Symbol symbol = (java_cup.runtime.Symbol)stack.peek();
+        if (errorHandler != null) {
+            errorHandler.handleError(ParserErrorHandler.Type.SYNTAX_ERROR, symbol, message);
+        }
+     }
+
+     /**
+     * Report a fatal error.  This method takes a message string and an additional object
+     * (to be used by specializations implemented in subclasses).
+     * The super class reports the error then throws an exception.
+     * @param message an error message.
+     * @param info    an extra object reserved for use by specialized subclasses.
+     */
+
+    public void report_fatal_error(String message, Object info) throws Exception {
+        if (errorHandler != null) {
+            errorHandler.handleError(ParserErrorHandler.Type.FATAL_PARSER_ERROR, null, cur_token, null);
+        }
+    }
+
+    protected int error_sync_size() {
+        return 1;
+    }
+
+:}
+
+
+/*********************************************************
+ *                                                       *
+ * Ada 95 (LALR) AST Parser, based on:                   *
+ *                                                       *
+ * 1. Ada Reference Manual                               *
+ *    ISO/IEC 8652:1995(E)                               *
+ *    with Technical Corrigendum 1                       *
+ *    Language and Standard Libraries                    *
+ *    Copyright © 1992,1993,1994,1995 Intermetrics, Inc. *
+ *    Copyright © 2000 The MITRE Corporation, Inc.       *
+ * 2. http://www.adaic.com/standards/95lrm/grammar9x.y   *
+ *                                                       *
+ * Modified for "Ada for Netbeans" and for using with    *
+ * JavaCup by Andrea Lucarelli.                          *
+ *                                                       *
+ *********************************************************/
+
+/*****************
+ * Terminals     *
+ *****************/
+
+//
+// Ada 95 keywords
+//
+terminal ABORT;
+terminal ABS;
+terminal ABSTRACT;
+terminal ACCESS;
+terminal ACCEPT;
+terminal ALIASED;
+terminal ALL;
+terminal AND;
+terminal ARRAY;
+terminal AT;
+terminal BEGIN;
+terminal BODY;
+terminal CONSTANT;
+terminal CASE;
+terminal DECLARE;
+terminal DELAY;
+terminal DELTA;
+terminal DIGITS;
+terminal DO;
+terminal ELSE;
+terminal ELSIF;
+terminal END;
+terminal ENTRY;
+terminal EXCEPTION;
+terminal EXIT;
+terminal FOR;
+terminal FUNCTION;
+terminal GENERIC;
+terminal GOTO;
+terminal IF;
+terminal IN;
+terminal IS;
+terminal LIMITED;
+terminal LOOP;
+terminal MOD;
+terminal NEW;
+terminal NOT;
+terminal NULL;
+terminal OF;
+terminal OR;
+terminal OTHERS;
+terminal OUT;
+terminal PACKAGE;
+terminal PRAGMA;
+terminal PRIVATE;
+terminal PROCEDURE;
+terminal PROTECTED;
+terminal RETURN;
+terminal REVERSE;
+terminal RAISE;
+terminal RANGE;
+terminal RECORD;
+terminal REM;
+terminal RENAMES;
+terminal REQUEUE;
+terminal SELECT;
+terminal SEPARATE;
+terminal SUBTYPE;
+terminal TAGGED;
+terminal TASK;
+terminal TERMINATE;
+terminal THEN;
+terminal TYPE;
+terminal UNTIL;
+terminal USE;
+terminal WHEN;
+terminal WHILE;
+terminal WITH;
+terminal XOR;
+
+//
+// delimiters
+//
+terminal AMP;
+terminal TICK;
+terminal LPAREN;
+terminal RPAREN;
+terminal STAR;
+terminal PLUS;
+terminal COMMA;
+terminal MINUS;
+terminal DOT;
+terminal SLASH;
+terminal COLON;
+terminal SEMICOLON;
+terminal GT;
+terminal EQ;
+terminal LT;
+terminal BAR;
+
+//
+// compound delimiters
+//
+terminal ARROW;
+terminal DOT_DOT;
+terminal EXPONENT;
+terminal ASSIGNMENT;
+terminal INEQ;
+terminal GTEQ;
+terminal LTEQ;
+terminal LTLT;
+terminal GTGT;
+terminal BOX;
+
+//
+// others tokens
+//
+terminal String OPERATOR_SYMBOL;
+terminal String BASED_LITERAL;
+terminal String DECIMAL_LITERAL;
+terminal String CHAR_LITERAL;
+terminal String STRING_LITERAL;
+terminal String IDENTIFIER;
+
+
+
+/*****************
+ * Non terminals *
+ *****************/
+
+// 10.1.1 Compilation Units - Library Units
+non terminal Program      compilation;
+non terminal List         compilation_unit_list;
+non terminal Statement    compilation_unit;
+
+// 10.1.2 Context Clauses - With Clauses
+non terminal Statement    context_clause;
+non terminal Statement    with_clause;
+non terminal List         compound_name_list;
+
+// 8.4 Use Clauses
+non terminal Statement    use_clause;
+
+// 7.1 Package Specifications and Declarations
+non terminal Statement    package_declaration;
+non terminal Statement    package_specification;
+
+// 3.1 Declarations
+non terminal Statement    declaration;
+non terminal Identifier   defining_identifier;
+
+// 3.11 Declarative Parts
+non terminal List         declarative_items_opt;
+non terminal List         declarative_item_list;
+non terminal Statement    declarative_item;
+
+// 3.3.1 Object Declarations
+non terminal Variable     object_declaration;
+non terminal List         defining_identifier_list;
+
+// 3.3.2 Number Declarations
+non terminal Variable     number_declaration;
+
+
+// TBD sections
+non terminal List         name_list;
+non terminal String       name;
+non terminal String       compound_name;
+non terminal Expression   object_subtype_def;
+non terminal Expression   init_opt;
+
+
+// TBD RM sections and types
+non terminal     pragma;
+non terminal     simple_name;
+non terminal     pragma_arg_s;
+non terminal     pragma_arg;
+non terminal     expression;
+non terminal     pragma_s;
+non terminal     type_decl;
+non terminal     subtype_decl;
+non terminal     subprog_decl;
+non terminal     task_decl;
+non terminal     prot_decl;
+non terminal     exception_decl;
+non terminal     rename_decl;
+non terminal     generic_declaration;
+non terminal     body_stub;
+non terminal     object_qualifier_opt;
+non terminal     subtype_ind;
+non terminal     discrim_part_opt;
+non terminal     type_completion;
+non terminal     discrim_part;
+non terminal     type_def;
+non terminal     enumeration_type;
+non terminal     integer_type;
+non terminal     real_type;
+non terminal     array_type;
+non terminal     record_type;
+non terminal     access_type;
+non terminal     derived_type;
+non terminal     private_type;
+non terminal     constraint;
+non terminal     range_constraint;
+non terminal     decimal_digits_constraint;
+non terminal     range_constr_opt;
+non terminal     record_def;
+non terminal     range;
+non terminal     simple_expression;
+non terminal     enum_id_s;
+non terminal     enum_id;
+non terminal     range_spec;
+non terminal     range_spec_opt;
+non terminal     float_type;
+non terminal     fixed_type;
+non terminal     unconstr_array_type;
+non terminal     constr_array_type;
+non terminal     index_s;
+non terminal     index;
+non terminal     component_subtype_def;
+non terminal     aliased_opt;
+non terminal     iter_index_constraint;
+non terminal     iter_discrete_range_s;
+non terminal     discrete_range;
+non terminal     tagged_opt;
+non terminal     limited_opt;
+non terminal     comp_list;
+non terminal     comp_decl_s;
+non terminal     comp_decl;
+non terminal     variant_part_opt;
+non terminal     variant_part;
+non terminal     discrim_spec_s;
+non terminal     discrim_spec;
+non terminal     access_opt;
+non terminal     mark;
+non terminal     variant_s;
+non terminal     variant;
+non terminal     choice_s;
+non terminal     choice;
+non terminal     discrete_with_range;
+non terminal     prot_opt;
+non terminal     formal_part_opt;
+non terminal     declarative_item_or_body_s1;
+non terminal     decl_part;
+non terminal     rep_spec;
+non terminal     declarative_item_or_body;
+non terminal     body;
+non terminal     subprog_body;
+non terminal     pkg_body;
+non terminal     task_body;
+non terminal     prot_body;
+non terminal     indexed_comp;
+non terminal     selected_comp;
+non terminal     attribute;
+non terminal     operator_symbol;
+non terminal     attribute_id;
+non terminal     used_char;
+non terminal     value_s;
+non terminal     value;
+non terminal     comp_assoc;
+non terminal     literal;
+non terminal     aggregate;
+non terminal     value_s_2;
+non terminal     relation;
+non terminal     logical;
+non terminal     short_circuit;
+non terminal     relational;
+non terminal     membership;
+non terminal     unary;
+non terminal     term;
+non terminal     adding;
+non terminal     factor;
+non terminal     multiplying;
+non terminal     primary;
+non terminal     allocator;
+non terminal     qualified;
+non terminal     parenthesized_primary;
+non terminal     statement_s;
+non terminal     statement;
+non terminal     unlabeled;
+non terminal     label;
+non terminal     simple_stmt;
+non terminal     compound_stmt;
+non terminal     null_stmt;
+non terminal     assign_stmt;
+non terminal     exit_stmt;
+non terminal     return_stmt;
+non terminal     goto_stmt;
+non terminal     procedure_call;
+non terminal     delay_stmt;
+non terminal     abort_stmt;
+non terminal     raise_stmt;
+non terminal     code_stmt;
+non terminal     requeue_stmt;
+non terminal     if_stmt;
+non terminal     case_stmt;
+non terminal     loop_stmt;
+non terminal     block;
+non terminal     accept_stmt;
+non terminal     select_stmt;
+non terminal     cond_clause_s;
+non terminal     else_opt;
+non terminal     cond_clause;
+non terminal     cond_part;
+non terminal     condition;
+non terminal     case_hdr;
+non terminal     alternative_s;
+non terminal     alternative;
+non terminal     label_opt;
+non terminal     iteration;
+non terminal     basic_loop;
+non terminal     id_opt;
+non terminal     iter_part;
+non terminal     reverse_opt;
+non terminal     designator;
+non terminal     block_decl;
+non terminal     block_body;
+non terminal     handled_stmt_s;
+non terminal     except_handler_part_opt;
+non terminal     except_handler_part;
+non terminal     name_opt;
+non terminal     when_opt;
+non terminal     subprog_spec;
+non terminal     generic_subp_inst;
+non terminal     subprog_spec_is_push;
+non terminal     formal_part;
+non terminal     param_s;
+non terminal     param;
+non terminal     mode;
+non terminal     generic_package_instantiation;
+non terminal     private_part;
+non terminal     compound_name_opt;
+non terminal     body_opt;
+non terminal     renames;
+non terminal     rename_unit;
+non terminal     generic_formal_part;
+non terminal     task_spec;
+non terminal     task_def;
+non terminal     entry_decl_s;
+non terminal     rep_spec_s;
+non terminal     task_private_opt;
+non terminal     prot_spec;
+non terminal     prot_def;
+non terminal     prot_op_decl_s;
+non terminal     prot_private_opt;
+non terminal     prot_elem_decl_s;
+non terminal     prot_op_decl;
+non terminal     entry_decl;
+non terminal     prot_elem_decl;
+non terminal     prot_op_body_s;
+non terminal     prot_op_body;
+non terminal     entry_body;
+non terminal     entry_body_part;
+non terminal     accept_hdr;
+non terminal     entry_call;
+non terminal     entry_name;
+non terminal     select_wait;
+non terminal     async_select;
+non terminal     timed_entry_call;
+non terminal     cond_entry_call;
+non terminal     guarded_select_alt;
+non terminal     or_select;
+non terminal     select_alt;
+non terminal     stmts_opt;
+non terminal     delay_or_entry_alt;
+non terminal     private_opt;
+non terminal     unit;
+non terminal     subunit;
+non terminal     subunit_body;
+non terminal     exception_handler;
+non terminal     except_choice_s;
+non terminal     except_choice;
+non terminal     generic_formal;
+non terminal     generic_discrim_part_opt;
+non terminal     generic_type_def;
+non terminal     subp_default;
+non terminal     generic_derived_type;
+non terminal     generic_inst;
+non terminal     attrib_def;
+non terminal     record_type_spec;
+non terminal     address_spec;
+non terminal     align_opt;
+non terminal     comp_loc_s;
+
+// root symbol 
+start with compilation;
+
+/*****************
+ *               *
+ * Ada 95 syntax *
+ *               *
+ *****************/
+
+pragma  ::= PRAGMA IDENTIFIER SEMICOLON
+	| PRAGMA simple_name LPAREN pragma_arg_s RPAREN SEMICOLON
+	;
+
+pragma_arg_s ::= pragma_arg
+	| pragma_arg_s COMMA pragma_arg
+	;
+
+pragma_arg ::= expression
+	| simple_name ARROW expression
+	;
+
+pragma_s ::=
+	| pragma_s pragma
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 3.1 Declarations
+//
+declaration    ::= 
+object_declaration
+| number_declaration
+| type_decl
+| subtype_decl
+| subprog_decl
+| package_declaration
+| task_decl
+| prot_decl
+| exception_decl
+| rename_decl
+| generic_declaration
+| body_stub
+| error SEMICOLON
+;
+
+defining_identifier  ::=
+IDENTIFIER:id
+{:
+	Identifier identifier = new Identifier(idleft, idright, id);
+	RESULT = identifier;
+:}
+;
+
+///////////////////////////////////////////////////////////////////////////////
+// 3.3.1 Object Declarations
+//
+object_declaration ::= 
+defining_identifier_list:identifierList COLON object_qualifier_opt:objQualified object_subtype_def:subtype init_opt:init SEMICOLON
+{:
+	for (Object identifier : identifierList) {
+		Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
+		RESULT = variable;
+    }
+:}
+;
+
+defining_identifier_list ::= 
+defining_identifier:identifier
+{:
+	List identifierList = new LinkedList();
+    identifierList.add(identifier);
+	RESULT = identifierList;
+:}
+| defining_identifier_list:identifierList COMMA defining_identifier:identifier
+{:
+    identifierList.add(identifier);
+	RESULT = identifierList;
+:}
+;
+
+object_qualifier_opt ::=
+| ALIASED
+| CONSTANT
+| ALIASED CONSTANT
+;
+
+object_subtype_def ::= 
+subtype_ind:subtype
+| array_type:array
+;
+
+init_opt ::=
+| ASSIGNMENT expression
+;
+
+///////////////////////////////////////////////////////////////////////////////
+// 3.3.2 Number Declarations
+//
+number_declaration ::= 
+defining_identifier_list:identifierList COLON CONSTANT:subtype ASSIGNMENT expression:init SEMICOLON
+{:
+	for (Object identifier : identifierList) {
+		Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
+		RESULT = variable;
+    }
+:}
+;
+
+type_decl ::= 
+TYPE IDENTIFIER discrim_part_opt type_completion SEMICOLON
+;
+
+discrim_part_opt ::=
+	| discrim_part
+	| LPAREN BOX RPAREN
+	;
+
+type_completion ::=
+	| IS type_def
+	;
+
+type_def ::= enumeration_type 
+	| integer_type
+	| real_type
+	| array_type
+	| record_type
+	| access_type
+	| derived_type
+	| private_type
+	;
+
+subtype_decl ::= SUBTYPE IDENTIFIER IS subtype_ind SEMICOLON
+	;
+
+subtype_ind ::= name constraint
+	| name
+	;
+
+constraint ::= range_constraint
+	| decimal_digits_constraint
+	;
+
+decimal_digits_constraint ::= DIGITS expression range_constr_opt
+	;
+
+derived_type ::= NEW subtype_ind
+	| NEW subtype_ind WITH PRIVATE
+	| NEW subtype_ind WITH record_def
+	| ABSTRACT NEW subtype_ind WITH PRIVATE
+	| ABSTRACT NEW subtype_ind WITH record_def
+	;
+
+range_constraint ::= RANGE range
+	;
+
+range ::= simple_expression DOT_DOT simple_expression
+	| name TICK RANGE
+	| name TICK RANGE LPAREN expression RPAREN
+	;
+
+enumeration_type ::= LPAREN enum_id_s RPAREN
+        ;
+
+enum_id_s ::= enum_id
+	| enum_id_s COMMA enum_id
+	;
+
+enum_id ::= IDENTIFIER
+	| CHAR_LITERAL
+	;
+
+integer_type ::= range_spec
+	| MOD expression
+	;
+	
+
+range_spec ::= range_constraint
+	;
+
+range_spec_opt ::=
+	| range_spec
+	;
+
+real_type ::= float_type
+	| fixed_type
+	;
+
+float_type ::= DIGITS expression range_spec_opt
+	;
+
+fixed_type ::= DELTA expression range_spec
+	| DELTA expression DIGITS expression range_spec_opt
+	;
+
+array_type ::= unconstr_array_type
+	| constr_array_type
+	;
+
+unconstr_array_type ::= ARRAY LPAREN index_s RPAREN OF component_subtype_def
+	;
+
+constr_array_type ::= ARRAY iter_index_constraint OF component_subtype_def
+	;
+
+component_subtype_def ::= aliased_opt subtype_ind
+	;
+
+aliased_opt ::= 
+	| ALIASED
+	;
+
+index_s ::= index
+	| index_s COMMA index
+	;
+
+index ::= name RANGE BOX
+	;
+
+iter_index_constraint ::= LPAREN iter_discrete_range_s RPAREN
+	;
+
+iter_discrete_range_s ::= discrete_range
+	| iter_discrete_range_s COMMA discrete_range
+	;
+
+discrete_range ::= name range_constr_opt
+	| range
+	;
+
+range_constr_opt ::=
+	| range_constraint
+	;
+
+record_type ::= tagged_opt limited_opt record_def
+	;
+
+record_def ::= RECORD pragma_s comp_list END RECORD
+	| NULL RECORD
+	;
+
+tagged_opt ::=
+	| TAGGED
+	| ABSTRACT TAGGED
+	;
+
+comp_list ::= comp_decl_s variant_part_opt
+	| variant_part pragma_s
+	| NULL SEMICOLON pragma_s
+	;
+
+comp_decl_s ::= comp_decl
+	| comp_decl_s pragma_s comp_decl
+	;
+
+variant_part_opt ::= pragma_s
+	| pragma_s variant_part pragma_s
+	;
+
+comp_decl ::= defining_identifier_list COLON component_subtype_def init_opt SEMICOLON
+	| error SEMICOLON
+	;
+
+discrim_part ::= LPAREN discrim_spec_s RPAREN
+	;
+
+discrim_spec_s ::= discrim_spec
+	| discrim_spec_s SEMICOLON discrim_spec
+	;
+
+discrim_spec ::= 
+defining_identifier_list COLON access_opt mark init_opt
+| error:theError SEMICOLON  // error statement
+{:
+	ASTError error = new ASTError(theErrorleft, theErrorright);
+	RESULT = error;	
+:}
+	;
+
+access_opt ::=
+	| ACCESS
+	;
+
+variant_part ::= CASE simple_name IS pragma_s variant_s END CASE SEMICOLON
+	;
+
+variant_s ::= variant
+	| variant_s variant
+	;
+
+variant ::= WHEN choice_s ARROW pragma_s comp_list
+	;
+
+choice_s ::= choice
+	| choice_s BAR choice
+	;
+
+choice ::= expression
+	| discrete_with_range
+	| OTHERS
+	;
+
+discrete_with_range ::= name range_constraint
+	| range
+	;
+
+access_type ::= ACCESS subtype_ind
+	| ACCESS CONSTANT subtype_ind
+	| ACCESS ALL subtype_ind
+	| ACCESS prot_opt PROCEDURE formal_part_opt
+	| ACCESS prot_opt FUNCTION formal_part_opt RETURN mark
+	;
+
+prot_opt ::=
+	| PROTECTED
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 3.11 Declarative Parts
+//
+decl_part ::=
+	| declarative_item_or_body_s1
+	;
+
+declarative_items_opt ::= 
+{:
+	List declaritiveItemList = new LinkedList();
+	RESULT = declaritiveItemList;
+:}
+| declarative_item_list:declaritiveItemList
+{:
+	RESULT = declaritiveItemList;
+:}
+;
+
+declarative_item_list ::= 
+declarative_item:declaritiveItem
+{:
+	List declaritiveItemList = new LinkedList();
+    declaritiveItemList.add(declaritiveItem);
+	RESULT = declaritiveItemList;
+:}
+| declarative_item_list:declaritiveItemList declarative_item:declaritiveItem
+{:
+    declaritiveItemList.add(declaritiveItem);
+	RESULT = declaritiveItemList;
+:}
+;
+
+declarative_item ::= 
+declaration
+| use_clause
+| rep_spec
+| pragma
+;
+
+declarative_item_or_body_s1 ::= declarative_item_or_body
+	| declarative_item_or_body_s1 declarative_item_or_body
+	;
+
+declarative_item_or_body ::= body
+	| declarative_item
+	;
+
+body ::= subprog_body
+	| pkg_body
+	| task_body
+	| prot_body
+	;
+
+name ::= simple_name
+	| indexed_comp
+	| selected_comp
+	| attribute
+	| operator_symbol
+	;
+
+mark ::= simple_name
+	| mark TICK attribute_id
+	| mark DOT simple_name
+	;
+
+simple_name ::= IDENTIFIER
+	;
+
+compound_name ::= 
+simple_name
+| compound_name DOT simple_name
+;
+
+compound_name_list ::= 
+compound_name:compoundName
+{:
+    List nameList = new LinkedList();
+    nameList.add(compoundName);
+	RESULT = nameList;
+:}
+| compound_name_list:nameList COMMA compound_name:compoundName
+{:
+    nameList.add(compoundName);
+	RESULT = nameList;
+:}
+;
+
+used_char ::= CHAR_LITERAL
+	;
+
+operator_symbol ::= STRING_LITERAL // ??? gestire gli operatori di funzione. es: "+" "and" ecc.
+	;
+
+indexed_comp ::= name LPAREN value_s RPAREN
+	;
+
+value_s ::= value
+	| value_s COMMA value
+	;
+
+value ::= expression
+| comp_assoc
+| discrete_with_range
+| error:theError /* error statement */
+{:
+	ASTError error = new ASTError(theErrorleft, theErrorright);
+	RESULT = error;	
+:}
+;
+
+selected_comp ::= name DOT simple_name
+	| name DOT used_char
+	| name DOT operator_symbol
+	| name DOT ALL
+	;
+
+attribute ::= name TICK attribute_id
+	;
+
+attribute_id ::= IDENTIFIER
+	| DIGITS
+	| DELTA
+	| ACCESS
+	;
+
+literal ::= DECIMAL_LITERAL
+        | BASED_LITERAL
+	| used_char
+	| NULL
+	;
+
+aggregate ::= LPAREN comp_assoc RPAREN
+	| LPAREN value_s_2 RPAREN
+	| LPAREN expression WITH value_s RPAREN
+	| LPAREN expression WITH NULL RECORD RPAREN
+	| LPAREN NULL RECORD RPAREN
+	;
+
+value_s_2 ::= value COMMA value
+	| value_s_2 COMMA value
+	;
+
+comp_assoc ::= choice_s ARROW expression
+	;
+
+expression ::= relation
+	| expression logical relation
+	| expression short_circuit relation
+	;
+
+logical ::= AND
+	| OR
+	| XOR
+	;
+
+short_circuit ::= AND THEN
+	| OR ELSE
+	;
+
+relation ::= simple_expression
+	| simple_expression relational simple_expression
+	| simple_expression membership range
+	| simple_expression membership name
+	;
+
+relational ::= EQ
+	| INEQ
+	| GT
+	| LTEQ
+	| LT
+	| GTEQ
+	;
+
+membership ::= IN
+	| NOT IN
+	;
+
+simple_expression ::= unary term
+	| term
+	| simple_expression adding term
+	;
+
+unary   ::= PLUS
+	| MINUS
+	;
+
+adding  ::= PLUS
+	| MINUS
+	| AMP
+	;
+
+term    ::= factor
+	| term multiplying factor
+	;
+
+multiplying ::= STAR
+	| SLASH
+	| MOD
+	| REM
+	;
+
+factor ::= primary
+	| NOT primary
+	| ABS primary
+	| primary EXPONENT primary
+	;
+
+primary ::= literal
+	| name
+	| allocator
+	| qualified
+	| parenthesized_primary
+	;
+
+parenthesized_primary ::= aggregate
+	| LPAREN expression RPAREN
+	;
+
+qualified ::= name TICK parenthesized_primary
+	;
+
+allocator ::= NEW name
+	| NEW qualified
+	;
+
+statement_s ::= statement
+	| statement_s statement
+	;
+
+statement ::= unlabeled
+	| label statement
+	;
+
+unlabeled ::= simple_stmt
+	| compound_stmt
+	| pragma
+	;
+
+simple_stmt ::= null_stmt
+	| assign_stmt
+	| exit_stmt
+	| return_stmt
+	| goto_stmt
+	| procedure_call
+	| delay_stmt
+	| abort_stmt
+	| raise_stmt
+	| code_stmt
+	| requeue_stmt
+| error:theError SEMICOLON /* error statement */
+{:
+	ASTError error = new ASTError(theErrorleft, theErrorright);
+	RESULT = error;	
+:}
+;
+
+compound_stmt ::= if_stmt
+	| case_stmt
+	| loop_stmt
+	| block
+	| accept_stmt
+	| select_stmt
+	;
+
+label ::= LTLT IDENTIFIER GTGT
+	;
+
+null_stmt ::= NULL SEMICOLON
+	;
+
+assign_stmt ::= name ASSIGNMENT expression SEMICOLON
+	;
+
+if_stmt ::= IF cond_clause_s else_opt END IF SEMICOLON
+	;
+
+cond_clause_s ::= cond_clause
+	| cond_clause_s ELSIF cond_clause
+	;
+
+cond_clause ::= cond_part statement_s
+	;
+
+cond_part ::= condition THEN
+	;
+
+condition ::= expression
+	;
+
+else_opt ::=
+	| ELSE statement_s
+	;
+
+case_stmt ::= case_hdr pragma_s alternative_s END CASE SEMICOLON
+	;
+
+case_hdr ::= CASE expression IS
+	;
+
+alternative_s ::=
+	| alternative_s alternative
+	;
+
+alternative ::= WHEN choice_s ARROW statement_s
+	;
+
+loop_stmt ::= label_opt iteration basic_loop id_opt SEMICOLON
+	;
+
+label_opt ::=
+	| IDENTIFIER COLON
+	;
+
+iteration ::=
+	| WHILE condition
+	| iter_part reverse_opt discrete_range
+	;
+
+iter_part ::= FOR IDENTIFIER IN
+	;
+
+reverse_opt ::=
+	| REVERSE
+	;
+
+basic_loop ::= LOOP statement_s END LOOP
+	;
+
+id_opt ::=
+	| designator
+	;
+
+block ::= label_opt block_decl block_body END id_opt SEMICOLON
+	;
+
+block_decl ::=
+	| DECLARE decl_part
+	;
+
+block_body ::= BEGIN handled_stmt_s
+	;
+
+handled_stmt_s ::= statement_s except_handler_part_opt 
+	; 
+
+except_handler_part_opt ::=
+	| except_handler_part
+	;
+
+exit_stmt ::= EXIT name_opt when_opt SEMICOLON
+	;
+
+name_opt ::=
+	| name
+	;
+
+when_opt ::=
+	| WHEN condition
+	;
+
+return_stmt ::= RETURN SEMICOLON
+	| RETURN expression SEMICOLON
+	;
+
+goto_stmt ::= GOTO name SEMICOLON
+	;
+
+subprog_decl ::= subprog_spec SEMICOLON
+	| generic_subp_inst SEMICOLON
+	| subprog_spec_is_push ABSTRACT SEMICOLON
+	;
+
+subprog_spec ::= PROCEDURE compound_name formal_part_opt
+	| FUNCTION designator formal_part_opt RETURN name
+	| FUNCTION designator  /* for generic inst and generic rename */
+	;
+
+designator ::= compound_name
+	| STRING_LITERAL
+	;
+
+formal_part_opt ::= 
+	| formal_part
+	;
+
+formal_part ::= LPAREN param_s RPAREN
+	;
+
+param_s ::= param
+	| param_s SEMICOLON param
+	;
+
+param ::= defining_identifier_list COLON mode mark init_opt
+| error:theError SEMICOLON /* error statement */
+{:
+	ASTError error = new ASTError(theErrorleft, theErrorright);
+	RESULT = error;	
+:}
+;
+
+mode ::=
+	| IN
+	| OUT
+	| IN OUT
+	| ACCESS
+	;
+
+subprog_spec_is_push ::= subprog_spec IS
+	;
+
+subprog_body ::= subprog_spec_is_push
+	       decl_part block_body END id_opt SEMICOLON
+	;
+
+procedure_call ::= name SEMICOLON
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 7.1 Package Specifications and Declarations
+//
+package_declaration ::= 
+package_specification:statement SEMICOLON
+{:
+	RESULT = statement;
+:}
+| generic_package_instantiation SEMICOLON
+;
+
+package_specification ::= 
+PACKAGE compound_name:packageName IS 
+  declarative_items_opt private_part 
+END compound_name_opt
+{:
+	Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
+	PackageSpecification packageSpecification = new PackageSpecification(packageNameleft, packageNameright, packageId);
+	RESULT = packageSpecification;
+:}
+;
+
+private_part ::=
+	| PRIVATE declarative_items_opt
+	;
+
+compound_name_opt ::= 
+	| compound_name
+	;
+
+pkg_body ::= PACKAGE BODY compound_name IS
+	       decl_part body_opt END compound_name_opt SEMICOLON
+	;
+
+body_opt ::=
+	| block_body
+	;
+
+private_type ::= tagged_opt limited_opt PRIVATE
+	;
+
+limited_opt ::=
+	| LIMITED
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 8.4 Use Clauses
+//
+use_clause ::= 
+USE name_list:packageList SEMICOLON
+{:
+    for (Object packageName : packageList) {
+    	Identifier packageId = new Identifier(packageListleft, packageListright, (String)packageName);
+        Use use = new Use(packageListleft, packageListright, packageId);
+        RESULT = use;
+    }
+:}
+| USE TYPE name_list:typeList SEMICOLON
+{:
+    for (Object type : typeList) {
+        UseType useType = new UseType(typeListleft, typeListright, (String)type);
+        RESULT = useType;
+    }
+:}
+;
+
+name_list ::= 
+name:name
+{:
+    List nameList = new LinkedList();
+    nameList.add(name);
+	RESULT = nameList;
+:}
+| name_list:nameList COMMA name:name
+{:
+    nameList.add(name);
+	RESULT = nameList;
+:}
+;
+
+
+rename_decl ::= defining_identifier_list COLON object_qualifier_opt subtype_ind renames SEMICOLON
+	| defining_identifier_list COLON EXCEPTION renames SEMICOLON
+	| rename_unit
+	;
+
+rename_unit ::= PACKAGE compound_name renames SEMICOLON
+	| subprog_spec renames SEMICOLON
+	| generic_formal_part PACKAGE compound_name renames SEMICOLON
+	| generic_formal_part subprog_spec renames SEMICOLON
+	;
+
+renames ::= RENAMES name
+	;
+
+task_decl ::= task_spec SEMICOLON
+	;
+
+task_spec ::= TASK simple_name task_def
+	| TASK TYPE simple_name discrim_part_opt task_def
+	;
+
+task_def ::=
+	| IS entry_decl_s rep_spec_s task_private_opt END id_opt
+	;
+
+task_private_opt ::=
+	| PRIVATE entry_decl_s rep_spec_s
+	;
+
+task_body ::= TASK BODY simple_name IS
+	       decl_part block_body END id_opt SEMICOLON
+	;
+
+prot_decl ::= prot_spec SEMICOLON
+	;
+
+prot_spec ::= PROTECTED IDENTIFIER prot_def
+	| PROTECTED TYPE simple_name discrim_part_opt prot_def
+	;
+
+prot_def ::= IS prot_op_decl_s prot_private_opt END id_opt
+	;
+
+prot_private_opt ::=
+	| PRIVATE prot_elem_decl_s
+	;
+
+prot_op_decl_s ::= 
+	| prot_op_decl_s prot_op_decl
+	;
+
+prot_op_decl ::= entry_decl
+	| subprog_spec SEMICOLON
+	| rep_spec
+	| pragma
+	;
+
+prot_elem_decl_s ::= 
+	| prot_elem_decl_s prot_elem_decl
+	;
+
+prot_elem_decl ::= prot_op_decl | comp_decl ;
+
+prot_body ::= PROTECTED BODY simple_name IS
+	       prot_op_body_s END id_opt SEMICOLON
+	;
+
+prot_op_body_s ::= pragma_s
+	| prot_op_body_s prot_op_body pragma_s
+	;
+
+prot_op_body ::= entry_body
+	| subprog_body
+	| subprog_spec SEMICOLON
+	;
+
+entry_decl_s ::= pragma_s
+	| entry_decl_s entry_decl pragma_s
+	;
+
+entry_decl ::= ENTRY IDENTIFIER formal_part_opt SEMICOLON
+	| ENTRY IDENTIFIER LPAREN discrete_range RPAREN formal_part_opt SEMICOLON
+	;
+
+entry_body ::= ENTRY IDENTIFIER formal_part_opt WHEN condition entry_body_part
+	| ENTRY IDENTIFIER LPAREN iter_part discrete_range RPAREN 
+		formal_part_opt WHEN condition entry_body_part
+	;
+
+entry_body_part ::= SEMICOLON
+	| IS decl_part block_body END id_opt SEMICOLON
+	;
+
+rep_spec_s ::=
+	| rep_spec_s rep_spec pragma_s
+	;
+
+entry_call ::= procedure_call
+	;
+
+accept_stmt ::= accept_hdr SEMICOLON
+	| accept_hdr DO handled_stmt_s END id_opt SEMICOLON
+	;
+
+accept_hdr ::= ACCEPT entry_name formal_part_opt
+	;
+
+entry_name ::= simple_name
+	| entry_name LPAREN expression RPAREN
+	;
+
+delay_stmt ::= DELAY expression SEMICOLON
+	| DELAY UNTIL expression SEMICOLON
+	;
+
+select_stmt ::= select_wait
+	| async_select
+	| timed_entry_call
+	| cond_entry_call
+	;
+
+select_wait ::= SELECT guarded_select_alt or_select else_opt
+	      END SELECT SEMICOLON
+	;
+
+guarded_select_alt ::= select_alt
+	| WHEN condition ARROW select_alt
+	;
+
+or_select ::=
+	| or_select OR guarded_select_alt
+	;
+
+select_alt ::= accept_stmt stmts_opt
+	| delay_stmt stmts_opt
+	| TERMINATE SEMICOLON
+	;
+
+delay_or_entry_alt ::= delay_stmt stmts_opt
+	| entry_call stmts_opt
+	;
+
+async_select ::= SELECT delay_or_entry_alt
+	       THEN ABORT statement_s
+	       END SELECT SEMICOLON
+	;
+
+timed_entry_call ::= SELECT entry_call stmts_opt 
+		   OR delay_stmt stmts_opt
+	           END SELECT SEMICOLON
+	;
+
+cond_entry_call ::= SELECT entry_call stmts_opt 
+		  ELSE statement_s
+	          END SELECT SEMICOLON
+	;
+
+stmts_opt ::=
+	| statement_s
+	;
+
+abort_stmt ::= ABORT name_list SEMICOLON
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 10.1.1 Compilation Units - Library Units
+//
+compilation ::=
+compilation_unit_list:compilationUnitList
+{:
+	Ada95ASTLexer adaAstLexer = (Ada95ASTLexer) parser.getScanner();
+	List commentList = adaAstLexer.getCommentList();
+	Program program = new Program(compilationUnitListleft, compilationUnitListright, compilationUnitList, commentList);
+	RESULT = program;
+:}
+| pragma pragma_s  // 10.1.5 - 4
+;
+
+compilation_unit_list ::=
+{:
+	RESULT = new LinkedList();
+:}
+| compilation_unit_list:compilationUnitList compilation_unit:compilationUnit
+{:
+	if(compilationUnit != null) {
+		compilationUnitList.add(compilationUnit);
+	}
+	RESULT = compilationUnitList;
+:}
+;
+
+compilation_unit ::=
+context_clause:statement private_opt unit pragma_s
+{:
+	RESULT = statement;
+
+:}
+| private_opt unit pragma_s  // 10.1.5 - 5/1
+;
+
+private_opt ::=
+| PRIVATE
+;
+
+unit ::= 
+package_declaration
+| pkg_body
+| subprog_decl
+| subprog_body
+| subunit
+| generic_declaration
+| rename_unit
+;
+
+///////////////////////////////////////////////////////////////////////////////
+// 10.1.2 Context Clauses - With Clauses
+//
+context_clause ::= 
+with_clause:statement
+{:
+	RESULT = statement;
+
+:}
+| use_clause:statement
+{:
+	RESULT = statement;
+
+:}
+| context_clause with_clause:statement
+{:
+	RESULT = statement;
+
+:}
+| context_clause use_clause:statement
+{:
+	RESULT = statement;
+
+:}
+| context_clause pragma
+;
+
+with_clause ::= 
+WITH compound_name_list:packageList SEMICOLON
+{:
+    for (Object packageName : packageList) {
+    	Identifier packageId = new Identifier(packageListleft, packageListright, (String)packageName);
+        With with = new With(packageListleft, packageListright, packageId);
+        RESULT = with;
+    }
+:}
+;
+
+///////////////////////////////////////////////////////////////////////////////
+// 10.1.3 Subunits of Compilation Units
+//
+subunit ::= SEPARATE LPAREN compound_name RPAREN
+	      subunit_body
+	;
+
+subunit_body ::= subprog_body
+	| pkg_body
+	| task_body
+	| prot_body
+	;
+
+body_stub ::= TASK BODY simple_name IS SEPARATE SEMICOLON
+	| PACKAGE BODY compound_name IS SEPARATE SEMICOLON
+	| subprog_spec IS SEPARATE SEMICOLON
+	| PROTECTED BODY simple_name IS SEPARATE SEMICOLON
+	;
+
+exception_decl ::= defining_identifier_list COLON EXCEPTION SEMICOLON
+	;
+
+except_handler_part ::= EXCEPTION exception_handler
+	| except_handler_part exception_handler
+	;
+
+exception_handler ::= WHEN except_choice_s ARROW statement_s
+	| WHEN IDENTIFIER COLON except_choice_s ARROW statement_s
+	;
+
+except_choice_s ::= except_choice
+	| except_choice_s BAR except_choice
+	;
+
+except_choice ::= name
+	| OTHERS
+	;
+
+raise_stmt ::= RAISE name_opt SEMICOLON
+	;
+
+requeue_stmt ::= REQUEUE name SEMICOLON
+	| REQUEUE name WITH ABORT SEMICOLON
+	;
+
+///////////////////////////////////////////////////////////////////////////////
+// 12.1 Generic Declarations
+//
+generic_declaration ::= 
+generic_formal_part subprog_spec SEMICOLON
+| generic_formal_part package_specification SEMICOLON
+;
+
+generic_formal_part ::= GENERIC
+	| generic_formal_part generic_formal
+	;
+
+generic_formal ::= param SEMICOLON
+	| TYPE simple_name generic_discrim_part_opt IS generic_type_def SEMICOLON
+	| WITH PROCEDURE simple_name 
+	    formal_part_opt subp_default SEMICOLON
+	| WITH FUNCTION designator 
+	    formal_part_opt RETURN name subp_default SEMICOLON
+	| WITH PACKAGE simple_name IS NEW name LPAREN BOX RPAREN SEMICOLON
+	| WITH PACKAGE simple_name IS NEW name SEMICOLON
+	| use_clause
+	;
+
+generic_discrim_part_opt ::=
+	| discrim_part
+	| LPAREN BOX RPAREN
+	;
+
+subp_default ::=
+	| IS name
+	| IS BOX
+	;
+
+generic_type_def ::= LPAREN BOX RPAREN
+	| RANGE BOX
+	| MOD BOX
+	| DELTA BOX
+	| DELTA BOX DIGITS BOX
+	| DIGITS BOX
+	| array_type
+	| access_type
+	| private_type
+	| generic_derived_type
+	;
+
+generic_derived_type ::= NEW subtype_ind
+	| NEW subtype_ind WITH PRIVATE
+	| ABSTRACT NEW subtype_ind WITH PRIVATE
+	;
+
+generic_subp_inst ::= subprog_spec IS generic_inst
+	;
+
+// 12.3
+generic_package_instantiation ::= 
+PACKAGE compound_name IS generic_inst
+;
+
+generic_inst ::= NEW name
+;
+
+rep_spec ::= attrib_def
+	| record_type_spec
+	| address_spec
+	;
+
+attrib_def ::= FOR mark USE expression SEMICOLON
+	;
+
+record_type_spec ::= FOR mark USE RECORD align_opt comp_loc_s END RECORD SEMICOLON
+	;
+
+align_opt ::=
+	| AT MOD expression SEMICOLON
+	;
+
+comp_loc_s ::=
+	| comp_loc_s mark AT expression RANGE range SEMICOLON
+	;
+
+address_spec ::= FOR mark USE AT expression SEMICOLON
+	;
+
+code_stmt ::= qualified SEMICOLON
+	;
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="contrib/ada.editor">
+    <description>Builds, tests, and runs the project org.netbeans.modules.ada.editor.</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <!-- SYNTAX LEXER GENERATOR -->
+    <taskdef name="jflex"
+        classname="JFlex.anttask.JFlexTask"
+        classpath="c:/jflex/jflex-1.4.2/lib/JFlex.jar" />
+
+    <target name="gen-lexer" description="Ada Syntax Lexer">
+        <echo message="Rebuilding Ada Syntax Lexer... ${flex.package.dir}"/>
+        <jflex file="src/org/netbeans/modules/ada/editor/lexer/resources/Ada95SyntaxLexer.flex"
+        destdir="src"
+        skel="src/org/netbeans/modules/ada/editor/lexer/resources/SyntaxLexer.skeleton"
+        />
+    </target>
+
+    <!-- AST LEXER GENERATOR -->
+    <target name="gen-astlexer" description="Ada AST Lexer">
+        <echo message="Rebuilding Ada AST Lexer... ${flex.package.dir}"/>
+        <jflex file="src/org/netbeans/modules/ada/editor/lexer/resources/Ada95ASTLexer.flex"
+        destdir="src"
+        skel="src/org/netbeans/modules/ada/editor/lexer/resources/ASTLexer.skeleton"
+        />
+    </target>
+    
+    <!-- AST PARSER GENERATOR -->
+    <taskdef name="javacup"
+        classname="java_cup.anttask.CUPTask"
+        classpath="${nb_all}/libs.javacup/external/java-cup-11a.jar" />
+
+    <target name="gen-astparser" description="Ada AST Parser">
+        <echo message="Rebuilding Ada AST Parser... ${cup.package.dir}"/>
+        <javacup srcfile="src/org/netbeans/modules/ada/editor/parser/resources/Ada95ASTParser.cup"
+        destdir="src"
+        parser="Ada95ASTParser"
+        symbols="Ada95ASTSymbols"
+        interface="on"
+        force="true"
+        />
+    </target>
+
+    <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
+        <taskdef name="gsfjar" classname="org.netbeans.modules.gsf.GsfJar" classpath="${nb_all}/gsf.api/anttask/gsfanttask.jar:${nb_all}/nbbuild/nbantext.jar"/>
+        <gsfjar jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}" stamp="${cluster}/.lastModified">
+            <fileset dir="${build.classes.dir}"/>
+        </gsfjar>
+    </target>
+
+</project>
