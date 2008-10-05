@@ -1,0 +1,81 @@
+*Ada for Netbeans*
+
+Planned Features
+
+1. Support for editing Ada files
+2. Ada Platform support
+3. Ada Project support
+4. Ada Debugger support
+5. Support for Unit Testing
+6. Support for code documentation
+7. C/C++, Fortran integration support
+8. UML modelling support for Ada
+9. Spark Support
+10. Help (ide)
+11. Kit
+
+
+Features:
+
+1. ada.editor:
+ a. - Syntax highlighting (lexer) (100%)
+ b. - Semantic Analyser (grammar-parser) (95%)
+ c. - Structure Scanner (AST-parser) (2%)
+ d. - Version highlighting (0%) 
+ e. - Code Completion (0%) 
+ f. - Indexing (0%) 
+ g. - Refactoring (0%) 
+ h. - Reformatting (0%) 
+
+2. ada.platform:
+ a. - GNAT platform (50%) 
+ b. - GHS platform (0%) 
+ c. - AdaJava (???) (0%) 
+ d. - TBD...
+
+3. ada.project:
+ a. - Create new Ada project (50%)
+ b. - Create new Ada project from existing sources (50%)
+ c. - Import from others IDEs (GPS, GHS, ...) (0%)
+ d. - Create Ada file from templates (new package specification, body and others) (10%)
+ e. - Default options
+ d. - TBD...
+
+4. ada.debugger:
+ a. - (see ada.platform) (0%) 
+
+5. ada.xunit:
+ a. - Based on Aunit framework (https://libre.adacore.com/aunit) (0%)
+ b. - Based on Ahven - Unit Test Library for Ada 95 framework (http://home.gna.org/ahven) (0%)
+
+6. ada.doc:
+ a. - Based on AdaDoc tool (http://adadoc.sourceforge.net) (0%) 
+
+7. ada.cnd:
+ a. - Based on CND bridge (0%) 
+
+8. ada.uml:
+ a. - TBD
+
+9. ada.editor.spark:
+ a. - Syntax highlighting for Spark (lexer) (0%)
+ b. - Semantic Analyser for Spark (grammar-parser) (0%)
+
+10. ada.help:
+ b. - Ide help files (0%)
+
+11. ada.kit: (Ada Kit)
+ a. - wrapper module (100%)
+
+
+Roadmap:
+
+31 October (MS1):
+1a - 100%
+1b - 100%
+2a - Only compliler and execution for windows platform by GNAT
+3a - 100%
+3d - 100%
+
+31 November (MS2):
+TBD

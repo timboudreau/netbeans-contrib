@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="contrib/ada.kit">
+    <description>Builds, tests, and runs the project org.netbeans.modules.ada.kit</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="ada-build">
+        <ant dir="../../contrib/ada.editor"/>
+        <ant dir="../../contrib/ada.platform"/>
+        <ant dir="../../contrib/ada.project"/>
+        <antcall target="netbeans"/>
+    </target>
+
+    <target name="ada-clean">
+        <ant dir="../../contrib/ada.editor" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/ada.platform" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/ada.project" inheritAll="false" target="clean"/>
+        <ant target="clean"/>
+    </target>
+
+</project>
