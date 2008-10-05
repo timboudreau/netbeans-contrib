@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="contrib/ada.platform">
+    <description>Builds, tests, and runs the project org.netbeans.modules.ada.platform</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+</project>
