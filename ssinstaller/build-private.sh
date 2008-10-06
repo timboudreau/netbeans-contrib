@@ -47,7 +47,7 @@ export SS_PACKAGES_DIR
 NB_ARCHIVE_DIR=${NB_ARCHIVE_DIR-$SUNSTUDIO_BITS_ROOT/builds/$DISTRS/c_installers/dvd_image_universal/install-$DISTRS/archives-$DISTRS}
 export NB_ARCHIVE_DIR
 
-IMAGE_DIR=${SUNSTUDIO_BITS_ROOT}/inst/${DISTRS}.inst/${INST_DIR}
+IMAGE_DIR=/shared/dp/sstrunk/latest/output/image_tars
 export IMAGE_DIR
 
 # The path to the product xml file
