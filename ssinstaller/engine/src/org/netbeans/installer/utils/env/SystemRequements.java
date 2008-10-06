@@ -64,6 +64,7 @@ public class SystemRequements {
     private static SystemRequements instance = null;
     
     private Set<Pair<Pattern, Pattern>> distributions = new HashSet<Pair<Pattern, Pattern>>();
+    private HashMap<Pair<Pattern, Pattern>, String> distributionsPaltforms = new HashMap<Pair<Pattern, Pattern>, String>();
     private Set<Pair<Pattern, Float>> cpus = new HashSet<Pair<Pattern, Float>>();
     private HashMap<Pair<Pattern, Pattern>, Map<String, Set<String>>> patches = new HashMap<Pair<Pattern, Pattern>,  Map<String, Set<String>>>();
     private float memoryMinimum = 0;
@@ -85,7 +86,10 @@ public class SystemRequements {
                 distributionsMode = true;
             }
             if (distributionsMode && qName.equals("distribution")) {
-                distributions.add(new Pair<Pattern, Pattern>(Pattern.compile(attributes.getValue("name")), Pattern.compile(attributes.getValue("version"))));
+                Pair<Pattern, Pattern> systemDescription = new Pair<Pattern, Pattern>(Pattern.compile(attributes.getValue("name")), Pattern.compile(attributes.getValue("version")));
+                distributions.add(systemDescription);
+                String platform = attributes.getValue("platform");
+                distributionsPaltforms.put(systemDescription, (platform != null)? platform: ANY_PLATFORM);
             }
             if (qName.equals("cpu")) {
                 cpus.add(new Pair<Pattern, Float>(Pattern.compile(attributes.getValue("model")), Float.parseFloat(attributes.getValue("minimum-frequency"))));
@@ -154,9 +158,14 @@ public class SystemRequements {
         return memoryMinimum;
     }
 
-    public boolean checkDistribution(String name, String version) {
+    public boolean checkDistribution(String name, String version, String platform) {
         for(Pair<Pattern, Pattern> entry: distributions) {
-            if (entry.getKey().matcher(name).matches() && entry.getValue().matcher(version).matches()) return true;
+            if (entry.getKey().matcher(name).matches() && entry.getValue().matcher(version).matches()) {
+                String distributionPlatform = distributionsPaltforms.get(entry);
+                if (distributionPlatform == null || distributionPlatform.equals(ANY_PLATFORM)) return true;
+                if (isIntelPlatform(platform) && distributionPlatform.equals(INTEL_PLATFORM)) return true;
+                return platform.equals(distributionPlatform);
+            }
         }
         return false;
     }

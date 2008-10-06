@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,9 +62,7 @@ import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.utils.helper.ExtendedUri;
 import org.netbeans.installer.utils.helper.Platform;
-import org.netbeans.installer.utils.helper.Status;
 import org.netbeans.installer.utils.silent.SilentLogManager;
-import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.panels.PreInstallSummaryPanel;
 
 public enum SystemCheckCategory implements ConfigurationChecker {
@@ -237,7 +234,8 @@ class OSCheck implements ConfigurationChecker {
     private boolean isSupported() {
         String name = EnvironmentInfoFactory.getInstance().getOSName();
         String version = EnvironmentInfoFactory.getInstance().getOSVersion();
-        return SystemRequements.getInstance().checkDistribution(name, version);
+        String platform = SystemUtils.getCurrentPlatform().getHardwareArch();
+        return SystemRequements.getInstance().checkDistribution(name, version, platform);
     }
     
     private boolean isCompatiblePackagesType() {

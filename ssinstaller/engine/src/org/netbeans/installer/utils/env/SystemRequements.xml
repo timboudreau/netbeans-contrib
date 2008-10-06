@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system-requements version="1.0" product-name="" product-version="" >
 	<distributions>
-		<distribution name="SuSE.*Enterprise.*" version="9.*" />
-		<distribution name="SUSE Linux Enterprise Server" version="10.*" />
-                <distribution name="SUSE Linux Enterprise Server" version="11.*" />
-                <distribution name="Red Hat Enterprise Linux.*" version="4.*" />
-                <distribution name="Red Hat Enterprise Linux.*" version="5.*" />
+		<distribution name="SUSE Linux Enterprise Server" version="10.*" platform="x64" />
+                <distribution name="Red Hat Enterprise Linux.*" version="5.*" platform="x64" />
                 <distribution name="OpenSolaris" version=".*" />
-                <distribution name="Solaris" version="9.*" />
                 <distribution name="Solaris" version="10.*" />
 	</distributions>
 	<hardware>
@@ -17,13 +13,6 @@
 		<memory minimum-size="512" />
 	</hardware>
         <patches> // Solaris only
-            <distribution name="Solaris" version="9.*" platform="intel" >
-                <patch id="113986-18" />
-                <patch id="117559-06" />
-                <patch id="111728-04" />
-                <patch id="112786-32" />
-                <patch id="112234-08" />
-            </distribution>
             <distribution name="Solaris" version="9.*" platform="x86" >
                 <patch id="111713-09" />
             </distribution>
