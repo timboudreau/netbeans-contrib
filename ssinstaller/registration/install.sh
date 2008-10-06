@@ -136,6 +136,7 @@ unpack() {
     cd ${BASE_DIR}
     bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf - || exit "Sun Studio installation failed."
     rm ${TMPDIR}/sunstudio.tar.bz2
+    rm uninstall_Sun_Studio_Ceres.class
     echo "Sun Studio was successfully installed into the directories ${SUNSTUDIO_DIR} and ${NETBEANS_DIR}."
 }
 
