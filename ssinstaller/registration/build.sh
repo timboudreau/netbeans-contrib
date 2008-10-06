@@ -54,8 +54,8 @@ do
     do 
 	ARGS="$ARGS -C $IMAGE_DIR $dir" 
     done
-    tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
-    bzip2 $TARDIR/sunstudio.$distr.tar
+    #tar cf $TARDIR/sunstudio.$distr.tar  -C $SRCDIR servicetag $ARGS 
+    #bzip2 $TARDIR/sunstudio.$distr.tar
     cat $SRCDIR/install.sh | while read f 
     do  
         if [ "$f" = "__license" ] 
@@ -65,7 +65,9 @@ do
 	    echo $f
 	fi
     done | sed s/__os_name/"${TARGET_OS}"/ |  sed s/__tail_length/"$TAIL_ARG \$0"/ >  $DISTR_NAME
-    cat $TARDIR/sunstudio.$distr.tar.bz2 >>  $DISTR_NAME
-    chmod u+x  $DISTR_NAME
+    #cat $TARDIR/sunstudio.$distr.tar.bz2 >>  $DISTR_NAME
+    TAR_NAME=`ls -1 $IMAGE_DIR | grep $distr`
+    cat $IMAGE_DIR/$TAR_NAME >>  $DISTR_NAME
+    chmod u+x $DISTR_NAME
     echo
 done
