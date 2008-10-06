@@ -1,8 +1,8 @@
 cd `dirname "$0"`
 
-cd ..
-. build-private.sh
-cd registration
+#cd ..
+#. build-private.sh
+#cd registration
 
 TARDIR=`pwd`/build/tars
 RESDIR=$OUTPUT_DIR/bundles

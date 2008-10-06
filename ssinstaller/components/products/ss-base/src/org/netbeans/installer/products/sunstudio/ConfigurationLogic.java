@@ -42,15 +42,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
 import org.netbeans.installer.products.sunstudio.panels.SSBasePanel;
 import org.netbeans.installer.utils.FileUtils;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
+import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.helper.RemovalMode;
 import org.netbeans.installer.utils.helper.Text;
 import org.netbeans.installer.utils.progress.Progress;
@@ -62,6 +66,16 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     
     @Override
     public void install(Progress progress) throws InstallationException {
+        if (SystemUtils.getCurrentPlatform().equals(Platform.SOLARIS_SPARC)) {
+            // TODO remove this
+            String v8Name =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/lib/v8plus";
+            try {
+                FileUtils.mkdirs(new File(v8Name));
+                LogManager.log("v8Name was created as "  + v8Name );
+            } catch (IOException ex) {
+                LogManager.log("v8Name was not created as "  + v8Name, ex);                
+            }
+        }
         progress.setPercentage(Progress.COMPLETE);
     }
 
@@ -109,6 +123,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             // workaround for SS bug
             // the removal of condev should be moved to the beginning
             FileUtils.deleteFile(new File(mainDirectory, "prod"), true);
+            FileUtils.deleteFile(new File(mainDirectory, "lib/v8plus"), true);
             // end
             // delete only if empty
             FileUtils.deleteFile(mainDirectory);
