@@ -39,6 +39,7 @@ import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.UiUtils;
 import org.netbeans.installer.utils.UiUtils.MessageType;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
+import org.netbeans.installer.utils.silent.SilentLogManager;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;
 import org.netbeans.installer.wizard.components.actions.InitializeRegistryAction;
@@ -60,7 +61,12 @@ public class SystemInitializationAction extends WizardAction {
     
     public void execute() {
         if (!SystemCheckCategory.PLATFORM.isCheckPassed()) {
-            UiUtils.showMessageDialog(SystemCheckCategory.PLATFORM.getDisplayString(), SystemCheckCategory.PLATFORM.getCaption(), MessageType.CRITICAL);
+            if (!SilentLogManager.isLogManagerActive()) {
+                UiUtils.showMessageDialog(SystemCheckCategory.PLATFORM.getDisplayString(), SystemCheckCategory.PLATFORM.getCaption(), MessageType.CRITICAL);
+            } else {
+                String shortMessage = SystemCheckCategory.PLATFORM.getShortErrorMessage();
+                SilentLogManager.forceLog(SystemCheckCategory.PLATFORM.check(),  ((shortMessage.length() > 0)? shortMessage + ". ": "") + SystemCheckCategory.PLATFORM.getLongErrorMessage());
+            }                
             getWizard().getFinishHandler().criticalExit();
         }        
         if (initReg.canExecuteForward()) {        

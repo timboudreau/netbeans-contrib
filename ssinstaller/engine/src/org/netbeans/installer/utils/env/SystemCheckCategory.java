@@ -147,6 +147,7 @@ class PlatformCheck implements ConfigurationChecker {
     
     private Registry registry = null;
     private String incompatiblePlatform = null;
+    private CheckStatus status = null;
     
     private Registry getRegistry() {        
         try {            
@@ -189,21 +190,28 @@ class PlatformCheck implements ConfigurationChecker {
             }
             return true;
         }
-        return false;
+        return true;
     }
     
     public CheckStatus check() {
-        if (!isCorrectPlatform()) return CheckStatus.ERROR;
-        return CheckStatus.OK;
+        if (status == null) {
+            status = CheckStatus.OK;
+            if (!isCorrectPlatform()) status = CheckStatus.ERROR;
+        }
+        return status;
     }
 
+    public boolean isOK() {
+        return check().equals(CheckStatus.OK);
+    }
+    
     public String getShortErrorMessage() {
-        if (!isCorrectPlatform()) return INCORRECT_PLATFORM_SHORT;
+        if (!isOK()) return INCORRECT_PLATFORM_SHORT;
         return "";
     }
 
     public String getLongErrorMessage() {
-        if (!isCorrectPlatform()) return INCORRECT_PLATFORM_LONG;
+        if (!isOK()) return INCORRECT_PLATFORM_LONG;
         return "";
     }
 
@@ -212,7 +220,7 @@ class PlatformCheck implements ConfigurationChecker {
     }
 
     public String getDisplayString() {
-        return isCorrectPlatform()? CORRECT_PLATFORM_MESSAGE: INCORRECT_PLATFORM_MESSAGE + ": " + incompatiblePlatform;
+        return isOK()? CORRECT_PLATFORM_MESSAGE: INCORRECT_PLATFORM_MESSAGE + ": " + incompatiblePlatform;
     }
     
 }
