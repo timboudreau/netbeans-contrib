@@ -49,6 +49,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -67,7 +68,7 @@ public class PradoCompletionItem implements CompletionProposal {
         this.name = name;
         this.prefix = prefix;
         if (icon == null) {
-            icon = new ImageIcon(org.openide.util.Utilities.loadImage(PRADO_ICON));
+            icon = new ImageIcon(ImageUtilities.loadImage(PRADO_ICON));
         }
     }
 
@@ -125,6 +126,10 @@ public class PradoCompletionItem implements CompletionProposal {
 
     public String[] getParamListDelimiters() {
         return null;
+    }
+
+    public int getSortPrioOverride() {
+       return 1;
     }
 
 }

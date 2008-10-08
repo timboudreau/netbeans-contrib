@@ -73,5 +73,6 @@ public class PageLanguage extends DefaultLanguageConfig {
     public CodeCompletionHandler getCompletionHandler() {
         return new PageCodeCompletion();
     }
-    
+
+
 }
