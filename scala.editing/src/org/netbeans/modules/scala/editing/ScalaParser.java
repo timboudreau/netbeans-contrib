@@ -133,6 +133,7 @@ public class ScalaParser implements Parser {
                 pResult = parseBuffer(context, Sanitize.NONE);
             } catch (IOException ioe) {
                 listener.exception(ioe);
+                pResult = createParserResult(file, null, null, TokenHierarchy.create("", ScalaTokenId.language()), Collections.<DefaultError>emptyList());
             }
 
             ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
