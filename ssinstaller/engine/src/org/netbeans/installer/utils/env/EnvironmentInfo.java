@@ -39,9 +39,7 @@ package org.netbeans.installer.utils.env;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.installer.utils.LogManager;
@@ -57,6 +55,10 @@ public abstract class EnvironmentInfo {
     public abstract String getOSName();
     
     public abstract String getOSVersion();
+    
+    public String getPlatformArchitecture() {
+        return getPlatform().getHardwareArch();
+    }
     
     public Platform getPlatform() {
         return SystemUtils.getCurrentPlatform();

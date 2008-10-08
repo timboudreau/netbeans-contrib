@@ -5,6 +5,7 @@
                 <distribution name="Red Hat Enterprise Linux.*" version="5.*" platform="x64" />
                 <distribution name="OpenSolaris" version=".*" />
                 <distribution name="Solaris" version="10.*" />
+                <distribution name="Solaris Express.*" version=".*" />
 	</distributions>
 	<hardware>
 		<cpus>

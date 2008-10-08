@@ -36,7 +36,11 @@
 
 package org.netbeans.installer.utils.env;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Set;
+import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.env.impl.LinuxDistribution;
 import org.netbeans.installer.utils.env.impl.LinuxDistributionInfo;
 import org.netbeans.installer.utils.env.impl.LinuxProcFileSystemReader;
@@ -55,6 +59,27 @@ public class LinuxEnvironmentInfo extends EnvironmentInfo {
     private LinuxDistributionInfo getLinuxDistributionInfo() {
         if (info == null) info = LinuxDistribution.getCurrentDistribution().getInfo();        
         return info;
+    }
+    
+    @Override
+    public String getPlatformArchitecture() {
+        String result = super.getPlatformArchitecture();
+        try {        
+            Process p = new ProcessBuilder("uname", "-m").start();
+            if (p.waitFor() == 0) {
+                BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line = output.readLine();
+                if (line != null) {
+                    if (line.equals("i386") || line.equals("i686")) result = "x86";
+                    if (line.equals("x86_64")) result = "x64";
+                }
+            }
+        } catch (InterruptedException ex) {
+            LogManager.log(ex);
+        } catch (IOException ex) {
+            LogManager.log(ex);
+        }            
+        return result;
     }
     
     @Override

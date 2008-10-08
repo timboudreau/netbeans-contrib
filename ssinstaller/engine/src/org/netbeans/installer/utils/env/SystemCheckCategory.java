@@ -234,7 +234,7 @@ class OSCheck implements ConfigurationChecker {
     private boolean isSupported() {
         String name = EnvironmentInfoFactory.getInstance().getOSName();
         String version = EnvironmentInfoFactory.getInstance().getOSVersion();
-        String platform = SystemUtils.getCurrentPlatform().getHardwareArch();
+        String platform = EnvironmentInfoFactory.getInstance().getPlatformArchitecture();
         return SystemRequements.getInstance().checkDistribution(name, version, platform);
     }
     
