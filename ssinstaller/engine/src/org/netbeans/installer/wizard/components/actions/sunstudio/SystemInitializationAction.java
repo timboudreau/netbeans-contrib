@@ -35,10 +35,15 @@
  */
 package org.netbeans.installer.wizard.components.actions.sunstudio;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.UiUtils;
 import org.netbeans.installer.utils.UiUtils.MessageType;
 import org.netbeans.installer.utils.env.SystemCheckCategory;
+import org.netbeans.installer.utils.exceptions.InitializationException;
+import org.netbeans.installer.utils.progress.Progress;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;
 import org.netbeans.installer.wizard.components.actions.InitializeRegistryAction;
@@ -62,11 +67,14 @@ public class SystemInitializationAction extends WizardAction {
         if (!SystemCheckCategory.PLATFORM.isCheckPassed()) {
             UiUtils.showMessageDialog(SystemCheckCategory.PLATFORM.getDisplayString(), SystemCheckCategory.PLATFORM.getCaption(), MessageType.CRITICAL);
             getWizard().getFinishHandler().criticalExit();
-        }        
-        if (initReg.canExecuteForward()) {        
-            initReg.setWizard(getWizard());
-            initReg.execute();
+        }   
+        final Progress progress = new Progress();
+        try {
+            Registry.getInstance().initializeRegistry(progress);                         
+        } catch (InitializationException ex) {
+            ///UiUtils.showMessageDialog("", "" ,MessageType.WARNING);
         }
+
         if (downloadLogic.canExecuteForward()) {          
             downloadLogic.setWizard(getWizard());
             downloadLogic.execute();
