@@ -53,3 +53,11 @@ zip -r netbeans-6.1.zip *
 mv netbeans-6.1.zip ..
 cd ..
 rm -rf netbeans
+
+case $DISTRS in 
+    intel-Linux)
+	touch dummy
+	zip -r extra.zip dummy
+	rm dummy
+    ;;
+esac
