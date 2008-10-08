@@ -41,6 +41,7 @@ package org.netbeans.modules.php.prado.lexer;
 
 import java.util.List;
 import javax.swing.text.Document;
+import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 
@@ -73,6 +74,40 @@ public class LexerUtilities {
 
                 for (TokenSequence t : list) {
                     if (t.language() == TemplateControlTokenId.language()) {
+                        ts = t;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return ts;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static TokenSequence<HTMLTokenId> getHTMLTokenSequence(Document doc, int offset) {
+        TokenHierarchy<Document> th = TokenHierarchy.get(doc);
+        TokenSequence<HTMLTokenId> ts = th == null ? null : th.tokenSequence(HTMLTokenId.language());
+
+        if (ts == null) {
+            // Possibly an embedding scenario such as an RHTML file
+            // First try with backward bias true
+            List<TokenSequence<?>> list = th.embeddedTokenSequences(offset, true);
+
+            for (TokenSequence t : list) {
+                if (t.language() == HTMLTokenId.language()) {
+                    ts = t;
+
+                    break;
+                }
+            }
+
+            if (ts == null) {
+                list = th.embeddedTokenSequences(offset, false);
+
+                for (TokenSequence t : list) {
+                    if (t.language() == HTMLTokenId.language()) {
                         ts = t;
 
                         break;
