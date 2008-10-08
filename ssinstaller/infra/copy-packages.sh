@@ -46,11 +46,11 @@ mkdir -p $DEST_NB
 cp $NB_ARCHIVE_DIR/* $DEST_NB
 cd $DEST_NB
 mv atd-cluster*.zip atd-cluster.zip   
-mv netbeans-6.1*.zip netbeans-6.1.zip
-unzip netbeans-6.1.zip
+mv netbeans-trunk*.zip netbeans.zip
+unzip netbeans.zip
 cd netbeans
-zip -r netbeans-6.1.zip *
-mv netbeans-6.1.zip ..
+zip -r netbeans.zip *
+mv netbeans.zip ..
 cd ..
 rm -rf netbeans
 
