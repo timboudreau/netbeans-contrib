@@ -199,7 +199,6 @@ public class ExistingSunStudioChecker {
     }
     
     public int getResolutionForVersion(String version) {        
-        if (SystemUtils.isLinux()) return INSTALLATION_BLOCKED;
         if (version.equals(VERSION)) {            
             return getBaseDirsForVersion(version).size() == 1 
                     ? ONLY_THIS_LOCATION_USED : INSTALLATION_BLOCKED;
@@ -218,7 +217,7 @@ public class ExistingSunStudioChecker {
         return result;
     }
     
-    public String getAllowedDirectory() {        
+    public String getAllowedDirectory() {  
         for (PackageDescr descr : conflictedPackages) {
             if (descr.getVersion().equals(getCurrentVersion())) {
                 return descr.getBaseDirectory();

@@ -73,9 +73,9 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
                 Process p = null;
 
                 if (target == null) {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", "--ignorearch", pathToPackage).start();
+                    p = new ProcessBuilder("rpm", "-U", "--nodeps", "--ignorearch", "--force", pathToPackage).start();
                 } else {
-                    p = new ProcessBuilder("rpm", "-i", "--nodeps", "--ignorearch",  pathToPackage, "--relocate", "/opt/sun=" + target).start();
+                    p = new ProcessBuilder("rpm", "-U", "--nodeps", "--ignorearch", "--force", pathToPackage, "--relocate", "/opt/sun=" + target).start();
                 }
 
                 getProcessOutput(p);
