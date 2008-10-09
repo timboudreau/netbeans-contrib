@@ -226,7 +226,7 @@ final class OutputUtils {
                     try {
                         Line l = ed.getLineSet().getOriginal(lineNum - 1);
                         if (!l.isDeleted()) {
-                            l.show(Line.SHOW_GOTO);
+                            l.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FOCUS);
                         }
                     } catch (IndexOutOfBoundsException ioobe) {
                         // Probably harmless. Bogus line number.
