@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.modules.contrib.testng.BuildScriptHandler;
+import org.netbeans.modules.contrib.testng.TestNGProjectUpdater;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
@@ -103,7 +104,11 @@ public final class CreateTestAction extends CookieAction {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-                BuildScriptHandler.initBuildScript(createdFile.getPrimaryFile());
+                try {
+                    TestNGProjectUpdater.updateProject(createdFile.getPrimaryFile());
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
                 final LineCookie lc = createdFile.getCookie(LineCookie.class);
                 if (lc != null) {
                     SwingUtilities.invokeLater(new Runnable() {
