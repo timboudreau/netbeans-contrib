@@ -36,7 +36,7 @@
             <svr source="SPROcc"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-cc-12.0-1.i386.rpm"/>
+            <rpm source="sun-cc-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="C++ Compiler" description="The C++ Compiler"
@@ -58,12 +58,12 @@
             <svr source="SPROtll7x"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-cpl-12.0-1.i386.rpm"/>
-            <rpm source="sun-cplx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-tll7-12.0-1.i386.rpm"/>
-            <rpm source="sun-tlbn7-12.0-1.i386.rpm"/>
-            <rpm source="sun-tl7x-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-tll7x-12.0-1.x86_64.rpm"/>
+            <rpm source="sun-cpl-2008.11-1.i386.rpm"/>
+            <rpm source="sun-cplx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-tll7-2008.11-1.i386.rpm"/>
+            <rpm source="sun-tlbn7-2008.11-1.i386.rpm"/>
+            <rpm source="sun-tl7x-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-tll7x-2008.11-1.x86_64.rpm"/>
         </block>
     </component>
     <component  name="Fortran 95 Compiler"
@@ -78,8 +78,8 @@
             <svr source="SPROftool"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-ftool-12.0-1.i386.rpm"/>
-            <rpm source="sun-f90-12.0-1.i386.rpm"/>
+            <rpm source="sun-ftool-2008.11-1.i386.rpm"/>
+            <rpm source="sun-f90-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="DBX Debugging Tools"
@@ -100,11 +100,11 @@
             <svr source="SPROmrdbx"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-dbx-12.0-1.i386.rpm"/>
-            <rpm source="sun-dbxx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-jdbx-12.0-1.i386.rpm"/>
-            <rpm source="sun-jdbxx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-mrdbx-12.0-1.i386.rpm"/>
+            <rpm source="sun-dbx-2008.11-1.i386.rpm"/>
+            <rpm source="sun-dbxx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-jdbx-2008.11-1.i386.rpm"/>
+            <rpm source="sun-jdbxx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-mrdbx-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="Build Tools"
@@ -118,7 +118,7 @@
             <svr source="SPROdmake"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-dmake-12.0-1.i386.rpm"/>
+            <rpm source="sun-dmake-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="Demos"
@@ -138,7 +138,8 @@
                        uid="support-files" description="Support files">
         <block platform="solaris-x86">
             <svr source="SPROcmpl"/>
-            <svr source="SPROctags"/>            
+            <svr source="SPROctags"/>
+            <svr source="SPROdlight"/>
             <svr source="SPROdwrfb"/>
             <svr source="SPROdwrfx"/>
             <svr source="SPROfd"/>
@@ -185,23 +186,24 @@
             <svr source="SPROstl4y"/>
             <svr source="SPROsunms"/>
             <svr source="SPROsvc"/>
-            <svr source="SPROsslnk"/>
             <svr source="SPROtdemo"/>
             <svr source="SPROutool"/>
             <svr source="SPROlklnt"/>
             <svr source="SPROmrmp"/>
             <svr source="SPROsysprp"/>
+            <svr source="SPROsslnk"/>            
         </block>
         <block platform="solaris-sparc">
             <svr source="SPROcmpl"/>
-            <svr source="SPROctags"/>            
+            <svr source="SPROctags"/>
+            <svr source="SPROdlight"/>
             <svr source="SPROdwrfb"/>
             <svr source="SPROdwrfx"/>
             <svr source="SPROfd"/>
             <svr source="SPROgc"/>
             <svr source="SPROgcx"/>
-            <svr source="SPROidext"/>
-	    <svr source="SPROatd"/>
+            <svr source="SPROidext"/>            
+	        <svr source="SPROatd"/>
             <svr source="SPROipl"/>
             <svr source="SPROiplg"/>
             <svr source="SPROiplx"/>
@@ -258,45 +260,46 @@
             <svr source="SPROsslnk"/>
             <svr source="SPROsysprp"/>
         </block>
-        <block platform="linux">
-	    <rpm source="sun-atd-12.0-1.x86_64.rpm"/> 
-            <rpm source="sun-dwrfb-12.0-1.i386.rpm"/>
-            <rpm source="sun-lang-12.0-1.i386.rpm"/>
-            <rpm source="sun-rtm-12.0-1.i386.rpm"/>
-            <rpm source="sun-svc-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-utool-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrlnx-12.0-1.i386.rpm"/>
-            <rpm source="sun-rtmx-12.0-1.x86_64.rpm"/>            
-            <rpm source="sun-l90-12.0-1.i386.rpm"/>
-            <rpm source="sun-l90s-12.0-1.i386.rpm"/>
-            <rpm source="sun-idext-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-l90sx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-l90x-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-langx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-mrdmk-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrdwf-12.0-1.i386.rpm"/>
-            <rpm source="sun-mride-12.0-1.i386.rpm"/>
-            <rpm source="sun-mr3m-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrcc-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrcom-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrcpl-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrftn-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrstd-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrpan-12.0-1.i386.rpm"/>
-            <rpm source="sun-mrpgn-12.0-1.i386.rpm"/>
-            <rpm source="sun-pnsn-12.0-1.i386.rpm"/>
-            <rpm source="sun-prfan-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-prflb-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-scl-12.0-1.i386.rpm"/>
-            <rpm source="sun-sclx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-tdemo-12.0-1.i386.rpm"/>
-            <rpm source="sun-udchk-12.0-1.i386.rpm"/>
-            <rpm source="sun-stl4a-12.0-1.i386.rpm"/>
-            <rpm source="sun-stl4h-12.0-1.i386.rpm"/>
-            <rpm source="sun-stl4o-12.0-1.i386.rpm"/>
-            <rpm source="sun-stl4x-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-stl4y-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-sysprp-12.0-1.i386.rpm"/>
+        <block platform="linux">	    
+            <rpm source="sun-dwrfb-2008.11-1.i386.rpm"/>
+            <rpm source="sun-lang-2008.11-1.i386.rpm"/>
+            <rpm source="sun-rtm-2008.11-1.i386.rpm"/>
+            <rpm source="sun-svc-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-utool-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrlnx-2008.11-1.i386.rpm"/>
+            <rpm source="sun-rtmx-2008.11-1.x86_64.rpm"/>            
+            <rpm source="sun-l90-2008.11-1.i386.rpm"/>
+            <rpm source="sun-l90s-2008.11-1.i386.rpm"/>
+            <rpm source="sun-idext-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-atd-2008.11-1.x86_64.rpm"/> 
+            <rpm source="sun-l90sx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-l90x-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-langx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-mrdmk-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrdwf-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mride-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mr3m-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrcc-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrcom-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrcpl-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrftn-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrstd-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrpan-2008.11-1.i386.rpm"/>
+            <rpm source="sun-mrpgn-2008.11-1.i386.rpm"/>
+            <rpm source="sun-pnsn-2008.11-1.i386.rpm"/>
+            <rpm source="sun-prfan-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-prflb-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-dlight-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-scl-2008.11-1.i386.rpm"/>
+            <rpm source="sun-sclx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-tdemo-2008.11-1.i386.rpm"/>
+            <rpm source="sun-udchk-2008.11-1.i386.rpm"/>
+            <rpm source="sun-stl4a-2008.11-1.i386.rpm"/>
+            <rpm source="sun-stl4h-2008.11-1.i386.rpm"/>
+            <rpm source="sun-stl4o-2008.11-1.i386.rpm"/>
+            <rpm source="sun-stl4x-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-stl4y-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-sysprp-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="Performance Library"
@@ -322,16 +325,16 @@
             <svr source="SPROmrpl"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-mrpl-12.0-1.noarch.rpm"/>
-            <rpm source="sun-pl-12.0-1.i386.rpm"/>
-            <rpm source="sun-plg-12.0-1.noarch.rpm"/>
-            <rpm source="sun-pls-12.0-1.i386.rpm"/>
-            <rpm source="sun-plsx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-plx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-ipl-12.0-1.i386.rpm"/>
-            <rpm source="sun-iplg-12.0-1.noarch.rpm"/>
-            <rpm source="sun-iplx-12.0-1.x86_64.rpm"/>
-            <rpm source="sun-mripl-12.0-1.noarch.rpm"/>
+            <rpm source="sun-mrpl-2008.11-1.noarch.rpm"/>
+            <rpm source="sun-pl-2008.11-1.i386.rpm"/>
+            <rpm source="sun-plg-2008.11-1.noarch.rpm"/>
+            <rpm source="sun-pls-2008.11-1.i386.rpm"/>
+            <rpm source="sun-plsx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-plx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-ipl-2008.11-1.i386.rpm"/>
+            <rpm source="sun-iplg-2008.11-1.noarch.rpm"/>
+            <rpm source="sun-iplx-2008.11-1.x86_64.rpm"/>
+            <rpm source="sun-mripl-2008.11-1.noarch.rpm"/>
         </block>
     </component>
     <component  name="Third-party Source"
@@ -345,7 +348,7 @@
             <svr source="SPROctsrc"/>
         </block>
         <block platform="linux">
-            <rpm source="sun-dwrfs-12.0-1.i386.rpm"/>
+            <rpm source="sun-dwrfs-2008.11-1.i386.rpm"/>
         </block>
     </component>
 </product>
