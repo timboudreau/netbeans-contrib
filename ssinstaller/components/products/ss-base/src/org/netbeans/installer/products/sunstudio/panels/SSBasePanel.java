@@ -134,7 +134,11 @@ public class SSBasePanel extends DestinationPanel {
                 createSymLinks = new NbiCheckBox();
                 createSymLinks.setText(CREATE_SYMLINKS_CHECKBOX_TEXT);
                 createSymLinks.setSelected(Boolean.parseBoolean(
-                        component.getWizard().getProperty(CREATE_SYMLINKS_PROPERTY)));                
+                        component.getWizard().getProperty(CREATE_SYMLINKS_PROPERTY)));
+                if (ExistingSunStudioChecker.getInstance().isOnlyLocalInstallationPossible()) {
+                    createSymLinks.setSelected(false);
+                    createSymLinks.setEnabled(false);
+                }
                 GridBagConstraints constraints = new GridBagConstraints();
                 constraints.gridx = 0;
                 constraints.gridy = GridBagConstraints.RELATIVE;

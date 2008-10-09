@@ -73,6 +73,7 @@ public class ExistingSunStudioChecker {
     List<PackageDescr> conflictedPackages;
     public final String VERSION = "2008.11";
     public final String VERSION_11 = "11.0";
+    public final String VERSION_12 = "12.0";
     private ExistingSunStudioChecker() {
         conflictedPackages = new ArrayList<PackageDescr>();       
         packagesToInstall = new ArrayList<PackageDescr>();
@@ -128,7 +129,8 @@ public class ExistingSunStudioChecker {
         for (String version : getInstalledVersions()) {
             LogManager.log("Checking version: '" + version + "'" );
             // if Sun Studio 11 is already installed then only local zone could be used.
-            if (version.equals(VERSION_11)) {
+            if (version.equals(VERSION_11)
+                    || version.equals(VERSION_12)) {
                 return true;
             }
         }
