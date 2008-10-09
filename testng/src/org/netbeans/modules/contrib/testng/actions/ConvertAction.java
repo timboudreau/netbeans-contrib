@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.BuildScriptHandler;
+import org.netbeans.modules.contrib.testng.ProjectUtilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -55,6 +57,17 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 public final class ConvertAction extends CookieAction {
+
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        if (super.enable(activatedNodes)) {
+            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
+            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            return ProjectUtilities.isAntProject(p);
+        }
+        return false;
+    }
+
 
     protected void performAction(Node[] activatedNodes) {
         DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);

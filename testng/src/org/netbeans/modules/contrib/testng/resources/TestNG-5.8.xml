@@ -56,4 +56,8 @@ made subject to such option by the copyright holder.
         <type>javadoc</type>
         <resource>jar:nbinst:///modules/ext/testng/TestNG-5.8.zip!/</resource>
     </volume>
+    <volume>
+        <type>maven-pom</type>
+        <resource>http://repo1.maven.org/maven2/org/testng/testng/5.8/testng-5.8.pom</resource>
+    </volume>
 </library>

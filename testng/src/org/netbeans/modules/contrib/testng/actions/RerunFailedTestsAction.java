@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.contrib.testng.ProjectUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -50,7 +51,8 @@ public final class RerunFailedTestsAction extends CookieAction {
             //XXX - should rather listen on a fileobject??
             FileUtil.refreshFor(FileUtil.toFile(projectHome));
             failedTestsConfig = projectHome.getFileObject("build/test/results/testng-failed.xml"); //NOI18N
-            return (failedTestsConfig != null && !failedTestsConfig.isVirtual() && failedTestsConfig.isValid());
+            return ProjectUtilities.isAntProject(p)
+                    && (failedTestsConfig != null && !failedTestsConfig.isVirtual() && failedTestsConfig.isValid());
         }
         return false;
     }

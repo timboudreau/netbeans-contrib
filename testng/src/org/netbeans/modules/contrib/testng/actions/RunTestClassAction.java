@@ -12,6 +12,7 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.contrib.testng.ProjectUtilities;
 import org.netbeans.modules.contrib.testng.suite.XMLSuiteHandler;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -25,6 +26,16 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 public final class RunTestClassAction extends CookieAction {
+
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        if (super.enable(activatedNodes)) {
+            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
+            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            return ProjectUtilities.isAntProject(p);
+        }
+        return false;
+    }
 
     protected void performAction(Node[] activatedNodes) {
         Lookup l = activatedNodes[0].getLookup();
