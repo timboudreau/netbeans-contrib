@@ -71,7 +71,7 @@ public class ExistingSunStudioChecker {
     List<PackageDescr> packagesToInstall;
     
     List<PackageDescr> conflictedPackages;
-    public final String VERSION = "12.0";
+    public final String VERSION = "2008.11";
     public final String VERSION_11 = "11.0";
     private ExistingSunStudioChecker() {
         conflictedPackages = new ArrayList<PackageDescr>();       
