@@ -43,8 +43,8 @@ import java.io.IOException;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.contrib.testng.BuildScriptHandler;
 import org.netbeans.modules.contrib.testng.ProjectUtilities;
+import org.netbeans.modules.contrib.testng.TestNGProjectUpdater;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -81,7 +81,7 @@ public final class ConvertAction extends CookieAction {
                 NotifyDescriptor.OK_OPTION);
         if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
             FileObject fo = dataObject.getPrimaryFile();
-            BuildScriptHandler.initBuildScript(fo);
+            TestNGProjectUpdater.initBuildScript(fo);
             fo = FileOwnerQuery.getOwner(fo).getProjectDirectory();
             File f = FileUtil.toFile(fo);
             try {

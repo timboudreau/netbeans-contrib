@@ -38,24 +38,22 @@
  */
 package org.netbeans.modules.contrib.testng;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ant.AntBuildExtender;
+import org.netbeans.api.project.ant.AntBuildExtender.Extension;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.contrib.testng.ProjectUtilities.Type;
 import org.openide.filesystems.FileObject;
-import org.openide.modules.InstalledFileLocator;
-import org.openide.util.Exceptions;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 
 /**
  *
@@ -73,61 +71,42 @@ public class TestNGProjectUpdater {
         Project p = FileOwnerQuery.getOwner(fo);
         ClassPath cp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
         Type type = ProjectUtilities.getProjectType(p);
-        FileObject ng = cp.findResource("org.testng.annotations.Test");
+        FileObject ng = cp.findResource("org.testng.annotations.Test"); //NOI18N
         if (ng == null) {
             // add library to the project
-            switch (type) {
-                case ANT:
-                    Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
-                    if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
-                        LOGGER.fine("TestNG library not added to Ant project " + p); //NOI18N
-                    }
-                    break;
-                case MAVEN:
-                    //PCMI in meven IDE doesn't add scope and classifier elements
-                    FileObject pom = p.getProjectDirectory().getFileObject("pom.xml"); //NOI18N
-                    if (!addMavenDependency(pom)) {
-                        LOGGER.fine("TestNG library not added to Maven project " + p); //NOI18N
-                    }
-                    break;
-                default:
-                    LOGGER.warning("TestNG library not added to " + p); //NOI18N
+            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
+            if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
+                LOGGER.fine("TestNG library not added to project " + p); //NOI18N
             }
         }
         if (Type.ANT.equals(type)) {
-            BuildScriptHandler.initBuildScript(fo);
+            initBuildScript(p);
         }
     }
 
-    private static boolean addMavenDependency(FileObject pom) {
-        boolean retVal = false;
-        File jar = InstalledFileLocator.getDefault().locate(
-                "modules/org-netbeans-modules-maven.jar", //NOI18N
-                "org.netbeans.modules.maven", false); //NOI18N
-        try {
-            ClassLoader cl = new URLClassLoader(new URL[]{jar.toURI().toURL()},
-                    Thread.currentThread().getContextClassLoader());
-            Class c = cl.loadClass("org.netbeans.modules.maven.api.ModelUtils"); //NOI18N
-            Method m = c.getDeclaredMethod("addDependency", FileObject.class, //NOI18N
-                    String.class, String.class, String.class, String.class,
-                    String.class, String.class, boolean.class);
-            m.invoke(null, pom, "org.testng", "testng", "5.8", null, "test", "jdk15", false); //NOI18N
-            retVal = true;
-        } catch (MalformedURLException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IllegalArgumentException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (InvocationTargetException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (NoSuchMethodException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (SecurityException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ClassNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
+    public static void initBuildScript(FileObject fo) {
+        Project p = FileOwnerQuery.getOwner(fo);
+        initBuildScript(p);
+    }
+
+    private static void initBuildScript(Project p) {
+        AntBuildExtender extender = p.getLookup().lookup(AntBuildExtender.class);
+        if (extender != null) {
+            String ID = "test-ng-1.0"; //NOI18N
+            Extension extension = extender.getExtension(ID);
+            if (extension == null) {
+                LOGGER.finer("Extensible targets: " + extender.getExtensibleTargets());
+                // create testng-build.xml
+                String resource = "org-netbeans-modules-contrib-testng/testng-build.xml"; // NOI18N
+                try {
+                    FileObject testng = FileUtil.copyFile(Repository.getDefault().getDefaultFileSystem().findResource(resource), p.getProjectDirectory().getFileObject("nbproject"), "testng-impl"); //NOI18N
+                    extension = extender.addExtension(ID, testng);
+                    extension.addDependency("-pre-pre-compile", "-reinit-tasks"); //NOI18N
+                    ProjectManager.getDefault().saveProject(p);
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, null, ex);
+                }
+            }
         }
-        return retVal;
     }
 }

@@ -45,7 +45,6 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
-import org.netbeans.modules.contrib.testng.BuildScriptHandler;
 import org.netbeans.modules.contrib.testng.TestNGProjectUpdater;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
