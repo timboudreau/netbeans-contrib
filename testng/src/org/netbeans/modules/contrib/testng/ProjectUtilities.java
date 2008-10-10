@@ -59,6 +59,7 @@ public final class ProjectUtilities {
         return null != p.getLookup().lookup(AntArtifactProvider.class);
     }
 
+    //XXX not nice, should lookup o.n.m.maven.api.NbMavenProject from project lookup
     public static boolean isMavenProject(Project p) {
         return "org.netbeans.modules.maven.NbMavenProjectImpl".equals(p.getClass().getName()); //NOI18N
     }
