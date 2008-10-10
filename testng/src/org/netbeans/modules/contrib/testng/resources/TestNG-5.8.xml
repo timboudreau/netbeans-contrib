@@ -58,6 +58,6 @@ made subject to such option by the copyright holder.
     </volume>
     <volume>
         <type>maven-pom</type>
-        <resource>http://repo1.maven.org/maven2/org/testng/testng/5.8/testng-5.8.pom</resource>
+        <resource>http://repo1.maven.org/maven2/org/testng/testng/5.8/testng-5.8.pom#jdk15</resource>
     </volume>
 </library>
