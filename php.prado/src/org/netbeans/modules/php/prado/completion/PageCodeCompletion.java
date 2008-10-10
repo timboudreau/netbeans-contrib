@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
@@ -57,6 +58,7 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.ParameterInfo;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.php.editor.index.IndexedFunction;
 import org.netbeans.modules.php.editor.index.PHPIndex;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
@@ -78,6 +80,9 @@ public class PageCodeCompletion implements CodeCompletionHandler {
         if (context.getQueryType() != QueryType.COMPLETION) {
             return CodeCompletionResult.NONE;
         }
+        ParserResult result = context.getInfo().getEmbeddedResult(HTMLTokenId.language().mimeType(), 50);
+        System.out.println("result: " + result);
+
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
         BaseDocument document = (BaseDocument) context.getInfo().getDocument();
         document.readLock();

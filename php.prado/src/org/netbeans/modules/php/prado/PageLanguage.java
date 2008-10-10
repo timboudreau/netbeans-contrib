@@ -39,6 +39,14 @@
 
 package org.netbeans.modules.php.prado;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.StructureItem;
+import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.php.prado.completion.PageCodeCompletion;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.gsf.api.CodeCompletionHandler;
@@ -74,5 +82,29 @@ public class PageLanguage extends DefaultLanguageConfig {
         return new PageCodeCompletion();
     }
 
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
 
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new PradoStructureScanner();
+    }
+
+    private class PradoStructureScanner implements StructureScanner {
+
+        public List<? extends StructureItem> scan(CompilationInfo info) {
+            return new ArrayList<StructureItem>();
+        }
+
+        public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
+            return new HashMap<String, List<OffsetRange>>();
+        }
+
+        public Configuration getConfiguration() {
+            return null;
+        }
+
+    }
 }
