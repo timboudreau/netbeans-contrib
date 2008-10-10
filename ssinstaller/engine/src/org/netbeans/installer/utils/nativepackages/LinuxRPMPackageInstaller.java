@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.ExistingSunStudioChecker;
 import org.netbeans.installer.utils.env.PackageType;
 import org.netbeans.installer.utils.helper.Platform;
 
@@ -72,10 +73,11 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
                 //  LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;
 
+                String mode = (ExistingSunStudioChecker.getInstance().getAllowedDirectory() == null)? "-i": "-U";
                 if (target == null) {
-                    p = new ProcessBuilder("rpm", "-U", "--nodeps", "--ignorearch", "--force", pathToPackage).start();
+                    p = new ProcessBuilder("rpm", mode, "--nodeps", "--ignorearch", "--force", pathToPackage).start();
                 } else {
-                    p = new ProcessBuilder("rpm", "-U", "--nodeps", "--ignorearch", "--force", pathToPackage, "--relocate", "/opt/sun=" + target).start();
+                    p = new ProcessBuilder("rpm", mode, "--nodeps", "--ignorearch", "--force", pathToPackage, "--relocate", "/opt/sun=" + target).start();
                 }
 
                 getProcessOutput(p);
