@@ -82,6 +82,9 @@ if [ -z "$REBUILD" ]; then
     bash copy-packages.sh $CACHE_DIR/packages || exit 1
 fi
 
+#TODO rewrite
+cp $LICENSE_FILE ../engine/src/org/netbeans/installer/product/components/netbeans-license.txt
+
 case $DISTRS in 
     intel-S2)
     	CURRENT_PLATFORM=solaris-x86
