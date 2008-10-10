@@ -38,48 +38,38 @@
  */
 package org.netbeans.modules.contrib.testng;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.api.project.ant.AntBuildExtender;
-import org.netbeans.api.project.ant.AntBuildExtender.Extension;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.util.Exceptions;
+import org.netbeans.spi.project.ant.AntArtifactProvider;
 
 /**
  *
  * @author lukas
  */
-public final class BuildScriptHandler {
+public final class ProjectUtilities {
 
-    private static final Logger LOGGER = Logger.getLogger(BuildScriptHandler.class.getName());
+    public enum Type {
 
-    private BuildScriptHandler() {
+        ANT, MAVEN, OTHER
     }
 
-    public static void initBuildScript(FileObject forFO) {
-        Project p = FileOwnerQuery.getOwner(forFO);
-        AntBuildExtender extender = p.getLookup().lookup(AntBuildExtender.class);
-        if (extender != null) {
-            String ID = "test-ng-1.0"; //NOI18N
-            Extension extension = extender.getExtension(ID);
-            if (extension == null) {
-                LOGGER.finer("Extensible targets: " + extender.getExtensibleTargets());
-                // create testng-build.xml
-                String resource = "org-netbeans-modules-contrib-testng/testng-build.xml"; // NOI18N
-                try {
-                    FileObject testng = FileUtil.copyFile(Repository.getDefault().getDefaultFileSystem().findResource(resource), p.getProjectDirectory().getFileObject("nbproject"), "testng-impl"); //NOI18N
-                    extension = extender.addExtension(ID, testng);
-                    extension.addDependency("-pre-pre-compile", "-reinit-tasks"); //NOI18N
-                    ProjectManager.getDefault().saveProject(p);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
+    private ProjectUtilities() {
+    }
+
+    public static boolean isAntProject(Project p) {
+        return null != p.getLookup().lookup(AntArtifactProvider.class);
+    }
+
+    public static boolean isMavenProject(Project p) {
+        return "org.netbeans.modules.maven.NbMavenProjectImpl".equals(p.getClass().getName()); //NOI18N
+    }
+
+    public static Type getProjectType(Project p) {
+        Type type = Type.OTHER;
+        if (isAntProject(p)) {
+            type = Type.ANT;
+        } else if (isMavenProject(p)) {
+            type = Type.MAVEN;
         }
+        return type;
     }
 }

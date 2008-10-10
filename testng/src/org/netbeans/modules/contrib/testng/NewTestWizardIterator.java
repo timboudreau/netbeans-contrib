@@ -48,16 +48,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.api.project.libraries.Library;
-import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -92,14 +88,16 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
 
         //XXX - have to filter out regular source roots, there should
         //be better way to do this...
+        //${test - Ant based projects
+        //2TestSourceRoot - Maven projects
         List<SourceGroup> result = new ArrayList<SourceGroup>(2);
         for (SourceGroup sg : groups) {
-            if (sg.getName().startsWith("${test")) { //NOI18N
+            if (sg.getName().startsWith("${test") || "2TestSourceRoot".equals(sg.getName())) { //NOI18N
                 result.add(sg);
             }
         }
         groups = result.toArray(new SourceGroup[result.size()]);
-        
+
         if (groups.length == 0) {
             groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
             return new WizardDescriptor.Panel[]{
@@ -149,18 +147,7 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         }
 
         FileObject createdFile = dobj.getPrimaryFile();
-
-        ClassPath cp = ClassPath.getClassPath(createdFile, ClassPath.COMPILE);
-        FileObject ng = cp.findResource("org.testng.annotations.Test");
-        if (ng == null) {
-            // add library to the project
-            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
-            if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, createdFile, ClassPath.COMPILE)) {
-                LOGGER.fine("TestNG library not added"); //NOI18N
-            }
-        }
-
-        BuildScriptHandler.initBuildScript(createdFile);
+        TestNGProjectUpdater.updateProject(createdFile);
         return Collections.singleton(createdFile);
     }
 
