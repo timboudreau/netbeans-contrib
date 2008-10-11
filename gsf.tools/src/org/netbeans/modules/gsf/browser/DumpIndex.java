@@ -2,11 +2,14 @@ package org.netbeans.modules.gsf.browser;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -46,46 +49,49 @@ public final class DumpIndex extends CallableSystemAction {
     }
 
     private void dump(File outputFile) {
-        Writer writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(outputFile));
-            //Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
-            //for (URL url : map.keySet()) {
-            //    ClassIndexImpl index = map.get(url);
-            Map<String,Language> map = new HashMap<String,Language>();
-            for (Language language : LanguageRegistry.getInstance()) {
-                if (language.getIndexer() != null) {
-                    map.put(language.getDisplayName(), language);
-                }
+        PrintWriter writer = null;
+        //Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
+        //for (URL url : map.keySet()) {
+        //    ClassIndexImpl index = map.get(url);
+        Map<String,Language> map = new HashMap<String,Language>();
+        for (Language language : LanguageRegistry.getInstance()) {
+            if (language.getIndexer() != null) {
+                map.put(language.getDisplayName(), language);
             }
-            List<String> names = new ArrayList<String>(map.keySet());
-            Collections.sort(names);
-            for (String name : names) {
-                Language language = map.get(name);
-                assert language != null;
-                
-                writer.write("Language: " + name + " of mimetype = " + language.getMimeType() + "\n");
-            
-                Set<ClassIndexImpl> set = ClassIndexManager.get(language).getBootIndices();
+        }
+        List<String> names = new ArrayList<String>(map.keySet());
+        Collections.sort(names);
+        for (String name : names) {
+            Language language = map.get(name);
+            assert language != null;
+
+            try {
+                writer = new PrintWriter(new BufferedWriter(new FileWriter(outputFile + "." + name)));
+                //writer.write("Language: " + name + " of mimetype = " + language.getMimeType() + "\n");
+                //Set<ClassIndexImpl> set = ClassIndexManager.get(language).getBootIndices();
+                Collection<ClassIndexImpl> set = ClassIndexManager.get(language).getAllIndices().values();
                 for (ClassIndexImpl index : set) {
                     if (index instanceof PersistentClassIndex) {
-                        IndexReader reader = ((PersistentClassIndex)index).getDumpIndexReader();
-                        if (reader != null) {
-                            writeDocument(writer, reader);
+                        try {
+                            IndexReader reader = ((PersistentClassIndex)index).getDumpIndexReader();
+                            if (reader != null) {
+                                    writeDocument(writer, reader);
+                            }
+                        } catch (FileNotFoundException fnfe) {
+                            //writer.write("\nEMPTY\n");
                         }
                     }
                 }
-                
-                writer.write("\n\n");
-            }
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ioe) {
-                    Exceptions.printStackTrace(ioe);                    
+            } catch (IOException ioe) {
+                Exceptions.printStackTrace(ioe);
+                ioe.printStackTrace(writer);
+            } finally {
+                if (writer != null) {
+                    //try {
+                        writer.close();
+                    //} catch (IOException ioe) {
+                    //    Exceptions.printStackTrace(ioe);
+                    //}
                 }
             }
         }
@@ -105,11 +111,10 @@ public final class DumpIndex extends CallableSystemAction {
         return sb.toString();
     }
 
-    private String prettyPrintValue(String key, String value) {
+    protected String prettyPrintValue(String key, String value) {
         if (value == null) {
             return value;
         }
-
         if (key.equals("timeStamp")) {
             return "-----------------";
         }
@@ -121,7 +126,6 @@ public final class DumpIndex extends CallableSystemAction {
 //            assert value.substring(start, start+17).matches("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d");
 //            value = value.substring(0, start) + "-----------------" + value.substring(start+17);
 //        }
-
         if ("method".equals(key)) {
             // Decode the attributes
             int attributeIndex = value.indexOf(';');
@@ -129,7 +133,7 @@ public final class DumpIndex extends CallableSystemAction {
                 int flags = IndexedElement.stringToFlag(value, attributeIndex+1);
                 if (flags != 0) {
                     String desc = IndexedMethod.decodeFlags(flags);
-                    value = value.substring(0, attributeIndex) + desc + value.substring(attributeIndex+3);
+                    value = value.substring(0, attributeIndex) + ";" + desc + value.substring(attributeIndex+3);
                 }
             }
         } else if ("attrs".equals(key)) {
@@ -148,17 +152,14 @@ public final class DumpIndex extends CallableSystemAction {
                 int flags = IndexedElement.stringToFlag(value, attributeIndex+1);
                 if (flags != 0) {
                     String desc = IndexedField.decodeFlags(flags);
-                    value = value.substring(0, attributeIndex) + desc + value.substring(attributeIndex+3);
+                    value = value.substring(0, attributeIndex) + ";" + desc + value.substring(attributeIndex+3);
                 }
-            }
-        } else { // Only sort value lists like requies and includes that aren't methods since the arg lists should stay in order
-            if (value.indexOf(',') != -1) {
-                value = sortCommaList(value);
             }
         }
 
         return value;
     }
+
 
     
     private void writeDocument(Writer writer, IndexReader reader) {
@@ -216,7 +217,8 @@ public final class DumpIndex extends CallableSystemAction {
                         }
                     });
 
-                String label = luceneDoc.get("source");
+                //String label = luceneDoc.get(DocumentUtil.FIELD_FILENAME);
+                String label = luceneDoc.get("filename");
 
                 if (label == null) {
                     label = "?";
@@ -224,12 +226,20 @@ public final class DumpIndex extends CallableSystemAction {
 
                 for (int j = 0; j < data.size(); j++) {
                     Match m = data.get(j);
-                    writer.write(label + ":" + j + ":");
+
+                    if (m.key.equals("timeStamp") || m.key.equals("resName")) {
+                        continue;
+                    }
+
+                    //writer.write(label + ":" /*+ j + ":"*/);
                     writer.write(m.key);
                     writer.write('=');
                     writer.write(prettyPrintValue(m.key, m.value));
                     writer.write('\n');
                 }
+
+                // Separate documents
+                writer.write("\n\n");
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
             }
