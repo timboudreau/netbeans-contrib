@@ -1,2 +1,4 @@
 org.netbeans.modules.php.prado.embedding.PradoPhpEmbeddingModel
 org.netbeans.modules.php.prado.embedding.PradoCssEmbeddingModel
+org.netbeans.modules.php.prado.embedding.PradoHtmlEmbeddingModel
+org.netbeans.modules.php.prado.embedding.PradoJsEmbeddingModel

@@ -37,46 +37,34 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.php.prado.embedding;
+package org.netbeans.modules.php.prado.gsf;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.EmbeddingModel;
-import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.php.editor.lexer.PHPTokenId;
-import org.netbeans.modules.php.prado.PageLanguage;
+import java.util.List;
+import java.util.Map;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.StructureItem;
+import org.netbeans.modules.gsf.api.StructureScanner;
 
 /**
  *
  * @author Petr Pisl
  */
-public class PradoPhpEmbeddingModel implements EmbeddingModel {
 
-    final Set<String> sourceMimeTypes = new HashSet<String>();
+public class PradoStructureScanner implements StructureScanner {
 
-    public PradoPhpEmbeddingModel() {
-        sourceMimeTypes.add(PageLanguage.PHP_PRADO_MIME_TYPE);
+        public List<? extends StructureItem> scan(CompilationInfo info) {
+            return new ArrayList<StructureItem>();
+        }
+
+        public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
+            return Collections.emptyMap();
+        }
+
+        public Configuration getConfiguration() {
+            return null;
+        }
+
     }
-
-    public String getTargetMimeType() {
-        return PHPTokenId.language().mimeType();
-    }
-
-    public Set<String> getSourceMimeTypes() {
-        return sourceMimeTypes;
-    }
-
-    public Collection<? extends TranslatedSource> translate(Document doc) {
-        PradoPhpModel model = PradoPhpModel.get(doc);
-        return Collections.singletonList(new PradoPhpTranslatedSource(this, model));
-    }
-
-    @Override
-    public String toString() {
-        return "PradoPhpEmbeddingModel(target=" + getTargetMimeType() + ",sources=" + getSourceMimeTypes() + ")";
-    }
-
-}

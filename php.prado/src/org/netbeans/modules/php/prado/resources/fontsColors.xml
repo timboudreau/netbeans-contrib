@@ -5,4 +5,8 @@
     <fontcolor name="prado" foreColor="00ee00"/>
     <fontcolor name="T_PROPERTY" foreColor="009900"/>
     <fontcolor name="T_VALUE" default="string" />
+
+    <!--"semantic" highlighting:-->
+    <fontcolor name="mod-custom1" foreColor="ce2c27" />
+
 </fontscolors>

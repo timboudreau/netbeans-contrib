@@ -137,6 +137,7 @@ public class GSFPageLexer implements Lexer<PageTokenId> {
                             case '@':
                             case '=':
                             case '%':
+                            case '#':
                                 if (input.readLength() > 3) {
                                     input.backup(3);
                                     state = State.OUTER;

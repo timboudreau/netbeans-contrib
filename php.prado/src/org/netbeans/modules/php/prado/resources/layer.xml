@@ -23,6 +23,9 @@
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.php.prado.PageLanguage"/>
                 </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.prado.gsf.PradoStructureScanner"/>
+                </file>
             </folder>
         </folder>
     </folder>
@@ -44,7 +47,10 @@
                 </folder>
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-html-editor-HTMLCompletionProvider.instance"/>
-                    <!--<file name="org-netbeans-modules-php-prado-completion-PradoHTMLCompletionProvider.instance"/>-->
+                    <file name="org-netbeans-modules-php-prado-completion-PradoHTMLCompletionProvider.instance"/>
+                </folder>
+                <folder name="FoldManager">
+                    <file name="org-netbeans-editor-CustomFoldManager$Factory.instance"/>
                 </folder>
             </folder>
             <folder name="x-prado-template_control">
@@ -53,11 +59,7 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
             </folder>
- <!--            <folder name="html">
-               <folder name="CompletionProviders">
-                    <file name="org-netbeans-modules-php-prado-completion-PradoHTMLCompletionProvider.instance"/>
-                </folder>
-            </folder>-->
+ 
         </folder>
     </folder>
 </filesystem>
