@@ -36,4 +36,5 @@ public class LiferayConstants {
     public static String PORTLET_URI = "LR_PORTLET_URI";
     public static String LR_LOGGER = "org.netbeans.modules.portalpack.servers.liferay.logger";
     public static String AUTO_DEPLOY_DIR = "lr_auto_deploy_dir";
+    public static String LR_PORTAL_DEPLOY_DIR = "lr_portal_deploy_dir";
 }

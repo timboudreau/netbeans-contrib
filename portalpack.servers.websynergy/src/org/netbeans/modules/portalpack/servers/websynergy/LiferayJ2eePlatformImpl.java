@@ -31,7 +31,7 @@ import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
-import org.openide.util.Exceptions;
+import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
 
 /**
  *
@@ -143,7 +143,56 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                 }
             }
         }
+        
+        //FOR Tomcat 6.x
+        if (psconfig.getServerType().equals(ServerConstants.TOMCAT_6_X)) {
 
+            String portalLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME)
+                        + File.separator + "lib" + File.separator + "ext";
+
+            for (int i = 0; i < libFiles.length; i++) {
+                String portalJarUri = portalLibDir + File.separator + libFiles[i];
+                File portletJar = new File(portalJarUri);
+                if (portletJar.exists()) {
+                    try {
+                        classPath.add(fileToUrl(portletJar));
+                    } catch (MalformedURLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+
+            String[] libs = {"servlet-api.jar", "jsp-api.jar"};
+            String serverLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator + "lib";
+            for (int k = 0; k < libs.length; k++) {
+                File libJar = new File(serverLibDir + File.separator + libs[k]);
+                if (libJar.exists()) {
+                    try {
+                        classPath.add(fileToUrl(libJar));
+                    } catch (MalformedURLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        //add util-java.jar,util-taglib.jar
+        String[] lrJars = {"util-java.jar", "util-taglib.jar","commons-logging.jar"};
+        String portalAppDepDir = psconfig.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR);
+        if (portalAppDepDir != null && portalAppDepDir.trim().length() != 0) {
+            String webInfLoc = portalAppDepDir + File.separator + "WEB-INF" + File.separator + "lib";
+            for (int i = 0; i < lrJars.length; i++) {
+                String lrJarUri = webInfLoc + File.separator + lrJars[i];
+                File lrJar = new File(lrJarUri);
+                if (lrJar.exists()) {
+                    try {
+                        classPath.add(fileToUrl(lrJar));
+                    } catch (MalformedURLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
 
         String[] encClassPaths = Util.decodeClassPath(psconfig.getClassPath());
         for (int i = 0; i < encClassPaths.length; i++) {

@@ -206,7 +206,7 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         t.addType("portlets");
         pluginPackage.setTypes(t);
         LiferayVersions lv = pluginPackage.newLiferayVersions();
-        lv.addLiferayVersion("5.0");
+        lv.addLiferayVersion("*.*");
         pluginPackage.setLiferayVersions(lv);
         
         Licenses licenses = pluginPackage.newLicenses();

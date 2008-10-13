@@ -48,7 +48,8 @@ public class ContainerStartHandlerFactory implements ServerConstants{
             startHandler.addListener(new SunASStartStopListener(dm));
             return startHandler;
         }
-        else if(psconfig.getServerType().equals(TOMCAT_5_X))
+        else if(psconfig.getServerType().equals(TOMCAT_5_X)
+                    || psconfig.getServerType().equals(TOMCAT_6_X))
         {
             PSStartServerInf startHandler = new TomcatStartServer(dm);
             startHandler.addListener(new TomcatStartStopServerListener(dm));

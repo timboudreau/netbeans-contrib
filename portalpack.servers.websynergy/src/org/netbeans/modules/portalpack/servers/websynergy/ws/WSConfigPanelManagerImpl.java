@@ -17,42 +17,41 @@
   * Microsystems, Inc. All Rights Reserved.
   */
 
-package org.netbeans.modules.portalpack.servers.websynergy;
+package org.netbeans.modules.portalpack.servers.websynergy.ws;
 
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConfigPanel;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.ClasspathConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.DefaultServerConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
-import org.netbeans.modules.portalpack.servers.websynergy.ui.LiferayConfigPanel;
+import org.netbeans.modules.portalpack.servers.websynergy.ui.WSConfigPanel;
 
 /**
  *
  * @author Satya
  */
-public class LiferayConfigPanelManagerImpl implements PSConfigPanelManager, ServerConstants{
+public class WSConfigPanelManagerImpl implements PSConfigPanelManager, ServerConstants{
     
     
     /**
-     * Creates a new instance of LifeRayConfigPanelManagerImpl
+     * Creates a new instance of WSConfigPanelManagerImpl
      */
-    public LiferayConfigPanelManagerImpl() {
+    public WSConfigPanelManagerImpl() {
     }
 
     public InstallPanel[] getInstallPanels(String psVersion) {
         
         return new InstallPanel[]{new InstallPanel(getServerConfigPanel()),
-                                  new InstallPanel(new LiferayConfigPanel(psVersion),true)};
+                                  new InstallPanel(new WSConfigPanel(psVersion),true)};
         
     }
 
     public ConfigPanel[] getConfigPanels(String psVersion) {
         
         
-        return new ConfigPanel[]{new LiferayConfigPanel(psVersion),
+        return new ConfigPanel[]{new WSConfigPanel(psVersion),
                                     getServerConfigPanel(),new ClasspathConfigPanel()};
         
     }
@@ -60,9 +59,8 @@ public class LiferayConfigPanelManagerImpl implements PSConfigPanelManager, Serv
     private ConfigPanel getServerConfigPanel()
     {
         DefaultServerConfigPanel serverConfigPanel = new DefaultServerConfigPanel();
-        serverConfigPanel.registerServerConfigPanel(new SunAppServerConfigPanel(),SUN_APP_SERVER_9,org.openide.util.NbBundle.getMessage(LiferayConfigPanelManagerImpl.class, "Sun_Java_System_AppServer_9"));
-        serverConfigPanel.registerServerConfigPanel(new TomcatConfigPanel(),TOMCAT_5_X,org.openide.util.NbBundle.getMessage(LiferayConfigPanelManagerImpl.class, "Tomcat_5_x"));
-        serverConfigPanel.registerServerConfigPanel(new TomcatConfigPanel(),TOMCAT_6_X,org.openide.util.NbBundle.getMessage(LiferayConfigPanelManagerImpl.class, "Tomcat_6_x"));
+        serverConfigPanel.registerServerConfigPanel(new SunAppServerConfigPanel(),SUN_APP_SERVER_9,org.openide.util.NbBundle.getMessage(WSConfigPanelManagerImpl.class, "Sun_Java_System_AppServer_9"));
+        //serverConfigPanel.registerServerConfigPanel(new TomcatConfigPanel(),TOMCAT_5_X,org.openide.util.NbBundle.getMessage(WSConfigPanelManagerImpl.class, "Tomcat_5_x"));
         return serverConfigPanel;
     }
 }

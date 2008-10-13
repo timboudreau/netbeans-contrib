@@ -18,6 +18,7 @@
  */
 package org.netbeans.modules.portalpack.servers.websynergy.ui;
 
+import org.netbeans.modules.portalpack.servers.websynergy.ui.*;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
@@ -36,14 +37,14 @@ import org.openide.util.NbBundle;
  *
  * @author  Satya
  */
-public class LiferayConfigPanel extends ConfigPanel implements DocumentListener {
+public class WSConfigPanel extends ConfigPanel implements DocumentListener {
 
     private String psVersion;
     private int GLASSFISH_V2 = 2;
     private int GLASSFISH_V3 = 3;
 
     /** Creates new form LifeRayConfigPanel */
-    public LiferayConfigPanel(String psVersion) {
+    public WSConfigPanel(String psVersion) {
         this.psVersion = psVersion;
         initComponents();
         initData();
@@ -78,11 +79,11 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_LIFERAY_PORTAL_SERVER")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_WS_PORTAL_SERVER")); // NOI18N
 
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_PORTAL_URI")); // NOI18N
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_PORTAL_URI")); // NOI18N
 
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_HOST")); // NOI18N
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_HOST")); // NOI18N
 
         hostTf.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -91,21 +92,21 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
         });
 
         jLabel6.setLabelFor(portletUriTf);
-        jLabel6.setText(org.openide.util.NbBundle.getBundle(LiferayConfigPanel.class).getString("LBL_PORTLET_URI")); // NOI18N
+        jLabel6.setText(org.openide.util.NbBundle.getBundle(WSConfigPanel.class).getString("LBL_PORTLET_URI")); // NOI18N
 
         jLabel3.setLabelFor(autoDeployTf);
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_Auto_Deploy_Dir")); // NOI18N
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_Auto_Deploy_Dir")); // NOI18N
 
-        browseButton.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); // NOI18N
+        browseButton.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_BrowseButton")); // NOI18N
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
             }
         });
 
-        jLabel5.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_Portal_Deploy_Dir")); // NOI18N
+        jLabel5.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_Portal_Deploy_Dir")); // NOI18N
 
-        jButton1.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); // NOI18N
+        jButton1.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_BrowseButton")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -114,7 +115,7 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
             .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(169, 169, 169)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
                 .add(169, 169, 169))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
@@ -244,40 +245,59 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     public void read(org.openide.WizardDescriptor wizardDescriptor) {
 
         WizardPropertyReader reader = new WizardPropertyReader(wizardDescriptor);
+        String autoDeployDir = autoDeployTf.getText();
 
         // if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
-        autoDeployTf.setText(System.getProperty("user.home") + File.separator + "liferay" +
-                File.separator + "deploy");
+       
+        String domainDir = reader.getDomainDir();
+        File webSynergyHomeFile = new File(domainDir, "websynergy");
+        autoDeployTf.setText(webSynergyHomeFile.getAbsolutePath() +
+                  File.separator + "deploy");      
 
         //Set portal app deploy dir
         String serverType = reader.getServerType();
 
         if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
 
-            String domainDir = reader.getDomainDir();
-            int version = getGlassFishVersion(reader.getServerHome());
+            if (isWebSynergy(reader)) {
+                //check for glassfish V2
 
-            if (version == GLASSFISH_V2) {
-                String deployDir = domainDir + File.separator +
-                        "applications" + File.separator +
-                        "j2ee-modules" + File.separator + "liferay-portal";
-                portalDepDirTf.setText(deployDir);
-            } else {
-                String deployDir = domainDir + File.separator +
-                        "applications" + File.separator +
-                        "liferay-portal";
-                portalDepDirTf.setText(deployDir);
+                int version = getGlassFishVersion(reader.getServerHome());
+
+                if (version == GLASSFISH_V2) {
+                    String deployDir = domainDir + File.separator +
+                            "applications" + File.separator +
+                            "j2ee-modules" + File.separator + "websynergy";
+                    portalDepDirTf.setText(deployDir);
+                } else {
+                    String deployDir = domainDir + File.separator +
+                            "applications" + File.separator +
+                            "websynergy";
+                    portalDepDirTf.setText(deployDir);
+                }
             }
+        }
+    }
 
-        } else if (serverType.equals(ServerConstants.TOMCAT_5_X)
-                        || serverType.equals(ServerConstants.TOMCAT_6_X)) {
+    private boolean isWebSynergy(WizardPropertyReader reader) {
 
-            String tomcatHome = reader.getProperty(TomcatConstant.CATALINA_HOME);
+        String serverType = reader.getServerType();
 
-            String deployDir = tomcatHome + File.separator + "webapps" + File.separator + "ROOT";
-            portalDepDirTf.setText(deployDir);
+        if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
+
+            String domainDir = reader.getDomainDir();
+
+            File webSynergyHomeFile = new File(domainDir, "websynergy");
+            File webSynergyConfigurator = new File(reader.getServerHome() + File.separator + "lib" + File.separator + "addons" + File.separator + "websynergy_configurator.jar");
+
+            if (webSynergyHomeFile.exists() ||
+                    webSynergyConfigurator.exists()) {
+
+                return true;
+            }
         }
 
+        return false;
     }
 
     private int getGlassFishVersion(String glassfishHome) {
@@ -315,65 +335,44 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             return true;
         }
         WizardPropertyReader wr = new WizardPropertyReader(((WizardDescriptor) wizardDescriptor));
-        
+        //String serverHome = wr.getServerHome();
         String domainDir = wr.getDomainDir();
         String serverType = wr.getServerType();
-        
         if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
 
             File file = new File(domainDir + File.separator + "lib" + File.separator + "portal-service.jar");
             if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
-                autoDeployTf.setText("");
-                return false;
 
+                if (!isWebSynergy(wr)) {
+                    setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_NO_WEBSYNERGY_INSTALLATION_FOUND"));
+                    autoDeployTf.setText("");
+                    return false;
+                } else {
+                }
             }
-        } else if (serverType.equals(ServerConstants.TOMCAT_5_X)) {
-
-            File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "common" + File.separator +
-                    "lib" + File.separator +
-                    "ext" + File.separator +
-                    "portal-service.jar");
-            if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT"));
-                autoDeployTf.setText("");
-                return false;
-            }
-        } else if (serverType.equals(ServerConstants.TOMCAT_6_X)) {
-            
-            File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "lib" + File.separator +
-                    "ext" + File.separator +
-                    "portal-service.jar");
-            if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT"));
-                autoDeployTf.setText("");
-                return false;
-            }
-        }
+        } 
 
         String autoDeployDir = autoDeployTf.getText();
         if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
-            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
             return false;
         }
 
         String portalUriString = portalUri.getText();
         if (portalUriString == null || portalUriString.trim().length() == 0) {
-            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTAL_URI"));
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_NOT_A_VALID_PORTAL_URI"));
             return false;
         }
 
         String portletUriString = portletUriTf.getText();
         if (portletUriString == null || portletUriString.trim().length() == 0) {
-            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTLET_URI"));
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_NOT_A_VALID_PORTLET_URI"));
             return false;
         }
 
         String host = hostTf.getText();
         if (host == null || host.trim().length() == 0) {
-            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_HOST"));
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_NOT_A_VALID_HOST"));
             return false;
         }
 
@@ -385,7 +384,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         String autoDeployLocation = null;
         JFileChooser chooser = getJFileChooser();
         int returnValue = chooser.showDialog(SwingUtilities.getWindowAncestor(this),
-                NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); //NOI18N
+                NbBundle.getMessage(WSConfigPanel.class, "LBL_BrowseButton")); //NOI18N
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             autoDeployLocation = chooser.getSelectedFile().getAbsolutePath();
@@ -396,7 +395,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private JFileChooser getJFileChooser() {
 
         JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.setDialogTitle(NbBundle.getMessage(WSConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
         chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
 
@@ -404,11 +403,11 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
 
         chooser.setMultiSelectionEnabled(false);
-        chooser.setApproveButtonToolTipText(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.setApproveButtonToolTipText(NbBundle.getMessage(WSConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
-        chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(WSConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
-        chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(WSConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
         // set the current directory
         String dir = System.getProperty("user.home");
@@ -419,7 +418,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 
     public String getDescription() {
-        return NbBundle.getMessage(LiferayConfigPanel.class, "DESC_LIFE_RAY");
+        return NbBundle.getMessage(WSConfigPanel.class, "DESC_WS");
     }
 
     public void insertUpdate(DocumentEvent e) {
