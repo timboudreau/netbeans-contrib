@@ -42,6 +42,7 @@
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -50,6 +51,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;
@@ -58,9 +61,11 @@ import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.model.ObjectState;
+import org.netbeans.api.visual.widget.ComponentWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.ScrollWidget;
+import org.netbeans.api.visual.widget.SwingScrollWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
 
@@ -80,6 +85,8 @@ public class TableWidget extends Widget{
     private DefaultListSelectionModel selectionModel;
     private boolean scroll;
     private Widget contentWidget;
+    private ScrollWidget scrollWidget;
+    private SwingScrollWidget jscrollWidget;
     
     /**
      * Creates a table widget for a tablemodel.
@@ -98,14 +105,24 @@ public class TableWidget extends Widget{
     }
     
     public TableWidget(Scene scene,TableModel model,boolean scroll) {
-        this(scene,model);
+        super(scene);
         this.scroll = scroll;
+        this.model = model;
+        this.selectionModel = new DefaultListSelectionModel();
+        contentWidget = new Widget(scene);
+        setLayout(LayoutFactory.createVerticalFlowLayout());
+        createTableHeader();
+        preCreateTable();
+        createTable();
+        
     }
     
     private void createTableHeader() {
         Scene scene = getScene();
+        //ScrollWidget sc = new ScrollWidget(scene);
         int noCols = model.getColumnCount();
         Widget headerWidget = new RowWidget(scene,-1,noCols,null);
+        //sc.setView(headerWidget);
         addChild(headerWidget);
         
         for (int i = 0; i<noCols;i++) {
@@ -148,12 +165,27 @@ public class TableWidget extends Widget{
         contentWidget.setLayout(LayoutFactory.createVerticalFlowLayout());
         
         if(scroll) {
-            ScrollWidget scrollWidget = new ScrollWidget(getScene(), contentWidget);
-            scrollWidget.setPreferredBounds(new Rectangle(250, 250));
-
-            addChild(scrollWidget);
+            
+            jscrollWidget = new SwingScrollWidget(getScene(),contentWidget);
+            
+            //jscrollWidget.setPreferredBounds(new Rectangle(250,250));
+            //jscrollWidget.
+            addChild(jscrollWidget);
         } else {
             addChild(contentWidget);
+        }
+    }
+    
+    public void setScrollPreferredBounds(int width,int height) {
+        if(scroll){
+            if(jscrollWidget != null) {
+               // Rectangle rect = contentWidget.getBounds();
+               // jscrollWidget.setPreferredBounds(new Rectangle((int)rect.getWidth(),100));
+                jscrollWidget.setPreferredBounds(new Rectangle(this.getClientArea().width-50,height));
+               
+            }
+                //jscrollWidget.setPreferredBounds(new Rectangle(getClientArea().width,100));//(new Rectangle(width,height));
+            
         }
     }
      private void createTable() {

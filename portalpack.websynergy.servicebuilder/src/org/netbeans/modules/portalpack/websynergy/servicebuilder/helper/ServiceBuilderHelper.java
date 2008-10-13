@@ -38,14 +38,22 @@
  */
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.helper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Finder;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.ServiceBuilder;
-import org.netbeans.modules.schema2beans.BaseBean;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.loader.ServiceBuilderDataObject;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -53,6 +61,7 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -61,13 +70,20 @@ import org.openide.util.Exceptions;
 public class ServiceBuilderHelper {
 
     private FileObject serviceBuilderFile;
+    private ServiceBuilderDataObject dataObj;
     private ServiceBuilder serviceBuilder;
     private long timestamp;
+    private boolean validXML;
+    private String errorMsg = "";
+            
     private ServerXMLFileListener listener;
 
-    public ServiceBuilderHelper(FileObject serviceBuilderFile) {
+    public ServiceBuilderHelper(ServiceBuilderDataObject dbObj) {
 
-        this.serviceBuilderFile = serviceBuilderFile;
+        this.dataObj = dbObj;
+        if(dbObj == null)
+            return;
+        this.serviceBuilderFile = dbObj.getPrimaryFile();
         init();
         listener = new ServerXMLFileListener();
         serviceBuilderFile.addFileChangeListener(listener);
@@ -80,14 +96,42 @@ public class ServiceBuilderHelper {
         }
         try {
             serviceBuilder = ServiceBuilderFactory.createGraph(serviceBuilderFile);
+            validXML = true;
+            errorMsg = "";
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+            validXML = false;
+            errorMsg = ex.getMessage();
+            ex.printStackTrace();
         }
     }
     
+    public void init(InputStream input) {
+        
+        timestamp = serviceBuilderFile.lastModified().getTime();
+        try {
+            serviceBuilder = ServiceBuilderFactory.createGraph(input);
+            validXML = true;
+            errorMsg = "";
+        } catch (Exception ex) {
+            validXML = false;
+            errorMsg = ex.getMessage();
+            ex.printStackTrace();
+        }
+    }
+    
+    public boolean isValidXML() {
+        return validXML;
+    }
+    
+    public String getErrorMessage() {
+        return errorMsg;
+    }
     public boolean isDirty() {
         
         if(serviceBuilderFile == null) return false;
+        
+        if(isEditingMode())
+            return true;
         
         long newTimeStamp = serviceBuilderFile.lastModified().getTime();
         if(newTimeStamp > timestamp) {
@@ -98,32 +142,57 @@ public class ServiceBuilderHelper {
         return false;
     }
     
+    private boolean isEditingMode() {
+        
+        if ((dataObj.getEditorSupport() != null) && (dataObj.getEditorSupport().isDocumentLoaded())
+                && dataObj.getEditorSupport().isModified()) {
+            try {
+                // loading from the memory (Document)
+                InputStream io = dataObj.getEditorSupport().getInputStream();
+                System.out.println("Document is modified in memory...so reload plz............");
+                init(io);
+                return true;
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        
+        return false;
+    }
+    
+    public void forceReload() {
+        init();
+    }
+    
     public Entity newEntity() {
         isDirty();
         return serviceBuilder.newEntity();
     }
-    public void addEntity(String entityName) {
+    public boolean addEntity(String entityName) {
         isDirty();
         Entity entity = serviceBuilder.newEntity();
         entity.setName(entityName);
         serviceBuilder.addEntity(entity);
-        save();
+        
+        return save();
     }
     
-    public void addEntity(Entity entity) {
+    public boolean addEntity(Entity entity) {
         isDirty();
         if(entity == null)
-            return;
+            return false;
         serviceBuilder.addEntity(entity);
-        save();
+        
+        return save();
     }
     
-    public void  removeEntity(Entity entity) {
+    public boolean removeEntity(Entity entity) {
         isDirty();
         if(entity == null)
-            return;
+            return false;
         serviceBuilder.removeEntity(entity);
-        save();
+        
+        return save();
     }
     
     public Entity[] getEntity() {
@@ -131,14 +200,26 @@ public class ServiceBuilderHelper {
         return serviceBuilder.getEntity();
     }
     
+    public Entity getEntity(String name) {
+        
+        Entity[] ens = getEntity();
+        for(Entity en:ens) {
+            
+            if(en.getName().equals(name))
+                return en;
+        }
+        return null;
+    }
+    
     public String getPackagePath() {
         isDirty();
         return serviceBuilder.getPackagePath();
     }
     
-    public void setPackagePath(String packagePath) {
+    public boolean setPackagePath(String packagePath) {
         isDirty();
         serviceBuilder.setPackagePath(packagePath);
+        return save();
     }
     
     public List<Column> getColumns(Entity entity) {
@@ -192,30 +273,82 @@ public class ServiceBuilderHelper {
         //return cols;
     }
     
+    public Column getColumn(Entity entity, String column) {
+        
+        if(entity == null || column == null)
+            return null;
+        Column[] cols = entity.getColumn();
+        for(Column col:cols) {
+            
+            if(column.equals(col.getName()))
+                return col;
+        }
+        return null;
+    }
+    
     public void removeColumn(Entity entity,Column col) {
         
         //entity.removeColumn
+        entity.removeColumn(col);
        
     }
     
+    public void removeFinders(Entity entity,String[] finderNames) {
+        
+        Finder[] finders = entity.getFinder();
+        
+        for(Finder finder:finders) {
+            
+            for(String name:finderNames) {
+                if(!finder.getName().equals(name))
+                    continue;
+                entity.removeFinder(finder);
+            }
+        }
+    }
+    
+    public Finder getFinder(Entity entity,String finderName) {
+        Finder[] finders = entity.getFinder();
+        
+        for(Finder finder:finders) {
+            
+            if(finder.getName().equals(finderName))
+                return finder;
+        }
+        return null;
+    }
     public String getNamespace() {
         isDirty();
         return serviceBuilder.getNamespace();
     }
     
-    public void setNamespace(String namespace) {
+    public boolean setNamespace(String namespace) {
         isDirty();
         serviceBuilder.setNamespace(namespace);
+        return save();
     }
     
     private ServiceBuilder getServiceBuilder() {
         return serviceBuilder;
     }
+    
+    public Project getProject() {
+        
+        return FileOwnerQuery.getOwner(serviceBuilderFile);
+    }
 
-    public void save() {
+    public boolean save() {
         try {
+            FileLock lock = null;
+            try{
 
-            FileLock lock = serviceBuilderFile.lock();
+                lock = serviceBuilderFile.lock();
+            }catch(FileAlreadyLockedException fle) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message(
+                        NbBundle.getMessage(ServiceBuilderHelper.class, "MSG_MODIFIED_OUTSIDE"), NotifyDescriptor.WARNING_MESSAGE);
+                DialogDisplayer.getDefault().notifyLater(nd);
+                return false;
+            }
             OutputStream out = serviceBuilderFile.getOutputStream(lock);
             
             ServiceBuilderFactory.write(serviceBuilder, out);
@@ -227,13 +360,17 @@ public class ServiceBuilderHelper {
             }
 
             lock.releaseLock();
+            
+            return true;
 
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             timestamp = serviceBuilderFile.lastModified().getTime();
         }
-
+        
+        return false;
+        
     }
     
     private static class ServerXMLFileListener implements FileChangeListener {

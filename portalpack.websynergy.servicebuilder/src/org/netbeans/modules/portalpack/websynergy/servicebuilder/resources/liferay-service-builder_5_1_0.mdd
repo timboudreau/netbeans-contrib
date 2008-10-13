@@ -25,7 +25,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.ServiceBuilder
             </implements>
 
-        <user-code>    
+        <user-code>  
         </user-code>
 	</meta-element>
 	
@@ -69,11 +69,28 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <user-code>
             </user-code>
         </meta-element>
+
+        <meta-element>
+            <dtd-name>finder-column</dtd-name>
+            <bean-name>FinderColumn</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn
+            </implements>
+        </meta-element>
+
         <meta-element>
             <dtd-name>order</dtd-name>
             <bean-name>Order</bean-name>
             <implements> 
                 org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Order
+            </implements>
+        </meta-element>
+
+        <meta-element>
+            <dtd-name>order-column</dtd-name>
+            <bean-name>OrderColumn</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
             </implements>
         </meta-element>
 </metaDD>

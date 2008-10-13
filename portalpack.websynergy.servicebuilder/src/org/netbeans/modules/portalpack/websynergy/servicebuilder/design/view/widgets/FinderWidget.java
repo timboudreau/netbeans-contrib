@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,6 +31,10 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets;
@@ -49,26 +47,20 @@ import java.awt.event.ActionEvent;
 import java.awt.geom.GeneralPath;
 import java.util.Collections;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Finder;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamodel.*;
-import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.*;
-
 /**
  *
- * @author Ajit Bhate
+ * @author satyaranjan
  */
-public class OperationWidget extends AbstractTitledWidget {
-    
-    private static final String IMAGE_ONE_WAY  = 
+public class FinderWidget extends AbstractTitledWidget{
+ private static final String IMAGE_ONE_WAY  = 
             "org/netbeans/modules/websvc/design/view/resources/oneway_operation.png"; // NOI18N   
     private static final String IMAGE_REQUEST_RESPONSE  = 
             "org/netbeans/modules/websvc/design/view/resources/requestresponse_operation.png"; // NOI18N   
@@ -76,8 +68,8 @@ public class OperationWidget extends AbstractTitledWidget {
             "org/netbeans/modules/websvc/design/view/resources/notification_operation.png"; // NOI18N   
 
    // private Service service;
-    private MethodModel operation;
-    private ServiceModel serviceModel;
+    private Finder finder;
+    
     
     private transient Widget buttons;
     private transient ImageLabelWidget headerLabelWidget;
@@ -88,44 +80,34 @@ public class OperationWidget extends AbstractTitledWidget {
     
 ///    private transient RemoveOperationAction removeAction;
 
-    private ParametersWidget inputWidget;
-    private OutputWidget outputWidget;
+    private FinderColumnsWidget inputWidget;
+    private FinderOutputWidget finderOutputWidget;
     private FaultsWidget faultWidget;
-    private DescriptionWidget descriptionWidget;
+    //private DescriptionWidget descriptionWidget;
     
     /**
      * Creates a new instance of OperationWidget
      * @param scene
      * @param operation
      */
-    public OperationWidget(ObjectScene scene, MethodModel operation) {
+    public FinderWidget(ObjectScene scene, Finder finder) {
         super(scene,RADIUS,RADIUS,RADIUS/2,BORDER_COLOR);
         //this.service = service;
-        this.operation=operation;
-        //this.serviceModel = serviceModel;
-        
-        //removeAction = new RemoveOperationAction(service);
-        //removeAction.setWorkingSet(Collections.singleton(operation));
-        //getActions().addAction(ActionFactory.createPopupMenuAction(
-        //        new DesignViewPopupProvider(new Action [] {
-        //    new GotoSourceAction(operation, serviceModel.getImplementationClass()),
-        //    removeAction
-       // })));
-//        setExpanded(false);
+        this.finder = finder;
         createContent();
     }
     
     /**
      * Obtain the underlying MethodModel
      */
-     public MethodModel getMethodModel(){
-         return operation;
+     public Finder getFinder() {
+         return finder;
      }
     
     private void createContent() {
         String typeOfOperation ="";
         Image image = null;
-        if(operation.isOneWay()) {
+        /*if(operation.isOneWay()) {
             typeOfOperation = NbBundle.getMessage(OperationWidget.class, "LBL_OneWay");
             image = Utilities.loadImage(IMAGE_ONE_WAY);
         } else if (!operation.getParams().isEmpty()) {
@@ -134,8 +116,8 @@ public class OperationWidget extends AbstractTitledWidget {
         } else {
             typeOfOperation = NbBundle.getMessage(OperationWidget.class, "LBL_Notification");
             image = Utilities.loadImage(IMAGE_NOTIFICATION);
-        }
-        headerLabelWidget = new ImageLabelWidget(getScene(), image, operation.getOperationName()) {
+        }*/
+        headerLabelWidget = new ImageLabelWidget(getScene(), null, finder.getName()) {
             private Object key = new Object();
             protected void notifyAdded() {
                 super.notifyAdded();
@@ -160,7 +142,7 @@ public class OperationWidget extends AbstractTitledWidget {
                /* if (service.getWsdlUrl()!=null) {
                     OperationGeneratorHelper.changeWSDLOperationName(serviceModel, service, operation, text);
                 }*/
-                operation.setOperationName(text);
+                finder.setName(text);
                 headerLabelWidget.setLabel(text);
             }
         });
@@ -219,20 +201,20 @@ public class OperationWidget extends AbstractTitledWidget {
 
         listWidget = new Widget(getScene());
         listWidget.setLayout(LayoutFactory.createVerticalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, RADIUS/2));
-        inputWidget = new ParametersWidget(getObjectScene(),operation);
-        outputWidget = new OutputWidget(getObjectScene(),operation);
-        faultWidget = new FaultsWidget(getObjectScene(),operation);
-        descriptionWidget = new DescriptionWidget(getObjectScene(),operation);
+        inputWidget = new FinderColumnsWidget(getObjectScene(),finder);
+        finderOutputWidget = new FinderOutputWidget(getObjectScene(),finder);
+        //faultWidget = new FaultsWidget(getObjectScene(),operation);
+     //   descriptionWidget = new DescriptionWidget(getObjectScene(),operation);
         listWidget.addChild(inputWidget);
-        listWidget.addChild(outputWidget);
-        listWidget.addChild(faultWidget);
-        listWidget.addChild(descriptionWidget);
+        listWidget.addChild(finderOutputWidget);
+        //listWidget.addChild(faultWidget);
+       // listWidget.addChild(descriptionWidget);
 
         tabbedWidget = new TabbedPaneWidget(getScene());
         tabbedWidget.addTab(inputWidget);
-        tabbedWidget.addTab(outputWidget);
-        tabbedWidget.addTab(faultWidget);
-        tabbedWidget.addTab(descriptionWidget);
+        tabbedWidget.addTab(finderOutputWidget);
+      //  tabbedWidget.addTab(faultWidget);
+      //  tabbedWidget.addTab(descriptionWidget);
         
         setTabbedView(!viewButton.isSelected());
         //setExpanded(false);
@@ -269,7 +251,7 @@ public class OperationWidget extends AbstractTitledWidget {
     }
 
     public Object hashKey() {
-        return operation;
+        return finder;
     }
 
     private void setTabbedView(boolean tabbedView) {

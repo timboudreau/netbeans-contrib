@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui;
 
-import java.awt.Color;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
 import org.openide.util.NbBundle;
 
 /**
@@ -57,8 +57,29 @@ public class AddServiceUI extends javax.swing.JDialog {
         initComponents();
         setLocation(parent.getX()+(parent.getWidth()-getWidth())/2,parent.getY()+(parent.getHeight()-getHeight())/2);
         setTitle(NbBundle.getMessage(AddServiceUI.class, "LBL_Service_Dlg_Title"));
-        setBackground(Color.WHITE);
-        setVisible(true);
+        getRootPane().setDefaultButton(addButton);
+        //setBackground(Color.WHITE);
+        //setVisible(true);
+    }
+    
+    public AddServiceUI(java.awt.Frame parent, Entity entity) {
+        this(parent);
+        
+        serviceName = entity.getName();
+        serviceTf.setText(serviceName);
+        serviceTf.setEnabled(false);
+        
+        String rservice = entity.getRemoteService();
+        if(rservice != null && rservice.length() != 0)
+            remoteService = Boolean.parseBoolean(entity.getRemoteService());
+        
+        remoteServiceCB.setSelected(remoteService);
+        
+        localService = true;
+        
+        addButton.setEnabled(false);
+        getRootPane().setDefaultButton(updateButton);
+        
     }
 
     /** This method is called from within the constructor to
@@ -71,7 +92,7 @@ public class AddServiceUI extends javax.swing.JDialog {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        okButton = new javax.swing.JButton();
+        addButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
@@ -80,15 +101,16 @@ public class AddServiceUI extends javax.swing.JDialog {
         remoteServiceCB = new javax.swing.JCheckBox();
         localServiceCB = new javax.swing.JCheckBox();
         localServiceLabel = new javax.swing.JLabel();
+        updateButton = new javax.swing.JButton();
 
         jButton1.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.jButton1.text")); // NOI18N
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        okButton.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.okButton.text")); // NOI18N
-        okButton.addActionListener(new java.awt.event.ActionListener() {
+        addButton.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.addButton.text")); // NOI18N
+        addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okButtonActionPerformed(evt);
+                addButtonActionPerformed(evt);
             }
         });
 
@@ -137,7 +159,7 @@ public class AddServiceUI extends javax.swing.JDialog {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(localServiceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
                         .add(194, 194, 194))
-                    .add(serviceTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 243, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(serviceTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE))
                 .add(24, 24, 24))
         );
         jPanel1Layout.setVerticalGroup(
@@ -157,6 +179,13 @@ public class AddServiceUI extends javax.swing.JDialog {
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
+        updateButton.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.updateButton.text")); // NOI18N
+        updateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -166,12 +195,17 @@ public class AddServiceUI extends javax.swing.JDialog {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(257, 257, 257)
-                        .add(okButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 202, Short.MAX_VALUE)
+                        .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(updateButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {addButton, cancelButton, updateButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -180,25 +214,37 @@ public class AddServiceUI extends javax.swing.JDialog {
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelButton)
-                    .add(okButton))
+                    .add(updateButton)
+                    .add(addButton))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        addButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.addButton.AccessibleContext.accessibleDescription")); // NOI18N
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
 // TODO add your handling code here:
     serviceName = serviceTf.getText();
     remoteService = remoteServiceCB.isSelected();
     localService = localServiceCB.isSelected();
     dispose();
-}//GEN-LAST:event_okButtonActionPerformed
+}//GEN-LAST:event_addButtonActionPerformed
 
 private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
 // TODO add your handling code here:
+    serviceName = null;
     dispose();
 }//GEN-LAST:event_cancelButtonActionPerformed
+
+private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
+// TODO add your handling code here:
+    serviceName = serviceTf.getText();
+    remoteService = remoteServiceCB.isSelected();
+    localService = localServiceCB.isSelected();
+    dispose();
+}//GEN-LAST:event_updateButtonActionPerformed
 
     /**
     * @param args the command line arguments
@@ -230,16 +276,17 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JCheckBox localServiceCB;
     private javax.swing.JLabel localServiceLabel;
     private javax.swing.JLabel nameLabel;
-    private javax.swing.JButton okButton;
     private javax.swing.JCheckBox remoteServiceCB;
     private javax.swing.JLabel remoteServiceLabel;
     private javax.swing.JTextField serviceTf;
+    private javax.swing.JButton updateButton;
     // End of variables declaration//GEN-END:variables
 
 }

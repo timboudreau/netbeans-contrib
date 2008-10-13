@@ -7,7 +7,8 @@
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.beans;
 
 public interface Finder {
-	public void setComments(java.lang.String[] value);
+        
+        public void setComments(java.lang.String[] value);
 
 	public void setComments(int index, java.lang.String value);
 
@@ -39,69 +40,25 @@ public interface Finder {
 
 	public java.lang.String getDbIndex();
 
-	public void setFinderColumn(String[] value);
+	public void setFinderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn[] valueInterface);
 
-	public void setFinderColumn(int index, String value);
+	public void setFinderColumn(int index, org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn valueInterface);
 
-	public String[] getFinderColumn();
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn[] getFinderColumn();
 
 	public java.util.List fetchFinderColumnList();
 
-	public String getFinderColumn(int index);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn getFinderColumn(int index);
 
 	public int sizeFinderColumn();
 
-	public int addFinderColumn(String value);
+	public int addFinderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn valueInterface);
 
-	public int removeFinderColumn(String value);
+	public int removeFinderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn valueInterface);
 
-	public void setFinderColumnName(java.lang.String[] value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn newFinderColumn();
 
-	public void setFinderColumnName(int index, java.lang.String value);
-
-	public java.lang.String[] getFinderColumnName();
-
-	public java.util.List fetchFinderColumnNameList();
-
-	public java.lang.String getFinderColumnName(int index);
-
-	public int sizeFinderColumnName();
-
-	public int addFinderColumnName(java.lang.String value);
-
-	public int removeFinderColumnName(java.lang.String value);
-
-	public void setFinderColumnCaseSensitive(java.lang.String[] value);
-
-	public void setFinderColumnCaseSensitive(int index, java.lang.String value);
-
-	public java.lang.String[] getFinderColumnCaseSensitive();
-
-	public java.util.List fetchFinderColumnCaseSensitiveList();
-
-	public java.lang.String getFinderColumnCaseSensitive(int index);
-
-	public int sizeFinderColumnCaseSensitive();
-
-	public int addFinderColumnCaseSensitive(java.lang.String value);
-
-	public int removeFinderColumnCaseSensitive(java.lang.String value);
-
-	public void setFinderColumnComparator(java.lang.String[] value);
-
-	public void setFinderColumnComparator(int index, java.lang.String value);
-
-	public java.lang.String[] getFinderColumnComparator();
-
-	public java.util.List fetchFinderColumnComparatorList();
-
-	public java.lang.String getFinderColumnComparator(int index);
-
-	public int sizeFinderColumnComparator();
-
-	public int addFinderColumnComparator(java.lang.String value);
-
-	public int removeFinderColumnComparator(java.lang.String value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn newFinderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData);
 
 	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener);
 

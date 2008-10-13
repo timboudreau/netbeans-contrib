@@ -37,22 +37,39 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets;
+package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view;
 
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets.*;
 import java.awt.Image;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.netbeans.api.project.Project;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamodel.ServiceModel;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamodel.Utils;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.ServiceBuilderHelper;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author satyaranjan
  */
-public class LocalMethodsWidget implements TabWidget{
- private OperationsWidget operationsWidget;
-    private ObjectScene scene;
+public class LocalMethodsWidget implements TabWidget,ListSelectionListener{
+    protected OperationsWidget operationsWidget;
+    protected ObjectScene scene;
+    protected TableWidget entityTable;
+    protected ServiceBuilderHelper helper;
+    protected ServiceModel serviceModel;
+    protected Project project;
     
-    public LocalMethodsWidget(ObjectScene scene) {
+    public LocalMethodsWidget(ObjectScene scene,TableWidget entityTable,ServiceBuilderHelper helper) {
         this.scene = scene;
+        this.entityTable = entityTable;
+        this.helper = helper;
+        this.project = helper.getProject();
+        this.entityTable.addSelectionChangeListener(this);
     }
     
     public String getTitle() {
@@ -73,5 +90,45 @@ public class LocalMethodsWidget implements TabWidget{
 
     public Object hashKey() {
         return hashKey();
+    }
+
+    public void valueChanged(ListSelectionEvent e) {
+        
+        int i = e.getFirstIndex();
+        if (i == -1) {
+            return;
+        }
+        
+        Entity entity = (Entity)((Entity) entityTable.getSelectedObject());
+        if(entity == null)
+            return;
+       
+        String entityName = entity.getName();
+        String packageName = helper.getPackagePath();
+        
+        update(entityName,packageName);
+        
+    }
+    
+    private void update(String entityName,String packageName){
+        
+        String className = getImplClass(entityName, packageName);
+        FileObject[] fobs = Utils.findJavaFileObj(project, className);
+        if(fobs != null && fobs.length != 0)
+        {
+            serviceModel = ServiceModel.getServiceModel(fobs[0]);
+        } else {
+            serviceModel = null;
+        }
+        
+        operationsWidget.reload(serviceModel);
+        //operationsWidget = new OperationsWidget(scene, serviceModel);
+        //operationsWidget.revalidate();
+    }
+    
+    protected String getImplClass(String entityName,String packageName) {
+        String className = Utils.getLocalServiceClass(entityName);
+        className = packageName + ".service.impl." + className;
+        return className;
     }
 }

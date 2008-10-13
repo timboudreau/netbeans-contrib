@@ -1274,7 +1274,7 @@ Set the by attribute to "asc" or "desc" to order by ascending or descending.
 <!--
 The order-column element allows you to order the entities by specific columns.
 -->
-<!ELEMENT order-column (#PCDATA)>
+<!ELEMENT order-column (dummy_elm*)>
 
 <!--
 The attributes of the order-column element allows you to fine tune the ordering
@@ -1331,7 +1331,7 @@ The finder element represents a generated finder method.
 <!--
 The finder-column element specifies the columns to find by.
 -->
-<!ELEMENT finder-column (#PCDATA)>
+<!ELEMENT finder-column (dummy_elm*)>
 
 <!--
 The name value specifies the name of the finder method.

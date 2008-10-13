@@ -55,6 +55,7 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JToolBar;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewDescription;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -73,7 +74,7 @@ import org.openide.windows.WindowManager;
 
 /**
  *
- * @author Joelle Lam
+ * @author satyaranjan
  */
 public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, Serializable {
 
@@ -81,7 +82,7 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
     //    private static final long serialVersionUID = -6305897237371751567L;
     //        static final long serialVersionUID = -6305897237371751567L;
     private ServiceBuilderEditorContext context;
-    private static final String PAGEFLOW = "Design";
+    private static final String DESIGN = "Design";
 
     /**
      * This is the multiview descripture which defines a new pane in the faces configuration xml multiview editor.
@@ -98,17 +99,17 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
     }
 
     public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ONLY_OPENED;
+        return TopComponent.PERSISTENCE_NEVER;//PERSISTENCE_ONLY_OPENED;
     }
 
     public String getDisplayName() {
-        return PAGEFLOW;
+        return DESIGN;
     }
-    private static final Image JSFConfigIcon = org.openide.util.Utilities.loadImage("org/netbeans/modules/web/jsf/resources/JSFConfigIcon.png"); // NOI18N
+    private static final Image serviceBuilderICON = org.openide.util.Utilities.loadImage("org/netbeans/modules/portalpack/websynergy/servicebuilder/resources/images/icon.png"); // NOI18N
 
     public Image getIcon() {
         //        return PageFlowImage;
-        return JSFConfigIcon;
+        return serviceBuilderICON;
     }
 
     public HelpCtx getHelpCtx() {
@@ -116,14 +117,14 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
     }
 
     public String preferredID() {
-        return PAGEFLOW;
+        return DESIGN;
     }
 
     public MultiViewElement createElement() {
-        return new WebFlowElement(context);
+        return new ServiceBuilderElement(context);
     }
 
-    static class WebFlowElement implements MultiViewElement, Serializable {
+    static class ServiceBuilderElement implements MultiViewElement, Serializable {
 
         //        private transient JScrollPane panel;
         private transient ServiceBuilderView tc;
@@ -131,7 +132,7 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
         private static final long serialVersionUID = 5454879177214643L;
         private ServiceBuilderEditorContext context;
 
-        public WebFlowElement(ServiceBuilderEditorContext context) {
+        public ServiceBuilderElement(ServiceBuilderEditorContext context) {
             this.context = context;
             init();
         }
@@ -147,7 +148,12 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
         public JComponent getToolbarRepresentation() {
             if (toolbar == null) {
                 toolbar = getTopComponent().getToolbarRepresentation();
+                //toolbar = new JToolBar();
+                //toolbar.setFloatable(false);
+                
+                //if(tc!=null) tc.addToolbarActionsToolBar(toolbar);     
             }
+           
             return toolbar;
         }
 
@@ -281,5 +287,5 @@ public class ServiceBuilderMultiviewDescriptor implements MultiViewDescription, 
             return context.getUndoRedo();
         }
     }
-    private static final Logger LOG = Logger.getLogger("org.netbeans.modules.web.jsf.navigation");
+    private static final Logger LOG = Logger.getLogger("org.netbeans.modules.portalpack.websynergy.servicebuilder");
 }

@@ -55,7 +55,7 @@ import org.openide.filesystems.FileRenameEvent;
 
 /**
  *
- * @author mkuchtiak
+ * @author Satya
  */
 public class ServiceModel {
     
@@ -64,11 +64,7 @@ public class ServiceModel {
     public static final int STATUS_INCORRECT_SERVICE=2;
     
     String serviceName;
-    String portName;
     String name;
-    String endpointInterface;
-    String wsdlLocation;
-    String targetNamespace;
     int status = STATUS_OK;
     
     List<MethodModel> operations;    
@@ -124,73 +120,7 @@ public class ServiceModel {
             firePropertyChanged("serviceName", oldName, this.serviceName);
         }
     }
-
-    public String getPortName() {
-        return portName;
-    }
-
-    public void setPortName(String portName) {
-        if (this.portName != null && !this.portName.equals(portName)) {
-            if (changeSource) {
-//                JaxWsUtils.setWebServiceAttrValue(implementationClass, "portName", portName); //NOI18N
-            }
-            String oldName = this.portName;
-            this.portName = portName==null?this.serviceName+"Port":portName; //NOI18N
-            firePropertyChanged("portName", oldName, portName);
-        }
-    }
-
-    public String getEndpointInterface() {
-        return endpointInterface;
-    }
-
-    void setEndpointInterface(String endpointInterface) {
-        if (this.endpointInterface==null) {
-            if (endpointInterface!=null) {
-                this.endpointInterface=endpointInterface;
-                firePropertyChanged("endpointInterface", null, endpointInterface);
-            }
-        } else if (!this.endpointInterface.equals(endpointInterface)) {
-            String oldName = this.endpointInterface;
-            this.endpointInterface = endpointInterface;
-            firePropertyChanged("endpointInterface", oldName, endpointInterface);
-        }
-    }
     
-    public String getWsdlLocation() {
-        return wsdlLocation;
-    }
-
-   void setWsdlLocation(String wsdlLocation) {
-        if (this.wsdlLocation==null) {
-            if (wsdlLocation!=null) {
-                this.wsdlLocation=wsdlLocation;
-                firePropertyChanged("wsdlLocation", null, wsdlLocation);
-            }
-        } else if (!this.wsdlLocation.equals(wsdlLocation)) {
-            String oldName = this.wsdlLocation;
-            this.wsdlLocation = wsdlLocation;
-            firePropertyChanged("wsdlLocation", oldName, wsdlLocation);
-        }
-    }
-    
-    public String getTargetNamespace() {
-        return targetNamespace;
-    }
-
-    public void setTargetNamespace(String targetNamespace) {
-        if (this.targetNamespace==null) {
-            if (targetNamespace!=null) {
-                this.targetNamespace=targetNamespace;
-                firePropertyChanged("targetNamespace", null, targetNamespace);
-            }
-        } else if (!this.targetNamespace.equals(targetNamespace)) {
-            String oldName = this.targetNamespace;
-            this.targetNamespace = targetNamespace;
-            firePropertyChanged("targetNamespace", oldName, targetNamespace);
-        }
-    }
-
     public List<MethodModel> getOperations() {
         return operations;
     }
@@ -344,10 +274,6 @@ public class ServiceModel {
             setStatus(model2.status);
             setName(model2.name);
             setServiceName(model2.serviceName);
-            setPortName(model2.portName);
-            setEndpointInterface(model2.endpointInterface);
-            setWsdlLocation(model2.wsdlLocation);
-            setTargetNamespace(model2.targetNamespace);
             setOperations(model2.operations);
             changeSource=true;
         }

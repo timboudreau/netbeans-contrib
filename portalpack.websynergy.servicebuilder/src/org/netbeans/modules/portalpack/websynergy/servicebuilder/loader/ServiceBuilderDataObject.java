@@ -17,9 +17,7 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.nodes.Node.Cookie;
 import org.openide.util.Lookup;
-import org.openide.text.DataEditorSupport;
 import org.w3c.dom.Document;
 import org.xml.sax.*;
 
@@ -68,7 +66,7 @@ public class ServiceBuilderDataObject extends MultiDataObject implements org.ope
     
     public void initServiceBuilderHelper(FileObject pf) {
         long t1 = System.currentTimeMillis();
-        helper = new ServiceBuilderHelper(pf);
+        helper = new ServiceBuilderHelper(this);
         long t2 = System.currentTimeMillis();
         
         System.out.println("Time taken to parse ----------------------- "+(t2-t1));

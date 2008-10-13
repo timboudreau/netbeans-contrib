@@ -70,11 +70,11 @@ public abstract class AbstractTitledWidget extends Widget implements ExpandableW
     public static final Color BORDER_COLOR_BLACK = Color.BLACK;
     public static final int RADIUS = 12;
     
-    private Color borderColor = BORDER_COLOR;
-    private int radius = RADIUS;
-    private int hgap = RADIUS;
-    private int cgap = RADIUS;
-    private int depth = radius/3;
+    protected Color borderColor = BORDER_COLOR;
+    protected int radius = RADIUS;
+    protected int hgap = RADIUS;
+    protected int cgap = RADIUS;
+    protected int depth = radius/3;
     
     private boolean expanded;
     private transient Widget headerWidget;

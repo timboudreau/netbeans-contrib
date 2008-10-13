@@ -36,9 +36,9 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui;
 
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.TypeHelper;
 import org.openide.util.NbBundle;
 
@@ -53,14 +53,48 @@ public class AddColumnUI extends javax.swing.JDialog {
     private String dbName;
     private String type;
     private boolean primaryKey;
-    
+
     /** Creates new form AddColumnUI */
     public AddColumnUI(java.awt.Frame parent) {
         super(parent, true);
         initComponents();
-        setLocation(parent.getX()+(parent.getWidth()-getWidth())/2,parent.getY()+(parent.getHeight()-getHeight())/2);
+        setLocation(parent.getX() + (parent.getWidth() - getWidth()) / 2, parent.getY() + (parent.getHeight() - getHeight()) / 2);
         setTitle(NbBundle.getMessage(AddServiceUI.class, "AddColumnUI.title"));
-        setVisible(true);
+        changeButton.setEnabled(false);
+        getRootPane().setDefaultButton(addButton);
+    //setVisible(true);
+    }
+
+    public AddColumnUI(java.awt.Frame parent, Column col) {
+        this(parent);
+        getRootPane().setDefaultButton(changeButton);
+        if (col != null) {
+
+            name = col.getName();
+            dbName = col.getDbName();
+            type = col.getType();
+            String pKey = col.getPrimary();
+
+            nameTf.setText(name);
+            nameTf.setEnabled(false);
+
+            if (dbName != null && dbName.length() != 0) {
+                dbNameTf.setText(dbName);
+            }
+
+            if (type != null && type.length() != 0) {
+
+                typesCB.setSelectedItem(type);
+            }
+
+            if (pKey != null && pKey.length() != 0) {
+                boolean pk = Boolean.parseBoolean(pKey);
+                primaryKeyCB.setSelected(pk);
+            }
+
+            addButton.setEnabled(false);
+            changeButton.setEnabled(true);
+        }
     }
 
     /** This method is called from within the constructor to
@@ -83,6 +117,7 @@ public class AddColumnUI extends javax.swing.JDialog {
         primaryKeyCB = new javax.swing.JCheckBox();
         addButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
+        changeButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -130,7 +165,7 @@ public class AddColumnUI extends javax.swing.JDialog {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(primaryKeyCB)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 177, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(29, 29, 29))
+                .add(68, 68, 68))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -167,6 +202,13 @@ public class AddColumnUI extends javax.swing.JDialog {
             }
         });
 
+        changeButton.setText(org.openide.util.NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.changeButton.text")); // NOI18N
+        changeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changeButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -176,12 +218,17 @@ public class AddColumnUI extends javax.swing.JDialog {
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(220, 220, 220)
-                .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                .addContainerGap(206, Short.MAX_VALUE)
+                .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 55, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                .add(changeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(cancelButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(14, 14, 14))
         );
+
+        layout.linkSize(new java.awt.Component[] {addButton, cancelButton, changeButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -190,7 +237,9 @@ public class AddColumnUI extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(changeButton)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -208,13 +257,26 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
 private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
 // TODO add your handling code here:
+    name = null;
+    dbName = null;
+    type = null;
+
     dispose();
 }//GEN-LAST:event_cancelButtonActionPerformed
-    
+
+private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeButtonActionPerformed
+// TODO add your handling code here:
+    name = nameTf.getText();
+    dbName = dbNameTf.getText();
+    primaryKey = primaryKeyCB.isSelected();
+    type = (String) typesCB.getSelectedItem();
+    dispose();
+}//GEN-LAST:event_changeButtonActionPerformed
+
     public String getName() {
         return name;
     }
-    
+
     public String getDbName() {
         return dbName;
     }
@@ -228,13 +290,15 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 
     /**
-    * @param args the command line arguments
-    */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 AddColumnUI dialog = new AddColumnUI(new javax.swing.JFrame());
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);
                     }
@@ -247,6 +311,7 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JButton changeButton;
     private javax.swing.JLabel colType;
     private javax.swing.JLabel dbColNameLabel;
     private javax.swing.JTextField dbNameTf;
@@ -257,5 +322,4 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JCheckBox primaryKeyCB;
     private javax.swing.JComboBox typesCB;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -39,61 +39,59 @@
 
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets;
 
-import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Finder;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.FinderColumn;
 import org.openide.util.NbBundle;
-import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
+
 /**
  *
  * @author satyaranjan
  */
-public class ServicesTableModel implements TableModel<Entity>{
+public class FinderColumnTableModel implements TableModel<FinderColumn> {
+    
+     //private transient List<FinderColumn> finderColumns;
+    private transient Finder finder;
 
-    private transient List<Entity> services;
-    
-    
-    public ServicesTableModel(List<Entity> services) {
+    public FinderColumnTableModel(Finder finder) {
+        this.finder = finder;
         
-        this.services = services;
     }
     
     public int getRowCount() {
-        return services.size();
+        return finder.getFinderColumn().length;
     }
     
     public int getColumnCount() {
-        return 2;
+        return 3;
     }
     
     public String getColumnName(int columnIndex) {
         switch(columnIndex) {
         case 0:
-            return NbBundle.getMessage(ServicesTableModel.class, "LBL_Service_Name");
+            return NbBundle.getMessage(FinderColumnTableModel.class, "LBL_Column_Name");
         case 1:
-            return NbBundle.getMessage(ServicesTableModel.class, "LBL_IS_REMOTE_Type");
+            return NbBundle.getMessage(FinderColumnTableModel.class, "LBL_Comparator_Type");
+        case 2:
+               return NbBundle.getMessage(FinderColumnTableModel.class, "LBL_Case_Sensitive");
         default:
             throw new IllegalArgumentException("");
         }
     }
     
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        switch(columnIndex) {
-        case 0:
-            return false;
-        case 1:
-            return false;
-        default:
-            return false;
-        }
+        return false;
     }
     
     public String getValueAt(int rowIndex, int columnIndex) {
         if (rowIndex>=0 && rowIndex<getRowCount()) {
             switch(columnIndex) {
             case 0:
-                return getUserObject(rowIndex).getName();
+                return finder.getFinderColumn(rowIndex).getName();
             case 1:
-                return getUserObject(rowIndex).getRemoteService();
+                return finder.getFinderColumn(rowIndex).getComparator();
+            case 2:
+                return finder.getFinderColumn(rowIndex).getCaseSensitive();
             default:
                 throw new IllegalArgumentException("");
             }
@@ -105,43 +103,35 @@ public class ServicesTableModel implements TableModel<Entity>{
         if (rowIndex>=0 && rowIndex<getRowCount()) {
             switch(columnIndex) {
             case 0:
-                //validate aValue
-                getUserObject(rowIndex).setName(aValue);
+                finder.getFinderColumn(rowIndex).setName(aValue);
                 break;
             case 1:
-                getUserObject(rowIndex).setRemoteService(aValue);
+                finder.getFinderColumn(rowIndex).setComparator(aValue);
+            case 2:
+                finder.getFinderColumn(rowIndex).setCaseSensitive(aValue);
             default:
                 throw new IllegalArgumentException("");
             }
         }
     }
-    
-    public void addRow(Entity object) {
-        services.add(object);
-    }
-    
-    public void removeRow(int index) {
-        services.remove(index);
+
+    public FinderColumn getUserObject(int rowIndex) {
+        if(rowIndex == -1 || rowIndex > getRowCount())
+            return null;
+        return finder.getFinderColumn(rowIndex);
     }
 
-    public Entity getUserObject(int rowIndex) {
-        return (Entity)services.get(rowIndex);
+    public void addRow(FinderColumn finderColumn) {
+        finder.addFinderColumn(finderColumn);
     }
-    
-    public void printHashCode() {
-        if(services == null) return;
-        for(Entity en:services) {
-            System.out.println("Entity Name: "+en.getName() + " HashCode: "+en.hashCode());
-        }
+
+    public void removeRow(int index) {
+        if(finder == null)
+            return;
+        if(index == -1 || index > getRowCount())
+            return;
+        FinderColumn finderCol = finder.getFinderColumn(index);
+        if(finderCol != null)
+            finder.removeFinderColumn(finderCol);
     }
-    
-    public void setData(List<Entity> list) {
-        services = list;
-    }
-    
-    public void clear() {
-        if(services != null)
-            services.clear();
-    }
-    
 }

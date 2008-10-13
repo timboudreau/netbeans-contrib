@@ -86,9 +86,9 @@ public class ServiceBuilderXMLMultiviewDescriptor implements MultiViewDescriptio
         return XML_CONSTANT;
     }
     
-    private static final Image JSFConfigIcon = org.openide.util.Utilities.loadImage("org/netbeans/modules/web/jsf/resources/JSFConfigIcon.png"); // NOI18N
+    private static final Image serviceBuilderICON = org.openide.util.Utilities.loadImage("org/netbeans/modules/portalpack/websynergy/servicebuilder/resources/images/icon.png"); // NOI18N
     public Image getIcon() {
-        return JSFConfigIcon;
+        return serviceBuilderICON;
     }
     
     public HelpCtx getHelpCtx() {
@@ -104,7 +104,7 @@ public class ServiceBuilderXMLMultiviewDescriptor implements MultiViewDescriptio
         try {
             DataObject dObject = DataObject.find(context.getServiceBuilderFile());
             ServiceBuilderDataObject jsfDataObject = (ServiceBuilderDataObject) dObject;
-            element =  new WebFlowMultiviewElement(context, jsfDataObject.getEditorSupport());
+            element =  new ServiceBuilderXMLMultiviewElement(context, jsfDataObject.getEditorSupport());
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -113,14 +113,14 @@ public class ServiceBuilderXMLMultiviewDescriptor implements MultiViewDescriptio
     
     
     
-    class WebFlowMultiviewElement extends CloneableEditor implements MultiViewElement, Serializable {
+    class ServiceBuilderXMLMultiviewElement extends CloneableEditor implements MultiViewElement, Serializable {
         static final long serialVersionUID = -6305897237371751564L;
         
         private ServiceBuilderEditorContext context;
         private transient JComponent toolbar;
-        private transient ServiceBuilderDataObject jsfDataObject;
+        private transient ServiceBuilderDataObject sbDataObject;
         
-        public WebFlowMultiviewElement(ServiceBuilderEditorContext context, ServiceBuilderEditorSupport support) {
+        public ServiceBuilderXMLMultiviewElement(ServiceBuilderEditorContext context, ServiceBuilderEditorSupport support) {
             super(support);
             support.initializeCloneableEditor(this);
             this.context = context;
@@ -131,7 +131,7 @@ public class ServiceBuilderXMLMultiviewDescriptor implements MultiViewDescriptio
             try {
                 DataObject dObject = DataObject.find(context.getServiceBuilderFile());
 
-                jsfDataObject = (ServiceBuilderDataObject) dObject;
+                sbDataObject = (ServiceBuilderDataObject) dObject;
             }
             catch (DataObjectNotFoundException ex) {
                 java.util.logging.Logger.getLogger("global").log(java.util.logging.Level.SEVERE,

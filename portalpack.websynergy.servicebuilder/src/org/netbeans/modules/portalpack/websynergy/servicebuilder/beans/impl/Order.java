@@ -15,20 +15,14 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 	public static final String COMMENTS = "Comments";	// NOI18N
 	public static final String BY = "By";	// NOI18N
 	public static final String ORDER_COLUMN = "OrderColumn";	// NOI18N
-	public static final String ORDERCOLUMNNAME = "OrderColumnName";	// NOI18N
-	public static final String ORDERCOLUMNCASESENSITIVE = "OrderColumnCaseSensitive";	// NOI18N
-	public static final String ORDERCOLUMNORDERBY = "OrderColumnOrderBy";	// NOI18N
 
 	private static final org.netbeans.modules.schema2beans.Version baseBeanRuntimeVersion = new org.netbeans.modules.schema2beans.Version(5, 0, 0);
 	private java.util.List _Comments = new java.util.ArrayList();	// List<java.lang.String>
 	private java.lang.String _By;
-	private java.util.List _OrderColumn = new java.util.ArrayList();	// List<String>
-	private java.util.List _OrderColumnName = new java.util.ArrayList();	// List<java.lang.String>
-	private java.util.List _OrderColumnCaseSensitive = new java.util.ArrayList();	// List<java.lang.String>
-	private java.util.List _OrderColumnOrderBy = new java.util.ArrayList();	// List<java.lang.String>
+	private java.util.List _OrderColumn = new java.util.ArrayList();	// List<OrderColumn>
 	private org.netbeans.modules.schema2beans.BaseBean parent;
 	private java.beans.PropertyChangeSupport eventListeners;
-	private java.util.Map propByName = new java.util.HashMap(8, 1.0f);
+	private java.util.Map propByName = new java.util.HashMap(5, 1.0f);
 	private java.util.List beanPropList = null;	// List<org.netbeans.modules.schema2beans.BeanProp>
 
 	/**
@@ -48,18 +42,15 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 	/**
 	 * Required parameters constructor
 	 */
-	public Order(String[] orderColumn, java.lang.String[] orderColumnName) {
+	public Order(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn[] orderColumn) {
 		super(null, baseBeanRuntimeVersion);
 		if (orderColumn!= null) {
 			((java.util.ArrayList) _OrderColumn).ensureCapacity(orderColumn.length);
 			for (int i = 0; i < orderColumn.length; ++i) {
+				if (orderColumn[i] != null) {
+					orderColumn[i]._setParent(this);
+				}
 				_OrderColumn.add(orderColumn[i]);
-			}
-		}
-		if (orderColumnName!= null) {
-			((java.util.ArrayList) _OrderColumnName).ensureCapacity(orderColumnName.length);
-			for (int i = 0; i < orderColumnName.length; ++i) {
-				_OrderColumnName.add(orderColumnName[i]);
 			}
 		}
 	}
@@ -93,23 +84,10 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		_By = source._By;
 		for (java.util.Iterator it = source._OrderColumn.iterator(); 
 			it.hasNext(); ) {
-			String srcElement = (String)it.next();
-			_OrderColumn.add(srcElement);
-		}
-		for (java.util.Iterator it = source._OrderColumnName.iterator(); 
-			it.hasNext(); ) {
-			java.lang.String srcElement = (java.lang.String)it.next();
-			_OrderColumnName.add(srcElement);
-		}
-		for (java.util.Iterator it = source._OrderColumnCaseSensitive.iterator(); 
-			it.hasNext(); ) {
-			java.lang.String srcElement = (java.lang.String)it.next();
-			_OrderColumnCaseSensitive.add(srcElement);
-		}
-		for (java.util.Iterator it = source._OrderColumnOrderBy.iterator(); 
-			it.hasNext(); ) {
-			java.lang.String srcElement = (java.lang.String)it.next();
-			_OrderColumnOrderBy.add(srcElement);
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn srcElement = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			_OrderColumn.add((srcElement == null) ? null : (OrderColumn) newOrderColumn(( 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            ) srcElement, this, justData));
 		}
 		if (!justData) {
 			if (source.eventListeners != null) {
@@ -279,9 +257,12 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 	}
 
 	// This attribute is an array containing at least one element
-	public void setOrderColumn(String[] value) {
+	public void setOrderColumn( 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            [] valueInterface) {
+		OrderColumn[] value = (OrderColumn[]) valueInterface;
 		if (value == null)
-			value = new String[0];
+			value = new OrderColumn[0];
 		if (value.length == sizeOrderColumn()) {
 			boolean same = true;
 			for (int i = 0; i < value.length; ++i) {
@@ -293,6 +274,14 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			if (same) {
 				// No change.
 				return;
+			}
+		}
+		// Make the foreign beans take on our property change event listeners.
+		// Maintain the parent reference.
+		for (int i = 0; i < value.length; ++i) {
+			if (value[i] != null) {
+				value[i]._setPropertyChangeSupport(eventListeners);
+				value[i]._setParent(this);
 			}
 		}
 		java.beans.PropertyChangeEvent event = null;
@@ -360,10 +349,20 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			eventListeners.firePropertyChange(event);
 	}
 
-	public void setOrderColumn(int index, String value) {
+	public void setOrderColumn(int index,  
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+             valueInterface) {
+		OrderColumn value = (OrderColumn) valueInterface;
 		if (value == null ? getOrderColumn(index) == null : value.equals(getOrderColumn(index))) {
 			// No change.
 			return;
+		}
+		if (value != null) {
+			value._setParent(this);
+		}
+		if (value != null) {
+			// Make the foreign beans take on our property change event listeners.
+			value._setPropertyChangeSupport(eventListeners);
 		}
 		if (eventListeners != null) {
 			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumn."+Integer.toHexString(index), getOrderColumn(index), value);
@@ -372,17 +371,21 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		_OrderColumn.set(index, value);
 	}
 
-	public String[] getOrderColumn() {
-		String[] arr = new String[_OrderColumn.size()];
-		return (String[]) _OrderColumn.toArray(arr);
+	public  
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            [] getOrderColumn() {
+		OrderColumn[] arr = new OrderColumn[_OrderColumn.size()];
+		return (OrderColumn[]) _OrderColumn.toArray(arr);
 	}
 
 	public java.util.List fetchOrderColumnList() {
 		return _OrderColumn;
 	}
 
-	public String getOrderColumn(int index) {
-		return (String)_OrderColumn.get(index);
+	public  
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+             getOrderColumn(int index) {
+		return (OrderColumn)_OrderColumn.get(index);
 	}
 
 	// Return the number of orderColumn
@@ -390,7 +393,17 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		return _OrderColumn.size();
 	}
 
-	public int addOrderColumn(String value) {
+	public int addOrderColumn( 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+             valueInterface) {
+		OrderColumn value = (OrderColumn) valueInterface;
+		if (value != null) {
+			value._setParent(this);
+		}
+		if (value != null) {
+			// Make the foreign beans take on our property change event listeners.
+			value._setPropertyChangeSupport(eventListeners);
+		}
 		_OrderColumn.add(value);
 		if (eventListeners != null) {
 			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumn."+Integer.toHexString(_OrderColumn.size()-1), null, value);
@@ -403,7 +416,10 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 	/**
 	 * Search from the end looking for @param value, and then remove it.
 	 */
-	public int removeOrderColumn(String value) {
+	public int removeOrderColumn( 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+             valueInterface) {
+		OrderColumn value = (OrderColumn) valueInterface;
 		int pos = _OrderColumn.indexOf(value);
 		if (pos >= 0) {
 			_OrderColumn.remove(pos);
@@ -415,425 +431,20 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		return pos;
 	}
 
-	// This attribute is an array containing at least one element
-	public void setOrderColumnName(java.lang.String[] value) {
-		if (value == null)
-			value = new java.lang.String[0];
-		if (value.length == sizeOrderColumnName()) {
-			boolean same = true;
-			for (int i = 0; i < value.length; ++i) {
-				if (!(value[i] == null ? getOrderColumnName(i) == null : value[i].equals(getOrderColumnName(i)))) {
-					same = false;
-					break;
-				}
-			}
-			if (same) {
-				// No change.
-				return;
-			}
-		}
-		java.beans.PropertyChangeEvent event = null;
-		if (eventListeners != null) {
-			// See if only 1 thing changed.
-			int addIndex = -1;
-			int removeIndex = -1;
-			int oldSize = sizeOrderColumnName();
-			int newSize = value.length;
-			if (oldSize + 1 == newSize || oldSize == newSize + 1) {
-				boolean checkAddOrRemoveOne = true;
-				int oldIndex = 0, newIndex = 0;
-				for (; oldIndex < oldSize && newIndex < newSize; 
-					++newIndex, ++oldIndex) {
-					if (value[newIndex] == null ? getOrderColumnName(oldIndex) == null : value[newIndex].equals(getOrderColumnName(oldIndex))) {
-						// Same, so just continue.
-					} else if (addIndex != -1 || removeIndex != -1) {
-						// More than 1 difference detected.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					} else if (oldIndex + 1 < oldSize && (value[newIndex] == null ? getOrderColumnName(oldIndex+1) == null : value[newIndex].equals(getOrderColumnName(oldIndex+1)))) {
-						removeIndex = oldIndex;
-						++oldIndex;
-					} else if (newIndex + 1 < newSize && (value[newIndex+1] == null ? getOrderColumnName(oldIndex) == null : value[newIndex+1].equals(getOrderColumnName(oldIndex)))) {
-						addIndex = newIndex;
-						++newIndex;
-					} else {
-						// More than 1 difference.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					}
-				}
-				if (checkAddOrRemoveOne && addIndex == -1 && removeIndex == -1) {
-					if (oldSize + 1 == newSize) {
-						// Added last one
-						addIndex = oldSize;
-					} else if (oldSize == newSize + 1) {
-						// Removed last one
-						removeIndex = newSize;
-					}
-				}
-			}
-			if (addIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName."+Integer.toHexString(addIndex), null, value[addIndex]);
-				_OrderColumnName.add(addIndex, value[addIndex]);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else if (removeIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName."+Integer.toHexString(removeIndex), getOrderColumnName(removeIndex), null);
-				_OrderColumnName.remove(removeIndex);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName.-1", getOrderColumnName(), value);
-			}
-		}
-		_OrderColumnName.clear();
-		((java.util.ArrayList) _OrderColumnName).ensureCapacity(value.length);
-		for (int i = 0; i < value.length; ++i) {
-			_OrderColumnName.add(value[i]);
-		}
-		if (event != null)
-			eventListeners.firePropertyChange(event);
-	}
-
-	public void setOrderColumnName(int index, java.lang.String value) {
-		if (value == null ? getOrderColumnName(index) == null : value.equals(getOrderColumnName(index))) {
-			// No change.
-			return;
-		}
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName."+Integer.toHexString(index), getOrderColumnName(index), value);
-			eventListeners.firePropertyChange(event);
-		}
-		for (int size = _OrderColumnName.size(); index >= size; ++size) {
-			_OrderColumnName.add(null);
-		}
-		_OrderColumnName.set(index, value);
-	}
-
-	public java.lang.String[] getOrderColumnName() {
-		java.lang.String[] arr = new java.lang.String[_OrderColumnName.size()];
-		return (java.lang.String[]) _OrderColumnName.toArray(arr);
-	}
-
-	public java.util.List fetchOrderColumnNameList() {
-		return _OrderColumnName;
-	}
-
-	public java.lang.String getOrderColumnName(int index) {
-		return (java.lang.String)_OrderColumnName.get(index);
-	}
-
-	// Return the number of orderColumnName
-	public int sizeOrderColumnName() {
-		return _OrderColumnName.size();
-	}
-
-	public int addOrderColumnName(java.lang.String value) {
-		_OrderColumnName.add(value);
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName."+Integer.toHexString(_OrderColumnName.size()-1), null, value);
-			eventListeners.firePropertyChange(event);
-		}
-		int positionOfNewItem = _OrderColumnName.size()-1;
-		return positionOfNewItem;
+	/**
+	 * Create a new bean using it's default constructor.
+	 * This does not add it to any bean graph.
+	 */
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn newOrderColumn() {
+		return new org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn();
 	}
 
 	/**
-	 * Search from the end looking for @param value, and then remove it.
+	 * Create a new bean, copying from another one.
+	 * This does not add it to any bean graph.
 	 */
-	public int removeOrderColumnName(java.lang.String value) {
-		int pos = _OrderColumnName.indexOf(value);
-		if (pos >= 0) {
-			_OrderColumnName.remove(pos);
-			if (eventListeners != null) {
-				java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnName."+Integer.toHexString(pos), value, null);
-				eventListeners.firePropertyChange(event);
-			}
-		}
-		return pos;
-	}
-
-	// This attribute is an array, possibly empty
-	public void setOrderColumnCaseSensitive(java.lang.String[] value) {
-		if (value == null)
-			value = new java.lang.String[0];
-		if (value.length == sizeOrderColumnCaseSensitive()) {
-			boolean same = true;
-			for (int i = 0; i < value.length; ++i) {
-				if (!(value[i] == null ? getOrderColumnCaseSensitive(i) == null : value[i].equals(getOrderColumnCaseSensitive(i)))) {
-					same = false;
-					break;
-				}
-			}
-			if (same) {
-				// No change.
-				return;
-			}
-		}
-		java.beans.PropertyChangeEvent event = null;
-		if (eventListeners != null) {
-			// See if only 1 thing changed.
-			int addIndex = -1;
-			int removeIndex = -1;
-			int oldSize = sizeOrderColumnCaseSensitive();
-			int newSize = value.length;
-			if (oldSize + 1 == newSize || oldSize == newSize + 1) {
-				boolean checkAddOrRemoveOne = true;
-				int oldIndex = 0, newIndex = 0;
-				for (; oldIndex < oldSize && newIndex < newSize; 
-					++newIndex, ++oldIndex) {
-					if (value[newIndex] == null ? getOrderColumnCaseSensitive(oldIndex) == null : value[newIndex].equals(getOrderColumnCaseSensitive(oldIndex))) {
-						// Same, so just continue.
-					} else if (addIndex != -1 || removeIndex != -1) {
-						// More than 1 difference detected.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					} else if (oldIndex + 1 < oldSize && (value[newIndex] == null ? getOrderColumnCaseSensitive(oldIndex+1) == null : value[newIndex].equals(getOrderColumnCaseSensitive(oldIndex+1)))) {
-						removeIndex = oldIndex;
-						++oldIndex;
-					} else if (newIndex + 1 < newSize && (value[newIndex+1] == null ? getOrderColumnCaseSensitive(oldIndex) == null : value[newIndex+1].equals(getOrderColumnCaseSensitive(oldIndex)))) {
-						addIndex = newIndex;
-						++newIndex;
-					} else {
-						// More than 1 difference.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					}
-				}
-				if (checkAddOrRemoveOne && addIndex == -1 && removeIndex == -1) {
-					if (oldSize + 1 == newSize) {
-						// Added last one
-						addIndex = oldSize;
-					} else if (oldSize == newSize + 1) {
-						// Removed last one
-						removeIndex = newSize;
-					}
-				}
-			}
-			if (addIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive."+Integer.toHexString(addIndex), null, value[addIndex]);
-				_OrderColumnCaseSensitive.add(addIndex, value[addIndex]);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else if (removeIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive."+Integer.toHexString(removeIndex), getOrderColumnCaseSensitive(removeIndex), null);
-				_OrderColumnCaseSensitive.remove(removeIndex);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive.-1", getOrderColumnCaseSensitive(), value);
-			}
-		}
-		_OrderColumnCaseSensitive.clear();
-		((java.util.ArrayList) _OrderColumnCaseSensitive).ensureCapacity(value.length);
-		for (int i = 0; i < value.length; ++i) {
-			_OrderColumnCaseSensitive.add(value[i]);
-		}
-		if (event != null)
-			eventListeners.firePropertyChange(event);
-	}
-
-	public void setOrderColumnCaseSensitive(int index, java.lang.String value) {
-		if (value == null ? getOrderColumnCaseSensitive(index) == null : value.equals(getOrderColumnCaseSensitive(index))) {
-			// No change.
-			return;
-		}
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive."+Integer.toHexString(index), getOrderColumnCaseSensitive(index), value);
-			eventListeners.firePropertyChange(event);
-		}
-		for (int size = _OrderColumnCaseSensitive.size(); index >= size; 
-			++size) {
-			_OrderColumnCaseSensitive.add(null);
-		}
-		_OrderColumnCaseSensitive.set(index, value);
-	}
-
-	public java.lang.String[] getOrderColumnCaseSensitive() {
-		java.lang.String[] arr = new java.lang.String[_OrderColumnCaseSensitive.size()];
-		return (java.lang.String[]) _OrderColumnCaseSensitive.toArray(arr);
-	}
-
-	public java.util.List fetchOrderColumnCaseSensitiveList() {
-		return _OrderColumnCaseSensitive;
-	}
-
-	public java.lang.String getOrderColumnCaseSensitive(int index) {
-		return (java.lang.String)_OrderColumnCaseSensitive.get(index);
-	}
-
-	// Return the number of orderColumnCaseSensitive
-	public int sizeOrderColumnCaseSensitive() {
-		return _OrderColumnCaseSensitive.size();
-	}
-
-	public int addOrderColumnCaseSensitive(java.lang.String value) {
-		_OrderColumnCaseSensitive.add(value);
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive."+Integer.toHexString(_OrderColumnCaseSensitive.size()-1), null, value);
-			eventListeners.firePropertyChange(event);
-		}
-		int positionOfNewItem = _OrderColumnCaseSensitive.size()-1;
-		return positionOfNewItem;
-	}
-
-	/**
-	 * Search from the end looking for @param value, and then remove it.
-	 */
-	public int removeOrderColumnCaseSensitive(java.lang.String value) {
-		int pos = _OrderColumnCaseSensitive.indexOf(value);
-		if (pos >= 0) {
-			_OrderColumnCaseSensitive.remove(pos);
-			if (eventListeners != null) {
-				java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnCaseSensitive."+Integer.toHexString(pos), value, null);
-				eventListeners.firePropertyChange(event);
-			}
-		}
-		return pos;
-	}
-
-	// This attribute is an array, possibly empty
-	public void setOrderColumnOrderBy(java.lang.String[] value) {
-		if (value == null)
-			value = new java.lang.String[0];
-		if (value.length == sizeOrderColumnOrderBy()) {
-			boolean same = true;
-			for (int i = 0; i < value.length; ++i) {
-				if (!(value[i] == null ? getOrderColumnOrderBy(i) == null : value[i].equals(getOrderColumnOrderBy(i)))) {
-					same = false;
-					break;
-				}
-			}
-			if (same) {
-				// No change.
-				return;
-			}
-		}
-		java.beans.PropertyChangeEvent event = null;
-		if (eventListeners != null) {
-			// See if only 1 thing changed.
-			int addIndex = -1;
-			int removeIndex = -1;
-			int oldSize = sizeOrderColumnOrderBy();
-			int newSize = value.length;
-			if (oldSize + 1 == newSize || oldSize == newSize + 1) {
-				boolean checkAddOrRemoveOne = true;
-				int oldIndex = 0, newIndex = 0;
-				for (; oldIndex < oldSize && newIndex < newSize; 
-					++newIndex, ++oldIndex) {
-					if (value[newIndex] == null ? getOrderColumnOrderBy(oldIndex) == null : value[newIndex].equals(getOrderColumnOrderBy(oldIndex))) {
-						// Same, so just continue.
-					} else if (addIndex != -1 || removeIndex != -1) {
-						// More than 1 difference detected.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					} else if (oldIndex + 1 < oldSize && (value[newIndex] == null ? getOrderColumnOrderBy(oldIndex+1) == null : value[newIndex].equals(getOrderColumnOrderBy(oldIndex+1)))) {
-						removeIndex = oldIndex;
-						++oldIndex;
-					} else if (newIndex + 1 < newSize && (value[newIndex+1] == null ? getOrderColumnOrderBy(oldIndex) == null : value[newIndex+1].equals(getOrderColumnOrderBy(oldIndex)))) {
-						addIndex = newIndex;
-						++newIndex;
-					} else {
-						// More than 1 difference.
-						addIndex = removeIndex = -1;
-						checkAddOrRemoveOne = false;
-						break;
-					}
-				}
-				if (checkAddOrRemoveOne && addIndex == -1 && removeIndex == -1) {
-					if (oldSize + 1 == newSize) {
-						// Added last one
-						addIndex = oldSize;
-					} else if (oldSize == newSize + 1) {
-						// Removed last one
-						removeIndex = newSize;
-					}
-				}
-			}
-			if (addIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy."+Integer.toHexString(addIndex), null, value[addIndex]);
-				_OrderColumnOrderBy.add(addIndex, value[addIndex]);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else if (removeIndex >= 0) {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy."+Integer.toHexString(removeIndex), getOrderColumnOrderBy(removeIndex), null);
-				_OrderColumnOrderBy.remove(removeIndex);
-				eventListeners.firePropertyChange(event);
-				return;
-			} else {
-				event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy.-1", getOrderColumnOrderBy(), value);
-			}
-		}
-		_OrderColumnOrderBy.clear();
-		((java.util.ArrayList) _OrderColumnOrderBy).ensureCapacity(value.length);
-		for (int i = 0; i < value.length; ++i) {
-			_OrderColumnOrderBy.add(value[i]);
-		}
-		if (event != null)
-			eventListeners.firePropertyChange(event);
-	}
-
-	public void setOrderColumnOrderBy(int index, java.lang.String value) {
-		if (value == null ? getOrderColumnOrderBy(index) == null : value.equals(getOrderColumnOrderBy(index))) {
-			// No change.
-			return;
-		}
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy."+Integer.toHexString(index), getOrderColumnOrderBy(index), value);
-			eventListeners.firePropertyChange(event);
-		}
-		for (int size = _OrderColumnOrderBy.size(); index >= size; ++size) {
-			_OrderColumnOrderBy.add(null);
-		}
-		_OrderColumnOrderBy.set(index, value);
-	}
-
-	public java.lang.String[] getOrderColumnOrderBy() {
-		java.lang.String[] arr = new java.lang.String[_OrderColumnOrderBy.size()];
-		return (java.lang.String[]) _OrderColumnOrderBy.toArray(arr);
-	}
-
-	public java.util.List fetchOrderColumnOrderByList() {
-		return _OrderColumnOrderBy;
-	}
-
-	public java.lang.String getOrderColumnOrderBy(int index) {
-		return (java.lang.String)_OrderColumnOrderBy.get(index);
-	}
-
-	// Return the number of orderColumnOrderBy
-	public int sizeOrderColumnOrderBy() {
-		return _OrderColumnOrderBy.size();
-	}
-
-	public int addOrderColumnOrderBy(java.lang.String value) {
-		_OrderColumnOrderBy.add(value);
-		if (eventListeners != null) {
-			java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy."+Integer.toHexString(_OrderColumnOrderBy.size()-1), null, value);
-			eventListeners.firePropertyChange(event);
-		}
-		int positionOfNewItem = _OrderColumnOrderBy.size()-1;
-		return positionOfNewItem;
-	}
-
-	/**
-	 * Search from the end looking for @param value, and then remove it.
-	 */
-	public int removeOrderColumnOrderBy(java.lang.String value) {
-		int pos = _OrderColumnOrderBy.indexOf(value);
-		if (pos >= 0) {
-			_OrderColumnOrderBy.remove(pos);
-			if (eventListeners != null) {
-				java.beans.PropertyChangeEvent event = new java.beans.PropertyChangeEvent(this, nameSelf()+"/OrderColumnOrderBy."+Integer.toHexString(pos), value, null);
-				eventListeners.firePropertyChange(event);
-			}
-		}
-		return pos;
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn newOrderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData) {
+		return new org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn((OrderColumn) source, parent, justData);
 	}
 
 	public void _setParent(org.netbeans.modules.schema2beans.BaseBean parent) {
@@ -919,42 +530,12 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 				out.write("-->\n");
 			}
 		}
-		int index = 0;
 		for (java.util.Iterator it = _OrderColumn.iterator(); 
 			it.hasNext(); ) {
-			String element = (String)it.next();
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
 			if (element != null) {
-				out.write(nextIndent);
-				out.write("<order-column");	// NOI18N
-				if (index < sizeOrderColumnName()) {
-					// name is an attribute with namespace null
-					if (getOrderColumnName(index) != null) {
-						out.write(" name='");
-						org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, getOrderColumnName(index), true);
-						out.write("'");	// NOI18N
-					}
-				}
-				if (index < sizeOrderColumnCaseSensitive()) {
-					// case-sensitive is an attribute with namespace null
-					if (getOrderColumnCaseSensitive(index) != null) {
-						out.write(" case-sensitive='");
-						org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, getOrderColumnCaseSensitive(index), true);
-						out.write("'");	// NOI18N
-					}
-				}
-				if (index < sizeOrderColumnOrderBy()) {
-					// order-by is an attribute with namespace null
-					if (getOrderColumnOrderBy(index) != null) {
-						out.write(" order-by='");
-						org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, getOrderColumnOrderBy(index), true);
-						out.write("'");	// NOI18N
-					}
-				}
-				out.write(">");	// NOI18N
-				org.netbeans.modules.schema2beans.XMLUtil.writeXML(out, element, false);
-				out.write("</order-column>\n");	// NOI18N
+				element.writeNode(out, "order-column", null, nextIndent, namespaceMap);
 			}
-			++index;
 		}
 	}
 
@@ -1014,44 +595,16 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 
 	protected boolean readNodeChild(org.w3c.dom.Node childNode, String childNodeName, String childNodeValue, java.util.Map namespacePrefixes) {
 		// assert childNodeName == childNodeName.intern()
-		org.w3c.dom.NamedNodeMap attrs = childNode.getAttributes();
-		org.w3c.dom.Attr attr;
-		java.lang.String attrValue;
 		if (childNode instanceof org.w3c.dom.Comment) {
 			java.lang.String aComments;
 			aComments = ((org.w3c.dom.CharacterData)childNode).getData();
 			_Comments.add(aComments);
 		}
 		else if (childNodeName == "order-column") {
-			String aOrderColumn;
-			aOrderColumn = childNodeValue;
-			attr = (org.w3c.dom.Attr) attrs.getNamedItem("name");
-			if (attr != null) {
-				attrValue = attr.getValue();
-			} else {
-				attrValue = null;
-			}
-			java.lang.String processedValueFor_OrderColumnName;
-			processedValueFor_OrderColumnName = attrValue;
-			addOrderColumnName(processedValueFor_OrderColumnName);
-			attr = (org.w3c.dom.Attr) attrs.getNamedItem("case-sensitive");
-			if (attr != null) {
-				attrValue = attr.getValue();
-			} else {
-				attrValue = null;
-			}
-			java.lang.String processedValueFor_OrderColumnCaseSensitive;
-			processedValueFor_OrderColumnCaseSensitive = attrValue;
-			addOrderColumnCaseSensitive(processedValueFor_OrderColumnCaseSensitive);
-			attr = (org.w3c.dom.Attr) attrs.getNamedItem("order-by");
-			if (attr != null) {
-				attrValue = attr.getValue();
-			} else {
-				attrValue = null;
-			}
-			java.lang.String processedValueFor_OrderColumnOrderBy;
-			processedValueFor_OrderColumnOrderBy = attrValue;
-			addOrderColumnOrderBy(processedValueFor_OrderColumnOrderBy);
+			OrderColumn aOrderColumn = (OrderColumn) newOrderColumn();
+			aOrderColumn._setPropertyChangeSupport(eventListeners);
+			aOrderColumn._setParent(this);
+			aOrderColumn.readNode(childNode, namespacePrefixes);
 			_OrderColumn.add(aOrderColumn);
 		}
 		else {
@@ -1069,12 +622,12 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		if (sizeOrderColumn() == 0) {
 			throw new org.netbeans.modules.schema2beans.ValidateException("sizeOrderColumn() == 0", org.netbeans.modules.schema2beans.ValidateException.FailureType.NULL_VALUE, "orderColumn", this);	// NOI18N
 		}
-		// Validating property orderColumnName
-		if (sizeOrderColumnName() == 0) {
-			throw new org.netbeans.modules.schema2beans.ValidateException("sizeOrderColumnName() == 0", org.netbeans.modules.schema2beans.ValidateException.FailureType.NULL_VALUE, "orderColumnName", this);	// NOI18N
+		for (int _index = 0; _index < sizeOrderColumn(); ++_index) {
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn) getOrderColumn(_index);
+			if (element != null) {
+				((OrderColumn)element).validate();
+			}
 		}
-		// Validating property orderColumnCaseSensitive
-		// Validating property orderColumnOrderBy
 	}
 
 	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
@@ -1082,9 +635,23 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			eventListeners = new java.beans.PropertyChangeSupport(this);
 		}
 		eventListeners.addPropertyChangeListener(listener);
+		for (java.util.Iterator it = _OrderColumn.iterator(); 
+			it.hasNext(); ) {
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			if (element != null) {
+				element.addPropertyChangeListener(listener);
+			}
+		}
 	}
 
 	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
+		for (java.util.Iterator it = _OrderColumn.iterator(); 
+			it.hasNext(); ) {
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			if (element != null) {
+				element.removePropertyChangeListener(listener);
+			}
+		}
 		if (eventListeners == null) {
 			return;
 		}
@@ -1096,6 +663,13 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 
 	public void _setPropertyChangeSupport(java.beans.PropertyChangeSupport listeners) {
 		eventListeners = listeners;
+		for (java.util.Iterator it = _OrderColumn.iterator(); 
+			it.hasNext(); ) {
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			if (element != null) {
+				element._setPropertyChangeSupport(listeners);
+			}
+		}
 	}
 
 	public void changePropertyByName(String name, Object value) {
@@ -1108,21 +682,9 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		else if (name == "by")
 			setBy((java.lang.String)value);
 		else if (name == "orderColumn")
-			addOrderColumn((String)value);
+			addOrderColumn((OrderColumn)value);
 		else if (name == "orderColumn[]")
-			setOrderColumn((String[]) value);
-		else if (name == "orderColumnName")
-			addOrderColumnName((java.lang.String)value);
-		else if (name == "orderColumnName[]")
-			setOrderColumnName((java.lang.String[]) value);
-		else if (name == "orderColumnCaseSensitive")
-			addOrderColumnCaseSensitive((java.lang.String)value);
-		else if (name == "orderColumnCaseSensitive[]")
-			setOrderColumnCaseSensitive((java.lang.String[]) value);
-		else if (name == "orderColumnOrderBy")
-			addOrderColumnOrderBy((java.lang.String)value);
-		else if (name == "orderColumnOrderBy[]")
-			setOrderColumnOrderBy((java.lang.String[]) value);
+			setOrderColumn((OrderColumn[]) value);
 		else
 			throw new IllegalArgumentException(name+" is not a valid property name for Order");
 	}
@@ -1134,12 +696,6 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			return getBy();
 		if (name == "orderColumn[]")
 			return getOrderColumn();
-		if (name == "orderColumnName[]")
-			return getOrderColumnName();
-		if (name == "orderColumnCaseSensitive[]")
-			return getOrderColumnCaseSensitive();
-		if (name == "orderColumnOrderBy[]")
-			return getOrderColumnOrderBy();
 		throw new IllegalArgumentException(name+" is not a valid property name for Order");
 	}
 
@@ -1197,10 +753,13 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 					return "By";
 				}
 			}
-			index = 0;
+		}
+		if (childObj instanceof OrderColumn) {
+			OrderColumn child = (OrderColumn) childObj;
+			int index = 0;
 			for (java.util.Iterator it = _OrderColumn.iterator(); 
 				it.hasNext(); ) {
-				String element = (String)it.next();
+				org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
 				if (child == element) {
 					if (returnConstName) {
 						return ORDER_COLUMN;
@@ -1210,57 +769,6 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 						return "order-column[position()="+index+"]";
 					} else {
 						return "OrderColumn."+Integer.toHexString(index);
-					}
-				}
-				++index;
-			}
-			index = 0;
-			for (java.util.Iterator it = _OrderColumnName.iterator(); 
-				it.hasNext(); ) {
-				java.lang.String element = (java.lang.String)it.next();
-				if (child == element) {
-					if (returnConstName) {
-						return ORDERCOLUMNNAME;
-					} else if (returnSchemaName) {
-						return "name";
-					} else if (returnXPathName) {
-						return "@name[position()="+index+"]";
-					} else {
-						return "OrderColumnName."+Integer.toHexString(index);
-					}
-				}
-				++index;
-			}
-			index = 0;
-			for (java.util.Iterator it = _OrderColumnCaseSensitive.iterator(); 
-				it.hasNext(); ) {
-				java.lang.String element = (java.lang.String)it.next();
-				if (child == element) {
-					if (returnConstName) {
-						return ORDERCOLUMNCASESENSITIVE;
-					} else if (returnSchemaName) {
-						return "case-sensitive";
-					} else if (returnXPathName) {
-						return "@case-sensitive[position()="+index+"]";
-					} else {
-						return "OrderColumnCaseSensitive."+Integer.toHexString(index);
-					}
-				}
-				++index;
-			}
-			index = 0;
-			for (java.util.Iterator it = _OrderColumnOrderBy.iterator(); 
-				it.hasNext(); ) {
-				java.lang.String element = (java.lang.String)it.next();
-				if (child == element) {
-					if (returnConstName) {
-						return ORDERCOLUMNORDERBY;
-					} else if (returnSchemaName) {
-						return "order-by";
-					} else if (returnXPathName) {
-						return "@order-by[position()="+index+"]";
-					} else {
-						return "OrderColumnOrderBy."+Integer.toHexString(index);
 					}
 				}
 				++index;
@@ -1283,6 +791,16 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 	 * Put all child beans into the beans list.
 	 */
 	public void childBeans(boolean recursive, java.util.List beans) {
+		for (java.util.Iterator it = _OrderColumn.iterator(); 
+			it.hasNext(); ) {
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			if (element != null) {
+				if (recursive) {
+					element.childBeans(true, beans);
+				}
+				beans.add(element);
+			}
+		}
 	}
 
 	public boolean equals(Object o) {
@@ -1315,41 +833,8 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		// Compare every element.
 		for (java.util.Iterator it = _OrderColumn.iterator(), it2 = inst._OrderColumn.iterator(); 
 			it.hasNext() && it2.hasNext(); ) {
-			String element = (String)it.next();
-			String element2 = (String)it2.next();
-			if (!(element == null ? element2 == null : element.equals(element2))) {
-				return false;
-			}
-		}
-		if (sizeOrderColumnName() != inst.sizeOrderColumnName())
-			return false;
-		// Compare every element.
-		for (java.util.Iterator it = _OrderColumnName.iterator(), it2 = inst._OrderColumnName.iterator(); 
-			it.hasNext() && it2.hasNext(); ) {
-			java.lang.String element = (java.lang.String)it.next();
-			java.lang.String element2 = (java.lang.String)it2.next();
-			if (!(element == null ? element2 == null : element.equals(element2))) {
-				return false;
-			}
-		}
-		if (sizeOrderColumnCaseSensitive() != inst.sizeOrderColumnCaseSensitive())
-			return false;
-		// Compare every element.
-		for (java.util.Iterator it = _OrderColumnCaseSensitive.iterator(), it2 = inst._OrderColumnCaseSensitive.iterator(); 
-			it.hasNext() && it2.hasNext(); ) {
-			java.lang.String element = (java.lang.String)it.next();
-			java.lang.String element2 = (java.lang.String)it2.next();
-			if (!(element == null ? element2 == null : element.equals(element2))) {
-				return false;
-			}
-		}
-		if (sizeOrderColumnOrderBy() != inst.sizeOrderColumnOrderBy())
-			return false;
-		// Compare every element.
-		for (java.util.Iterator it = _OrderColumnOrderBy.iterator(), it2 = inst._OrderColumnOrderBy.iterator(); 
-			it.hasNext() && it2.hasNext(); ) {
-			java.lang.String element = (java.lang.String)it.next();
-			java.lang.String element2 = (java.lang.String)it2.next();
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it.next();
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn element2 = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn)it2.next();
 			if (!(element == null ? element2 == null : element.equals(element2))) {
 				return false;
 			}
@@ -1357,14 +842,11 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		return true;
 	}
 
-	public int hashCode() {
+	public int hashCode1() {
 		int result = 17;
 		result = 37*result + (_Comments == null ? 0 : _Comments.hashCode());
 		result = 37*result + (_By == null ? 0 : _By.hashCode());
 		result = 37*result + (_OrderColumn == null ? 0 : _OrderColumn.hashCode());
-		result = 37*result + (_OrderColumnName == null ? 0 : _OrderColumnName.hashCode());
-		result = 37*result + (_OrderColumnCaseSensitive == null ? 0 : _OrderColumnCaseSensitive.hashCode());
-		result = 37*result + (_OrderColumnOrderBy == null ? 0 : _OrderColumnOrderBy.hashCode());
 		return result;
 	}
 
@@ -1410,46 +892,21 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 					indexed = true;
 					constName = ORDER_COLUMN;
 					schemaName = "order-column";
-					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_1_N|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
+					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_1_N|org.netbeans.modules.schema2beans.Common.TYPE_BEAN;
 					reader = getClass().getMethod("getOrderColumn", new Class[] {Integer.TYPE});
 					arrayReader = getClass().getMethod("getOrderColumn", new Class[] {});
-					writer = getClass().getMethod("setOrderColumn", new Class[] {Integer.TYPE, String.class});
-					arrayWriter = getClass().getMethod("setOrderColumn", new Class[] {String[].class});
-					adder = getClass().getMethod("addOrderColumn", new Class[] {String.class});
-					remover = getClass().getMethod("removeOrderColumn", new Class[] {String.class});
-				} else if (name == ORDERCOLUMNNAME) {
-					indexed = true;
-					constName = ORDERCOLUMNNAME;
-					schemaName = "name";
-					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_1_N|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
-					reader = getClass().getMethod("getOrderColumnName", new Class[] {Integer.TYPE});
-					arrayReader = getClass().getMethod("getOrderColumnName", new Class[] {});
-					writer = getClass().getMethod("setOrderColumnName", new Class[] {Integer.TYPE, java.lang.String.class});
-					arrayWriter = getClass().getMethod("setOrderColumnName", new Class[] {java.lang.String[].class});
-					adder = getClass().getMethod("addOrderColumnName", new Class[] {java.lang.String.class});
-					remover = getClass().getMethod("removeOrderColumnName", new Class[] {java.lang.String.class});
-				} else if (name == ORDERCOLUMNCASESENSITIVE) {
-					indexed = true;
-					constName = ORDERCOLUMNCASESENSITIVE;
-					schemaName = "case-sensitive";
-					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_N|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
-					reader = getClass().getMethod("getOrderColumnCaseSensitive", new Class[] {Integer.TYPE});
-					arrayReader = getClass().getMethod("getOrderColumnCaseSensitive", new Class[] {});
-					writer = getClass().getMethod("setOrderColumnCaseSensitive", new Class[] {Integer.TYPE, java.lang.String.class});
-					arrayWriter = getClass().getMethod("setOrderColumnCaseSensitive", new Class[] {java.lang.String[].class});
-					adder = getClass().getMethod("addOrderColumnCaseSensitive", new Class[] {java.lang.String.class});
-					remover = getClass().getMethod("removeOrderColumnCaseSensitive", new Class[] {java.lang.String.class});
-				} else if (name == ORDERCOLUMNORDERBY) {
-					indexed = true;
-					constName = ORDERCOLUMNORDERBY;
-					schemaName = "order-by";
-					options = org.netbeans.modules.schema2beans.Common.TYPE_KEY | org.netbeans.modules.schema2beans.Common.TYPE_0_N|org.netbeans.modules.schema2beans.Common.TYPE_STRING;
-					reader = getClass().getMethod("getOrderColumnOrderBy", new Class[] {Integer.TYPE});
-					arrayReader = getClass().getMethod("getOrderColumnOrderBy", new Class[] {});
-					writer = getClass().getMethod("setOrderColumnOrderBy", new Class[] {Integer.TYPE, java.lang.String.class});
-					arrayWriter = getClass().getMethod("setOrderColumnOrderBy", new Class[] {java.lang.String[].class});
-					adder = getClass().getMethod("addOrderColumnOrderBy", new Class[] {java.lang.String.class});
-					remover = getClass().getMethod("removeOrderColumnOrderBy", new Class[] {java.lang.String.class});
+					writer = getClass().getMethod("setOrderColumn", new Class[] {Integer.TYPE,  
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            .class});
+					arrayWriter = getClass().getMethod("setOrderColumn", new Class[] { 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            [].class});
+					adder = getClass().getMethod("addOrderColumn", new Class[] { 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            .class});
+					remover = getClass().getMethod("removeOrderColumn", new Class[] { 
+                org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn
+            .class});
 				} else {
 					// Check if name is a schema name.
 					if (name == "comment") {
@@ -1464,21 +921,6 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 					}
 					if (name == "order-column") {
 						prop = beanProp(ORDER_COLUMN);
-						propByName.put(name, prop);
-						return prop;
-					}
-					if (name == "name") {
-						prop = beanProp(ORDERCOLUMNNAME);
-						propByName.put(name, prop);
-						return prop;
-					}
-					if (name == "case-sensitive") {
-						prop = beanProp(ORDERCOLUMNCASESENSITIVE);
-						propByName.put(name, prop);
-						return prop;
-					}
-					if (name == "order-by") {
-						prop = beanProp(ORDERCOLUMNORDERBY);
 						propByName.put(name, prop);
 						return prop;
 					}
@@ -1648,13 +1090,10 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 
 	private void prepareBeanPropList() {
 		if (beanPropList == null) {
-			beanPropList = new java.util.ArrayList(6);
+			beanPropList = new java.util.ArrayList(3);
 			beanPropList.add(beanProp(COMMENTS));
 			beanPropList.add(beanProp(BY));
 			beanPropList.add(beanProp(ORDER_COLUMN));
-			beanPropList.add(beanProp(ORDERCOLUMNNAME));
-			beanPropList.add(beanProp(ORDERCOLUMNCASESENSITIVE));
-			beanPropList.add(beanProp(ORDERCOLUMNORDERBY));
 		}
 	}
 
@@ -1665,7 +1104,7 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 
 	public org.netbeans.modules.schema2beans.BeanProp[] beanProps() {
 		prepareBeanPropList();
-		org.netbeans.modules.schema2beans.BeanProp[] ret = new org.netbeans.modules.schema2beans.BeanProp[6];
+		org.netbeans.modules.schema2beans.BeanProp[] ret = new org.netbeans.modules.schema2beans.BeanProp[3];
 		ret = (org.netbeans.modules.schema2beans.BeanProp[]) beanPropList.toArray(ret);
 		return ret;
 	}
@@ -1677,13 +1116,7 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		} else if (name == BY || name == "by") {
 			setBy((java.lang.String)value);
 		} else if (name == ORDER_COLUMN || name == "order-column") {
-			setOrderColumn((String[]) value);
-		} else if (name == ORDERCOLUMNNAME || name == "name") {
-			setOrderColumnName((java.lang.String[]) value);
-		} else if (name == ORDERCOLUMNCASESENSITIVE || name == "case-sensitive") {
-			setOrderColumnCaseSensitive((java.lang.String[]) value);
-		} else if (name == ORDERCOLUMNORDERBY || name == "order-by") {
-			setOrderColumnOrderBy((java.lang.String[]) value);
+			setOrderColumn((OrderColumn[]) value);
 		} else throw new IllegalArgumentException(name+" is not a valid property name for Order");
 	}
 
@@ -1694,13 +1127,7 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 		} else if (name == BY || name == "by") {
 			throw new IllegalArgumentException(name+" is not an indexed property for Order");
 		} else if (name == ORDER_COLUMN || name == "order-column") {
-			setOrderColumn(index, (String)value);
-		} else if (name == ORDERCOLUMNNAME || name == "name") {
-			setOrderColumnName(index, (java.lang.String)value);
-		} else if (name == ORDERCOLUMNCASESENSITIVE || name == "case-sensitive") {
-			setOrderColumnCaseSensitive(index, (java.lang.String)value);
-		} else if (name == ORDERCOLUMNORDERBY || name == "order-by") {
-			setOrderColumnOrderBy(index, (java.lang.String)value);
+			setOrderColumn(index, (OrderColumn)value);
 		} else throw new IllegalArgumentException(name+" is not a valid property name for Order");
 	}
 
@@ -1712,12 +1139,6 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			return getBy();
 		} else if (name == ORDER_COLUMN || name == "order-column") {
 			return getOrderColumn();
-		} else if (name == ORDERCOLUMNNAME || name == "name") {
-			return getOrderColumnName();
-		} else if (name == ORDERCOLUMNCASESENSITIVE || name == "case-sensitive") {
-			return getOrderColumnCaseSensitive();
-		} else if (name == ORDERCOLUMNORDERBY || name == "order-by") {
-			return getOrderColumnOrderBy();
 		} else throw new IllegalArgumentException(name+" is not a valid property name for Order");
 	}
 
@@ -1727,12 +1148,6 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			return getComments(index);
 		} else if (name == ORDER_COLUMN || name == "order-column") {
 			return getOrderColumn(index);
-		} else if (name == ORDERCOLUMNNAME || name == "name") {
-			return getOrderColumnName(index);
-		} else if (name == ORDERCOLUMNCASESENSITIVE || name == "case-sensitive") {
-			return getOrderColumnCaseSensitive(index);
-		} else if (name == ORDERCOLUMNORDERBY || name == "order-by") {
-			return getOrderColumnOrderBy(index);
 		} else if (name == BY || name == "by") {
 			if (index > 0) {
 				throw new IllegalArgumentException("index > 0");
@@ -1752,20 +1167,54 @@ public class Order extends org.netbeans.modules.schema2beans.BaseBean
 			setBy(srcProperty);
 		}
 		{
-			String[] srcProperty = source.getOrderColumn();
-			setOrderColumn(srcProperty);
-		}
-		{
-			java.lang.String[] srcProperty = source.getOrderColumnName();
-			setOrderColumnName(srcProperty);
-		}
-		{
-			java.lang.String[] srcProperty = source.getOrderColumnCaseSensitive();
-			setOrderColumnCaseSensitive(srcProperty);
-		}
-		{
-			java.lang.String[] srcProperty = source.getOrderColumnOrderBy();
-			setOrderColumnOrderBy(srcProperty);
+			org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn[] srcProperty = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn[]) source.getOrderColumn();
+			int destSize = sizeOrderColumn();
+			if (destSize == srcProperty.length) {
+				for (int i = 0; i < srcProperty.length; ++i) {
+					org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn dest;
+					if (srcProperty[i] == null) {
+						dest = null;
+					} else {
+						if (i < destSize) {
+							dest = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn) getOrderColumn(i);
+						} else {
+							dest = null;
+						}
+						if (dest == null) {
+							// Use a temp variable, and store it after we've merged everything into it, so as to make it only 1 change event.
+							dest = new org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn(srcProperty[i], this, false);
+						} else {
+							dest.mergeUpdate(srcProperty[i]);
+						}
+					}
+					// Merge events were generated by the above dest.mergeUpdate, so just set it directly now.
+					_OrderColumn.set(i, dest);
+				}
+			} else {
+				org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn[] destArray = new org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn[srcProperty.length];
+				for (int i = 0; i < srcProperty.length; ++i) {
+					org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn dest;
+					if (srcProperty[i] == null) {
+						dest = null;
+					} else {
+						if (i < destSize) {
+							dest = (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn) getOrderColumn(i);
+							if (!srcProperty[i].equals(dest)) {
+								// It's different, so have it just dup the source one.
+								dest = null;
+							}
+						} else {
+							dest = null;
+						}
+						if (dest == null) {
+							// Use a temp variable, and store it after we've merged everything into it, so as to make it only 1 change event.
+							dest = new org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.OrderColumn(srcProperty[i], this, false);
+						}
+						destArray[i] = dest;
+					}
+				}
+				setOrderColumn(destArray);
+			}
 		}
 	}
 
@@ -2073,7 +1522,7 @@ Set the by attribute to "asc" or "desc" to order by ascending or descending.
 <!--
 The order-column element allows you to order the entities by specific columns.
 -->
-<!ELEMENT order-column (#PCDATA)>
+<!ELEMENT order-column (dummy_elm*)>
 
 <!--
 The attributes of the order-column element allows you to fine tune the ordering
@@ -2130,7 +1579,7 @@ The finder element represents a generated finder method.
 <!--
 The finder-column element specifies the columns to find by.
 -->
-<!ELEMENT finder-column (#PCDATA)>
+<!ELEMENT finder-column (dummy_elm*)>
 
 <!--
 The name value specifies the name of the finder method.

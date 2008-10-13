@@ -56,7 +56,7 @@ import org.netbeans.api.visual.model.StateModel;
 import org.netbeans.api.visual.vmd.VMDConnectionWidget;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
-import org.netbeans.modules.portalpack.websynergy.servicebuilder.ServiceBuilderMultiviewDescriptor.WebFlowElement;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.ServiceBuilderMultiviewDescriptor.ServiceBuilderElement;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuilderEditorContext;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.DesignView;
 import org.netbeans.modules.web.api.webmodule.WebModule;
@@ -91,11 +91,11 @@ public class ServiceBuilderView extends TopComponent implements Lookup.Provider 
   ////  private PageFlowController pfc;
  /////   private PageFlowSceneData sceneData;
     private ThreadPoolExecutor executor;
-    private static final Logger LOG = Logger.getLogger("org.netbeans.web.jsf.navigation");
-    private static final String ACN_PAGEVIEW_TC = NbBundle.getMessage(ServiceBuilderView.class, "ACN_PageView_TC");
-    private static final String ACDS_PAGEVIEW_TC = NbBundle.getMessage(ServiceBuilderView.class, "ACDS_PageView_TC");
+    private static final Logger LOG = Logger.getLogger("org.netbeans.modules.portalpack.websynergy.servicebuilder");
+    private static final String ACN_PAGEVIEW_TC = NbBundle.getMessage(ServiceBuilderView.class, "ACN_DesignView_TC");
+    private static final String ACDS_PAGEVIEW_TC = NbBundle.getMessage(ServiceBuilderView.class, "ACDS_DesignView_TC");
 
-    ServiceBuilderView(WebFlowElement multiview, ServiceBuilderEditorContext context) {
+    ServiceBuilderView(ServiceBuilderElement multiview, ServiceBuilderEditorContext context) {
         setMultiview(multiview);
         this.context = context;
       ////  associateLookup( Lookups.fixed( new Object[] { PaletteSupport.createPalette() } ) );
@@ -202,8 +202,14 @@ public class ServiceBuilderView extends TopComponent implements Lookup.Provider 
         add(getView(), BorderLayout.CENTER);
 
         setDefaultActivatedNode();
-
+        
         return getView();
+    }
+    
+    public void addToolbarActionsToolBar(JToolBar toolbar) {
+        if(getView() == null)
+            return;
+        getView().addToolbarActions(toolbar);
     }
 
     public void destroyScene() {
@@ -799,18 +805,18 @@ public class ServiceBuilderView extends TopComponent implements Lookup.Provider 
 //    protected void clearBackgroundPinAddingProcess() {
 //        executor.purge();
 //    }
-    private WeakReference<WebFlowElement> multiviewRef;
+    private WeakReference<ServiceBuilderElement> multiviewRef;
 
-     public WebFlowElement getMultiview() {
-        WebFlowElement multiview = null;
+     public ServiceBuilderElement getMultiview() {
+        ServiceBuilderElement multiview = null;
         if (multiviewRef != null) {
             multiview = multiviewRef.get();
         }
         return multiview;
     }
 
-    public void setMultiview(WebFlowElement multiview) {
-        this.multiviewRef = new WeakReference<WebFlowElement>(multiview);
+    public void setMultiview(ServiceBuilderElement multiview) {
+        this.multiviewRef = new WeakReference<ServiceBuilderElement>(multiview);
     }
  
 }

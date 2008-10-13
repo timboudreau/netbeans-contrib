@@ -43,33 +43,31 @@ package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseWheelListener;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectScene;
-import org.netbeans.api.visual.widget.ComponentWidget;
 import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.ScrollWidget;
 import org.netbeans.api.visual.widget.SeparatorWidget;
+import org.netbeans.api.visual.widget.SwingScrollWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuilderEditorContext;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
@@ -79,8 +77,8 @@ import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamode
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui.AddServiceUI;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.GenerateServiceHelper;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.ServiceBuilderHelper;
+import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
-import sun.awt.HorizBagLayout;
 
 /**
  * Service Builder Designer
@@ -106,11 +104,14 @@ public class DesignView extends JPanel {
     private OperationsWidget operationsWidget;
     private ButtonWidget addServiceWidget;
     private ButtonWidget removeServiceWidget;
+    private ButtonWidget updateServiceWidget;
     private ServiceBuilderHelper helper;
     private ServicesTableModel st;
     private TableWidget tableWidget;
     private ServiceBuilderEditorContext context;
     private JScrollPane panel;
+    private boolean firstTime = true;
+    
 
     /**
      * Creates a new instance of GraphView.
@@ -125,13 +126,13 @@ public class DesignView extends JPanel {
         ///this.serviceModel = ServiceModel.getServiceModel(implementationClass);
         helper = context.getDataObject().getServiceBuilderHelper();
         scene = new ObjectScene();
-        
+
         final JComponent sceneView = scene.createView();
         zoomer = new ZoomManager(scene);
 
         scene.getActions().addAction(ActionFactory.createCycleObjectSceneFocusAction());
         scene.setKeyEventProcessingType(EventProcessingType.FOCUSED_WIDGET_AND_ITS_PARENTS);
-        
+
         panel = new JScrollPane(sceneView);
         panel.getVerticalScrollBar().setUnitIncrement(16);
         panel.getHorizontalScrollBar().setUnitIncrement(16);
@@ -139,8 +140,9 @@ public class DesignView extends JPanel {
         add(panel);
 
         init();
+        firstTime = false;
     }
-    
+
     private void init() {
         /*{
         @Override
@@ -149,7 +151,7 @@ public class DesignView extends JPanel {
         return new DesignerWidgetIdentityCode(scene,object);
         }
         };*/
-      
+
         mainLayer = new LayerWidget(scene);
         mainLayer.setPreferredLocation(new Point(0, 0));
         mainLayer.setLayout(LayoutFactory.createVerticalFlowLayout(
@@ -162,7 +164,23 @@ public class DesignView extends JPanel {
 
         Widget headerPanelWidget = createHeaderPanel();
         mainWidget.addChild(headerPanelWidget);
-        
+
+        if(!helper.isValidXML()) {
+            
+            LabelWidget messageWidget =
+                    new LabelWidget(scene,NbBundle.getMessage(DesignView.class, "MSG_INVALID_XML"));
+            messageWidget.setForeground(Color.RED);
+            
+            LabelWidget detailErrWidget =
+                    new LabelWidget(scene,helper.getErrorMessage());
+            detailErrWidget.setForeground(Color.RED);
+            
+            mainWidget.addChild(messageWidget);
+            mainWidget.addChild(detailErrWidget);
+            
+            mainLayer.addChild(mainWidget);
+            return;
+        }
 
         separatorWidget = new SeparatorWidget(scene,
                 SeparatorWidget.Orientation.HORIZONTAL);
@@ -205,77 +223,105 @@ public class DesignView extends JPanel {
 
         for (int i = 0; i < entity.length; i++) {
             l.add(entity[i]);
+
         }
 
         st = new ServicesTableModel(l);
-        tableWidget = new TableWidget(scene, st, true);
+        tableWidget = new TableWidget(scene, st, false);
+        tableWidget.setBorder(new RoundedBorder3D(tableWidget,AbstractTitledWidget.RADIUS,
+                AbstractTitledWidget.RADIUS/3, 6, 6, AbstractTitledWidget.BORDER_COLOR));
+        
+        
+        //scWidget = new SwingScrollWidget(scene,tableWidget);
+        //scWidget.setBorder(new RoundedBorder3D(scWidget,AbstractTitledWidget.RADIUS,
+        //        AbstractTitledWidget.RADIUS/3, 6, 6, AbstractTitledWidget.BORDER_COLOR));
+ 
+        //tableWidget.addSelectionChangeListener(new EntityChangeListSelectionListener());
 
-        //  JScrollPane jsp = new JScrollPane(tableWidget);
+        
         //   ComponentWidget scrollPaneWidget = new ComponentWidget(scene,);
         entryContentWidget.addChild(tableWidget);
         entryContentWidget.addChild(buttonContentWidget);
 
 
-        addServiceWidget = new ButtonWidget(scene, "Add");
+        addServiceWidget = new ButtonWidget(scene, NbBundle.getMessage(
+                DesignView.class, "LBL_ADD"));
         addServiceWidget.setOpaque(true);
         addServiceWidget.setRoundedBorder(3, 4, 0, null);
 
-        removeServiceWidget = new ButtonWidget(scene, "Delete");
+        updateServiceWidget = new ButtonWidget(scene, NbBundle.getMessage(
+                DesignView.class, "LBL_UPDATE"));
+        updateServiceWidget.setOpaque(true);
+        updateServiceWidget.setRoundedBorder(3, 4, 0, null);
+        //updateServiceWidget.setButtonEnabled(false);
+        
+        removeServiceWidget = new ButtonWidget(scene, NbBundle.getMessage(
+                DesignView.class, "LBL_REMOVE"));
         removeServiceWidget.setOpaque(true);
         removeServiceWidget.setRoundedBorder(3, 4, 0, null);
+        //removeServiceWidget.setButtonEnabled(false);
 
         buttonContentWidget.addChild(addServiceWidget);
+        buttonContentWidget.addChild(updateServiceWidget);
         buttonContentWidget.addChild(removeServiceWidget);
 
         addServiceWidget.setAction(new AddEntityAction());
+        updateServiceWidget.setAction(new UpdatEntityAction());
         removeServiceWidget.setAction(new RemoveEntityAction());
 
+
+        final Widget globalParamWidget = new Widget(scene);
+        globalParamWidget.setBackground(Color.BLUE);
         
-        Widget globalParamWidget = new Widget(scene);
+        globalParamWidget.setBorder(new RoundedBorder3D(globalParamWidget,AbstractTitledWidget.RADIUS,
+                AbstractTitledWidget.RADIUS/3, 8, 8, AbstractTitledWidget.BORDER_COLOR));
         globalParamWidget.setLayout(LayoutFactory.createVerticalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 8));
         //Package-path widget
         Widget packagePathWidget = new Widget(scene);
         packagePathWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
         LabelWidget packagePathLabelWidget = new LabelWidget(scene, "Package Path :");
         packagePathLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
-        packagePathLabelWidget.setForeground(Color.BLUE);
-        
+        //packagePathLabelWidget.setForeground(Color.BLUE);
+
         LabelWidget packagePathTfWidget =
                 new LabelWidget(scene, helper.getPackagePath());
         //packagePathTfWidget.setMaximumSize(new Dimension(80,10));
-        packagePathTfWidget.setBorder(BorderFactory.createLineBorder());
+        packagePathTfWidget.setAlignment(LabelWidget.Alignment.LEFT);
+        packagePathTfWidget.setMinimumSize(new Dimension(300, 20));
+        packagePathTfWidget.setBorder(BorderFactory.createLineBorder(2, Color.LIGHT_GRAY));
         
+
         packagePathTfWidget.getActions().
                 addAction(ActionFactory.createInplaceEditorAction(new PackagePathInPlaceEditor()));
-        
-        packagePathTfWidget.setAlignment(LabelWidget.Alignment.CENTER);
-        
+
+
         packagePathWidget.addChild(packagePathLabelWidget);
         packagePathWidget.addChild(packagePathTfWidget);
         //package-path end
         //namespace widget
         Widget namespaceWidget = new Widget(scene);
         namespaceWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
-        LabelWidget namespaceLabelWidget = new LabelWidget(scene, "Namespace    :");
+        LabelWidget namespaceLabelWidget = new LabelWidget(scene, "Namespace     :");
         namespaceLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
-        namespaceLabelWidget.setForeground(Color.BLUE);
-        
+        //namespaceLabelWidget.setForeground(Color.BLUE);
+
         LabelWidget namespaceTfWidget =
                 new LabelWidget(scene, helper.getNamespace());
-        
-        namespaceTfWidget.setBorder(BorderFactory.createLineBorder());
+
+        namespaceTfWidget.setBorder(BorderFactory.createLineBorder(2, Color.LIGHT_GRAY));
+        namespaceTfWidget.setMinimumSize(new Dimension(150, 20));
         
         namespaceTfWidget.getActions().
                 addAction(ActionFactory.createInplaceEditorAction(new NamespaceInPlaceEditor()));
-        
-        namespaceTfWidget.setAlignment(LabelWidget.Alignment.CENTER);
-        
+
+        namespaceTfWidget.setAlignment(LabelWidget.Alignment.LEFT);
+
         namespaceWidget.addChild(namespaceLabelWidget);
         namespaceWidget.addChild(namespaceTfWidget);
         //namespacewidget end
         globalParamWidget.addChild(packagePathWidget);
         globalParamWidget.addChild(namespaceWidget);
-        
+
         entryContentWidget.addChild(globalParamWidget);
 
 
@@ -298,11 +344,15 @@ public class DesignView extends JPanel {
 
         //new code
 
-        FinderMethodsWidget finderMethodsWidget = new FinderMethodsWidget(scene);
-        LocalMethodsWidget localMethodsWidget = new LocalMethodsWidget(scene);
+        FindersTabWidget finderMethodsWidget = new FindersTabWidget(scene,tableWidget,helper);
+
+        LocalMethodsWidget localMethodsWidget = new LocalMethodsWidget(scene, tableWidget, helper);
+        RemoteMethodWidget remoteMethodWidget = new RemoteMethodWidget(scene, tableWidget, helper);
 
         tabPaneWidget.addTab(finderMethodsWidget);
         tabPaneWidget.addTab(localMethodsWidget);
+        tabPaneWidget.addTab(remoteMethodWidget);
+        
 
         contentWidget.addChild(tabPaneWidget);
 
@@ -325,6 +375,10 @@ public class DesignView extends JPanel {
         mainLayer.addChild(messageWidget);
         scene.addObject(messageLayerKey, messageWidget);
 
+       // int width = panel.getViewport().getWidth();
+       // int height = panel.getViewport().getHeight();
+       // tableWidget.setPreferredBounds(new Rectangle((int) (width * 0.4),(int)(height * 0.3)));
+        
         scene.addSceneListener(new ObjectScene.SceneListener() {
 
             public void sceneRepaint() {
@@ -335,8 +389,12 @@ public class DesignView extends JPanel {
 
             public void sceneValidated() {
                 int width = panel.getViewport().getWidth();
+                int height = panel.getViewport().getHeight();
                 if (width <= scene.getBounds().width) {
                     mainWidget.setMinimumSize(new Dimension((int) (width * 1.0), 0));
+                    globalParamWidget.setMinimumSize(new Dimension((int) (width * 0.4), 0));
+                    tableWidget.setMinimumSize(new Dimension((int) (width * 0.4), 0));
+                    //tableWidget.setPreferredBounds(new Rectangle((int) (width * 0.4), 100));
                 }
             }
         });
@@ -344,7 +402,7 @@ public class DesignView extends JPanel {
     // vlv: print
     /////  getContent().putClientProperty("print.printable", Boolean.TRUE); // NOI18N
     }
-    
+
     private Widget createHeaderPanel() {
         Widget headerPanelWidget = new Widget(scene);
         headerPanelWidget.setLayout(
@@ -358,13 +416,13 @@ public class DesignView extends JPanel {
         ButtonWidget generateServiceButton = new ButtonWidget(scene, "Genrate Services");
         generateServiceButton.setOpaque(true);
         generateServiceButton.setRoundedBorder(3, 4, 0, null);
-        
+
         headerPanelWidget.addChild(generateServiceButton);
         ButtonWidget reloadButton = new ButtonWidget(scene, "Reload");
         reloadButton.setOpaque(true);
         reloadButton.setRoundedBorder(3, 4, 0, null);
         reloadButton.setAction(new ReloadAction());
-        
+
         generateServiceButton.setAction(new GenerateAction(context.getServiceBuilderFile()));
         headerPanelWidget.addChild(reloadButton);
         return headerPanelWidget;
@@ -381,13 +439,33 @@ public class DesignView extends JPanel {
         toolbar.addSeparator();
         operationsWidget.addToolbarActions(toolbar);
     }
-    
+
     public void reloadIfDirty() {
-        if(helper.isDirty()) {
-          //  scene.removeChildren();
-          //  init();
-          //  scene.revalidate();
+        if (firstTime) {
+            return;
         }
+  
+        if (helper.isDirty()) {
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+
+                    public void run() {
+                        reload();
+                    }
+                });
+            } else {
+                reload();
+            }
+        }
+    }
+
+    private void reload() {
+        //scene.revalidate();
+        scene.removeChildren();
+        if(scene.findStoredObject(messageLayerKey) != null)
+            scene.removeObject(messageLayerKey);
+        init();
+        scene.validate();
     }
 
     /**
@@ -423,15 +501,20 @@ public class DesignView extends JPanel {
         public void actionPerformed(ActionEvent e) {
 
             AddServiceUI addSrvUI = new AddServiceUI(WindowManager.getDefault().getMainWindow());
-
+            addSrvUI.setVisible(true);
             if (addSrvUI.getServiceName() != null && addSrvUI.getName().trim().length() != 0) {
                 Entity entity = helper.newEntity();
                 entity.setName(addSrvUI.getServiceName());
-                if(addSrvUI.isRemoteService())
+                if (addSrvUI.isRemoteService()) {
                     entity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
+                }
                 entity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
 
-                helper.addEntity(entity);
+                if(!helper.addEntity(entity)) {
+                    //helper.forceReload();
+                    //reload();
+                    return;
+                }
                 st.addRow(entity);
                 //tableWidget.addRow();
                 tableWidget.refreshTable();
@@ -439,6 +522,39 @@ public class DesignView extends JPanel {
 
             }
         }
+    }
+    
+    private class UpdatEntityAction extends AbstractAction {
+
+        public void actionPerformed(ActionEvent e) {
+            
+            Object selectedObj = tableWidget.getSelectedObject();
+            if(selectedObj == null) 
+                return;
+            
+            Entity selectedEntity = (Entity)selectedObj;
+            
+            AddServiceUI addSrvUI = new AddServiceUI(
+                    WindowManager.getDefault().getMainWindow(),selectedEntity);
+            addSrvUI.setVisible(true);
+            
+            if (addSrvUI.getServiceName() != null && addSrvUI.getName().trim().length() != 0) {
+                
+                selectedEntity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
+                selectedEntity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
+
+                if(!helper.save()) {
+                    helper.forceReload();
+                    reload();
+                    return;
+                }
+                tableWidget.revalidate();
+                tableWidget.refreshTable();
+                scene.revalidate();
+
+            }
+        }
+        
     }
 
     private class RemoveEntityAction extends AbstractAction {
@@ -450,21 +566,28 @@ public class DesignView extends JPanel {
                 return;
             }
 
-            helper.removeEntity((Entity) object);
+            if(!helper.removeEntity((Entity) object))
+                return;
             st.removeRow(tableWidget.getSelectedIndex());
             tableWidget.refreshTable();
             scene.revalidate();
         }
     }
-    
-    private class ReloadAction extends AbstractAction {
+
+    public class ReloadAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent e) {
-            scene.removeChildren();
-            init();
-            scene.revalidate();
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+
+                    public void run() {
+                        reload();
+                    }
+                });
+            } else {
+                reload();
+            }
         }
-        
     }
 
     private class PackagePathInPlaceEditor implements TextFieldInplaceEditor {
@@ -474,22 +597,25 @@ public class DesignView extends JPanel {
         }
 
         public String getText(Widget widget) {
-            if(widget instanceof LabelWidget) {
-                return ((LabelWidget)widget).getLabel();
+            if (widget instanceof LabelWidget) {
+                return ((LabelWidget) widget).getLabel();
             }
             return null;
         }
 
         public void setText(Widget widget, String text) {
-            
-            if(!(widget instanceof LabelWidget))
+
+            if (!(widget instanceof LabelWidget)) {
                 return;
-            ((LabelWidget)widget).setLabel(text);
-            helper.setPackagePath(text);
-            helper.save();
+            }
+            ((LabelWidget) widget).setLabel(text);
+            
+            if(!helper.setPackagePath(text))
+                ((LabelWidget) widget).setLabel(helper.getPackagePath());
+          
         }
     }
-    
+
     private class NamespaceInPlaceEditor implements TextFieldInplaceEditor {
 
         public boolean isEnabled(Widget widget) {
@@ -497,31 +623,52 @@ public class DesignView extends JPanel {
         }
 
         public String getText(Widget widget) {
-            if(widget instanceof LabelWidget) {
-                return ((LabelWidget)widget).getLabel();
+            if (widget instanceof LabelWidget) {
+                return ((LabelWidget) widget).getLabel();
             }
             return null;
         }
 
         public void setText(Widget widget, String text) {
-            
-            if(!(widget instanceof LabelWidget))
+
+            if (!(widget instanceof LabelWidget)) {
                 return;
-            ((LabelWidget)widget).setLabel(text);
-            helper.setNamespace(text);
-            helper.save();
+            }
+            ((LabelWidget) widget).setLabel(text);
+            
+            if(!helper.setNamespace(text))
+                 ((LabelWidget) widget).setLabel(helper.getNamespace());
+            
         }
     }
-    
+
     private class GenerateAction extends AbstractAction {
-        
+
         private FileObject serviceXmlFileObject;
+
         public GenerateAction(FileObject serviceXmlFileObject) {
             this.serviceXmlFileObject = serviceXmlFileObject;
         }
 
         public void actionPerformed(ActionEvent e) {
-            GenerateServiceHelper.getInstance().generateService(serviceXmlFileObject);
+            GenerateServiceHelper.getInstance().generateService(serviceXmlFileObject, new ReloadAction());
+            //reload();
+        }
+    }
+    
+    private class EntityChangeListSelectionListener implements ListSelectionListener {
+
+        public void valueChanged(ListSelectionEvent e) {
+            int index = e.getFirstIndex();
+            if(index == -1) {
+                updateServiceWidget.setButtonEnabled(false);
+                removeServiceWidget.setButtonEnabled(false);
+            } else {
+                if(!updateServiceWidget.isButtonEnabled())
+                    updateServiceWidget.setButtonEnabled(true);
+                if(!removeServiceWidget.isButtonEnabled())
+                    removeServiceWidget.setButtonEnabled(true);
+            }
         }
     }
 }

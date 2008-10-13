@@ -22,7 +22,7 @@ public class ServiceBuilderFlowDataLoader extends UniFileLoader {
 
     @Override
     protected String defaultDisplayName() {
-        return NbBundle.getMessage(ServiceBuilderFlowDataLoader.class, "LBL_WebFlow_loader_name");
+        return NbBundle.getMessage(ServiceBuilderFlowDataLoader.class, "LBL_ServiceBuilder_loader_name");
     }
 
     @Override

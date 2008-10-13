@@ -54,7 +54,7 @@
     </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
-            <file name="WebFlowResolver.xml" url="ServiceBuilderResolver.xml">
+            <file name="ServiceBuilderResolver.xml" url="ServiceBuilderResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.servicebuilder.resources.Bundle"/>
             </file>
         </folder>

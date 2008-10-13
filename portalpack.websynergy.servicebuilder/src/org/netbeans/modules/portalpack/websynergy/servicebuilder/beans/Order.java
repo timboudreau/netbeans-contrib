@@ -27,69 +27,25 @@ public interface Order {
 
 	public java.lang.String getBy();
 
-	public void setOrderColumn(String[] value);
+	public void setOrderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn[] valueInterface);
 
-	public void setOrderColumn(int index, String value);
+	public void setOrderColumn(int index, org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn valueInterface);
 
-	public String[] getOrderColumn();
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn[] getOrderColumn();
 
 	public java.util.List fetchOrderColumnList();
 
-	public String getOrderColumn(int index);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn getOrderColumn(int index);
 
 	public int sizeOrderColumn();
 
-	public int addOrderColumn(String value);
+	public int addOrderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn valueInterface);
 
-	public int removeOrderColumn(String value);
+	public int removeOrderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn valueInterface);
 
-	public void setOrderColumnName(java.lang.String[] value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn newOrderColumn();
 
-	public void setOrderColumnName(int index, java.lang.String value);
-
-	public java.lang.String[] getOrderColumnName();
-
-	public java.util.List fetchOrderColumnNameList();
-
-	public java.lang.String getOrderColumnName(int index);
-
-	public int sizeOrderColumnName();
-
-	public int addOrderColumnName(java.lang.String value);
-
-	public int removeOrderColumnName(java.lang.String value);
-
-	public void setOrderColumnCaseSensitive(java.lang.String[] value);
-
-	public void setOrderColumnCaseSensitive(int index, java.lang.String value);
-
-	public java.lang.String[] getOrderColumnCaseSensitive();
-
-	public java.util.List fetchOrderColumnCaseSensitiveList();
-
-	public java.lang.String getOrderColumnCaseSensitive(int index);
-
-	public int sizeOrderColumnCaseSensitive();
-
-	public int addOrderColumnCaseSensitive(java.lang.String value);
-
-	public int removeOrderColumnCaseSensitive(java.lang.String value);
-
-	public void setOrderColumnOrderBy(java.lang.String[] value);
-
-	public void setOrderColumnOrderBy(int index, java.lang.String value);
-
-	public java.lang.String[] getOrderColumnOrderBy();
-
-	public java.util.List fetchOrderColumnOrderByList();
-
-	public java.lang.String getOrderColumnOrderBy(int index);
-
-	public int sizeOrderColumnOrderBy();
-
-	public int addOrderColumnOrderBy(java.lang.String value);
-
-	public int removeOrderColumnOrderBy(java.lang.String value);
+	public org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn newOrderColumn(org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.OrderColumn source, org.netbeans.modules.schema2beans.BaseBean parent, boolean justData);
 
 	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener);
 

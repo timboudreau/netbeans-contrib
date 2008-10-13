@@ -36,24 +36,39 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
-package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets;
+package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui;
 
 /**
  *
  * @author satyaranjan
  */
-public class Service {
+public class FinderColumnData {
 
     private String name;
-    private boolean remote;
+    private String comparator;
+    private boolean caseSensitive;
 
-    public boolean isRemote() {
-        return remote;
+    public FinderColumnData(String name, String comparator, boolean caseSensitive) {
+
+        this.name = name;
+        this.comparator = comparator;
+        this.caseSensitive = caseSensitive;
     }
 
-    public void setRemote(boolean isRemote) {
-        this.remote = isRemote;
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
+    public String getComparator() {
+        return comparator;
+    }
+
+    public void setComparator(String comparator) {
+        this.comparator = comparator;
     }
 
     public String getName() {
@@ -62,5 +77,11 @@ public class Service {
 
     public void setName(String name) {
         this.name = name;
-    }    
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
+    

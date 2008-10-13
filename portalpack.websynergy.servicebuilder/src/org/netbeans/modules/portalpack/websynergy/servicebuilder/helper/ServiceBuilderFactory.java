@@ -104,6 +104,49 @@ public class ServiceBuilderFactory {
         return null;
 
     }
+    
+    public static ServiceBuilder createGraph(InputStream io) throws Exception {
+
+        try {
+            
+            if(io == null)
+                return null;
+            Class clazz = ServiceBuilderFactory.class.getClassLoader().loadClass(IMPL_CLASS);
+
+            Method createGraphMethod = clazz.getMethod("readNoEntityResolver", new Class[]{java.io.InputStream.class});
+            //Object[] parameters = new Object[]{FileUtil.toFile(file)};
+            Object[] parameters = new Object[]{io};
+            Object returnObj = createGraphMethod.invoke(clazz, parameters);
+            if (returnObj == null) {
+                return null;
+            } else if (returnObj instanceof org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.ServiceBuilder) {
+
+                return (org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.impl.ServiceBuilder) returnObj;
+            }
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+            throw ex;
+        } catch (NoSuchMethodException ex) {
+            ex.printStackTrace();
+            throw ex;
+        } catch (IllegalAccessException ex) {
+            ex.printStackTrace();
+            throw ex;
+        } catch (InvocationTargetException ex) {
+            ex.printStackTrace();
+            throw ex;
+        } finally {
+            if(io != null){
+                try{
+                    io.close();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+
+    }
 
     public static void write(ServiceBuilder builder, OutputStream out) throws Schema2BeansException, IOException {
         ((BaseBean) builder).write(out);

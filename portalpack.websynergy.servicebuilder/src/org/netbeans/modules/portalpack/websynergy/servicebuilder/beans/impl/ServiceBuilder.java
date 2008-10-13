@@ -35,19 +35,21 @@
  * 				dummyElm <dummy_elm> : String[0,n]
  * 			order <order> : Order[0,1]
  * 				[attr: by CDATA #IMPLIED ]
- * 				orderColumn <order-column> : String[1,n]
+ * 				orderColumn <order-column> : OrderColumn[1,n]
  * 					[attr: name CDATA #REQUIRED ]
  * 					[attr: case-sensitive CDATA #IMPLIED ]
  * 					[attr: order-by CDATA #IMPLIED ]
+ * 					dummyElm <dummy_elm> : String[0,n]
  * 			finder <finder> : Finder[0,n]
  * 				[attr: name CDATA #REQUIRED ]
  * 				[attr: return-type CDATA #REQUIRED ]
  * 				[attr: where CDATA #IMPLIED ]
  * 				[attr: db-index CDATA #IMPLIED ]
- * 				finderColumn <finder-column> : String[1,n]
+ * 				finderColumn <finder-column> : FinderColumn[1,n]
  * 					[attr: name CDATA #REQUIRED ]
  * 					[attr: case-sensitive CDATA #IMPLIED ]
  * 					[attr: comparator CDATA #IMPLIED ]
+ * 					dummyElm <dummy_elm> : String[0,n]
  * 			reference <reference> : String[0,n]
  * 				[attr: package-path CDATA #IMPLIED ]
  * 				[attr: entity CDATA #IMPLIED ]
@@ -1887,7 +1889,7 @@ public class ServiceBuilder extends org.netbeans.modules.schema2beans.BaseBean
 	}
 
 
-	    
+	  
         
 }
 
@@ -2177,7 +2179,7 @@ Set the by attribute to "asc" or "desc" to order by ascending or descending.
 <!--
 The order-column element allows you to order the entities by specific columns.
 -->
-<!ELEMENT order-column (#PCDATA)>
+<!ELEMENT order-column (dummy_elm*)>
 
 <!--
 The attributes of the order-column element allows you to fine tune the ordering
@@ -2234,7 +2236,7 @@ The finder element represents a generated finder method.
 <!--
 The finder-column element specifies the columns to find by.
 -->
-<!ELEMENT finder-column (#PCDATA)>
+<!ELEMENT finder-column (dummy_elm*)>
 
 <!--
 The name value specifies the name of the finder method.

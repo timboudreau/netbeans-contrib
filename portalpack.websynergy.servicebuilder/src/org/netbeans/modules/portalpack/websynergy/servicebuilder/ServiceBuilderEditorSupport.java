@@ -95,8 +95,7 @@ public class ServiceBuilderEditorSupport extends DataEditorSupport
     public ServiceBuilderEditorSupport(ServiceBuilderDataObject dobj) {
         super(dobj,new XmlEnv(dobj));
         dataObject = dobj;
-        setMIMEType("text/webflow2.0+xml");  //NOI18N
-        
+        setMIMEType("text/service-builder+xml");  //NOI18N
         
         //initialize the listeners on the document
         initialize();
@@ -153,6 +152,7 @@ public class ServiceBuilderEditorSupport extends DataEditorSupport
         } else {
             return super.createPane();
         }
+        
     }
 
     @Override
