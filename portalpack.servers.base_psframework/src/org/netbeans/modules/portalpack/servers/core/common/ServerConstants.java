@@ -46,4 +46,5 @@ package org.netbeans.modules.portalpack.servers.core.common;
 public interface ServerConstants {
     public static String SUN_APP_SERVER_9 = "SUN_APP_SERVER_9";
     public static String TOMCAT_5_X = "TOMCAT_5_X";
+    public static String TOMCAT_6_X = "Tomcat_6_X";
 }

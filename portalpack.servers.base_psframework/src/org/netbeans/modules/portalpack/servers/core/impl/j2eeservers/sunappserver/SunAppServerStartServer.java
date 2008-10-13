@@ -74,11 +74,10 @@ public class SunAppServerStartServer extends PSStartServerInf{
     }
     
     private File prepareTempPWDFile() throws IOException
-    {
-        String passwordFile = ".pcpwd.txt";
-        File file = new File(passwordFile);
+    {   
+        File file = File.createTempFile("pwd", null);
         if(file.exists())
-            file.delete();
+            file.deleteOnExit();
         FileOutputStream fout = null;
         try {
              fout = new FileOutputStream(file);

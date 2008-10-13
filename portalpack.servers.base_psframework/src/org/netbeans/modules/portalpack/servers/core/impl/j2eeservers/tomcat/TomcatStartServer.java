@@ -19,7 +19,6 @@
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat;
 
 import java.io.BufferedReader;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,7 +35,6 @@ import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
-import org.netbeans.modules.portalpack.servers.core.util.Command;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.ErrorManager;
 import org.openide.execution.NbProcessDescriptor;
@@ -49,8 +47,24 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
 
     private PSConfigObject psconfig;
     private PSDeploymentManager dm;
+    
     private static int CMD_START = 0;
     private static int CMD_STOP = 1;
+    
+    public static final String TAG_CATALINA_HOME = "catalina_home"; // NOI18N
+    public static final String TAG_CATALINA_BASE = "catalina_base"; // NOI18N
+    public static final String TAG_JPDA = "jpda"; // NOI18N
+    public static final String TAG_JPDA_STARTUP = "jpda_startup"; // NOI18N
+     /** Startup command tag. */
+    public static final String TAG_EXEC_CMD      = "catalina"; // NOI18N
+    public static final String TAG_EXEC_STARTUP  = "exec_startup"; // NOI18N
+    public static final String TAG_EXEC_SHUTDOWN = "exec_shutdown"; // NOI18N
+    public static final String TAG_SECURITY_OPT = "security_option"; //NOI18N
+    public static final String TAG_FORCE_OPT = "force_option"; //NOI18N
+
+    /** Debug startup/shutdown tag */
+    public static final String TAG_DEBUG_CMD   = "catalina"; // NOI18N
+    
     /** For how long should we keep trying to get response from the server. */
     private static final long TIMEOUT_DELAY = 180000;
 
@@ -61,24 +75,24 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
     }
 
     public void doStartServer() throws Exception {
-        //runStartProcess(makeStartCommand(),true);
-        runProcess(CMD_START, makeStartCommand(), setEnv(), true);
+        NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_STARTUP);
+        runProcess(CMD_START, nd, setEnv(), true);
     //viewLogs();
-
-
     }
 
     public void doStopServer() throws Exception {
-        //runStopProcess(makeStopCommand(), true);
-        runProcess(CMD_STOP, makeStopCommand(), setEnv(), true);
+        NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_SHUTDOWN);
+        runProcess(CMD_STOP, nd, setEnv(), true);
     }
     
     public void doStartDebug() throws Exception {
-        runProcess(CMD_START, makeDebugCommand(), setDebugEnv(), true);
+        NbProcessDescriptor nd = defaultDebugStartDesc (TAG_DEBUG_CMD, TAG_JPDA_STARTUP);
+        runProcess(CMD_START, nd, setDebugEnv(), true);
     }
 
     public void doStopDebug() throws Exception {
-        runProcess(CMD_STOP, makeStopCommand(), setEnv(), true);
+        NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_SHUTDOWN);
+        runProcess(CMD_STOP, nd, setEnv(), true);
     }
 
     public int getDebugPort() {
@@ -88,83 +102,58 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
     public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
         return new TomcatFindJSPServletImpl(dm);
     }
-
-    private NbProcessDescriptor makeStartCommand() {
-        Command cmd = new Command();
-
+    
+    private String getStartUpScript() {
         String script = "";
         if (org.openide.util.Utilities.isWindows()) {
             script = "catalina.bat";
         } else {
             script = "catalina.sh";
         }
-        cmd.add(psconfig.getProperty(CATALINA_HOME) + File.separator + "bin" + File.separator + script);
-        ///cmd.add("run");
-
-        NbProcessDescriptor nd = new NbProcessDescriptor(cmd.toString(), "run");
-
-        //return cmd;
-        return nd;
-    //System.out.println(cmd.toString());
-    //return cmd.toString();
-    }
-
-    private NbProcessDescriptor makeStopCommand() {
-        Command cmd = new Command();
-
-        String script = "";
-        if (org.openide.util.Utilities.isWindows()) {
-            script = "catalina.bat";
-        } else {
-            script = "catalina.sh";
-        }
-        cmd.add(psconfig.getProperty(CATALINA_HOME) + File.separator + "bin" + File.separator + script);
-
-        ///cmd.add("stop");
-        ///System.out.println(cmd.toString());
-        NbProcessDescriptor nd = new NbProcessDescriptor(cmd.toString(), "stop");
-        return nd;
-    ///return cmd.toString();
+        
+        return psconfig.getProperty(CATALINA_HOME) + File.separator + "bin" + File.separator + script;
     }
     
-    private NbProcessDescriptor makeDebugCommand() {
-        Command cmd = new Command();
-
-        String script = "";
-        if (org.openide.util.Utilities.isWindows()) {
-            script = "catalina.bat";
-        } else {
-            script = "catalina.sh";
-        }
-        cmd.add(psconfig.getProperty(CATALINA_HOME) + File.separator + "bin" + File.separator + script);
-        ///cmd.add("run");
-
-        NbProcessDescriptor nd = new NbProcessDescriptor(cmd.toString(), "jpda run");
-
-       // NbProcessDescriptor nd = new NbProcessDescriptor(cmd.toString(), "stop");
-        //return cmd;
-        return nd;
-    //System.out.println(cmd.toString());
-    //return cmd.toString();
+    private static NbProcessDescriptor defaultExecDesc(String command, String argCommand, String option) {
+        return new NbProcessDescriptor (
+            "{" + command + "}",  // NOI18N
+            "{" + argCommand + "}" + " {" + option + "}",  // NOI18N
+            "Tomcat Execution Command"
+        );
+    }
+    
+    private static NbProcessDescriptor defaultExecDesc(String command, String argCommand) {
+        return new NbProcessDescriptor (
+            "{" + command + "}",     // NOI18N
+            "{" + argCommand + "}",  // NOI18N
+            "Tomcat Execution Command"
+        );
+    }
+    
+    private static NbProcessDescriptor defaultDebugStartDesc(String command, String jpdaCommand, String option) {
+        return new NbProcessDescriptor (
+            "{" + command + "}",  // NOI18N
+            "{" + TAG_JPDA + "}" + " {" + jpdaCommand + "}" + " {" + option + "}",  // NOI18N
+            "Tomcat Execution Command"
+        );
+    }
+    
+    private static NbProcessDescriptor defaultDebugStartDesc(String command, String jpdaCommand) {
+        return new NbProcessDescriptor (
+            "{" + command + "}",  // NOI18N
+            "{" + TAG_JPDA + "}" + " {" + jpdaCommand + "}",  // NOI18N
+            "Tomcat Execution Command"
+        );
     }
 
     private int runProcess(int commandType, NbProcessDescriptor nbProcess, String[] env, boolean wait) throws Exception {
-        /* Process child = null;
-        if(env == null || env.length == 0)
-        child = Runtime.getRuntime().exec(cmd.getCmdArray());
-        else
-        child = Runtime.getRuntime().exec(cmd.getCmdArray(),env);*/
-
-        //NbProcessDescriptor nd = new NbProcessDescriptor(cmd.toString(), "run");
+        
 
         File binDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator + "bin");
-        Process child = nbProcess.exec(null, env, binDir);
+        Process child = nbProcess.exec(new TomcatFormat(new File(getStartUpScript()), new File(psconfig.getProperty(CATALINA_HOME))), env, binDir);
         LogManager manager = new LogManager(dm);
         //manager.openServerLog(child, cmd.toString() + System.currentTimeMillis());
         manager.openServerLog(child, nbProcess.getProcessName());
-        //// if (wait)
-        ////     child.waitFor();        
-        //return child.exitValue();
 
         if (hasCommandSucceeded(child, commandType)) {
             return 1;
@@ -173,56 +162,6 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
         return 0;
 
     }
-
-    private int runStartProcess(String str, boolean wait) throws Exception {
-        String[] env = setEnv();
-        //env[2] = "JAVA_HOME="+System.getProperty("java.dir");
-        //System.out.println(System.getProperty("java.home"));
-        final Process child = Runtime.getRuntime().exec(str, env);
-
-        LogManager manager = new LogManager(dm);
-        manager.openServerLog(child, str + System.currentTimeMillis());
-        if (wait) {
-            try {
-                //child.waitFor();
-                Thread.currentThread().sleep(4000);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        }
-        while (!dm.isRunning()) {
-            try {
-                Thread.currentThread().sleep(2000);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return 1;
-    //  return child.exitValue();
-
-
-    }
-
-    private int runStopProcess(String str, boolean wait) throws Exception {
-        String[] env = setEnv();
-        //env[2] = "JAVA_HOME="+System.getProperty("java.dir");
-        //System.out.println(System.getProperty("java.home"));
-        final Process child = Runtime.getRuntime().exec(str, env);
-
-        LogManager manager = new LogManager(dm);
-        manager.openServerLog(child, str + System.currentTimeMillis());
-        if (wait) //child.waitFor();
-        {
-            Thread.sleep(4000);
-        }
-        while (dm.isRunning()) {
-            Thread.sleep(2000);
-        }
-        return child.exitValue();
-
-
-    }
-
     private String[] setEnv() {
 
         String[] env = new String[5];
@@ -426,6 +365,29 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
             }
         } catch (IOException ioe) {
             return false;
+        }
+    }
+    
+     /** Format that provides value usefull for Tomcat execution. 
+     * Currently this is only the name of startup wrapper.
+    */
+    private static class TomcatFormat extends org.openide.util.MapFormat {
+        
+        private static final long serialVersionUID = 992972967554321415L;
+        
+        public TomcatFormat(File startupScript, File homeDir) {
+            super(new java.util.HashMap ());
+            java.util.Map map = getMap ();
+            String scriptPath = startupScript.getAbsolutePath();
+            map.put(TAG_EXEC_CMD,       scriptPath);
+            map.put(TAG_EXEC_STARTUP,   "run");         // NOI18N
+            map.put(TAG_EXEC_SHUTDOWN,  "stop");        // NOI18N
+            map.put(TAG_DEBUG_CMD,      scriptPath);
+            map.put(TAG_JPDA,           "jpda");        // NOI18N
+            map.put(TAG_JPDA_STARTUP,   "run");         // NOI18N
+            map.put(TAG_SECURITY_OPT,   "-security");   // NOI18N
+            map.put(TAG_FORCE_OPT,      "-force");      // NOI18N
+            map.put(TAG_CATALINA_HOME,  homeDir.getAbsolutePath());
         }
     }
 }
