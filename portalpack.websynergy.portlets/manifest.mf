@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.portalpack.websynergy.portlets
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/websynergy/portlets/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/websynergy/portlets/resources/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/portalpack/websynergy/portlets/ruby/PluginInstall.class
-OpenIDE-Module-Specification-Version: 0.96
+OpenIDE-Module-Specification-Version: 0.97
 
