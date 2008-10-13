@@ -3,4 +3,4 @@ OpenIDE-Module: org.netbeans.modules.portalpack.servers.sunps
 OpenIDE-Module-Install: org/netbeans/modules/portalpack/servers/sunps7/Installer.class
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/servers/sunps7/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/servers/sunps7/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 2.91
+OpenIDE-Module-Specification-Version: 2.92
