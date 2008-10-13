@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
@@ -57,11 +58,12 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.ParameterInfo;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.php.editor.index.IndexedFunction;
 import org.netbeans.modules.php.editor.index.PHPIndex;
+import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.netbeans.modules.php.editor.parser.astnodes.BodyDeclaration.Modifier;
-import org.netbeans.modules.php.prado.PageLanguage;
 import org.netbeans.modules.php.prado.lexer.LexerUtilities;
 import org.netbeans.modules.php.prado.lexer.TemplateControlTokenId;
 
@@ -78,6 +80,7 @@ public class PageCodeCompletion implements CodeCompletionHandler {
         if (context.getQueryType() != QueryType.COMPLETION) {
             return CodeCompletionResult.NONE;
         }
+
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
         BaseDocument document = (BaseDocument) context.getInfo().getDocument();
         document.readLock();
@@ -149,26 +152,9 @@ public class PageCodeCompletion implements CodeCompletionHandler {
     }
 
     private void addTemplateProperties(final List<CompletionProposal> proposals, final CodeCompletionContext context, final String className, final String prefix) {
-        PHPParseResult phpresult = (PHPParseResult) context.getInfo().getEmbeddedResult(PageLanguage.PHP_MIME_TYPE, context.getCaretOffset());
-
-        if (phpresult != null) {
-            Index index = context.getInfo().getIndex(PageLanguage.PHP_MIME_TYPE);
-            if (index != null) {
-                PHPIndex phpIndex = PHPIndex.get(index);
-                Collection<IndexedFunction> methods =  phpIndex.getAllMethods(phpresult, className, "set" + prefix, NameKind.PREFIX, Modifier.PUBLIC); //NOI18N
-                List<String> names = new ArrayList<String>();
-                for (IndexedFunction indexedFunction : methods) {
-                    String name = indexedFunction.getName();
-                    name = name.substring(3);
-                    if (!names.contains(name)) {
-                        names.add(name);
-                    }
-                }
-                for (String name : names) {
-                    proposals.add(new PradoCompletionItem(context, name, prefix));
-                }
-
-            }
+        List<String> properties = CompletionUtils.getComponentProperties(context.getInfo(), className, prefix);
+        for (String property : properties) {
+            proposals.add(new PradoCompletionItem(context, property, prefix));
         }
     }
 }

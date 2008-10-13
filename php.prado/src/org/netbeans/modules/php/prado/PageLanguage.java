@@ -39,10 +39,23 @@
 
 package org.netbeans.modules.php.prado;
 
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.ParseEvent;
+import org.netbeans.modules.gsf.api.ParseListener;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.PositionManager;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.php.prado.completion.PageCodeCompletion;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.gsf.api.CodeCompletionHandler;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
+import org.netbeans.modules.php.prado.gsf.PageSemanticAnalyzer;
+import org.netbeans.modules.php.prado.gsf.PradoStructureScanner;
 import org.netbeans.modules.php.prado.lexer.PageTokenId;
 
 
@@ -54,10 +67,7 @@ import org.netbeans.modules.php.prado.lexer.PageTokenId;
 public class PageLanguage extends DefaultLanguageConfig {
     
     public static final String PHP_PRADO_MIME_TYPE = "text/x-prado"; // NOI18N
-
-    // TODO This is a hack. Should be taken from php editor.
-    public static final String PHP_MIME_TYPE = "text/x-php5"; // NOI18N
-
+  
     @Override
     public Language getLexerLanguage() {
         return PageTokenId.language();
@@ -74,5 +84,75 @@ public class PageLanguage extends DefaultLanguageConfig {
         return new PageCodeCompletion();
     }
 
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
 
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new PradoStructureScanner();
+    }
+
+    @Override
+    public Parser getParser() {
+        return new PradoParser();
+        //return null;
+    }
+
+    @Override
+    public SemanticAnalyzer getSemanticAnalyzer() {
+        return new PageSemanticAnalyzer();
+    }
+
+    public static String getComponentPrefix() {
+        return "com";  //NOI18N
+    }
+
+
+    private class PradoParser implements Parser {
+
+        public void parseFiles(Job request) {
+            ParseListener listener = request.listener;
+
+
+            for (ParserFile file : request.files) {
+                ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
+                listener.started(beginEvent);
+                ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, new PradoParserResult(this, file));
+                listener.finished(doneEvent);
+            }
+        }
+
+        public PositionManager getPositionManager() {
+            return new PradoPositionManager();
+        }
+
+    }
+
+    private class PradoParserResult extends ParserResult {
+
+        public PradoParserResult(PradoParser parser, ParserFile file) {
+            super(parser, file, PHP_PRADO_MIME_TYPE);
+        }
+
+        @Override
+        public AstTreeNode getAst() {
+            return null;
+        }
+    }
+
+    private class PradoPositionManager implements PositionManager {
+
+
+        public PradoPositionManager() {
+
+        }
+
+        public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
+
+            return OffsetRange.NONE;
+        }
+
+    }
 }

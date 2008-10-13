@@ -38,12 +38,14 @@
  */
 package org.netbeans.modules.php.prado.embedding;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenHierarchyEvent;
@@ -51,10 +53,16 @@ import org.netbeans.api.lexer.TokenHierarchyListener;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.NbEditorUtilities;
+import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.EditHistory;
 import org.netbeans.modules.gsf.api.IncrementalEmbeddingModel;
-import org.netbeans.modules.php.editor.lexer.PHPTokenId;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.api.SourceModel;
+import org.netbeans.modules.gsf.api.SourceModelFactory;
 import org.netbeans.modules.php.prado.lexer.PageTokenId;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -105,15 +113,15 @@ public class PradoPhpModel {
             codeBlocks.clear();
             StringBuilder buffer = new StringBuilder();
 
-            BaseDocument d = (BaseDocument) doc;
+            BaseDocument document = (BaseDocument) doc;
             try {
-                d.readLock();
+                document.readLock();
                 TokenHierarchy<Document> tokenHierarchy = TokenHierarchy.get(doc);
                 TokenSequence ts = tokenHierarchy.tokenSequence();
                 HashMap<String, Object> state = new HashMap<String, Object>(6);
-                extractPHP(ts, buffer, state);
+                extractPHP(ts, buffer, state, document);
             } finally {
-                d.readUnlock();
+                document.readUnlock();
             }
             code = buffer.toString();
         }
@@ -128,7 +136,35 @@ public class PradoPhpModel {
         return code;
     }
 
-    protected void extractPHP(TokenSequence<PageTokenId> ts, StringBuilder buffer, HashMap<String, Object> state) {
+    private static class HTMLAnalyzer implements CancellableTask<CompilationInfo> {
+
+        public HTMLAnalyzer() {
+        }
+
+        public void cancel() {}
+
+        public void run(CompilationInfo cInfo) throws Exception {
+            ParserResult result = cInfo.getEmbeddedResult(HTMLTokenId.language().mimeType(), 0);
+
+            System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+            System.out.println(result);
+
+        }
+    }
+    protected void extractPHP(TokenSequence<PageTokenId> ts, StringBuilder buffer, HashMap<String, Object> state,
+            BaseDocument document) {
+
+//        FileObject fileObject = NbEditorUtilities.getFileObject(document);
+//        SourceModel model = SourceModelFactory.getInstance().getModel(fileObject);
+//
+//        try {
+//            model.runUserActionTask(new HTMLAnalyzer(), true);
+//        } catch (IOException ex) {
+//            //TODO log it properly
+//            Exceptions.printStackTrace(ex);
+//        }
+
+
         buffer.append("<?php\n");
         buffer.append("class ");
         buffer.append("DocName");

@@ -58,14 +58,15 @@ import org.netbeans.spi.editor.completion.support.CompletionUtilities;
  *
  * @author Petr Pisl
  */
-public class PradoHTMLCompletionItem implements CompletionItem {
+public abstract class PradoHTMLCompletionItem implements CompletionItem {
 
     protected String text;
     protected boolean shift;
     protected int substitutionOffset;
 
-    public PradoHTMLCompletionItem(String text) {
+    public PradoHTMLCompletionItem(String text, int substitutionOffset) {
         this.text = text;
+        this.substitutionOffset = substitutionOffset;
     }
     
     public String getItemText() {
@@ -136,9 +137,7 @@ public class PradoHTMLCompletionItem implements CompletionItem {
         return null;
     }
 
-    protected String getLeftHtmlText() {
-        return getItemText();
-    }
+    protected abstract String getLeftHtmlText();
 
     protected String getRightHtmlText() {
         return null;
@@ -221,4 +220,35 @@ public class PradoHTMLCompletionItem implements CompletionItem {
     protected int getMoveBackLength() {
         return 0; //default
     }
+
+    public static class Component extends PradoHTMLCompletionItem {
+
+        public Component(String text, int substitutionOffset) {
+            super(text, substitutionOffset);
+        }
+
+        @Override
+        protected String getLeftHtmlText() {
+            return "<font color=#ce2c27>&lt;" + getItemText() + "&gt;</font>";  //NOI18N
+        }
+    }
+
+    public static class Property extends PradoHTMLCompletionItem {
+
+        public Property(String text, int substitutionOffset) {
+            super(text, substitutionOffset);
+        }
+
+        @Override
+        protected String getSubstituteText() {
+            return getItemText() + '=';
+        }
+        
+        @Override
+        protected String getLeftHtmlText() {
+            return "<font color=#009900>" + getItemText() + "</font>"; //NOI18N
+        }
+    }
+
+
 }
