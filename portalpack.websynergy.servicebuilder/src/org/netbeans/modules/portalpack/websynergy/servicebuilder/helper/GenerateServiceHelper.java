@@ -69,11 +69,14 @@ import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.LibrariesHelper;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.ServiceBuilderConstant;
 import org.netbeans.modules.web.api.webmodule.WebModule;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
 
@@ -161,12 +164,22 @@ public class GenerateServiceHelper {
         final Project project = getProject(serviceXml);
         final WebModule wm = getWebModule(project);
         
+        if(wm == null) {
+            NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(GenerateServiceHelper.class,"MSG_NOT_A_WEB_PROJECT"),NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(nd);
+            return false;
+        }
+        
         //copy libs if not exists
         LibrariesHelper.getDefault().copyLibs(false);
         PSConfigObject psconfig = getSelectedServerProperties(project);
         
-        if(psconfig == null)
+        if(psconfig == null) {
+            
+            NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(GenerateServiceHelper.class,"MSG_NO_RUNTIME"),NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(nd);
             return false;
+        }
 
         final Properties props = getServerAntProperties(psconfig);
         setAdditionalProperties(project, props);
@@ -388,8 +401,8 @@ public class GenerateServiceHelper {
 
         String serverID = jmp.getServerInstanceID();
 
-        if (serverID == null || !serverID.startsWith(LR_PREFIX)
-                             || !serverID.startsWith(WS_PREFIX)) {
+        if (serverID == null || (!serverID.startsWith(LR_PREFIX)
+                             && !serverID.startsWith(WS_PREFIX))) {
             return null;
         }
         PSConfigObject pc = PSConfigObject.getPSConfigObject(serverID);
