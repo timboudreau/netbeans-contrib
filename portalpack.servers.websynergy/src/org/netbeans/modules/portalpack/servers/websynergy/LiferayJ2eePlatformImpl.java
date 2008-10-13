@@ -55,7 +55,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
     protected List getCustomLibraries() {
         List classPath = new ArrayList();
 
-        String[] libFiles = {"portal-service.jar", "portal-kernel.jar"};
+        String[] libFiles = {"portal-service.jar", "portal-kernel.jar","annotations.jar"};
         //PSConfigObject psconfig = psconfig.getPSConfig();
 
         //If glassfish then add javaee.jar
@@ -162,7 +162,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                 }
             }
 
-            String[] libs = {"servlet-api.jar", "jsp-api.jar"};
+            String[] libs = {"servlet-api.jar", "jsp-api.jar","annotations-api.jar"};
             String serverLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator + "lib";
             for (int k = 0; k < libs.length; k++) {
                 File libJar = new File(serverLibDir + File.separator + libs[k]);
