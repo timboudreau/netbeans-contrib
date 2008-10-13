@@ -111,10 +111,9 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
      
      private void unDeployFromGlassFish(String appName) throws Exception
     {
-        String passwordFile = ".pcpwd.txt";
-        File file = new File(passwordFile);
-        if(file.exists())
-            file.delete();
+        File file = File.createTempFile("pcpwd",".tmp");
+        file.deleteOnExit();
+        
         FileOutputStream fout = null;
         try {
              fout = new FileOutputStream(file);
@@ -137,7 +136,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         cmd.add("-u");
         cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
         cmd.add("--passwordfile");
-        cmd.add(passwordFile);
+        cmd.add(file.getAbsolutePath());
         cmd.add(appName);
                 
         logger.info(cmd.toString());    
@@ -148,7 +147,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         } catch (Exception ex) {
             throw new Exception(NbBundle.getMessage(SunAppServerDeployHandler.class,"MSG_UNDEPLOY_ON_GLASSFISH_FAILED"));
         }
-        logger.info("Password file: "+passwordFile);
+        logger.info("Password file: "+file.getAbsolutePath());
         file.delete();
         
     } 
