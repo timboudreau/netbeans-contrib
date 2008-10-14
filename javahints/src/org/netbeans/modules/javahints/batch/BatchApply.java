@@ -136,8 +136,13 @@ public class BatchApply {
 
                 fixes.get(ed).implement();
 
-                d.getLookup().lookup(SaveCookie.class).save();
+                SaveCookie sc = d.getLookup().lookup(SaveCookie.class);
+
+                if (sc != null) {
+                    sc.save();
+                }
             } catch (Exception ex) {
+                Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(ed.getFile()));
                 Exceptions.printStackTrace(ex);
                 return ex.getMessage();
             }
