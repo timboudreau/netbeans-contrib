@@ -60,11 +60,12 @@
         </folder>
     </folder>
     <folder name="Templates">
-        <folder name="Other">
+        <folder name="WebSynergyPortlets">
             <file name="service.xml" url="ServiceBuilderTemplate.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.servicebuilder.resources.Bundle"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                 <attr name="position" intvalue="700"/>
             </file>
         </folder>
     </folder>

@@ -297,6 +297,18 @@ public class GenerateServiceHelper {
 
                 props.setProperty("app.server.lib.global.dir", tomcatHome + File.separator + "common" + File.separator + "lib" + File.separator + "ext");
             }
+        } else if (psConfig.getServerType().equals(ServerConstants.TOMCAT_6_X)) {
+
+            String tomcatHome = psConfig.getProperty(TomcatConstant.CATALINA_HOME);
+
+            props.setProperty("app.server.dir", tomcatHome);
+
+            File deployLoc = new File(tomcatHome + File.separator + "webapps" + File.separator + "ROOT");
+            if (deployLoc.exists()) {
+                deployDir = deployLoc.getAbsolutePath();
+
+                props.setProperty("app.server.lib.global.dir", tomcatHome + File.separator + "lib" + File.separator + "ext");
+            }
         }
 
         if (deployDir != null || deployDir.trim().length() != 0) {
@@ -317,6 +329,10 @@ public class GenerateServiceHelper {
             if (servletAPI.exists()) {
                 //Glassfish V2
                 sb.append(servletAPI.getAbsoluteFile());
+                sb.append(":");
+                
+                String activationJar = glassFishHome + File.separator + "lib" + File.separator + "activation.jar";
+                sb.append(activationJar);
                 sb.append(":");
                 
                 //props.setProperty("servlet.jar.path", servletAPI.getAbsolutePath());
@@ -340,12 +356,21 @@ public class GenerateServiceHelper {
                    // props.setProperty("servlet.jar.path", files[0].getAbsolutePath());
                 }
             }
-        } else if (psConfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+        } else if(psConfig.getServerType().equals(ServerConstants.TOMCAT_5_X)
+                     || psConfig.getServerType().equals(ServerConstants.TOMCAT_6_X)) {
             
             String tomcatHome = psConfig.getProperty(TomcatConstant.CATALINA_HOME);
             
-            File libDir = new File(tomcatHome + File.separator + "common" 
+            File libDir =  null;
+            
+            if(psConfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+                    
+                libDir = new File(tomcatHome + File.separator + "common" 
                                                   + File.separator + "lib");
+            } else if(psConfig.getServerType().equals(ServerConstants.TOMCAT_6_X)){
+                
+                libDir = new File(tomcatHome + File.separator + "lib"); 
+            }
             
             if(!libDir.exists()) {
                 libDir = new File(tomcatHome + File.separator + "lib"); 

@@ -60,8 +60,8 @@ public class WebXmlHelper {
     private static String CONTEXT_CLASS = "com.liferay.portal.spring.context.PortletApplicationContext";
     private static String CONTEXT_CLASS_PARAM_NAME = "contextClass";
     private static String CONTEXT_CONFIG_LOC_NAME = "contextConfigLocation";
-    private static String CONTEXT_CONFIG_LOC_VALUE = "WEB-INF/classes/META-INF/portlet-spring.xml,WEB-INF/classes/META-INF/ext-spring.xml,WEB-INF/classes/META-INF/portlet-model-hints.xml,WEB-INF/classes/META-INF/data-source-spring.xml";
-
+    //private static String CONTEXT_CONFIG_LOC_VALUE = "WEB-INF/classes/META-INF/portlet-spring.xml,WEB-INF/classes/META-INF/ext-spring.xml,WEB-INF/classes/META-INF/portlet-model-hints.xml,WEB-INF/classes/META-INF/infrastructure-spring.xml,WEB-INF/classes/META-INF/data-source-spring.xml";
+    private static String CONTEXT_CONFIG_LOC_VALUE = "WEB-INF/classes/META-INF/misc-spring.xml,WEB-INF/classes/META-INF/data-source-spring.xml,WEB-INF/classes/META-INF/base-spring.xml,WEB-INF/classes/META-INF/hibernate-spring.xml,WEB-INF/classes/META-INF/infrastructure-spring.xml,WEB-INF/classes/META-INF/portlet-spring.xml,WEB-INF/classes/META-INF/ext-spring.xml";
     public WebXmlHelper() {
     }
 

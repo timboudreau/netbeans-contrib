@@ -236,8 +236,10 @@ public class FindersWidget extends AbstractTitledWidget {
     public class AddFinderAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent e) {
-
-            AddFinderUI ui = new AddFinderUI(WindowManager.getDefault().getMainWindow(), entity);
+            if(entity == null)
+                return;
+            Entity org = helper.getEntity(entity.getName());
+            AddFinderUI ui = new AddFinderUI(WindowManager.getDefault().getMainWindow(), org);
             ui.setVisible(true);
             if (!ui.isOK()) {
                 return;
@@ -345,8 +347,12 @@ public class FindersWidget extends AbstractTitledWidget {
                 return;
             }
             
+            if(entity == null)
+                return;
+            Entity org = helper.getEntity(entity.getName());
+            
             Finder finder = finders.iterator().next();
-            AddFinderUI ui = new AddFinderUI(WindowManager.getDefault().getMainWindow(), entity,finder);
+            AddFinderUI ui = new AddFinderUI(WindowManager.getDefault().getMainWindow(), org,finder);
             
             ui.setVisible(true);
             if (!ui.isOK()) {
