@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -59,6 +59,8 @@ public class TerminalOptions extends SystemOption {
 
     public static final String PROP_TERMINAL_COMMAND = "terminalCommand"; // NOI18N
 
+    public static final String SYSTEM_TERMINAL_COMMAND = "accelerators.terminal.terminalCommand"; // NOI18N
+
     public static TerminalOptions getInstance() {
         return (TerminalOptions) SharedClassObject.findObject(TerminalOptions.class, true);
     }
@@ -68,7 +70,11 @@ public class TerminalOptions extends SystemOption {
     }
     
     public String getTerminalCommand() {
-        String result = (String) getProperty(PROP_TERMINAL_COMMAND);
+        String result = getUserDefined();
+        if (result != null) {
+            return result;
+        }
+        result = (String) getProperty(PROP_TERMINAL_COMMAND);
         if (result != null) {
             return result;
         } else if (Utilities.isWindows()) {
@@ -92,5 +98,9 @@ public class TerminalOptions extends SystemOption {
     
     public void setTerminalCommand(String command) {
         putProperty(PROP_TERMINAL_COMMAND, command, true);
+    }
+
+    private String getUserDefined() {
+        return System.getProperty(SYSTEM_TERMINAL_COMMAND);
     }
 }
