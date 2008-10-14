@@ -59,7 +59,7 @@ public class TerminalOptions extends SystemOption {
 
     public static final String PROP_TERMINAL_COMMAND = "terminalCommand"; // NOI18N
 
-    public static final String SYSTEM_TERMINAL_COMMAND = "accelerators.terminal.terminalCommand"; // NOI18N
+    private static final String SYSTEM_TERMINAL_COMMAND = "accelerators.terminal.terminalCommand"; // NOI18N
 
     public static TerminalOptions getInstance() {
         return (TerminalOptions) SharedClassObject.findObject(TerminalOptions.class, true);
