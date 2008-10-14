@@ -41,6 +41,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -309,8 +310,12 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
         private void initComponents() {
             packageListPane = new NbiTextPane();
             packageListPane.setBorder(BorderFactory.createEtchedBorder());
+            ScrollPane packageListScrollPane = new ScrollPane();
+            packageListScrollPane.add(packageListPane);            
             descriptionPane = new NbiTextPane();
             descriptionPane.setBorder(BorderFactory.createEtchedBorder());
+            ScrollPane descriptionScrollPane = new ScrollPane();
+            descriptionScrollPane.add(descriptionPane);                        
             okButton = new NbiButton();
             okButton.setText(CLOSE_BUTTON_TEXT);
             okButton.addActionListener(new ActionListener() {
@@ -338,7 +343,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                     GridBagConstraints.HORIZONTAL, // fill
                     new Insets(10, 10, 10, 10), // padding
                     0, 0));
-            componentPanel.add(packageListPane, new GridBagConstraints(
+            componentPanel.add(packageListScrollPane, new GridBagConstraints(
                     0, 1, // x, y
                     1, 1, // width, height
                     1.0, 1.0, // weight-x, weight-y
@@ -346,7 +351,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                     GridBagConstraints.BOTH, // fill
                     new Insets(10, 10, 10, 10), // padding
                     0, 0));
-            componentPanel.add(descriptionPane, new GridBagConstraints(
+            componentPanel.add(descriptionScrollPane, new GridBagConstraints(
                     1, 1, // x, y
                     1, 1, // width, height
                     1.0, 1.0, // weight-x, weight-y
@@ -361,7 +366,7 @@ public class ExistingSunStudioPanel extends ErrorMessagePanel {
                     0.0, 0.0, // weight-x, weight-y
                     GridBagConstraints.CENTER, // anchor
                     GridBagConstraints.NONE, // fill
-                    new Insets(0, 0, 0, 0), // padding
+                    new Insets(0, 0, 10, 0), // padding
                     0, 0));                           // padx, pady - ???)
           /*  buttonsPanel.add(removeButton, new GridBagConstraints(
                     1, 0, // x, y
