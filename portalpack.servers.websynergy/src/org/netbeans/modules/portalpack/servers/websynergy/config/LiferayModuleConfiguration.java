@@ -53,8 +53,8 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         getLiferayPortletFile(liferayPortletFile);
         File liferayDisplayFile = getJ2eeModule().getDeploymentConfigurationFile("WEB-INF/liferay-display.xml");
         getLiferayPortletDisplay(liferayDisplayFile);
-        File liferayPluginPackageFile = getJ2eeModule().getDeploymentConfigurationFile("WEB-INF/liferay-plugin-package.xml");
-        getLiferayPluginPackageXML(liferayPluginPackageFile);
+        File liferayPluginPackagePropFile = getJ2eeModule().getDeploymentConfigurationFile("WEB-INF/liferay-plugin-package.properties");
+        getLiferayPluginPackageProperties(liferayPluginPackagePropFile);
     }
 
     private void getLiferayPortletFile(File liferayPortletFile) {
@@ -162,76 +162,17 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
         }
     }
     
-    private void getLiferayPluginPackageXML(File liferayPluginPackageXML)
+    private void getLiferayPluginPackageProperties(File pluginPackageProp)
     {
-        if (liferayPluginPackageXML == null) {
-            return;
-        }
-        if (liferayPluginPackageXML.exists()) {
-            return;
-        }
         
-        if(!LiferayXMLUtil.createLRXMLFile(LiferayXMLUtil.LR_PLUGIN_PACKAGE_TEMPLATE, liferayPluginPackageXML.getParent(), "liferay-plugin-package"))
-        {
-            logger.severe("liferay-plugin-package.xml could not be generated !!!");
-            return;
-        }
-        //Get Portlet Applicastion Name
-        String name = "";
-        File portletXml = getJ2eeModule().getDeploymentConfigurationFile("WEB-INF/portlet.xml");
-        if (portletXml.exists()) 
-        {    
-            FileObject pXml = FileUtil.toFileObject(portletXml);
-            if(pXml != null){
-                Project prj = FileOwnerQuery.getOwner(pXml);
-                if(prj != null)
-                    name = prj.getProjectDirectory().getName();
-            }
-            
-        }
-        if(name == null || name.length() == 0)
-            name = System.currentTimeMillis() + "";
-        
-        PluginPackage pluginPackage = null;
-        try {
-
-            pluginPackage = PluginPackage.createGraph(liferayPluginPackageXML);
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Error",ex);
-            return;
-        }
-        pluginPackage.setName(name);
-        pluginPackage.setModuleId("portalpack/"+name+"/1.0/war");
-        Types t = pluginPackage.newTypes();
-        t.addType("portlets");
-        pluginPackage.setTypes(t);
-        LiferayVersions lv = pluginPackage.newLiferayVersions();
-        lv.addLiferayVersion("*.*");
-        pluginPackage.setLiferayVersions(lv);
-        
-        Licenses licenses = pluginPackage.newLicenses();
-        licenses.addLicense("CDDL");
-        pluginPackage.setLicenses(licenses);
-        
-        try{
-            NetbeansUtil.saveBean(pluginPackage,liferayPluginPackageXML);
-        }catch(Exception e){
-            logger.info(e.getMessage());
-        }
-        
-        //create a plugin-package.properties file also
-        File pluginPackageProp = getJ2eeModule().getDeploymentConfigurationFile("WEB-INF/liferay-plugin-package.properties");
         if(pluginPackageProp.exists())
             return;
         Properties props = new Properties();
-        props.setProperty("name", name); //NOI18N
-        props.setProperty("module-group-id", "liferay"); //NOI18N
-        props.setProperty("module-incremental-version", "1"); //NOI18N
         props.setProperty("tags", "portlet");
         props.setProperty("portal.dependency.jars","commons-logging.jar,commons-fileupload.jar");
         try{
             OutputStream out = new FileOutputStream(pluginPackageProp);
-            props.store(out, name);
+            props.store(out, "liferay-plugin-package.properties");
             out.flush();
             out.close();
         }catch(Exception e){
