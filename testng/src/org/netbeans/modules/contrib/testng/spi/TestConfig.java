@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,47 +31,51 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.contrib.testng.suite;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import org.openide.filesystems.FileUtil;
-import org.testng.xml.LaunchSuite;
-import org.testng.xml.SuiteGenerator;
+package org.netbeans.modules.contrib.testng.spi;
 
 /**
  *
  * @author lukas
  */
-public class XMLSuiteHandler {
+public final class TestConfig {
 
-    private XMLSuiteHandler() {
+    private boolean rerun;
+    private String pkgName;
+    private String className;
+    private String methodName;
+
+    public TestConfig(String pkgName, String className, String methodName) {
+        this(false, pkgName, className, methodName);
     }
-    
-    public static File createSuiteforMethod(File targetFolder, String projectName, String pkgName, String className, String methodName) {
-        if (!targetFolder.isDirectory()) {
-            throw new IllegalArgumentException(targetFolder.getAbsolutePath() + " is not a directory"); //NOI18N
-        }
-        Map<String, Collection<String>> classes = new HashMap<String, Collection<String>>();
-        Set<String> methods = null;
-        if (methodName != null) {
-            methods = new HashSet<String>();
-            methods.add(methodName);
-        }
-        pkgName = pkgName.trim();
-        classes.put("".equals(pkgName) ? className : pkgName + "." + className, methods); //NOI18N
-        LaunchSuite suite = SuiteGenerator.createSuite(projectName, null, classes, null, null, null, 7);
-        File f = suite.save(targetFolder);
-        FileUtil.refreshFor(targetFolder);
-        return f;
+
+    public TestConfig(boolean rerun, String pkgName, String className, String methodName) {
+        this.rerun = rerun;
+        this.pkgName = pkgName;
+        this.className = className;
+        this.methodName = methodName;
     }
+
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    public boolean doRerun() {
+        return rerun;
+    }
+
 }

@@ -36,21 +36,24 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.contrib.testng;
+package org.netbeans.modules.contrib.testng.ant;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
+import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.api.project.ant.AntBuildExtender.Extension;
-import org.netbeans.api.project.libraries.Library;
-import org.netbeans.api.project.libraries.LibraryManager;
-import org.netbeans.modules.contrib.testng.ProjectUtilities.Type;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
+import org.netbeans.modules.contrib.testng.spi.XMLSuiteSupport;
+import org.netbeans.spi.project.ant.AntArtifactProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
@@ -59,37 +62,21 @@ import org.openide.filesystems.Repository;
  *
  * @author lukas
  */
-public class TestNGProjectUpdater {
+public class AntTestNGSupport extends TestNGSupportImplementation {
 
-    private static final Logger LOGGER = Logger.getLogger(TestNGProjectUpdater.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());
 
-    private TestNGProjectUpdater() {
+    public boolean isProjectSupported(Project p) {
+        return p.getLookup().lookup(AntArtifactProvider.class) != null;
     }
 
-    public static void updateProject(FileObject fo) throws IOException {
-        assert fo != null;
-        Project p = FileOwnerQuery.getOwner(fo);
-        ClassPath cp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
-        Type type = ProjectUtilities.getProjectType(p);
-        FileObject ng = cp.findResource("org.testng.annotations.Test"); //NOI18N
-        if (ng == null) {
-            // add library to the project
-            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
-            if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
-                LOGGER.fine("TestNG library not added to project " + p); //NOI18N
-            }
+    public void configureProject(FileObject createdFile) {
+        try {
+            addLibrary(createdFile);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
         }
-        if (Type.ANT.equals(type)) {
-            initBuildScript(p);
-        }
-    }
-
-    public static void initBuildScript(FileObject fo) {
-        Project p = FileOwnerQuery.getOwner(fo);
-        initBuildScript(p);
-    }
-
-    private static void initBuildScript(Project p) {
+        Project p = FileOwnerQuery.getOwner(createdFile);
         AntBuildExtender extender = p.getLookup().lookup(AntBuildExtender.class);
         if (extender != null) {
             String ID = "test-ng-1.0"; //NOI18N
@@ -106,6 +93,57 @@ public class TestNGProjectUpdater {
                 } catch (IOException ex) {
                     LOGGER.log(Level.SEVERE, null, ex);
                 }
+            }
+        }
+    }
+
+    public TestExecutor createExecutor(Project p) {
+        return new AntExecutor(p);
+    }
+
+    public class AntExecutor implements TestNGSupportImplementation.TestExecutor {
+
+        private static final String failedConfPath = "build/test/results/testng-failed.xml"; //NOI18N
+        private Project p;
+
+        public AntExecutor(Project p) {
+            this.p = p;
+        }
+
+        public boolean hasFailedTests() {
+            FileObject projectHome = p.getProjectDirectory();
+            //XXX - should rather listen on a fileobject??
+            FileUtil.refreshFor(FileUtil.toFile(projectHome));
+            FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
+            return failedTestsConfig != null && failedTestsConfig.isValid();
+        }
+
+        public void execute(TestConfig config) throws IOException {
+            FileObject projectHome = p.getProjectDirectory();
+            Properties props = new Properties();
+            if (config.doRerun()) {
+                FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
+                props.put("testng.config", FileUtil.getRelativePath(projectHome, failedTestsConfig));
+            } else {
+                try {
+                    FileObject fo = FileUtil.createFolder(projectHome, "build/generated/testng"); //NOI18N
+                    File f = XMLSuiteSupport.createSuiteforMethod(
+                            FileUtil.toFile(fo),
+                            ProjectUtils.getInformation(p).getDisplayName(),
+                            config.getPackageName(),
+                            config.getClassName(),
+                            config.getMethodName());
+                    props.put("testng.config", FileUtil.getRelativePath(projectHome, FileUtil.toFileObject(f)));
+                } catch (IOException ex) {
+                    LOGGER.log(Level.WARNING, null, ex);
+                }
+            }
+            try {
+                ActionUtils.runTarget(projectHome.getFileObject("build.xml"), new String[]{"run-testng"}, props); //NOI18N
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
     }

@@ -242,7 +242,10 @@
                     </test-dependency>
                 </test-type>
             </test-dependencies>
-            <public-packages/>
+            <friend-packages>
+                <friend>org.netbeans.modules.testng.maven</friend>
+                <package>org.netbeans.modules.contrib.testng.spi</package>
+            </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/testng/testng-5.8-jdk15.jar</runtime-relative-path>
                 <binary-origin>external/testng-5.8-jdk15.jar</binary-origin>

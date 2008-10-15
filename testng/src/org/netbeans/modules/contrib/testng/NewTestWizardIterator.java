@@ -54,6 +54,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -87,7 +88,7 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         assert groups != null : "Cannot return null from Sources.getSourceGroups: " + sources;
 
         //XXX - have to filter out regular source roots, there should
-        //be better way to do this...
+        //be better way to do this... (Hint: use UnitTestForSourceQuery)
         //${test - Ant based projects
         //2TestSourceRoot - Maven projects
         List<SourceGroup> result = new ArrayList<SourceGroup>(2);
@@ -147,7 +148,7 @@ public final class NewTestWizardIterator implements WizardDescriptor.Instantiati
         }
 
         FileObject createdFile = dobj.getPrimaryFile();
-        TestNGProjectUpdater.updateProject(createdFile);
+        TestNGSupport.findTestNGSupport(FileOwnerQuery.getOwner(createdFile)).configureProject(createdFile);
         return Collections.singleton(createdFile);
     }
 

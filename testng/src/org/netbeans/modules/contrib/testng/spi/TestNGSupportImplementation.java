@@ -36,41 +36,65 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.contrib.testng;
+package org.netbeans.modules.contrib.testng.spi;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.logging.Logger;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ant.AntArtifactProvider;
+import org.netbeans.api.project.libraries.Library;
+import org.netbeans.api.project.libraries.LibraryManager;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author lukas
  */
-public final class ProjectUtilities {
+public abstract class TestNGSupportImplementation {
 
-    public enum Type {
+    private static final Logger LOGGER = Logger.getLogger(TestNGSupportImplementation.class.getName());
 
-        ANT, MAVEN, OTHER
-    }
+    public abstract boolean isProjectSupported(Project p);
 
-    private ProjectUtilities() {
-    }
+    public abstract void configureProject(FileObject createdFile);
 
-    public static boolean isAntProject(Project p) {
-        return null != p.getLookup().lookup(AntArtifactProvider.class);
-    }
+    public abstract TestExecutor createExecutor(Project p);
 
-    //XXX not nice, should lookup o.n.m.maven.api.NbMavenProject from project lookup
-    public static boolean isMavenProject(Project p) {
-        return "org.netbeans.modules.maven.NbMavenProjectImpl".equals(p.getClass().getName()); //NOI18N
-    }
-
-    public static Type getProjectType(Project p) {
-        Type type = Type.OTHER;
-        if (isAntProject(p)) {
-            type = Type.ANT;
-        } else if (isMavenProject(p)) {
-            type = Type.MAVEN;
+    protected boolean addLibrary(FileObject fo) throws IOException {
+        assert fo != null;
+        Project p = FileOwnerQuery.getOwner(fo);
+        ClassPath cp = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+        FileObject ng = cp.findResource("org.testng.annotations.Test"); //NOI18N
+        if (ng == null) {
+            // add library to the project
+            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
+            if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
+                LOGGER.fine("TestNG library not added to project " + p); //NOI18N
+                return false;
+            }
         }
-        return type;
+        return true;
+    }
+
+    public interface TestExecutor {
+
+        /**
+         * returns test configuration file for failed tests if it exists
+         *
+         * @return testng config file
+         */
+        boolean hasFailedTests();
+
+        /**
+         *
+         * @param fo test config to run
+         * @return test results
+         */
+        void execute(TestConfig config) throws IOException;
     }
 }

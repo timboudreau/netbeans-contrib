@@ -5,13 +5,11 @@
 package org.netbeans.modules.contrib.testng.actions;
 
 import java.io.IOException;
-import java.util.Properties;
-import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.contrib.testng.ProjectUtilities;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -21,23 +19,18 @@ import org.openide.util.actions.CookieAction;
 
 public final class RerunFailedTestsAction extends CookieAction {
 
-    private FileObject projectHome;
-    private FileObject failedTestsConfig;
-
     public RerunFailedTestsAction() {
-        projectHome = null;
-        failedTestsConfig = null;
     }
     
     protected void performAction(Node[] activatedNodes) {
-        assert failedTestsConfig != null;
-        Properties p = new Properties();
-        p.put("testng.config", FileUtil.getRelativePath(projectHome, failedTestsConfig));
+        DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
+        Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+        TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+        assert exec.hasFailedTests();
+        TestConfig conf = new TestConfig(true, null, null, null);
         try {
-            ActionUtils.runTarget(projectHome.getFileObject("build.xml"), new String[]{"run-testng"}, p);
+            exec.execute(conf);
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
@@ -47,12 +40,9 @@ public final class RerunFailedTestsAction extends CookieAction {
         if (super.enable(activatedNodes)) {
             DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
             Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            projectHome = p.getProjectDirectory();
-            //XXX - should rather listen on a fileobject??
-            FileUtil.refreshFor(FileUtil.toFile(projectHome));
-            failedTestsConfig = projectHome.getFileObject("build/test/results/testng-failed.xml"); //NOI18N
-            return ProjectUtilities.isAntProject(p)
-                    && (failedTestsConfig != null && !failedTestsConfig.isVirtual() && failedTestsConfig.isValid());
+            if (TestNGSupport.isProjectSupported(p)) {
+                return TestNGSupport.findTestNGSupport(p).createExecutor(p).hasFailedTests();
+            }
         }
         return false;
     }

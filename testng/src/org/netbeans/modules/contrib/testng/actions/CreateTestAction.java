@@ -45,7 +45,9 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
-import org.netbeans.modules.contrib.testng.TestNGProjectUpdater;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
@@ -67,7 +69,17 @@ import org.openide.util.actions.CookieAction;
 public final class CreateTestAction extends CookieAction {
 
     private static final Logger LOGGER = Logger.getLogger(CreateTestAction.class.getName());
-    
+
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        if (super.enable(activatedNodes)) {
+            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
+            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            return TestNGSupport.isProjectSupported(p);
+        }
+        return false;
+    }
+
     protected void performAction(Node[] activatedNodes) {
         DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
         FileObject pFile = dataObject.getPrimaryFile();
@@ -103,11 +115,8 @@ public final class CreateTestAction extends CookieAction {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-                try {
-                    TestNGProjectUpdater.updateProject(createdFile.getPrimaryFile());
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
+                FileObject newFile = createdFile.getPrimaryFile();
+                TestNGSupport.findTestNGSupport(FileOwnerQuery.getOwner(newFile)).configureProject(newFile);
                 final LineCookie lc = createdFile.getCookie(LineCookie.class);
                 if (lc != null) {
                     SwingUtilities.invokeLater(new Runnable() {
