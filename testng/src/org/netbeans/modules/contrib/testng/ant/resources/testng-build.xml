@@ -152,7 +152,7 @@ made subject to such option by the copyright holder.
         <testng-ant/>
     </target>
     <target name="-run-testng-custom" if="testng.config">
-        <testng-ant testSuite="${testng.config}"/>
+        <testng-ant-xml testSuite="${testng.config}"/>
     </target>
     <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom">
     </target>

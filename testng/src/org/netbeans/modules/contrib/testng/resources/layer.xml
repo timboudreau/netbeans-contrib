@@ -136,7 +136,7 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>
     <folder name="org-netbeans-modules-contrib-testng">
-        <file name="testng-build.xml" url="testng-build.xml"/>
+        <file name="testng-build.xml" url="nbresloc:/org/netbeans/modules/contrib/testng/ant/resources/testng-build.xml"/>
     </folder>
     <folder name="Menu">
         <folder name="Window">

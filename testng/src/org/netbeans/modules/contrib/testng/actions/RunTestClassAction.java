@@ -4,22 +4,19 @@
  */
 package org.netbeans.modules.contrib.testng.actions;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JEditorPane;
-import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.contrib.testng.ProjectUtilities;
-import org.netbeans.modules.contrib.testng.suite.XMLSuiteHandler;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.cookies.EditorCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -27,12 +24,14 @@ import org.openide.util.actions.CookieAction;
 
 public final class RunTestClassAction extends CookieAction {
 
+    private static final Logger LOGGER = Logger.getLogger(RunTestClassAction.class.getName());
+
     @Override
     protected boolean enable(Node[] activatedNodes) {
         if (super.enable(activatedNodes)) {
             DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
             Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            return ProjectUtilities.isAntProject(p);
+            return TestNGSupport.isProjectSupported(p);
         }
         return false;
     }
@@ -49,28 +48,16 @@ public final class RunTestClassAction extends CookieAction {
                 try {
                     js.runUserActionTask(task, true);
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOGGER.log(Level.FINE, null, ex);
                 }
                 DataObject dobj = l.lookup(DataObject.class);
                 Project p = FileOwnerQuery.getOwner(dobj.getPrimaryFile());
-                FileObject fo = p.getProjectDirectory();
+                TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+                TestConfig conf = new TestConfig(task.getPackageName(), task.getClassName(), null);
                 try {
-                    fo = FileUtil.createFolder(fo, "build/generated/testng");
+                    exec.execute(conf);
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-                File f = XMLSuiteHandler.createSuiteforMethod(
-                        FileUtil.toFile(fo),
-                        ProjectUtils.getInformation(p).getDisplayName(),
-                        task.getPackageName(),
-                        task.getClassName(),
-                        null);
-                try {
-                    ActionUtils.runTarget(p.getProjectDirectory().getFileObject("build.xml"), new String[]{"run-testng"}, null);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IllegalArgumentException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                 }
             }
         }
