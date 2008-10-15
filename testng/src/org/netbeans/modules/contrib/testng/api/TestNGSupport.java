@@ -59,6 +59,14 @@ public final class TestNGSupport {
     private TestNGSupport() {
     }
 
+    /**
+     * Look for instance of TestNGSupportImplementation supporting given project
+     * in the default lookup
+     *
+     * @param p
+     * @return TestNGSupportImplementation instance for given project; null if
+     *      there's not any
+     */
     public static final TestNGSupportImplementation findTestNGSupport(Project p) {
         for (TestNGSupportImplementation s: getInstances()) {
             if (s.isProjectSupported(p)) {
@@ -68,6 +76,15 @@ public final class TestNGSupport {
         return null;
     }
 
+    /**
+     * Check if at least one of TestNGSupportImplementation instances
+     * registered in the default lookup supports given project
+     *
+     * @param p project
+     *
+     * @return true if at least one instance of TestNGSupportImplementation
+     *      supporting given project is found, false otherwise
+     */
     public static final boolean isProjectSupported(Project p) {
         for (TestNGSupportImplementation s: getInstances()) {
             if (s.isProjectSupported(p)) {

@@ -39,8 +39,6 @@
 package org.netbeans.modules.contrib.testng.spi;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
@@ -48,7 +46,6 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
-import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -59,12 +56,37 @@ public abstract class TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(TestNGSupportImplementation.class.getName());
 
+    /**
+     * Check whether given project instance is supported by this implementation
+     *
+     * @param p project to check
+     * @return true if this instance supports given project
+     */
     public abstract boolean isProjectSupported(Project p);
 
+    /**
+     * Configure project owning given FileObject
+     *
+     * @param createdFile FileObject for which the project should be configured
+     */
     public abstract void configureProject(FileObject createdFile);
 
+    /**
+     * Create an instance of TestExecutor interface used for running
+     * particular actions
+     * 
+     * @param p project for which the TestExecutor should be created
+     * @return instance of TestExecutor
+     */
     public abstract TestExecutor createExecutor(Project p);
 
+    /**
+     * Add bundled TestNG library to COMPILE ClassPath of given FileObject
+     *
+     * @param fo FileObject whose classpath to extend
+     * @return true if a library was added to the project
+     * @throws java.io.IOException
+     */
     protected boolean addLibrary(FileObject fo) throws IOException {
         assert fo != null;
         Project p = FileOwnerQuery.getOwner(fo);
@@ -81,19 +103,23 @@ public abstract class TestNGSupportImplementation {
         return true;
     }
 
+    /**
+     *
+     */
     public interface TestExecutor {
 
         /**
-         * returns test configuration file for failed tests if it exists
+         * Return true if configuration file for failed tests exists,
+         * false otherwise
          *
-         * @return testng config file
+         * @return true if configuration file for failed tests exists
          */
         boolean hasFailedTests();
 
         /**
+         * Execute tests defined in test config
          *
-         * @param fo test config to run
-         * @return test results
+         * @param config test config to run
          */
         void execute(TestConfig config) throws IOException;
     }
