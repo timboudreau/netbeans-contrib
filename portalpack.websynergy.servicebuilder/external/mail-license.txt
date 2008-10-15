@@ -1,3 +1,4 @@
+
 Name: Java Mail API
 Version: 1.4
 Description: Allows sending mails from the java program.
