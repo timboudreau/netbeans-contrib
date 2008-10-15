@@ -72,6 +72,12 @@ public class CompletionUtils {
         return result;
     }
 
+    // XXX this is hack. PHP index doesn't return all fanctions from all superclasse
+    // see issue #150303
+    private static List<String> knownUnrecognizedMethods = new ArrayList();
+    static {
+        knownUnrecognizedMethods.add("getID");
+    }
     /**
      *
      * @param info
@@ -90,7 +96,8 @@ public class CompletionUtils {
         String name;
         for (IndexedFunction indexedFunction : methods) {
             name = indexedFunction.getName();
-            if (name.startsWith("get") && indexedFunction.getArgs().length == 0) {  //NOI18N
+            if ((name.startsWith("get") && indexedFunction.getArgs().length == 0)
+                    || knownUnrecognizedMethods.contains(name)) {  //NOI18N
                 name = name.substring(3);
                 if (name.toLowerCase().startsWith(prefix)) {
                     allGetters.put(name, indexedFunction.getReturnType());
