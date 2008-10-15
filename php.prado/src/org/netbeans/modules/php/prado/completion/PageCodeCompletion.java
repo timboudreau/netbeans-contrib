@@ -152,7 +152,7 @@ public class PageCodeCompletion implements CodeCompletionHandler {
     }
 
     private void addTemplateProperties(final List<CompletionProposal> proposals, final CodeCompletionContext context, final String className, final String prefix) {
-        List<String> properties = CompletionUtils.getComponentProperties(context.getInfo(), className, prefix);
+        List<String> properties = CompletionUtils.getComponentOrdinalProperties(context.getInfo(), className, prefix, true);
         for (String property : properties) {
             proposals.add(new PradoCompletionItem(context, property, prefix));
         }

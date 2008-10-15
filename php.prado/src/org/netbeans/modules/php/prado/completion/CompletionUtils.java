@@ -40,7 +40,9 @@ package org.netbeans.modules.php.prado.completion;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.php.editor.index.IndexedFunction;
@@ -55,36 +57,67 @@ import org.netbeans.modules.php.prado.PageUtils;
  */
 public class CompletionUtils {
 
-    public static List<String> getComponentProperties(CompilationInfo info, String component, String prefix) {
-        List<String> arguments = new ArrayList<String>();
+    public static List<String> getComponentOrdinalProperties(CompilationInfo info, String component, String prefix, boolean includeOnProperties) {
         PHPParseResult phpresult = (PHPParseResult) info.getEmbeddedResult(PageUtils.getPHPMimeType(), 0);
         PHPIndex index = PHPIndex.get(info.getIndex(PageUtils.getPHPMimeType()));
-        Collection<IndexedFunction> methods = index.getAllMethods(phpresult, component, "", NameKind.PREFIX, Modifier.PUBLIC); //NOI18N
-        List<String> allGetters = new ArrayList<String>();
-        for (IndexedFunction indexedFunction : methods) {
-            if (indexedFunction.getName().startsWith("get") && indexedFunction.getArgs().length == 0 && isSimpleType(indexedFunction.getReturnType())) {  //NOI18N
-                allGetters.add(indexedFunction.getName().substring(3));
+
+        Map<String, String> properties = getComponentProperties(index, phpresult, component, prefix, includeOnProperties, false);
+        List<String> result = new ArrayList<String>();
+
+        for (String name : properties.keySet()) {
+            if (isSimpleType(properties.get(name))) {
+                result.add(name);
             }
         }
+        return result;
+    }
+
+    /**
+     *
+     * @param info
+     * @param component
+     * @param prefix
+     * @param includeOnProperties - whether also it should properties which starts on "on"
+     * @return key is the name of property and value is the type
+     */
+    public static Map<String, String> getComponentProperties(PHPIndex index, PHPParseResult phpresult,
+            String component, String prefix,
+            boolean includeOnProperties, boolean readOnly) {
+        Map<String, String> properties = new HashMap<String, String>();
+        Collection<IndexedFunction> methods = index.getAllMethods(phpresult, component, "", NameKind.PREFIX, Modifier.PUBLIC); //NOI18N
+        Map<String, String> allGetters = new HashMap<String, String>();
         prefix = prefix.toLowerCase();
+        String name;
+        for (IndexedFunction indexedFunction : methods) {
+            name = indexedFunction.getName();
+            if (name.startsWith("get") && indexedFunction.getArgs().length == 0) {  //NOI18N
+                name = name.substring(3);
+                if (name.toLowerCase().startsWith(prefix)) {
+                    allGetters.put(name, indexedFunction.getReturnType());
+                }
+            }
+        }
+        if (readOnly) {
+            return allGetters;
+        }
         for (IndexedFunction indexedFunction : methods) {
             if (indexedFunction.getArgs().length == 1) {
-                String name = indexedFunction.getName();
+                name = indexedFunction.getName();
                 if (indexedFunction.getName().startsWith("set")) {
                     name = name.substring(3);
-                    if (name.toLowerCase().startsWith(prefix) && !arguments.contains(name) && allGetters.contains(name)) {
-                        arguments.add(name);
+                    if (name.toLowerCase().startsWith(prefix) && !properties.keySet().contains(name) && allGetters.keySet().contains(name)) {
+                        properties.put(name, allGetters.get(name));
                     }
-                } else if (indexedFunction.getName().startsWith("on")) {
-                    System.out.println(indexedFunction.getName());
+                } else if (includeOnProperties && indexedFunction.getName().startsWith("on")) {
                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                    if (name.toLowerCase().startsWith(prefix.toLowerCase()) && !arguments.contains(name)) {
-                        arguments.add(name);
+                    if (name.toLowerCase().startsWith(prefix.toLowerCase())
+                            && !properties.keySet().contains(name)) {
+                        properties.put(name, allGetters.get(name));
                     }
                 }
             }
         }
-        return arguments;
+        return properties;
     }
 
     private static boolean isSimpleType(String type) {

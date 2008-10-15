@@ -38,9 +38,11 @@
  */
 package org.netbeans.modules.php.prado.embedding;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
@@ -58,11 +60,19 @@ import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.EditHistory;
 import org.netbeans.modules.gsf.api.IncrementalEmbeddingModel;
-import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.api.Index;
+import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.SourceModel;
 import org.netbeans.modules.gsf.api.SourceModelFactory;
+import org.netbeans.modules.php.editor.index.PHPIndex;
+import org.netbeans.modules.php.editor.parser.PHPParseResult;
+import org.netbeans.modules.php.prado.PageLanguage;
+import org.netbeans.modules.php.prado.PageUtils;
+import org.netbeans.modules.php.prado.completion.CompletionUtils;
+import org.netbeans.modules.php.prado.lexer.LexerUtilities;
 import org.netbeans.modules.php.prado.lexer.PageTokenId;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -118,15 +128,14 @@ public class PradoPhpModel {
                 document.readLock();
                 TokenHierarchy<Document> tokenHierarchy = TokenHierarchy.get(doc);
                 TokenSequence ts = tokenHierarchy.tokenSequence();
-                HashMap<String, Object> state = new HashMap<String, Object>(6);
-                extractPHP(ts, buffer, state, document);
+                extractPHP(ts, buffer, document);
             } finally {
                 document.readUnlock();
             }
             code = buffer.toString();
         }
 
-        //System.out.println(dumpCode());
+        System.out.println(dumpCode());
 
         if (LOG) {
             LOGGER.log(Level.FINE, dumpCode());
@@ -136,56 +145,62 @@ public class PradoPhpModel {
         return code;
     }
 
-    private static class HTMLAnalyzer implements CancellableTask<CompilationInfo> {
+    protected void extractPHP(TokenSequence<PageTokenId> ts, StringBuilder buffer, BaseDocument document) {
 
-        public HTMLAnalyzer() {
-        }
+        Token<PageTokenId> token;
+        // key -> The name ~ value of ID attribute
+        // value -> type of the component
+        Map<String, String> nameToType;
 
-        public void cancel() {}
-
-        public void run(CompilationInfo cInfo) throws Exception {
-            ParserResult result = cInfo.getEmbeddedResult(HTMLTokenId.language().mimeType(), 0);
-
-            System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-            System.out.println(result);
-
-        }
-    }
-    protected void extractPHP(TokenSequence<PageTokenId> ts, StringBuilder buffer, HashMap<String, Object> state,
-            BaseDocument document) {
-
-//        FileObject fileObject = NbEditorUtilities.getFileObject(document);
-//        SourceModel model = SourceModelFactory.getInstance().getModel(fileObject);
-//
-//        try {
-//            model.runUserActionTask(new HTMLAnalyzer(), true);
-//        } catch (IOException ex) {
-//            //TODO log it properly
-//            Exceptions.printStackTrace(ex);
-//        }
-
-
+        FileObject fileObject = NbEditorUtilities.getFileObject(document);
+        String className = fileObject.getName();
+        String type;
+        
+        // header of class
         buffer.append("<?php\n");
+        
         buffer.append("class ");
-        buffer.append("DocName");
-        buffer.append(" extends TPage {\n");
-        buffer.append("/**\n* @var TActiveLabel\n*/\n");
-        buffer.append("private $total;\n\n");
+        buffer.append(className);
+        buffer.append("Page");
+        buffer.append(" extends ");
+        buffer.append(className);
+        buffer.append(" {\n");
+        Map<String, String> properties = getProperties(fileObject, className);
+        if (properties.size() > 0) {
+            for(String name : properties.keySet()) {   
+                type = properties.get(name);
+                if (type != null) {
+                    buffer.append("/** @var ").append(type).append(" */\n");
+                }
+                buffer.append("private $").append(name).append(";\n");
+            }
+        }
 
         int phpMethodCounter = 1;
+        ts.moveStart();
         while (ts.moveNext()) {
-            Token<PageTokenId> pageToken = ts.token();
-            TokenId pageId = pageToken.id();
-            if (pageId == PageTokenId.T_TEMPLATE_CONTROL) {
+            token = ts.token();
+            TokenId pageId = token.id();
+            if (pageId == PageTokenId.T_INLINE_HTML) {
+                nameToType = getComponents(document, ts.offset());
+                for (String name : nameToType.keySet()) {
+                    buffer.append("/** @var ");
+                    buffer.append(nameToType.get(name));
+                    buffer.append(" */\nprivate $");
+                    buffer.append(name);
+                    buffer.append(";\n");
+                }
+            }
+            else if (pageId == PageTokenId.T_TEMPLATE_CONTROL) {
                 //System.out.println("%%%%TemplateCOntrol: " + pageToken.text());
             }
-            if (pageId == PageTokenId.T_PHP) {
+            else if (pageId == PageTokenId.T_PHP) {
                 //System.out.println("%%%%php: " + pageToken.text());
-                buffer.append("protected function phpMethod");   //NOI18N
+                buffer.append("private function NetBeansGenerated");   //NOI18N
                 buffer.append(phpMethodCounter);
                 buffer.append("() {\n");        //NOI18N
                 int sourceStart = ts.offset();
-                String text = pageToken.text().toString();
+                String text = token.text().toString();
                 int sourceEnd = sourceStart + text.length();
                 int generatedStart = buffer.length();
                 buffer.append(text);
@@ -202,6 +217,109 @@ public class PradoPhpModel {
         }
         buffer.append("}\n");   //NOI18N
     }
+
+    /**
+     *
+     * @param document
+     * @param offset
+     * @return map where the first string is name and value is type
+     */
+    private Map<String, String> getComponents(BaseDocument document, int offset) {
+        Map<String, String> components = new HashMap<String, String>();
+        String componentPrefix = PageLanguage.getComponentPrefix() + ":"; //NOI18N
+        int prefixLenght = componentPrefix.length();
+
+        TokenSequence<HTMLTokenId> tokenSequence = LexerUtilities.getHTMLTokenSequence(document, offset);
+        if (tokenSequence != null) {
+            tokenSequence.moveStart();
+            Token<HTMLTokenId> token;
+            boolean inComponent = false;
+            boolean nextValueID = false;
+            String component = "";
+            while (tokenSequence.moveNext()) {
+                token = tokenSequence.token();
+                if (token.id() == HTMLTokenId.TAG_OPEN && token.text().toString().startsWith(componentPrefix)) {
+                    inComponent = true;
+                    component = token.text().toString().substring(prefixLenght);
+                }
+                else if (token.id() == HTMLTokenId.TAG_CLOSE_SYMBOL && inComponent) {
+                    component = "";
+                    inComponent = false;
+                }
+                else if (token.id() == HTMLTokenId.ARGUMENT && inComponent
+                        && token.text().toString().toLowerCase().endsWith("id")) {  //NOI18N
+                    nextValueID = true;
+                }
+                else if (token.id() == HTMLTokenId.VALUE && nextValueID) {
+                    nextValueID = false;
+                    String name = token.text().toString().trim();
+                    if (name.charAt(0) == '"' || name.charAt(0) == '\'') {  //NOI18N
+                        name = name.substring(1, name.length()-1);
+                    }
+                    components.put(name, component);
+                }
+            }
+        }
+        return components;
+    }
+
+    private Map<String, String> getProperties (FileObject fileObject, String className) {
+        PHPIndex index = PHPIndex.get(SourceModelFactory.getInstance().getIndex(fileObject, PageUtils.getPHPMimeType()));
+        PHPParseResult phpResult = new PHPParseResult(null, new HackParseFile(fileObject)  , null, false);
+        return CompletionUtils.getComponentProperties(index, phpResult, className, "", false, true);
+    }
+
+    private class HackParseFile implements ParserFile {
+
+        final private FileObject fileObject;
+
+        public HackParseFile(FileObject fileObject) {
+            this.fileObject = fileObject;
+        }
+
+        public FileObject getFileObject() {
+            return fileObject;
+        }
+
+        public String getRelativePath() {
+            return "";
+        }
+
+        public String getNameExt() {
+            return fileObject.getNameExt();
+        }
+
+        public String getExtension() {
+            return fileObject.getExt();
+        }
+
+        public File getFile() {
+            return FileUtil.toFile(fileObject);
+        }
+
+        public boolean isPlatform() {
+            return false;
+        }
+
+    }
+
+//    private static class PropertyFinder implements CancellableTask<CompilationInfo> {
+//
+//        private final Map<String, String> properties;
+//        private final String className;
+//
+//        public PropertyFinder(Map<String, String> properties, String className) {
+//            this.properties = properties;
+//            this.className = className;
+//        }
+//
+//        public void cancel() {
+//        }
+//
+//        public void run(CompilationInfo cInfo) throws Exception {
+//            properties.putAll(CompletionUtils.getComponentProperties(cInfo, className, "", false));
+//        }
+//    }
 
     //TODO: move this out to a generic suppport
     public int sourceToGeneratedPos(int sourceOffset) {

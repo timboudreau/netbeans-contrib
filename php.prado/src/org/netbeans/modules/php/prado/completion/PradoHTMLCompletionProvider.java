@@ -312,7 +312,7 @@ public class PradoHTMLCompletionProvider implements CompletionProvider {
         }
 
         public void run(CompilationInfo cInfo) throws Exception {
-            arguments.addAll(CompletionUtils.getComponentProperties(cInfo, component, prefix));
+            arguments.addAll(CompletionUtils.getComponentOrdinalProperties(cInfo, component, prefix, true));
         }
     }
 }
