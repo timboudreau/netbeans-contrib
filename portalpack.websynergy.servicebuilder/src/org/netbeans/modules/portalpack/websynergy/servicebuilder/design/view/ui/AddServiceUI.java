@@ -50,6 +50,7 @@ public class AddServiceUI extends javax.swing.JDialog {
     private String serviceName;
     private boolean remoteService;
     private boolean localService;
+    private String tableName;
 
     /** Creates new form AddServiceUI */
     public AddServiceUI(java.awt.Frame parent) {
@@ -69,6 +70,10 @@ public class AddServiceUI extends javax.swing.JDialog {
         serviceTf.setText(serviceName);
         serviceTf.setEnabled(false);
         
+        tableName = entity.getTable();
+        if(tableName != null && tableName.trim().length() != 0) {
+            tableTf.setText(tableName);
+        }
         String rservice = entity.getRemoteService();
         if(rservice != null && rservice.length() != 0)
             remoteService = Boolean.parseBoolean(entity.getRemoteService());
@@ -101,6 +106,8 @@ public class AddServiceUI extends javax.swing.JDialog {
         remoteServiceCB = new javax.swing.JCheckBox();
         localServiceCB = new javax.swing.JCheckBox();
         localServiceLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        tableTf = new javax.swing.JTextField();
         updateButton = new javax.swing.JButton();
 
         jButton1.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.jButton1.text")); // NOI18N
@@ -137,6 +144,10 @@ public class AddServiceUI extends javax.swing.JDialog {
 
         localServiceLabel.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.localServiceLabel.text")); // NOI18N
 
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.jLabel1.text")); // NOI18N
+
+        tableTf.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.tableTf.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -145,22 +156,33 @@ public class AddServiceUI extends javax.swing.JDialog {
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(nameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
-                        .add(10, 10, 10))
-                    .add(remoteServiceLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(nameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                                .add(27, 27, 27))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(65, 65, 65)))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(tableTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, serviceTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE))
+                        .add(24, 24, 24))
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(localServiceLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                        .add(13, 13, 13)))
-                .add(17, 17, 17)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(remoteServiceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
-                        .add(194, 194, 194))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(localServiceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
-                        .add(194, 194, 194))
-                    .add(serviceTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE))
-                .add(24, 24, 24))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(remoteServiceLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                                .add(18, 18, 18))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(localServiceLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+                                .add(31, 31, 31)))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(localServiceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
+                                .add(217, 217, 217))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(remoteServiceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                                .addContainerGap())))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -168,15 +190,19 @@ public class AddServiceUI extends javax.swing.JDialog {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(nameLabel)
                     .add(serviceTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(9, 9, 9)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(remoteServiceCB)
-                    .add(remoteServiceLabel))
-                .add(11, 11, 11)
+                    .add(jLabel1)
+                    .add(tableTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(4, 4, 4)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(localServiceCB)
-                    .add(localServiceLabel))
-                .addContainerGap(18, Short.MAX_VALUE))
+                    .add(remoteServiceLabel)
+                    .add(remoteServiceCB))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(localServiceLabel)
+                    .add(localServiceCB))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         updateButton.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.updateButton.text")); // NOI18N
@@ -193,25 +219,22 @@ public class AddServiceUI extends javax.swing.JDialog {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 202, Short.MAX_VALUE)
-                        .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(202, 202, 202)
+                        .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(updateButton)
+                        .add(updateButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {addButton, cancelButton, updateButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelButton)
                     .add(updateButton)
@@ -229,6 +252,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     serviceName = serviceTf.getText();
     remoteService = remoteServiceCB.isSelected();
     localService = localServiceCB.isSelected();
+    tableName = tableTf.getText();
     dispose();
 }//GEN-LAST:event_addButtonActionPerformed
 
@@ -243,6 +267,7 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     serviceName = serviceTf.getText();
     remoteService = remoteServiceCB.isSelected();
     localService = localServiceCB.isSelected();
+    tableName = tableTf.getText();
     dispose();
 }//GEN-LAST:event_updateButtonActionPerformed
 
@@ -274,11 +299,16 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     public String getServiceName() {
         return serviceName;
     }
+    
+    public String getTableName() {
+        return tableName;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JCheckBox localServiceCB;
     private javax.swing.JLabel localServiceLabel;
@@ -286,6 +316,7 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JCheckBox remoteServiceCB;
     private javax.swing.JLabel remoteServiceLabel;
     private javax.swing.JTextField serviceTf;
+    private javax.swing.JTextField tableTf;
     private javax.swing.JButton updateButton;
     // End of variables declaration//GEN-END:variables
 

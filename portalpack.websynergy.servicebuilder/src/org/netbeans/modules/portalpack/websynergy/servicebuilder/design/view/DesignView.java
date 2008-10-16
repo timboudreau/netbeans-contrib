@@ -509,6 +509,10 @@ public class DesignView extends JPanel {
                     entity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
                 }
                 entity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
+                
+                String table = addSrvUI.getTableName();
+                if(table != null && table.trim().length() != 0)
+                    entity.setTable(table);
 
                 if(!helper.addEntity(entity)) {
                     //helper.forceReload();
@@ -543,6 +547,10 @@ public class DesignView extends JPanel {
                 selectedEntity.setRemoteService(Boolean.toString(addSrvUI.isRemoteService()));
                 selectedEntity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
 
+                String table = addSrvUI.getTableName();
+                if(table != null && table.trim().length() != 0)
+                    selectedEntity.setTable(table);
+                
                 if(!helper.save()) {
                     helper.forceReload();
                     reload();
