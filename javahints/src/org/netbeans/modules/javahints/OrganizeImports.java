@@ -79,7 +79,7 @@ import org.openide.util.Exceptions;
 public class OrganizeImports extends AbstractHint {
 
     public OrganizeImports() {
-        super(true, false, HintSeverity.WARNING);
+        super(false, false, HintSeverity.WARNING);
     }
 
     @Override
