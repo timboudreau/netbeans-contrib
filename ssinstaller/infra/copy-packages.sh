@@ -23,6 +23,7 @@ echo "Copy packages $platform in $DEST_PACKAGES from $SS_PACKAGES_DIR"
 rm -rf $DEST_PACKAGES/*
 mkdir -p $DEST_PACKAGES
 cp -r $SS_PACKAGES_DIR/* $DEST_PACKAGES
+cp -r $SS_TWEAK_DIR/SPROtweak $DEST_PACKAGES
 
 if [ $platform = "intel-Linux" ]
 then 
