@@ -118,7 +118,7 @@ then
 fi
 
 SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
-NETBEANS_DIR="netbeans-6.1ss"
+NETBEANS_DIR="netbeans-6.5ss"
 
 }
 
