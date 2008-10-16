@@ -144,7 +144,10 @@ public class SSBasePanel extends DestinationPanel {
                 constraints.gridy = GridBagConstraints.RELATIVE;
                 constraints.anchor = GridBagConstraints.FIRST_LINE_START;
                 constraints.insets = new Insets(11, 11, 11, 11);
-                add(createSymLinks, constraints);                
+                
+                // for SSX only
+                createSymLinks.setSelected(false);
+                //add(createSymLinks, constraints);                
             }
         }
         
