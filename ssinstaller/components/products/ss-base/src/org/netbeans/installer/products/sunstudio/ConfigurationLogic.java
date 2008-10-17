@@ -38,6 +38,7 @@ package org.netbeans.installer.products.sunstudio;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
+import org.netbeans.installer.utils.helper.Dependency;
 import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.utils.helper.RemovalMode;
 import org.netbeans.installer.utils.helper.Text;
@@ -82,8 +84,13 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     @Override
     public void uninstall(Progress progress) throws UninstallationException {
         getProduct().getParent().removeChild(getProduct());
-        List<Product> products = Registry.getInstance().getProducts();
-     
+        List<Product> products = new ArrayList<Product>();
+        for (Product product : Registry.getInstance().getProducts()) {
+            if (product.getParent().equals(getProduct())) {
+                products.add(product);
+            }
+        }
+        
         /*
          * Here the percentage of each product is approximated
          * as a number of its subcomponents
