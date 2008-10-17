@@ -89,7 +89,14 @@ public abstract class AstItem {
          * better to use idToken's text, for example, we'll use this name to
          * decide occurrences etc. 
          */
-        return getIdToken().text().toString();
+        String name = "";
+        /** @todo why will throws NPE here? */
+        try {
+            name = getIdToken().text().toString();
+        } catch (Exception ex) {
+            System.out.println("NPE in AstItem#getName:" + getIdToken().id());
+        }
+        return name;
     }
 
     public void setIdToken(Token idToken) {
