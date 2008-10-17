@@ -69,7 +69,10 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.Project;
@@ -83,6 +86,7 @@ import org.netbeans.modules.java.hints.options.HintsSettings;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.modules.java.hints.spi.AbstractHint.HintSeverity;
 import org.netbeans.modules.java.hints.spi.TreeRule;
+import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.Fix;
 import org.openide.DialogDescriptor;
@@ -159,7 +163,7 @@ public class BatchApply {
             return applyFixesImpl(context, enabledHints, null, new AtomicBoolean());
         }
     }
-    
+
     private static String applyFixesImpl(Lookup context, Set<String> enabledHints, ProgressHandle h, AtomicBoolean cancel) {
         ProgressHandleWrapper handle = new ProgressHandleWrapper(h, new int[] {20, 40, 40});
         
@@ -181,6 +185,8 @@ public class BatchApply {
         }
 
         Map<ErrorDescription, Fix> fixes = new IdentityHashMap<ErrorDescription, Fix>();
+        Map<FileObject, List<JavaFix>> fastFixes = new HashMap<FileObject, List<JavaFix>>();
+        List<ErrorDescription> edsWithSlowsFixes = new LinkedList<ErrorDescription>();
 
         //verify that there is exactly one fix for each ED:
         for (ErrorDescription ed : eds) {
@@ -207,35 +213,41 @@ public class BatchApply {
                 return "Not exactly one fix for: " + ed.getDescription() + ", fixes=" + ed.getFixes().getFixes();
             }
 
-            fixes.put(ed, fix);
+            if (fix instanceof JavaFixImpl) {
+                JavaFixImpl ajf = (JavaFixImpl) fix;
+                FileObject file = JavaFixImpl.Accessor.INSTANCE.getFile(ajf.jf);
+                List<JavaFix> fs = fastFixes.get(file);
+
+                if (fs == null) {
+                    fastFixes.put(file, fs = new LinkedList<JavaFix>());
+                }
+
+                fs.add(ajf.jf);
+            } else {
+                fixes.put(ed, fix);
+                edsWithSlowsFixes.add(ed);
+            }
         }
 
         handle.startNextPart(eds.size());
-        
-        for (ErrorDescription ed : eds) {
+
+        try {
+            List<ModificationResult> results = performFastFixes(fastFixes, handle, cancel);
+
             if (cancel.get()) return null;
-            
-            try {
-                DataObject d = DataObject.find(ed.getFile());
-                EditorCookie ec = d.getLookup().lookup(EditorCookie.class);
-                Document doc = ec.openDocument();
 
-                fixes.get(ed).implement();
+            performSlowFixes(edsWithSlowsFixes, fixes, handle);
 
-                SaveCookie sc = d.getLookup().lookup(SaveCookie.class);
+            if (cancel.get()) return null;
 
-                if (sc != null) {
-                    sc.save();
-                }
-            } catch (Exception ex) {
-                Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(ed.getFile()));
-                Exceptions.printStackTrace(ex);
-                return ex.getMessage();
+            for (ModificationResult r : results) {
+                r.commit();
             }
-
-            handle.tick();
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+            return ex.getLocalizedMessage();
         }
-
+        
         return null;
     }
 
@@ -299,6 +311,80 @@ public class BatchApply {
         }
 
         return eds;
+    }
+
+    private static String performSlowFixes(List<ErrorDescription> edsWithSlowsFixes, Map<ErrorDescription, Fix> fixes, ProgressHandleWrapper handle) throws Exception {
+        for (ErrorDescription ed : edsWithSlowsFixes) {
+            try {
+                DataObject d = DataObject.find(ed.getFile());
+                EditorCookie ec = d.getLookup().lookup(EditorCookie.class);
+                Document doc = ec.openDocument();
+
+                fixes.get(ed).implement();
+
+                SaveCookie sc = d.getLookup().lookup(SaveCookie.class);
+
+                if (sc != null) {
+                    sc.save();
+                }
+            } catch (Exception ex) {
+                Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(ed.getFile()));
+                
+                throw ex;
+            }
+
+            handle.tick();
+        }
+        return null;
+    }
+
+    private static List<ModificationResult> performFastFixes(Map<FileObject, List<JavaFix>> fastFixes, ProgressHandleWrapper handle, AtomicBoolean cancel) {
+        Map<ClasspathInfo, Collection<FileObject>> sortedFilesForFixes = sortFiles(fastFixes.keySet());
+        List<ModificationResult> results = new LinkedList<ModificationResult>();
+
+        for (Entry<ClasspathInfo, Collection<FileObject>> e : sortedFilesForFixes.entrySet()) {
+            if (cancel.get()) return null;
+            
+            Map<FileObject, List<JavaFix>> filtered = new HashMap<FileObject, List<JavaFix>>();
+
+            for (FileObject f : e.getValue()) {
+                filtered.put(f, fastFixes.get(f));
+            }
+
+            ModificationResult r = performFastFixes(e.getKey(), filtered, handle, cancel);
+            
+            if (r != null) {
+                results.add(r);
+            }
+        }
+
+        return results;
+    }
+
+    private static ModificationResult performFastFixes(ClasspathInfo cpInfo, final Map<FileObject, List<JavaFix>> toProcess, final ProgressHandleWrapper handle, final AtomicBoolean cancel) {
+        JavaSource js = JavaSource.create(cpInfo, toProcess.keySet());
+
+        try {
+            return js.runModificationTask(new Task<WorkingCopy>() {
+                public void run(WorkingCopy wc) throws Exception {
+                    if (cancel.get()) return ;
+                    
+                    if (wc.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0)
+                        return ;
+
+                    for (JavaFix f : toProcess.get(wc.getFileObject())) {
+                        if (cancel.get()) return ;
+                        
+                        JavaFixImpl.Accessor.INSTANCE.process(f, wc);
+                    }
+
+                    handle.tick();
+                }
+            });
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+            return null;
+        }
     }
 
     private static Map<String, Preferences> prepareOverlay(Set<String> enabledHints) {
