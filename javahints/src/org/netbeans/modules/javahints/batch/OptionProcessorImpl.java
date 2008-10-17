@@ -52,6 +52,8 @@ import org.netbeans.modules.java.hints.spi.TreeRule;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -82,7 +84,8 @@ public class OptionProcessorImpl extends OptionProcessor {
             String hintsArg = optionValues.get(APPLY_HINTS)[0];
             String[] hints = hintsArg.split(":");
 
-            String error = BatchApply.applyFixesToProjects(Arrays.asList(OpenProjects.getDefault().getOpenProjects()), new HashSet<String>(Arrays.asList(hints)));
+            Lookup context = Lookups.fixed((Object[]) OpenProjects.getDefault().getOpenProjects());
+            String error = BatchApply.applyFixes(context, new HashSet<String>(Arrays.asList(hints)));
 
             if (error != null) {
                 env.getErrorStream().println("Cannot apply hints because of: " + error);

@@ -40,6 +40,7 @@
 package org.netbeans.modules.javahints.batch;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +51,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
@@ -58,6 +60,7 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.text.Document;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
@@ -81,6 +84,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -88,16 +92,12 @@ import org.openide.util.Exceptions;
  */
 public class BatchApply {
 
-    public static String applyFixesToProjects(Collection<Project> projects, Set<String> enabledHints) {
+    public static String applyFixes(Lookup context, Set<String> enabledHints) {
         Map<String, Preferences> overlay = prepareOverlay(enabledHints);
         List<ErrorDescription> eds = new LinkedList<ErrorDescription>();
 
-        for (Project p : projects) {
-            Sources s = ProjectUtils.getSources(p);
-
-            for (SourceGroup sg : s.getSourceGroups("java")) {
-                eds.addAll(processFolder(sg.getRootFolder(), overlay));
-            }
+        for (Entry<ClasspathInfo, Collection<FileObject>> e: sortFiles(findAllSources(toProcess(context))).entrySet()) {
+            eds.addAll(processFiles(e.getKey(), e.getValue(), overlay));
         }
 
         Map<ErrorDescription, Fix> fixes = new IdentityHashMap<ErrorDescription, Fix>();
@@ -136,8 +136,13 @@ public class BatchApply {
 
                 fixes.get(ed).implement();
 
-                d.getLookup().lookup(SaveCookie.class).save();
+                SaveCookie sc = d.getLookup().lookup(SaveCookie.class);
+
+                if (sc != null) {
+                    sc.save();
+                }
             } catch (Exception ex) {
+                Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(ed.getFile()));
                 Exceptions.printStackTrace(ex);
                 return ex.getMessage();
             }
@@ -173,53 +178,32 @@ public class BatchApply {
         return hints;
     }
 
-    private static List<ErrorDescription> processFolder(FileObject folder, final Map<String, Preferences> preferencesOverlay) {
-        List<FileObject> toProcess = new LinkedList<FileObject>();
-        Queue<FileObject> q = new LinkedList<FileObject>();
-
-        q.add(folder);
-
-        while (!q.isEmpty()) {
-            FileObject f = q.poll();
-
-            if (f.isData() && "text/x-java".equals(FileUtil.getMIMEType(f))) {
-                toProcess.add(f);
-            }
-
-            if (f.isFolder()) {
-                q.addAll(Arrays.asList(f.getChildren()));
-            }
-        }
-
+    private static List<ErrorDescription> processFiles(ClasspathInfo cpInfo, Collection<FileObject> toProcess, final Map<String, Preferences> preferencesOverlay) {
         final List<ErrorDescription> eds = new LinkedList<ErrorDescription>();
-        
-        if (!toProcess.isEmpty()) {
-            ClasspathInfo cpInfo = ClasspathInfo.create(toProcess.get(0));
-            JavaSource js = JavaSource.create(cpInfo, toProcess);
+        JavaSource js = JavaSource.create(cpInfo, toProcess);
 
-            try {
-                js.runUserActionTask(new Task<CompilationController>() {
-                    public void run(CompilationController cc) throws Exception {
-                        HintsSettings.setPreferencesOverride(preferencesOverlay);
+        try {
+            js.runUserActionTask(new Task<CompilationController>() {
+                public void run(CompilationController cc) throws Exception {
+                    HintsSettings.setPreferencesOverride(preferencesOverlay);
 
-                        DataObject d = DataObject.find(cc.getFileObject());
-                        EditorCookie ec = d.getLookup().lookup(EditorCookie.class);
-                        Document doc = ec.openDocument();
+                    DataObject d = DataObject.find(cc.getFileObject());
+                    EditorCookie ec = d.getLookup().lookup(EditorCookie.class);
+                    Document doc = ec.openDocument();
 
-                        try {
-                            if (cc.toPhase(JavaSource.Phase.RESOLVED).compareTo(JavaSource.Phase.RESOLVED) < 0) {
-                                return;
-                            }
-
-                            eds.addAll(new HintsTask().computeHints(cc));
-                        } finally {
-                            HintsSettings.setPreferencesOverride(null);
+                    try {
+                        if (cc.toPhase(JavaSource.Phase.RESOLVED).compareTo(JavaSource.Phase.RESOLVED) < 0) {
+                            return;
                         }
+
+                        eds.addAll(new HintsTask().computeHints(cc));
+                    } finally {
+                        HintsSettings.setPreferencesOverride(null);
                     }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+                }
+            }, true);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
 
         return eds;
@@ -305,5 +289,74 @@ public class BatchApply {
         protected void flushSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+    }
+
+    public static Collection<FileObject> toProcess(Lookup l) {
+        List<FileObject> result = new LinkedList<FileObject>();
+
+        result.addAll(l.lookupAll(FileObject.class));
+
+        for (SourceGroup sg : l.lookupAll(SourceGroup.class)) {
+            result.add(sg.getRootFolder());
+        }
+        
+        for (Project p : l.lookupAll(Project.class)) {
+            Sources s = ProjectUtils.getSources(p);
+
+            for (SourceGroup sg : s.getSourceGroups("java")) {
+                result.add(sg.getRootFolder());
+            }
+        }
+
+        return result;
+    }
+
+    private static Collection<FileObject> findAllSources(Collection<FileObject> from) {
+        List<FileObject> result = new LinkedList<FileObject>();
+        Queue<FileObject> q = new LinkedList<FileObject>();
+
+        q.addAll(from);
+
+        while (!q.isEmpty()) {
+            FileObject f = q.poll();
+
+            if (f.isData() && "text/x-java".equals(FileUtil.getMIMEType(f))) {
+                result.add(f);
+            }
+
+            if (f.isFolder()) {
+                q.addAll(Arrays.asList(f.getChildren()));
+            }
+        }
+
+        return result;
+    }
+
+    private static Map<ClasspathInfo, Collection<FileObject>> sortFiles(Collection<FileObject> from) {
+        Map<List<ClassPath>, Collection<FileObject>> m = new HashMap<List<ClassPath>, Collection<FileObject>>();
+
+        for (FileObject f : from) {
+            List<ClassPath> cps = new ArrayList<ClassPath>(3);
+
+            cps.add(ClassPath.getClassPath(f, ClassPath.BOOT));
+            cps.add(ClassPath.getClassPath(f, ClassPath.COMPILE));
+            cps.add(ClassPath.getClassPath(f, ClassPath.SOURCE));
+
+            Collection<FileObject> files = m.get(cps);
+
+            if (files == null) {
+                m.put(cps, files = new LinkedList<FileObject>());
+            }
+
+            files.add(f);
+        }
+
+        Map<ClasspathInfo, Collection<FileObject>> result = new HashMap<ClasspathInfo, Collection<FileObject>>();
+
+        for (Entry<List<ClassPath>, Collection<FileObject>> e : m.entrySet()) {
+            result.put(ClasspathInfo.create(e.getKey().get(0), e.getKey().get(1), e.getKey().get(2)), e.getValue());
+        }
+
+        return result;
     }
 }

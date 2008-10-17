@@ -38,63 +38,165 @@
  */
 package org.netbeans.modules.javahints.batch;
 
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.net.URL;
 import java.util.Collections;
-import org.netbeans.api.project.Project;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
+import org.openide.awt.Mnemonics;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.Utilities;
 
 /**
  *
  * @author Jan Lahoda
  */
-public final class BatchApplyAction extends CookieAction {
+public final class BatchApplyAction extends AbstractAction implements ContextAwareAction, LookupListener {
 
-    protected void performAction(Node[] activatedNodes) {
-        Project project = activatedNodes[0].getLookup().lookup(Project.class);
+    private static final String HINT = "hint";
+    
+    private final Lookup context;
+    private final Lookup.Result<Object> r;
+    private final Map attributes;
+    
+    public BatchApplyAction() {
+        this(prepareDefaultMap());
+    }
 
-        SelectHint p = new SelectHint();
-        DialogDescriptor dd = new DialogDescriptor(p, "Select Hint", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
+    public BatchApplyAction(Map attributes) {
+        this(Utilities.actionsGlobalContext(), attributes);
+    }
 
-        if (DialogDisplayer.getDefault().notify(dd) == DialogDescriptor.OK_OPTION) {
-            String error = BatchApply.applyFixesToProjects(Collections.singleton(project), Collections.singleton(p.getSelectedHint().getId()));
+    private BatchApplyAction(Lookup context, Map attributes) {
+        this.context = context;
 
-            if (error != null) {
-                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(error, NotifyDescriptor.ERROR_MESSAGE));
+        this.r = context.lookupResult(Object.class); //XXX
+        this.r.addLookupListener(this);
+        this.r.allInstances();
+        updateEnabled();
+
+        this.attributes = attributes;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String hintToExecute = (String) getValue(HINT);
+
+        if (hintToExecute == null) {
+            SelectHint p = new SelectHint();
+            DialogDescriptor dd = new DialogDescriptor(p, "Select Hint", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
+
+            if (DialogDisplayer.getDefault().notify(dd) != DialogDescriptor.OK_OPTION) {
+                return ;
             }
+            
+            hintToExecute = p.getSelectedHint().getId();
+        }
+
+        String error = BatchApply.applyFixes(context, Collections.singleton(hintToExecute));
+
+        if (error != null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(error, NotifyDescriptor.ERROR_MESSAGE));
         }
     }
 
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
+    private void updateEnabled() {
+        setEnabled(!BatchApply.toProcess(context).isEmpty());
     }
 
-    public String getName() {
-        return NbBundle.getMessage(BatchApplyAction.class, "CTL_BatchApplyAction");
+    public void resultChanged(LookupEvent ev) {
+        updateEnabled();
     }
 
-    protected Class[] cookieClasses() {
-        return new Class[]{Project.class};
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new BatchApplyAction(context, attributes);
     }
 
+    private static Map prepareDefaultMap() {
+        Map<String, Object> m = new HashMap<String, Object>();
+
+        m.put(NAME, NbBundle.getMessage(BatchApplyAction.class, "CTL_BatchApplyAction"));
+        m.put("noIconInMenu", Boolean.TRUE);
+
+        return m;
+    }
+    
     @Override
-    protected void initialize() {
-        super.initialize();
-        // see org.openide.util.actions.SystemAction.iconResource() Javadoc for more details
-        putValue("noIconInMenu", Boolean.TRUE);
+    public Object getValue(String name) {
+        Object o = super.getValue(name);
+
+        if (o != null) {
+            return o;
+        }
+
+        return extractCommonAttribute(attributes, this, name);
     }
 
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
+    static final Object extractCommonAttribute(Map fo, Action action, String name) {
+        if (Action.NAME.equals(name)) {
+            String actionName = (String) fo.get("displayName"); // NOI18N
+            // NOI18N
+            //return Actions.cutAmpersand(actionName);
+            return actionName;
+        }
+        if (Action.MNEMONIC_KEY.equals(name)) {
+            String actionName = (String) fo.get("displayName"); // NOI18N
+            // NOI18N
+            int position = Mnemonics.findMnemonicAmpersand(actionName);
+
+            return position == -1 ? null : Character.valueOf(actionName.charAt(position + 1));
+        }
+        if (Action.SMALL_ICON.equals(name)) {
+            Object icon = fo == null ? null : fo.get("iconBase"); // NOI18N
+            if (icon instanceof Icon) {
+                return (Icon) icon;
+            }
+            if (icon instanceof Image) {
+                return ImageUtilities.image2Icon((Image)icon);
+            }
+            if (icon instanceof String) {
+                return ImageUtilities.loadImage((String)icon);
+            }
+            if (icon instanceof URL) {
+                return Toolkit.getDefaultToolkit().getImage((URL) icon);
+            }
+        }
+        if ("iconBase".equals(name)) { // NOI18N
+            return fo == null ? null : fo.get("iconBase"); // NOI18N
+        }
+        if ("noIconInMenu".equals(name)) { // NOI18N
+            return fo == null ? null : fo.get("noIconInMenu"); // NOI18N
+        }
+        if (Action.ACCELERATOR_KEY.equals(name)) {
+            Keymap map = Lookup.getDefault().lookup(Keymap.class);
+            if (map != null) {
+                KeyStroke[] arr = map.getKeyStrokesForAction(action);
+                return arr.length > 0 ? arr[0] : null;
+            }
+        }
+        if (HINT.equals(name)) {
+            return fo.get("hint"); //NOI18N
+        }
+
+        return null;
     }
 
-    @Override
-    protected boolean asynchronous() {
-        return false;
+    public static Action createBatchHintAction(Map attributes) {
+        return new BatchApplyAction(attributes);
     }
+
 }
-
