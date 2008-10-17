@@ -48,7 +48,7 @@ public class Utils {
     }
     
     public static String getNBDirectory() {
-        return "netbeans-6.1ss";
+        return "netbeans-6.5ss";
     }
 
     public static Product getSSBase() {

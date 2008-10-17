@@ -123,6 +123,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             // workaround for SS bug
             // the removal of condev should be moved to the beginning
             FileUtils.deleteFile(new File(mainDirectory, "prod"), true);
+            FileUtils.deleteFile(new File(mainDirectory, "lib/amd64"), true);
             FileUtils.deleteFile(new File(mainDirectory, "lib/v8plus"), true);
             // end
             // delete only if empty
