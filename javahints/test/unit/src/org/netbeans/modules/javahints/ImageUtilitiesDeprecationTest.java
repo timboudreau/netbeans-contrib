@@ -126,11 +126,7 @@ public class ImageUtilitiesDeprecationTest extends TreeRuleTestBase {
 
     @Override
     protected String toDebugString(CompilationInfo info, Fix f) {
-        if (f instanceof ImageUtilitiesDeprecation.FixImpl) {
-            return "FixImpl";
-        }
-        
-        return super.toDebugString(info, f);
+        return "FixImpl";
     }
 
     @Override

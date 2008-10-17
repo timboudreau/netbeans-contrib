@@ -39,9 +39,22 @@
 
 package org.netbeans.modules.javahints.epi;
 
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.Scope;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeKind;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -83,6 +96,79 @@ public abstract class JavaFix {
         return handle.getFileObject();
     }
 
+    public static Fix rewriteFix(CompilationInfo info, final String displayName, TreePath what, final String to, TreePath... parameters) {
+        Map<String, TreePath> params = new HashMap<String, TreePath>();
+        int c = 1;
+
+        for (TreePath t : parameters) {
+            params.put("$" + c, t);
+            c++;
+        }
+
+        return rewriteFix(info, displayName, what, to, params);
+    }
+
+    public static Fix rewriteFix(CompilationInfo info, final String displayName, TreePath what, final String to, Map<String, TreePath> parameters) {
+        final Map<String, TreePathHandle> params = new HashMap<String, TreePathHandle>();
+
+        for (Entry<String, TreePath> e : parameters.entrySet()) {
+            params.put(e.getKey(), TreePathHandle.create(e.getValue(), info));
+        }
+
+        return toEditorFix(new JavaFix(info, what) {
+            @Override
+            protected String getText() {
+                return displayName;
+            }
+            @Override
+            protected void performRewrite(final WorkingCopy wc, TreePath tp) {
+                final Map<String, TreePath> parameters = new HashMap<String, TreePath>();
+
+                for (Entry<String, TreePathHandle> e : params.entrySet()) {
+                    TreePath p = e.getValue().resolve(wc);
+
+                    if (tp == null) {
+                        Logger.getLogger(JavaFix.class.getName()).log(Level.SEVERE, "Cannot resolve handle={0}", e.getValue());
+                    }
+
+                    parameters.put(e.getKey(), p);
+                }
+
+                Tree parsed = wc.getTreeUtilities().parseExpression(to, new SourcePositions[1]);
+                Scope s = wc.getTrees().getScope(tp);
+                
+                wc.getTreeUtilities().attributeTree(parsed, s);
+
+                new TreePathScanner<Void, Void>() {
+                    @Override
+                    public Void visitIdentifier(IdentifierTree node, Void p) {
+                        TreePath tp = parameters.get(node.getName().toString());
+
+                        if (tp != null) {
+                            wc.rewrite(node, tp.getLeaf());
+                        }
+
+                        return super.visitIdentifier(node, p);
+                    }
+                    @Override
+                    public Void visitMemberSelect(MemberSelectTree node, Void p) {
+                        Element e = wc.getTrees().getElement(getCurrentPath());
+
+                        if (e == null || (e.getKind() == ElementKind.CLASS && ((TypeElement) e).asType().getKind() == TypeKind.ERROR)) {
+                            return super.visitMemberSelect(node, p);
+                        }
+
+                        wc.rewrite(node, wc.getTreeMaker().QualIdent(e));
+
+                        return null;
+                    }
+                }.scan(new TreePath(new TreePath(tp.getCompilationUnit()), parsed), null);
+
+                wc.rewrite(tp.getLeaf(), parsed);
+            }
+        });
+    }
+    
     public static Fix toEditorFix(final JavaFix jf) {
         return new JavaFixImpl(jf);
     }
