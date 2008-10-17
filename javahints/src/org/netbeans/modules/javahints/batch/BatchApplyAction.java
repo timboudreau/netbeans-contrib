@@ -107,7 +107,7 @@ public final class BatchApplyAction extends AbstractAction implements ContextAwa
             hintToExecute = p.getSelectedHint().getId();
         }
 
-        String error = BatchApply.applyFixes(context, Collections.singleton(hintToExecute));
+        String error = BatchApply.applyFixes(context, Collections.singleton(hintToExecute), true);
 
         if (error != null) {
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(error, NotifyDescriptor.ERROR_MESSAGE));

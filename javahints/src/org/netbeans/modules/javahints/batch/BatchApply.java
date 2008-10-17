@@ -39,6 +39,9 @@
 
 package org.netbeans.modules.javahints.batch;
 
+import java.awt.Dialog;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,17 +57,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -78,13 +85,17 @@ import org.netbeans.modules.java.hints.spi.AbstractHint.HintSeverity;
 import org.netbeans.modules.java.hints.spi.TreeRule;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.Fix;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -92,18 +103,89 @@ import org.openide.util.Lookup;
  */
 public class BatchApply {
 
-    public static String applyFixes(Lookup context, Set<String> enabledHints) {
+    private static final RequestProcessor WORKER = new RequestProcessor("Batch Hint Apply");
+    
+    public static String applyFixes(final Lookup context, final Set<String> enabledHints, boolean progress) {
+        assert !progress || SwingUtilities.isEventDispatchThread();
+
+        if (progress) {
+            final AtomicBoolean cancel = new AtomicBoolean();
+            final ProgressHandle handle = ProgressHandleFactory.createHandle("Batch Hint Apply", new Cancellable() {
+                public boolean cancel() {
+                    cancel.set(true);
+
+                    return true;
+                }
+            });
+            
+            try {
+                DialogDescriptor dd = new DialogDescriptor(ProgressHandleFactory.createProgressComponent(handle),
+                                                           "Batch Hint Apply",
+                                                           true,
+                                                           new Object[] {DialogDescriptor.CANCEL_OPTION},
+                                                           DialogDescriptor.CANCEL_OPTION,
+                                                           DialogDescriptor.DEFAULT_ALIGN,
+                                                           null,
+                                                           new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        cancel.set(true);
+                    }
+                });
+                final Dialog d = DialogDisplayer.getDefault().createDialog(dd);
+                final String[] result = new String[1];
+
+                Runnable exec = new Runnable() {
+
+                    public void run() {
+                        result[0] = applyFixesImpl(context, enabledHints, handle, cancel);
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                d.setVisible(false);
+                            }
+                        });
+                    }
+                };
+
+                WORKER.post(exec);
+
+                d.setVisible(true);
+
+                return result[0];
+            } finally {
+                handle.finish();
+            }
+        } else {
+            return applyFixesImpl(context, enabledHints, null, new AtomicBoolean());
+        }
+    }
+    
+    private static String applyFixesImpl(Lookup context, Set<String> enabledHints, ProgressHandle h, AtomicBoolean cancel) {
+        ProgressHandleWrapper handle = new ProgressHandleWrapper(h, new int[] {20, 40, 40});
+        
         Map<String, Preferences> overlay = prepareOverlay(enabledHints);
         List<ErrorDescription> eds = new LinkedList<ErrorDescription>();
+        Collection<FileObject> toProcess = toProcess(context);
 
-        for (Entry<ClasspathInfo, Collection<FileObject>> e: sortFiles(findAllSources(toProcess(context))).entrySet()) {
-            eds.addAll(processFiles(e.getKey(), e.getValue(), overlay));
+        handle.startNextPart(toProcess.size());
+        
+        Collection<FileObject> allSources = findAllSources(toProcess);
+        Map<ClasspathInfo, Collection<FileObject>> sortedFiles = sortFiles(allSources);
+
+        handle.startNextPart(allSources.size());
+
+        for (Entry<ClasspathInfo, Collection<FileObject>> e: sortedFiles.entrySet()) {
+            if (cancel.get()) return null;
+            
+            eds.addAll(processFiles(e.getKey(), e.getValue(), overlay, handle, cancel));
         }
 
         Map<ErrorDescription, Fix> fixes = new IdentityHashMap<ErrorDescription, Fix>();
 
         //verify that there is exactly one fix for each ED:
         for (ErrorDescription ed : eds) {
+            if (cancel.get()) return null;
+            
             if (!ed.getFixes().isComputed()) {
                 return "Not computed fixes for: " + ed.getDescription();
             }
@@ -128,7 +210,11 @@ public class BatchApply {
             fixes.put(ed, fix);
         }
 
+        handle.startNextPart(eds.size());
+        
         for (ErrorDescription ed : eds) {
+            if (cancel.get()) return null;
+            
             try {
                 DataObject d = DataObject.find(ed.getFile());
                 EditorCookie ec = d.getLookup().lookup(EditorCookie.class);
@@ -146,6 +232,8 @@ public class BatchApply {
                 Exceptions.printStackTrace(ex);
                 return ex.getMessage();
             }
+
+            handle.tick();
         }
 
         return null;
@@ -178,13 +266,15 @@ public class BatchApply {
         return hints;
     }
 
-    private static List<ErrorDescription> processFiles(ClasspathInfo cpInfo, Collection<FileObject> toProcess, final Map<String, Preferences> preferencesOverlay) {
+    private static List<ErrorDescription> processFiles(ClasspathInfo cpInfo, Collection<FileObject> toProcess, final Map<String, Preferences> preferencesOverlay, final ProgressHandleWrapper handle, final AtomicBoolean cancel) {
         final List<ErrorDescription> eds = new LinkedList<ErrorDescription>();
         JavaSource js = JavaSource.create(cpInfo, toProcess);
 
         try {
             js.runUserActionTask(new Task<CompilationController>() {
                 public void run(CompilationController cc) throws Exception {
+                    if (cancel.get()) return ;
+                    
                     HintsSettings.setPreferencesOverride(preferencesOverlay);
 
                     DataObject d = DataObject.find(cc.getFileObject());
@@ -200,6 +290,8 @@ public class BatchApply {
                     } finally {
                         HintsSettings.setPreferencesOverride(null);
                     }
+
+                    handle.tick();
                 }
             }, true);
         } catch (IOException ex) {
@@ -358,5 +450,72 @@ public class BatchApply {
         }
 
         return result;
+    }
+
+    private static final class ProgressHandleWrapper {
+
+        private static final int TOTAL = 1000;
+        
+        private final ProgressHandle handle;
+        private final int[]          parts;
+
+        private       int            currentPart = (-1);
+        private       int            currentPartTotalWork;
+        private       int            currentPartWorkDone;
+
+        private       int            currentOffset;
+
+        public ProgressHandleWrapper(int[] parts) {
+            this(null, parts);
+        }
+        
+        public ProgressHandleWrapper(ProgressHandle handle, int[] parts) {
+            this.handle = handle;
+
+            if (handle == null) {
+                this.parts = null;
+            } else {
+                int total = 0;
+
+                for (int i : parts) {
+                    total += i;
+                }
+
+                this.parts = new int[parts.length];
+
+                for (int cntr = 0; cntr < parts.length; cntr++) {
+                    this.parts[cntr] = (TOTAL * parts[cntr]) / total;
+                }
+            }
+        }
+
+        public void startNextPart(int totalWork) {
+            if (handle == null) return ;
+            
+            if (currentPart == (-1)) {
+                handle.start(TOTAL);
+            } else {
+                currentOffset += parts[currentPart];
+            }
+
+            currentPart++;
+
+            currentPartTotalWork = totalWork;
+            currentPartWorkDone  = 0;
+        }
+
+        public void tick() {
+            if (handle == null) return ;
+
+            currentPartWorkDone++;
+
+            handle.progress(currentOffset + (parts[currentPart] * currentPartWorkDone) / currentPartTotalWork);
+        }
+
+        public void setMessage(String message) {
+            if (handle == null) return ;
+
+            handle.progress(message);
+        }
     }
 }
