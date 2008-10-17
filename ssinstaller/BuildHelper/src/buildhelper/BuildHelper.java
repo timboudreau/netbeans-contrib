@@ -149,13 +149,18 @@ public class BuildHelper {
         properties.setProperty("basedir", "${nbi.netbeans.dir}/infra/components/infra/native/" + component.getUid());
 
 
+            properties.setProperty("product.requirements.length", "1");
+            properties.setProperty("product.requirements.1.uid", "ss-base");
+            properties.setProperty("product.requirements.1.version-lower", "1.0.0.0.0");
+            properties.setProperty("product.requirements.1.version-upper", "1.0.0.0.0");
+
         if (component.getDependency() != null) {
             String uid = ((Component)component.getDependency()).getUid();
 
-            properties.setProperty("product.requirements.length", "1");
-            properties.setProperty("product.requirements.1.uid", ((Component)component.getDependency()).getUid());
-            properties.setProperty("product.requirements.1.version-lower", "1.0.0.0.0");
-            properties.setProperty("product.requirements.1.version-upper", "1.0.0.0.0");
+            properties.setProperty("product.requirements.length", "2");
+            properties.setProperty("product.requirements.2.uid", ((Component)component.getDependency()).getUid());
+            properties.setProperty("product.requirements.2.version-lower", "1.0.0.0.0");
+            properties.setProperty("product.requirements.2.version-upper", "1.0.0.0.0");
         }
   
     for (Block block : component.getBlock()) {
