@@ -76,7 +76,8 @@ transient String floatTypeSuffix = [fFdD] ;
 // ----- Character and string constants
 
 transient generic CharacterLiteral = characterLiteral ;
-transient String characterLiteral = ['] characterChar ['] ;
+// Although it should be: ['] characterChar ['], but for error recover, we change it to this
+transient String characterLiteral = ['] characterChar? ['] ;
 
 transient generic StringLiteral = stringLiteral ;
 transient String stringLiteral = 
