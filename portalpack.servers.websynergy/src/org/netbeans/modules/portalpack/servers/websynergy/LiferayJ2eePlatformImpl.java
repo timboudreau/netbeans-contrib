@@ -32,6 +32,7 @@ import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.Tomc
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -73,7 +74,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                 }
             }
 
-            String[] libs = {"javaee.jar"};
+            String[] libs = {"javaee.jar","appserv-jstl.jar"};
 
             File javaeeJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + "javaee.jar");
             if (!javaeeJar.exists()) {
@@ -84,7 +85,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
 
                     public boolean accept(File dir, String name) {
 
-                        if (name.startsWith("javax.javaee-")) {
+                        if (name.startsWith("javax.")) {
                             return true;
                         }
                         return false;
@@ -92,12 +93,25 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
                 });
 
                 if (files != null && files.length != 0) {
-                    try {
-                        classPath.add(fileToUrl(files[0]));
-                    } catch (MalformedURLException ex) {
-                        // Exceptions.printStackTrace(ex);
+                    for(File f:files) {
+                        try {
+                            classPath.add(fileToUrl(f));
+                        } catch (MalformedURLException ex) {
+                            // Exceptions.printStackTrace(ex);
+                        }
                     }
                 }
+                
+                File webFolder = new File(modulesFolder,"web");
+                File jstlJar = new File(webFolder,"jstl-impl.jar");
+                if(jstlJar.exists()) {
+                    try {
+                        classPath.add(fileToUrl(jstlJar));
+                    } catch (MalformedURLException ex) {
+                        //Exceptions.printStackTrace(ex);
+                    }
+                }
+                
             }
 
             for (int k = 0; k < libs.length; k++) {
