@@ -343,7 +343,7 @@ public class GenerateServiceHelper {
 
                     public boolean accept(File dir, String name) {
 
-                        if (name.startsWith("javax.javaee-")) {
+                        if (name.startsWith("javax.")) {
                             return true;
                         }
                         return false;
@@ -351,8 +351,10 @@ public class GenerateServiceHelper {
                 });
 
                 if (files != null && files.length != 0) {
-                    sb.append(files[0].getAbsolutePath());
-                    sb.append(":");
+                    for(File f:files) {
+                        sb.append(f.getAbsolutePath());
+                        sb.append(":");
+                    }
                    // props.setProperty("servlet.jar.path", files[0].getAbsolutePath());
                 }
             }
