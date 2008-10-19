@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -60,6 +63,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider;
 import org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
@@ -76,7 +80,38 @@ import scala.tools.nsc.symtab.Types.Type;
  *
  * @author Caoyuan Deng
  */
-public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
+public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSourceProvider {
+
+    public PositionTranslatingJavaFileFilterImplementation forFileObject(FileObject fo) {
+        return new PositionTranslatingJavaFileFilterImplementation() {
+
+            public int getOriginalPosition(int javaSourcePosition) {
+                return javaSourcePosition;
+            }
+
+            public int getJavaSourcePosition(int originalPosition) {
+                return originalPosition;
+            }
+
+            public Reader filterReader(Reader r) {
+                return r;
+            }
+
+            public CharSequence filterCharSequence(CharSequence charSequence) {
+                return charSequence;
+            }
+
+            public Writer filterWriter(Writer w) {
+                return w;
+            }
+
+            public void addChangeListener(ChangeListener listener) {
+            }
+
+            public void removeChangeListener(ChangeListener listener) {
+            }
+        };
+    }
 
     public Set<String> getSupportedExtensions() {
         return Collections.singleton("scala"); // NOI18N
@@ -84,7 +119,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
     }
 
     public boolean index() {
-        return true;
+        return false; /** @Todo */
     }
 
     public void translate(Iterable<File> files, File sourceRoot, Result result) {
