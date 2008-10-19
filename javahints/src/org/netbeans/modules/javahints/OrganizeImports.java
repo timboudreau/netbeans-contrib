@@ -59,13 +59,9 @@ import javax.lang.model.element.ElementKind;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.guards.GuardedSectionManager;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.Task;
-import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.spi.editor.hints.ChangeInfo;
+import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
@@ -100,7 +96,7 @@ public class OrganizeImports extends AbstractHint {
             Exceptions.printStackTrace(ex);
         }
         
-        Fix f = new FixImpl(TreePathHandle.create(new TreePath(info.getCompilationUnit()), info));
+        Fix f = JavaFix.toEditorFix(new FixImpl(info));
         List<Fix> l = Collections.singletonList(f);
         ErrorDescription ed = ErrorDescriptionFactory.createErrorDescription(Severity.WARNING, "Organize Imports", l, info.getFileObject(), 0, 1);
 
@@ -118,30 +114,19 @@ public class OrganizeImports extends AbstractHint {
     public void cancel() {
     }
 
-    private static final class FixImpl implements Fix {
+    private static final class FixImpl extends JavaFix {
 
-        private final TreePathHandle h;
-
-        public FixImpl(TreePathHandle h) {
-            this.h = h;
+        public FixImpl(CompilationInfo info) {
+            super(info, new TreePath(info.getCompilationUnit()));
         }
 
         public String getText() {
             return "Organize Imports";
         }
 
-        public ChangeInfo implement() throws Exception {
-            JavaSource js = JavaSource.forFileObject(h.getFileObject());
-
-            js.runModificationTask(new Task<WorkingCopy>() {
-
-                public void run(WorkingCopy parameter) throws Exception {
-                    parameter.toPhase(Phase.RESOLVED);
-                    organizeImports(parameter);
-                }
-            }).commit();
-
-            return null;
+        @Override
+        protected void performRewrite(WorkingCopy wc, TreePath tp) {
+            organizeImports(wc);
         }
     }
 

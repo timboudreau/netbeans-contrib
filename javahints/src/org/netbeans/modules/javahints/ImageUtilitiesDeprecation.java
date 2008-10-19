@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007-2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints;
@@ -48,21 +48,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.Task;
-import org.netbeans.api.java.source.TreePathHandle;
-import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.api.java.source.support.CaretAwareJavaSourceTaskFactory;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.spi.editor.hints.ChangeInfo;
+import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
-
-import static com.sun.source.tree.Tree.Kind.*;
 import org.openide.util.NbBundle;
 
 /**
@@ -93,7 +85,8 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
             return null;
         }
         MethodInvocationTree mit = (MethodInvocationTree) treePath.getLeaf();
-        Element e = info.getTrees().getElement(new TreePath(treePath, mit.getMethodSelect()));
+        TreePath ms = new TreePath(treePath, mit.getMethodSelect());
+        Element e = info.getTrees().getElement(ms);
         if (e != null && (
                 e.getSimpleName().contentEquals("loadImage") ||
                 e.getSimpleName().contentEquals("mergeImages") ||
@@ -117,7 +110,8 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
                 return null;
             }
 
-            List<Fix> fix = Collections.<Fix>singletonList(new FixImpl(TreePathHandle.create(treePath, info)));
+            String fixDN = NbBundle.getMessage(ImageUtilitiesDeprecation.class, "FIX_ImageUtilities");
+            List<Fix> fix = Collections.<Fix>singletonList(JavaFix.rewriteFix(info, fixDN, ms, "org.openide.util.ImageUtilities." + e.getSimpleName().toString()));
             ErrorDescription w = ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), "Use of Utilities." + e.getSimpleName().toString(), fix, info.getFileObject(), span[0], span[1]);
             return Collections.singletonList(w);
         }
@@ -135,37 +129,4 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
     public void cancel() {
     }
 
-    static final class FixImpl implements Fix {
-
-        private TreePathHandle methodCall;
-
-        public FixImpl(TreePathHandle methodCall) {
-            this.methodCall = methodCall;
-        }
-        
-        public String getText() {
-            return NbBundle.getMessage(ImageUtilitiesDeprecation.class, "FIX_ImageUtilities");
-        }
-
-        public ChangeInfo implement() throws Exception {
-            JavaSource js = JavaSource.forFileObject(methodCall.getFileObject());
-            js.runModificationTask(new Task<WorkingCopy>() {
-                public void run(WorkingCopy wc) throws Exception {
-                    wc.toPhase(Phase.PARSED);
-                    
-                    TreePath tp = methodCall.resolve(wc);
-                    TypeElement imageUtilities = wc.getElements().getTypeElement("org.openide.util.ImageUtilities");
-                    
-                    if (tp == null || Kind.METHOD_INVOCATION != tp.getLeaf().getKind() || imageUtilities == null) {
-                        return ;
-                    }
-
-                    MethodInvocationTree mit = (MethodInvocationTree) tp.getLeaf();
-                    MemberSelectTree mst = (MemberSelectTree)mit.getMethodSelect();
-                    wc.rewrite(mst.getExpression(), wc.getTreeMaker().QualIdent(imageUtilities));
-                }
-            }).commit();
-            return null;
-        }
-    }
 }
