@@ -56,7 +56,7 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
     protected List getCustomLibraries() {
         List classPath = new ArrayList();
 
-        String[] libFiles = {"portal-service.jar", "portal-kernel.jar","annotations.jar"};
+        String[] libFiles = {"portal-service.jar", "portal-kernel.jar","annotations.jar","portlet-container.jar"};
         //PSConfigObject psconfig = psconfig.getPSConfig();
 
         //If glassfish then add javaee.jar
