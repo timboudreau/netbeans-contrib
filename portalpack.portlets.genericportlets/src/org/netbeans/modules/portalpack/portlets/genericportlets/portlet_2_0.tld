@@ -51,7 +51,7 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>escapeXML</name>
+			<name>escapeXml</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -91,7 +91,7 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>escapeXML</name>
+			<name>escapeXml</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -121,7 +121,7 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>escapeXML</name>
+			<name>escapeXml</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
