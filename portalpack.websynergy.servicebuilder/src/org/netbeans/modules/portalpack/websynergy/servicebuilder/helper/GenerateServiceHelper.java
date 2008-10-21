@@ -208,7 +208,7 @@ public class GenerateServiceHelper {
                              WebXmlHelper.addServiceBuilderParams(wm);
                              
                              FileObject fileObj = project.getProjectDirectory();
-                             FileObject lib = fileObj.getFileObject("service" + File.separator + "classes");
+                             FileObject lib = fileObj.getFileObject("service/classes");
                              /*if(lib != null) {
                                  FileObject[] children = lib.getChildren();
                                  List list = new ArrayList();
@@ -223,8 +223,12 @@ public class GenerateServiceHelper {
                             try {
                                 URL url = lib.getURL();
                                 LibraryHelper.addCompileRoot(project,new URL[]{url});
-                            } catch (FileStateInvalidException ex) {
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
+                                NotifyDescriptor nd = new NotifyDescriptor.Message("Classpath could not be modified.\n" +
+                                        "Please add $project_dir/service/classes folder to your project classpath\n" +
+                                        "But don't package this folder in your webapp war.", NotifyDescriptor.WARNING_MESSAGE);
+                                DialogDisplayer.getDefault().notify(nd);
                             }
                                  
                             if(action != null)
@@ -343,7 +347,7 @@ public class GenerateServiceHelper {
 
                     public boolean accept(File dir, String name) {
 
-                        if (name.startsWith("javax.javaee-")) {
+                        if (name.startsWith("javax.")) {
                             return true;
                         }
                         return false;
@@ -351,8 +355,10 @@ public class GenerateServiceHelper {
                 });
 
                 if (files != null && files.length != 0) {
-                    sb.append(files[0].getAbsolutePath());
-                    sb.append(":");
+                    for(File f:files) {
+                        sb.append(f.getAbsolutePath());
+                        sb.append(":");
+                    }
                    // props.setProperty("servlet.jar.path", files[0].getAbsolutePath());
                 }
             }

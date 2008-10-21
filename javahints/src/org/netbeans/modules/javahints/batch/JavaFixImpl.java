@@ -39,58 +39,54 @@
 
 package org.netbeans.modules.javahints.batch;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.api.sendopts.CommandException;
-import org.netbeans.modules.java.hints.infrastructure.RulesManager;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.java.hints.spi.TreeRule;
-import org.netbeans.spi.sendopts.Env;
-import org.netbeans.spi.sendopts.Option;
-import org.netbeans.spi.sendopts.OptionProcessor;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.Task;
+import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.javahints.epi.JavaFix;
+import org.netbeans.spi.editor.hints.ChangeInfo;
+import org.netbeans.spi.editor.hints.Fix;
+import org.openide.filesystems.FileObject;
 
-/**
+/**TODO: move to better package
  *
  * @author Jan Lahoda
  */
-public class OptionProcessorImpl extends OptionProcessor {
+public final class JavaFixImpl implements Fix {
 
-    private static final Option LIST = Option.withoutArgument(Option.NO_SHORT_NAME, "list-hints");
-    private static final Option APPLY_HINTS = Option.requiredArgument(Option.NO_SHORT_NAME, "apply-hints");
-    
-    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(LIST, APPLY_HINTS));
-    
-    @Override
-    protected Set<Option> getOptions() {
-        return OPTIONS;
+    final JavaFix jf;
+
+    public JavaFixImpl(JavaFix jf) {
+        this.jf = jf;
     }
 
-    @Override
-    protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
-        if (optionValues.containsKey(LIST)) {
-            env.getOutputStream().println("Supported Hints:");
-            for (TreeRule r : BatchApply.listHints()) {
-                env.getOutputStream().println(r.getDisplayName() + " - " + r.getId());
-            }
-        }
-
-        if (optionValues.containsKey(APPLY_HINTS)) {
-            String hintsArg = optionValues.get(APPLY_HINTS)[0];
-            String[] hints = hintsArg.split(":");
-
-            Lookup context = Lookups.fixed((Object[]) OpenProjects.getDefault().getOpenProjects());
-            String error = BatchApply.applyFixes(context, new HashSet<String>(Arrays.asList(hints)), false);
-
-            if (error != null) {
-                env.getErrorStream().println("Cannot apply hints because of: " + error);
-            }
-        }
+    public String getText() {
+        return Accessor.INSTANCE.getText(jf);
     }
 
+    public ChangeInfo implement() throws Exception {
+        JavaSource js = JavaSource.forFileObject(Accessor.INSTANCE.getFile(jf));
+
+        js.runModificationTask(new Task<WorkingCopy>() {
+            public void run(WorkingCopy wc) throws Exception {
+                if (wc.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
+                    return;
+                }
+
+                Accessor.INSTANCE.process(jf, wc);
+            }
+        }).commit();
+
+        return null;
+    }
+
+    public static abstract class Accessor {
+
+        public static Accessor INSTANCE;
+
+        public abstract String getText(JavaFix jf);
+        public abstract ChangeInfo process(JavaFix jf, WorkingCopy wc) throws Exception;
+        public abstract FileObject getFile(JavaFix jf);
+        
+    }
 }

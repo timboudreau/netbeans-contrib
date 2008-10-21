@@ -37,60 +37,71 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.javahints.batch;
+package org.netbeans.modules.javahints;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import com.sun.source.tree.Tree.Kind;
+import com.sun.source.util.TreePath;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.api.sendopts.CommandException;
-import org.netbeans.modules.java.hints.infrastructure.RulesManager;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.java.hints.spi.TreeRule;
-import org.netbeans.spi.sendopts.Env;
-import org.netbeans.spi.sendopts.Option;
-import org.netbeans.spi.sendopts.OptionProcessor;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.modules.javahints.epi.JavaFix;
+import org.netbeans.modules.javahints.epi.Pattern;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.Fix;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class OptionProcessorImpl extends OptionProcessor {
+public class NoDOGetCookie extends AbstractHint {
 
-    private static final Option LIST = Option.withoutArgument(Option.NO_SHORT_NAME, "list-hints");
-    private static final Option APPLY_HINTS = Option.requiredArgument(Option.NO_SHORT_NAME, "apply-hints");
-    
-    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(LIST, APPLY_HINTS));
-    
-    @Override
-    protected Set<Option> getOptions() {
-        return OPTIONS;
+    public NoDOGetCookie() {
+        super(true, false, HintSeverity.ERROR);
     }
 
     @Override
-    protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
-        if (optionValues.containsKey(LIST)) {
-            env.getOutputStream().println("Supported Hints:");
-            for (TreeRule r : BatchApply.listHints()) {
-                env.getOutputStream().println(r.getDisplayName() + " - " + r.getId());
-            }
+    public String getDescription() {
+        return "NoDOGetCookie";
+    }
+
+    public Set<Kind> getTreeKinds() {
+        return EnumSet.of(Kind.METHOD_INVOCATION);
+    }
+
+    public List<ErrorDescription> run(CompilationInfo info, TreePath treePath) {
+        Map<String, TreePath> vars = Pattern.matchesPattern(info,
+                                                            "$1:org.openide.loaders.DataObject:.getCookie($2:org.openide.nodes.Node.Cookie:)",
+                                                            treePath,
+                                                            new AtomicBoolean());
+
+        if (vars == null) {
+            return null;
         }
 
-        if (optionValues.containsKey(APPLY_HINTS)) {
-            String hintsArg = optionValues.get(APPLY_HINTS)[0];
-            String[] hints = hintsArg.split(":");
+        List<Fix> fix = Collections.singletonList(JavaFix.rewriteFix(info, "Use getLookup", treePath, "$1.getLookup().lookup($2)", vars));
+        
+        int start = (int) info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), treePath.getLeaf());
+        int end   = (int) info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), treePath.getLeaf());
+        
+        ErrorDescription ed = org.netbeans.spi.editor.hints.ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), "Use of DO.getCookie", fix, info.getFileObject(), start, end);
 
-            Lookup context = Lookups.fixed((Object[]) OpenProjects.getDefault().getOpenProjects());
-            String error = BatchApply.applyFixes(context, new HashSet<String>(Arrays.asList(hints)), false);
+        return Collections.singletonList(ed);
+    }
 
-            if (error != null) {
-                env.getErrorStream().println("Cannot apply hints because of: " + error);
-            }
-        }
+    public String getId() {
+        return NoDOGetCookie.class.getName();
+    }
+
+    public String getDisplayName() {
+        return "NoDOGetCookie";
+    }
+
+    public void cancel() {
     }
 
 }

@@ -71,7 +71,7 @@ public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
          //If glassfish then add javaee.jar
          if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
          {
-             String[] libs = {"javaee.jar"};
+             String[] libs = {"javaee.jar","appserv-jstl.jar"};
              for(int k=0;k<libs.length;k++)
              {
                  File libJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + libs[k]);

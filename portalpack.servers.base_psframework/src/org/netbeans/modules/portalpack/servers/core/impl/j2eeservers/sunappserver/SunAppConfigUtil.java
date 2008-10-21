@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathFactory;
 
 
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
+import org.openide.util.Exceptions;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -136,6 +137,17 @@ public class SunAppConfigUtil {
             port = getXPath().evaluate("/domain/configs/config[@name='server-config']/http-service/http-listener[@security-enabled='false'][@default-virtual-server='server']/@port",doc);
         } catch (XPathExpressionException ex) {
             logger.log(Level.SEVERE,"ParseError",ex);
+                 
+        }
+        
+        //For GV3
+        if(port == null || port.length() == 0) {
+            
+            try {
+                port = getXPath().evaluate("/domain/configs/config[@name='server-config']/http-service/http-listener[@default-virtual-server='server']/@port", doc);
+            } catch (XPathExpressionException ex) {
+                logger.log(Level.SEVERE,"ParseError",ex);
+            }
         }
      
         if(port == null)
@@ -155,6 +167,17 @@ public class SunAppConfigUtil {
          } catch (XPathExpressionException ex) {
             logger.log(Level.SEVERE,"ParseError",ex);
         }
+        
+        //Check for V3
+        if(port == null || port.length() == 0) {
+            try {
+
+                port = getXPath().evaluate("/domain/configs/config[@name='server-config']/http-service/http-listener[@default-virtual-server='__asadmin']/@port", doc);
+            } catch (XPathExpressionException ex) {
+                logger.log(Level.SEVERE,"ParseError",ex);
+            }
+        }
+        
          if(port == null)
               return "";
          return port.trim();
