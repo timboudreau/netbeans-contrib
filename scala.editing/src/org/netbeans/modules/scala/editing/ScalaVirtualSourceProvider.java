@@ -83,6 +83,10 @@ import scala.tools.nsc.symtab.Types.Type;
 public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSourceProvider {
 
     public PositionTranslatingJavaFileFilterImplementation forFileObject(FileObject fo) {
+        if (!"text/x-scala".equals(FileUtil.getMIMEType(fo)) && !"scala".equals(fo.getExt())) {  //NOI18N
+            return null;
+        }
+        
         return new PositionTranslatingJavaFileFilterImplementation() {
 
             public int getOriginalPosition(int javaSourcePosition) {
