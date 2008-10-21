@@ -71,8 +71,15 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         if (SystemUtils.getCurrentPlatform().equals(Platform.SOLARIS_SPARC)) {
             // TODO remove this
             String v8Name =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/lib/v8plus";
+            String v9Name =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/prod/lib/v9";
+            String v9aName =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/lib/v9a";
+            String v9bName =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/lib/v9b";
+            //#String v9Name =  getProduct().getInstallationLocation() + "/" + Utils.getMainDirectory() +"/lib/v9";
             try {
                 FileUtils.mkdirs(new File(v8Name));
+                FileUtils.mkdirs(new File(v9Name));
+                FileUtils.mkdirs(new File(v9aName));
+                FileUtils.mkdirs(new File(v9bName));
                 LogManager.log("v8Name was created as "  + v8Name );
             } catch (IOException ex) {
                 LogManager.log("v8Name was not created as "  + v8Name, ex);                
@@ -135,7 +142,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             // end
             // delete only if empty
             FileUtils.deleteFile(mainDirectory);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LogManager.log("Unexpected exception during removal of " 
                     + mainDirectory.getAbsolutePath(), ex);
         }
