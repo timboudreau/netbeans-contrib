@@ -141,7 +141,7 @@ public class AddFinderUI extends javax.swing.JDialog {
 
         jLabel6.setText(org.openide.util.NbBundle.getMessage(AddFinderUI.class, "AddFinderUI.jLabel6.text")); // NOI18N
 
-        returnTypeTf.setText(org.openide.util.NbBundle.getMessage(AddFinderUI.class, "AddFinderUI.returnTypeTf.text")); // NOI18N
+        returnTypeTf.setText("Collection");
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
