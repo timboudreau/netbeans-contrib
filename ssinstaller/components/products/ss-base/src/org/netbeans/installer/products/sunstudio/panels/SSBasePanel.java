@@ -66,7 +66,7 @@ public class SSBasePanel extends DestinationPanel {
         setProperty(DESTINATION_LABEL_TEXT_PROPERTY,
                 DEFAULT_DESTINATION_LABEL_TEXT
                  // while packages are in SUNWspo / sunstudioceres
-                + " ( Sun Studion will located in "+ Utils.getMainDirectory() + " subdirectory )");
+                + " (" + Utils.getMainDirectory() + " subdirectory will be created.)");
         setProperty(DESTINATION_BUTTON_TEXT_PROPERTY,
                 DEFAULT_DESTINATION_BUTTON_TEXT);
           
