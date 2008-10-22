@@ -69,7 +69,7 @@ public enum SystemCheckCategory implements ConfigurationChecker {
     
     PLATFORM(PLATFORM_CATEGORY_CAPTION, new PlatformCheck()),
     OS(OS_CATEGORY_CAPTION, new OSCheck()),
-    CPU(CPU_CATEGORY_CAPTION, new CPUCheck()),
+//    CPU(CPU_CATEGORY_CAPTION, new CPUCheck()),
     MEMORY(MEMORY_CATEGORY_CAPTION, new MemoryCheck()),
     RIGHTS(ADMIN_CATEGORY_CAPTION, new RightsCheck()),
     REMOTE(REMOTE_CATEGORY_CAPTION, new RemotePackagesCheck()),
