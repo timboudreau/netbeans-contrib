@@ -82,6 +82,11 @@ import scala.tools.nsc.symtab.Types.Type;
  */
 public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSourceProvider {
 
+    /** @Todo
+     * The only reason to implement JavaSourceProvider is to get a none-null JavaSource#forFileObject,
+     * the JavaSource instance is a must currently when eval expression under debugging. see issue #150903
+     *
+     */
     public PositionTranslatingJavaFileFilterImplementation forFileObject(FileObject fo) {
         if (!"text/x-scala".equals(FileUtil.getMIMEType(fo)) && !"scala".equals(fo.getExt())) {  //NOI18N
             return null;
@@ -90,11 +95,11 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
         return new PositionTranslatingJavaFileFilterImplementation() {
 
             public int getOriginalPosition(int javaSourcePosition) {
-                return javaSourcePosition;
+                return -1;
             }
 
             public int getJavaSourcePosition(int originalPosition) {
-                return originalPosition;
+                return -1;
             }
 
             public Reader filterReader(Reader r) {
@@ -102,7 +107,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
             }
 
             public CharSequence filterCharSequence(CharSequence charSequence) {
-                return charSequence;
+                return "";
             }
 
             public Writer filterWriter(Writer w) {
