@@ -47,7 +47,7 @@ mkdir -p $DEST_NB
 cp $NB_ARCHIVE_DIR/* $DEST_NB
 cd $DEST_NB
 mv atd-cluster*.zip atd-cluster.zip   
-mv netbeans-trunk*.zip netbeans.zip
+mv netbeans*.zip netbeans.zip
 unzip netbeans.zip
 cd netbeans
 zip -r netbeans.zip *
