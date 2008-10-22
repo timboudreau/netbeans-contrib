@@ -114,6 +114,7 @@ Scala installation directory.
 </fail>
                 <property name="scala.compiler" value="${{scala.home}}/lib/scala-compiler.jar"/>
                 <property name="scala.library"  value="${{scala.home}}/lib/scala-library.jar"/>
+                <property name="scala.lib"      value="${{scala.home}}/lib"/>
                 <taskdef resource="scala/tools/ant/antlib.xml">
                     <classpath>
                         <pathelement location="${{scala.compiler}}"/>
@@ -480,6 +481,10 @@ Scala installation directory.
                         <xsl:attribute name="default">jvm-${javac.debug}</xsl:attribute>
                     </attribute>
                     <attribute>
+                        <xsl:attribute name="name">addparams</xsl:attribute>
+                        <xsl:attribute name="default">${javac.compilerargs}</xsl:attribute>
+                    </attribute>
+                    <attribute>
                         <xsl:attribute name="name">sourcepath</xsl:attribute>
                         <xsl:attribute name="default"/>
                     </attribute>
@@ -506,10 +511,13 @@ Scala installation directory.
                                 <xsl:attribute name="executable">${platform.javac}</xsl:attribute>
                                 <xsl:attribute name="tempdir">${java.io.tmpdir}</xsl:attribute> <!-- XXX cf. #51482, Ant #29391 -->
                             </xsl:if>
+                            <xsl:attribute name="addparams">@{addparams}</xsl:attribute>
                             <!--<xsl:attribute name="includeantruntime">false</xsl:attribute>-->
                             <classpath>
                                 <path path="@{{classpath}}"/>
-                                <pathelement location="${{scala.library}}"/>
+                                <fileset dir="${{scala.lib}}">
+                                    <include name="**/*.jar"/>
+                                </fileset>
                             </classpath>
                             <!--<compilerarg line="${{javac.compilerargs}} ${{javac.compilerargs.jaxws}}"/>-->
                             <customize/>
@@ -612,7 +620,9 @@ Scala installation directory.
                             </batchtest>
                             <classpath>
                                 <path path="${{run.test.classpath}}"/>
-                                <pathelement location="${{scala.library}}"/>
+                                <fileset dir="${{scala.lib}}">
+                                    <include name="**/*.jar"/>
+                                </fileset>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="test-sys-prop."/>
@@ -722,7 +732,9 @@ Scala installation directory.
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <path path="@{{classpath}}"/>
-                                <pathelement location="${{scala.library}}"/>
+                                <fileset dir="${{scala.lib}}">
+                                    <include name="**/*.jar"/>
+                                </fileset>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="run-sys-prop."/>
@@ -755,7 +767,9 @@ Scala installation directory.
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <path path="${{run.classpath}}"/>
-                                <pathelement location="${{scala.library}}"/>
+                                <fileset dir="${{scala.lib}}">
+                                    <include name="**/*.jar"/>
+                                </fileset>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="run-sys-prop."/>
