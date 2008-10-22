@@ -163,5 +163,5 @@ export SOURCE
 
 # Disabled until registration is not completed.
 cd $REGISTRATION_DIR
-sh register.sh
+sh register.sh 2>/dev/null
 exit 0;
