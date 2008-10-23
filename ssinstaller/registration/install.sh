@@ -11,7 +11,6 @@ TMPDIR_ROOT=${TMPDIR-/tmp}
 TMPDIR="${TMPDIR_ROOT}/ssinstall.${PID}"
 TMP_DIR=${TMPDIR}
 mkdir -p ${TMPDIR}
-export TMPDIR
 export TMP_DIR
 CWD=`pwd`
 INSTALLER_NAME=`basename $0`
