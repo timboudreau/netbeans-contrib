@@ -69,6 +69,7 @@ import org.openide.util.WeakListeners;
  * Defines the various class paths for a J2SE project.
  */
 public final class ClassPathProviderImpl implements ClassPathProvider, PropertyChangeListener {
+
     private static final String SCALA_BOOT_CLASSPATH = "scala.boot.classpath";     // NOI18N
     private static final String SCALAC_CLASS_PATH = "scala.classpath";        // NOI18N
     private static final String SCALAC_EXT_PATH = "scala.ext.dirs";            //NOI18N
@@ -227,13 +228,13 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
                 resources.add(ClassPathSupport.createResource(entry.getURL()));
             }
             cp = ClassPathSupport.createClassPath(resources);
-            
+
             cache[2 + type] = cp;
         }
         return cp;
     }
 
-    private synchronized ClassPath getRunTimeClasspath(FileObject file) {
+    private ClassPath getRunTimeClasspath(FileObject file) {
         int type = getType(file);
         if (type < 0 || type > 4) {
             // Unregistered file, or in a JAR.
@@ -244,6 +245,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         } else if (type > 1) {
             type -= 2;            //Compiled source transform into source
         }
+        return getRunTimeClasspath(type);
+    }
+
+    private synchronized ClassPath getRunTimeClasspath(final int type) {
         ClassPath cp = cache[4 + type];
         if (cp == null) {
             List<PathResourceImplementation> resources = new ArrayList<PathResourceImplementation>();
@@ -263,17 +268,17 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             if (type == 0) {
                 cp = ClassPathFactory.createClassPath(
                         ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                        projectDirectory, evaluator, new String[]{RUN_CLASSPATH})); // NOI18N
+                        projectDirectory, evaluator, new String[]{RUN_CLASSPATH, SCALAC_CLASS_PATH})); // NOI18N
             } else if (type == 1) {
                 cp = ClassPathFactory.createClassPath(
                         ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                        projectDirectory, evaluator, new String[]{RUN_TEST_CLASSPATH})); // NOI18N
+                        projectDirectory, evaluator, new String[]{RUN_TEST_CLASSPATH, SCALAC_CLASS_PATH})); // NOI18N
             } else if (type == 2) {
                 //Only to make the CompiledDataNode hapy
                 //Todo: Strictly it should return ${run.classpath} - ${build.classes.dir} + ${dist.jar}
                 cp = ClassPathFactory.createClassPath(
                         ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                        projectDirectory, evaluator, new String[]{DIST_JAR})); // NOI18N
+                        projectDirectory, evaluator, new String[]{DIST_JAR, SCALAC_CLASS_PATH})); // NOI18N
             }
 
             for (ClassPath.Entry entry : cp.entries()) {
@@ -337,24 +342,29 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
      * Returns array of all classpaths of the given type in the project.
      * The result is used for example for GlobalPathRegistry registrations.
      */
-    public ClassPath[] getProjectClassPaths(String type) {
-        if (ClassPath.BOOT.equals(type)) {
-            return new ClassPath[]{getBootClassPath()};
-        }
-        if (ClassPath.COMPILE.equals(type)) {
-            ClassPath[] l = new ClassPath[2];
-            l[0] = getCompileTimeClasspath(0);
-            l[1] = getCompileTimeClasspath(1);
-            return l;
-        }
-        if (ClassPath.SOURCE.equals(type)) {
-            ClassPath[] l = new ClassPath[2];
-            l[0] = getSourcepath(0);
-            l[1] = getSourcepath(1);
-            return l;
-        }
-        assert false;
-        return null;
+    public ClassPath[] getProjectClassPaths(final String type) {
+        return ProjectManager.mutex().readAccess(new Mutex.Action<ClassPath[]>() {
+
+            public ClassPath[] run() {
+                if (ClassPath.BOOT.equals(type)) {
+                    return new ClassPath[]{getBootClassPath()};
+                }
+                if (ClassPath.COMPILE.equals(type)) {
+                    ClassPath[] l = new ClassPath[2];
+                    l[0] = getCompileTimeClasspath(0);
+                    l[1] = getCompileTimeClasspath(1);
+                    return l;
+                }
+                if (ClassPath.SOURCE.equals(type)) {
+                    ClassPath[] l = new ClassPath[2];
+                    l[0] = getSourcepath(0);
+                    l[1] = getSourcepath(1);
+                    return l;
+                }
+                assert false;
+                return null;
+            }
+        });
     }
 
     /**
@@ -370,6 +380,9 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         }
         if (ClassPath.SOURCE.equals(type)) {
             return getSourcepath(0);
+        }
+        if (ClassPath.EXECUTE.equals(type)) {
+            return getRunTimeClasspath(0);
         }
         assert false;
         return null;
