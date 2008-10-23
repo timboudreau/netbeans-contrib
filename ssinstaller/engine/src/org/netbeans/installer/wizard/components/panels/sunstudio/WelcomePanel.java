@@ -421,6 +421,7 @@ public class WelcomePanel extends ErrorMessagePanel {
             if (everythingIsInstalled) {
                 customizeButton.setEnabled(false);
                 installationSizeLabel.setVisible(false);
+                container.getBackButton().setEnabled(false);
                 
                 return panel.getProperty(ERROR_EVERYTHING_IS_INSTALLED_PROPERTY);
             } else {
