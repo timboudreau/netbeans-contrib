@@ -102,7 +102,7 @@ class LinuxRPMPackageInstaller implements NativePackageInstaller {
         arguments.add("rpm");
         arguments.add("-e");
         arguments.add("--nodeps");
-        arguments.add(packageName + "-2008.11");
+        arguments.add(packageName);
 
         try {
             // LogManager.log("executing command: " + listToString(arguments));

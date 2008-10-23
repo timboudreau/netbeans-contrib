@@ -166,7 +166,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
                 removedPackages.add(getProduct().getProperty(DEVICE_FILE_PACKAGE + String.valueOf(packageNumber)));
             }
             for (PackageDescr pName : installedPackages) {
-                removedPackages.remove(pName.getName());
+                removedPackages.remove(SystemUtils.isLinux()? pName.getName() + "-" + pName.getVersion(): pName.getName());
             }
 
             if (!removedPackages.isEmpty()) {

@@ -186,7 +186,7 @@ public enum PackageType implements PackagesInfo {
                 String[] fields = LinuxRPMPackagesAnalyzer.getRPMPackageFieldsFromFileName(pathToPackage);
                 if (fields != null) {
                     result = new ArrayList<String>();
-                    result.add(fields[0]);
+                    result.add(fields[0] + LinuxPackagesInfo.NAME_VERSION_SEPARATOR + fields[1]);
                     return result;
                 }
             }
@@ -291,6 +291,8 @@ public enum PackageType implements PackagesInfo {
 }
 class LinuxPackagesInfo {
     
+    public static final String NAME_VERSION_SEPARATOR = "-";
+    
     public static Collection<PackageDescr> getInstalledPackages(LinuxPackagesAnalyzer lpa) {
         Collection<PackageDescr> result = null;
         if (lpa.isActual()) {
@@ -326,8 +328,8 @@ class LinuxPackagesInfo {
         Collection<String> result = null;
         if (lpa.isActual()) {
             result = new ArrayList<String>();
-            for(String name: lpa.getInstalledPackageNames()) {
-                result.add(name);
+            for(PackageDescr descr: lpa.getInstalledPackageList()) {
+                result.add(descr.getName() + NAME_VERSION_SEPARATOR + descr.getVersion());
             }
         }
         return result;
