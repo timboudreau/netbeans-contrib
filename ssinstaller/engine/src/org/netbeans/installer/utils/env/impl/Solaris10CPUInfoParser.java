@@ -46,8 +46,13 @@ public class Solaris10CPUInfoParser extends SolarisCPUInfoParser {
     @Override
     protected String extractCPUInformation() {
         if (lines == null) lines = parseInput(PARAMETERS);
-        if (lines != null && lines.size() >= 3) {
-            return lines.get(2).trim();
+        if (lines != null) {
+            if (lines.size() >= 3) {
+                return lines.get(2).trim();
+            } else if (lines.size() == 2) {
+                int i = lines.get(1).indexOf("(");
+                return (i != -1)? lines.get(1).substring(0, i - 1).trim(): null;
+            }
         }
         return null;
     }
@@ -55,7 +60,7 @@ public class Solaris10CPUInfoParser extends SolarisCPUInfoParser {
     @Override
     protected float extractSpeedInformation() {
         if (lines == null) lines = parseInput(PARAMETERS);
-        if (lines != null && lines.size() >= 3) {
+        if (lines != null && lines.size() >= 2) {
             int i = lines.get(1).indexOf("clock");
             if (i != -1) return Float.parseFloat(lines.get(1).substring(i + 5).replace("MHz)", ""));
         }
