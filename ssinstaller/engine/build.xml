@@ -58,9 +58,21 @@
 &gt; #	out "$msg7"
 &gt; #	out "$msg8"
 545a546,548
-&gt; 	out "`echo '\\t--record\\t&lt;state&gt;.xml\\tRecords the states of components to the specified state file when you exit the installer.\\n\\t\\t\\t\\t\\tUse this option to generate state files.'`" 
-&gt; 	out "`echo '\\t--state\\t\\t&lt;state&gt;.xml\\tLoads the states of components from the specified state file.\\n\\t\\t\\t\\t\\tThis option is required for --silent.'`"
-&gt; 	out "`echo '\\t--silent-logs-dir\\t&lt;dir&gt;\\tOutput silent logs to the specific directory'`" 
+&gt;  	out2 "\t--record\t&lt;state&gt;.xml\tRecords the states of components to the specified state file when you exit the installer.\n\t\t\t\t\tUse this option to generate state files." 
+&gt;  	out2 "\t--state\t\t&lt;state&gt;.xml\tLoads the states of components from the specified state file.\n\t\t\t\tThis option is required for --silent."
+&gt;  	out2 "\t--silent-logs-dir\t&lt;dir&gt;\tOutput silent logs to the specific directory" 
+575a579,587
+&gt; out2() {
+&gt; 	
+&gt;         if [ -n "$OUTPUT_FILE" ] ; then
+&gt;                 printf "%b\n" "$@" &gt;&gt; "$OUTPUT_FILE"
+&gt;         elif [ 0 -eq $SILENT_MODE ] ; then
+&gt;                 printf "%b\n" "$@"
+&gt; 	fi
+&gt; }
+&gt; 
+1636a1649
+&gt; 
 </echo>	
 	<exec executable="patch">
 		<arg value="${build.classes.dir}/native/launcher/unix/launcher.sh"/>
