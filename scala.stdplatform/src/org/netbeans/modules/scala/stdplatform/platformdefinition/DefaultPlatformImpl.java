@@ -270,7 +270,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
             //}
             cp.append(extraCp);
         }
-        return Utilities.isWindows() ? "\"" + cp.toString() + "\"" : cp.toString(); // NOI18N
+        return cp.toString(); // NOI18N
     }
 
     static List<URL> getSources(File scalaHome) {
