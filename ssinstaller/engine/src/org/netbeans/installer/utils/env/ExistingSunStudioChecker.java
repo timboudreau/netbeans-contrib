@@ -94,7 +94,7 @@ public class ExistingSunStudioChecker {
         for (PackageDescr installedPackage : installedPackages) {
             for (PackageDescr packageToInstall : packagesToInstall) {
                 // special for Linux
-                if (SystemUtils.isLinux() && installedPackage.getName().equals(packageToInstall.getName())) {
+                if (SystemUtils.isLinux() && packageToInstall.getName().startsWith(installedPackage.getName())) {
                     if (!Utils.getSSBase().getStatus().equals(Status.INSTALLED) || !installedPackage.getVersion().equals(VERSION)) {                    
                         conflictedPackages.add(installedPackage);
                         LogManager.log(installedPackage.getName());
