@@ -187,7 +187,7 @@ import java_cup.runtime.*;
  *    Copyright © 2000 The MITRE Corporation, Inc.       *
  * 2. http://www.adaic.com/standards/95lrm/lexer9x.l     *
  *                                                       *
- * Modified for "Ada for Netbeans" and for using with    *
+ * Modified for "Ada for Netbeans" and for using it with *
  * JFlex by Andrea Lucarelli.                            *
  *                                                       *
  *********************************************************/
