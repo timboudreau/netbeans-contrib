@@ -155,9 +155,9 @@ public class AdaPlatformManager implements Serializable {
     }
 
     public List<String> getPlatformList() {
-        ArrayList<String> pl = new ArrayList<String>();
-        pl.addAll(platforms.keySet());
-        return pl;
+        ArrayList<String> platformList = new ArrayList<String>();
+        platformList.addAll(platforms.keySet());
+        return platformList;
     }
 
     public void removePlatform(String name) {
@@ -167,11 +167,11 @@ public class AdaPlatformManager implements Serializable {
     public static FileObject findTool(String toolName, Collection<FileObject> installFolders) {
         assert toolName != null;
         for (FileObject root : installFolders) {
-            FileObject bin = root.getFileObject("bin");             //NOI18N
+            FileObject bin = root.getFileObject("bin"); //NOI18N
             if (bin == null) {
                 continue;
             }
-            FileObject tool = bin.getFileObject(toolName, Utilities.isWindows() ? "exe" : null);    //NOI18N
+            FileObject tool = bin.getFileObject(toolName, Utilities.isWindows() ? "exe" : null); //NOI18N
             if (tool != null) {
                 return tool;
             }
