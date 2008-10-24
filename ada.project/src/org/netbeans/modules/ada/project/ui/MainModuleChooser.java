@@ -45,6 +45,7 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
+import org.netbeans.modules.ada.project.AdaMimeResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -108,8 +109,7 @@ final class MainModuleChooser extends javax.swing.JPanel {
         if (fo.isFolder() || !fo.isValid() || fo.isVirtual()) {
             return false;
         }
-        //??? return AdaMIMEResolver.ADA_MIME_TYPE.equals(FileUtil.getMIMEType(fo));
-        return true;
+        return AdaMimeResolver.MIME_TYPE.equals(FileUtil.getMIMEType(fo));
     }
 
     /** This method is called from within the constructor to

@@ -96,6 +96,7 @@ made subject to such option by the copyright holder.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMainFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="100"/>
@@ -105,6 +106,7 @@ made subject to such option by the copyright holder.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-spec-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpecFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="200"/>
@@ -114,6 +116,7 @@ made subject to such option by the copyright holder.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBodyFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="300"/>

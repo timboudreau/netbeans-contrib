@@ -59,6 +59,8 @@ import org.openide.util.Mutex;
  */
 public class AdaSources implements Sources, ChangeListener, PropertyChangeListener {
 
+    public static final String SOURCES_TYPE_ADA = "ADASOURCE"; // NOI18N
+
     private final ChangeSupport changeSupport;
     private final AntProjectHelper helper;
     private final PropertyEvaluator evaluator;
@@ -127,7 +129,7 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
             String displayName = roots.getRootDisplayName(rootNames[i], prop);
             String loc = "${" + prop + "}"; // NOI18N
             sourcesHelper.addPrincipalSourceRoot(loc, displayName, null, null); // NOI18N
-            sourcesHelper.addTypedSourceRoot(loc, AdaProjectType.SOURCES_TYPE_ADA, displayName, null, null);
+            sourcesHelper.addTypedSourceRoot(loc, SOURCES_TYPE_ADA, displayName, null, null);
         }
     }
 

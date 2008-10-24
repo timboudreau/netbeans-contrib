@@ -54,6 +54,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.ada.project.AdaSources;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
@@ -92,7 +93,7 @@ public final class SourceNodeFactory implements NodeFactory {
                 return Collections.EMPTY_LIST;
             }
             Sources sources = getSources();
-            SourceGroup[] groups = sources.getSourceGroups(AdaProjectType.SOURCES_TYPE_ADA);
+            SourceGroup[] groups = sources.getSourceGroups(AdaSources.SOURCES_TYPE_ADA);
             
             List result =  new ArrayList(groups.length);
             for( int i = 0; i < groups.length; i++ ) {
