@@ -291,7 +291,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 NbBundle.getMessage(ScalaConsoleTopComponent.class, "ScalaConsoleWelcome") + " \n\n",
                 pipeIn); // NOI18N
         File pwd = getMainProjectWorkPath();
-	String workPath = pwd.getPath();
+        String workPath = pwd.getPath();
         final Reader in = new InputStreamReader(pipeIn);
         final PrintWriter out = new PrintWriter(new PrintStream(taReadline));
         final PrintWriter err = new PrintWriter(new PrintStream(taReadline));
