@@ -76,6 +76,10 @@ public class AdaPlatform implements Serializable {
         this.compilerCommand = compilerCommand;
     }
 
+    public String getCompilerCommand() {
+        return compilerCommand;
+    }
+
     public String getName() {
         return name;
     }
