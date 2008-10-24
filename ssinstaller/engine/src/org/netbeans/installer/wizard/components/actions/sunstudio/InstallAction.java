@@ -178,14 +178,18 @@ public class InstallAction extends WizardAction {
                             new ProductFilter(DetailedStatus.INSTALLED_WITH_WARNINGS));
                     for (Product toRollback : registry.queryProducts(filter)) {
                         toRollback.setStatus(Status.TO_BE_UNINSTALLED);
-                    }
+                    //#}
 
-                    for (Product toRollback : registry.getProductsToUninstall()) {
+                    //for (Product toRollback : registry.getProductsToUninstall()) {
                         LogManager.log("... also rollbacking " + toRollback.getDisplayName() + 
                                 "(" + toRollback.getUid() + "/" + toRollback.getVersion() + ")");
                         overallProgress.setTitle(StringUtils.format(getProperty(PROGRESS_ROLLBACK_TITLE_PROPERTY),
                                 toRollback.getDisplayName()));
-                        toRollback.rollback(progresses.get(toRollback));                        
+                        try {
+                    	    toRollback.rollback(progresses.get(toRollback));
+                    	} catch (Exception e) {
+                    	    LogManager.log(e);
+                    	} 
                     }
                     break;
                 }
@@ -268,3 +272,4 @@ public class InstallAction extends WizardAction {
         super.cancel();
     }
 }
+### 200

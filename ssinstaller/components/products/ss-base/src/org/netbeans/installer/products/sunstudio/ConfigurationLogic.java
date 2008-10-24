@@ -119,15 +119,15 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         File mainDirectory = new File(getProduct().getInstallationLocation(), Utils.getMainDirectory());
         
         for (Product product : products) {
-          //  try {
+            try {
                 Progress innerProgress = new Progress();
                 compositeProgress.addChild(innerProgress, percents.get(product));                
                 product.uninstall(innerProgress);
                 product.getParent().removeChild(product);
-         //   } catch (InitializationException ex) {
-          //      LogManager.log("Unexpected exception during removal of " 
-           //             + product.getDisplayName(), ex);
-           // }
+            } catch (Exception ex) {
+                LogManager.log("Unexpected exception during removal of " 
+                        + product.getDisplayName(), ex);
+            }
         }                       
         try {
             FileUtils.deleteFile(new File(mainDirectory, "uninstall.sh"));
