@@ -106,7 +106,23 @@ public class TrieDictionaryTest extends TestCase {
         assertEquals(Collections.singletonList("hello"), d.findProposals("hfllo"));
         assertEquals(Collections.singletonList("saida"), d.findProposals("safda"));
     }
-    
+
+    public void test150642() throws Exception {
+        SortedSet<String> data = new TreeSet<String>();
+
+        data.add("abc");
+        data.add("aéc");
+
+        TrieDictionary d = TrieDictionary.constructTrie(data);
+
+        assertEquals(ValidityType.VALID, d.validateWord("abc"));
+        assertEquals(ValidityType.VALID, d.validateWord("aéc"));
+
+        assertEquals(ValidityType.PREFIX_OF_VALID, d.validateWord("a"));
+        assertEquals(ValidityType.PREFIX_OF_VALID, d.validateWord("ab"));
+        assertEquals(ValidityType.PREFIX_OF_VALID, d.validateWord("aé"));
+    }
+
 //
 //    public void testGetDictionary() throws Exception {
 //    }
