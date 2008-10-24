@@ -240,7 +240,7 @@ public class TrieDictionary implements Dictionary {
     }
 
     private char readChar(int pos) {
-        return (char) ((readByte(pos + 0) << 8) + readByte(pos + 1));
+        return (char) ((toUnsigned(readByte(pos + 0)) << 8) + toUnsigned(readByte(pos + 1)));
     }
 
     private byte readByte(int pos) {
