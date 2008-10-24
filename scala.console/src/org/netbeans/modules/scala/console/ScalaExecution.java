@@ -145,7 +145,7 @@ public class ScalaExecution {
      */    
     public static List<String> getScalaArgs(String scalaHome, String cmdName) {
         List<String> argvList = new ArrayList<String>();
-        if (cmdName.equals("scala")) { // NOI18N
+        if (cmdName.equals("scala") || cmdName.equalsIgnoreCase("scala.bat") || cmdName.equalsIgnoreCase("scala.exe")) { // NOI18N
             String javaHome = getJavaHome();
 
             argvList.add(javaHome + File.separator + "bin" + File.separator + // NOI18N
