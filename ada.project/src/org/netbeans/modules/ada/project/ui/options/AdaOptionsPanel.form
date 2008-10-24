@@ -24,7 +24,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="standardsLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="standardsLineSeparator" pref="556" max="32767" attributes="0"/>
+                              <Component id="standardsLineSeparator" pref="527" max="32767" attributes="0"/>
                           </Group>
                           <Component id="errorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
@@ -86,21 +86,19 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="262" pref="262" max="262" attributes="0"/>
                       <Component id="separateSepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
-                      <EmptySpace pref="319" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="262" pref="262" max="262" attributes="0"/>
                       <Component id="pkgBodySepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
-                      <EmptySpace pref="319" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="namingLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="namingLineSeparator" pref="551" max="32767" attributes="0"/>
+                      <Component id="namingLineSeparator" pref="522" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -109,7 +107,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="2" attributes="0">
-                  <Component id="standardsLineSeparator" alignment="2" min="-2" pref="10" max="-2" attributes="0"/>
+                  <Component id="standardsLineSeparator" alignment="2" min="-2" pref="12" max="-2" attributes="0"/>
                   <Component id="standardsLabel" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -149,7 +147,7 @@
                           <Component id="separatePrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
                           <Component id="separatorMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="168" max="32767" attributes="0"/>
+                      <EmptySpace pref="150" max="32767" attributes="0"/>
                       <Component id="errorLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="103" alignment="0" groupAlignment="1" attributes="0">

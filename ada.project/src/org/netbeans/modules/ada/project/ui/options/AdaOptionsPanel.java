@@ -40,6 +40,7 @@
 package org.netbeans.modules.ada.project.ui.options;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
@@ -191,7 +192,7 @@ public class AdaOptionsPanel extends JPanel {
                             .add(layout.createSequentialGroup()
                                 .add(standardsLabel)
                                 .addPreferredGap(LayoutStyle.RELATED)
-                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE))
+                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE))
                             .add(errorLabel)
                             .add(layout.createSequentialGroup()
                                 .add(12, 12, 12)
@@ -237,17 +238,15 @@ public class AdaOptionsPanel extends JPanel {
                                 .add(extTitleLabel))))
                     .add(layout.createSequentialGroup()
                         .add(262, 262, 262)
-                        .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.RELATED, 319, Short.MAX_VALUE))
+                        .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(262, 262, 262)
-                        .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.RELATED, 319, Short.MAX_VALUE))
+                        .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(namingLabel)
                         .addPreferredGap(LayoutStyle.RELATED)
-                        .add(namingLineSeparator, GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)))
+                        .add(namingLineSeparator, GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -266,7 +265,7 @@ public class AdaOptionsPanel extends JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(GroupLayout.CENTER)
-                    .add(standardsLineSeparator, GroupLayout.PREFERRED_SIZE, 10, GroupLayout.PREFERRED_SIZE)
+                    .add(standardsLineSeparator, GroupLayout.PREFERRED_SIZE, 12, GroupLayout.PREFERRED_SIZE)
                     .add(standardsLabel))
                 .addPreferredGap(LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(GroupLayout.CENTER)
@@ -298,7 +297,7 @@ public class AdaOptionsPanel extends JPanel {
                         .add(layout.createParallelGroup(GroupLayout.CENTER)
                             .add(separatePrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                             .add(separatorMaskLabel))
-                        .addPreferredGap(LayoutStyle.RELATED, 168, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.RELATED, 150, Short.MAX_VALUE)
                         .add(errorLabel))
                     .add(layout.createParallelGroup(GroupLayout.TRAILING)
                         .add(layout.createSequentialGroup()

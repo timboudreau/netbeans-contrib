@@ -89,11 +89,11 @@ public final class SourceRoots {
     /**
      * Default label for sources node used in {@link org.netbeans.spi.project.ui.LogicalViewProvider}.
      */
-    public static final String DEFAULT_SOURCE_LABEL = NbBundle.getMessage(SourceRoots.class, "NAME_src.dir");
+    public static final String DEFAULT_SOURCE_LABEL = NbBundle.getMessage(SourceRoots.class, "src.dir");
     /**
      * Default label for tests node used in {@link org.netbeans.spi.project.ui.LogicalViewProvider}.
      */
-    public static final String DEFAULT_TEST_LABEL = NbBundle.getMessage(SourceRoots.class, "NAME_test.src.dir");
+    public static final String DEFAULT_TEST_LABEL = NbBundle.getMessage(SourceRoots.class, "test.src.dir");
     
     /**
      * Name of XML Element having source root definition
@@ -107,7 +107,7 @@ public final class SourceRoots {
     
     private static final String FMT_SOURCE_ROOT = "src.{0}{1}.dir";
     
-    private static final String FMT_TEST_ROOT = "src.{0}{1}.dir";
+    private static final String FMT_TEST_ROOT = "test.src.{0}{1}.dir";
     
 
     private final UpdateHelper helper;
@@ -371,8 +371,7 @@ public final class SourceRoots {
                                     if (path.startsWith(prjPath)) {
                                         path = path.substring(prjPath.length());
                                     } else {
-                                        path = refHelper.createForeignFileReference(
-                                                f, AdaProjectType.SOURCES_TYPE_ADA);
+                                        path = refHelper.createForeignFileReference(f, AdaSources.SOURCES_TYPE_ADA);
                                         props = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
                                     }
                                     props.put(rootName, path);

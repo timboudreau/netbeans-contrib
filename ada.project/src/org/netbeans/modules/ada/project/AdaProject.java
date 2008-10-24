@@ -156,7 +156,7 @@ public class AdaProject implements Project {
         return evaluator;
     }
 
-    AntProjectHelper getHelper() {
+    public AntProjectHelper getHelper() {
         return this.helper;
     }
 
@@ -281,20 +281,25 @@ public class AdaProject implements Project {
         RecommendedTemplatesImpl(UpdateHelper helper) {
             this.helper = helper;
         }
+
         private final UpdateHelper helper;
-        // List of primarily supported templates
-        private static final String[] APPLICATION_TYPES = new String[]{
+
+        private static final String[] TYPES = new String[]{
             "ada", // NOI18N
             "ads", // NOI18N
             "adb" // NOI18N
         };
+
+        // List of primarily supported templates
         private static final String[] PRIVILEGED_NAMES = new String[]{
+            "Templates/Ada/Main.adb", //NOI18N
             "Templates/Ada/AdaSpec.ads", // NOI18N
-            "Templates/Ada/Main.adb" //NOI18N
+            "Templates/Ada/AdaBody.adb", // NOI18N
+            "Templates/Other/Folder"
         };
 
         public String[] getRecommendedTypes() {
-            return APPLICATION_TYPES;
+            return TYPES;
         }
 
         public String[] getPrivilegedTemplates() {
