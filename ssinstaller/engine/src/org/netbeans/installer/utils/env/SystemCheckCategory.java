@@ -234,7 +234,9 @@ class OSCheck implements ConfigurationChecker {
     private final String NOT_SUPPORTED_LONG = ResourceUtils.getString(OSCheck.class, "SCC.oscheck.not_supported_long"); // NOI18N
     private final String NOT_COMPATIBLE_PACKAGES_SHORT = ResourceUtils.getString(OSCheck.class, "SCC.oscheck.not_compatible_packages_short"); // NOI18N
     private final String NOT_COMPATIBLE_PACKAGES_LONG = ResourceUtils.getString(OSCheck.class, "SCC.oscheck.not_compatible_packages_long"); // NOI18N
-        
+    private final String OPENSOLARIS_SHORT = ResourceUtils.getString(OSCheck.class, "SCC.oscheck.opensolaris_short"); // NOI18N
+    private final String OPENSOLARIS_LONG = ResourceUtils.getString(OSCheck.class, "SCC.oscheck.opensolaris_long"); // NOI18N
+    
     private boolean isInfoAvailable() {
         return EnvironmentInfoFactory.getInstance().getOSName() != null && EnvironmentInfoFactory.getInstance().getOSVersion() != null;
     }
@@ -252,25 +254,32 @@ class OSCheck implements ConfigurationChecker {
         if (type == null) return LinuxRPMPackagesAnalyzer.isRPMSupported();
         else return type.equals(PackageType.LINUX_RPM);
     }
+
+    private boolean isOpenSolaris() {
+        return EnvironmentInfoFactory.getInstance().getOSName().startsWith("OpenSolaris");
+    }
     
     public CheckStatus check() {
         if (!isInfoAvailable()) return CheckStatus.WARNING;
         if (!isCompatiblePackagesType()) return CheckStatus.ERROR;
         if (!isSupported()) return CheckStatus.WARNING;
+        if (isOpenSolaris()) return CheckStatus.WARNING;
         return CheckStatus.OK;
     }
 
     public String getShortErrorMessage() {
         if (!isInfoAvailable()) return INFO_NOT_AVAILABLE_SHORT;
         if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_SHORT;
-        if (!isSupported()) return NOT_SUPPORTED_SHORT;        
+        if (!isSupported()) return NOT_SUPPORTED_SHORT;
+        if (isOpenSolaris()) return OPENSOLARIS_SHORT;
         return "";
     }
 
     public String getLongErrorMessage() {
         if (!isInfoAvailable()) return INFO_NOT_AVAILABLE_LONG;
         if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_LONG;
-        if (!isSupported()) return NOT_SUPPORTED_LONG;        
+        if (!isSupported()) return NOT_SUPPORTED_LONG;
+        if (isOpenSolaris()) return OPENSOLARIS_LONG;
         return "";
     }
 
