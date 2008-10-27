@@ -191,6 +191,11 @@ public class SSBasePanel extends DestinationPanel {
                     errorMessage = ALREADY_INSTALLED_LOCATION_TEXT;
                 }
             }
+            if (SystemUtils.isLinux()) {
+                if (new File(file, "lib").exists()) {
+                    errorMessage = LIB_PRESENT_LOCATION_TEXT;
+                }
+            }
             return errorMessage;
         }
         
@@ -223,6 +228,9 @@ public class SSBasePanel extends DestinationPanel {
     public static final String CREATE_SYMLINKS_CHECKBOX_TEXT =
             ResourceUtils.getString(SSBasePanel.class,
             "NBP.create.symlinks.text");//NOI18N 
+    public static final String LIB_PRESENT_LOCATION_TEXT =
+            ResourceUtils.getString(SSBasePanel.class,
+            "NBP.destination.lib.present");//NOI18N
 
     public static final String CREATE_SYMLINKS_PROPERTY =
             Utils.getSPROsslnkPropertyName();

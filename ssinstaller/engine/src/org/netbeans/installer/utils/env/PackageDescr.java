@@ -45,6 +45,10 @@ public class PackageDescr {
 
     public PackageDescr(String name) {
         this.name = name;
+        // TODO find more appropriate way (really add basedir ot IPS package descr)
+        // for OpenSolaris the basedir is not included in desccription
+        // it installed in /opt, really netbeans-6.5ss could be only affected
+        this.baseDirectory ="/opt";
     }
 
     public PackageDescr(String name, String version, String baseDirectory, String arch, Long size) {
