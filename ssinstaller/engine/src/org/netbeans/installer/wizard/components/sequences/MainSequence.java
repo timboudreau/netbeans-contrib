@@ -49,8 +49,10 @@ import org.netbeans.installer.utils.ErrorManager;
 import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.SystemUtils;
+import org.netbeans.installer.utils.env.CheckStatus;
 import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Platform;
+import org.netbeans.installer.utils.silent.SilentLogManager;
 import org.netbeans.installer.wizard.Utils;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.WizardComponent;
@@ -65,6 +67,7 @@ import org.netbeans.installer.wizard.components.actions.sunstudio.RegistrationAc
 import org.netbeans.installer.wizard.components.actions.sunstudio.ServiceTagCreateAction;
 import org.netbeans.installer.wizard.components.panels.PostCreateBundleSummaryPanel;
 import org.netbeans.installer.wizard.components.panels.PreCreateBundleSummaryPanel;
+import org.netbeans.installer.wizard.components.panels.sunstudio.WelcomePanel;
 
 
 /**
@@ -213,6 +216,11 @@ public class MainSequence extends WizardSequence {
                         PRODUCTS_PANEL_FLOW_PROPERTY,
                         list.toString());
                 
+                if (SilentLogManager.isLogManagerActive() && toInstall.isEmpty()) {
+                    SilentLogManager.forceLog(CheckStatus.ERROR, DEFAULT_ERROR_EVERYTHING_IS_INSTALLED);
+                    SilentLogManager.forceLog(CheckStatus.ERROR, SystemCheckSequence.CRITICAL_ERROR_MESSAGE);
+                }                        
+                
                 break;
             case CREATE_BUNDLE:
                 addChild(preCreateBundleSummaryPanel);
@@ -240,6 +248,9 @@ public class MainSequence extends WizardSequence {
     
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
+    public static final String DEFAULT_ERROR_EVERYTHING_IS_INSTALLED =
+            ResourceUtils.getString(MainSequence.class,
+            "MS.error.everything.is.installed"); // NOI18N    
     public static final String DEFAULT_IA_TITLE =
             ResourceUtils.getString(
             MainSequence.class,

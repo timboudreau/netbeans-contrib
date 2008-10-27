@@ -58,7 +58,7 @@ import org.netbeans.installer.wizard.components.panels.sunstudio.SystemCheckPane
 
 public class SystemCheckSequence extends WizardSequence {
     
-    private final String CRITICAL_ERROR_MESSAGE = ResourceUtils.getString(SystemCheckSequence.class, "SCS.error.message"); // NOI18N
+    public final static String CRITICAL_ERROR_MESSAGE = ResourceUtils.getString(SystemCheckSequence.class, "SCS.error.message"); // NOI18N
     
     private SystemCheckPanel systemCheckPanel = null;
     private ExistingSunStudioPanel existingSunStudioPanel = null;
