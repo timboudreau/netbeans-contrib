@@ -260,24 +260,24 @@ class OSCheck implements ConfigurationChecker {
     }
     
     public CheckStatus check() {
-        if (!isInfoAvailable()) return CheckStatus.WARNING;
         if (!isCompatiblePackagesType()) return CheckStatus.ERROR;
+        if (!isInfoAvailable()) return CheckStatus.WARNING;
         if (!isSupported()) return CheckStatus.WARNING;
         if (isOpenSolaris()) return CheckStatus.WARNING;
         return CheckStatus.OK;
     }
 
     public String getShortErrorMessage() {
+        if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_SHORT;        
         if (!isInfoAvailable()) return INFO_NOT_AVAILABLE_SHORT;
-        if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_SHORT;
         if (!isSupported()) return NOT_SUPPORTED_SHORT;
         if (isOpenSolaris()) return OPENSOLARIS_SHORT;
         return "";
     }
 
     public String getLongErrorMessage() {
+        if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_LONG;        
         if (!isInfoAvailable()) return INFO_NOT_AVAILABLE_LONG;
-        if (!isCompatiblePackagesType()) return NOT_COMPATIBLE_PACKAGES_LONG;
         if (!isSupported()) return NOT_SUPPORTED_LONG;
         if (isOpenSolaris()) return OPENSOLARIS_LONG;
         return "";

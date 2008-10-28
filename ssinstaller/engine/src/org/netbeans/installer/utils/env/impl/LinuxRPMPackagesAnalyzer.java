@@ -88,8 +88,10 @@ public class LinuxRPMPackagesAnalyzer extends LinuxPackagesAnalyzer {
                     result = (p.waitFor() == 0);
                 } catch (InterruptedException ex) {
                     LogManager.log(ex);
+                    result = false;
                 } catch (IOException ex) {
                     LogManager.log(ex);
+                    result = false;
                 }    
             }
             isRPMSupported = result;
