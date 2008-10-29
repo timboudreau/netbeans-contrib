@@ -39,17 +39,10 @@
 
 package org.netbeans.modules.ada.project.ui.actions;
 
-import java.io.File;
-import java.util.ArrayList;
-import org.netbeans.api.ada.platform.AdaExecution;
 import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
-import org.netbeans.spi.project.ActionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 
 /**
@@ -58,7 +51,7 @@ import org.openide.util.Lookup;
  */
 public class RunCommand extends Command {
 
-    private static final String COMMAND_ID = ActionProvider.COMMAND_RUN;
+    private static final String COMMAND_ID = AdaActionProvider.COMMAND_RUN;
 
     public RunCommand(AdaProject project) {
         super(project);
@@ -71,34 +64,6 @@ public class RunCommand extends Command {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        final AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
-        assert platform != null;
-        final FileObject script = findMainFile(adaProject);
-        final FileObject parent = script.getParent();
-        assert script != null;        
-        final AdaExecution adaExec = new AdaExecution();
-        adaExec.setDisplayName (ProjectUtils.getInformation(adaProject).getDisplayName());
-        //Set work dir - probably we need a property to store work dir
-        String path = FileUtil.toFile(parent).getAbsolutePath();
-        adaExec.setWorkingDirectory(path);
-        adaExec.setCommand(platform.getInterpreterCommand());
-        //??? Set ada execution
-        path = FileUtil.toFile(script).getAbsolutePath();
-        //??? adaExec.setScript(path);
-        //??? adaExec.setCommandArgs(platform.getInterpreterArgs());
-        //build path & set 
-        final ArrayList<String> adaPath = new ArrayList<String>();
-        adaPath.addAll(platform.getAdaCompilerPath()); // ??? no compiler
-        for (FileObject fo : adaProject.getSourceRoots().getRoots()) {
-            File f = FileUtil.toFile(fo);
-            adaPath.add(f.getAbsolutePath());
-        }        
-        adaExec.setPath(AdaPlatform.buildPath(adaPath));
-        adaExec.setShowControls(true);
-        adaExec.setShowInput(true);
-        adaExec.setShowWindow(true);
-        adaExec.run();
     }
 
     @Override
@@ -107,29 +72,8 @@ public class RunCommand extends Command {
         AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
         if (platform == null) {
             return false;
-        }        
-        final FileObject fo = findMainFile (adaProject);
-        if (fo == null) {
-            return false;
         }
-        return true;
-        //???return AdaMIMEResolver.ADA_MIME_TYPE.equals(fo.getMIMEType());
+        return false;
     }
-    
-    protected static FileObject findMainFile (final AdaProject adaProject) {
-        final FileObject[] roots = adaProject.getSourceRoots().getRoots();
-        final String mainFile = adaProject.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
-        if (mainFile == null) {
-            return null;
-        }
-        FileObject fo = null;
-        for (FileObject root : roots) {
-            fo = root.getFileObject(mainFile);
-            if (fo != null) {
-                break;
-            }
-        }
-        return fo;
-    }
-
+   
 }

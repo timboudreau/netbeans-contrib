@@ -37,39 +37,23 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.project.ui.wizards;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import org.netbeans.spi.options.OptionsCategory;
-import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
+import javax.swing.JPanel;
+import org.openide.WizardDescriptor;
+import org.openide.WizardValidationException;
 
 /**
- *
+ * 
  * @author Andrea Lucarelli
  */
-public class AdaOptionsCategory extends OptionsCategory {
-    
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(ImageUtilities.loadImage("org/netbeans/modules/ada/project/ui/resources/ada-lovelace-32.png")); // NOI18N
-    }
+abstract class SettingsPanel extends JPanel {
 
-    @Override
-    public String getCategoryName() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_name");
-    }
+    abstract void store (WizardDescriptor settings);
 
-    @Override
-    public String getTitle() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_title");
-    }
+    abstract void read (WizardDescriptor settings);
 
-    @Override
-    public OptionsPanelController create() {
-        return new AdaOptionsPanelController();
-    }
+    abstract boolean valid (WizardDescriptor settings);
 
+    abstract void validate (WizardDescriptor settings) throws WizardValidationException;
 }

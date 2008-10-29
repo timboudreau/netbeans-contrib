@@ -56,7 +56,6 @@ import org.netbeans.spi.project.support.ant.ProjectXmlSavedHook;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.ReferenceHelper;
-import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
@@ -80,7 +79,6 @@ public class AdaProject implements Project {
 
     protected AntProjectHelper helper;
     protected UpdateHelper updateHelper;
-    protected LogicalViewProvider logicalView = new AdaLogicalView(this);
     protected SourceRoots sourceRoots;
     protected SourceRoots testRoots;
     protected Lookup lookup;
@@ -126,7 +124,7 @@ public class AdaProject implements Project {
                     new AdaActionProvider(this), //Provides Standard like build and cleen
                     new ClassPathProviderImplementation(this),
                     new Info(), // Project information Implementation
-                    logicalView, // Logical view if project implementation
+                    new AdaLogicalViewProvider(this), // Logical view if project implementation
                     new AdaOpenedHook(), //Called by project framework when project is opened (closed)
                     new AdaProjectXmlSavedHook(), //Called when project.xml changes
                     new AdaSources(helper, evaluator, sourceRoots, testRoots), // Ada source grops - used by package view, factories, refactoring, ...
@@ -253,7 +251,7 @@ public class AdaProject implements Project {
             // unregister project's classpaths to GlobalPathRegistry
             final ClassPathProviderImplementation cpProvider = getLookup().lookup(ClassPathProviderImplementation.class);
             assert cpProvider != null;
-            //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
+            GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
             GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
             try {
                 ProjectManager.getDefault().saveProject(AdaProject.this);
@@ -285,16 +283,19 @@ public class AdaProject implements Project {
         private final UpdateHelper helper;
 
         private static final String[] TYPES = new String[]{
-            "ada", // NOI18N
-            "ads", // NOI18N
-            "adb" // NOI18N
+            "Ada", // NOI18N
+            "c-types", // NOI18N
+            "cpp-types", // NOI18N
+            "asm-types", // NOI18N
+            "shell-types", // NOI18N
+            "simple-files" // NOI18N
         };
 
         // List of primarily supported templates
         private static final String[] PRIVILEGED_NAMES = new String[]{
-            "Templates/Ada/Main.adb", //NOI18N
-            "Templates/Ada/AdaSpec.ads", // NOI18N
-            "Templates/Ada/AdaBody.adb", // NOI18N
+            "Templates/Ada/NewAdaMain.adb", //NOI18N
+            "Templates/Ada/NewAdaSpec.ads", // NOI18N
+            "Templates/Ada/NewAdaBody.adb", // NOI18N
             "Templates/Other/Folder"
         };
 

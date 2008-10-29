@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.wizards;
 
 import java.util.HashSet;
 import java.util.Set;

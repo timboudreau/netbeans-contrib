@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.wizards;
 
+import org.netbeans.modules.ada.project.ui.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -172,7 +173,7 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(setAsMainCheckBox)
-                .addContainerGap(498, Short.MAX_VALUE))
+                .addContainerGap(502, Short.MAX_VALUE))
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(createMainCheckBox)

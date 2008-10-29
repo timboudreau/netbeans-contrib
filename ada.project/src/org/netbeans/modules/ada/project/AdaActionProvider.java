@@ -42,6 +42,9 @@ package org.netbeans.modules.ada.project;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.netbeans.modules.ada.project.ui.actions.BuildCommand;
+import org.netbeans.modules.ada.project.ui.actions.RebuildCommand;
+import org.netbeans.modules.ada.project.ui.actions.CleanCommand;
 import org.netbeans.modules.ada.project.ui.actions.Command;
 import org.netbeans.modules.ada.project.ui.actions.CopyCommand;
 import org.netbeans.modules.ada.project.ui.actions.DebugCommand;
@@ -59,6 +62,12 @@ import org.openide.util.RequestProcessor;
  * @author Andrea Lucarelli
  */
 public class AdaActionProvider implements ActionProvider {
+
+    /**
+     * Standard command for running Adadoc on a project.
+     * @see org.netbeans.spi.project.ActionProvider
+     */
+    public static final String COMMAND_ADADOC = "adadoc"; // NOI18N
 
     AdaProject project;
     
@@ -78,6 +87,9 @@ public class AdaActionProvider implements ActionProvider {
             new RenameCommand(project),
             new RunCommand(project),
             new DebugCommand(project) ,
+            new BuildCommand(project) ,
+            new CleanCommand(project) ,
+            new RebuildCommand(project)
         };
         for (Command command : commandArray) {
             commands.put(command.getCommandId(), command);
@@ -97,7 +109,7 @@ public class AdaActionProvider implements ActionProvider {
      *
      * @param commandName
      * @param context
-     * @throws java.lang.IllegalArgumentException
+     * @throws IllegalArgumentException
      */
     public void invokeAction(final String commandName, final Lookup context) throws IllegalArgumentException {
         final Command command = findCommand(commandName);
@@ -121,7 +133,7 @@ public class AdaActionProvider implements ActionProvider {
      * @param commandName
      * @param context
      * @return
-     * @throws java.lang.IllegalArgumentException
+     * @throws IllegalArgumentException
      */
     public boolean isActionEnabled(String commandName, Lookup context) throws IllegalArgumentException {
         final Command command = findCommand (commandName);

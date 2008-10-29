@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.wizards;
 
+import org.netbeans.modules.ada.project.ui.*;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;

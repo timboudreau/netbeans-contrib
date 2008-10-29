@@ -69,11 +69,11 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Andrea Lucarelli
  */
-class AdaLogicalView implements LogicalViewProvider {
+class AdaLogicalViewProvider implements LogicalViewProvider {
 
     private AdaProject project;
 
-    public AdaLogicalView(AdaProject project) {
+    public AdaLogicalViewProvider(AdaProject project) {
         this.project = project;
     }
 
@@ -129,7 +129,7 @@ class AdaLogicalView implements LogicalViewProvider {
         String getShortDescription() {
             //todo: Add Ada platform description
             String dirName = FileUtil.getFileDisplayName(project.getProjectDirectory());
-            return NbBundle.getMessage(AdaLogicalView.class, "AdaLogicalView.ProjectTooltipDescription", dirName);
+            return NbBundle.getMessage(AdaLogicalViewProvider.class, "AdaLogicalView.ProjectTooltipDescription", dirName);
         }
 
         @Override
@@ -169,15 +169,14 @@ class AdaLogicalView implements LogicalViewProvider {
             actions.add(CommonProjectActions.newFileAction());
             actions.add(null);
 //            The action provider is not done yet
-            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_BUILD, NbBundle.getMessage(AdaLogicalView.class, "LBL_BuildAction_Name"), null)); // NOI18N
-            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_REBUILD, NbBundle.getMessage(AdaLogicalView.class, "LBL_RebuildAction_Name"), null)); // NOI18N
-            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_CLEAN, NbBundle.getMessage(AdaLogicalView.class, "LBL_CleanAction_Name"), null)); // NOI18N
-//            actions.add(ProjectSensitiveActions.projectCommandAction(JavaProjectConstants.COMMAND_JAVADOC, bundle.getString("LBL_JavadocAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_BUILD, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_BuildAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_REBUILD, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_RebuildAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_CLEAN, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_CleanAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_ADADOC, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_AdadocAction_Name"), null)); // NOI18N
             actions.add(null);
-            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_RUN, NbBundle.getMessage(AdaLogicalView.class, "LBL_RunAction_Name"), null)); // NOI18N
-            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_DEBUG, NbBundle.getMessage(AdaLogicalView.class, "LBL_DebugAction_Name"), null)); // NOI18N
-//            actions.addAll(Utilities.actionsForPath("Projects/Profiler_Actions_temporary")); //NOI18N
-//            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_TEST, bundle.getString("LBL_TestAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_RUN, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_RunAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_DEBUG, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_DebugAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(AdaActionProvider.COMMAND_TEST, NbBundle.getMessage(AdaLogicalViewProvider.class, "LBL_TestAction_Name"), null)); // NOI18N
             actions.add(null);
             actions.add(CommonProjectActions.setAsMainProjectAction());
             actions.add(CommonProjectActions.openSubprojectsAction());

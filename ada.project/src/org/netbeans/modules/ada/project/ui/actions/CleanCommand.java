@@ -37,23 +37,35 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.actions;
 
-import javax.swing.JPanel;
-import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
+import org.netbeans.modules.ada.project.AdaActionProvider;
+import org.netbeans.modules.ada.project.AdaProject;
+import org.openide.util.Lookup;
 
 /**
- * 
+ *
  * @author Andrea Lucarelli
  */
-abstract class SettingsPanel extends JPanel {
+public class CleanCommand extends Command {
 
-    abstract void store (WizardDescriptor settings);
+    private static final String COMMAND_ID = AdaActionProvider.COMMAND_CLEAN;
 
-    abstract void read (WizardDescriptor settings);
+    public CleanCommand(AdaProject project) {
+        super(project);
+    }
 
-    abstract boolean valid (WizardDescriptor settings);
+    @Override
+    public String getCommandId() {
+        return COMMAND_ID;
+    }
 
-    abstract void validate (WizardDescriptor settings) throws WizardValidationException;
+    @Override
+    public void invokeAction(Lookup context) throws IllegalArgumentException {
+    }
+
+    @Override
+    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
+        return false;
+    }
 }
