@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.installer.Installer;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.RegistryNode;
@@ -294,6 +296,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     // the critical check point - we download all the data
                     spaceMap.put(downloadDataDirRoot, new Long(downloadSize));
                     long lastDataSize = 0;
+
                     for (Product product: toInstall) {
                                                 
                         File installLocation = product.getInstallationLocation();
@@ -308,7 +311,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                         final File root = FileUtils.getRoot(installLocation, roots);
                         final long productSize = product.getRequiredDiskSpace();
                         
-                        LogManager.log("    [" + root + "] <- " + installLocation);
+                        LogManager.log("Product " + product.getUid() + " installed " + installLocation + " size req "
+                                + StringUtils.formatSize(productSize));
                         
                         if ( root != null ) {
                             Long ddSize =  spaceMap.get(downloadDataDirRoot);
@@ -322,10 +326,16 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                                     (size != null ? size.longValue() : 0L) +
                                     productSize);
                             spaceMap.put(root, size);
+                            try {
+                                LogManager.log("Setting " + "[" + root + "]" + "for" + product.getUid() + " req "
+                                        + StringUtils.formatSize(size) + " free " + StringUtils.formatSize(SystemUtils.getFreeSpace(root)));
+                            } catch (NativeException ex) {
+                                
+                            }
                             lastDataSize = product.getDownloadSize();
                         } else {
                              return StringUtils.format(
-                                    panel.getProperty(ERROR_NON_EXISTENT_ROOT),
+                                    ERROR_NON_EXISTENT_ROOT,
                                     product, installLocation);
                         }
                     }
@@ -339,13 +349,13 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                             
                             if (availableSpace < requiredSpace) {
                                 return StringUtils.format(
-                                        panel.getProperty(ERROR_NOT_ENOUGH_SPACE),
+                                        ERROR_NOT_ENOUGH_SPACE,
                                         root,
                                         StringUtils.formatSize(requiredSpace - availableSpace));
                             }
                         } catch (NativeException e) {
                             ErrorManager.notifyError(
-                                    panel.getProperty(ERROR_CANNOT_CHECK_SPACE),
+                                    ERROR_CANNOT_CHECK_SPACE,
                                     e);
                         }
                     }
@@ -356,7 +366,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 for (Product product: toUninstall) {
                     if (!FileUtils.canWrite(product.getInstallationLocation())) {
                         return StringUtils.format(
-                                panel.getProperty(ERROR_CANNOT_WRITE),
+                                ERROR_CANNOT_WRITE,
                                 product,
                                 product.getInstallationLocation());
                     }
@@ -364,7 +374,7 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 
             } catch (IOException e) {
                 ErrorManager.notifyError(
-                        panel.getProperty(ERROR_FSROOTS), e);
+                        ERROR_FSROOTS, e);
             }
             
             return null;
