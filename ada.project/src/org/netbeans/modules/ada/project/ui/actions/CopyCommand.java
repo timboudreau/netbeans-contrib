@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.ada.project.ui.actions;
 
+import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
-import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.DefaultProjectOperations;
 
 /**
@@ -54,7 +54,7 @@ public class CopyCommand extends GlobalCommand {
 
     @Override
     public String getCommandId() {
-        return ActionProvider.COMMAND_COPY;
+        return AdaActionProvider.COMMAND_COPY;
     }
 
     @Override

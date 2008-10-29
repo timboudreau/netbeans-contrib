@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.wizards;
 
+import org.netbeans.modules.ada.project.ui.*;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
@@ -113,7 +114,7 @@ public class EmptyAdaProjectPanelVisual extends SettingsPanel implements Documen
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                        .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton))
                     .add(projectNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)

@@ -104,9 +104,9 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
         Icon icon = g.getIcon(opened);
         if (icon == null) {
             Image image = opened ? super.getOpenedIcon(type) : super.getIcon(type);
-            return Utilities.mergeImages(image, PACKAGE_ROOT_BADGE, 7, 7);
+            return ImageUtilities.mergeImages(image, PACKAGE_ROOT_BADGE, 7, 7);
         } else {
-            return Utilities.icon2Image(icon);
+            return ImageUtilities.icon2Image(icon);
         }
     }
     

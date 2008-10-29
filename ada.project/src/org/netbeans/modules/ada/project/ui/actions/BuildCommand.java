@@ -37,39 +37,37 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.project.ui.actions;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import org.netbeans.spi.options.OptionsCategory;
-import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
+import org.netbeans.modules.ada.project.AdaActionProvider;
+import org.netbeans.modules.ada.project.AdaProject;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class AdaOptionsCategory extends OptionsCategory {
+public class BuildCommand extends Command {
+
+    private static final String COMMAND_ID = AdaActionProvider.COMMAND_BUILD;
+
+    public BuildCommand(AdaProject project) {
+        super(project);
+    }
+
+    @Override
+    public String getCommandId() {
+        return COMMAND_ID;
+    }
+
+    @Override
+    public void invokeAction(Lookup context) throws IllegalArgumentException {
+        final AdaProject adaProject = getProject();
+    }
+
+    @Override
+    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
+        return false;
+    }
     
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(ImageUtilities.loadImage("org/netbeans/modules/ada/project/ui/resources/ada-lovelace-32.png")); // NOI18N
-    }
-
-    @Override
-    public String getCategoryName() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_name");
-    }
-
-    @Override
-    public String getTitle() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_title");
-    }
-
-    @Override
-    public OptionsPanelController create() {
-        return new AdaOptionsPanelController();
-    }
-
 }

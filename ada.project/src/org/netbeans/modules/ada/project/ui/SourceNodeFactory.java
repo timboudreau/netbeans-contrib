@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui;
 
 import java.awt.event.ActionEvent;
@@ -49,7 +48,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.ada.project.AdaProject;
-import org.netbeans.modules.ada.project.AdaProjectType;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -69,85 +67,85 @@ import org.openide.util.NbBundle;
  * @author Andrea Lucarelli
  */
 public final class SourceNodeFactory implements NodeFactory {
+
     public SourceNodeFactory() {
     }
-    
+
     public NodeList createNodes(Project p) {
         AdaProject project = p.getLookup().lookup(AdaProject.class);
         assert project != null;
         return new SourcesNodeList(project);
     }
-    
+
     private static class SourcesNodeList implements NodeList<SourceGroupKey>, ChangeListener {
-        
+
         private AdaProject project;
-        
         private final ChangeSupport changeSupport = new ChangeSupport(this);
-        
+
         public SourcesNodeList(AdaProject proj) {
             project = proj;
         }
-        
+
         public List<SourceGroupKey> keys() {
             if (this.project.getProjectDirectory() == null || !this.project.getProjectDirectory().isValid()) {
                 return Collections.EMPTY_LIST;
             }
             Sources sources = getSources();
             SourceGroup[] groups = sources.getSourceGroups(AdaSources.SOURCES_TYPE_ADA);
-            
-            List result =  new ArrayList(groups.length);
-            for( int i = 0; i < groups.length; i++ ) {
+
+            List result = new ArrayList(groups.length);
+            for (int i = 0; i < groups.length; i++) {
                 result.add(new SourceGroupKey(groups[i]));
             }
             return result;
         }
-        
+
         public void addChangeListener(ChangeListener l) {
             changeSupport.addChangeListener(l);
         }
-        
+
         public void removeChangeListener(ChangeListener l) {
             changeSupport.removeChangeListener(l);
         }
-        
+
         public Node node(SourceGroupKey key) {
             return new PackageViewFilterNode(key.group, project);
         }
-        
+
         public void addNotify() {
             getSources().addChangeListener(this);
         }
-        
+
         public void removeNotify() {
             getSources().removeChangeListener(this);
         }
-        
+
         public void stateChanged(ChangeEvent e) {
             // setKeys(getKeys());
             // The caller holds ProjectManager.mutex() read lock
             SwingUtilities.invokeLater(new Runnable() {
+
                 public void run() {
                     changeSupport.fireChange();
                 }
             });
         }
-        
+
         private Sources getSources() {
             return ProjectUtils.getSources(project);
         }
-        
     }
-    
+
     private static class SourceGroupKey {
-        
+
         public final SourceGroup group;
         public final FileObject fileObject;
-        
+
         SourceGroupKey(SourceGroup group) {
             this.group = group;
             this.fileObject = group.getRootFolder();
         }
-        
+
         @Override
         public int hashCode() {
             int hash = 5;
@@ -156,14 +154,14 @@ public final class SourceNodeFactory implements NodeFactory {
             hash = 79 * hash + (disp != null ? disp.hashCode() : 0);
             return hash;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (!(obj instanceof SourceGroupKey)) {
                 return false;
             } else {
                 SourceGroupKey otherKey = (SourceGroupKey) obj;
-                
+
                 if (fileObject != otherKey.fileObject && (fileObject == null || !fileObject.equals(otherKey.fileObject))) {
                     return false;
                 }
@@ -177,25 +175,22 @@ public final class SourceNodeFactory implements NodeFactory {
                 return true;
             }
         }
-
-        
     }
-    
+
     /** Yet another cool filter node just to add properties action
      */
     private static class PackageViewFilterNode extends FilterNode {
-        
+
         private String nodeName;
         private Project project;
-        
         Action[] actions;
-        
+
         public PackageViewFilterNode(SourceGroup sourceGroup, Project project) {
             super(getOriginalNode(sourceGroup));
             this.project = project;
             this.nodeName = "Sources";  //NOI18N
         }
-        
+
         private static Node getOriginalNode(final SourceGroup group) {
             if (group == null) {
                 return new AbstractNode(Children.LEAF);
@@ -206,7 +201,7 @@ public final class SourceNodeFactory implements NodeFactory {
             }
             return new TreeRootNode(group);
         }
-        
+
         public Action[] getActions(boolean context) {
             if (!context) {
                 if (actions == null) {
@@ -221,37 +216,33 @@ public final class SourceNodeFactory implements NodeFactory {
                 return super.getActions(context);
             }
         }
-        
     }
-    
-    
+
     /** The special properties action
      */
     static class PreselectPropertiesAction extends AbstractAction {
-        
+
         private final Project project;
         private final String nodeName;
         private final String panelName;
-        
+
         public PreselectPropertiesAction(Project project, String nodeName) {
             this(project, nodeName, null);
         }
-        
+
         public PreselectPropertiesAction(Project project, String nodeName, String panelName) {
             super(NbBundle.getMessage(SourceNodeFactory.class, "LBL_Properties_Action"));
             this.project = project;
             this.nodeName = nodeName;
             this.panelName = panelName;
         }
-        
+
         public void actionPerformed(ActionEvent e) {
 //todo: Add customizer            
 //            CustomizerProviderImpl cp = (CustomizerProviderImpl) project.getLookup().lookup(CustomizerProviderImpl.class);
 //            if (cp != null) {
 //                cp.showCustomizer(nodeName, panelName);
 //            }
-            
         }
     }
-    
 }

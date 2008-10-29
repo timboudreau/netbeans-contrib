@@ -72,7 +72,7 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="focusable" type="boolean" value="false"/>
       </Properties>
@@ -83,7 +83,7 @@
           <ComponentRef name="sources"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -115,7 +115,7 @@
           <ComponentRef name="tests"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -144,7 +144,7 @@
     <Component class="javax.swing.JButton" name="addSource">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.addSource.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.addSource.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -157,7 +157,7 @@
     <Component class="javax.swing.JButton" name="removeSource">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.removeSource.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.removeSource.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -170,7 +170,7 @@
     <Component class="javax.swing.JButton" name="addTest">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.addTest.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.addTest.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -183,7 +183,7 @@
     <Component class="javax.swing.JButton" name="removeTest">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ada/project/ui/Bundle.properties" key="PanelConfigureSourcesVisual.removeTest.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="PanelConfigureSourcesVisual.removeTest.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>

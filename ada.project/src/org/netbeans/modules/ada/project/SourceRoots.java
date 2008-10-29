@@ -107,7 +107,7 @@ public final class SourceRoots {
     
     private static final String FMT_SOURCE_ROOT = "src.{0}{1}.dir";
     
-    private static final String FMT_TEST_ROOT = "test.src.{0}{1}.dir";
+    private static final String FMT_TEST_ROOT = "test.{0}{1}.dir";
     
 
     private final UpdateHelper helper;
@@ -128,7 +128,7 @@ public final class SourceRoots {
         assert helper != null;
         assert evaluator != null;
         assert refHelper != null;
-        return new SourceRoots(helper, evaluator, refHelper,isTest);
+        return new SourceRoots(helper, evaluator, refHelper, isTest);
     }
 
     private SourceRoots(UpdateHelper helper, PropertyEvaluator evaluator, ReferenceHelper refHelper, boolean isTest) {
@@ -138,13 +138,12 @@ public final class SourceRoots {
         this.refHelper = refHelper;
         this.isTest = isTest;
         this.elementName = isTest ? E_TESTS : E_SOURCES;
-        this.newRootNameTemplate = isTest ? FMT_TEST_ROOT: FMT_SOURCE_ROOT;
+        this.newRootNameTemplate = isTest ? FMT_TEST_ROOT : FMT_SOURCE_ROOT;
         this.projectDir = FileUtil.toFile(this.helper.getAntProjectHelper().getProjectDirectory());
         this.support = new PropertyChangeSupport(this);
         this.listener = new ProjectMetadataListener();
         this.evaluator.addPropertyChangeListener(WeakListeners.propertyChange(this.listener, this.evaluator));
-        this.helper.getAntProjectHelper().addAntProjectListener(
-                WeakListeners.create(AntProjectListener.class, this.listener, this.helper));
+        this.helper.getAntProjectHelper().addAntProjectListener(WeakListeners.create(AntProjectListener.class, this.listener, this.helper));
     }
 
 

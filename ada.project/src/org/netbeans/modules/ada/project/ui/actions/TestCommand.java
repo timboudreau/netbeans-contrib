@@ -37,39 +37,42 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.project.ui.actions;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import org.netbeans.spi.options.OptionsCategory;
-import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
+import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.project.AdaActionProvider;
+import org.netbeans.modules.ada.project.AdaProject;
+import org.netbeans.modules.ada.project.AdaProjectUtil;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class AdaOptionsCategory extends OptionsCategory {
-    
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(ImageUtilities.loadImage("org/netbeans/modules/ada/project/ui/resources/ada-lovelace-32.png")); // NOI18N
+public class TestCommand extends Command {
+
+    private static final String COMMAND_ID = AdaActionProvider.COMMAND_TEST;
+
+    public TestCommand(AdaProject project) {
+        super(project);
     }
 
     @Override
-    public String getCategoryName() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_name");
+    public String getCommandId() {
+        return COMMAND_ID;
     }
 
     @Override
-    public String getTitle() {
-        return NbBundle.getMessage(AdaOptionsCategory.class, "AdaOptionsCategory_title");
+    public void invokeAction(Lookup context) throws IllegalArgumentException {
     }
 
     @Override
-    public OptionsPanelController create() {
-        return new AdaOptionsPanelController();
+    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
+        final AdaProject adaProject = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        if (platform == null) {
+            return false;
+        }
+        return false;
     }
-
 }

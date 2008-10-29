@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.ada.project.ui;
+package org.netbeans.modules.ada.project.ui.wizards;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -51,26 +51,40 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.ada.project.AdaMimeResolver;
 import org.netbeans.modules.ada.project.AdaProject;
+import org.netbeans.modules.ada.project.ui.Utils;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
-import org.openide.WizardDescriptor.Panel;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
 /**
- * Just as simple wrapper for the standard new file iterator as possible.
- * @author Tomas Mysik
+ *
  * @author Andrea Lucarelli
  */
-public final class NewFileWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
+public final class NewFileWizardIterator implements WizardDescriptor.InstantiatingIterator {
 
+    private int index;
     private WizardDescriptor wizard;
     private WizardDescriptor.Panel<WizardDescriptor>[] wizardPanels;
-    private int index;
+
+    /**
+     * Initialize panels representing individual wizard's steps and sets
+     * various properties for them influencing wizard appearance.
+     */
+    private WizardDescriptor.Panel<WizardDescriptor>[] getPanels() {
+        Project p = Templates.getProject(wizard);
+        final SourceGroup[] groups = Utils.getSourceGroups(p);
+        WizardDescriptor.Panel<WizardDescriptor> simpleTargetChooserPanel = Templates.createSimpleTargetChooser(p, groups);
+        FileObject template = Templates.getTemplate(wizard);
+
+        return new WizardDescriptor.Panel[]{
+                    simpleTargetChooserPanel
+                };
+    }
 
     public Set instantiate() throws IOException {
         FileObject dir = Templates.getTargetFolder(wizard);
@@ -92,7 +106,7 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
                 ext = FileUtil.getExtension(fname);
             }
         }
-        
+
         // Remove the extension on File Name text field
         if (ext != null && ext.length() > 0) {
             wizardProps.put("name", fname.substring(0, fname.length() - ext.length() - 1));//NOI18N
@@ -154,35 +168,22 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
         wizardPanels = null;
     }
 
-    public String name() {
-        return ""; // NOI18N
-    }
-
-    /** Get the current panel.
-     * @return the panel
-     */
-    public Panel<WizardDescriptor> current() {
+    public WizardDescriptor.Panel current() {
         return wizardPanels[index];
     }
 
-    /** Test whether there is a next panel.
-     * @return <code>true</code> if so
-     */
-    public boolean hasNext() {
-        return index < wizardPanels.length - 1;
+    public String name() {
+        return index + 1 + ". from " + getPanels().length;
     }
 
-    /** Test whether there is a previous panel.
-     * @return <code>true</code> if so
-     */
+    public boolean hasNext() {
+        return index < getPanels().length - 1;
+    }
+
     public boolean hasPrevious() {
         return index > 0;
     }
 
-    /** Move to the next panel.
-     * I.e. increment its index, need not actually change any GUI itself.
-     * @exception NoSuchElementException if the panel does not exist
-     */
     public void nextPanel() {
         if (!hasNext()) {
             throw new NoSuchElementException();
@@ -190,10 +191,6 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
         index++;
     }
 
-    /** Move to the previous panel.
-     * I.e. decrement its index, need not actually change any GUI itself.
-     * @exception NoSuchElementException if the panel does not exist
-     */
     public void previousPanel() {
         if (!hasPrevious()) {
             throw new NoSuchElementException();
@@ -201,23 +198,13 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
         index--;
     }
 
+    // If nothing unusual changes in the middle of the wizard, simply:
     public void addChangeListener(ChangeListener l) {
     }
 
     public void removeChangeListener(ChangeListener l) {
     }
 
-    @SuppressWarnings("unchecked") // Generic Array Creation
-    private WizardDescriptor.Panel<WizardDescriptor>[] getPanels() {
-        Project p = Templates.getProject(wizard);
-        final SourceGroup[] groups = Utils.getSourceGroups(p);
-        WizardDescriptor.Panel<WizardDescriptor> simpleTargetChooserPanel = Templates.createSimpleTargetChooser(p, groups);
-        FileObject template = Templates.getTemplate(wizard);
-
-        return new WizardDescriptor.Panel[]{
-                    simpleTargetChooserPanel
-                };
-    }
 
     private FileObject getFileObject(AntProjectHelper helper, String propname) {
         String prop = helper.getStandardPropertyEvaluator().getProperty(propname);

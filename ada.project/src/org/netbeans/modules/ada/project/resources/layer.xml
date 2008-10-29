@@ -75,7 +75,7 @@ made subject to such option by the copyright holder.
                     <attr name="position" intvalue="100"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
-                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.ada.project.ui.NewAdaProjectWizardIterator.createApplication"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.ada.project.ui.wizards.NewAdaProjectWizardIterator.createApplication"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ada-lovelace-16.png"/>
                     <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaProjectDescription.html"/>
                 </file>
@@ -84,39 +84,39 @@ made subject to such option by the copyright holder.
                     <attr name="template" boolvalue="true"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ada-lovelace-16.png"/>
-                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ada.project.ui.NewAdaProjectWizardIterator.createExistingProject"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.ada.project.ui.wizards.NewAdaProjectWizardIterator.createExistingProject"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ExistingAdaProjectDescription.html"/>
                 </file>
             </folder>
         </folder>
         <folder name="Ada">
             <attr name="position" intvalue="40"/>
-            <file name="Main.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMain.adb">
+            <file name="NewAdaMain.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMain.adb">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMainFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="100"/>
             </file>
-            <file name="AdaSpec.ads" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpec.ads">
+            <file name="NewAdaSpec.ads" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpec.ads">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-spec-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpecFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="200"/>
             </file>
-            <file name="AdaBody.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBody.adb">
+            <file name="NewAdaBody.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBody.adb">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.NewFileWizardIterator"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBodyFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="Ada"/>
                 <attr name="position" intvalue="300"/>

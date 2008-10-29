@@ -40,9 +40,9 @@
 package org.netbeans.modules.ada.project.ui.actions;
 
 import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
-import org.netbeans.spi.project.ActionProvider;
 import org.openide.util.Lookup;
 
 /**
@@ -51,7 +51,7 @@ import org.openide.util.Lookup;
  */
 public class DebugCommand extends RunCommand {
 
-    private static final String COMMAND_ID = ActionProvider.COMMAND_DEBUG;
+    private static final String COMMAND_ID = AdaActionProvider.COMMAND_DEBUG;
 
     public DebugCommand(AdaProject project) {
         super(project);
@@ -64,7 +64,16 @@ public class DebugCommand extends RunCommand {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        final AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
     }
+
+    @Override
+    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
+        final AdaProject adaProject = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        if (platform == null) {
+            return false;
+        }
+        return false;
+    }
+
 }
