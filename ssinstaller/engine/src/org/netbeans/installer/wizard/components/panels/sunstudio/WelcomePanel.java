@@ -449,7 +449,7 @@ public class WelcomePanel extends ErrorMessagePanel {
             try {                
                 if(!Boolean.getBoolean(SystemUtils.NO_SPACE_CHECK_PROPERTY)) {                     
                     final long availableSize = SystemUtils.getFreeSpace(
-                            Installer.getInstance().getLocalDirectory());
+                            SystemUtils.getTempDirectory());
                     
                     long requiredSize = 0;
                     for (Product product: products) {
@@ -460,8 +460,8 @@ public class WelcomePanel extends ErrorMessagePanel {
                     if (availableSize < requiredSize) {
                         return StringUtils.format(
                                 template,
-                                Installer.getInstance().getLocalDirectory(),
-                                StringUtils.formatSize(requiredSize - availableSize));
+                                SystemUtils.getTempDirectory(),
+                                StringUtils.formatSize(requiredSize));
                     }
                 }
             } catch (NativeException e) {
