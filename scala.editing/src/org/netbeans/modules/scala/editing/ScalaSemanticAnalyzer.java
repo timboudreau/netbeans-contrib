@@ -144,13 +144,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, hiToken);
             switch (ref.getKind()) {
                 case CLASS:
-                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    highlights.put(hiRange, ColoringAttributes.CLASS_SET);
                     break;
                 case MODULE:
-                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    highlights.put(hiRange, ColoringAttributes.CLASS_SET);
                     break;
                 case METHOD:
-                    highlights.put(hiRange, ColoringAttributes.METHOD_SET);
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
                     break;
                 default:
             }
