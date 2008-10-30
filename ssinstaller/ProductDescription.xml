@@ -191,6 +191,7 @@
             <svr source="SPROlklnt"/>
             <svr source="SPROmrmp"/>
             <svr source="SPROsysprp"/>
+            <svr source="SPROdemo"/>
             <svr source="SPROtweak"/>            
         </block>
         <block platform="solaris-sparc">
@@ -258,6 +259,7 @@
             <svr source="SPROutool"/>
             <svr source="SPROudchk"/>
             <svr source="SPROtweak"/>
+            <svr source="SPROdemo"/>
             <svr source="SPROsysprp"/>
         </block>
         <block platform="linux">	    
