@@ -87,9 +87,7 @@
     <fontcolor name="mod-annotation-type" />
     <fontcolor name="mod-enum" />
     <fontcolor name="mod-deprecated" strikeThrough="404040" />
-    <fontcolor name="mod-static" >
-        <font style="italic" />
-    </fontcolor>
+    <fontcolor name="mod-static" foreColor="717ab3"/>
     <fontcolor name="mod-private" />
     <fontcolor name="mod-package-private" />
     <fontcolor name="mod-protected" />
