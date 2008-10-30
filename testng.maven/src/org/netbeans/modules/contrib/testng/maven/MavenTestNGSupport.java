@@ -38,15 +38,23 @@
  */
 package org.netbeans.modules.contrib.testng.maven;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
+import org.netbeans.modules.contrib.testng.spi.XMLSuiteSupport;
 import org.netbeans.modules.maven.api.NbMavenProject;
+import org.netbeans.modules.maven.api.execute.RunConfig;
+import org.netbeans.modules.maven.api.execute.RunUtils;
+import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -55,7 +63,7 @@ import org.openide.filesystems.FileUtil;
 public class MavenTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(MavenTestNGSupport.class.getName());
-    
+
     public boolean isProjectSupported(Project p) {
         return p.getLookup().lookup(NbMavenProject.class) != null;
     }
@@ -66,6 +74,9 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
+        Project p = FileOwnerQuery.getOwner(createdFile);
+        FileObject pom = p.getProjectDirectory().getFileObject("pom.xml"); //NOI18N
+        MavenModelUtils.addProfile(pom, "target/nb-private/testng-suite.xml"); //NOI18N
     }
 
     public TestExecutor createExecutor(Project p) {
@@ -74,7 +85,8 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
 
     public class MavenExecutor implements TestExecutor {
 
-        private static final String failedConfPath = "target/surefire-reports/testng-native-results/testng-failed.xml"; //NOI18N
+        private static final String failedConfPath = "target/surefire-reports/testng-failed.xml"; //NOI18N
+        private static final String failedConfPath2 = "target/surefire-reports/testng-native-results/testng-failed.xml"; //NOI18N
         private static final String resultsPath = "target/surefire-reports/testng-native-results/testng-results.xml"; //NOI18N
         private Project p;
 
@@ -83,15 +95,76 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
         }
 
         public boolean hasFailedTests() {
-            FileObject projectHome = p.getProjectDirectory();
-            //XXX - should rather listen on a fileobject??
-            FileUtil.refreshFor(FileUtil.toFile(projectHome));
-            FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
-            return failedTestsConfig != null && failedTestsConfig.isValid();
+            return getFailedConfig() != null;
         }
 
         public void execute(TestConfig config) throws IOException {
+            RunConfig rc = new TestNGActionsProvider().createConfigForDefaultAction("testng.test", p, Lookups.singleton(config.getTest()));
+//            MavenProject mp = rc.getMavenProject();
+            rc.setProperty("netbeans.testng.action", "true"); //NOI18N
+            if (config.doRerun()) {
+                copy(getFailedConfig());
+//                mp.addPlugin(createPluginDef(failedConfPath));
+            } else {
+                File f = XMLSuiteSupport.createSuiteforMethod(
+                        new File(System.getProperty("java.io.tmpdir")), //NOI18N
+                        ProjectUtils.getInformation(p).getDisplayName(),
+                        config.getPackageName(),
+                        config.getClassName(),
+                        config.getMethodName());
+                copy(FileUtil.toFileObject(f));
+//                mp.addPlugin(createPluginDef(FileUtil.getRelativePath(p.getProjectDirectory(), FileUtil.toFileObject(f))));
+            }
+            ExecutorTask task = RunUtils.executeMaven(rc);
+
         }
 
+        private FileObject getFailedConfig() {
+            FileObject fo = p.getProjectDirectory();
+            //XXX - should rather listen on a fileobject??
+            FileUtil.refreshFor(FileUtil.toFile(fo));
+            FileObject cfg = fo.getFileObject(failedConfPath);
+            if (cfg == null || !cfg.isValid()) {
+               cfg = fo.getFileObject(failedConfPath2);
+            }
+            return cfg;
+        }
+
+        private FileObject copy(FileObject source) throws IOException {
+            FileObject fo = p.getProjectDirectory();
+            //target/nb-private/tesng-suite.xml
+            FileObject folder = FileUtil.createFolder(fo, "target/nb-private"); //NOI18N
+            FileObject cfg = folder.getFileObject("testng-suite", "xml"); //NOI18N
+            if (cfg != null) {
+                cfg.delete();
+            }
+            return FileUtil.copyFile(source, folder, "testng-suite"); //NOI18N
+        }
+
+//        private Plugin createPluginDef(String testDesc) {
+//            Plugin plugin = new Plugin();
+//            plugin.setGroupId("org.apache.maven.plugins");
+//            plugin.setArtifactId("maven-surefire-plugin");
+//            plugin.setVersion("2.4.2");
+//
+//            Xpp3Dom dom = (Xpp3Dom) plugin.getConfiguration();
+//            if (dom == null) {
+//                dom = new Xpp3Dom("configuration");
+//                plugin.setConfiguration(dom);
+//            }
+//
+//            Xpp3Dom dom2 = dom.getChild("suiteXmlFiles");
+//            if (dom2 == null) {
+//                dom2 = new Xpp3Dom("suiteXmlFiles");
+//                dom.addChild(dom2);
+//            }
+//            Xpp3Dom dom3 = dom2.getChild("suiteXmlFile");
+//            if (dom3 == null) {
+//                dom3 = new Xpp3Dom("suiteXmlFile");
+//                dom3.setValue(testDesc);
+//                dom2.addChild(dom3);
+//            }
+//            return plugin;
+//        }
     }
 }
