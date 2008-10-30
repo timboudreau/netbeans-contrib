@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.contrib.testng.spi;
 
+import org.openide.filesystems.FileObject;
+
 /**
  *
  * @author lukas
@@ -49,12 +51,14 @@ public final class TestConfig {
     private String pkgName;
     private String className;
     private String methodName;
+    private FileObject test;
 
-    public TestConfig(String pkgName, String className, String methodName) {
-        this(false, pkgName, className, methodName);
+    public TestConfig(FileObject test, String pkgName, String className, String methodName) {
+        this(test, false, pkgName, className, methodName);
     }
 
-    public TestConfig(boolean rerun, String pkgName, String className, String methodName) {
+    public TestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName) {
+        this.test = test;
         this.rerun = rerun;
         this.pkgName = pkgName;
         this.className = className;
@@ -78,4 +82,7 @@ public final class TestConfig {
         return rerun;
     }
 
+    public FileObject getTest() {
+        return test;
+    }
 }
