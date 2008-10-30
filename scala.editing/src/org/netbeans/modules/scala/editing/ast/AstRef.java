@@ -61,6 +61,12 @@ public class AstRef extends AstItem {
             return ElementKind.PACKAGE;
         } else if (symbol.isClass() || symbol.isTrait() || symbol.isModule()) {
             return ElementKind.CLASS;
+        } else if (symbol.isMethod()) {
+            if (symbol.nameString().equals("apply")) {
+                return ElementKind.MODULE;
+            } else {
+                return ElementKind.METHOD;
+            }
         } else {
             return ElementKind.OTHER;
         }

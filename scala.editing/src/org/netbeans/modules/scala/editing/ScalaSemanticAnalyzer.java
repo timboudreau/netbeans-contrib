@@ -145,7 +145,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             switch (ref.getKind()) {
                 case CLASS:
                     highlights.put(hiRange, ColoringAttributes.FIELD_SET);
-                    break; // break out from switch
+                    break;
+                case MODULE:
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    break;
+                case METHOD:
+                    highlights.put(hiRange, ColoringAttributes.METHOD_SET);
+                    break;
                 default:
             }
         }
@@ -161,16 +167,16 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                 continue;
             }
 
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
+            OffsetRange hiRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
             switch (def.getKind()) {
                 case MODULE:
-                    highlights.put(idRange, ColoringAttributes.CLASS_SET);
+                    highlights.put(hiRange, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:
-                    highlights.put(idRange, ColoringAttributes.CLASS_SET);
+                    highlights.put(hiRange, ColoringAttributes.CLASS_SET);
                     break;
                 case METHOD:
-                    highlights.put(idRange, ColoringAttributes.METHOD_SET);
+                    highlights.put(hiRange, ColoringAttributes.METHOD_SET);
                     break;
 //                case FIELD:
 //                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
