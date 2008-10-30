@@ -148,11 +148,14 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
             FileObject sourceDir = createSourceRoot();
             resultSet.add(sourceDir);
 
+            // tests
+            FileObject testDir = createTestRoot();
+            resultSet.add(testDir);
 
             // main file
             final String mainName = (String) descriptor.getProperty(NewAdaProjectWizardIterator.MAIN_FILE);        
             if (mainName != null) {            
-                resultSet.add(createMainFile(Repository.getDefault().getDefaultFileSystem().findResource( "Templates/Ada/Main.adb"),
+                resultSet.add(createMainFile(Repository.getDefault().getDefaultFileSystem().findResource("Templates/Ada/NewAdaMain.adb"),
                         sourceDir,mainName).getPrimaryFile());
             }
         }
@@ -308,8 +311,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         data.appendChild (testRoots);
     }    
     
-    private void appendRoots (Element node, EditableProperties properties,
-            List<? extends File> roots, File projectDirectory, Document doc) { 
+    private void appendRoots (Element node, EditableProperties properties, List<? extends File> roots, File projectDirectory, Document doc) { 
         for (File srcDir : roots) {
             String srcPath = PropertyUtils.relativizeFile(projectDirectory, srcDir);
             // # 132319
@@ -346,11 +348,14 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         }
     }   
 
-    
     private FileObject createSourceRoot() throws IOException {
         return FileUtil.createFolder(getSources().get(0));
     }
-    
+
+    private FileObject createTestRoot() throws IOException {
+        return FileUtil.createFolder(getTests().get(0));
+    }
+
     private List<? extends File> getSources () {
         if (wizardType == WizardType.APP) {
             return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"src"));   //NOI18N
@@ -365,7 +370,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         
     private List<? extends File> getTests () {
         if (wizardType == WizardType.APP) {
-            return Collections.<File>emptyList();
+            return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"test"));   //NOI18N
         }
         else if (wizardType == WizardType.EXISTING) {
             return Arrays.asList((File[])descriptor.getProperty(TEST_ROOTS));            
@@ -379,9 +384,9 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         DataFolder dataFolder = DataFolder.findFolder(sourceDir);
         DataObject dataTemplate = DataObject.find(template);
         //Strip extension when needed
-        int index = name.lastIndexOf('.');
-        if (index >0 && index<name.length()-1 && "adb".equalsIgnoreCase(name.substring(index+1))) {
-            name = name.substring(0, index);
+        int idx = name.lastIndexOf('.');
+        if (idx >0 && idx<name.length()-1 && "adb".equalsIgnoreCase(name.substring(idx+1))) {
+            name = name.substring(0, idx);
         }
         return dataTemplate.createFromTemplate(dataFolder, name);
     }
