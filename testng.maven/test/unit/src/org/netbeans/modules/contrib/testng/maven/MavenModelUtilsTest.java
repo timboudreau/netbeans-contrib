@@ -37,52 +37,29 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.contrib.testng.spi;
+package org.netbeans.modules.contrib.testng.maven;
 
+import java.io.File;
+import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
  * @author lukas
  */
-public final class TestConfig {
+public class MavenModelUtilsTest extends NbTestCase {
 
-    private boolean rerun;
-    private String pkgName;
-    private String className;
-    private String methodName;
-    private FileObject test;
-
-    public TestConfig(FileObject test, String pkgName, String className, String methodName) {
-        this(test, false, pkgName, className, methodName);
+    public MavenModelUtilsTest(String s) {
+        super(s);
     }
 
-    public TestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName) {
-        this.test = test;
-        this.rerun = rerun;
-        this.pkgName = pkgName;
-        this.className = className;
-        this.methodName = methodName;
+    /**
+     * Test of addProfile method, of class MavenModelUtils.
+     */
+    public void testAddProfile() {
+        FileObject fo = FileUtil.toFileObject(new File(getDataDir(), "pom.xml"));
+        MavenModelUtils.addProfile(fo, "sample.xml");
     }
 
-
-    public String getClassName() {
-        return className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String getPackageName() {
-        return pkgName;
-    }
-
-    public boolean doRerun() {
-        return rerun;
-    }
-
-    public FileObject getTest() {
-        return test;
-    }
 }

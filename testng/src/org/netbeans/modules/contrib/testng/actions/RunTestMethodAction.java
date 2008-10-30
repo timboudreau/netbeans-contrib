@@ -59,7 +59,7 @@ public final class RunTestMethodAction extends CookieAction {
                 DataObject dobj = l.lookup(DataObject.class);
                 Project p = FileOwnerQuery.getOwner(dobj.getPrimaryFile());
                 TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
-                TestConfig conf = new TestConfig(task.getPackageName(), task.getClassName(), task.getMethodName());
+                TestConfig conf = new TestConfig(dobj.getPrimaryFile(), task.getPackageName(), task.getClassName(), task.getMethodName());
                 try {
                     exec.execute(conf);
                 } catch (IOException ex) {

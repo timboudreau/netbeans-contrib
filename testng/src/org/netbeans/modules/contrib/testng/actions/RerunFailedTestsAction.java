@@ -27,7 +27,7 @@ public final class RerunFailedTestsAction extends CookieAction {
         Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
         TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
         assert exec.hasFailedTests();
-        TestConfig conf = new TestConfig(true, null, null, null);
+        TestConfig conf = new TestConfig(dataObject.getPrimaryFile(), true, null, null, null);
         try {
             exec.execute(conf);
         } catch (IOException ex) {

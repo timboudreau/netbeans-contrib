@@ -37,52 +37,41 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.contrib.testng.spi;
+package org.netbeans.modules.contrib.testng.maven;
 
-import org.openide.filesystems.FileObject;
+import java.io.InputStream;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.maven.spi.actions.AbstractMavenActionsProvider;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author lukas
  */
-public final class TestConfig {
+public class TestNGActionsProvider extends AbstractMavenActionsProvider {
 
-    private boolean rerun;
-    private String pkgName;
-    private String className;
-    private String methodName;
-    private FileObject test;
-
-    public TestConfig(FileObject test, String pkgName, String className, String methodName) {
-        this(test, false, pkgName, className, methodName);
+    /** Creates a new instance of TestNGActionsProvider */
+    public TestNGActionsProvider() {
     }
 
-    public TestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName) {
-        this.test = test;
-        this.rerun = rerun;
-        this.pkgName = pkgName;
-        this.className = className;
-        this.methodName = methodName;
+    @Override
+    public boolean isActionEnable(String action, Project project, Lookup lookup) {
+        if (action.startsWith("testng.")) { //NOI18N
+            return true;
+        }
+        return super.isActionEnable(action, project, lookup);
     }
 
 
-    public String getClassName() {
-        return className;
+    @Override
+    protected InputStream getActionDefinitionStream() {
+       String path = "/org/netbeans/modules/contrib/testng/maven/testngActionMappings.xml"; //NOI18N
+       InputStream in = getClass().getResourceAsStream(path);
+        if (in == null) {
+            assert false : "No instream for " + path; //NOI18N
+            return null;
+        }
+       return in;
     }
 
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String getPackageName() {
-        return pkgName;
-    }
-
-    public boolean doRerun() {
-        return rerun;
-    }
-
-    public FileObject getTest() {
-        return test;
-    }
 }
