@@ -189,7 +189,16 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                     }               
             }
             
-            Product ssProduct = Utils.getSSBase();
+            Product ssProduct = null;
+            try {
+                ssProduct = Utils.getSSBase();
+            } catch (Exception e) {
+                panel.setProperty(DESCRIPTION_PROPERTY, ERROR_DESCRIPTION_UNINSTALL);
+                container.getNextButton().setVisible(false);
+                container.getBackButton().setVisible(false);
+                container.getCancelButton().setVisible(true);
+                container.getCancelButton().setText(component.getProperty(FINISH_BUTTON_TEXT_PROPERTY));
+            }
             dependentOnSS.remove(ssProduct);
           //  Product nbProduct = registry.getProducts("nb-extra").get(0);
 
@@ -599,7 +608,10 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
     public static final String ERROR_CANNOT_WRITE =
             ResourceUtils.getString(PreInstallSummaryPanel.class,
             "NPrISP.error.cannot.write"); // NOI18N
-    
+    public static final String ERROR_DESCRIPTION_UNINSTALL =
+            ResourceUtils.getString(PreInstallSummaryPanel.class,
+            "NPrISP.description.uninstall.error"); // NOI18N
+
     public static final long REQUIRED_SPACE_ADDITION =
             10L * 1024L * 1024L; // 10MB
 }
