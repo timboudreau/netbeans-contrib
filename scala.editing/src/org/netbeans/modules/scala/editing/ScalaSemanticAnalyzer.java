@@ -147,7 +147,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     highlights.put(hiRange, ColoringAttributes.STATIC_SET);
                     break;
                 case MODULE:
-                    highlights.put(hiRange, ColoringAttributes.STATIC_SET);
+                    highlights.put(hiRange, ColoringAttributes.GLOBAL_SET);
                     break;
                 case METHOD:
                     highlights.put(hiRange, ColoringAttributes.FIELD_SET);

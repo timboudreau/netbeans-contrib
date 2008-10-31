@@ -69,10 +69,9 @@
     <!--"semantic" highlighting:-->
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
     <fontcolor name="mod-abstract" />
-    <fontcolor name="mod-field" default="field" foreColor="009B00"/>
+    <fontcolor name="mod-field" default="field" foreColor="009B00"/>  
     <fontcolor name="mod-local-variable" />
     <fontcolor name="mod-parameter" foreColor="A06001"/>
-    <fontcolor name="mod-global" default="field"/>
 
     <fontcolor name="mod-method">
         <font style="bold" />
@@ -83,11 +82,17 @@
     <fontcolor name="mod-class">
         <font style="bold" />
     </fontcolor>
-    <fontcolor name="mod-interface" />
+    <fontcolor name="mod-static" foreColor="717ab3"/> <!-- for Class Ref -->
+    <fontcolor name="mod-global" default="field"  foreColor="717ab3"> <!-- for Object Ref -->
+        <font style="italic" />
+    </fontcolor>
+    <fontcolor name="mod-interface" foreColor="717ab3">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="mod-annotation-type" />
     <fontcolor name="mod-enum" />
     <fontcolor name="mod-deprecated" strikeThrough="404040" />
-    <fontcolor name="mod-static" foreColor="717ab3"/>
+
     <fontcolor name="mod-private" />
     <fontcolor name="mod-package-private" />
     <fontcolor name="mod-protected" />
