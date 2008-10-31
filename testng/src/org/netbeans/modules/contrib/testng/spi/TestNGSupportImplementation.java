@@ -87,7 +87,7 @@ public abstract class TestNGSupportImplementation {
      * @return true if a library was added to the project
      * @throws java.io.IOException
      */
-    protected boolean addLibrary(FileObject fo) throws IOException {
+    protected final boolean addLibrary(FileObject fo) throws IOException {
         assert fo != null;
         Project p = FileOwnerQuery.getOwner(fo);
         ClassPath cp = ClassPath.getClassPath(fo, ClassPath.COMPILE);

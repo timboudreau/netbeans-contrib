@@ -36,59 +36,40 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.contrib.testng.spi;
+package org.netbeans.modules.contrib.testng.actions;
 
-import org.netbeans.modules.contrib.testng.actions.TestConfigAccessor;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.openide.filesystems.FileObject;
 
-/**
- *
- * @author lukas
- */
-public final class TestConfig {
+public abstract class TestConfigAccessor {
 
-    private final boolean rerun;
-    private final String pkgName;
-    private final String className;
-    private final String methodName;
-    private final FileObject test;
-
-
-    static {
-        TestConfigAccessor.setDefault(new TestConfigAccessor() {
-
-            @Override
-            public TestConfig createTestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName) {
-                return new TestConfig(test, rerun, pkgName, className, methodName);
-            }
-        });
+    protected TestConfigAccessor() {
     }
 
-    private TestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName) {
-        this.test = test;
-        this.rerun = rerun;
-        this.pkgName = pkgName;
-        this.className = className;
-        this.methodName = methodName;
+    private static volatile TestConfigAccessor accessor;
+
+    public static void setDefault(TestConfigAccessor accessor) {
+        if (TestConfigAccessor.accessor != null) {
+            throw new IllegalStateException("Already initialized accessor");
+        }
+        TestConfigAccessor.accessor = accessor;
     }
 
-    public String getClassName() {
-        return className;
+    public static TestConfigAccessor getDefault() {
+        if (accessor != null) {
+            return accessor;
+        }
+        // invokes static initializer of TestConfig.class
+        // that will assign value to the DEFAULT field above
+        Class c = TestConfig.class;
+        try {
+            Class.forName(c.getName(), true, c.getClassLoader());
+        } catch (ClassNotFoundException ex) {
+            assert false : ex;
+        }
+        assert accessor != null : "The accessor field must be initialized";
+        return accessor;
     }
 
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String getPackageName() {
-        return pkgName;
-    }
-
-    public boolean doRerun() {
-        return rerun;
-    }
-
-    public FileObject getTest() {
-        return test;
-    }
+    public abstract TestConfig createTestConfig(FileObject test, boolean rerun, String pkgName, String className, String methodName);
 }
