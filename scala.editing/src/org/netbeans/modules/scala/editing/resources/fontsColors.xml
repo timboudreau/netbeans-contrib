@@ -83,10 +83,10 @@
         <font style="bold" />
     </fontcolor>
     <fontcolor name="mod-static" foreColor="717ab3"/> <!-- for Class Ref -->
-    <fontcolor name="mod-global" default="field"  foreColor="717ab3"> <!-- for Object Ref -->
+    <fontcolor name="mod-global" foreColor="717ab3">  <!-- for Object Ref -->
         <font style="italic" />
     </fontcolor>
-    <fontcolor name="mod-interface" foreColor="717ab3">
+    <fontcolor name="mod-interface" foreColor="009B00"> <!-- for implicit method Ref -->
         <font style="bold" />
     </fontcolor>
     <fontcolor name="mod-annotation-type" />
