@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
@@ -53,6 +54,8 @@ import org.netbeans.modules.scala.editing.ast.AstRef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import scala.tools.nsc.symtab.Types.ImplicitMethodType;
+import scala.tools.nsc.symtab.Types.Type;
 
 /**
  *  
@@ -128,6 +131,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
     }
 
+    private static Set<ColoringAttributes> IMPLICIT_METHOD = new HashSet();    
+    {
+        IMPLICIT_METHOD.add(ColoringAttributes.INTERFACE);
+    }
+
     private void visitScopeRecursively(Document doc, TokenHierarchy th, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
 
         for (AstRef ref : scope.getRefs()) {
@@ -147,10 +155,25 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     highlights.put(hiRange, ColoringAttributes.STATIC_SET);
                     break;
                 case MODULE:
-                    highlights.put(hiRange, ColoringAttributes.STATIC_SET);
+                    highlights.put(hiRange, ColoringAttributes.GLOBAL_SET);
                     break;
                 case METHOD:
-                    highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    try {
+                        Type tpe = ref.getSymbol().tpe();
+                        // @todo doesn't work yet
+                        if (tpe instanceof ImplicitMethodType) {
+                            highlights.put(hiRange, IMPLICIT_METHOD);
+                            break;
+                        }
+                    } catch (Throwable t) {
+                    }
+
+                    final String symbolName = ref.getSymbol().nameString();
+                    if (symbolName.equals("apply") || symbolName.startsWith("unapply")) {
+                        highlights.put(hiRange, ColoringAttributes.STATIC_SET);
+                    } else {
+                        highlights.put(hiRange, ColoringAttributes.FIELD_SET);
+                    }
                     break;
                 default:
             }
