@@ -410,7 +410,12 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitTypeApply(TypeApply tree) {
-        visit(tree.fun());
+        /**
+         * @todo just ignore type apply's fun, it's fun apply, for example:
+         * val tuple = (a, b, c)
+         * where (a, c, c) will be Apply::TypeApply
+         */
+        //visit(tree.fun());
         visit(tree.args());
     }
 
@@ -418,9 +423,14 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitApply(Apply tree) {
         AstExpr expr = new AstExpr();
         exprs.peek().addSubExpr(expr);
-        
+
         exprs.push(expr);
-        visit(tree.fun());
+        Tree fun = tree.fun();
+        if (fun instanceof TypeApply) {
+            // do not visit fun here, the fun will be visited in other form of Tree
+        } else {
+            visit(fun);
+        }
         visit(tree.args());
         exprs.pop();
     }
@@ -465,7 +475,7 @@ public class AstTreeVisitor extends AstVisitor {
 
         AstExpr expr = new AstExpr();
         exprs.peek().addSubExpr(expr);
-        
+
         exprs.push(expr);
         // For Select tree, should its idToken to the same expr
         exprs.peek().addToken(idToken);
