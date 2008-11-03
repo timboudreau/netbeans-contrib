@@ -57,7 +57,8 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
     private PSModuleID module_id;
     private String host;
     private int port;
-    private File file;
+    private File deployFile;
+    private File archiveFile;
     
     public PSDeployerImpl(PSDeploymentManager dm,String host,int port) {
        pes = new ProgressEventSupport(this);     
@@ -78,7 +79,8 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
                // module_id.setContextURL( server_url));
             }  
 
-         this.file = file1;
+         this.deployFile = file1;
+         this.archiveFile = file2;
          
          cmdType = PSCommandType.DISTRIBUTE;
          pes.fireHandleProgressEvent(null,
@@ -145,7 +147,11 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
         {
            // selectIOTab(dm.getUri());
             try {
-                dm.getTaskHandler().deploy(file.getAbsolutePath(),dm.getUri());    
+                if(!deployFile.isDirectory())
+                    dm.getTaskHandler().deploy(deployFile.getAbsolutePath(),dm.getUri());    
+                else {
+                    dm.getTaskHandler().deploy(deployFile.getAbsolutePath(), archiveFile.getAbsolutePath(), dm.getUri());
+                }
                 writeToOutput(dm.getUri(),org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYED"));
                
             } catch (Exception ex) {

@@ -122,4 +122,8 @@ public class DefaultPSTaskHandler implements PSTaskHandler {
     public Sheet createContainerPropertySheet(BaseNode node) {
         return Sheet.createDefault();
     }
+
+    public String deploy(String deployedDir, String warfile, String serveruri) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

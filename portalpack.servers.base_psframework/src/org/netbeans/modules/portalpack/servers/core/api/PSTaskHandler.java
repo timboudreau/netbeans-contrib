@@ -38,6 +38,8 @@ public interface PSTaskHandler {
     public void addChannel(String dn) throws Exception;
     
     public String deploy(String warfile, String serveruri) throws Exception;
+    
+    public String deploy(String deployedDir,String warfile,String serveruri) throws Exception;
 
     public String[] getPortlets(String dn);
 

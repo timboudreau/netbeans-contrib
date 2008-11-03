@@ -20,7 +20,6 @@
 package org.netbeans.modules.portalpack.servers.core;
 
 import java.io.File;
-import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
@@ -28,7 +27,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  *
- * @author root
+ * @author Satya
  */
 public interface PSDeployer extends ProgressObject{
     public ProgressObject deploy(Target t,File file1, File file2);
