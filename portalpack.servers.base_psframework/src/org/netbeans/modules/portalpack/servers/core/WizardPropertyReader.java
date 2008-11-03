@@ -238,4 +238,12 @@ public class WizardPropertyReader implements PSConfigCallBackHandler{
     
         return prop;
     }
+
+    public void setDirectoryDeployment(boolean directoryDeployment) {
+        _setBooleanProperty("DIRECTORY_DEPL",directoryDeployment);
+    }
+
+    public boolean isDirectoryDeployment() {
+        return _getBooleanProperty("DIRECTORY_DEPL");
+    }
 }

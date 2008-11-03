@@ -82,6 +82,9 @@ public interface PSConfigCallBackHandler {
     public void setProperty(String key,String value);
     public String getProperty(String key);
     
+    public void setDirectoryDeployment(boolean directoryDeployment);
+    public boolean isDirectoryDeployment();
+    
     public Properties getProperties();
     
 }

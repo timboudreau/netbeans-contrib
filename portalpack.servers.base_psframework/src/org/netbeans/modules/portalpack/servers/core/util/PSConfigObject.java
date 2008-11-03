@@ -59,6 +59,7 @@ public class PSConfigObject {
     private String displayName = "";
     
     private String portalUri = "";
+    private boolean directoryDeployment = false;
     
     private Properties props = null;
     
@@ -164,6 +165,15 @@ public class PSConfigObject {
     {
         return displayName;
     }
+
+    public boolean isDirectoryDeployment() {
+        return directoryDeployment;
+    }
+
+    public void setDirectoryDeployment(boolean directoryDeployment) {
+        this.directoryDeployment = directoryDeployment;
+    }
+    
  //comment start
     
    /* public void load(File file) {
@@ -260,6 +270,14 @@ public class PSConfigObject {
             setRemote(true);
         else
             setRemote(false);
+        
+        String directoryDeploymentVal = ip.getProperty("DIRECTORY_DEPL");
+        if(directoryDeploymentVal == null)
+            setDirectoryDeployment(false);
+        else if(directoryDeploymentVal.trim().equalsIgnoreCase("true"))
+            setDirectoryDeployment(true);
+        else
+            setDirectoryDeployment(false);
 
         //System.out.println("IsRemote is : "+isRemote());
 
@@ -315,6 +333,7 @@ public class PSConfigObject {
         handler.setAdminPort(getAdminPort());
         handler.setClassPath(getClassPath());
         handler.setPortalUri(getPortalUri());
+        handler.setDirectoryDeployment(isDirectoryDeployment());
   
     }
   
@@ -339,6 +358,8 @@ public class PSConfigObject {
         ip.setProperty("SERVER_TYPE",getServerType());
         
         ip.setProperty("IS_REMOTE",String.valueOf(isRemote()));
+        ip.setProperty("DIRECTORY_DEPL", String.valueOf(isDirectoryDeployment()));
+        
         ip.setProperty("INSTANCE_ID",getIntanceId());
         ip.setProperty("DEFAULT_DOMAIN",getDefaultDomain());
         ip.setProperty("HOST",getHost());
@@ -464,6 +485,8 @@ public class PSConfigObject {
         setAdminPort(handler.getAdminPort());
         setClassPath(handler.getClassPath());
         setPortalUri(handler.getPortalUri());
+        
+        setDirectoryDeployment(handler.isDirectoryDeployment());
         
         props = new Properties(handler.getProperties());
         

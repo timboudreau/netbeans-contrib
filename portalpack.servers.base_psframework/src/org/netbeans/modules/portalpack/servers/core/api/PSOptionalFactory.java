@@ -30,6 +30,9 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
+import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppIncrementalDeployment;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.WizardDescriptor.InstantiatingIterator;
 
 /**
@@ -43,6 +46,19 @@ public abstract class PSOptionalFactory extends OptionalDeploymentManagerFactory
     }
     
     public IncrementalDeployment getIncrementalDeployment(DeploymentManager dm) {
+        
+        if(!(dm instanceof PSDeploymentManager))
+            return null;
+        
+        PSDeploymentManager pdm = (PSDeploymentManager)dm;
+        PSConfigObject pconfig = pdm.getPSConfig();
+        if(!pconfig.isDirectoryDeployment())
+            return null;
+        if(pconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            
+            return new SunAppIncrementalDeployment(pdm);
+        }
+        
         return null;
     }
     
