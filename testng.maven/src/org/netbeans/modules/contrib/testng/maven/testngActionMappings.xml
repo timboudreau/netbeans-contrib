@@ -48,6 +48,7 @@ made subject to such option by the copyright holder.
             <packaging>*</packaging>
         </packagings>
         <goals>
+            <goal>test-compile</goal>
             <goal>org.apache.maven.plugins:maven-surefire-plugin:2.4.2:test</goal>
         </goals>
     </action>
