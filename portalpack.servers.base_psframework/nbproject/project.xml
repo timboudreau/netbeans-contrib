@@ -317,6 +317,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <package>org.netbeans.modules.portalpack.servers.core.common.enterprise</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.config</package>
+                <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui</package>
