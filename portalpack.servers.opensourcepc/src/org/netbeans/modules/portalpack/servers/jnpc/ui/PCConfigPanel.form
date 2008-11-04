@@ -21,7 +21,12 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="jSeparator1" alignment="0" pref="533" max="32767" attributes="0"/>
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="155" max="-2" attributes="0"/>
+              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="239" max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="1" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
@@ -44,18 +49,18 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" max="-2" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="adminConsoleUriTf" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
-                          <Component id="portalUri" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
-                          <Component id="portletUriTf" linkSize="2" alignment="0" pref="173" max="32767" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="adminConsoleUriTf" alignment="0" pref="173" max="32767" attributes="2"/>
+                          <Component id="portalUri" alignment="0" pref="173" max="32767" attributes="2"/>
+                          <Component id="portletUriTf" alignment="0" pref="173" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" pref="168" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="hostTf" linkSize="1" alignment="0" pref="299" max="32767" attributes="1"/>
-                          <Component id="homeTf" linkSize="1" alignment="0" min="-2" pref="299" max="-2" attributes="2"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="hostTf" alignment="0" pref="299" max="32767" attributes="2"/>
+                          <Component id="homeTf" alignment="0" min="-2" pref="299" max="-2" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="homeChooseButton" pref="36" max="32767" attributes="0"/>
@@ -64,24 +69,24 @@
               <EmptySpace min="-2" pref="103" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="155" max="-2" attributes="0"/>
-              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="239" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="directoryDeploymentCB" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="356" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="homeChooseButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="homeTf" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="3" min="-2" pref="18" max="-2" attributes="0"/>
+                  <Component id="homeChooseButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
@@ -111,7 +116,9 @@
                       <Component id="jLabel6" min="-2" pref="22" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="16" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="directoryDeploymentCB" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -199,6 +206,13 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="portletUriTf">
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="directoryDeploymentCB">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/portalpack/servers/jnpc/ui/Bundle.properties" key="LBL_Directory_Deployment_Enable" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

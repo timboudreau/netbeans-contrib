@@ -20,23 +20,28 @@
 package org.netbeans.modules.portalpack.servers.jnpc.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
-import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
-import org.netbeans.modules.portalpack.servers.jnpc.ServerDeployHandler;
-import org.netbeans.modules.portalpack.servers.jnpc.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -78,6 +83,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     }
 
 
+    @Override
     public String deploy(String warfile, String serveruri) throws Exception {
         
         _deployOnPC(warfile);
@@ -100,6 +106,75 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
         return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
     }
+
+    @Override
+    public String deploy(String deployedDir, String warfile, String serveruri) throws Exception {
+        
+        _deployOnPC(warfile);
+        
+        File warFileObj = new File(warfile);
+        String massagedWar = psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName();
+
+        JarFile jarFile = new JarFile(new File(massagedWar));
+        
+        String webInfDir = deployedDir + File.separator + "WEB-INF";
+        
+        copyFilesFromWar(jarFile, webInfDir, "WEB-INF/web.xml", "web.xml");
+        copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet.tld", "portlet.tld");
+        copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet_2_0.tld", "portlet_2_0.tld");   
+        
+        String appName = warFileObj.getName().substring(0,warFileObj.getName().indexOf("."));
+        
+        try{
+            deployerHandler.deploy(deployedDir,appName);
+        }catch(Exception e){
+            try{
+               // String fileName = warFileObj.getName();
+                
+                _undeployFromPC(appName,false);
+            }catch(Exception ex){
+               // ex.printStackTrace();
+            }
+            //writeErrorToOutput(uri,e);
+            throw e;
+        }
+        return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
+        
+    }
+    
+    private boolean copyFilesFromWar(JarFile jarFile,String dir,String file,String destFileName) {
+        
+        JarEntry webXmlEnt = jarFile.getJarEntry(file);
+        
+        if(webXmlEnt == null)
+            return false;
+        
+        InputStream in = null;
+        OutputStream out = null;
+        
+        try{
+            
+            in = jarFile.getInputStream(webXmlEnt);
+            out = new FileOutputStream(new File(dir + File.separator + destFileName));
+            FileUtil.copy(in, out);
+        
+        }catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            try{
+                 if(in != null)
+                    in.close();
+                 if(out != null)
+                    out.close();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        return true;
+        
+    }
+    
+    
 
     protected void _deployOnPC(final String warfile) throws Exception {
 
@@ -140,6 +215,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
     }
 
+    @Override
     public void undeploy(String portletAppName, String dn) throws Exception {
       
         _undeployFromPC(portletAppName,true);
@@ -202,6 +278,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     }
 
 
+    @Override
     public String[] getPortlets(String dn)  {
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -286,6 +363,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
    }
 
 
+    @Override
     public String constructPortletViewURL(String dn, String portlet) {
 
         String  contextUri = psconfig.getProperty(JNPCConstants.PORTLET_URI);
@@ -304,6 +382,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return "http://"+psconfig.getHost()+":"+psconfig.getPort()+"/"+contextUri +"?pc.portletId=" + portlet;
     }
 
+    @Override
     public String constructAdminToolURL(){
 
         String  contextUri = psconfig.getProperty(JNPCConstants.ADMIN_CONSOLE_URI);
@@ -315,6 +394,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
     }
 
+    @Override
     public String getClientURL(){
         String  contextUri = psconfig.getPortalUri();
         if(contextUri.startsWith("/"))
