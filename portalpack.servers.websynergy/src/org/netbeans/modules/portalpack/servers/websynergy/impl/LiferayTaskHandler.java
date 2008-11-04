@@ -43,16 +43,12 @@ import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
-import org.netbeans.modules.portalpack.servers.websynergy.ServerDeployHandler;
-import org.netbeans.modules.portalpack.servers.websynergy.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
-//import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletService;
-import org.openide.util.Exceptions;
-//import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletServiceService;
-//import org.netbeans.modules.portalpack.servers.liferay.webservices.client.PortletServiceService;
 
 /**
  *
@@ -269,6 +265,22 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     }*/
 
     }
+
+    @Override
+    public String deploy(String deployedDir, String warfile, String serveruri) throws Exception {
+        File warF = new File(warfile);
+         String context = warF.getName().substring(0,warF.getName().indexOf("."));
+         try{
+            undeploy(context,"");
+         }catch(Exception e){
+             e.printStackTrace();
+         }
+        deploy(warfile, serveruri);
+        
+        deployerHandler.deploy(deployedDir,context);
+        return "Deployed...";
+    }
+    
 
     /*    protected void _undeployFromPC(final String portletAppName, boolean logError) throws Exception {
     
