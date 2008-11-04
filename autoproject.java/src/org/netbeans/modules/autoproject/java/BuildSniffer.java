@@ -66,6 +66,7 @@ import org.openide.filesystems.FileUtil;
  * Tracks progress of Ant builds and looks for calls to important tasks like javac.
  * These are analyzed for interesting information.
  */
+@org.openide.util.lookup.ServiceProvider(service=org.apache.tools.ant.module.spi.AntLogger.class)
 public class BuildSniffer extends AntLogger {
 
     private static final Logger LOG = Logger.getLogger(BuildSniffer.class.getName());

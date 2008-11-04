@@ -125,6 +125,7 @@ final class Profiles extends Object {
     
     private static FS INSTANCE;
     // public for Lookup
+    @org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.FileSystem.class)
     public static final class FS extends MultiFileSystem {
         public FS() {
             INSTANCE = this;

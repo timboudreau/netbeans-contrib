@@ -50,6 +50,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProviders({@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.docbook.project.DbProjectFactory.class), @org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class)})
 public class DbProjectFactory implements ProjectFactory {
 
     public DbProjectFactory() {

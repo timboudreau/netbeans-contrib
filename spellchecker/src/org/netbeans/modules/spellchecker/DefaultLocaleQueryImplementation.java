@@ -58,6 +58,7 @@ import org.openide.filesystems.Repository;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.LocaleQueryImplementation.class, position=2000)
 public class DefaultLocaleQueryImplementation implements LocaleQueryImplementation {
     
     /** Creates a new instance of DefaultLocaleQueryImplementation */

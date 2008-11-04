@@ -60,6 +60,7 @@ import javax.swing.*;
  *
  * @author  Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.swing.menus.spi.MenuTreeModel.class)
 public class SfsMenuModel implements MenuTreeModel, TreeModel {
     private FileObject root;
     private ComponentProvider mapper = new ComponentMapper(this);

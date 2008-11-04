@@ -56,6 +56,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
  * Ant based project type for Theme Builder.
  * @author winstonp
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.support.ant.AntBasedProjectType.class)
 public class ThemeBuilderProjectType implements AntBasedProjectType{
     
     /**

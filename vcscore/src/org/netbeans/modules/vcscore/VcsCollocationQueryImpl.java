@@ -61,6 +61,7 @@ import org.openide.filesystems.FileUtil;
  *
  * @author Jesse Glick, Martin Entlicher
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.queries.CollocationQueryImplementation.class)
 public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
     
     /** Do nothing */

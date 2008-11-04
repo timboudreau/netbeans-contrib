@@ -60,6 +60,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class)
 public class FeatureProjectFactory implements ProjectFactory {
 
     public boolean isProject(FileObject projectDirectory) {

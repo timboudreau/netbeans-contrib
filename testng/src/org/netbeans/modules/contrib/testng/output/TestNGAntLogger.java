@@ -67,6 +67,7 @@ import org.xml.sax.SAXException;
  * @author  Lukas Jungmann
  */
 //-Dtestng.show.stack.frames=true
+@org.openide.util.lookup.ServiceProvider(service=org.apache.tools.ant.module.spi.AntLogger.class)
 public final class TestNGAntLogger extends AntLogger {
 
     private static final Logger LOGGER = Logger.getLogger(TestNGAntLogger.class.getName());

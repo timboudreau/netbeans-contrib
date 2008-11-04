@@ -53,6 +53,7 @@ import org.openide.filesystems.FileObject;
  * 
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.BinaryElementOpen.class)
 public class BinaryElementOpenImpl implements BinaryElementOpen {
 
     public boolean open(ClasspathInfo cpInfo,  ElementHandle<? extends Element> toOpen) {

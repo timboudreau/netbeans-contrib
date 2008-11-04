@@ -48,6 +48,7 @@ import org.openide.util.Lookup;
  *
  * @author lukas
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.maven.spi.actions.MavenActionsProvider.class, position=53)
 public class TestNGActionsProvider extends AbstractMavenActionsProvider {
 
     /** Creates a new instance of TestNGActionsProvider */

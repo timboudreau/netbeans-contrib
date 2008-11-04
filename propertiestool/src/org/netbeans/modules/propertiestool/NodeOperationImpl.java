@@ -65,6 +65,7 @@ import org.openide.windows.TopComponent;
  * the delegate. The only methods changed are the showProperties variants.
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.nodes.NodeOperation.class, position=10)
 public class NodeOperationImpl extends NodeOperation {
     
     /** Constructor must be public for the lookup. */

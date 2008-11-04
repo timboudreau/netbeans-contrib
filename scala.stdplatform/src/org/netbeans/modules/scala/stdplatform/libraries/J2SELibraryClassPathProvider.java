@@ -52,6 +52,7 @@ import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.java.classpath.ClassPathProvider.class, position=156)
 public class J2SELibraryClassPathProvider implements ClassPathProvider {
 
     public ClassPath findClassPath(FileObject file, String type) {

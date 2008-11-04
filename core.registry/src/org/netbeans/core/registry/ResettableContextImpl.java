@@ -51,6 +51,7 @@ import org.openide.filesystems.Repository;
 
 import java.io.IOException;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.registry.BasicContext.class)
 public class ResettableContextImpl extends ContextImpl implements ResettableContext {
 
     private ContextBindings resettableContextBindings;

@@ -45,6 +45,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Rechtacek
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.autoupdate.UpdateProvider.class)
 public class CategoryFeatureProvider implements UpdateProvider {
     private static final String UNSORTED_CATEGORY = "CategoryFeatureProvider_NoCategoryName"; // NOI18N
     private static String FEATURE_PROVIDER_NAME = "CategoryFeatureProvider_DisplayName"; // NOI18N

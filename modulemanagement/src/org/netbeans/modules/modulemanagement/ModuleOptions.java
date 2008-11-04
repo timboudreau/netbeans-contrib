@@ -83,6 +83,7 @@ import org.openide.util.WeakListeners;
  *
  * @author Jaroslav Tulach
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.sendopts.OptionProcessor.class)
 public class ModuleOptions extends OptionProcessor {
     private static final Logger LOG = Logger.getLogger(ModuleOptions.class.getName());
     

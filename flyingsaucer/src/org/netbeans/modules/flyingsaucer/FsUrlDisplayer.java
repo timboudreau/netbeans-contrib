@@ -16,6 +16,7 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
  *
  * @author Tim
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.HtmlBrowser.URLDisplayer.class, position=100)
 public class FsUrlDisplayer extends URLDisplayer {
     
     public FsUrlDisplayer() {

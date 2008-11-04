@@ -8,6 +8,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class)
 public final class TestFactory implements ProjectFactory, Project {
 
     static FileObject recognize;

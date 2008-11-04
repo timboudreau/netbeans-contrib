@@ -23,6 +23,7 @@ import java.io.InputStream;
 import org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider;
 import org.openide.util.NbBundle;
 
+@org.openide.util.lookup.ServiceProviders({@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider.class), @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider.class)})
 public class TcpipTemplateProvider extends ExtensibilityElementTemplateProvider {
     
     static final String fileTemplateUrl = "/org/netbeans/modules/wsdlextensions/tcpip/template/template.xml";

@@ -57,6 +57,7 @@ import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
+@org.openide.util.lookup.ServiceProvider(service=org.apache.tools.ant.module.spi.AntLogger.class)
 public class BuildSniffer extends AntLogger {
 
     private static final Logger LOG = Logger.getLogger(BuildSniffer.class.getName());

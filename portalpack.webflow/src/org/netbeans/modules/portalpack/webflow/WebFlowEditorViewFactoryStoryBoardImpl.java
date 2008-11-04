@@ -46,6 +46,7 @@ import org.netbeans.modules.portalpack.webflow.api.WebFlowEditorViewFactory;
  *
  * @author satyaranjan
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.portalpack.webflow.api.WebFlowEditorViewFactory.class)
 public class WebFlowEditorViewFactoryStoryBoardImpl implements  WebFlowEditorViewFactory {
 
     public MultiViewDescription createMultiViewDescriptor(WebFlowEditorContext editorContext) {

@@ -60,6 +60,7 @@ import org.openide.util.Exceptions;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.java.classpath.ClassPathProvider.class)
 public class ClasspathProviderImpl implements ClassPathProvider {
 
     private ClassPath boot;

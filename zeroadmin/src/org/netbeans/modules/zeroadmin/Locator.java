@@ -45,6 +45,7 @@ package org.netbeans.modules.zeroadmin;
  * file facility is severely limited.
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.modules.InstalledFileLocator.class, supersedes="org.netbeans.core.modules.InstalledFileLocatorImpl")
 public class Locator extends org.openide.modules.InstalledFileLocator {
 
     /** Creates a new instance of Locator */

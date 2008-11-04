@@ -54,6 +54,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
  * The class creates main project and all its subprojects.
  * @author Andrey Gubichev
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.cnd.make2netbeans.api.SubProjectGenerator.class)
 public class SubProjectGeneratorImpl implements SubProjectGenerator {
 
     private String workingDir;

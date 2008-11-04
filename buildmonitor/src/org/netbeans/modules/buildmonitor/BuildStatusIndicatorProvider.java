@@ -50,6 +50,7 @@ import org.openide.awt.StatusLineElementProvider;
  *
  * @author Tom Ball
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.StatusLineElementProvider.class)
 public class BuildStatusIndicatorProvider implements StatusLineElementProvider {
     public Component getStatusLineElement () {
         return BuildMonitorPanel.getInstance();

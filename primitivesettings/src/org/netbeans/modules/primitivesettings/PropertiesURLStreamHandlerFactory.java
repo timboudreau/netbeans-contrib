@@ -61,6 +61,7 @@ import java.util.logging.Logger;
  *
  * @author vita
  */
+@org.openide.util.lookup.ServiceProvider(service=java.net.URLStreamHandlerFactory.class)
 public class PropertiesURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
     private static final Logger LOG = Logger.getLogger(PropertiesURLStreamHandlerFactory.class.getName());

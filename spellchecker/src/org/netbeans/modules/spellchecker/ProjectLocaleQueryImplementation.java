@@ -50,6 +50,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.LocaleQueryImplementation.class, position=1000)
 public class ProjectLocaleQueryImplementation implements LocaleQueryImplementation {
 
     /** Creates a new instance of ProjectLocaleQueryImplementation */

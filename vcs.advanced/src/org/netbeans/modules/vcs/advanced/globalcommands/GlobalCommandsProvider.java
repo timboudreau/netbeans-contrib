@@ -73,6 +73,7 @@ import org.netbeans.modules.vcs.advanced.ProfilesFactory;
  *
  * @author  Martin Entlicher
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.vcs.VcsCommandsProvider.class)
 public class GlobalCommandsProvider extends VcsCommandsProvider implements CommandsTree.Provider,
                                                                            PropertyChangeListener,
                                                                            FilesModificationSupport {

@@ -11,6 +11,7 @@ import junit.framework.Assert;
 
 
 
+@org.openide.util.lookup.ServiceProvider(service=javax.swing.text.Keymap.class)
 public final class MockKeymap implements Keymap {
     private Map<KeyStroke, Action> actions = new HashMap<KeyStroke, Action>();
     

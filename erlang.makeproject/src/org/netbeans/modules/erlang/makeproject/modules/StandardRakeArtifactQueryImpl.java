@@ -33,6 +33,7 @@ import org.netbeans.modules.erlang.makeproject.spi.RakeArtifactQueryImplementati
  * {@link RakeArtifactProvider}.
  * @author Jesse Glick
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.erlang.makeproject.spi.RakeArtifactQueryImplementation.class)
 public class StandardRakeArtifactQueryImpl implements RakeArtifactQueryImplementation {
     
     /** Default constructor for lookup. */

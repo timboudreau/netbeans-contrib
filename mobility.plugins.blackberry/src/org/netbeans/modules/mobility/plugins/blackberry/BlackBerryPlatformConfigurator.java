@@ -59,6 +59,7 @@ import org.openide.filesystems.FileUtil;
  *
  * @author Adam Sotona
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.mobility.cldcplatform.CustomCLDCPlatformConfigurator.class, position=110)
 public class BlackBerryPlatformConfigurator implements CustomCLDCPlatformConfigurator {
     
     /** Creates a new instance of BlackBerryPlatformConfigurator */

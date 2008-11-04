@@ -55,6 +55,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author Jirka Rechtacek
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.FileSystem.class)
 public class FoDFileSystem extends MultiFileSystem 
 implements Runnable {
     private static FoDFileSystem INSTANCE;

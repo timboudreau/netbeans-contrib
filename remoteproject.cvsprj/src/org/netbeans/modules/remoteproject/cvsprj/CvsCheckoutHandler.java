@@ -59,6 +59,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.remoteproject.CheckoutHandler.class)
 public class CvsCheckoutHandler implements CheckoutHandler {
     
     /** Creates a new instance of CvsCheckoutHandler */

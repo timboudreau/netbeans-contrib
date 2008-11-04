@@ -59,6 +59,7 @@ import org.openide.util.Utilities;
  *
  * @author Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.java.source.JavaSourceTaskFactory.class)
 public class DataGatheringTaskFactory extends LookupBasedJavaSourceTaskFactory {
     private final GenerifiedListModel <Description> model = 
             new AsynchListModel <Description> ();

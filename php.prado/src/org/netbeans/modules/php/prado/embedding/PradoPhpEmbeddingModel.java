@@ -53,6 +53,7 @@ import org.netbeans.modules.php.prado.PageLanguage;
  *
  * @author Petr Pisl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.gsf.api.EmbeddingModel.class)
 public class PradoPhpEmbeddingModel implements EmbeddingModel {
 
     final Set<String> sourceMimeTypes = new HashSet<String>();

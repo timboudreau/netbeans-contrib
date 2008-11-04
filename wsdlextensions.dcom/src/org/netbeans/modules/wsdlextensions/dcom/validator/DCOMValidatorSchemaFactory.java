@@ -29,6 +29,7 @@ import org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory;
  *
  * @author Sun Microsystems
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory.class)
 public class DCOMValidatorSchemaFactory extends ValidatorSchemaFactory{
     static final String dcomXSDUrl = "/org/netbeans/modules/wsdlextensions/dcom/resources/dcom-ext.xsd";
     

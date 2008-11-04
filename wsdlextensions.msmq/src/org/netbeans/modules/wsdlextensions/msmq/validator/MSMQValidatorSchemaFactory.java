@@ -29,6 +29,7 @@ import org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory;
  *
  * @author Sun Microsystems
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory.class)
 public class MSMQValidatorSchemaFactory extends ValidatorSchemaFactory{
     static final String msmqXSDUrl = "/org/netbeans/modules/wsdlextensions/msmq/resources/msmq-ext.xsd";
     

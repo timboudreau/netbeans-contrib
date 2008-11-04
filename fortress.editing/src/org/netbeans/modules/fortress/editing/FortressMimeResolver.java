@@ -49,6 +49,7 @@ import org.openide.filesystems.MIMEResolver;
  * 
  * @author Caoyuan Deng
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.MIMEResolver.class)
 public class FortressMimeResolver extends MIMEResolver {
     
     /**

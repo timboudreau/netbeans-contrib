@@ -48,6 +48,7 @@ import org.netbeans.modules.php.prado.PageLanguage;
  * 
  * @author Petr Pisl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.gsf.api.EmbeddingModel.class)
 public class PradoHtmlEmbeddingModel extends HtmlEmbeddingModel {
 
     public PradoHtmlEmbeddingModel() {

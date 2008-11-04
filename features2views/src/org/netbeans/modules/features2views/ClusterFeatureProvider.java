@@ -46,6 +46,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Rechtacek
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.autoupdate.UpdateProvider.class)
 public class ClusterFeatureProvider implements UpdateProvider {
     private static String NO_CLUSTER_NAME = "ClusterFeatureProvider_NoClusterName"; // NOI18N
     private static String FEATURE_PROVIDER_NAME = "ClusterFeatureProvider_DisplayName"; // NOI18N

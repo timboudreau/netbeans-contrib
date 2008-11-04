@@ -72,6 +72,7 @@ import org.openide.awt.HtmlBrowser;
  *
  * @author  nenik
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.jabber.ui.ExtensionDisplayer.class)
 public final class RemoteShowExtension implements ExtensionDisplayer {
     
     /** Creates a new instance of UrlExtension */

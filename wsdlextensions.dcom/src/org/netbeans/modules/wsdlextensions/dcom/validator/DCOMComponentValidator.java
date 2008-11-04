@@ -67,6 +67,7 @@ import org.netbeans.modules.wsdlextensions.dcom.DCOMAddress;
  *
  */
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.xam.spi.Validator.class)
 public class DCOMComponentValidator
         implements Validator, DCOMComponent.Visitor {
 

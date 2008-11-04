@@ -56,6 +56,7 @@ import org.netbeans.modules.portalpack.webflow.api.WebFlowEditorViewFactory;
  *
  * @author Joelle Lam
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.portalpack.webflow.api.WebFlowEditorViewFactory.class)
 public class WebFlowEditorViewFactoryImpl implements  WebFlowEditorViewFactory {
     
     /**

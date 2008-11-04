@@ -23,6 +23,7 @@ import java.io.InputStream;
 import org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider;
 import org.openide.util.NbBundle;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider.class)
 public class ExecTemplateProvider extends ExtensibilityElementTemplateProvider {
     
     static final String execTemplateUrl = "/org/netbeans/modules/wsdlextensions/exec/template/template.xml";

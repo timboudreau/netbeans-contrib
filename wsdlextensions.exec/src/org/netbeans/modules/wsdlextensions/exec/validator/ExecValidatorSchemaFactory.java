@@ -29,6 +29,7 @@ import org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory;
  *
  * @author Sun Microsystems
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory.class)
 public class ExecValidatorSchemaFactory extends ValidatorSchemaFactory{
     static final String execXSDUrl = "/org/netbeans/modules/wsdlextensions/exec/resources/exec-ext.xsd";
     

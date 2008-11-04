@@ -37,6 +37,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Tomas Zezula
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.queries.FileEncodingQueryImplementation.class, position=10)
 public final class OpenInEncodingQueryImpl extends FileEncodingQueryImplementation {
     
     public static final String ENCODING = "encoding";                           //NOI18N

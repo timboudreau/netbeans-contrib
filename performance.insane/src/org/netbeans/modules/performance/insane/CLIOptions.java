@@ -53,6 +53,7 @@ import java.io.File;
 /**
  * Accepts requests to dump heap.
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.sendopts.OptionProcessor.class)
 public class CLIOptions extends OptionProcessor {
     private Option dump;
     

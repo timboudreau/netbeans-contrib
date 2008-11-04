@@ -28,6 +28,7 @@ import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
  * Factory for simple Ruby projects.
  * @author Jesse Glick
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.erlang.makeproject.spi.support.RakeBasedProjectType.class)
 public final class RubyProjectType implements RakeBasedProjectType {
 
     public static final String TYPE = "org.netbeans.modules.erlang.project"; // NOI18N

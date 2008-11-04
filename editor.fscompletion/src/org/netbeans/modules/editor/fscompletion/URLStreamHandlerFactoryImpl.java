@@ -57,6 +57,7 @@ import javax.swing.ImageIcon;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=java.net.URLStreamHandlerFactory.class)
 public class URLStreamHandlerFactoryImpl implements URLStreamHandlerFactory {
     public static final String PROTOCOL = "fscompl";
     

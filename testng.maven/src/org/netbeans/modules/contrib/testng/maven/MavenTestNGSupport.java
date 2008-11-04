@@ -60,6 +60,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author lukas
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.class)
 public class MavenTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(MavenTestNGSupport.class.getName());

@@ -62,6 +62,7 @@ import org.openide.filesystems.Repository;
  *
  * @author lukas
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.class)
 public class AntTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());

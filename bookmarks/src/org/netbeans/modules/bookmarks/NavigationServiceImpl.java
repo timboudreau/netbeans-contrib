@@ -53,6 +53,7 @@ import org.netbeans.api.bookmarks.*;
  * Implementation of the NavigationService.
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.bookmarks.NavigationService.class)
 public class NavigationServiceImpl extends NavigationService implements PropertyChangeListener {
 
     /**

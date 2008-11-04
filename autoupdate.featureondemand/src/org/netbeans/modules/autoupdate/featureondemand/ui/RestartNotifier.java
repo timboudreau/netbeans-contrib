@@ -52,6 +52,7 @@ import org.openide.util.Utilities;
  *
  * @author  Jiri Rechtacek
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.StatusLineElementProvider.class, position=10)
 public final class RestartNotifier implements StatusLineElementProvider {
 
     public Component getStatusLineElement () {

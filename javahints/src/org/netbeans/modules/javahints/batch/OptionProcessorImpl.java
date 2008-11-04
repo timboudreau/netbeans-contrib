@@ -59,6 +59,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.sendopts.OptionProcessor.class)
 public class OptionProcessorImpl extends OptionProcessor {
 
     private static final Option LIST = Option.withoutArgument(Option.NO_SHORT_NAME, "list-hints");

@@ -233,6 +233,7 @@ public class ResourceBundleEditorBridgeImpl implements ResourceBundleEditorBridg
         listeners.remove(l);
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.properties.rbe.spi.ResourceBundleEditorBridge.Factory.class)
     public static class ImplFactory implements Factory {
 
         public ResourceBundleEditorBridge get(DataObject dataObject) {

@@ -54,6 +54,7 @@ import org.openide.util.Lookup;
 /**
  * Recognizer for automatic projects.
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class, position=999)
 public class AutomaticProjectFactory implements ProjectFactory {
 
     /** Default constructor for lookup. */

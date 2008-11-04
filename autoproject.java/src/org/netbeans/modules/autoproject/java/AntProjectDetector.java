@@ -42,6 +42,7 @@ package org.netbeans.modules.autoproject.java;
 import org.netbeans.modules.autoproject.spi.ProjectDetector;
 import org.openide.filesystems.FileObject;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.autoproject.spi.ProjectDetector.class)
 public class AntProjectDetector implements ProjectDetector {
 
     /** public for lookup */

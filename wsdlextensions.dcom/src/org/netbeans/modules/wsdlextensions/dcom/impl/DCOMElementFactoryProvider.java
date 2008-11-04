@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
 
 public class DCOMElementFactoryProvider {
     
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class BindingFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(DCOMQName.BINDING.getQName());
@@ -45,6 +46,7 @@ public class DCOMElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class AddressFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(DCOMQName.ADDRESS.getQName());
@@ -54,6 +56,7 @@ public class DCOMElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class OperationFactory extends ElementFactory{
         public Set<QName> getElementQNames() {
             return Collections.singleton(DCOMQName.OPERATION.getQName());
@@ -63,6 +66,7 @@ public class DCOMElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class MessageFactory extends ElementFactory{
         public Set<QName> getElementQNames() {
             return Collections.singleton(DCOMQName.MESSAGE.getQName());

@@ -50,6 +50,7 @@ import org.netbeans.spi.mobility.project.support.DefaultPropertyParsers;
  *
  * @author Adam Sotona
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.mobility.project.ProjectPropertiesDescriptor.class, position=100)
 public class JavaSEPropertiesDescriptor implements ProjectPropertiesDescriptor {
     
     public static final String MAIN_CLASS = "javase.mainclass"; //NOI18N

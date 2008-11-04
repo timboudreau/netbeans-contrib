@@ -52,6 +52,7 @@ import org.netbeans.modules.cnd.api.utils.AllSourceFileFilter;
  *
  * @author Andrey Gubichev
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.cnd.make2netbeans.api.DivideProject.class)
 public class DividerImpl implements DivideProject {
 
     private static String[] SourceSuffix;

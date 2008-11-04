@@ -57,6 +57,7 @@ import org.openide.util.Exceptions;
  *
  * @author  Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.addproperty.api.AddPropertyGenerator.class)
 public class AddPropertyGeneratorImpl extends AddPropertyGenerator {
 
     public String generate(AddPropertyConfig addPropertyConfig) {

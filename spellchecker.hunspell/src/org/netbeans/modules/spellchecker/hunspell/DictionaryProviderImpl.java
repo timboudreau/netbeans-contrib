@@ -54,6 +54,7 @@ import org.netbeans.modules.spellchecker.spi.dictionary.DictionaryProvider;
  *
  * @author lahvac
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.dictionary.DictionaryProvider.class, position=1000)
 public class DictionaryProviderImpl implements DictionaryProvider {
 
     private static final Logger LOG = Logger.getLogger("org.netbeans.modules.spellchecker.hunspell");

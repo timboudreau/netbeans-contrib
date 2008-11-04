@@ -60,6 +60,7 @@ import org.netbeans.modules.xml.wsdl.model.WSDLModel;
  *
  * 
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.xam.spi.Validator.class)
 public class ExecComponentValidator
         implements Validator {
     

@@ -71,6 +71,7 @@ import org.netbeans.core.startup.ModuleSystem;
  *
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.ModuleFactory.class)
 public class JNLPModuleFactory extends ModuleFactory {
     
     private static final String MANIFEST_LOCATION = "META-INF/MANIFEST.MF";

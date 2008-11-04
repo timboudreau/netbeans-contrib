@@ -55,6 +55,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.remoteproject.CheckoutHandler.class)
 public class DummyCheckoutHandler implements CheckoutHandler {
     
     /** Creates a new instance of DummyCheckoutHandler */

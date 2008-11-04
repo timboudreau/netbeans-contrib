@@ -58,6 +58,7 @@ import org.openide.util.Lookup;
  *
  * @author  Jaroslav Tulach
  */
+@org.openide.util.lookup.ServiceProvider(service=javax.naming.spi.InitialContextFactoryBuilder.class)
 public final class Jndi implements InitialContextFactory, InitialContextFactoryBuilder {
     
     /** Name of property in environment keeping root file object. */

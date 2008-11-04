@@ -80,6 +80,7 @@ import scala.tools.nsc.symtab.Types.Type;
  *
  * @author Caoyuan Deng
  */
+@org.openide.util.lookup.ServiceProviders({@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider.class), @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider.class)})
 public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSourceProvider {
 
     /** @Todo

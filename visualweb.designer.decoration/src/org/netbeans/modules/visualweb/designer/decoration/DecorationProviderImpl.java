@@ -78,6 +78,7 @@ import org.w3c.dom.Element;
  *
  * @author Peter Zavadsky
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.visualweb.spi.designer.DecorationProvider.class)
 public class DecorationProviderImpl implements DecorationProvider {
 
     /** Logger used for this class. */

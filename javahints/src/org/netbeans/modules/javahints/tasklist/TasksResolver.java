@@ -168,6 +168,7 @@ public class TasksResolver {
 
     }
     
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.java.source.JavaSourceTaskFactory.class)
     public static final class FactoryImpl extends JavaSourceTaskFactory {
 
         public FactoryImpl() {

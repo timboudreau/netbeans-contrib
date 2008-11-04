@@ -64,6 +64,7 @@ import org.openide.filesystems.FileUtil;
  * 
  * @author Tom Ball
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.jackpot.QueryProvider.class)
 public class QueryFactory implements QueryProvider {
     private static QueryFactory instance = new QueryFactory();
     

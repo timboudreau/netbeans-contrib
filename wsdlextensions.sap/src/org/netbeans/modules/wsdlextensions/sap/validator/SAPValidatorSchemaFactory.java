@@ -29,6 +29,7 @@ import org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory;
  *
  * @author Sun Microsystems
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.validator.spi.ValidatorSchemaFactory.class)
 public class SAPValidatorSchemaFactory extends ValidatorSchemaFactory{
     static final String sapXSDUrl = "/org/netbeans/modules/wsdlextensions/sap/resources/sap-ext.xsd";
     

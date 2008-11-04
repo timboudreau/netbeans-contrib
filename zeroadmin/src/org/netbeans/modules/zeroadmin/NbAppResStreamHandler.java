@@ -289,6 +289,7 @@ public class NbAppResStreamHandler extends URLStreamHandler {
     /**
      * Call this from META-INF/services/java.net.URLStreamHandlerFactory.
      */
+    @org.openide.util.lookup.ServiceProvider(service=java.net.URLStreamHandlerFactory.class)
     public static final class Factory implements URLStreamHandlerFactory {
 
         public URLStreamHandler createURLStreamHandler(String protocol) {

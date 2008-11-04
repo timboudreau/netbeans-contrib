@@ -62,6 +62,7 @@ import org.openide.util.WeakSet;
  *
  * @author Martin Entlicher
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.queries.VisibilityQueryImplementation.class)
 public class VcsVisibilityQueryImpl implements VisibilityQueryImplementation, PropertyChangeListener {
     
     private EventListenerList listeners = new EventListenerList();

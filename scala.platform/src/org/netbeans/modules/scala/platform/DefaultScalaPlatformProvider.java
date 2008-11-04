@@ -53,6 +53,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import org.openide.util.Lookup;
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.scala.platform.ScalaPlatformProvider.class)
 public class DefaultScalaPlatformProvider implements ScalaPlatformProvider, FileChangeListener {
 
     private static final String PLATFORM_STORAGE = "Services/Platforms/org-netbeans-api-scala-Platform";  //NOI18N

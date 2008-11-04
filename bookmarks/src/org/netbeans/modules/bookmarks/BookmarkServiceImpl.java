@@ -61,6 +61,7 @@ import org.netbeans.api.registry.*;
  * folder BOOKMARKS_FOLDER and the top components in TOP_COMPONENTS_FOLDER.
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.bookmarks.BookmarkService.class)
 public class BookmarkServiceImpl extends BookmarkService {
     
     /** Folder name on the system file system where the

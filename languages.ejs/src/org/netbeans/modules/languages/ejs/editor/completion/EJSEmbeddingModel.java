@@ -52,6 +52,7 @@ import org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId;
  *
  * @author Tor Norbye
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.gsf.api.EmbeddingModel.class)
 public class EJSEmbeddingModel implements EmbeddingModel {
     final Set<String> sourceMimeTypes = Collections.singleton(EJSTokenId.MIME_TYPE);
 

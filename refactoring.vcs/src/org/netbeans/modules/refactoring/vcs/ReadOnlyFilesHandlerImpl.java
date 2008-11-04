@@ -56,6 +56,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jan Becicka
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.refactoring.spi.ReadOnlyFilesHandler.class)
 public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
     
     private WeakHashMap sessions = new WeakHashMap(2);

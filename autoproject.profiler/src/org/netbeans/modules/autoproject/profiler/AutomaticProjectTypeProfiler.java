@@ -59,6 +59,7 @@ import org.openide.modules.InstalledFileLocator;
 /**
  * Configures profiler to accept automatic projects.
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.profiler.spi.ProjectTypeProfiler.class)
 public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
 
     /** public for lookup */

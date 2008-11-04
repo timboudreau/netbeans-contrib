@@ -56,6 +56,7 @@ import org.openide.util.NbBundle;
  *
  * @author Adam Sotona
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.mobility.deployment.DeploymentPlugin.class, position=110)
 public class BlackBerryDeploymentPlugin implements DeploymentPlugin {
 
     static final String PROP_USB = "deployment.blackberry.usb"; //NOI18N

@@ -66,6 +66,7 @@ import org.netbeans.modules.wsdlextensions.msmq.MSMQAddress;
  * @author Sun Microsystems
  */
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.xam.spi.Validator.class)
 public class MSMQComponentValidator
         implements Validator, MSMQComponent.Visitor {
 

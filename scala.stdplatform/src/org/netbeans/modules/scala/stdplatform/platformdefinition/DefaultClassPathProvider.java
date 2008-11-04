@@ -79,6 +79,7 @@ import org.openide.filesystems.URLMapper;
  *
  * @author  tom
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.java.classpath.ClassPathProvider.class, position=10006)
 public class DefaultClassPathProvider implements ClassPathProvider {
     
     /** Name of package keyword. */

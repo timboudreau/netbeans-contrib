@@ -67,6 +67,7 @@ import javax.swing.PopupFactory;
  *
  * @author  nenik
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.windows.DisplayInterceptor.class)
 public class DisplayInterceptorImpl extends org.openide.windows.DisplayInterceptor
                         implements ComponentListener, WindowListener {
 

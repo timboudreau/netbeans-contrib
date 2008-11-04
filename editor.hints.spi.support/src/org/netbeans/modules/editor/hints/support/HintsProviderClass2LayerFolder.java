@@ -48,6 +48,7 @@ import org.netbeans.spi.editor.mimelookup.InstanceProvider;
  *
  * @author Pavel Flaska
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.editor.mimelookup.Class2LayerFolder.class)
 public class HintsProviderClass2LayerFolder implements Class2LayerFolder {
 
     /** Creates a new instance of HintsProviderClass2LayerFolder */

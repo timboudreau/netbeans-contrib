@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
 
 public class SAPElementFactoryProvider {
     
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class BindingFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.BINDING.getQName());
@@ -45,6 +46,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class AddressFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.ADDRESS.getQName());
@@ -54,6 +56,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class AddressClientFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.ADDRESSCLIENTPARAMS.getQName());
@@ -63,6 +66,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class AddressServerFactory extends ElementFactory {
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.ADDRESSSERVERPARAMS.getQName());
@@ -72,6 +76,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+    @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
     public static class FmOperationFactory extends ElementFactory{
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.FMOPERATION.getQName());
@@ -81,6 +86,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+     @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
      public static class IDocOperationFactory extends ElementFactory{
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.IDOCOPERATION.getQName());
@@ -90,6 +96,7 @@ public class SAPElementFactoryProvider {
         }
     }
 
+   @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.model.spi.ElementFactory.class)
    public static class MessageFactory extends ElementFactory{
         public Set<QName> getElementQNames() {
             return Collections.singleton(SAPQName.MESSAGE.getQName());

@@ -47,6 +47,7 @@ import org.openide.util.Exceptions;
  *
  * @author Caoyuan Deng
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I.class)
 public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     private static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);

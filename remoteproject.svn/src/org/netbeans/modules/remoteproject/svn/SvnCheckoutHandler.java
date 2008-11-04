@@ -75,6 +75,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  *
  * @author Tim
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.remoteproject.CheckoutHandler.class)
 public class SvnCheckoutHandler implements CheckoutHandler {
     //XXX should be in separate module or svn module
     public boolean canCheckout(FileObject template) {

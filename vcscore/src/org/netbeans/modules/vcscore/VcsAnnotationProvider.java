@@ -76,6 +76,7 @@ import org.openide.util.actions.SystemAction;
  * 
  * @author Martin Entlicher
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.masterfs.providers.AnnotationProvider.class)
 public class VcsAnnotationProvider extends AnnotationProvider {
     
     private static final int BADGE_ICON_SHIFT_X = 16;

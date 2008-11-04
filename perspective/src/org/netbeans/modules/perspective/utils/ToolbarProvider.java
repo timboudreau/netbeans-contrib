@@ -17,6 +17,7 @@ import org.openide.awt.StatusLineElementProvider;
  *
  * @author Anurdha
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.StatusLineElementProvider.class)
 public class ToolbarProvider implements StatusLineElementProvider{
 
     public Component getStatusLineElement() {

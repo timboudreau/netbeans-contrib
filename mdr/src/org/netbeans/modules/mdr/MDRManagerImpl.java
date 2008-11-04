@@ -57,6 +57,7 @@ import org.openide.ErrorManager;
  * @author Martin Matula
  * @version
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.api.mdr.MDRManager.class, supersedes="org.netbeans.mdr.NBMDRManagerImpl")
 public class MDRManagerImpl extends MDRManager implements FileChangeListener, NBMDRepositoryImpl.ShutdownListener {
 
     private static final String FOLDER_REPOSITORY = "MDRepositories";

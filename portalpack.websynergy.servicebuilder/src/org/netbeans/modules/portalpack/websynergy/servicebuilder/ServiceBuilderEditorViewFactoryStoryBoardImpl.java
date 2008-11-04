@@ -46,6 +46,7 @@ import org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuil
  *
  * @author satyaranjan
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuilderEditorViewFactory.class)
 public class ServiceBuilderEditorViewFactoryStoryBoardImpl implements  ServiceBuilderEditorViewFactory {
 
     public MultiViewDescription createMultiViewDescriptor(ServiceBuilderEditorContext editorContext) {

@@ -53,6 +53,7 @@ import org.openide.loaders.DataObject;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.language.TokenListProvider.class)
 public class JavaTokenListProvider implements TokenListProvider {
 
     static final boolean ENABLE_SEMANTIC_TOKEN_LIST = Boolean.getBoolean(JavaSemanticTokenList.class.getName() + "-enable");

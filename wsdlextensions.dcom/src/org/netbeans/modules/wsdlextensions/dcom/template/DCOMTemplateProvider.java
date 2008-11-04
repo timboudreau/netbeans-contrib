@@ -29,6 +29,7 @@ import org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemp
  * @author Chandrakanth Belde
  */
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider.class)
 public class DCOMTemplateProvider extends ExtensibilityElementTemplateProvider {
     
     static final String templateUrl = "/org/netbeans/modules/wsdlextensions/dcom/template/template.xml";

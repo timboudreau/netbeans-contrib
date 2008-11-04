@@ -62,6 +62,7 @@ import java.util.*;
  *
  * @author Tor Norbye
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.tasklist.client.SuggestionManager.class)
 final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
     private final boolean stats = System.getProperty("netbeans.tasklist.stats") != null;

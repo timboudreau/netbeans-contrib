@@ -50,6 +50,7 @@ import org.openide.util.NotImplementedException;
  *
  * @author Vladimir Kvashin
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.cnd.persistence.api.Persistence.class)
 public class PersistenceImpl extends Persistence {
 
     private Unit[] units = new Unit[0];

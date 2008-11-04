@@ -46,6 +46,7 @@ import org.openide.filesystems.MIMEResolver;
  *
  * @author Andrea Lucarelli
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.MIMEResolver.class)
 public class AdaMimeResolver extends MIMEResolver {
 
     /**

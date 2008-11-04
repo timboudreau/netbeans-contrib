@@ -70,6 +70,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.dictionary.DictionaryProvider.class)
 public class DictionaryProviderImpl implements DictionaryProvider {
     
     /** Creates a new instance of DictionaryProviderImpl */

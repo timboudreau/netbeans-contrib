@@ -58,6 +58,7 @@ import org.openide.awt.StatusLineElementProvider;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.StatusLineElementProvider.class)
 public class WhichElementStatusElementProvider implements StatusLineElementProvider {
     
     private WhichElementPanel whichElementPanel;

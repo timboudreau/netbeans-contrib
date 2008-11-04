@@ -60,6 +60,7 @@ import org.netbeans.modules.wsdlextensions.sap.SAPIDocOperation;
  * @author Sun Microsystems
  */
 
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.xml.xam.spi.Validator.class)
 public class SAPComponentValidator
         implements Validator, SAPComponent.Visitor {
     

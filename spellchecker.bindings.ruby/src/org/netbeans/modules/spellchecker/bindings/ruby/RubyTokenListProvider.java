@@ -51,6 +51,7 @@ import org.netbeans.modules.spellchecker.spi.language.TokenListProvider;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.spellchecker.spi.language.TokenListProvider.class)
 public class RubyTokenListProvider implements TokenListProvider {
     /** Creates a new instance of RubyTokenListProvider */
     public RubyTokenListProvider() {

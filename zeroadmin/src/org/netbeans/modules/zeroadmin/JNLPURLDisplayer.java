@@ -53,6 +53,7 @@ import javax.jnlp.ServiceManager;
  * file.
  * @author David Strupl
  */
+@org.openide.util.lookup.ServiceProvider(service=org.openide.awt.HtmlBrowser.URLDisplayer.class, supersedes="org.netbeans.core.NbTopManager$NbURLDisplayer")
 public class JNLPURLDisplayer extends org.openide.awt.HtmlBrowser.URLDisplayer {
 
     /** Creates a new instance of JNLPURLDisplayer */

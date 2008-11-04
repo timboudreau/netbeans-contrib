@@ -48,6 +48,7 @@ import org.netbeans.spi.editor.mimelookup.InstanceProvider;
  *
  * @author Jan Lahoda
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.editor.mimelookup.Class2LayerFolder.class)
 public class TokenListProviderFolder implements Class2LayerFolder {
 
     /** Creates a new instance of TokenListProviderFolder */

@@ -38,6 +38,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Tim Boudreau
  */
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class)
 public final class HtmlProjectFactory implements ProjectFactory {
     public HtmlProjectFactory() {
     }
