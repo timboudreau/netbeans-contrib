@@ -134,9 +134,9 @@ public class MavenModelUtils {
         Xpp3Dom dom3 = dom2.getChild("suiteXmlFile"); //NOI18N
         if (dom3 == null) {
             dom3 = new Xpp3Dom("suiteXmlFile"); //NOI18N
-            dom3.setValue(fileName);
             dom2.addChild(dom3);
         }
+        dom3.setValue(fileName);
         BuildBase build = ps.getBuild();
         if (build == null) {
             build = new Build();
