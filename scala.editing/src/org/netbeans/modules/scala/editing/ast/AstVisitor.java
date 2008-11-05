@@ -453,7 +453,8 @@ public abstract class AstVisitor {
         }
 
         /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
-        String name = symbol.idString();
+        //String name = symbol.idString();
+        String name = symbol.rawname().decode();
         int offset = offset(tree);
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
         ts.move(offset);
@@ -462,9 +463,9 @@ public abstract class AstVisitor {
         }
 
         Token token;
-        if (tree instanceof This) {
+        if (tree instanceof This || name.equals("this")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
-        } else if (tree instanceof Super) {
+        } else if (tree instanceof Super || name.equals("super")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
         } else if (name.endsWith("expected")) {
             token = ts.token();
