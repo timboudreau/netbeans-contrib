@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="netbeans" name="contrib/autoproject.java">
-    <description>Builds, tests, and runs the project org.netbeans.modules.autoproject.java</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <property name="test.user.dir" location="build/testuserdir"/>
+    <target name="-build-web-module" if="enterprise.cluster.exists">
+        <ant dir="../autoproject.web" target="netbeans"/>
+    </target>
+    <target name="-build-profiler-module" if="profiler.cluster.exists">
+        <ant dir="../autoproject.profiler" target="netbeans"/>
+    </target>
     <target name="debug" description="Build related modules and debug them.">
         <ant dir="../autoproject.core" target="netbeans"/>
-        <ant dir="../autoproject.web" target="netbeans"/>
-        <ant dir="../autoproject.profiler" target="netbeans"/>
+        <available property="enterprise.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.j2ee.built"/>
+        <antcall target="-build-web-module"/>
+        <available property="profiler.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.profiler.built"/>
+        <antcall target="-build-profiler-module"/>
         <path id="clusters">
             <dirset dir="../../nbbuild/netbeans">
                 <include name="extra"/>
