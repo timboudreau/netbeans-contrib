@@ -515,10 +515,11 @@ public class AstTreeVisitor extends AstVisitor {
             // since the symbol is NoSymbol, we should visit its original type
             visit(tree.original());
         } else {
-            AstRef ref = new AstRef(tree.symbol(), getIdToken(tree));
+            AstRef ref = new AstRef(symbol, getIdToken(tree));
             if (scopes.peek().addRef(ref)) {
                 info("\tAdded: ", ref);
             }
+            visit(tree.original());
         }
     }
 
