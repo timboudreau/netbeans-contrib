@@ -487,12 +487,11 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitIdent(Ident tree) {
         Symbol symbol = tree.symbol();
         if (symbol != null) {
-            if (isNoSymbol(symbol)) {
-                //System.out.println("A NoSymbol found");
-            }
-            AstRef ref = new AstRef(symbol, getIdToken(tree));
-            if (scopes.peek().addRef(ref)) {
-                info("\tAdded: ", ref);
+            if (!isNoSymbol(symbol)) {
+                AstRef ref = new AstRef(symbol, getIdToken(tree));
+                if (scopes.peek().addRef(ref)) {
+                    info("\tAdded: ", ref);
+                }
             }
         }
     }
