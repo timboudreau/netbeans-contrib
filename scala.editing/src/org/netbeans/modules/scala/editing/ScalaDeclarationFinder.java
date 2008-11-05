@@ -120,8 +120,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
         }
 
-        // TODO: Tokens.SUPER, Tokens.THIS, Tokens.SELF ...
-        if ((id == ScalaTokenId.Identifier) || (id == ScalaTokenId.GLOBAL_VAR) || (id == ScalaTokenId.CONSTANT)) {
+        if (id == ScalaTokenId.Identifier || id == ScalaTokenId.This || id == ScalaTokenId.Super) {
             return new OffsetRange(ts.offset(), ts.offset() + token.length());
         }
 

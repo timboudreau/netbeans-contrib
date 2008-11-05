@@ -70,6 +70,16 @@ public class AstRootScope extends AstScope {
         return idTokenToItem.containsKey(idToken);
     }
 
+    public Map<Token, AstItem> getIdTokenToItem(TokenHierarchy th) {
+        if (!tokensSorted) {
+            tokens = Arrays.asList(idTokenToItem.keySet().toArray(new Token[idTokenToItem.size()]));
+            Collections.sort(tokens, new TokenComparator(th));
+            tokensSorted = true;
+        }
+
+        return idTokenToItem;
+    }
+
     /**
      * To make sure each idToken only corresponds to one AstItem, if more than
      * one AstItem point to the same idToken, only the first one will be stored
@@ -115,7 +125,7 @@ public class AstRootScope extends AstScope {
 
         return tokens == null ? Collections.<Token>emptyList() : tokens;
     }
-    
+
     public AstItem findItemAt(Token token) {
         return idTokenToItem.get(token);
     }
@@ -126,7 +136,7 @@ public class AstRootScope extends AstScope {
                 return entry.getValue();
             }
         }
-        
+
         return null;
     }
 
@@ -135,7 +145,7 @@ public class AstRootScope extends AstScope {
             System.out.println("AstItem: " + idTokenToItem.get(token));
         }
     }
-    
+
     private static class TokenComparator implements Comparator<Token> {
 
         private TokenHierarchy th;

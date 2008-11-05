@@ -82,8 +82,8 @@
     <fontcolor name="mod-class">
         <font style="bold" />
     </fontcolor>
-    <fontcolor name="mod-static" foreColor="7777cc"/> <!-- for Class Ref 717ab3 -->
-    <fontcolor name="mod-global" foreColor="7777cc">  <!-- for Object Ref 717ab3 -->
+    <fontcolor name="mod-static" foreColor="bc8f8f"/> <!-- for Class  Ref 717ab3, 7777cc, dark red:bc8f8f, purple:a020f0 -->
+    <fontcolor name="mod-global" foreColor="bc8f8f">  <!-- for Object Ref 717ab3, 7777cc -->
         <font style="italic" />
     </fontcolor>
     <fontcolor name="mod-interface" foreColor="009B00"> <!-- for implicit method Ref -->
