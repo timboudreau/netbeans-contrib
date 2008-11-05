@@ -45,25 +45,25 @@
         <folder name="SaaSServices">
             <file name="RTMAuthenticator.java"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/javaee/RTMAuthenticator.template">
-                <attr name="position" intvalue="3810"/>
+                <attr name="position" intvalue="9810"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/class.png"/>
             </file>
             <file name="RTMLogin.java"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/javaee/RTMLogin.template">
-                <attr name="position" intvalue="3820"/>
+                <attr name="position" intvalue="9820"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/class.png"/>
             </file>
             <file name="RTMCallback.java"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/javaee/RTMCallback.template">
-                <attr name="position" intvalue="3830"/>
+                <attr name="position" intvalue="9830"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/class.png"/>
             </file>
             <file name="RTMAuthenticatorDesktop.java"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/java/RTMAuthenticator.template">
-                <attr name="position" intvalue="3840"/>
+                <attr name="position" intvalue="9840"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/class.png"/>
             </file>
@@ -71,25 +71,25 @@
             <!-- PHP templates -->
             <file name="RTMAuthenticator.php"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/php/RTMAuthenticator.template">
-                <attr name="position" intvalue="3850"/>
+                <attr name="position" intvalue="9850"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/php16.png"/>
             </file>
             <file name="RTMLogin.php"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/php/RTMLogin.template">
-                <attr name="position" intvalue="3860"/>
+                <attr name="position" intvalue="9860"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/php16.png"/>
             </file>
             <file name="RTMCallback.php"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/php/RTMCallback.template">
-                <attr name="position" intvalue="3870"/>
+                <attr name="position" intvalue="9870"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/php16.png"/>
             </file>
             <file name="RTMAuthenticatorDesktop.php"
                   url="/org/netbeans/modules/websvc/saas/services/rtm/resources/php/RTMAuthenticatorDesktop.template">
-                <attr name="position" intvalue="3880"/>
+                <attr name="position" intvalue="9880"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/websvc/saas/services/rtm/resources/php16.png"/>
             </file>
