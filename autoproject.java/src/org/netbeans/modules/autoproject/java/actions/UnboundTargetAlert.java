@@ -285,7 +285,7 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
                 if (f.isDirectory()) {
                     return true;
                 }
-                FileObject fo = FileUtil.toFileObject(f);
+                FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(f));
                 return fo != null && fo.getMIMEType().equals("text/x-ant+xml");
             }
             public String getDescription() {
