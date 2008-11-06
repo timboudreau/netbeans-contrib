@@ -52,6 +52,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -93,7 +95,21 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
         this.command = command;
         label = NbBundle.getMessage(UnboundTargetAlert.class, "CMD_" + command);
         initComponents();
+        scriptField.setText(findDefaultScript());
         listTargets();
+    }
+
+    private String findDefaultScript() {
+        String prefix = FileUtil.toFile(project.getProjectDirectory()).getAbsolutePath() + Cache.ACTION;
+        for (Map.Entry<String,String> entry : Cache.pairs()) {
+            if (entry.getKey().startsWith(prefix)) {
+                Matcher m = Pattern.compile("ant:(.+):.+").matcher(entry.getValue());
+                if (m.matches()) {
+                    return m.group(1);
+                }
+            }
+        }
+        return "build.xml";
     }
 
     /**
@@ -208,7 +224,6 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
         scriptLabel.setLabelFor(scriptField);
         org.openide.awt.Mnemonics.setLocalizedText(scriptLabel, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UnboundTargetAlert.scriptLabel.text")); // NOI18N
 
-        scriptField.setText("build.xml"); // NOI18N
         scriptField.addActionListener(this);
 
         org.openide.awt.Mnemonics.setLocalizedText(scriptButton, org.openide.util.NbBundle.getMessage(UnboundTargetAlert.class, "UnboundTargetAlert.scriptButton.text")); // NOI18N
@@ -268,11 +283,11 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
     // Code for dispatching events from components to event handlers.
 
     public void actionPerformed(java.awt.event.ActionEvent evt) {
-        if (evt.getSource() == scriptButton) {
-            UnboundTargetAlert.this.scriptButtonActionPerformed(evt);
-        }
-        else if (evt.getSource() == scriptField) {
+        if (evt.getSource() == scriptField) {
             UnboundTargetAlert.this.scriptFieldActionPerformed(evt);
+        }
+        else if (evt.getSource() == scriptButton) {
+            UnboundTargetAlert.this.scriptButtonActionPerformed(evt);
         }
     }// </editor-fold>//GEN-END:initComponents
 
