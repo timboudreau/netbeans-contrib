@@ -42,8 +42,6 @@ package org.netbeans.modules.scala.editing;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -560,6 +558,7 @@ public class ScalaParser implements Parser {
             notifyError(context, "SYNTAX_ERROR", ex.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{ex});
         } catch (Exception ex) {
+            ex.printStackTrace();
             // Scala's global throws too many exceptions
         } finally {
             if (doc != null) {
@@ -574,7 +573,12 @@ public class ScalaParser implements Parser {
             pResult.setSource(source);
             return pResult;
         } else {
-            return sanitize(context, sanitizing);
+            // Don't do sanitize trying:
+            //return sanitize(context, sanitizing);
+            ScalaParserResult pResult = createParserResult(context.file, rootScope, null, context.th, context.getErrors());
+            pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
+            pResult.setSource(source);
+            return pResult;
         }
     }
     private static long version;

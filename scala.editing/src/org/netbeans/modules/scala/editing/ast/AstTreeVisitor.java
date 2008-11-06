@@ -510,16 +510,21 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitTypeTree(TypeTree tree) {
         Symbol symbol = tree.symbol();
-        if (isNoSymbol(symbol)) {
-            // type tree in case def, for example: case Some(_),
-            // since the symbol is NoSymbol, we should visit its original type
-            visit(tree.original());
+        if (symbol == null) {
+            // in case of: <type ?>
+            System.out.println("Null symbol found, tree is:" + tree);
         } else {
-            AstRef ref = new AstRef(symbol, getIdToken(tree));
-            if (scopes.peek().addRef(ref)) {
-                info("\tAdded: ", ref);
+            if (isNoSymbol(symbol)) {
+                // type tree in case def, for example: case Some(_),
+                // since the symbol is NoSymbol, we should visit its original type
+                visit(tree.original());
+            } else {
+                AstRef ref = new AstRef(symbol, getIdToken(tree));
+                if (scopes.peek().addRef(ref)) {
+                    info("\tAdded: ", ref);
+                }
+                visit(tree.original());
             }
-            visit(tree.original());
         }
     }
 
@@ -558,6 +563,7 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitStubTree(StubTree tree) {
+        Object underlying = tree.underlying();
     }
 
     private boolean isNoSymbol(Symbol symbol) {
