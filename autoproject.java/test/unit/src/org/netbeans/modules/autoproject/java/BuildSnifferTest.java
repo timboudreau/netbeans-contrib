@@ -46,6 +46,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.autoproject.core.AutomaticProjectFactory;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.test.TestFileUtils;
@@ -63,6 +64,7 @@ public class BuildSnifferTest extends NbTestCase {
         clearWorkDir();
         Cache.clear();
         prefix = getWorkDirPath() + File.separator;
+        AutomaticProjectFactory.setAutomaticDetectionMode(true);
     }
 
     public void testBasicJavac() throws Exception {
