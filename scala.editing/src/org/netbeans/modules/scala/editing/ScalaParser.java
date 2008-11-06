@@ -559,7 +559,7 @@ public class ScalaParser implements Parser {
                     0, 0, sanitizing, Severity.ERROR, new Object[]{ex});
         } catch (Exception ex) {
             ex.printStackTrace();
-            // Scala's global throws too many exceptions
+        // Scala's global throws too many exceptions
         } finally {
             if (doc != null) {
                 doc.readUnlock();
@@ -789,8 +789,12 @@ public class ScalaParser implements Parser {
 
             boolean ignoreError = context.sanitizedSource != null;
             if (!ignoreError) {
-                notifyError(context, "SYNTAX_ERROR", msg,
-                        offset, offset, sanitizing, sev, new Object[]{offset, msg});
+                if (msg.toLowerCase().startsWith("there are un-checked warnings")) {
+                    // ignore it, @todo: severity level
+                } else {
+                    notifyError(context, "SYNTAX_ERROR", msg,
+                            offset, offset, sanitizing, sev, new Object[]{offset, msg});
+                }
             }
         }
     }

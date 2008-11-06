@@ -133,6 +133,10 @@ made subject to such option by the copyright holder.
                 <binary-origin>external/sbaz-2.7.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/sbaz-tests-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/sbaz-tests-2.7.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/scala-compiler-2.7.2.jar</runtime-relative-path>
                 <binary-origin>external/scala-compiler-2.7.2.jar</binary-origin>
             </class-path-extension>
