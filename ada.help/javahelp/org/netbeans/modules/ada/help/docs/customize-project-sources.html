@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+
+Contributor(s):
+
+Portions Copyrighted 2008 Sun Microsystems, Inc.
+-->
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <link rel="stylesheet" href=
+    "nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/ide.css" type=
+    "text/css">
+    <meta content="Helen" name="generator">
+<style type="text/css">
+<!--
+.comment {
+  color: blue;
+}
+.change-bar {
+  border-color: black;
+  border-left-style: solid;
+  border-left: thin;
+  padding-left: 6px;
+}
+.deleted {
+  text-decoration: line-through;
+}
+.style1 {
+	color: #FF0000;
+	font-weight: bold;
+}
+-->
+</style>
+    <title>Customizing the Project Settings: Source Files Location</title>
+  </head>
+  <body>
+    <h2>
+       Customizing the Project Settings: Sources</h2>
+<p>
+       <small><a href="#seealso">See Also</a></small></p>
+<p>The Sources panel enables you to view the location of the project folder,
+	manage source and test package folders, as well as set the source level of
+	the packages which the IDE will use.
+You open the Ada Project Properties dialog box by right-clicking 
+  any and choosing Properties.
+<!--explain source level?-->
+</p>
+<p>Use the buttons on the right side of the panel to add, remove, and change
+  the order of classpath elements. 
+<ul>
+  <li>The source root cannot already exist in another IDE project.
+  <li>The source root cannot already be added to another compilation unit of the same project. For example, a source root that is registered under Test Packages cannot be added to the list of Source Packages.
+  <li>If you have a source root that needs to be used by several projects, you should create a separate project for the source root and set up compilation dependencies between the projects.
+</ul>
+<p><b>Test Packages Folders</b></p>
+<p class="style1">THIS FEATURE IS NOT DEVELOPED</p>
+<p>You can use this pane to specify the folder that the IDE uses when creating Ada Unit tests. 
+  By default, when you create a project the IDE creates a test packages folder called <tt>test</tt> with the label Test Packages.
+  Use the buttons to the right of the list to remove the selected folder or to specify the folder that the IDE uses when creating tests.
+  You can also modify the Label field to change how the folder is displayed in the Projects window.</p>
+<p>To create Ada Unit tests with the IDE, a project must have a test packages folder.
+  If the test packages folder for your project is missing or unavailable, you can create a new folder in your project and 
+  then use this pane to designate the new folder as the test packages folder.</p>
+<dl>
+      <dt>
+         <a name="seealso">See Also</a>      </dt>
+      <dd>&nbsp;</dd>
+      <dd>
+        <a href="new-ada-application.html" title=
+        "Configurinag a New PHP Project withough Previously Developed Sources">New Ada Application</a><a href="new-project-configure_no_sources.html" title=
+        "Configurinag a New PHP Project without Previously Developed Sources"></a>      </dd>
+      <dd>
+        <a href="new-from-existing-ada-sources.html" title=
+        "Configurinag a New PHP Project withough Previously Developed Sources">New Ada Application with Existing Sources</a><a href="new-project-configure_existing_sources.html" title=
+        "Importing Previously Developed Source Files into a New Project"></a></dd>
+      <dd><a href="customize-project-libraries.html" title=
+        "Configurinag a New PHP Project withough Previously Developed Sources">Customizing the Project Settings: Libraries</a></dd>
+      <dd><a href="customize-project-run.html" title=
+        "Configurinag a New PHP Project withough Previously Developed Sources">Customizing the Project Settings: Run</a></dd>
+      <dt></dt>
+      <dt>&nbsp;</dt>
+</dl>
+<hr>
+    <p>
+       <small><a href="credits.html">Legal Notices</a></small>
+    </p>
+    <table border="0" cellpadding="150">
+      <tr>
+        <td>&nbsp;
+          
+        </td>
+      </tr>
+      <tr>
+        <td>&nbsp;
+          
+        </td>
+      </tr>
+      <tr>
+        <td>&nbsp;
+          
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

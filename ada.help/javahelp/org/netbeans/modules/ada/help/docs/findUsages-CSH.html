@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+
+Contributor(s):
+
+Portions Copyrighted 2008 Sun Microsystems, Inc.
+-->
+<html>
+    <head>
+        <title>Find Usages Dialog Box</title>
+        <link rel="StyleSheet" href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/ide.css" type="text/css">
+    </head>
+    <body>
+        <h2>Find Usages Dialog Box</h2>
+        <p>Use this dialog box to specify search options for the Find Usages command.
+You can use the Find Usages command to determine all of the places a class, function,
+        or variable is used in your project's source code. </p>
+        
+        
+	
+
+        <p>The Find Usages dialog box displays the following option for all types of identifiers:</p>
+        <ul>
+            <li><b>Search in Comments.</b> If selected, occurrences of the identifier that 
+            appear in code comments are also displayed.</li>
+        </ul>
+        <p>For classes and interfaces, the Find Usages dialog box displays the following 
+        additional options:</p>
+        <ul>
+            <li><b>Find Usages.</b> If selected, all usages of the class are displayed.</li>
+            <li><b>Find All Subtypes.</b> If selected, usages of all subtypes of the class, 
+including subtypes of subtypes, are displayed. Usages of the class itself are not displayed.</li>
+            <li><b>Find Direct Subtypes Only.</b> If selected, only usages of direct subtypes 
+            are displayed. Subtypes of those subtypes are ignored. </li>
+        </ul>
+
+        <p>For functions, the Find Usages dialog box sometimes displays the following additional options:</p>
+        <ul>
+          <li><b>Find Usages.</b> If selected, all usages of that 
+        specific function in your project are displayed.</li>
+          <li><b>Find Overriding Functions.</b> If selected, the output will show every usage 
+        of a function that overrides this function in your project.</li>
+          <li><b>Search from Base Class.</b> This option is only relevant if the function for which you 
+are finding usages overrides another function. If selected, the output 
+        will show every usage of that base function.</li>
+        </ul>
+        <ul class="note">
+            <li>The Find Usages command is 
+            distinct from the Find command, because Find Usages returns only occurrences of 
+            the specified identifier in PHP source code. The Find command returns any matching string 
+            that you specify in any type of file.</li>
+        </ul>
+        <hr>
+        <small><a href="credits.html">Legal Notices</a></small> 
+<table border="0" cellpadding="50">
+<tr><td>&nbsp;</td></tr>
+</table>
+    </body>
+</html>
