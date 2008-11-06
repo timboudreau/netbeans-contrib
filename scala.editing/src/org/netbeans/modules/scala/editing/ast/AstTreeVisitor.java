@@ -512,7 +512,7 @@ public class AstTreeVisitor extends AstVisitor {
         Symbol symbol = tree.symbol();
         if (symbol == null) {
             // in case of: <type ?>
-            System.out.println("Null symbol found, tree is:" + tree);
+            //System.out.println("Null symbol found, tree is:" + tree);
         } else {
             if (isNoSymbol(symbol)) {
                 // type tree in case def, for example: case Some(_),
