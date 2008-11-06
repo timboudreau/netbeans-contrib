@@ -50,15 +50,24 @@ import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
+import org.openide.util.NbPreferences;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * Recognizer for automatic projects.
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class, position=999)
+@ServiceProvider(service=ProjectFactory.class, position=999)
 public class AutomaticProjectFactory implements ProjectFactory {
 
-    /** Default constructor for lookup. */
-    public AutomaticProjectFactory() {}
+    private static final String AUTOMATIC_DETECTION_MODE = "automaticDetectionMode";
+
+    public static boolean isAutomaticDetectionMode() {
+        return NbPreferences.forModule(AutomaticProjectFactory.class).getBoolean(AUTOMATIC_DETECTION_MODE, false);
+    }
+
+    public static void setAutomaticDetectionMode(boolean enabled) {
+        NbPreferences.forModule(AutomaticProjectFactory.class).putBoolean(AUTOMATIC_DETECTION_MODE, enabled);
+    }
 
     public boolean isProject(FileObject projectDirectory) {
         File d = FileUtil.toFile(projectDirectory);
@@ -66,6 +75,9 @@ public class AutomaticProjectFactory implements ProjectFactory {
             if (Boolean.parseBoolean(Cache.get(d + Cache.PROJECT))) {
                 return true;
             }
+        }
+        if (!isAutomaticDetectionMode()) {
+            return false;
         }
         boolean detected = false;
         for (ProjectDetector detector : Lookup.getDefault().lookupAll(ProjectDetector.class)) {

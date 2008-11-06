@@ -41,6 +41,7 @@ package org.netbeans.modules.autoproject.java;
 
 import org.netbeans.modules.autoproject.spi.Cache;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -61,12 +62,13 @@ import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
 import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * Tracks progress of Ant builds and looks for calls to important tasks like javac.
  * These are analyzed for interesting information.
  */
-@org.openide.util.lookup.ServiceProvider(service=org.apache.tools.ant.module.spi.AntLogger.class)
+@ServiceProvider(service=AntLogger.class)
 public class BuildSniffer extends AntLogger {
 
     private static final Logger LOG = Logger.getLogger(BuildSniffer.class.getName());
@@ -174,9 +176,7 @@ public class BuildSniffer extends AntLogger {
         }
         List<String> classpath = new ArrayList<String>();
         if (buildSysclasspath.matches("only|first")) {
-            // XXX would be good to exclude items in ${netbeans.home}/lib/*.jar and dt.jar
-            // XXX probably also safe to collapse ant/lib/*.jar to ant/lib/ant.jar
-            appendPath(System.getProperty("java.class.path"), event, classpath, true);
+            appendJavaClassPath(classpath);
         }
         if (!buildSysclasspath.equals("only")) {
             appendPath(task.getAttribute("classpath"), event, classpath, true);
@@ -193,7 +193,7 @@ public class BuildSniffer extends AntLogger {
             }
         }
         if (buildSysclasspath.equals("last")) {
-            appendPath(System.getProperty("java.class.path"), event, classpath, true);
+            appendJavaClassPath(classpath);
         }
         // Check to see if source roots are correct; srcdir on <javac> is sometimes wrong.
         ListIterator<String> sourcesIt = sources.listIterator();
@@ -261,6 +261,31 @@ public class BuildSniffer extends AntLogger {
                 continue;
             }
             entries.add(resolve(event, piece).getAbsolutePath());
+        }
+    }
+
+    private static void appendJavaClassPath(List<String> entries) {
+        File lib = canonicalizeFile(new File(System.getProperty("netbeans.home"), "lib"));
+        File dtJar = canonicalizeFile(new File(new File(new File(System.getProperty("java.home")).
+                getParentFile(), "lib"), "dt.jar"));
+        for (String piece : System.getProperty("java.class.path").split(File.pathSeparator)) {
+            if (piece.length() == 0) {
+                continue;
+            }
+            File entry = new File(piece);
+            File canonEntry = canonicalizeFile(entry);
+            if (!canonEntry.getParentFile().equals(lib) && !canonEntry.equals(dtJar)) {
+                // XXX probably also safe to collapse ant/lib/*.jar (and java2/ant/patches/*.jar) to ant/lib/ant.jar
+                entries.add(FileUtil.normalizeFile(entry).getAbsolutePath());
+            }
+        }
+    }
+    private static File canonicalizeFile(File f) {
+        try {
+            return f.getCanonicalFile();
+        } catch (IOException x) {
+            // ignore and use original
+            return f;
         }
     }
 
