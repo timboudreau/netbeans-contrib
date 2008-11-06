@@ -83,7 +83,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     static final String TEST_ROOTS = "tests";                       //NOI18N
 
     public static enum WizardType {
-        APP,
+        NEW,
         EXISTING,
     }
 
@@ -93,7 +93,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     private int index;
 
     public NewAdaProjectWizardIterator() {
-        this(WizardType.APP);
+        this(WizardType.NEW);
     }
 
     private NewAdaProjectWizardIterator(WizardType wizardType) {
@@ -143,7 +143,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         AntProjectHelper helper = createProject(projectDirectory, projectName);
         resultSet.add(helper.getProjectDirectory());
 
-        if (wizardType == WizardType.APP) {
+        if (wizardType == WizardType.NEW) {
             // sources
             FileObject sourceDir = createSourceRoot();
             resultSet.add(sourceDir);
@@ -192,7 +192,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
 
     public WizardDescriptor.Panel current() {
         // wizard title
-        String title = NbBundle.getMessage(NewAdaProjectWizardIterator.class, wizardType == WizardType.APP ? "TXT_AdaProject" : "TXT_ExistingAdaProject");
+        String title = NbBundle.getMessage(NewAdaProjectWizardIterator.class, wizardType == WizardType.NEW ? "TXT_AdaProject" : "TXT_ExistingAdaProject");
         descriptor.putProperty("NewProjectWizard_Title", title); // NOI18N
         return panels[index];
     }
@@ -219,7 +219,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
 
     private WizardDescriptor.Panel[] createPanels() {
         switch (wizardType) {
-            case APP:
+            case NEW:
             {
                 String[] steps = new String[] {
                     NbBundle.getBundle(NewAdaProjectWizardIterator.class).getString("LBL_ProjectNameLocation"),
@@ -357,7 +357,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     }
 
     private List<? extends File> getSources () {
-        if (wizardType == WizardType.APP) {
+        if (wizardType == WizardType.NEW) {
             return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"src"));   //NOI18N
         }
         else if (wizardType == WizardType.EXISTING) {
@@ -369,7 +369,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     }
         
     private List<? extends File> getTests () {
-        if (wizardType == WizardType.APP) {
+        if (wizardType == WizardType.NEW) {
             return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"test"));   //NOI18N
         }
         else if (wizardType == WizardType.EXISTING) {

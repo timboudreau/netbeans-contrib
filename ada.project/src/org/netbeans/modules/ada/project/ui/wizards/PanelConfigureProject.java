@@ -74,7 +74,7 @@ public class PanelConfigureProject implements WizardDescriptor.Panel,
     }
 
     public HelpCtx getHelp() {
-        return new HelpCtx(PanelConfigureProject.class);
+        return new HelpCtx(PanelConfigureProject.class.getName() + "." + type);
     }
 
     public boolean isValid() {

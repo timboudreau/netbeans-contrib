@@ -69,7 +69,7 @@ public class AdaActionProvider implements ActionProvider {
      */
     public static final String COMMAND_ADADOC = "adadoc"; // NOI18N
 
-    AdaProject project;
+    final AdaProject project;
     
     private final Map<String,Command> commands;
 
@@ -79,6 +79,8 @@ public class AdaActionProvider implements ActionProvider {
      */
     public AdaActionProvider(AdaProject project) {
         assert project != null;
+        this.project = project;
+        
         commands = new LinkedHashMap<String, Command>();
         Command[] commandArray = new Command[] {
             new DeleteCommand(project),

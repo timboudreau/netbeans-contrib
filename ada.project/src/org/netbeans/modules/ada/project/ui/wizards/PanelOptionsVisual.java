@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.wizards;
 
 import org.netbeans.modules.ada.project.ui.*;
@@ -63,73 +62,72 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
+ * 
  * @author  Andrea Lucarelli
  */
 public class PanelOptionsVisual extends SettingsPanel implements ActionListener, PropertyChangeListener {
-    
+
     private static boolean lastMainClassCheck = true; // XXX Store somewhere    
-    
     private PanelConfigureProject panel;
     private boolean valid;
     private String projectLocation;
-    
+
     public PanelOptionsVisual(PanelConfigureProject panel, NewAdaProjectWizardIterator.WizardType type) {
         initComponents();
         this.panel = panel;
         this.platforms.setRenderer(Utils.createPlatformRenderer());
         this.platforms.setModel(Utils.createPlatformModel());
 
-        switch (type) {            
-            case APP:
-                createMainCheckBox.addActionListener( this );
-                createMainCheckBox.setSelected( lastMainClassCheck );
-                mainFileTextField.setEnabled( lastMainClassCheck );
+        switch (type) {
+            case NEW:
+                createMainCheckBox.addActionListener(this);
+                createMainCheckBox.setSelected(lastMainClassCheck);
+                mainFileTextField.setEnabled(lastMainClassCheck);
                 break;
+
             case EXISTING:
-                setAsMainCheckBox.setVisible( true );
-                createMainCheckBox.setVisible( false );
-                mainFileTextField.setVisible( false );
+                setAsMainCheckBox.setVisible(true);
+                createMainCheckBox.setVisible(false);
+                mainFileTextField.setVisible(false);
                 break;
         }
-        
-        this.mainFileTextField.getDocument().addDocumentListener( new DocumentListener () {
-            
+
+        this.mainFileTextField.getDocument().addDocumentListener(new DocumentListener() {
+
             public void insertUpdate(DocumentEvent e) {
-                mainFileChanged ();
+                mainFileChanged();
             }
-            
+
             public void removeUpdate(DocumentEvent e) {
-                mainFileChanged ();
+                mainFileChanged();
             }
-            
+
             public void changedUpdate(DocumentEvent e) {
-                mainFileChanged ();
+                mainFileChanged();
             }
-            
-        });        
-        
+        });
+
     }
 
-    public void actionPerformed( ActionEvent e ) {        
-        if ( e.getSource() == createMainCheckBox ) {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == createMainCheckBox) {
             lastMainClassCheck = createMainCheckBox.isSelected();
-            mainFileTextField.setEnabled( lastMainClassCheck );        
+            mainFileTextField.setEnabled(lastMainClassCheck);
             this.panel.fireChangeEvent();
-        }                
+        }
     }
-    
-    public void propertyChange (PropertyChangeEvent event) {
+
+    public void propertyChange(PropertyChangeEvent event) {
         if (NewAdaProjectWizardIterator.PROP_PROJECT_NAME.equals(event.getPropertyName())) {
-            String newProjectName = (String) event.getNewValue();            
-            this.mainFileTextField.setText (MessageFormat.format(
-                NbBundle.getMessage (PanelOptionsVisual.class,"TXT_MainFileName"), new Object[] {newProjectName}
-            ));
+            String newProjectName = (String) event.getNewValue();
+            this.mainFileTextField.setText(MessageFormat.format(
+                    NbBundle.getMessage(PanelOptionsVisual.class, "TXT_MainFileName"), new Object[]{newProjectName}));
         }
         if (NewAdaProjectWizardIterator.PROP_PROJECT_LOCATION.equals(event.getPropertyName())) {
-            projectLocation = (String)event.getNewValue();
+            projectLocation = (String) event.getNewValue();
         }
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -228,31 +226,28 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
             Exceptions.printStackTrace(ex);
         } catch (ClassNotFoundException ex) {
             Exceptions.printStackTrace(ex);
-        }        
+        }
     }
 }//GEN-LAST:event_manageActionPerformed
-    
 
-    
     boolean valid(WizardDescriptor settings) {
         if (platforms.getSelectedItem() == null) {
             settings.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE,
-                    NbBundle.getMessage(PanelOptionsVisual.class,"ERROR_IllegalPlatform"));
+                    NbBundle.getMessage(PanelOptionsVisual.class, "ERROR_IllegalPlatform"));
             return false;
         }
-        if (mainFileTextField.isVisible () && mainFileTextField.isEnabled ()) {
+        if (mainFileTextField.isVisible() && mainFileTextField.isEnabled()) {
             if (!valid) {
                 settings.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE,
-                    NbBundle.getMessage(PanelOptionsVisual.class,"ERROR_IllegalMainFileName")); //NOI18N
+                        NbBundle.getMessage(PanelOptionsVisual.class, "ERROR_IllegalMainFileName")); //NOI18N
             }
             return this.valid;
-        }
-        else {
+        } else {
             return true;
         }
     }
-    
-    void read (WizardDescriptor d) {
+
+    void read(WizardDescriptor d) {
         final AdaPlatformManager manager = AdaPlatformManager.getInstance();
         String pid = (String) d.getProperty(NewAdaProjectWizardIterator.PROP_PLATFORM_ID);
         if (pid == null) {
@@ -261,19 +256,18 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         final AdaPlatform activePlatform = manager.getPlatform(pid);
         if (activePlatform != null) {
             platforms.setSelectedItem(activePlatform);
-        }        
+        }
     }
-    
-    void validate (WizardDescriptor d) throws WizardValidationException {        
+
+    void validate(WizardDescriptor d) throws WizardValidationException {
         // nothing to validate
     }
 
-    void store( WizardDescriptor d ) {
-        d.putProperty(NewAdaProjectWizardIterator.SET_AS_MAIN, setAsMainCheckBox.isSelected() && setAsMainCheckBox.isVisible() ? Boolean.TRUE : Boolean.FALSE ); // NOI18N
-        d.putProperty(NewAdaProjectWizardIterator.MAIN_FILE, createMainCheckBox.isSelected() && createMainCheckBox.isVisible() ? mainFileTextField.getText() : null ); // NOI18N
-        d.putProperty(NewAdaProjectWizardIterator.PROP_PLATFORM_ID, ((AdaPlatform)platforms.getSelectedItem()).getName());
+    void store(WizardDescriptor d) {
+        d.putProperty(NewAdaProjectWizardIterator.SET_AS_MAIN, setAsMainCheckBox.isSelected() && setAsMainCheckBox.isVisible() ? Boolean.TRUE : Boolean.FALSE); // NOI18N
+        d.putProperty(NewAdaProjectWizardIterator.MAIN_FILE, createMainCheckBox.isSelected() && createMainCheckBox.isVisible() ? mainFileTextField.getText() : null); // NOI18N
+        d.putProperty(NewAdaProjectWizardIterator.PROP_PLATFORM_ID, ((AdaPlatform) platforms.getSelectedItem()).getName());
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox createMainCheckBox;
     private javax.swing.JLabel jLabel1;
@@ -282,26 +276,25 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     private javax.swing.JComboBox platforms;
     private javax.swing.JCheckBox setAsMainCheckBox;
     // End of variables declaration//GEN-END:variables
-    
-    private void mainFileChanged () {
-        String mainClassName = this.mainFileTextField.getText ();
-        StringTokenizer tk = new StringTokenizer (mainClassName, "."); //NOI18N
+
+    private void mainFileChanged() {
+        String mainClassName = this.mainFileTextField.getText();
+        StringTokenizer tk = new StringTokenizer(mainClassName, "."); //NOI18N
         boolean validity = true;
         while (tk.hasMoreTokens()) {
             String token = tk.nextToken();
             if (token.length() == 0 || !Utilities.isJavaIdentifier(token)) {
                 validity = false;
                 break;
-            }            
+            }
         }
         this.valid = validity;
         this.panel.fireChangeEvent();
     }
-    
+
     private void librariesLocationChanged() {
         this.panel.fireChangeEvent();
-        
+
     }
-    
 }
 

@@ -44,13 +44,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import org.netbeans.modules.ada.project.ui.Utils;
+import org.openide.util.HelpCtx;
 
 
 /**
  *
  * @author  Andrea Lucarelli
  */
-public class CustomizerRun extends javax.swing.JPanel {
+public class CustomizerRun extends javax.swing.JPanel implements HelpCtx.Provider {
     
     private final AdaProjectProperties uiProperties;
     private final DocListener listener;
@@ -71,6 +72,10 @@ public class CustomizerRun extends javax.swing.JPanel {
         this.listener = new DocListener ();
         this.mainModule.getDocument().addDocumentListener(listener);
         this.appArgs.getDocument().addDocumentListener(listener);
+    }
+
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx (CustomizerRun.class);
     }
 
     /** This method is called from within the constructor to

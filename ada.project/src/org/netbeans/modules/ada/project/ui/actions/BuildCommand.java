@@ -39,8 +39,12 @@
 
 package org.netbeans.modules.ada.project.ui.actions;
 
+import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompilerCommand;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
+import org.netbeans.modules.ada.project.AdaProjectUtil;
+import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.openide.util.Lookup;
 
 /**
@@ -62,12 +66,33 @@ public class BuildCommand extends Command {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
+        final AdaProject project = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
+        assert platform != null;
+        
+        //AdaProjectProperties properties = context.lookup(AdaProjectProperties.class);
+        
+        // Init compiler factory
+        GnatCompilerCommand comp = new GnatCompilerCommand (
+                platform,
+                project.getProjectDirectory().getPath(),
+                project.getProjectDirectory().getPath(),
+                project.getSrcFolder().getPath(),
+                "",//properties.getMainModule(),
+                "pippo.exe"
+                );
+
+        // Start build
+        comp.Build();
     }
 
     @Override
     public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        return false;
+        final AdaProject adaProject = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        if (platform == null) {
+            return false;
+        }
+        return true;
     }
-    
 }

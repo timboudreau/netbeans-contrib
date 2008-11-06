@@ -36,10 +36,8 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.wizards;
 
-import org.netbeans.modules.ada.project.ui.*;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
@@ -51,70 +49,66 @@ import org.openide.util.NbBundle;
  */
 public class PanelConfigureProjectVisual extends JPanel {
 
-    private PanelConfigureProject panel;        
-    
+    private PanelConfigureProject panel;
     private SettingsPanel projectLocationPanel;
-    
     private PanelOptionsVisual optionsPanel;
-    
     private NewAdaProjectWizardIterator.WizardType type;
-    
+
     public PanelConfigureProjectVisual(PanelConfigureProject panel, NewAdaProjectWizardIterator.WizardType type) {
         this.panel = panel;
-        initComponents();                
+        initComponents();
         this.type = type;
-        setName(NbBundle.getMessage(PanelConfigureProjectVisual.class,"TXT_NameAndLoc")); // NOI18N
+        setName(NbBundle.getMessage(PanelConfigureProjectVisual.class, "TXT_NameAndLoc")); // NOI18N
         switch (type) {
-        case APP:
-            projectLocationPanel = new EmptyAdaProjectPanelVisual(panel);
-            putClientProperty ("NewProjectWizard_Title", NbBundle.getMessage(PanelConfigureProjectVisual.class,"TXT_NewAdaApp")); // NOI18N
-            jSeparator1.setVisible(true);
-            getAccessibleContext ().setAccessibleName (NbBundle.getMessage(PanelConfigureProjectVisual.class,"TXT_NewAdaApp")); // NOI18N
-            getAccessibleContext ().setAccessibleDescription (NbBundle.getMessage(PanelConfigureProjectVisual.class,"ACSD_NewAdaApp")); // NOI18N
-            break;        
-        case EXISTING:
-            projectLocationPanel = new ExistingAdaProjectPanelVisual(panel);
-            putClientProperty ("NewProjectWizard_Title", NbBundle.getMessage(PanelConfigureProjectVisual.class,"TXT_ExistingAdaProject")); // NOI18N
-            jSeparator1.setVisible(true);
-            getAccessibleContext ().setAccessibleName (NbBundle.getMessage(PanelConfigureProjectVisual.class,"TXT_ExistingAdaProject")); // NOI18N
-            getAccessibleContext ().setAccessibleDescription (NbBundle.getMessage(PanelConfigureProjectVisual.class,"ACSD_ExistingAdaProject")); // NOI18N
-            break;
-        default:
+            case NEW:
+                projectLocationPanel = new EmptyAdaProjectPanelVisual(panel);
+                putClientProperty("NewProjectWizard_Title", NbBundle.getMessage(PanelConfigureProjectVisual.class, "TXT_NewAdaApp")); // NOI18N
+                jSeparator1.setVisible(true);
+                getAccessibleContext().setAccessibleName(NbBundle.getMessage(PanelConfigureProjectVisual.class, "TXT_NewAdaApp")); // NOI18N
+                getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(PanelConfigureProjectVisual.class, "ACSD_NewAdaApp")); // NOI18N
+                break;
+            case EXISTING:
+                projectLocationPanel = new ExistingAdaProjectPanelVisual(panel);
+                putClientProperty("NewProjectWizard_Title", NbBundle.getMessage(PanelConfigureProjectVisual.class, "TXT_ExistingAdaProject")); // NOI18N
+                jSeparator1.setVisible(true);
+                getAccessibleContext().setAccessibleName(NbBundle.getMessage(PanelConfigureProjectVisual.class, "TXT_ExistingAdaProject")); // NOI18N
+                getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(PanelConfigureProjectVisual.class, "ACSD_ExistingAdaProject")); // NOI18N
+                break;
+            default:
                 throw new UnsupportedOperationException();
         }
-        locationContainer.add( projectLocationPanel, java.awt.BorderLayout.CENTER );
-        optionsPanel = new PanelOptionsVisual( panel, type );
+        locationContainer.add(projectLocationPanel, java.awt.BorderLayout.CENTER);
+        optionsPanel = new PanelOptionsVisual(panel, type);
         projectLocationPanel.addPropertyChangeListener(optionsPanel);
-        optionsContainer.add( optionsPanel, java.awt.BorderLayout.CENTER );
+        optionsContainer.add(optionsPanel, java.awt.BorderLayout.CENTER);
     }
-    
-    boolean valid( WizardDescriptor wizardDescriptor ) {
+
+    boolean valid(WizardDescriptor wizardDescriptor) {
         wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ""); //NOI18N
-        return projectLocationPanel.valid( wizardDescriptor ) && optionsPanel.valid(wizardDescriptor);
+        return projectLocationPanel.valid(wizardDescriptor) && optionsPanel.valid(wizardDescriptor);
     }
-    
-    void read (WizardDescriptor d) {
-        Object lastType =  d.getProperty("wizard-type");  //NOI18N        
+
+    void read(WizardDescriptor d) {
+        Object lastType = d.getProperty("wizard-type");  //NOI18N
         if (lastType == null || lastType != type) {
             //bugfix #46387 The type of project changed, reset values to defaults
-            d.putProperty ("name", null);
-            d.putProperty ("projdir",null);
+            d.putProperty("name", null);
+            d.putProperty("projdir", null);
         }
-        projectLocationPanel.read (d);
-        optionsPanel.read (d);
+        projectLocationPanel.read(d);
+        optionsPanel.read(d);
     }
-    
-    void store( WizardDescriptor d ) {
+
+    void store(WizardDescriptor d) {
         d.putProperty("wizard-type", type);   //NOI18N
-        projectLocationPanel.store( d );
-        optionsPanel.store( d );        
+        projectLocationPanel.store(d);
+        optionsPanel.store(d);
     }
-    
-    void validate (WizardDescriptor d) throws WizardValidationException {
-        projectLocationPanel.validate (d);
+
+    void validate(WizardDescriptor d) throws WizardValidationException {
+        projectLocationPanel.validate(d);
     }
-    
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -157,15 +151,11 @@ public class PanelConfigureProjectVisual extends JPanel {
         optionsContainer.getAccessibleContext().setAccessibleName("null");
         optionsContainer.getAccessibleContext().setAccessibleDescription("null");
     }// </editor-fold>//GEN-END:initComponents
-
     /** Currently only handles the "Browse..." button
      */
-           
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPanel locationContainer;
     private javax.swing.JPanel optionsContainer;
     // End of variables declaration//GEN-END:variables
-
-    
 }

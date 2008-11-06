@@ -1,4 +1,8 @@
+1.01: 01-11-2008
+
+- Add initial Build/Run actions.
+
 1.0: 23-09-2008
 
-- Initial, very alpha release
-- Based on python.platform and php.platform. Thanks to the authors of nbPython and PHP Platform.
+- Initial, very alpha release.
+- Based on python.project and php.project. Thanks to the authors of nbPython and PHP Project.
