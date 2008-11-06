@@ -39,7 +39,6 @@
 
 package org.netbeans.modules.ada.platform;
 
-import org.netbeans.modules.ada.platform.ui.*;
 import org.netbeans.modules.ada.platform.ui.PlatformsCustomizer;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;

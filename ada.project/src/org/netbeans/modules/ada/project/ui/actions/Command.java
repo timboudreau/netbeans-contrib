@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.actions;
 
 import org.netbeans.modules.ada.project.AdaProject;
@@ -49,7 +48,6 @@ import org.openide.windows.TopComponent;
  * @author Andrea Lucarelli
  */
 public abstract class Command {
-
 
     private final AdaProject project;
 
@@ -75,7 +73,8 @@ public abstract class Command {
     public final AdaProject getProject() {
         return project;
     }
-    public Node[] getSelectedNodes(){
+
+    public Node[] getSelectedNodes() {
         return TopComponent.getRegistry().getCurrentNodes();
     }
 }

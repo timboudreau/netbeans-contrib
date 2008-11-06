@@ -36,8 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
-
 package org.netbeans.modules.ada.project.ui.properties;
 
 import java.io.IOException;
@@ -52,15 +50,17 @@ import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.HelpCtx;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class CustomizerLibrariesPath extends javax.swing.JPanel {
+public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpCtx.Provider {
+
     private final AdaProjectProperties uiProperties;
-    
+
     /** Creates new form CustomizerLibrariesPath */
     public CustomizerLibrariesPath(AdaProjectProperties properties) {
         this.uiProperties = properties;
@@ -77,6 +77,10 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel {
         if (activePlatform != null) {
             platforms.setSelectedItem(activePlatform);
         }
+    }
+
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(CustomizerLibrariesPath.class);
     }
 
     /** This method is called from within the constructor to
@@ -204,11 +208,11 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel {
         final JFileChooser fc = new JFileChooser();
         fc.setFileHidingEnabled(false);
         fc.setDialogTitle("Select Ada Lib Directory");
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES );
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         int returnVal = fc.showOpenDialog(this);
-        if(returnVal == JFileChooser.APPROVE_OPTION){
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             String cmd = fc.getSelectedFile().getAbsolutePath();
-            adaPathModel.add( cmd);
+            adaPathModel.add(cmd);
         }
 }//GEN-LAST:event_addAdaPathActionPerformed
 
@@ -243,7 +247,7 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel {
 
     private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_platformsActionPerformed
         uiProperties.setActivePlatformId(
-                        ((AdaPlatform)platforms.getSelectedItem()).getName());
+                ((AdaPlatform) platforms.getSelectedItem()).getName());
     }//GEN-LAST:event_platformsActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -51,14 +51,12 @@ public class AdaPlatform implements Serializable {
     private String name;
     private String info;
 
-    private ArrayList<String> adaCompilerPath;
+    private String compilerPath;
     private String compilerCommand;
     private String compilerArgs;
 
     public AdaPlatform() {
-        adaCompilerPath = new ArrayList<String>();
     }
-
 
     public String getCompilerArgs() {
         return compilerArgs;
@@ -96,18 +94,12 @@ public class AdaPlatform implements Serializable {
         this.info = info;
     }
 
-    public ArrayList<String> getAdaCompilerPath() {
-        return adaCompilerPath;
+    public String getCompilerPath() {
+        return compilerPath;
     }
 
-    public void setAdaCompilerPath(ArrayList<String> adaCompilerPath) {
-        this.adaCompilerPath = adaCompilerPath;
-    }
-    public void addAdaCompilerPath(String pathElement){
-        getAdaCompilerPath().add(pathElement);
-    }
-    public void removeAdaCompilerPath(String pathElement){
-        getAdaCompilerPath().remove(pathElement);
+    public void setCompilerPath(String compilerPath) {
+        this.compilerPath = compilerPath;
     }
 
     /**
@@ -127,9 +119,4 @@ public class AdaPlatform implements Serializable {
         return pathString.toString();
     }
 
-    void addAdaCompilerPath(String[] pathElements) {
-        for (int i =0; i < pathElements.length; i++){
-            addAdaCompilerPath(pathElements[i]);
-        }
-    }
 }

@@ -11,7 +11,7 @@ Planned Features
 7. C/C++, Fortran integration support
 8. UML modelling support for Ada
 9. Spark Support
-10. Help (ide)
+10. Help Set
 11. Kit
 
 
@@ -22,10 +22,11 @@ Features:
  b. - Semantic Analyser (grammar-parser) (95%)
  c. - Structure Scanner (AST-parser) (2%)
  d. - Version highlighting (0%) 
- e. - Code Completion (0%) 
- f. - Indexing (0%) 
- g. - Refactoring (0%) 
- h. - Reformatting (0%) 
+ e. - Code Completion (0%)
+ f. - Code Folding (0%)
+ g. - Indexing (0%)
+ h. - Refactoring (0%)
+ i. - Formatting (0%)
 
 2. ada.platform:
  a. - GNAT platform (50%) 
@@ -62,7 +63,9 @@ Features:
  b. - Semantic Analyser for Spark (grammar-parser) (0%)
 
 10. ada.help:
- b. - Ide help files (0%)
+ a. - Project help files (100%)
+ b. - Platform help files (0%)
+ c. - TBD
 
 11. ada.kit: (Ada Kit)
  a. - wrapper module (100%)

@@ -5,6 +5,7 @@
     
     <target name="ada-build">
         <ant dir="../../contrib/ada.editor"/>
+        <ant dir="../../contrib/ada.help"/>
         <ant dir="../../contrib/ada.platform"/>
         <ant dir="../../contrib/ada.project"/>
         <antcall target="netbeans"/>
@@ -12,6 +13,7 @@
 
     <target name="ada-clean">
         <ant dir="../../contrib/ada.editor" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/ada.help" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/ada.platform" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/ada.project" inheritAll="false" target="clean"/>
         <ant target="clean"/>

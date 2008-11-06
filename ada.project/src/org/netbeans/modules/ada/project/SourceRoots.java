@@ -93,7 +93,7 @@ public final class SourceRoots {
     /**
      * Default label for tests node used in {@link org.netbeans.spi.project.ui.LogicalViewProvider}.
      */
-    public static final String DEFAULT_TEST_LABEL = NbBundle.getMessage(SourceRoots.class, "test.src.dir");
+    public static final String DEFAULT_TEST_LABEL = NbBundle.getMessage(SourceRoots.class, "test.dir");
     
     /**
      * Name of XML Element having source root definition
@@ -405,7 +405,7 @@ public final class SourceRoots {
     public String getRootDisplayName(String rootName, String propName) {
         if (rootName == null || rootName.length() == 0) {
             // if the prop is src.dir use the default name
-            if (isTest && "test.src.dir".equals(propName)) { //NOI18N
+            if (isTest && "test.dir".equals(propName)) { //NOI18N
                 rootName = DEFAULT_TEST_LABEL;
             } else if (!isTest && "src.dir".equals(propName)) { //NOI18N
                 rootName = DEFAULT_SOURCE_LABEL;

@@ -332,7 +332,8 @@ public class PlatformsCustomizer extends JPanel {
         platformName.setText(adaPlatform.getName());
         platformInfoTextField.setText(adaPlatform.getInfo());
         compilerCommand.setText(adaPlatform.getInterpreterCommand());
-        adaPathModel.setModel(adaPlatform.getAdaCompilerPath());
+        // TODO: add in main tab the commands list for ada platform
+//        adaPathModel.setModel(adaPlatform.getCompilerPath());
     }
 
     private void clearPlatform() {
@@ -501,7 +502,8 @@ public class PlatformsCustomizer extends JPanel {
 
         adaPlatform.setInfo(platformInfoTextField.getText());
         adaPlatform.setCompilerCommand(compilerCommand.getText());
-        adaPlatform.setAdaCompilerPath(adaPathModel.getModel());
+        // TODO: add in main tab the commands list for ada platform
+//        adaPlatform.setCompilerPath(adaPathModel.getModel());
         manager.addPlatform(adaPlatform);
     }
 

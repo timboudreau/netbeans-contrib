@@ -240,7 +240,7 @@ public class AdaPlatformManager implements Serializable {
                                 platform.setName("GNAT" + line.substring(startIndex+"GNAT".length(),line.indexOf("(")));
                                 platform.setInfo(line.substring(line.indexOf("(")+1,line.indexOf(")")));
                                 platform.setCompilerCommand("gnatmake");
-                                platform.addAdaCompilerPath(gnat.getPath().substring(0, gnat.getPath().lastIndexOf(gnat.getName())));
+                                platform.setCompilerPath(gnat.getPath().substring(0, gnat.getPath().lastIndexOf(gnat.getName())));
                                 if (platforms.size() == 0) {
                                     setDefaultPlatform(platform.getName());
                                 }

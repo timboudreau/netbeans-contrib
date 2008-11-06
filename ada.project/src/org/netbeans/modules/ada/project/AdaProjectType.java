@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project;
 
 import java.io.IOException;
@@ -54,10 +53,9 @@ public class AdaProjectType implements AntBasedProjectType {
     public static final String TYPE = AdaProjectType.class.getPackage().getName();
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/ada-project/1"; // NOI18N
     private static final String PROJECT_CONFIGURATION_NAME = "data"; // NOI18N
-
     private static final String PRIVATE_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/ada-project-private/1"; // NOI18N
     private static final String PRIVATE_CONFIGURATION_NAME = "data"; // NOI18N
-    
+
     public Project createProject(AntProjectHelper helper) throws IOException {
         assert helper != null;
         return new AdaProject(helper);
@@ -74,5 +72,4 @@ public class AdaProjectType implements AntBasedProjectType {
     public String getType() {
         return TYPE;
     }
-
 }
