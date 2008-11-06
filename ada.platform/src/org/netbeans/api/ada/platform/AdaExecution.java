@@ -48,6 +48,7 @@ import org.netbeans.modules.extexecution.api.ExecutionDescriptor;
 import org.netbeans.modules.extexecution.api.ExecutionService;
 import org.netbeans.modules.extexecution.api.ExternalProcessBuilder;
 import org.netbeans.modules.extexecution.api.input.InputProcessor;
+import org.netbeans.modules.extexecution.api.input.InputProcessors;
 import org.openide.util.Exceptions;
 
 /**
@@ -166,8 +167,8 @@ public class AdaExecution {
     public void attachOutputProcessor() {
         descriptor = descriptor.outProcessorFactory(new ExecutionDescriptor.InputProcessorFactory() {
 
-            public InputProcessor newInputProcessor() {
-                return outProcessor;
+            public InputProcessor newInputProcessor(InputProcessor defaultProcessor) {
+                return InputProcessors.proxy(defaultProcessor, outProcessor);
             }
         });
     }
