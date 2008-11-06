@@ -45,6 +45,7 @@ made subject to such option by the copyright holder.
     
     <target name="unziplibs" depends="init">
 	<!-- do not use name: *.tgz, use *.tar.gz instead. since hg's [encode] may recognize *.gz only --> 
+        <delete dir="${cluster}/scala"/>
         <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.2.RC6.tar.gz"/>
 
         <!-- From Aug 2008, scala.editing support can handle jar source files, do not need to unzip them any more --> 

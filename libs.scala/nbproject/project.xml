@@ -47,6 +47,12 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.libs.scala</code-name-base>
             <module-dependencies/>
             <public-packages>
+                <package>sbaz</package>
+                <package>sbaz.clui</package>
+                <package>sbaz.clui.commands</package>
+                <package>sbaz.keys</package>
+                <package>sbaz.keys.msgpatt</package>
+                <package>sbaz.messages</package>
                 <package>scala</package>
                 <package>scala.actors</package>
                 <package>scala.actors.remote</package>
@@ -67,9 +73,12 @@ made subject to such option by the copyright holder.
                 <package>scala.dbc.vendor</package>
                 <package>scala.io</package>
                 <package>scala.mobile</package>
+                <package>scala.netbeans</package>
                 <package>scala.ref</package>
                 <package>scala.reflect</package>
                 <package>scala.runtime</package>
+                <package>scala.swing</package>
+                <package>scala.swing.event</package>
                 <package>scala.testing</package>
                 <package>scala.text</package>
                 <package>scala.tools.ant</package>
@@ -86,6 +95,7 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.nsc.doc</package>
                 <package>scala.tools.nsc.interpreter</package>
                 <package>scala.tools.nsc.io</package>
+                <package>scala.tools.nsc.javac</package>
                 <package>scala.tools.nsc.matching</package>
                 <package>scala.tools.nsc.models</package>
                 <package>scala.tools.nsc.plugins</package>
@@ -96,7 +106,6 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.nsc.transform</package>
                 <package>scala.tools.nsc.typechecker</package>
                 <package>scala.tools.nsc.util</package>
-                <package>scala.tools.scalap</package>
                 <package>scala.tools.util</package>
                 <package>scala.util</package>
                 <package>scala.util.automata</package>
@@ -151,6 +160,10 @@ made subject to such option by the copyright holder.
             <class-path-extension>
                 <runtime-relative-path>ext/scala-swing-2.7.2.jar</runtime-relative-path>
                 <binary-origin>external/scala-swing-2.7.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala.netbeans-2.7.2.jar</runtime-relative-path>
+                <binary-origin>external/scala.netbeans-2.7.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
