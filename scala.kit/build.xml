@@ -1,34 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="netbeans" name="contrib/scala.kit">
-    <description>Builds, tests, and runs the project org.netbeans.modules.scala.kit</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
-    
-    <target name="scala-build">
-	<ant dir="../../contrib/xtc"/>
-        <ant dir="../../contrib/languages.execution"/>
-        <ant dir="../../contrib/libs.scala"/>
-        <ant dir="../../contrib/scala.editing"/>
-        <ant dir="../../contrib/scala.platform"/>
-        <ant dir="../../contrib/scala.stdplatform"/>
-        <ant dir="../../contrib/scala.project"/>
-        <ant dir="../../contrib/scala.console"/>
-        <ant dir="../../contrib/scala.debugger.projects"/>
-        <ant dir="../../contrib/scala.debugger"/>
-        <antcall target="netbeans"/>
-    </target>
+   <description>Builds, tests, and runs the project org.netbeans.modules.scala.kit</description>
+   <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="scala-clean">
-        <ant dir="../../contrib/scala.debugger" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.debugger.projects" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.console" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.stdplatform" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.platform" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/libs.scala" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
-	<ant dir="../../contrib/xtc" inheritAll="false" target="clean"/>
-        <ant target="clean"/>
-    </target>
+   <!-- The building dependency is based on "ant -Dcluster.config=java" -->
+   <target name="scala-build">
+      <!-- stable modules -->
+      <ant dir="../../gsfpath.api"/>
+      <ant dir="../../gsf.api"/>
+      <ant dir="../../gsf"/>
+      <ant dir="../../extexecution"/>
+      <!-- contrib modules -->
+      <ant dir="../../contrib/xtc"/>
+      <ant dir="../../contrib/languages.execution"/>
+      <ant dir="../../contrib/libs.scala"/>
+      <ant dir="../../contrib/scala.editing"/>
+      <ant dir="../../contrib/scala.platform"/>
+      <ant dir="../../contrib/scala.stdplatform"/>
+      <ant dir="../../contrib/scala.project"/>
+      <ant dir="../../contrib/scala.console"/>
+      <ant dir="../../contrib/scala.debugger.projects"/>
+      <ant dir="../../contrib/scala.debugger"/>
+      <antcall target="netbeans"/>
+   </target>
+
+   <!-- since the minima download package j2se has include above stable modules, only following nbms are needed -->
+   <target name="scala-nbm" depends="scala-build">
+      <ant dir="../../contrib/xtc" target="nbm"/>
+      <ant dir="../../contrib/languages.execution" target="nbm"/>
+      <ant dir="../../contrib/libs.scala" target="nbm"/>
+      <ant dir="../../contrib/scala.editing" target="nbm"/>
+      <ant dir="../../contrib/scala.platform" target="nbm"/>
+      <ant dir="../../contrib/scala.stdplatform" target="nbm"/>
+      <ant dir="../../contrib/scala.project" target="nbm"/>
+      <ant dir="../../contrib/scala.console" target="nbm"/>
+      <ant dir="../../contrib/scala.debugger.projects" target="nbm"/>
+      <ant dir="../../contrib/scala.debugger" target="nbm"/>
+      <antcall target="netbeans"/>
+   </target>
+
+   <target name="scala-clean">
+      <ant dir="../../contrib/scala.debugger" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.debugger.projects" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.console" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.stdplatform" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.platform" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/libs.scala" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/xtc" inheritAll="false" target="clean"/>
+      <ant target="clean"/>
+   </target>
 
 </project>

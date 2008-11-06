@@ -784,17 +784,25 @@ public class ScalaParser implements Parser {
 
         @Override
         public void info0(Position pos, String msg, Severity severity, boolean force) {
-            int offset = ScalaUtils.getOffset(pos);
-            org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
-
             boolean ignoreError = context.sanitizedSource != null;
             if (!ignoreError) {
-                if (msg.toLowerCase().startsWith("there are un-checked warnings")) {
-                    // ignore it, @todo: severity level
-                } else {
-                    notifyError(context, "SYNTAX_ERROR", msg,
-                            offset, offset, sanitizing, sev, new Object[]{offset, msg});
+                int offset = ScalaUtils.getOffset(pos);
+                org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
+                switch (severity.id()) {
+                    case 0:
+                        return;
+                    case 1:
+                        sev = org.netbeans.modules.gsf.api.Severity.WARNING;
+                        break;
+                    case 2:
+                        sev = org.netbeans.modules.gsf.api.Severity.ERROR;
+                        break;
+                    default:
+                        return;
                 }
+
+                notifyError(context, "SYNTAX_ERROR", msg,
+                        offset, -1, sanitizing, sev, new Object[]{offset, msg});
             }
         }
     }
