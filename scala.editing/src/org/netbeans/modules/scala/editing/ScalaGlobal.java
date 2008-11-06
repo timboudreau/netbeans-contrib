@@ -66,7 +66,6 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
-import scala.List$;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
@@ -99,9 +98,9 @@ public class ScalaGlobal {
         GlobalForStdLid = null;
     }
 
-    /** 
+    /**
      * Scala's global is not thread safed
-     * 
+     *
      * @Todo: it seems scala's Settings only support one source path, i.e.
      * "/scalaproject/src" only, does not support "/scalaproject/src:/scalaproject/src2"
      * since we can not gaurantee the srcCp returns only one entry, we have to use
@@ -114,9 +113,9 @@ public class ScalaGlobal {
         if (project == null) {
             // it may be a standalone file, or file in standard lib
             if (GlobalForStdLid == null) {
-                 GlobalForStdLid = ScalaHome.getGlobalForStdLib();
+                GlobalForStdLid = ScalaHome.getGlobalForStdLib();
             }
-            
+
             return GlobalForStdLid;
         }
 
@@ -161,9 +160,8 @@ public class ScalaGlobal {
 
             final Settings settings = new Settings();
             settings.verbose().value_$eq(false);
-
-            settings.sourcepath().tryToSet(List$.MODULE$.fromArray(new String[]{"-sourcepath", srcPath}));
-            settings.outdir().tryToSet(List$.MODULE$.fromArray(new String[]{"-d", outPath}));
+            settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-sourcepath", srcPath));
+            settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-d", outPath));
 
             // add boot, compile classpath
             ClassPath bootCp = null;
@@ -185,14 +183,14 @@ public class ScalaGlobal {
 
             StringBuilder sb = new StringBuilder();
             computeClassPath(sb, bootCp);
-            settings.bootclasspath().tryToSet(List$.MODULE$.fromArray(new String[]{"-bootclasspath", sb.toString()}));
+            settings.bootclasspath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-bootclasspath", sb.toString()));
 
             sb.delete(0, sb.length());
             computeClassPath(sb, compCp);
             if (forTest && !inStdLib && dirs.outDir != null) {
                 sb.append(File.pathSeparator).append(dirs.outDir);
             }
-            settings.classpath().tryToSet(List$.MODULE$.fromArray(new String[]{"classpath", sb.toString()}));
+            settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-classpath", sb.toString()));
 
             global = new Global(settings) {
 
@@ -222,7 +220,7 @@ public class ScalaGlobal {
                 }
 
                 if (dirs.outDir != null) {
-                    // monitor outDir's changes, 
+                    // monitor outDir's changes,
                     /** @Todo should reset global for any changes under out dir, including subdirs */
                     dirs.outDir.addFileChangeListener(new FileChangeAdapter() {
 
@@ -371,7 +369,7 @@ public class ScalaGlobal {
         synchronized (global) {
             Global.Run run = global.new Run();
 
-            scala.List srcFiles = List$.MODULE$.fromArray(new BatchSourceFile[]{srcFile});
+            scala.List srcFiles = scala.netbeans.Wrapper$.MODULE$.scalaSrcFileList(srcFile);
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
@@ -397,4 +395,19 @@ public class ScalaGlobal {
             return null;
         }
     }
+
+//    public static scala.List<BatchSourceFile> buildScalaList(BatchSourceFile f) {
+////        scala.Array<BatchSourceFile> a = new scala.Array<BatchSourceFile>(1);
+////        BatchSourceFile[] b = scala.Array$.MODULE$.apply(a);
+////        b[0] = f;
+////        return scala.List$.MODULE$.apply(a);
+//    }
+//
+//    public static scala.List<String> buildScalaList(String e1, String e2) {
+//        scala.Array<String> a = new scala.Array<String>(2);
+//        String[] b = scala.Array$.MODULE$.apply(a);
+//        b[0] = e1;
+//        b[1] = e2;
+//        return scala.List$.MODULE$.apply(a);
+//    }
 }
