@@ -37,86 +37,59 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.ada.platform;
+package org.netbeans.modules.ada.platform.compiler;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
+import org.netbeans.api.ada.platform.AdaPlatform;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class AdaPlatform implements Serializable {
-    private String name;
-    private String info;
+public abstract class CompilerCommand {
 
-    private String compilerPath;
-    private String compilerCommand;
-    private String compilerArgs;
+    private final AdaPlatform platform;
+    private final String projectPath;
+    private final String objectFolder;
+    private final String sourceFolder;
+    private final String mainProgram;
+    private final String executableName;
 
-    public AdaPlatform() {
+	public abstract void Build ();
+	public abstract void Compile ();
+	public abstract void Clean ();
+
+    public CompilerCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainProgram, String executableName) {
+        assert platform != null;
+        this.platform = platform;
+        this.projectPath = projectPath;
+        this.objectFolder = objectFolder;
+        this.sourceFolder = sourceFolder;
+        this.mainProgram = mainProgram;
+        this.executableName = executableName;
     }
 
-    public String getCompilerArgs() {
-        return compilerArgs;
+    public AdaPlatform getPlatform() {
+        return platform;
     }
 
-    public void setCompilerArgs(String compilerArgs) {
-        this.compilerArgs = compilerArgs;
+    public String getExecutableName() {
+        return executableName;
     }
 
-    public String getInterpreterCommand() {
-        return compilerCommand;
+    public String getMainProgram() {
+        return mainProgram;
     }
 
-    public void setCompilerCommand(String compilerCommand) {
-        this.compilerCommand = compilerCommand;
+    public String getObjectFolder() {
+        return objectFolder;
     }
 
-    public String getCompilerCommand() {
-        return compilerCommand;
+    public String getProjectPath() {
+        return projectPath;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public String getCompilerPath() {
-        return compilerPath;
-    }
-
-    public void setCompilerPath(String compilerPath) {
-        this.compilerPath = compilerPath;
-    }
-
-    /**
-     *Build a path string from arraylist
-     * @param path
-     * @return
-     */
-    public static String buildPath(ArrayList<String> path){
-        StringBuilder pathString = new StringBuilder();
-        int count = 0;
-        for(String pathEle: path){
-            pathString.append(pathEle);
-            if (count++ < path.size()){
-                pathString.append(File.pathSeparator);
-            }
-        }
-        return pathString.toString();
+    public String getSourceFolder() {
+        return sourceFolder;
     }
 
 }

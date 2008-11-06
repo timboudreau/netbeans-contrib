@@ -36,87 +36,56 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.ada.platform.compiler.gnat.commands;
 
-package org.netbeans.api.ada.platform;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.concurrent.Future;
+import org.netbeans.api.ada.platform.AdaException;
+import org.netbeans.api.ada.platform.AdaExecution;
+import org.netbeans.api.ada.platform.AdaPlatform;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class AdaPlatform implements Serializable {
-    private String name;
-    private String info;
+public class GnatMake extends GnatCommand {
 
-    private String compilerPath;
-    private String compilerCommand;
-    private String compilerArgs;
+    private static final String COMMAND_ID = GNAT_MAKE;
 
-    public AdaPlatform() {
+    public GnatMake(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainProgram, String executableName) {
+        super(platform, projectPath, objectFolder, sourceFolder, mainProgram, executableName);
     }
 
-    public String getCompilerArgs() {
-        return compilerArgs;
+    @Override
+    public String getCommandId() {
+        return COMMAND_ID;
     }
 
-    public void setCompilerArgs(String compilerArgs) {
-        this.compilerArgs = compilerArgs;
-    }
-
-    public String getInterpreterCommand() {
-        return compilerCommand;
-    }
-
-    public void setCompilerCommand(String compilerCommand) {
-        this.compilerCommand = compilerCommand;
-    }
-
-    public String getCompilerCommand() {
-        return compilerCommand;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public String getCompilerPath() {
-        return compilerPath;
-    }
-
-    public void setCompilerPath(String compilerPath) {
-        this.compilerPath = compilerPath;
-    }
-
-    /**
-     *Build a path string from arraylist
-     * @param path
-     * @return
-     */
-    public static String buildPath(ArrayList<String> path){
-        StringBuilder pathString = new StringBuilder();
-        int count = 0;
-        for(String pathEle: path){
-            pathString.append(pathEle);
-            if (count++ < path.size()){
-                pathString.append(File.pathSeparator);
+    @Override
+    public void invokeCommand() throws IllegalArgumentException, AdaException {
+        try {
+            AdaExecution adaExec = new AdaExecution();
+            adaExec.setCommand(this.getPlatform().getCompilerPath() + GNAT_MAKE);
+            adaExec.setDisplayName("gnatmake");
+            adaExec.setShowControls(false);
+            adaExec.setShowInput(false);
+            adaExec.setShowWindow(false);
+            adaExec.setShowProgress(false);
+            adaExec.setShowSuspended(false);
+            adaExec.attachOutputProcessor();
+            adaExec.setWorkingDirectory(this.getProjectPath());
+            Future<Integer> result = adaExec.run();
+            Integer value = result.get();
+            if (value.intValue() == 0) {
+            } else {
+                throw new AdaException("Could not execution gnatmake command.");
             }
+        } catch (AdaException ex) {
+            Exceptions.printStackTrace(ex);
+            throw ex;
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
         }
-        return pathString.toString();
-    }
 
+    }
 }
