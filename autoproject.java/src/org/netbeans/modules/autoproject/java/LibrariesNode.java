@@ -46,16 +46,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -148,14 +150,28 @@ final class LibrariesNode extends AbstractNode {
 
         private Collection<FileObject> getKeys() {
             Collection<FileObject> keys = new LinkedHashSet<FileObject>();
+            List<FileObject> sourceRoots = new ArrayList<FileObject>();
             for (SourceGroup g : sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-                FileObject root = g.getRootFolder();
+                sourceRoots.add(g.getRootFolder());
+            }
+            for (FileObject sourceRoot : sourceRoots) {
                 // XXX add in bootcp later?
-                ClassPath cp = ClassPath.getClassPath(root, ClassPath.COMPILE);
+                ClassPath cp = ClassPath.getClassPath(sourceRoot, ClassPath.COMPILE);
                 if (cp != null) {
                     cp.removePropertyChangeListener(cpListener);
                     cp.addPropertyChangeListener(cpListener);
-                    keys.addAll(Arrays.asList(cp.getRoots()));
+                    BINROOT: for (FileObject binRoot : cp.getRoots()) {
+                        try {
+                            for (FileObject matchingRoot : SourceForBinaryQuery.findSourceRoots(binRoot.getURL()).getRoots()) {
+                                if (sourceRoots.contains(matchingRoot)) {
+                                    continue BINROOT;
+                                }
+                            }
+                        } catch (FileStateInvalidException x) {
+                            assert false : x;
+                        }
+                        keys.add(binRoot);
+                    }
                 }
             }
             return keys;

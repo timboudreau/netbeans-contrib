@@ -99,10 +99,11 @@ public class BuildSniffer extends AntLogger {
         return AntLogger.ALL_TARGETS;
     }
 
+    // XXX may also want/need: delete, copy, javadoc, ...
+    private final String[] INTERESTING_TASKS = {"javac", "fileset", "jar"};
     @Override
     public String[] interestedInTasks(AntSession session) {
-        // XXX may also want/need: jar, delete, copy, javadoc, ...
-        return new String[] {"javac", "fileset"};
+        return INTERESTING_TASKS;
     }
 
     /**
@@ -149,6 +150,8 @@ public class BuildSniffer extends AntLogger {
             handleFileset(event, state);
         } else if (taskName.equals("javac")) {
             handleJavac(event, state);
+        } else if (taskName.equals("jar")) {
+            handleJar(event, state);
         } else {
             assert false : event;
         }
@@ -246,6 +249,31 @@ public class BuildSniffer extends AntLogger {
                 Cache.put(s + Cache.ENCODING, event.evaluate(encoding));
             }
         }
+    }
+
+    private void handleJar(AntEvent event, State state) {
+        String jar = event.getTaskStructure().getAttribute("destfile");
+        if (jar == null) {
+            jar = event.getTaskStructure().getAttribute("jarfile");
+        }
+        if (jar == null) {
+            return;
+        }
+        String key = resolve(event, jar) + JavaCacheConstants.JAR;
+        List<String> basedirs = new ArrayList<String>();
+        String basedir = event.getTaskStructure().getAttribute("basedir");
+        if (basedir != null) {
+            basedirs.add(resolve(event, basedir).getAbsolutePath());
+        }
+        for (TaskStructure child : event.getTaskStructure().getChildren()) {
+            if (child.getName().equals("fileset")) {
+                basedir = child.getAttribute("dir");
+                if (basedir != null) {
+                    basedirs.add(resolve(event, basedir).getAbsolutePath());
+                }
+            }
+        }
+        writePath(key, basedirs, state);
     }
 
     private static void writePath(String key, List<String> path, State state) {

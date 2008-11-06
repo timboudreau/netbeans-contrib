@@ -194,6 +194,27 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
     }
 
+    public void testJar() throws Exception { // #150837
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c'/>\n" +
+                "  <jar destfile='c1.jar' basedir='c'/>\n" +
+                "  <jar destfile='c2.jar'><fileset dir='c'/></jar>\n" +
+                "  <jar jarfile='c3.jar' basedir='c'/>\n" +
+                "  <jar destfile='c4.jar'><fileset dir='c'/><fileset dir='s'/></jar>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(prefix + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
+        assertEquals(prefix + "c", Cache.get(prefix + "c1.jar" + JavaCacheConstants.JAR));
+        assertEquals(prefix + "c", Cache.get(prefix + "c2.jar" + JavaCacheConstants.JAR));
+        assertEquals(prefix + "c", Cache.get(prefix + "c3.jar" + JavaCacheConstants.JAR));
+        assertEquals(prefix + "c" + File.pathSeparator + prefix + "s", Cache.get(prefix + "c4.jar" + JavaCacheConstants.JAR));
+    }
+
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
     }

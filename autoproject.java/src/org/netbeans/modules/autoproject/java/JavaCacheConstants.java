@@ -48,5 +48,9 @@ public class JavaCacheConstants {
     public static final String BOOTCLASSPATH = "#bootclasspath";
     public static final String BINARY = "#binary";
     public static final String SOURCE_LEVEL = "#sourcelevel";
+    /**
+     * Original location of classes packed into a JAR. Key is JAR, value is dir or path of dirs.
+     */
+    public static final String JAR = "#jar";
 
 }
