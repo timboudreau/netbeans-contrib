@@ -54,7 +54,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
-import scala.Nil;
+import scala.List$;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
 
@@ -83,12 +83,12 @@ public class ScalaHome {
         final Settings settings = new Settings();
         settings.verbose().value_$eq(false);
 
-        settings.sourcepath().tryToSet(Nil.$colon$colon("").$colon$colon("-sourcepath"));
+        settings.sourcepath().tryToSet(List$.MODULE$.fromArray(new String[]{"-sourcepath",""}));
 
         String nbUserPath = System.getProperty("netbeans.user");
 
         //System.out.println("nbuser:" + nbUserPath);
-        settings.outdir().tryToSet(Nil.$colon$colon(nbUserPath).$colon$colon("-d"));
+        settings.outdir().tryToSet(List$.MODULE$.fromArray(new String[]{"-d", nbUserPath}));
 
         // add boot, compile classpath
         StringBuilder sb = new StringBuilder();
@@ -97,7 +97,7 @@ public class ScalaHome {
         sb.append(scalaLib.getAbsolutePath() + File.separator + "scala-library.jar");
         
         //System.out.println("boot:" + sb);
-        settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
+        settings.bootclasspath().tryToSet(List$.MODULE$.fromArray(new String[]{"-bootclasspath", sb.toString()}));
 
         sb.delete(0, sb.length() - 1);
         sb.append(getJavaClassPath());
@@ -105,7 +105,7 @@ public class ScalaHome {
         sb.append(computeScalaClassPath(null, scalaLib));
 
         //System.out.println("comp:" + sb);
-        settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
+        settings.classpath().tryToSet(List$.MODULE$.fromArray(new String[]{"-classpath", sb.toString()}));
 
         Global global = new Global(settings) {
 

@@ -66,7 +66,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
-import scala.Nil;
+import scala.List$;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
@@ -162,8 +162,8 @@ public class ScalaGlobal {
             final Settings settings = new Settings();
             settings.verbose().value_$eq(false);
 
-            settings.sourcepath().tryToSet(Nil.$colon$colon(srcPath).$colon$colon("-sourcepath"));
-            settings.outdir().tryToSet(Nil.$colon$colon(outPath).$colon$colon("-d"));
+            settings.sourcepath().tryToSet(List$.MODULE$.fromArray(new String[]{"-sourcepath", srcPath}));
+            settings.outdir().tryToSet(List$.MODULE$.fromArray(new String[]{"-d", outPath}));
 
             // add boot, compile classpath
             ClassPath bootCp = null;
@@ -185,14 +185,14 @@ public class ScalaGlobal {
 
             StringBuilder sb = new StringBuilder();
             computeClassPath(sb, bootCp);
-            settings.bootclasspath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-bootclasspath"));
+            settings.bootclasspath().tryToSet(List$.MODULE$.fromArray(new String[]{"-bootclasspath", sb.toString()}));
 
             sb.delete(0, sb.length());
             computeClassPath(sb, compCp);
             if (forTest && !inStdLib && dirs.outDir != null) {
                 sb.append(File.pathSeparator).append(dirs.outDir);
             }
-            settings.classpath().tryToSet(Nil.$colon$colon(sb.toString()).$colon$colon("-classpath"));
+            settings.classpath().tryToSet(List$.MODULE$.fromArray(new String[]{"classpath", sb.toString()}));
 
             global = new Global(settings) {
 
@@ -371,7 +371,7 @@ public class ScalaGlobal {
         synchronized (global) {
             Global.Run run = global.new Run();
 
-            scala.List srcFiles = Nil.$colon$colon(srcFile);
+            scala.List srcFiles = List$.MODULE$.fromArray(new BatchSourceFile[]{srcFile});
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
