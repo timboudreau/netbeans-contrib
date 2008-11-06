@@ -12,15 +12,23 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.ada.platform</code-name-base>
+                    <code-name-base>org.netbeans.modules.ada.help</code-name-base>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.ada.platform</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.ada.project</code-name-base>
                     <run-dependency>
-                        <specification-version>1.0</specification-version>
+                        <specification-version>1.1</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
