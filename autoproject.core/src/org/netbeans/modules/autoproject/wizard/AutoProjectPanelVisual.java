@@ -45,6 +45,9 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
@@ -71,6 +74,9 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
         projectLocationLabel = new javax.swing.JLabel();
         projectLocationTextField = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
+        configureDetectorsSeparator = new javax.swing.JSeparator();
+        configureDetectorsLabel = new javax.swing.JLabel();
+        configureDetectorsButton = new javax.swing.JButton();
 
         projectLocationLabel.setLabelFor(projectLocationTextField);
         org.openide.awt.Mnemonics.setLocalizedText(projectLocationLabel, org.openide.util.NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.projectLocationLabel.text")); // NOI18N
@@ -82,17 +88,31 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(configureDetectorsLabel, org.openide.util.NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.configureDetectorsLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(configureDetectorsButton, org.openide.util.NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.configureDetectorsButton.text")); // NOI18N
+        configureDetectorsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configureDetectorsButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(projectLocationLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(browseButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(configureDetectorsSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(projectLocationLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(browseButton))
+                    .add(configureDetectorsLabel)
+                    .add(configureDetectorsButton))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -103,7 +123,13 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
                     .add(projectLocationLabel)
                     .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(browseButton))
-                .addContainerGap(263, Short.MAX_VALUE))
+                .add(18, 18, 18)
+                .add(configureDetectorsSeparator, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(configureDetectorsLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(configureDetectorsButton)
+                .addContainerGap(183, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -126,9 +152,19 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
         panel.fireChangeEvent();
     }//GEN-LAST:event_browseButtonActionPerformed
 
+    private void configureDetectorsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureDetectorsButtonActionPerformed
+        DialogDescriptor dd = new DialogDescriptor(new ConfigureDetectorsDialog(),
+                NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.configureDetectors.title"));
+        dd.setOptions(new Object[] {NotifyDescriptor.OK_OPTION});
+        DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
+    }//GEN-LAST:event_configureDetectorsButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
+    private javax.swing.JButton configureDetectorsButton;
+    private javax.swing.JLabel configureDetectorsLabel;
+    private javax.swing.JSeparator configureDetectorsSeparator;
     private javax.swing.JLabel projectLocationLabel;
     private javax.swing.JTextField projectLocationTextField;
     // End of variables declaration//GEN-END:variables
