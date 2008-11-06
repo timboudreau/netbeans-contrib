@@ -144,15 +144,25 @@ public class BuildSniffer extends AntLogger {
             state = new State();
             event.getSession().putCustomData(this, state);
         }
-        if (event.getTaskName().equals("fileset")) {
-            String id = event.getTaskStructure().getAttribute("id");
-            String dir = event.getTaskStructure().getAttribute("dir");
-            if (id != null && dir != null) {
-                state.filesetBasedirs.put(id, dir);
-            }
-            return;
+        String taskName = event.getTaskName();
+        if (taskName.equals("fileset")) {
+            handleFileset(event, state);
+        } else if (taskName.equals("javac")) {
+            handleJavac(event, state);
+        } else {
+            assert false : event;
         }
-        assert event.getTaskName().equals("javac") : event;
+    }
+
+    private void handleFileset(AntEvent event, State state) {
+        String id = event.getTaskStructure().getAttribute("id");
+        String dir = event.getTaskStructure().getAttribute("dir");
+        if (id != null && dir != null) {
+            state.filesetBasedirs.put(id, dir);
+        }
+    }
+
+    private void handleJavac(AntEvent event, State state) {
         TaskStructure task = event.getTaskStructure();
         if (task == null) {
             return;
@@ -205,7 +215,7 @@ public class BuildSniffer extends AntLogger {
                 FileObject realRootFO = JavadocAndSourceRootDetection.findSourceRoot(origRootFO);
                 if (realRootFO != null && realRootFO != origRootFO) {
                     File realRoot = FileUtil.toFile(realRootFO);
-                    LOG.log(Level.FINE, "Corrected root {0} to {1} based on package decl", new Object[]{origRoot, realRoot});
+                    LOG.log(Level.FINE, "Corrected root {0} to {1} based on package decl", new Object[] {origRoot, realRoot});
                     sourcesIt.set(realRoot.getAbsolutePath());
                 }
             }
@@ -237,7 +247,7 @@ public class BuildSniffer extends AntLogger {
             }
         }
     }
-    
+
     private static void writePath(String key, List<String> path, State state) {
         Set<String> writtenPath;
         synchronized (state.writtenKeys) {
