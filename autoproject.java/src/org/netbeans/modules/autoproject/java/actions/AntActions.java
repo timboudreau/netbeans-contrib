@@ -180,6 +180,7 @@ public class AntActions extends AbstractAction implements ContextAwareAction {
 
                 public void run() {
                     try {
+                        ActionProviderImpl.cleanGeneratedClassfiles(p);
                         AntTargetExecutor.createTargetExecutor(new AntTargetExecutor.Env()).execute(apc, new String[] {target});
                     } catch (IOException ioe) {
                         Exceptions.printStackTrace(ioe);
