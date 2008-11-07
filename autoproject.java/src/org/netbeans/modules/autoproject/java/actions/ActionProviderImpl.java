@@ -46,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,17 +203,22 @@ public class ActionProviderImpl implements ActionProvider {
     }
 
     static void cleanGeneratedClassfiles(Project p) throws IOException { // #145243
-        Map<String, Object> props = new HashMap<String, Object>();
         List<ClassPath> executePaths = new ArrayList<ClassPath>();
         for (SourceGroup g : ProjectUtils.getSources(p).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
             FileObject root = g.getRootFolder();
             ClassPath cp = ClassPath.getClassPath(root, ClassPath.EXECUTE);
-            if (cp != null) {
+            if (cp != null && /* #152728 */ cp.findResource(".netbeans_automatic_build") != null) {
                 executePaths.add(cp);
             }
         }
-        props.put(JavaRunner.PROP_EXECUTE_CLASSPATH, ClassPathSupport.createProxyClassPath(executePaths.toArray(new ClassPath[0])));
-        JavaRunner.execute(JavaRunner.QUICK_CLEAN, props);
+        if (!executePaths.isEmpty()) {
+            int res = JavaRunner.execute(JavaRunner.QUICK_CLEAN, Collections.singletonMap(
+                    JavaRunner.PROP_EXECUTE_CLASSPATH, ClassPathSupport.createProxyClassPath(executePaths.toArray(new ClassPath[0])))).
+                    result();
+            if (res != 0) {
+                throw new IOException("Failed to clean NetBeans-generated classes");
+            }
+        }
     }
 
     /** @see JavaRunner */
