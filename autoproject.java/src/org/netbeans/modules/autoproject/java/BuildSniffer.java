@@ -304,6 +304,7 @@ public class BuildSniffer extends AntLogger {
 
     private static void appendJavaClassPath(List<String> entries) {
         File lib = canonicalizeFile(new File(System.getProperty("netbeans.home"), "lib"));
+        File locale = new File(lib, "locale");
         File dtJar = canonicalizeFile(new File(new File(new File(System.getProperty("java.home")).
                 getParentFile(), "lib"), "dt.jar"));
         for (String piece : System.getProperty("java.class.path").split(File.pathSeparator)) {
@@ -312,7 +313,7 @@ public class BuildSniffer extends AntLogger {
             }
             File entry = new File(piece);
             File canonEntry = canonicalizeFile(entry);
-            if (!canonEntry.getParentFile().equals(lib) && !canonEntry.equals(dtJar)) {
+            if (!canonEntry.getParentFile().equals(lib) && !canonEntry.getParentFile().equals(locale) && !canonEntry.equals(dtJar)) {
                 // XXX probably also safe to collapse ant/lib/*.jar (and java2/ant/patches/*.jar) to ant/lib/ant.jar
                 entries.add(FileUtil.normalizeFile(entry).getAbsolutePath());
             }
