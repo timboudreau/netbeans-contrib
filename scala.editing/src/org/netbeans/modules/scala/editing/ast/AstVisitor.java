@@ -38,7 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -441,6 +443,17 @@ public abstract class AstVisitor {
         return intOption.isDefined() ? (Integer) intOption.get() : -1;
     }
 
+
+    private List<ScalaTokenId> PotentialIdTokens = Arrays.asList(
+            ScalaTokenId.Identifier,
+            ScalaTokenId.XmlAttName,
+            ScalaTokenId.XmlAttValue,
+            ScalaTokenId.XmlCDData,
+            ScalaTokenId.XmlCDEnd,
+            ScalaTokenId.XmlComment,
+            ScalaTokenId.XmlSTagName,
+            ScalaTokenId.XmlSTagName,
+            ScalaTokenId.XmlCharData);
     /**
      * @Note: nameNode may contains preceding void productions, and may also contains
      * following void productions, but nameString has stripped the void productions,
@@ -472,7 +485,7 @@ public abstract class AstVisitor {
         } else if (name.equals("_")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
         } else {
-            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
+            token = ScalaLexUtilities.findNextIn(ts, PotentialIdTokens);
         }
 
         if (token.isFlyweight()) {

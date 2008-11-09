@@ -323,6 +323,14 @@ public class ScalaLexUtilities {
         return ts.token();
     }
 
+    public static Token<ScalaTokenId> findNextIn(TokenSequence<ScalaTokenId> ts, List<ScalaTokenId> includes) {
+        if (!includes.contains(ts.token().id())) {
+            while (ts.moveNext() && !includes.contains(ts.token().id())) {
+            }
+        }
+        return ts.token();
+    }
+
     public static Token<ScalaTokenId> findPrevious(TokenSequence<ScalaTokenId> ts, ScalaTokenId id) {
         if (ts.token().id() != id) {
             while (ts.movePrevious() && ts.token().id() != id) {

@@ -45,6 +45,7 @@ import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenId;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -54,6 +55,7 @@ import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.tools.nsc.symtab.Types.ImplicitMethodType;
 import scala.tools.nsc.symtab.Types.Type;
 
@@ -142,6 +144,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         for (AstItem item : rootScope.getIdTokenToItem(th).values()) {
             Token hiToken = item.getIdToken();
             if (hiToken == null) {
+                continue;
+            }
+
+            // token may be xml tokens, @see AstVisit#getTokenId
+            TokenId tid = hiToken.id();
+            if (tid != ScalaTokenId.Identifier &&
+                    tid != ScalaTokenId.This &&
+                    tid != ScalaTokenId.Super) {
                 continue;
             }
 
