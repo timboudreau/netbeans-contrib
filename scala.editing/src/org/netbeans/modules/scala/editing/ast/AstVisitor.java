@@ -259,6 +259,8 @@ public abstract class AstVisitor {
             visitExistentialTypeTree((ExistentialTypeTree) tree);
         } else if (tree instanceof StubTree) {
             visitStubTree((StubTree) tree);
+        } else {
+            System.out.println("Visit Unknow tree: " + tree + " class=" + tree.getClass().getCanonicalName());
         }
 
         exit(tree);
@@ -442,8 +444,6 @@ public abstract class AstVisitor {
     protected int offset(Option intOption) {
         return intOption.isDefined() ? (Integer) intOption.get() : -1;
     }
-
-
     private List<ScalaTokenId> PotentialIdTokens = Arrays.asList(
             ScalaTokenId.Identifier,
             ScalaTokenId.XmlAttName,
@@ -454,6 +454,7 @@ public abstract class AstVisitor {
             ScalaTokenId.XmlSTagName,
             ScalaTokenId.XmlSTagName,
             ScalaTokenId.XmlCharData);
+
     /**
      * @Note: nameNode may contains preceding void productions, and may also contains
      * following void productions, but nameString has stripped the void productions,
@@ -482,6 +483,15 @@ public abstract class AstVisitor {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
         } else if (name.endsWith("expected")) {
             token = ts.token();
+        } else if (name.startsWith("<error")) { // <error: <none>>
+            Token tk = ts.token();
+            if (tk.id() == ScalaTokenId.Dot) {
+                // a. where, offset is set to .
+                token = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Identifier);
+            } else {
+                // a.p where, offset is set to p
+                token = ScalaLexUtilities.findNextIn(ts, PotentialIdTokens);
+            }
         } else if (name.equals("_")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
         } else {
@@ -579,5 +589,4 @@ public abstract class AstVisitor {
 
         System.out.println(getAstPathString() + "(" + offset(pos.line()) + ":" + offset(pos.column()) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
     }
-
 }

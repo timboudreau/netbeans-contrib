@@ -485,6 +485,10 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSelect(Select tree) {
+        /**
+         * For error tree, for example a.p, the error part's offset will be set to 'p',
+         * The tree.qualifier() part's offset will be 'a'
+         */
         Token idToken = getIdToken(tree);
         AstRef ref = new AstRef(tree.symbol(), idToken);
         if (scopes.peek().addRef(ref)) {
@@ -505,11 +509,13 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitIdent(Ident tree) {
         Symbol symbol = tree.symbol();
         if (symbol != null) {
-            if (!isNoSymbol(symbol)) {
-                AstRef ref = new AstRef(symbol, getIdToken(tree));
-                if (scopes.peek().addRef(ref)) {
-                    info("\tAdded: ", ref);
-                }
+            /**
+             * @Note: this symbol may be NoSymbol, for example, an error tree,
+             * to get error recover in code completion, we need to also add it as a ref
+             */
+            AstRef ref = new AstRef(symbol, getIdToken(tree));
+            if (scopes.peek().addRef(ref)) {
+                info("\tAdded: ", ref);
             }
         }
     }
@@ -535,8 +541,9 @@ public class AstTreeVisitor extends AstVisitor {
             if (isNoSymbol(symbol)) {
                 // type tree in case def, for example: case Some(_),
                 // since the symbol is NoSymbol, we should visit its original type
-                if (!isTupleClass(tree.original().symbol())) {
-                    visit(tree.original());
+                Tree original = tree.original();
+                if (original != null && !isTupleClass(original.symbol())) {
+                    visit(original);
                 }
             } else {
                 if (!isTupleClass(symbol)) {
