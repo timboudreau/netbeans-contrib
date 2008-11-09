@@ -63,6 +63,7 @@ import scala.tools.nsc.ast.Trees.CaseDef;
 import scala.tools.nsc.ast.Trees.ClassDef;
 import scala.tools.nsc.ast.Trees.CompoundTypeTree;
 import scala.tools.nsc.ast.Trees.DefDef;
+import scala.tools.nsc.ast.Trees.DocDef;
 import scala.tools.nsc.ast.Trees.ExistentialTypeTree;
 import scala.tools.nsc.ast.Trees.Function;
 import scala.tools.nsc.ast.Trees.Ident;
@@ -259,6 +260,8 @@ public abstract class AstVisitor {
             visitExistentialTypeTree((ExistentialTypeTree) tree);
         } else if (tree instanceof StubTree) {
             visitStubTree((StubTree) tree);
+        } else if (tree instanceof DocDef) {
+            visitDocDef((DocDef) tree);
         } else {
             System.out.println("Visit Unknow tree: " + tree + " class=" + tree.getClass().getCanonicalName());
         }
@@ -396,6 +399,9 @@ public abstract class AstVisitor {
     }
 
     public void visitStubTree(StubTree tree) {
+    }
+
+    public void visitDocDef(DocDef tree) {
     }
 
     // ---- Helper methods

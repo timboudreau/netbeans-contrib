@@ -325,11 +325,13 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
 
                 out.println(" {");
 
+/*
                 scala.List members = null;
                 try {
                     // scalac will throw exceptions here, we have to catch it
                     members = symbol.tpe().members();
                 } catch (Throwable e) {
+                    ScalaGlobal.reset();
                 }
                 if (members != null) {
                     int size = members.size();
@@ -355,20 +357,27 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                                     out.print(" ");
                                     out.println("{}");
                                 } else {
-                                    Type resType = member.tpe().resultType();
-                                    String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
-                                    out.print(resQName);
-                                    out.print(" ");
-                                    // method name
-                                    out.print(toJavaName(member.nameString()));
-                                    // method parameters
-                                    printParams(out, member.tpe().paramTypes());
-                                    out.print(" ");
+                                    Type resType = null;
+                                    try {
+                                        resType = member.tpe().resultType();
+                                    } catch (Throwable ex) {
+                                        ScalaGlobal.reset();
+                                    }
+                                    if (resType != null) {
+                                        String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                                        out.print(resQName);
+                                        out.print(" ");
+                                        // method name
+                                        out.print(toJavaName(member.nameString()));
+                                        // method parameters
+                                        printParams(out, member.tpe().paramTypes());
+                                        out.print(" ");
 
-                                    // method body
-                                    out.print("{");
-                                    printReturn(out, resQName);
-                                    out.println("}");
+                                        // method body
+                                        out.print("{");
+                                        printReturn(out, resQName);
+                                        out.println("}");
+                                    }
                                 }
                             } else if (member.isVariable()) {
                                 // do nothing
@@ -388,7 +397,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                         out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
                     }
                 }
-
+*/
                 out.println("}");
             } finally {
                 try {
