@@ -90,6 +90,13 @@ public class AstRootScope extends AstScope {
             idTokenToItem.put(idToken, item);
             tokensSorted = false;
             return true;
+        } else {
+            // if existOne is def and with narrow visible than new one, replace it
+            if (item instanceof AstDef && existOne.getSymbol().isPrivateLocal() && item.getSymbol().isPublic()) {
+                idTokenToItem.put(idToken, item);
+                tokensSorted = false;
+                return true;
+            }
         }
 
         return false;
