@@ -80,7 +80,7 @@ import scala.tools.nsc.symtab.Types.Type;
  *
  * @author Caoyuan Deng
  */
-@org.openide.util.lookup.ServiceProviders({@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider.class), @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider.class)})
+@org.openide.util.lookup.ServiceProviders({@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider.class), @org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider.class)})
 public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSourceProvider {
 
     /** @Todo
@@ -92,7 +92,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
         if (!"text/x-scala".equals(FileUtil.getMIMEType(fo)) && !"scala".equals(fo.getExt())) {  //NOI18N
             return null;
         }
-        
+
         return new PositionTranslatingJavaFileFilterImplementation() {
 
             public int getOriginalPosition(int javaSourcePosition) {
@@ -129,7 +129,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
     }
 
     public boolean index() {
-        return false; /** @Todo */
+        return false;
+    /** @Todo */
     }
 
     public void translate(Iterable<File> files, File sourceRoot, Result result) {
@@ -324,61 +325,68 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
 
                 out.println(" {");
 
-                scala.List members = symbol.tpe().members();
-                int size = members.size();
-                for (int i = 0; i < size; i++) {
-                    Symbol member = (Symbol) members.apply(i);
+                scala.List members = null;
+                try {
+                    // scalac will throw exceptions here, we have to catch it
+                    members = symbol.tpe().members();
+                } catch (Throwable e) {
+                }
+                if (members != null) {
+                    int size = members.size();
+                    for (int i = 0; i < size; i++) {
+                        Symbol member = (Symbol) members.apply(i);
 
-                    if (member.isPublic() || member.isProtectedLocal()) {
-                        if (ScalaElement.isInherited(symbol, member)) {
-                            continue;
-                        }
-
-                        if (member.isMethod()) {
-                            if (member.nameString().equals("$init$") || member.nameString().equals("synchronized")) {
+                        if (member.isPublic() || member.isProtectedLocal()) {
+                            if (ScalaElement.isInherited(symbol, member)) {
                                 continue;
                             }
 
-                            printModifiers(out, member);
-                            out.print(" ");
-                            if (member.isConstructor()) {
-                                out.print(toJavaName(symbol.nameString()));
-                                // parameters
-                                printParams(out, member.tpe().paramTypes());
+                            if (member.isMethod()) {
+                                if (member.nameString().equals("$init$") || member.nameString().equals("synchronized")) {
+                                    continue;
+                                }
+
+                                printModifiers(out, member);
                                 out.print(" ");
-                                out.println("{}");
-                            } else {
+                                if (member.isConstructor()) {
+                                    out.print(toJavaName(symbol.nameString()));
+                                    // parameters
+                                    printParams(out, member.tpe().paramTypes());
+                                    out.print(" ");
+                                    out.println("{}");
+                                } else {
+                                    Type resType = member.tpe().resultType();
+                                    String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                                    out.print(resQName);
+                                    out.print(" ");
+                                    // method name
+                                    out.print(toJavaName(member.nameString()));
+                                    // method parameters
+                                    printParams(out, member.tpe().paramTypes());
+                                    out.print(" ");
+
+                                    // method body
+                                    out.print("{");
+                                    printReturn(out, resQName);
+                                    out.println("}");
+                                }
+                            } else if (member.isVariable()) {
+                                // do nothing
+                            } else if (member.isValue()) {
+                                printModifiers(out, member);
+                                out.print(" ");
                                 Type resType = member.tpe().resultType();
                                 String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
                                 out.print(resQName);
                                 out.print(" ");
-                                // method name
-                                out.print(toJavaName(member.nameString()));
-                                // method parameters
-                                printParams(out, member.tpe().paramTypes());
-                                out.print(" ");
-
-                                // method body
-                                out.print("{");
-                                printReturn(out, resQName);
-                                out.println("}");
+                                out.print(member.nameString());
+                                out.println(";");
                             }
-                        } else if (member.isVariable()) {
-                            // do nothing
-                        } else if (member.isValue()) {
-                            printModifiers(out, member);
-                            out.print(" ");
-                            Type resType = member.tpe().resultType();
-                            String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
-                            out.print(resQName);
-                            out.print(" ");
-                            out.print(member.nameString());
-                            out.println(";");
                         }
-                    }
 
-                    // implements scala.ScalaObject
-                    out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
+                        // implements scala.ScalaObject
+                        out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
+                    }
                 }
 
                 out.println("}");
