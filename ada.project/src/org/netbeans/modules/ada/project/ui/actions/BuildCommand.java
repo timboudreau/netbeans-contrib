@@ -36,15 +36,19 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.actions;
 
+import java.io.File;
+import java.io.IOException;
 import org.netbeans.api.ada.platform.AdaPlatform;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompilerCommand;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 /**
@@ -66,21 +70,34 @@ public class BuildCommand extends Command {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
+        // Retrieve project and platform
         final AdaProject project = getProject();
         AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
         assert platform != null;
-        
-        //AdaProjectProperties properties = context.lookup(AdaProjectProperties.class);
-        
+
+        // Retrieve main file
+        final FileObject mainFile = findMainFile(project);
+        assert mainFile != null;
+        try {
+            // Create Build Folder
+            createBuildRoot(project);
+            
+            // Create Dist Folder
+            createDistRoot(project);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+
         // Init compiler factory
-        GnatCompilerCommand comp = new GnatCompilerCommand (
+        GnatCompilerCommand comp = new GnatCompilerCommand(
                 platform,
                 project.getProjectDirectory().getPath(),
                 project.getProjectDirectory().getPath(),
                 project.getSrcFolder().getPath(),
-                "",//properties.getMainModule(),
-                "pippo.exe"
-                );
+                FileUtil.toFile(mainFile).getPath(),
+                project.getName(),
+                project.getName() + "(build)"); // NOI18N
 
         // Start build
         comp.Build();
@@ -88,11 +105,35 @@ public class BuildCommand extends Command {
 
     @Override
     public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        final AdaProject project = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
         if (platform == null) {
             return false;
         }
         return true;
+    }
+
+    protected static FileObject findMainFile(final AdaProject project) {
+        final FileObject[] roots = project.getSourceRoots().getRoots();
+        final String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
+        if (mainFile == null) {
+            return null;
+        }
+        FileObject fo = null;
+        for (FileObject root : roots) {
+            fo = root.getFileObject(mainFile);
+            if (fo != null) {
+                break;
+            }
+        }
+        return fo;
+    }
+
+    private void createBuildRoot(final AdaProject project) throws IOException {
+        FileUtil.createFolder(new File(FileUtil.toFile(project.getProjectDirectory()), "build")); // NOI18N
+    }
+
+    private void createDistRoot(final AdaProject project) throws IOException {
+        FileUtil.createFolder(new File(FileUtil.toFile(project.getProjectDirectory()), "dist")); // NOI18N
     }
 }
