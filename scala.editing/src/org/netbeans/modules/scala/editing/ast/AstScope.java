@@ -200,7 +200,7 @@ public class AstScope implements Iterable<AstScope> {
             return false;
         }
 
-        /** if a def or ref that corresponds to thi idToekn has been added, this ref won't be added */
+        /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
         if (getRoot().contains(idToken)) {
             return false;
         }

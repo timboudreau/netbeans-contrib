@@ -211,9 +211,13 @@ public class AstTreeVisitor extends AstVisitor {
             kind = ElementKind.PARAMETER;
         }
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
-        if (scopes.peek().addDef(def)) {
-            info("\tAdded: ", def);
+        // special case for: val (a, b, c) = (1, 2, 3)
+        boolean isTuple = isTupleClass(tree.tpt().symbol());
+        if (!isTuple) {
+            AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
+            if (scopes.peek().addDef(def)) {
+                info("\tAdded: ", def);
+            }
         }
 
         scopes.push(scope);
@@ -411,12 +415,26 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitTypeApply(TypeApply tree) {
         /**
-         * @todo just ignore type apply's fun, it's fun apply, for example:
+         * @todo just ignore type apply's fun for scala.TupleXXX, for example:
          * val tuple = (a, b, c)
          * where (a, c, c) will be Apply::TypeApply
          */
-        //visit(tree.fun());
-        visit(tree.args());
+        boolean isTupleApply = false;
+        scala.List<Symbol> funOwnerChain = tree.fun().symbol().ownerChain();
+        int size = funOwnerChain.size();
+        if (size == 4) {
+            if (funOwnerChain.apply(0).rawname().decode().equals("apply") &&
+                    funOwnerChain.apply(1).rawname().decode().startsWith("Tuple") &&
+                    funOwnerChain.apply(2).rawname().decode().equals("scala") &&
+                    funOwnerChain.apply(3).rawname().decode().equals("<root>")) {
+                isTupleApply = true;
+            }
+        }
+
+        if (!isTupleApply) {
+            visit(tree.fun());
+            visit(tree.args());
+        }
     }
 
     @Override
@@ -427,7 +445,7 @@ public class AstTreeVisitor extends AstVisitor {
         exprs.push(expr);
         Tree fun = tree.fun();
         if (fun instanceof TypeApply) {
-            // do not visit fun here, the fun will be visited in other form of Tree
+            visit(fun);
         } else {
             visit(fun);
         }
@@ -517,13 +535,17 @@ public class AstTreeVisitor extends AstVisitor {
             if (isNoSymbol(symbol)) {
                 // type tree in case def, for example: case Some(_),
                 // since the symbol is NoSymbol, we should visit its original type
-                visit(tree.original());
-            } else {
-                AstRef ref = new AstRef(symbol, getIdToken(tree));
-                if (scopes.peek().addRef(ref)) {
-                    info("\tAdded: ", ref);
+                if (!isTupleClass(tree.original().symbol())) {
+                    visit(tree.original());
                 }
-                visit(tree.original());
+            } else {
+                if (!isTupleClass(symbol)) {
+                    AstRef ref = new AstRef(symbol, getIdToken(tree));
+                    if (scopes.peek().addRef(ref)) {
+                        info("\tAdded: ", ref);
+                    }
+                    visit(tree.original());
+                }
             }
         }
     }
@@ -568,5 +590,20 @@ public class AstTreeVisitor extends AstVisitor {
 
     private boolean isNoSymbol(Symbol symbol) {
         return symbol.toString().equals("<none>");
+    }
+
+    private boolean isTupleClass(Symbol symbol) {
+        if (symbol != null) {
+            scala.List<Symbol> chain = symbol.ownerChain();
+            int size = chain.size();
+            if (size == 3) {
+                if (chain.apply(0).rawname().decode().startsWith("Tuple") &&
+                        chain.apply(1).rawname().decode().equals("scala") &&
+                        chain.apply(2).rawname().decode().equals("<root>")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
