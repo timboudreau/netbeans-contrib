@@ -47,6 +47,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.SourcesHelper;
@@ -58,6 +59,9 @@ import org.openide.util.Mutex;
  * @author Andrea Lucarelli
  */
 public class AdaSources implements Sources, ChangeListener, PropertyChangeListener {
+
+    private static final String BUILD_DIR_PROP = "${" + AdaProjectProperties.BUILD_DIR + "}";    //NOI18N
+    private static final String DIST_DIR_PROP = "${" + AdaProjectProperties.DIST_DIR + "}";    //NOI18N
 
     public static final String SOURCES_TYPE_ADA = "ADASOURCE"; // NOI18N
 
@@ -109,6 +113,8 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
         this.sourcesHelper = new SourcesHelper(helper, evaluator);   //Safe to pass APH        
         register(sourceRoots);
         register(testRoots);
+        this.sourcesHelper.addNonSourceRoot(BUILD_DIR_PROP);
+        this.sourcesHelper.addNonSourceRoot(DIST_DIR_PROP);
         externalRootsRegistered = false;
         ProjectManager.mutex().postWriteRequest(new Runnable() {
             public void run() {                
@@ -153,7 +159,9 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
     
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
-        if (SourceRoots.PROP_ROOT_PROPERTIES.equals(propName)) {
+        if (SourceRoots.PROP_ROOT_PROPERTIES.equals(propName) ||
+            AdaProjectProperties.BUILD_DIR.equals(propName)  ||
+            AdaProjectProperties.DIST_DIR.equals(propName)) {
             this.fireChange();
         }
     }

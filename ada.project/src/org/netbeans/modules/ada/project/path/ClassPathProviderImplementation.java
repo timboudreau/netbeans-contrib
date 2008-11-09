@@ -59,6 +59,7 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
     private final SourceRoots sources;
     private final SourceRoots tests;
     private final Map<Pair<String, Integer>, ClassPath> cache = new HashMap<Pair<String, Integer>, ClassPath>();
+    private static final int MAX_TYPES = 2;
 
     public ClassPathProviderImplementation(final AdaProject project) {
 
@@ -67,7 +68,6 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
         this.tests = project.getTestRoots();
         assert this.tests != null;
     }
-    private static final int MAX_TYPES = 2;
 
     /**
      * Find what a given file represents.

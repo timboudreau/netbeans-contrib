@@ -299,12 +299,15 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     }    
 
     private void configureSources(final AntProjectHelper helper, final Element data, final EditableProperties properties) {
+        // Sources root
         final List<? extends File> srcDirs = getSources();
         final Document doc = data.getOwnerDocument();
         final Element sourceRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE,SourceRoots.E_SOURCES);
         final File projectDirectory = FileUtil.toFile(helper.getProjectDirectory());
         appendRoots (sourceRoots, properties, srcDirs, projectDirectory, doc);        
         data.appendChild (sourceRoots);
+
+        // Tests root
         final List<? extends File> testDirs = getTests();
         final Element testRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE,SourceRoots.E_TESTS);
         appendRoots (testRoots, properties, testDirs, projectDirectory, doc);

@@ -1,6 +1,6 @@
-1.01: 01-11-2008
+1.1: 09-11-2008
 
-- Add initial GNAT commands support.
+- Added first version of gnatmake command. Tested only windows system.
 
 1.0: 23-09-2008
 

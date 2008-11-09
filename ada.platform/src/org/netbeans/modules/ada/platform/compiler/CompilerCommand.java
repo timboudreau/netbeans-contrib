@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.platform.compiler;
 
 import org.netbeans.api.ada.platform.AdaPlatform;
@@ -51,33 +50,37 @@ public abstract class CompilerCommand {
     private final String projectPath;
     private final String objectFolder;
     private final String sourceFolder;
-    private final String mainProgram;
-    private final String executableName;
+    private final String mainFile;
+    private final String executableFile;
+    private final String displayName;
 
-	public abstract void Build ();
-	public abstract void Compile ();
-	public abstract void Clean ();
+    public abstract void Build();
 
-    public CompilerCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainProgram, String executableName) {
+    public abstract void Compile();
+
+    public abstract void Clean();
+
+    public CompilerCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainFile, String executableFile, String displayName) {
         assert platform != null;
         this.platform = platform;
         this.projectPath = projectPath;
         this.objectFolder = objectFolder;
         this.sourceFolder = sourceFolder;
-        this.mainProgram = mainProgram;
-        this.executableName = executableName;
+        this.mainFile = mainFile;
+        this.executableFile = executableFile;
+        this.displayName = displayName;
     }
 
     public AdaPlatform getPlatform() {
         return platform;
     }
 
-    public String getExecutableName() {
-        return executableName;
+    public String getExecutableFile() {
+        return executableFile;
     }
 
-    public String getMainProgram() {
-        return mainProgram;
+    public String getMainFile() {
+        return mainFile;
     }
 
     public String getObjectFolder() {
@@ -92,4 +95,7 @@ public abstract class CompilerCommand {
         return sourceFolder;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
 }

@@ -36,11 +36,16 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.actions;
 
+import java.io.File;
+import java.io.IOException;
+import org.netbeans.api.ada.platform.AdaPlatform;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
+import org.netbeans.modules.ada.project.AdaProjectUtil;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 /**
@@ -62,10 +67,34 @@ public class CleanCommand extends Command {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
+        final AdaProject project = getProject();
+
+        try {
+            // Delete Build Folder
+            deleteBuildRoot(project);
+
+            // Delete Dist Folder
+            deleteDistRoot(project);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     @Override
     public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        return false;
+        final AdaProject adaProject = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        if (platform == null) {
+            return false;
+        }
+        return true;
+    }
+
+    private void deleteBuildRoot(final AdaProject project) throws IOException {
+        FileUtil.toFileObject(new File (project.getProjectDirectory().getPath() + "/build")).delete();
+    }
+
+    private void deleteDistRoot(final AdaProject project) throws IOException {
+        FileUtil.toFileObject(new File (project.getProjectDirectory().getPath() + "/dist")).delete();
     }
 }

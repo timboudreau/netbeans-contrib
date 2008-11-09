@@ -71,6 +71,8 @@ import org.openide.util.MutexException;
 public class AdaProjectProperties {
     
     public static final String SRC_DIR = "src.dir"; //NOI18N
+    public static final String BUILD_DIR = "build.dir"; // NOI18N
+    public static final String DIST_DIR = "dist.dir"; // NOI18N
     public static final String MAIN_FILE = "main.file"; //NOI18N
     public static final String APPLICATION_ARGS = "application.args";   //NOI18N
     public static final String ACTIVE_PLATFORM = "platform.active"; //NOI18N
@@ -79,7 +81,7 @@ public class AdaProjectProperties {
     
     private final AdaProject project;
     private final PropertyEvaluator eval;
-    
+
     private volatile String encoding;
     private volatile List<Pair<File,String>> sourceRoots;
     private volatile List<Pair<File,String>> testRoots;
@@ -87,6 +89,7 @@ public class AdaProjectProperties {
     private volatile String appArgs;
     private volatile ArrayList<String>librariesPath;
     private volatile String activePlatformId;
+    private static final String ADA_PATH_SEP = "|";
 
     public AdaProjectProperties (final AdaProject project) {
         assert project != null;
@@ -137,14 +140,14 @@ public class AdaProjectProperties {
     
     public List<Pair<File,String>> getTestRoots () {
         if (testRoots == null) {
-            final SourceRoots testRoots = project.getTestRoots();
-            final String[] rootLabels = testRoots.getRootNames();
-            final String[] rootProps = testRoots.getRootProperties();
-            final URL[] rootURLs = testRoots.getRootURLs();
+            final SourceRoots tmpTestRoots = project.getTestRoots();
+            final String[] rootLabels = tmpTestRoots.getRootNames();
+            final String[] rootProps = tmpTestRoots.getRootProperties();
+            final URL[] rootURLs = tmpTestRoots.getRootURLs();
             final List<Pair<File,String>> data = new LinkedList<Pair<File, String>>();
             for (int i=0; i< rootURLs.length; i++) {                
                 final File f  = new File (URI.create (rootURLs[i].toExternalForm()));            
-                final String s = testRoots.getRootDisplayName(rootLabels[i], rootProps[i]);
+                final String s = tmpTestRoots.getRootDisplayName(rootLabels[i], rootProps[i]);
                 data.add(Pair.of(f, s));
             }
             this.testRoots = data;
@@ -264,9 +267,7 @@ public class AdaProjectProperties {
             }
         }
     }
-    
-    private static final String ADA_PATH_SEP = "|";
-    
+        
     /**
      *Build a path string from arraylist
      * @param path

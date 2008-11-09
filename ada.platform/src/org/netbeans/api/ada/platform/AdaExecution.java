@@ -83,7 +83,11 @@ public class AdaExecution {
         ExternalProcessBuilder processBuilder = new ExternalProcessBuilder(command);
         processBuilder = processBuilder.workingDirectory(new File(workingDirectory));
         if (commandArgs != null) {
-            processBuilder = processBuilder.addArgument(commandArgs);
+            String args[] = org.openide.util.Utilities.parseParameters(commandArgs);
+            for (int index = 0; index < args.length; index++) {
+                processBuilder = processBuilder.addArgument(args[index]);
+            }
+        //processBuilder = processBuilder.addArgument(commandArgs);
         }
         if (path != null) {
             processBuilder = processBuilder.addEnvironmentVariable("ADA_PLATFORM_PATH", path);
