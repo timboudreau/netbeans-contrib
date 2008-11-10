@@ -41,7 +41,7 @@
     <!--"semantic" highlighting:-->
    <fontcolor name="mod-unused" waveUnderlined="999999"/>
    <fontcolor name="mod-abstract" />
-   <fontcolor name="mod-field" default="field" foreColor="000000"/> <!-- for Function call -->
+   <fontcolor name="mod-field" default="field" foreColor="0000ff"/> <!-- for Function call -->
    <fontcolor name="mod-local-variable" />
    <fontcolor name="mod-parameter" foreColor="A06001"/>
 
