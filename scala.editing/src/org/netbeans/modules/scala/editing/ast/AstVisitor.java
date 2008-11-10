@@ -450,16 +450,6 @@ public abstract class AstVisitor {
     protected int offset(Option intOption) {
         return intOption.isDefined() ? (Integer) intOption.get() : -1;
     }
-    private List<ScalaTokenId> PotentialIdTokens = Arrays.asList(
-            ScalaTokenId.Identifier,
-            ScalaTokenId.XmlAttName,
-            ScalaTokenId.XmlAttValue,
-            ScalaTokenId.XmlCDData,
-            ScalaTokenId.XmlCDEnd,
-            ScalaTokenId.XmlComment,
-            ScalaTokenId.XmlSTagName,
-            ScalaTokenId.XmlSTagName,
-            ScalaTokenId.XmlCharData);
 
     /**
      * @Note: nameNode may contains preceding void productions, and may also contains
@@ -496,12 +486,12 @@ public abstract class AstVisitor {
                 token = ScalaLexUtilities.findPrevious(ts, ScalaTokenId.Identifier);
             } else {
                 // a.p where, offset is set to p
-                token = ScalaLexUtilities.findNextIn(ts, PotentialIdTokens);
+                token = ScalaLexUtilities.findNextIn(ts, ScalaLexUtilities.PotentialIdTokens);
             }
         } else if (name.equals("_")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
         } else {
-            token = ScalaLexUtilities.findNextIn(ts, PotentialIdTokens);
+            token = ScalaLexUtilities.findNextIn(ts, ScalaLexUtilities.PotentialIdTokens);
         }
 
         if (token.isFlyweight()) {
