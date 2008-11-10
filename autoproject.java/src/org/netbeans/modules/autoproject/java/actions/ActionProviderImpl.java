@@ -207,17 +207,15 @@ public class ActionProviderImpl implements ActionProvider {
         for (SourceGroup g : ProjectUtils.getSources(p).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
             FileObject root = g.getRootFolder();
             ClassPath cp = ClassPath.getClassPath(root, ClassPath.EXECUTE);
-            if (cp != null && /* #152728 */ cp.findResource(".netbeans_automatic_build") != null) {
+            if (cp != null) {
                 executePaths.add(cp);
             }
         }
-        if (!executePaths.isEmpty()) {
-            int res = JavaRunner.execute(JavaRunner.QUICK_CLEAN, Collections.singletonMap(
-                    JavaRunner.PROP_EXECUTE_CLASSPATH, ClassPathSupport.createProxyClassPath(executePaths.toArray(new ClassPath[0])))).
-                    result();
-            if (res != 0) {
-                throw new IOException("Failed to clean NetBeans-generated classes");
-            }
+        int res = JavaRunner.execute(JavaRunner.QUICK_CLEAN, Collections.singletonMap(
+                JavaRunner.PROP_EXECUTE_CLASSPATH, ClassPathSupport.createProxyClassPath(executePaths.toArray(new ClassPath[0])))).
+                result();
+        if (res != 0) {
+            throw new IOException("Failed to clean NetBeans-generated classes");
         }
     }
 
