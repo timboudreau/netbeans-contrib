@@ -25,7 +25,7 @@
    <fontcolor name="TODO" foreColor="99006b">
       <font style="bold"/>
    </fontcolor>
-   <fontcolor name="xml" foreColor="2E92C7"/>
+   <fontcolor name="xml" foreColor="00FF00"/>
 
     <!-- This is intended for an embedded regular expression language -->
     <!--
