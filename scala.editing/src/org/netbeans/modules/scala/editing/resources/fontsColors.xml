@@ -73,13 +73,13 @@
     <fontcolor name="mod-local-variable" />
     <fontcolor name="mod-parameter" foreColor="A06001"/>
 
-    <fontcolor name="mod-method">
+    <fontcolor name="mod-method"> <!-- function def -->
         <font style="bold" />
     </fontcolor>
     <fontcolor name="mod-constructor" >
         <font style="bold" />
     </fontcolor>
-    <fontcolor name="mod-class">
+    <fontcolor name="mod-class" underline="000000"> <!-- Class declaration -->
         <font style="bold" />
     </fontcolor>
     <fontcolor name="mod-static" foreColor="bc8f8f"/> <!-- for Class  Ref 717ab3, 7777cc, dark red:bc8f8f, purple:a020f0 -->

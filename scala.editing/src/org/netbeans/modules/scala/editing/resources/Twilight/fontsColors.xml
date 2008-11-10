@@ -6,32 +6,26 @@
     <!-- A couple of things are not accurate yet; globals are not bold, and method calls are
          black and bold instead of green (which would be identical to fields) -->
          
-   <fontcolor name="xml" foreColor="2E92C7"/>
-
     <!-- ScalaTokenId categories -->
-   <fontcolor name="CharacterLiteral" default="char" foreColor="8F9D6A"/>
-   <fontcolor name="IntegerLiteral" default="number" foreColor="FFFFFF"/>
-   <fontcolor name="FloatingPointLiteral" default="number" foreColor="FFFFFF"/>
-   <fontcolor name="Operator" default="operator" foreColor="FFFFFF"/>
-   <fontcolor name="StringLiteral" default="string" foreColor="8F9D6A"/>
-   <fontcolor name="BlockComment" default="comment" foreColor="5F5A60"/>
-   <fontcolor name="LineComment" default="comment" foreColor="5F5A60"/>
-   <fontcolor name="DocComment" default="comment" foreColor="5F5A60"/>
-   <fontcolor name="CommentTag" default="comment" foreColor="5F5A60">
+   <fontcolor name="CharacterLiteral" default="char"/>
+   <fontcolor name="IntegerLiteral" default="number"/>
+   <fontcolor name="FloatingPointLiteral" default="number"/>
+   <fontcolor name="StringLiteral" default="string"/>
+   <fontcolor name="BlockComment" default="comment"/>
+   <fontcolor name="LineComment" default="comment"/>
+   <fontcolor name="DocComment" default="comment"/>
+   <fontcolor name="CommentTag" default="comment">
       <font style="bold"/>
    </fontcolor>
-   <fontcolor name="REGEXP_LITERAL" foreColor="9933CC"/>
    <fontcolor name="Error" default="error"/>
-   <fontcolor name="CONSTANT" foreColor="black">
-      <font style="italic"/>
-   </fontcolor>
-   <fontcolor name="Identifier" default="identifier" foreColor="7587A6"/>
+   <fontcolor name="Identifier" default="identifier"/>
    <fontcolor name="Ws" default="whitespace"/>
-   <fontcolor name="Keyword" default="keyword" foreColor="CDA869"/>
-   <fontcolor name="TODO" foreColor="ff99006b">
+   <fontcolor name="Keyword" default="keyword"/>
+   <fontcolor name="Operator" default="operator"/>
+   <fontcolor name="TODO" foreColor="99006b">
       <font style="bold"/>
    </fontcolor>
-   <fontcolor name="QUOTED_STRING_LITERAL" default="string"/>
+   <fontcolor name="xml" foreColor="2E92C7"/>
 
     <!-- This is intended for an embedded regular expression language -->
     <!--
@@ -47,24 +41,24 @@
     <!--"semantic" highlighting:-->
    <fontcolor name="mod-unused" waveUnderlined="999999"/>
    <fontcolor name="mod-abstract" />
-   <fontcolor name="mod-field" default="field" foreColor="FFFFFF"/>
+   <fontcolor name="mod-field" default="field" foreColor="7587A6"/> <!-- for Function call -->
    <fontcolor name="mod-local-variable" />
    <fontcolor name="mod-parameter" foreColor="A06001"/>
 
-   <fontcolor name="mod-method">
-      <font style="bold" />
+   <fontcolor name="mod-method"> <!-- function def -->
+      <font style="bold"/>
    </fontcolor>
    <fontcolor name="mod-constructor" >
-      <font style="bold" />
+      <font style="bold"/>
    </fontcolor>
-   <fontcolor name="mod-class">
-      <font style="bold" />
+   <fontcolor name="mod-class" underline="FFFFFF"> <!-- Class declaration -->
+      <font style="bold"/>
    </fontcolor>
-   <fontcolor name="mod-static" foreColor="9B703F"/> <!-- for Class  Ref 717ab3, 7777cc, dark red:bc8f8f, purple:a020f0 -->
-   <fontcolor name="mod-global" foreColor="9B703F">  <!-- for Object Ref 717ab3, 7777cc -->
+   <fontcolor name="mod-static" foreColor="9B5C2E"/> <!-- for Class  Ref 717ab3, 7777cc, dark red:bc8f8f, purple:a020f0 -->
+   <fontcolor name="mod-global" foreColor="9B5C2E">  <!-- for Object Ref 717ab3, 7777cc -->
       <font style="italic" />
    </fontcolor>
-   <fontcolor name="mod-interface" foreColor="009B00"> <!-- for implicit method Ref -->
+   <fontcolor name="mod-interface" default="mod-field"> <!-- for implicit method Ref -->
       <font style="bold" />
    </fontcolor>
    <fontcolor name="mod-annotation-type" />
@@ -76,7 +70,7 @@
    <fontcolor name="mod-protected" />
    <fontcolor name="mod-public" />
 
-   <fontcolor name="mod-regexp" foreColor="9933CC" />
+   <fontcolor name="mod-regexp" foreColor="E9C062" />
     
     <!--currently not used:-->
 <!--    <fontcolor name="mod-type-parameter-declaration" bgColor="lightGray"/>
@@ -84,7 +78,7 @@
     <fontcolor name="mod-undefined" foreColor="red"/>-->
 
     <!--mark occurrences:-->
-   <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
+   <fontcolor name="mark-occurrences" bgColor="ff38566f"/>
     
     <!-- JsCommentTokenId categories -->
    <fontcolor name="js-comment-tag" default="comment">
