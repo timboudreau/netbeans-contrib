@@ -45,7 +45,8 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
 		<tocitem text="New Ada Application" target="org.netbeans.modules.ada.project.ui.wizards.PanelConfigureProject.NEW" />
 		<tocitem text="New Ada Application with Existing Sources" target="org.netbeans.modules.ada.project.ui.wizards.PanelConfigureProject.EXISTING" />
 		<tocitem text="Customizing the Project Settings: Sources" target="org.netbeans.modules.ada.project.ui.properties.CustomizerSources" />
-		<tocitem text="Customizing the Project Settings: Run" target="org.netbeans.modules.ada.project.ui.properties.CustomizerRun" />
 		<tocitem text="Customizing the Project Settings: Libraries" target="org.netbeans.modules.ada.project.ui.properties.CustomizerLibrariesPath" />
+		<tocitem text="Customizing the Project Settings: Build" target="org.netbeans.modules.ada.project.ui.properties.CustomizerBuild" />
+		<tocitem text="Customizing the Project Settings: Run" target="org.netbeans.modules.ada.project.ui.properties.CustomizerRun" />
 	</tocitem>
 </toc>

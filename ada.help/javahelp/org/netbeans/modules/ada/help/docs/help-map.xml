@@ -44,6 +44,7 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
 	<mapID target="org.netbeans.modules.ada.project.ui.wizards.PanelConfigureProject.NEW" url="new-ada-application.html"/>
 	<mapID target="org.netbeans.modules.ada.project.ui.wizards.PanelConfigureProject.EXISTING" url="new-from-existing-ada-sources.html"/>
 	<mapID target="org.netbeans.modules.ada.project.ui.properties.CustomizerSources" url="customize-project-sources.html"/>
-	<mapID target="org.netbeans.modules.ada.project.ui.properties.CustomizerRun" url="customize-project-run.html"/>
 	<mapID target="org.netbeans.modules.ada.project.ui.properties.CustomizerLibrariesPath" url="customize-project-libraries.html"/>
+	<mapID target="org.netbeans.modules.ada.project.ui.properties.CustomizerBuild" url="customize-project-build.html"/>
+	<mapID target="org.netbeans.modules.ada.project.ui.properties.CustomizerRun" url="customize-project-run.html"/>
 </map>
