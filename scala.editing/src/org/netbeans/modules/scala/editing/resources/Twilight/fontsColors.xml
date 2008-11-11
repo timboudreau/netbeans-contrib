@@ -78,7 +78,7 @@
     <fontcolor name="mod-undefined" foreColor="red"/>-->
 
     <!--mark occurrences:-->
-   <fontcolor name="mark-occurrences" bgColor="ff38566f"/>
+   <fontcolor name="mark-occurrences" bgColor="191970"/>
     
     <!-- JsCommentTokenId categories -->
    <fontcolor name="js-comment-tag" default="comment">
