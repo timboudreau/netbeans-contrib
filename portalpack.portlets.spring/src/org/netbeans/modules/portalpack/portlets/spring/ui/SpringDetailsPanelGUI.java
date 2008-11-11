@@ -5,13 +5,10 @@
  */
 package org.netbeans.modules.portalpack.portlets.spring.ui;
 
-import java.awt.CardLayout;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -23,9 +20,8 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
-import org.netbeans.modules.portalpack.portlets.spring.api.ConfigPanel;
-import org.netbeans.modules.portalpack.portlets.spring.api.ControllerType;
-import org.netbeans.modules.portalpack.portlets.spring.api.ControllerTypeFactory;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -34,6 +30,7 @@ import org.openide.util.NbBundle;
 /**
  *
  * @author  satyaranjan
+ * @author  chetan
  */
 public class SpringDetailsPanelGUI extends javax.swing.JPanel implements DocumentListener, ChangeListener {
 
@@ -49,11 +46,14 @@ public class SpringDetailsPanelGUI extends javax.swing.JPanel implements Documen
         initComponents();
         initData();
         this.project = project;
+        
+        configFileTf.getDocument().addDocumentListener(this);
+        configFolderTextField.getDocument().addDocumentListener(this);
         viewJspTf.getDocument().addDocumentListener(this);
         editJspTf.getDocument().addDocumentListener(this);
         helpJspTf.getDocument().addDocumentListener(this);
         Sources sources = ProjectUtils.getSources(project);
-
+        
         folders = sources.getSourceGroups(Sources.TYPE_GENERIC);
         
     }
@@ -99,7 +99,10 @@ public class SpringDetailsPanelGUI extends javax.swing.JPanel implements Documen
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(SpringDetailsPanelGUI.class, "SpringDetailsPanelGUI.jLabel2.text")); // NOI18N
 
+        configFolderTextField.setEditable(false);
+
         browseButton.setText(org.openide.util.NbBundle.getMessage(SpringDetailsPanelGUI.class, "SpringDetailsPanelGUI.browseButton.text")); // NOI18N
+        browseButton.setEnabled(false);
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -108,9 +111,11 @@ public class SpringDetailsPanelGUI extends javax.swing.JPanel implements Documen
 
         jspFolderLabel.setText(org.openide.util.NbBundle.getMessage(SpringDetailsPanelGUI.class, "SpringDetailsPanelGUI.jspFolderLabel.text")); // NOI18N
 
+        jspFolderTf.setEditable(false);
         jspFolderTf.setText(org.openide.util.NbBundle.getMessage(SpringDetailsPanelGUI.class, "SpringDetailsPanelGUI.jspFolderTf.text")); // NOI18N
 
         jspFolderBrowse.setText(org.openide.util.NbBundle.getMessage(SpringDetailsPanelGUI.class, "SpringDetailsPanelGUI.jspFolderBrowse.text")); // NOI18N
+        jspFolderBrowse.setEnabled(false);
         jspFolderBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jspFolderBrowseActionPerformed(evt);
@@ -257,10 +262,6 @@ private void jspFolderBrowseActionPerformed(java.awt.event.ActionEvent evt) {//G
         configFolderTextField.setText("web" + File.separator + "WEB-INF");
         jspFolderTf.setText("web" + File.separator + "WEB-INF" + File.separator + "jsp");
         enableTextComponents(false);
-        
-        ControllerType abController = new ControllerType(ControllerType.ABSTRACT_CONTROLLER);
-        ControllerType uploadController = new ControllerType(ControllerType.SIMPLE_FORM_CONTROLLER);
-        
     }
 
     private void enableTextComponents(boolean enable) {
@@ -275,21 +276,58 @@ private void jspFolderBrowseActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 
     public boolean valid(WizardDescriptor wizardDescriptor) {
-        if ((viewJspTf.getText() == null || viewJspTf.getText().trim().length() == 0) && (isView)) {
+        String configFileName = configFileTf.getText();
+        String viewJspFileName = viewJspTf.getText();
+        String editJspFileName = editJspTf.getText();
+        String helpJspFileName = helpJspTf.getText();
+        String canUseConfigFileName = CoreUtil.canUseFileName(PortletProjectUtils.getWebInf(project), getFileName(configFileName), FileUtil.getExtension(configFileName));
+        String canUseViewJSPFileName = CoreUtil.canUseFileName(PortletProjectUtils.getWebModule(project).getWebInf().getFileObject("/jsp"), getFileName(viewJspFileName), FileUtil.getExtension(viewJspFileName));
+        String canUseEditJSPFileName = CoreUtil.canUseFileName(PortletProjectUtils.getWebModule(project).getWebInf().getFileObject("/jsp"), getFileName(editJspFileName), FileUtil.getExtension(editJspFileName));
+        String canUseHelpJSPFileName = CoreUtil.canUseFileName(PortletProjectUtils.getWebModule(project).getWebInf().getFileObject("/jsp"), getFileName(helpJspFileName), FileUtil.getExtension(helpJspFileName));
+        
+        // Validating Config file name
+        if ((configFileName == null || configFileName.trim().length() == 0) 
+                || (!checkFileName(configFileName))) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_CONFIG_FILE_NAME"));
+            return false;
+        } else if (!configFileName.endsWith("xml") && !configFileName.endsWith("XML")) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_XML_FILE_NAME"));
+            return false;
+        } else if (canUseConfigFileName != null) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", canUseConfigFileName);
+            return false;
+        } else
+        if (isView && (viewJspFileName == null || viewJspFileName.trim().length() == 0 || !checkFileName(viewJspFileName))) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_VIEW_JSP_NAME"));
             return false;
-        } else {
-        }
-        if ((editJspTf.getText() == null || editJspTf.getText().trim().length() == 0) && (isEdit)) {
+        } else if (isView && !(viewJspFileName.endsWith("jsp") || viewJspFileName.endsWith("JSP"))) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_JSP_FILE_NAME"));
+            return false;
+        } else if (isView && canUseViewJSPFileName != null) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", canUseViewJSPFileName);
+            return false;
+        } else
+        if (isEdit && (editJspFileName == null || editJspFileName.trim().length() == 0 || !checkFileName(editJspFileName)) ) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_EDIT_JSP_NAME"));
             return false;
-        } else {
-        }
-        if ((helpJspTf.getText() == null || helpJspTf.getText().trim().length() == 0) && (isHelp)) {
+        } else if (isEdit && !(editJspFileName.endsWith("jsp") || editJspFileName.endsWith("JSP"))) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_JSP_FILE_NAME"));
+            return false;
+        } else if (isEdit && canUseEditJSPFileName != null) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", canUseEditJSPFileName);
+            return false;
+        } else 
+        if (isHelp && (helpJspFileName == null || helpJspFileName.trim().length() == 0 || !checkFileName(helpJspFileName)) ) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_HELP_JSP_NAME"));
             return false;
-        } else {
+        } else if (isHelp && !(helpJspFileName.endsWith("jsp") || helpJspFileName.endsWith("JSP"))) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SpringDetailsPanelGUI.class, "INVALID_JSP_FILE_NAME"));
+            return false;
+        } else if (isHelp && canUseHelpJSPFileName != null) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", canUseHelpJSPFileName);
+            return false;
         }
+        
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
         return true;
     }
@@ -408,4 +446,32 @@ private void jspFolderBrowseActionPerformed(java.awt.event.ActionEvent evt) {//G
     public void stateChanged(ChangeEvent e) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    private static boolean checkFileName(String str) {
+        char c[] = str.toCharArray();
+        for (int i=0;i<c.length;i++) {
+            if (c[i]=='\\') return false;
+            if (c[i]=='/') return false;
+            if (c[i]==':') return false;
+            if (c[i]=='*') return false;
+            if (c[i]=='?') return false;
+            if (c[i]=='"') return false;
+            if (c[i]=='<') return false;
+            if (c[i]=='>') return false;
+            if (c[i]=='|') return false;
+            
+        }
+        return true;
+    }
+    
+    private static String getFileName(String file) {
+        int dotIndex = file.lastIndexOf(".");
+        if (dotIndex != -1) {
+            return file.substring(0, file.lastIndexOf("."));
+        }
+        else {
+            return "";
+        } 
+    }
+
 }
