@@ -3,6 +3,7 @@
 <filesystem>
    <folder name="Editors">
 
+      <!-- Reference binding color themes are under module: main/defaults/src/org/netbeans/modules/defaults -->
       <!-- color theme for nbeditor-settings-ColoringType -->
       <folder name="FontsColors">
          <folder name="Twilight">
