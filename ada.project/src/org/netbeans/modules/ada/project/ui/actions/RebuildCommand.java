@@ -73,7 +73,7 @@ public class RebuildCommand extends Command {
         if (platform == null) {
             return false;
         }
-        return true;
+        return false;
     }
     
 }

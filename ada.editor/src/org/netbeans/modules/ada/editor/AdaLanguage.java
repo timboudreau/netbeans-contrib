@@ -41,6 +41,8 @@ package org.netbeans.modules.ada.editor;
 
 import org.netbeans.modules.ada.editor.navigator.AdaInstantRenamer;
 import org.netbeans.api.lexer.Language;
+import org.netbeans.modules.ada.editor.formatter.AdaFormatter;
+import org.netbeans.modules.ada.editor.formatter.AdaKeystrokeHandler;
 import org.netbeans.modules.gsf.api.Parser;
 import org.netbeans.modules.gsf.api.CodeCompletionHandler;
 import org.netbeans.modules.gsf.api.Indexer;
@@ -87,19 +89,17 @@ public class AdaLanguage extends DefaultLanguageConfig {
 
     @Override
     public boolean hasFormatter() {
-        return false;
+        return true;
     }
 
     @Override
     public Formatter getFormatter() {
-        return null;
-        //return new AdaFormatter();
+        return new AdaFormatter();
     }
 
     @Override
     public KeystrokeHandler getKeystrokeHandler() {
-        return null;
-        //return new AdaBracketCompleter();
+        return new AdaKeystrokeHandler();
     }
 
     @Override

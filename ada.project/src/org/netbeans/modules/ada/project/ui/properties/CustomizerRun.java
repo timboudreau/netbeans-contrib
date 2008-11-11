@@ -43,7 +43,6 @@ package org.netbeans.modules.ada.project.ui.properties;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
-import org.netbeans.modules.ada.project.ui.Utils;
 import org.openide.util.HelpCtx;
 
 
@@ -61,21 +60,21 @@ public class CustomizerRun extends javax.swing.JPanel implements HelpCtx.Provide
         assert uiProperties != null;
         this.uiProperties = uiProperties;
         initComponents();
-        String _tmp = uiProperties.getMainModule();
+        String _tmp = uiProperties.getProject().getName();
         if (_tmp != null) {
-            this.mainModule.setText(_tmp);
+            this.executableFile.setText(_tmp);
         }
         _tmp = uiProperties.getApplicationArgs();
         if (_tmp != null) {
             this.appArgs.setText(_tmp);
         }
         this.listener = new DocListener ();
-        this.mainModule.getDocument().addDocumentListener(listener);
+        this.executableFile.getDocument().addDocumentListener(listener);
         this.appArgs.getDocument().addDocumentListener(listener);
     }
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx (CustomizerRun.class);
+        return new HelpCtx(this.getClass());
     }
 
     /** This method is called from within the constructor to
@@ -88,20 +87,14 @@ public class CustomizerRun extends javax.swing.JPanel implements HelpCtx.Provide
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        mainModule = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        executableFile = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         appArgs = new javax.swing.JTextField();
 
-        jLabel1.setLabelFor(mainModule);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(CustomizerRun.class, "CustomizerRun.mainModule.text")); // NOI18N
+        jLabel1.setLabelFor(executableFile);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(CustomizerRun.class, "CustomizerRun.executableName.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(CustomizerRun.class, "CustomizerRun.browseMain.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        executableFile.setEditable(false);
 
         jLabel2.setLabelFor(appArgs);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(CustomizerRun.class, "CustomizerRun.appArgs.text")); // NOI18N
@@ -116,45 +109,33 @@ public class CustomizerRun extends javax.swing.JPanel implements HelpCtx.Provide
                     .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(mainModule, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+                    .add(executableFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
                     .add(appArgs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jButton1)
-                .addContainerGap())
+                .add(99, 99, 99))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(jButton1)
-                    .add(mainModule, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(executableFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(appArgs, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(234, Short.MAX_VALUE))
+                .addContainerGap(237, Short.MAX_VALUE))
         );
 
-        mainModule.getAccessibleContext().setAccessibleDescription("null");
-        jButton1.getAccessibleContext().setAccessibleDescription("null");
+        executableFile.getAccessibleContext().setAccessibleDescription("null");
         appArgs.getAccessibleContext().setAccessibleDescription("null");
     }// </editor-fold>//GEN-END:initComponents
-
-private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    String main = Utils.chooseMainModule(uiProperties.getProject().getSourceRoots().getRoots());
-    if (main != null) {
-        mainModule.setText(main);
-    }    
-}//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField appArgs;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JTextField executableFile;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField mainModule;
     // End of variables declaration//GEN-END:variables
 
     
@@ -174,8 +155,8 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         
         private void handleDocEvent (final DocumentEvent e) {
             final Document doc = e.getDocument();
-            if (doc == mainModule.getDocument()) {
-                uiProperties.setMainModule(mainModule.getText());
+            if (doc == executableFile.getDocument()) {
+                uiProperties.setMainModule(executableFile.getText());
             }
             else if (doc == appArgs.getDocument()) {
                 uiProperties.setApplicationArgs(appArgs.getText());

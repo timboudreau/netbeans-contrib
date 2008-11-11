@@ -53,12 +53,25 @@ import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
+import org.netbeans.modules.gsf.api.TranslatedSource;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.api.Utils
  * 
  */
 public class ASTUtils {
+
+    public static int getAstOffset(CompilationInfo info, int lexOffset) {
+        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.MIME_TYPE, 0);
+        if (result != null) {
+            TranslatedSource ts = result.getTranslatedSource();
+            if (ts != null) {
+                return ts.getAstOffset(lexOffset);
+            }
+        }
+
+        return lexOffset;
+    }
 
     /**
      * 

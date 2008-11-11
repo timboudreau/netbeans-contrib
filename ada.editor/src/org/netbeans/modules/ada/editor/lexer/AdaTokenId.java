@@ -124,7 +124,7 @@ public enum AdaTokenId implements TokenId {
     UNTIL("until", "keyword"), //NOI18N
     USE("use", "keyword"), //NOI18N
     WHEN("when", "keyword"), //NOI18N
-    WHILE("", "keyword"), //NOI18N
+    WHILE("while", "keyword"), //NOI18N
     WITH("with", "keyword"), //NOI18N
     XOR("xor", "keyword"), //NOI18N
 

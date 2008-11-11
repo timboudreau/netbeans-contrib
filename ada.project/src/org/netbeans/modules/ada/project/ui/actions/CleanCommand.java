@@ -91,10 +91,16 @@ public class CleanCommand extends Command {
     }
 
     private void deleteBuildRoot(final AdaProject project) throws IOException {
-        FileUtil.toFileObject(new File (project.getProjectDirectory().getPath() + "/build")).delete();
+        File f = new File(project.getProjectDirectory().getPath() + "/build");
+        if (f.exists()) {
+            FileUtil.toFileObject(f).delete();
+        }
     }
 
     private void deleteDistRoot(final AdaProject project) throws IOException {
-        FileUtil.toFileObject(new File (project.getProjectDirectory().getPath() + "/dist")).delete();
+        File f = new File(project.getProjectDirectory().getPath() + "/dist");
+        if (f.exists()) {
+            FileUtil.toFileObject(f).delete();
+        }
     }
 }

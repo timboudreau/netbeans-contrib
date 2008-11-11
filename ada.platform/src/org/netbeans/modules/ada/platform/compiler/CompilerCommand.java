@@ -48,7 +48,6 @@ public abstract class CompilerCommand {
 
     private final AdaPlatform platform;
     private final String projectPath;
-    private final String objectFolder;
     private final String sourceFolder;
     private final String mainFile;
     private final String executableFile;
@@ -60,11 +59,10 @@ public abstract class CompilerCommand {
 
     public abstract void Clean();
 
-    public CompilerCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainFile, String executableFile, String displayName) {
+    public CompilerCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainFile, String executableFile, String displayName) {
         assert platform != null;
         this.platform = platform;
         this.projectPath = projectPath;
-        this.objectFolder = objectFolder;
         this.sourceFolder = sourceFolder;
         this.mainFile = mainFile;
         this.executableFile = executableFile;
@@ -81,10 +79,6 @@ public abstract class CompilerCommand {
 
     public String getMainFile() {
         return mainFile;
-    }
-
-    public String getObjectFolder() {
-        return objectFolder;
     }
 
     public String getProjectPath() {

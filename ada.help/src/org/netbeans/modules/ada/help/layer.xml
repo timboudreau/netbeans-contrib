@@ -42,7 +42,7 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-netbeans-modules-ada-help-helpset.xml" url="help-helpset.xml">
-                <attr name="position" intvalue="3477"/>
+                <attr name="position" intvalue="3478"/>
             </file>
         </folder>
     </folder>

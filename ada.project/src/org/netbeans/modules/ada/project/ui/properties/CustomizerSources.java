@@ -223,7 +223,7 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
     }
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(CustomizerSources.class);
+        return new HelpCtx(this.getClass());
     }
     
     private static class EncodingRenderer extends JLabel implements ListCellRenderer, UIResource {

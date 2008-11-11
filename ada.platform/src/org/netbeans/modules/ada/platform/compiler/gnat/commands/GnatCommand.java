@@ -67,16 +67,14 @@ public abstract class GnatCommand {
 
     private final AdaPlatform platform;
     private final String projectPath;
-    private final String objectFolder;
     private final String sourceFolder;
     private final String mainFile;
     private final String executableFile;
     private final String displayName;
 
-    public GnatCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainFile, String executableFile, String displayName) {
+    public GnatCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainFile, String executableFile, String displayName) {
         this.platform = platform;
         this.projectPath = projectPath;
-        this.objectFolder = objectFolder;
         this.sourceFolder = sourceFolder;
         this.mainFile = mainFile;
         this.executableFile = executableFile;
@@ -101,10 +99,6 @@ public abstract class GnatCommand {
 
     public String getMainFile() {
         return mainFile;
-    }
-
-    public String getObjectFolder() {
-        return objectFolder;
     }
 
     public String getSourceFolder() {
