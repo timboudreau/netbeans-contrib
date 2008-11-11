@@ -30,6 +30,7 @@ import org.openide.WizardDescriptor;
 import javax.swing.JPanel;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
+import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
 public final class PortletDetailsPanelGUI extends JPanel implements DocumentListener{
@@ -37,6 +38,7 @@ public final class PortletDetailsPanelGUI extends JPanel implements DocumentList
     private PortletDetailsPanel panel;
     private boolean isRubyPortletExists = false;
     private String packageName;
+    private Project project;
     /** Creates new form NetbeansNewPortletClassVisualPanel1 */
     public PortletDetailsPanelGUI(PortletDetailsPanel panel) {
         this.panel = panel;
@@ -70,6 +72,7 @@ public final class PortletDetailsPanelGUI extends JPanel implements DocumentList
         }*/
 
         //packageTextField.setEditable(!JsfProjectUtils.isJsfProject(project));
+        this.project = project;
     }
     
     @Override
@@ -240,6 +243,19 @@ public final class PortletDetailsPanelGUI extends JPanel implements DocumentList
         if(isRubyPortletExists && !isCreatePortlet.isSelected()) return true;
        
         String portalName = pnameTf.getText();
+        if (project!=null) {
+            FileObject webInf = PortletProjectUtils.getWebModule(project).getWebInf();
+            if(webInf != null) {
+
+                FileObject portletXml = webInf.getFileObject("portlet", "xml");
+                if(portletXml == null) {
+                    wizardDescriptor.putProperty("WizardPanel_errorMessage", 
+                                NbBundle.getMessage(PortletDetailsPanelGUI.class, "NOT_ALLOWED_ADD_PORTLET_FRAMEWORK")); // NOI18N
+                    return false;
+                }
+
+            } 
+        }else
         if(!CoreUtil.validateString(portalName,false))
         {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
@@ -270,7 +286,6 @@ public final class PortletDetailsPanelGUI extends JPanel implements DocumentList
                     org.openide.util.NbBundle.getMessage(PortletDetailsPanelGUI.class, "MSG_INVALID_PORTLET_DESC"));
             return false; 
         }
-        
         
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
         
