@@ -485,6 +485,9 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSelect(Select tree) {
+        if (tree.isErroneous()) {
+            //System.out.println("error Select tree: " + tree + "\n" + tree.qualifier().tpe());
+        }
         /**
          * For error tree, for example a.p, the error part's offset will be set to 'p',
          * The tree.qualifier() part's offset will be 'a'
