@@ -43,16 +43,14 @@
 package org.netbeans.modules.dtrace.window;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
-import org.netbeans.modules.dtrace.chime.StatLauncher;
 import org.netbeans.modules.dtrace.dialogs.CreateDialog;
 import org.netbeans.modules.dtrace.script.BuildScripts;
 import org.netbeans.modules.dtrace.data.DScriptDataNode;
@@ -67,6 +65,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.Mode;
@@ -74,6 +73,8 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.opensolaris.dtracex.AbstractDisplay;
 import org.opensolaris.dtracex.ConsumerRecorder;
+import org.opensolaris.chime.*;
+import org.opensolaris.chime.resources.*;
 
 
 /**
@@ -87,6 +88,8 @@ final class DTraceTopComponent extends TopComponent {
     private static final String PREFERRED_ID = "DTraceTopComponent";
     private ScriptExecutor scriptExecutor;
     private final PropertySheet propertySheet = new PropertySheet();
+    static Configuration configuration;
+    static StatLauncher launcher;
     
     private DTraceTopComponent() {
         initComponents();
@@ -117,9 +120,42 @@ final class DTraceTopComponent extends TopComponent {
 //        } catch (Exception ex) {
 //            ex.printStackTrace();
 //        }
-        StatLauncher.launch();
-        if (StatLauncher.getContentPane() != null) {
-            jPanel3.add(StatLauncher.getContentPane(), BorderLayout.CENTER);
+        
+          configuration = Configuration.getInstance();
+	      configuration.setRunButtonIcon(ChimeImages.RUN);
+	      configuration.setLookAndFeelSettable(false);
+	      configuration.setIncludeCloseMenuItem(false);
+	      configuration.setTraceDoubleClickAction(ChimeAction.DISPLAY);
+	      configuration.setChimePathDisplayable(false);
+	      configuration.setProgramDisplayEnabled(false);
+	      launcher = new StatLauncher(configuration);
+          launcher.addChimeListener(new ChimeListener() {
+	          public void programDisplayed(ProgramDisplayEvent e) {
+                  //System.out.println(e.getProgramText());
+                  String tmpPath = File.separator + "tmp" + File.separator + "chime.d";
+                  try {
+                      PrintWriter out = new PrintWriter(new FileWriter(tmpPath));
+                      out.write(e.getProgramText());
+                      out.close();
+                  } catch (IOException ex) {
+                      Exceptions.printStackTrace(ex);
+                  }
+                  File chimeFile = new File(tmpPath);
+                  FileObject fileObject = FileUtil.toFileObject(chimeFile);
+                  try {
+                      DataObject dataObject = DataObject.find(fileObject);
+                      OpenCookie oc = (OpenCookie) dataObject.getNodeDelegate().getCookie(OpenCookie.class);
+                      if (oc != null) {
+                          oc.open();
+                      }
+                  } catch (Exception ex) {
+                      ex.printStackTrace();
+                  }
+              }
+        });
+        if (launcher.getContentPane() != null) {
+            jPanel3.add(launcher.getContentPane(), BorderLayout.CENTER);
+            jPanel3.add(launcher.getMenuBar(), BorderLayout.NORTH);
         } 
     }
 
