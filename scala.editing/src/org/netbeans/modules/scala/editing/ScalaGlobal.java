@@ -77,6 +77,7 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class ScalaGlobal {
 
+    private static boolean debug;
     private final static Map<Project, Reference<Global>> ProjectToGlobal =
             new WeakHashMap<Project, Reference<Global>>();
     private final static Map<Project, Reference<Global>> ProjectToGlobalForTest =
@@ -159,7 +160,13 @@ public class ScalaGlobal {
             }
 
             final Settings settings = new Settings();
-            settings.verbose().value_$eq(false);
+            if (debug) {
+                settings.debug().value_$eq(true);
+                settings.verbose().value_$eq(true);
+            } else {
+                settings.verbose().value_$eq(false);
+            }
+
             settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-sourcepath", srcPath));
             settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-d", outPath));
 
@@ -388,6 +395,16 @@ public class ScalaGlobal {
             while (units.hasNext()) {
                 CompilationUnit unit = (CompilationUnit) units.next();
                 if (unit.source() == srcFile) {
+                    final CompilationUnit unit1 = unit;
+                    if (debug) {
+                        Runnable browser = new Runnable() {
+
+                            public void run() {
+                                global.treeBrowser().browse(unit1.body());
+                            }
+                        };
+                        new Thread(browser).start();
+                    }
                     return unit;
                 }
             }

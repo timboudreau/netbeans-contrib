@@ -38,9 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;

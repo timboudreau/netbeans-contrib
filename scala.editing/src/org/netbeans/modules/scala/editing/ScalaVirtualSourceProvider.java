@@ -153,13 +153,18 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                     }
                     String name = fo.getName();
                     sb.append("public class ").append(name).append(" implements scala.ScalaObject {public int $tag() throws java.rmi.RemoteException {return 0;}}"); // NOI18N
-                    result.add(file, pkg, file.getName(), sb.toString());
+                //@Todo diable result add till we get everything ok
+                //result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
                 FileObject fo = FileUtil.toFileObject(file);
                 ScalaIndex index = ScalaIndex.get(fo);
                 JavaStubGenerator generator = new JavaStubGenerator(index);
                 for (AstDef tmpl : tmpls) {
+                    if (tmpl.getSymbol().isErroneous()) {
+                        // avoid strange file name, for example: <error: class ActorProxy>.java
+                        continue;
+                    }
                     try {
                         CharSequence javaStub = generator.generateClass(tmpl);
                         Symbol packaging = tmpl.getSymbol().enclosingPackage();
@@ -167,7 +172,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                         if (pkgName.equals("<empty>")) {
                             pkgName = "";
                         }
-                        result.add(file, pkgName, tmpl.getSymbol().nameString(), javaStub);
+                        //@Todo diable result add till we get everything ok
+                        //result.add(file, pkgName, tmpl.getSymbol().nameString(), javaStub);
                         break;
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -325,79 +331,79 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
 
                 out.println(" {");
 
-/*
+                /*
                 scala.List members = null;
                 try {
-                    // scalac will throw exceptions here, we have to catch it
-                    members = symbol.tpe().members();
+                // scalac will throw exceptions here, we have to catch it
+                members = symbol.tpe().members();
                 } catch (Throwable e) {
-                    ScalaGlobal.reset();
+                ScalaGlobal.reset();
                 }
                 if (members != null) {
-                    int size = members.size();
-                    for (int i = 0; i < size; i++) {
-                        Symbol member = (Symbol) members.apply(i);
+                int size = members.size();
+                for (int i = 0; i < size; i++) {
+                Symbol member = (Symbol) members.apply(i);
 
-                        if (member.isPublic() || member.isProtectedLocal()) {
-                            if (ScalaElement.isInherited(symbol, member)) {
-                                continue;
-                            }
-
-                            if (member.isMethod()) {
-                                if (member.nameString().equals("$init$") || member.nameString().equals("synchronized")) {
-                                    continue;
-                                }
-
-                                printModifiers(out, member);
-                                out.print(" ");
-                                if (member.isConstructor()) {
-                                    out.print(toJavaName(symbol.nameString()));
-                                    // parameters
-                                    printParams(out, member.tpe().paramTypes());
-                                    out.print(" ");
-                                    out.println("{}");
-                                } else {
-                                    Type resType = null;
-                                    try {
-                                        resType = member.tpe().resultType();
-                                    } catch (Throwable ex) {
-                                        ScalaGlobal.reset();
-                                    }
-                                    if (resType != null) {
-                                        String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
-                                        out.print(resQName);
-                                        out.print(" ");
-                                        // method name
-                                        out.print(toJavaName(member.nameString()));
-                                        // method parameters
-                                        printParams(out, member.tpe().paramTypes());
-                                        out.print(" ");
-
-                                        // method body
-                                        out.print("{");
-                                        printReturn(out, resQName);
-                                        out.println("}");
-                                    }
-                                }
-                            } else if (member.isVariable()) {
-                                // do nothing
-                            } else if (member.isValue()) {
-                                printModifiers(out, member);
-                                out.print(" ");
-                                Type resType = member.tpe().resultType();
-                                String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
-                                out.print(resQName);
-                                out.print(" ");
-                                out.print(member.nameString());
-                                out.println(";");
-                            }
-                        }
-
-                        // implements scala.ScalaObject
-                        out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
-                    }
+                if (member.isPublic() || member.isProtectedLocal()) {
+                if (ScalaElement.isInherited(symbol, member)) {
+                continue;
                 }
-*/
+
+                if (member.isMethod()) {
+                if (member.nameString().equals("$init$") || member.nameString().equals("synchronized")) {
+                continue;
+                }
+
+                printModifiers(out, member);
+                out.print(" ");
+                if (member.isConstructor()) {
+                out.print(toJavaName(symbol.nameString()));
+                // parameters
+                printParams(out, member.tpe().paramTypes());
+                out.print(" ");
+                out.println("{}");
+                } else {
+                Type resType = null;
+                try {
+                resType = member.tpe().resultType();
+                } catch (Throwable ex) {
+                ScalaGlobal.reset();
+                }
+                if (resType != null) {
+                String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                out.print(resQName);
+                out.print(" ");
+                // method name
+                out.print(toJavaName(member.nameString()));
+                // method parameters
+                printParams(out, member.tpe().paramTypes());
+                out.print(" ");
+
+                // method body
+                out.print("{");
+                printReturn(out, resQName);
+                out.println("}");
+                }
+                }
+                } else if (member.isVariable()) {
+                // do nothing
+                } else if (member.isValue()) {
+                printModifiers(out, member);
+                out.print(" ");
+                Type resType = member.tpe().resultType();
+                String resQName = toJavaType(ScalaElement.typeQualifiedName(resType, false));
+                out.print(resQName);
+                out.print(" ");
+                out.print(member.nameString());
+                out.println(";");
+                }
+                }
+
+                // implements scala.ScalaObject
+                out.println("public int $tag() throws java.rmi.RemoteException {return 0;}");
+                }
+                }
+                 */
                 out.println("}");
             } finally {
                 try {
