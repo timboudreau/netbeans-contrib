@@ -49,6 +49,9 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
         initData();
 
         portalUri.getDocument().addDocumentListener(this);
+        portletUriTf.getDocument().addDocumentListener(this);
+        autoDeployTf.getDocument().addDocumentListener(this);
+        portalDepDirTf.getDocument().addDocumentListener(this);
     //adminConsoleUriTf.getDocument().addDocumentListener(this);
 
     }
@@ -84,6 +87,7 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_HOST")); // NOI18N
 
+        hostTf.setEnabled(false);
         hostTf.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 hostTfFocusLost(evt);
@@ -114,7 +118,7 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
             .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(169, 169, 169)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
                 .add(169, 169, 169))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
@@ -356,6 +360,12 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         String autoDeployDir = autoDeployTf.getText();
         if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
             setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
+            return false;
+        }
+        
+        String portalDeployDir = portalDepDirTf.getText();
+        if (portalDeployDir == null || portalDeployDir.trim().length() == 0) {
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_INVALID_PORTALDEPLOY_DIR"));
             return false;
         }
 

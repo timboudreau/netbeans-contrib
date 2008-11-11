@@ -50,6 +50,9 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
         initData();
 
         portalUri.getDocument().addDocumentListener(this);
+        portletUriTf.getDocument().addDocumentListener(this);
+        autoDeployTf.getDocument().addDocumentListener(this);
+        portalDepDirTf.getDocument().addDocumentListener(this);
     //adminConsoleUriTf.getDocument().addDocumentListener(this);
 
     }
@@ -85,6 +88,7 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_HOST")); // NOI18N
 
+        hostTf.setEditable(false);
         hostTf.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 hostTfFocusLost(evt);
@@ -238,7 +242,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         portalDepDirTf.setText(object.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
 
         hostTf.setEnabled(false);
-        browseButton.setEnabled(false);
+        //browseButton.setEnabled(false);
 
     }
 
@@ -355,6 +359,12 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         String autoDeployDir = autoDeployTf.getText();
         if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
             setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
+            return false;
+        }
+        
+        String portalDeployDir = portalDepDirTf.getText();
+        if (portalDeployDir == null || portalDeployDir.trim().length() == 0) {
+            setErrorMessage(NbBundle.getMessage(WSConfigPanel.class, "MSG_INVALID_PORTALDEPLOY_DIR"));
             return false;
         }
 
