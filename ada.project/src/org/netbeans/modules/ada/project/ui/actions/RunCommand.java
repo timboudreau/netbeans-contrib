@@ -68,12 +68,12 @@ public class RunCommand extends Command {
 
     @Override
     public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
+        final AdaProject project = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
         if (platform == null) {
             return false;
         }
-        return false;
+        return true;
     }
    
 }

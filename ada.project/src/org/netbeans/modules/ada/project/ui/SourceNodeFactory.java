@@ -53,6 +53,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.ada.project.AdaSources;
+import org.netbeans.modules.ada.project.SourceRoots;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
@@ -83,6 +84,7 @@ public final class SourceNodeFactory implements NodeFactory {
         private final ChangeSupport changeSupport = new ChangeSupport(this);
 
         public SourcesNodeList(AdaProject proj) {
+            assert proj != null;
             project = proj;
         }
 
@@ -177,7 +179,8 @@ public final class SourceNodeFactory implements NodeFactory {
         }
     }
 
-    /** Yet another cool filter node just to add properties action
+    /**
+     * Yet another cool filter node just to add properties action
      */
     private static class PackageViewFilterNode extends FilterNode {
 
@@ -188,7 +191,7 @@ public final class SourceNodeFactory implements NodeFactory {
         public PackageViewFilterNode(SourceGroup sourceGroup, Project project) {
             super(getOriginalNode(sourceGroup));
             this.project = project;
-            this.nodeName = "Sources";  //NOI18N
+            this.nodeName = NbBundle.getMessage(SourceRoots.class, "src.dir");
         }
 
         private static Node getOriginalNode(final SourceGroup group) {

@@ -59,11 +59,11 @@ public class GnatCompilerCommand extends CompilerCommand {
      * 
      * @param project
      */
-    public GnatCompilerCommand(AdaPlatform platform, String projectPath, String objectFolder, String sourceFolder, String mainProgram, String executableName, String displayName) {
-        super (platform, projectPath, objectFolder, sourceFolder, mainProgram, executableName, displayName);
+    public GnatCompilerCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainProgram, String executableName, String displayName) {
+        super (platform, projectPath, sourceFolder, mainProgram, executableName, displayName);
         gnatCommands = new LinkedHashMap<String, GnatCommand>();
         GnatCommand[] gnatCommandArray = new GnatCommand[] {
-            new GnatMake(platform, projectPath, objectFolder, sourceFolder, mainProgram, executableName, displayName)
+            new GnatMake(platform, projectPath, sourceFolder, mainProgram, executableName, displayName)
         };
         for (GnatCommand gnatCommand : gnatCommandArray) {
             gnatCommands.put(gnatCommand.getCommandId(), gnatCommand);

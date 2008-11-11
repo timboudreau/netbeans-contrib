@@ -55,6 +55,7 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
 
     public static final String SOURCE_PACKAGES = "SourcePackages"; // NOI18N
     public static final String LIBRARIES_PATH = "LibrariesPath"; //NOI18N
+    public static final String BUILD = "Build"; // NOI18N
     public static final String RUN = "Run"; // NOI18N
     private final String name;
 
@@ -70,6 +71,12 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
             toReturn = ProjectCustomizer.Category.create(
                     SOURCE_PACKAGES,
                     NbBundle.getMessage(CompositePanelProviderImpl.class, "LBL_Config_Sources"),
+                    null,
+                    categories);
+        } else if (BUILD.equals(name)) {
+            toReturn = ProjectCustomizer.Category.create(
+                    BUILD,
+                    NbBundle.getMessage(CompositePanelProviderImpl.class, "LBL_Config_BuildConfig"),
                     null,
                     categories);
         } else if (RUN.equals(name)) {
@@ -96,6 +103,8 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
 
         if (SOURCE_PACKAGES.equals(nm)) {
             return new CustomizerSources(uiProps);
+        } else if (BUILD.equals(nm)) {
+            return new CustomizerBuild(uiProps);
         } else if (RUN.equals(nm)) {
             return new CustomizerRun(uiProps);
         } else if (LIBRARIES_PATH.equals(nm)) {
@@ -113,7 +122,11 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
         return new CompositePanelProviderImpl(RUN);
     }
 
-    public static CompositePanelProviderImpl createAdaPath() {
+    public static CompositePanelProviderImpl createBuildConfig() {
+        return new CompositePanelProviderImpl(BUILD);
+    }
+
+    public static CompositePanelProviderImpl createLibrariesPath() {
         return new CompositePanelProviderImpl(LIBRARIES_PATH);
     }
 }

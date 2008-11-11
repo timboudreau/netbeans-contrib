@@ -52,13 +52,17 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.ada.project.ui.properties.CompositePanelProviderImpl.createSources"/>
                     <attr name="position" intvalue="100"/>
                 </file>
-                <file name="AdaPath.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.ada.project.ui.properties.CompositePanelProviderImpl.createAdaPath"/>
+                <file name="LibrariesPath.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.ada.project.ui.properties.CompositePanelProviderImpl.createLibrariesPath"/>
                     <attr name="position" intvalue="200"/>
+                </file>
+                <file name="Build.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.ada.project.ui.properties.CompositePanelProviderImpl.createBuildConfig"/>
+                    <attr name="position" intvalue="300"/>
                 </file>
                 <file name="Run.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.ada.project.ui.properties.CompositePanelProviderImpl.createRunConfig"/>
-                    <attr name="position" intvalue="300"/>
+                    <attr name="position" intvalue="400"/>
                 </file>
             </folder>
             <folder name="Lookup"/>

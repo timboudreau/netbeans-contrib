@@ -36,8 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
-
 package org.netbeans.modules.ada.project.ui.properties;
 
 import java.awt.Dialog;
@@ -62,19 +60,15 @@ import org.openide.util.lookup.Lookups;
  * @author Andrea Lucarelli
  */
 public class AdaCustomizerProvider implements CustomizerProvider {
-    
-    public static final String CUSTOMIZER_FOLDER_PATH = "Projects/org-netbeans-modules-ada-project//Customizer"; //NO18N
-    
-    private static final Map<Project, Dialog> PROJECT_2_DIALOG = new HashMap<Project, Dialog>();    
-    
+
+    public static final String CUSTOMIZER_FOLDER_PATH = "Projects/org-netbeans-modules-ada-project/Customizer"; //NO18N
+    private static final Map<Project, Dialog> PROJECT_2_DIALOG = new HashMap<Project, Dialog>();
     private final AdaProject project;
-    
-    public AdaCustomizerProvider (final AdaProject project) {
+
+    public AdaCustomizerProvider(final AdaProject project) {
         assert project != null;
         this.project = project;
     }
-    
-    
 
     public void showCustomizer() {
         showCustomizer(null);
@@ -85,7 +79,7 @@ public class AdaCustomizerProvider implements CustomizerProvider {
         if (dialog != null) {
             dialog.setVisible(true);
             return;
-        }        
+        }
         final AdaProjectProperties uiProperties = new AdaProjectProperties(project);
         final Lookup context = Lookups.fixed(project, uiProperties);
 
@@ -101,9 +95,9 @@ public class AdaCustomizerProvider implements CustomizerProvider {
         PROJECT_2_DIALOG.put(project, dialog);
         dialog.setVisible(true);
     }
-    
+
     private class StoreListener implements ActionListener {
-        
+
         private final AdaProjectProperties uiProperties;
 
         StoreListener(AdaProjectProperties uiProperties) {
@@ -116,6 +110,7 @@ public class AdaCustomizerProvider implements CustomizerProvider {
     }
 
     private static class OptionListener extends WindowAdapter implements ActionListener {
+
         private final Project project;
 
         OptionListener(Project project) {
@@ -123,7 +118,7 @@ public class AdaCustomizerProvider implements CustomizerProvider {
         }
 
         // Listening to OK button ----------------------------------------------
-        public void actionPerformed( ActionEvent e ) {
+        public void actionPerformed(ActionEvent e) {
             // Close & dispose the the dialog
             Dialog dialog = PROJECT_2_DIALOG.get(project);
             if (dialog != null) {
@@ -149,5 +144,4 @@ public class AdaCustomizerProvider implements CustomizerProvider {
             }
         }
     }
-
 }

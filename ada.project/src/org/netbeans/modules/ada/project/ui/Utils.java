@@ -112,6 +112,16 @@ public final class Utils {
         return groups;
     }
 
+    public static FileObject[] getSourceObjects(Project phpProject) {
+        SourceGroup[] groups = getSourceGroups(phpProject);
+
+        FileObject[] fileObjects = new FileObject[groups.length];
+        for (int i = 0; i < groups.length; i++) {
+            fileObjects[i] = groups[i].getRootFolder();
+        }
+        return fileObjects;
+    }
+
     public static String browseLocationAction(final Component parent, String path, String title) {
         JFileChooser chooser = new JFileChooser();
         FileUtil.preventFileChooserSymlinkTraversal(chooser, null);

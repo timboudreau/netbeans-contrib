@@ -78,26 +78,23 @@ public class BuildCommand extends Command {
         // Retrieve main file
         final FileObject mainFile = findMainFile(project);
         assert mainFile != null;
+
+        // Create Build/Dist folders
         try {
-            // Create Build Folder
             createBuildRoot(project);
-            
-            // Create Dist Folder
             createDistRoot(project);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
 
-
         // Init compiler factory
         GnatCompilerCommand comp = new GnatCompilerCommand(
                 platform,
-                project.getProjectDirectory().getPath(),
-                project.getProjectDirectory().getPath(),
-                project.getSrcFolder().getPath(),
-                FileUtil.toFile(mainFile).getPath(),
-                project.getName(),
-                project.getName() + "(build)"); // NOI18N
+                project.getProjectDirectory().getPath(),  // project location
+                project.getSourcesDirectory().getPath(),  // sources location
+                FileUtil.toFile(mainFile).getPath(),      // main file
+                project.getName(),                        // executable file
+                project.getName() + " (build)"); // NOI18N - display name
 
         // Start build
         comp.Build();

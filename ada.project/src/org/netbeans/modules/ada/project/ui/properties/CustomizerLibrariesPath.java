@@ -38,20 +38,10 @@
  */
 package org.netbeans.modules.ada.project.ui.properties;
 
-import java.io.IOException;
 import javax.swing.JFileChooser;
 
-import org.netbeans.api.ada.platform.AdaPlatform;
-import org.netbeans.api.ada.platform.AdaPlatformManager;
 import org.netbeans.modules.ada.platform.ui.PathListModel;
-import org.netbeans.modules.ada.project.ui.Utils;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.InstanceDataObject;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import org.openide.util.actions.CallableSystemAction;
 
 /**
  *
@@ -66,21 +56,10 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
         this.uiProperties = properties;
         initComponents();
         adaPathModel.setModel(uiProperties.getLibrariesPath());
-        this.platforms.setRenderer(Utils.createPlatformRenderer());
-        this.platforms.setModel(Utils.createPlatformModel());
-        final AdaPlatformManager manager = AdaPlatformManager.getInstance();
-        String pid = uiProperties.getActivePlatformId();
-        if (pid == null) {
-            pid = manager.getDefaultPlatform();
-        }
-        final AdaPlatform activePlatform = manager.getPlatform(pid);
-        if (activePlatform != null) {
-            platforms.setSelectedItem(activePlatform);
-        }
     }
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(CustomizerLibrariesPath.class);
+        return new HelpCtx(this.getClass());
     }
 
     /** This method is called from within the constructor to
@@ -98,9 +77,6 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
         removeAdaPath = new javax.swing.JButton();
         moveUpAdaPath = new javax.swing.JButton();
         moveDownAdaPath = new javax.swing.JButton();
-        manage = new javax.swing.JButton();
-        platforms = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
 
         adaPath.setModel(adaPathModel);
@@ -135,22 +111,6 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
             }
         });
 
-        manage.setText(org.openide.util.NbBundle.getMessage(CustomizerLibrariesPath.class, "CustomizerLibrariesPath.manage.text")); // NOI18N
-        manage.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                manageActionPerformed(evt);
-            }
-        });
-
-        platforms.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        platforms.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                platformsActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(CustomizerLibrariesPath.class, "CustomizerLibrariesPath.jLabel1.text")); // NOI18N
-
         jLabel2.setText(org.openide.util.NbBundle.getMessage(CustomizerLibrariesPath.class, "CustomizerLibrariesPath.jLabel2.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -158,17 +118,9 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(platforms, 0, 337, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(manage)
-                        .add(30, 30, 30))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 397, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 407, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(moveDownAdaPath, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE)
@@ -181,15 +133,8 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(platforms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel1))
-                    .add(manage))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(8, 8, 8)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(addAdaPath)
@@ -199,7 +144,7 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
                         .add(moveUpAdaPath)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(moveDownAdaPath))
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -228,38 +173,13 @@ public class CustomizerLibrariesPath extends javax.swing.JPanel implements HelpC
         adaPathModel.moveDown(adaPath.getSelectedIndex());
 }//GEN-LAST:event_moveDownAdaPathActionPerformed
 
-    private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageActionPerformed
-        //Workaround, Needs an API to display platform customizer
-        final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-AdaPlatformAction.instance");  //NOI18N
-        if (fo != null) {
-            try {
-                InstanceDataObject ido = (InstanceDataObject) DataObject.find(fo);
-                CallableSystemAction action = (CallableSystemAction) ido.instanceCreate();
-                action.performAction();
-                platforms.setModel(Utils.createPlatformModel());
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-}//GEN-LAST:event_manageActionPerformed
-
-    private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_platformsActionPerformed
-        uiProperties.setActivePlatformId(
-                ((AdaPlatform) platforms.getSelectedItem()).getName());
-    }//GEN-LAST:event_platformsActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList adaPath;
     private javax.swing.JButton addAdaPath;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JButton manage;
     private javax.swing.JButton moveDownAdaPath;
     private javax.swing.JButton moveUpAdaPath;
-    private javax.swing.JComboBox platforms;
     private javax.swing.JButton removeAdaPath;
     // End of variables declaration//GEN-END:variables
     private PathListModel adaPathModel = new PathListModel();
