@@ -38,9 +38,7 @@
  */
 package org.netbeans.modules.ada.editor.formatter;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.text.BadLocationException;
@@ -58,18 +56,16 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
-import org.netbeans.modules.ada.editor.ast.ASTUtils;
-import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.editor.indent.api.IndentUtils;
 import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.ada.editor.lexer.LexUtilities;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
-import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 
 
-/** 
- * Provide bracket completion for Ruby.
+/**
+ * Based on org.netbeans.modules.ruby.RubyKeystrokeHandler (Tor Norbye)
+ *
+ * Provide bracket completion for Ada.
  * This class provides three broad services:
  *  - Identifying matching pairs (parentheses, begin/end pairs etc.), which
  *    is used both for highlighting in the IDE (when the caret is on for example
@@ -109,7 +105,7 @@ import org.openide.util.Exceptions;
  *    http://ruby.netbeans.org/issues/show_bug.cgi?id=11553
  * @todo Make ast-selection pick up =begin/=end documentation blocks
  *
- * @author Tor Norbye
+ * @author Andrea Lucarelli
  */
 public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.KeystrokeHandler {
     /** When true, automatically reflows comments that are being edited according to the rdoc

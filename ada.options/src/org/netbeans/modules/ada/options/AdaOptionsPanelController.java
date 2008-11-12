@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.options;
 
+import org.netbeans.modules.ada.options.general.GeneralOptionsPanel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
@@ -50,6 +51,7 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.ada.editor.formatter.ui.FormattingOptionsPanel;
 import org.netbeans.spi.options.AdvancedOption;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
@@ -63,7 +65,8 @@ import org.openide.util.lookup.Lookups;
 public class AdaOptionsPanelController extends OptionsPanelController implements ChangeListener {
 
     private static final String TAB_FOLDER = "org.netbeans.modules.ada/options/"; // NOI18N
-    private final AdaOptionsPanel adaOptionsPanel = new AdaOptionsPanel();
+    private final GeneralOptionsPanel generalOptionsPanel = new GeneralOptionsPanel();
+    private final FormattingOptionsPanel formattingOptionsPanel = new FormattingOptionsPanel();
     private final Collection<? extends AdvancedOption> options;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private Map<OptionsPanelController, AdvancedOption> controllers2Options;
@@ -72,7 +75,8 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
 
     public AdaOptionsPanelController() {
         options = Lookups.forPath(TAB_FOLDER).lookupAll(AdvancedOption.class);
-        adaOptionsPanel.addChangeListener(this);
+        generalOptionsPanel.addChangeListener(this);
+        //formattingOptionsPanel.addChangeListener(this);
     }
 
     private synchronized Map<OptionsPanelController, AdvancedOption> getControllers2Options() {
@@ -142,8 +146,9 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
     public JComponent getComponent(Lookup masterLookup) {
          if (pane == null) {
             pane = new JTabbedPane();
-            pane.add(NbBundle.getMessage(AdaOptionsPanelController.class, "LBL_GeneralOPtions"), adaOptionsPanel);
-
+            pane.add(NbBundle.getMessage(AdaOptionsPanelController.class, "LBL_GeneralOPtions"), generalOptionsPanel);
+            pane.add(NbBundle.getMessage(AdaOptionsPanelController.class, "LBL_FormattingPtions"), formattingOptionsPanel);
+          	formattingOptionsPanel.load();
             for (Entry<OptionsPanelController, AdvancedOption> e : getControllers2Options().entrySet()) {
                 OptionsPanelController controller = e.getKey();
                 AdvancedOption option = e.getValue();
@@ -180,7 +185,7 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
         // errors
 
         // everything ok
-        adaOptionsPanel.setError(" "); // NOI18N
+        generalOptionsPanel.setError(" "); // NOI18N
         return true;
     }
 

@@ -37,20 +37,13 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.options.general;
 
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -66,11 +59,11 @@ import org.openide.util.NbBundle;
 /**
  * @author  Tomas Mysik
  */
-public class AdaOptionsPanel extends JPanel {
+public class GeneralOptionsPanel extends JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
-    public AdaOptionsPanel() {
+    public GeneralOptionsPanel() {
         initComponents();
         errorLabel.setText(" "); // NOI18N
 
@@ -150,24 +143,24 @@ public class AdaOptionsPanel extends JPanel {
         pkgBodyExtComboBox = new JComboBox();
         separateExtComboBox = new JComboBox();
         separatorTitleLabel = new JLabel();
-        Mnemonics.setLocalizedText(standardsLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_Standards"));
-        Mnemonics.setLocalizedText(adaDialectsLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_AdaDialects"));
-        Mnemonics.setLocalizedText(namingLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_Naming"));
+        Mnemonics.setLocalizedText(standardsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Standards"));
+        Mnemonics.setLocalizedText(adaDialectsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_AdaDialects"));
+        Mnemonics.setLocalizedText(namingLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Naming"));
         Mnemonics.setLocalizedText(errorLabel, "ERROR");
-        Mnemonics.setLocalizedText(adaRestrictionsLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_adaRestrictions"));
+        Mnemonics.setLocalizedText(adaRestrictionsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_adaRestrictions"));
         adaDialectsComboBox.setModel(new DefaultComboBoxModel(new String[] { "Ada 83", "Ada 95", "Ada 2005" }));
 
         adaRestrictionsComboBox.setModel(new DefaultComboBoxModel(new String[] { "None", "Spark", "MIL-STD-498" }));
-        Mnemonics.setLocalizedText(pkgSpecMaskLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_pkgSpecMask"));
-        Mnemonics.setLocalizedText(pkgBodyMaskLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_pkgBodyMask"));
-        Mnemonics.setLocalizedText(separatorMaskLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_separatorMask"));
-        Mnemonics.setLocalizedText(extTitleLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_extTitle"));
+        Mnemonics.setLocalizedText(pkgSpecMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgSpecMask"));
+        Mnemonics.setLocalizedText(pkgBodyMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgBodyMask"));
+        Mnemonics.setLocalizedText(separatorMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_separatorMask"));
+        Mnemonics.setLocalizedText(extTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_extTitle"));
         pkgSpecPrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
-        Mnemonics.setLocalizedText(prefixTitleLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_prefixTitle"));
+        Mnemonics.setLocalizedText(prefixTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_prefixTitle"));
         pkgBodyPrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
 
         separatePrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
-        Mnemonics.setLocalizedText(postfixTitleLabel, NbBundle.getMessage(AdaOptionsPanel.class, "LBL_postfixTitle"));
+        Mnemonics.setLocalizedText(postfixTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_postfixTitle"));
         pkgSpecPostfixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
 
         pkgBodyPostfixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
@@ -179,7 +172,7 @@ public class AdaOptionsPanel extends JPanel {
         pkgBodyExtComboBox.setModel(new DefaultComboBoxModel(new String[] { ".adb", ".ada (deprecated)" }));
 
         separateExtComboBox.setModel(new DefaultComboBoxModel(new String[] { ".adb", ".ada (deprecated)" }));
-        Mnemonics.setLocalizedText(separatorTitleLabel, NbBundle.getMessage(AdaOptionsPanel.class, "AdaOptionsPanel.separatorTitleLabel.text"));
+        Mnemonics.setLocalizedText(separatorTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "GeneralOptionsPanel.separatorTitleLabel.text"));
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -192,7 +185,7 @@ public class AdaOptionsPanel extends JPanel {
                             .add(layout.createSequentialGroup()
                                 .add(standardsLabel)
                                 .addPreferredGap(LayoutStyle.RELATED)
-                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE))
+                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 565, Short.MAX_VALUE))
                             .add(errorLabel)
                             .add(layout.createSequentialGroup()
                                 .add(12, 12, 12)
@@ -246,7 +239,7 @@ public class AdaOptionsPanel extends JPanel {
                         .addContainerGap()
                         .add(namingLabel)
                         .addPreferredGap(LayoutStyle.RELATED)
-                        .add(namingLineSeparator, GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)))
+                        .add(namingLineSeparator, GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 

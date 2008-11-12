@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.options;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -54,7 +54,7 @@ public class AdaOptionsCategory extends OptionsCategory {
     
     @Override
     public Icon getIcon() {
-        return new ImageIcon(ImageUtilities.loadImage("org/netbeans/modules/ada/project/ui/resources/ada-lovelace-32.png")); // NOI18N
+        return new ImageIcon(ImageUtilities.loadImage("org/netbeans/modules/ada/options/resources/ada-lovelace-32.png")); // NOI18N
     }
 
     @Override

@@ -124,9 +124,4 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
             </file>
         </folder>
     </folder>
-    <folder name="OptionsDialog">
-        <file name="org-netbeans-modules-ada-project-ui-options-AdaOptionsCategory.instance">
-            <attr name="position" intvalue="650"/>
-        </file>
-    </folder>
 </filesystem>

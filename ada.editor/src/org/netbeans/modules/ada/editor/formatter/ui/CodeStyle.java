@@ -36,17 +36,17 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.ada.editor.formatter;
+package org.netbeans.modules.ada.editor.formatter.ui;
 
 import java.util.prefs.Preferences;
 
 import javax.swing.text.Document;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.editor.indent.spi.CodeStylePreferences;
-import static org.netbeans.modules.ada.editor.formatter.FmtOptions.*;
+import static org.netbeans.modules.ada.editor.formatter.ui.FmtOptions.*;
 
 /**
- * 
- * Based on org.netbeans.modules.ruby.options.CodeStyle (Dusan Balek)
+ * Based on org.netbeans.modules.ruby.optionrs.CodeStyle ( Dusan Balek)
  *
  *  XXX make sure the getters get the defaults from somewhere
  *  XXX add support for profiles
@@ -58,6 +58,7 @@ import static org.netbeans.modules.ada.editor.formatter.FmtOptions.*;
 public final class CodeStyle {
 
     private Preferences preferences;
+    private static CodeStyle INSTANCE;
 
     private CodeStyle(Preferences preferences) {
         this.preferences = preferences;
@@ -81,6 +82,10 @@ public final class CodeStyle {
         return preferences.getInt(tabSize, getDefaultAsInt(tabSize));
     }
 
+    static CodeStyle create() {
+        return new CodeStyle(FmtOptions.getPreferences());
+    }
+    
     public int getIndentSize() {
         int indentLevel = preferences.getInt(indentSize, getDefaultAsInt(indentSize));
 
@@ -111,4 +116,24 @@ public final class CodeStyle {
     public int getRightMargin() {
         return preferences.getInt(rightMargin, getDefaultAsInt(rightMargin));
     }
+
+    public synchronized static CodeStyle getDefault(Project project) {
+
+        if ( FmtOptions.codeStyleProducer == null ) {
+            FmtOptions.codeStyleProducer = new Producer();
+        }
+
+        if (INSTANCE == null) {
+            INSTANCE = create();
+        }
+        return INSTANCE;
+    }
+    private static class Producer implements FmtOptions.CodeStyleProducer {
+
+        public CodeStyle create(Preferences preferences) {
+            return new CodeStyle(preferences);
+        }
+
+    }
+
 }
