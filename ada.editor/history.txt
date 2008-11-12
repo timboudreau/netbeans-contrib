@@ -1,3 +1,7 @@
+1.1: 13-11-2008
+
+-- Add initial formatter and indent operations
+
 1.0: 23-09-2008
 
 - Initial, very alpha release.

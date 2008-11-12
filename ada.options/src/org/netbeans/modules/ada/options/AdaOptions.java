@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.project.ui.options;
+package org.netbeans.modules.ada.options;
 
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;

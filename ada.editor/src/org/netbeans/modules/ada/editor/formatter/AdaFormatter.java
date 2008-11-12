@@ -57,6 +57,7 @@ import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.ada.editor.lexer.LexUtilities;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
 import org.openide.util.Exceptions;
+import org.netbeans.modules.ada.editor.formatter.ui.CodeStyle;
 
 
 /**
@@ -640,10 +641,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // The bracket balance at the offset ( parens, bracket, brace )
             int bracketBalance = 0;
             boolean continued = false;
-            boolean indentHtml = false;
-            if (isEmbeddedDoc) {
-                indentHtml = codeStyle.indentHtml();
-            }
 
             while ((!includeEnd && offset < end) || (includeEnd && offset <= end)) {
                 int indent; // The indentation to be used for the current line
@@ -658,10 +655,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 if (isInLiteral(doc, offset)) {
                     // Skip this line - leave formatting as it is prior to reformatting 
                     indent = GsfUtilities.getLineIndent(doc, offset);
-
-                    if (isEmbeddedDoc && indentHtml && balance > 0) {
-                        indent += balance * indentSize;
-                    }
                 } else if (isEndIndent(doc, offset)) {
                     indent = (balance-1) * indentSize + hangingIndent + initialIndent;
                 } else {
