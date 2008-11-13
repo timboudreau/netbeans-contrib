@@ -35,7 +35,7 @@ case `uname` in
 	INST_DIR=opt/sun
     ;;
 esac
-
+DISTRS=${VARIANT-$DISTRS}
 export DISTRS
 
 
