@@ -36,11 +36,13 @@
 package org.netbeans.installer.product.components;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +55,8 @@ import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.env.EnvironmentInfoFactory;
 import org.netbeans.installer.utils.env.PackageDescr;
+import org.netbeans.installer.utils.env.PackageType;
+import org.netbeans.installer.utils.env.impl.LinuxRPMPackagesAnalyzer;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.FileEntry;
@@ -76,6 +80,11 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     public static final String DEVICE_FILE_PACKAGES_COUNTER = ".packages_counter";
     public static final String DEVICE_FILE_PACKAGE = ".package.";
 
+    private final String PACKAGES_LENGTH_PROPERTY = "packages_length";
+    private final String PACKAGE_NAME_PROPERTY_PATTERN = "package_%1$d_name";
+    private final String PACKAGE_VERSION_PROPERTY_PATTERN = "package_%1$d_version";
+            
+    
     private int parseInteger(String value) {
         return (value == null || value.length() == 0) ? 0 : Integer.parseInt(value);
     }
@@ -95,14 +104,46 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
 //            throw new InstallationException("Platform is not supported!");
 //        }
 
+        boolean needToInstallSPROtweak = true;
+        if (getProduct().getUid().equals("support-files"))  {            
+            if (Registry.getInstance().getProducts("cpp").get(0) != null && 
+                    Registry.getInstance().getProducts("cpp").get(0).getStatus().equals(Status.TO_BE_INSTALLED)) {
+                needToInstallSPROtweak = false;
+                LogManager.log("cpp status = " + Registry.getInstance().getProducts("cpp").get(0).getStatus());
+            }
+        }
         try {
             NativePackageInstaller packageInstaller = EnvironmentInfoFactory.getInstance().getPackageType().getPackageInstaller();
             packageInstaller.setDestinationPath(installationLocation);
             final int percentageChunk = Progress.COMPLETE / getProduct().getInstalledFiles().getSize();
             final int percentageLeak = Progress.COMPLETE % getProduct().getInstalledFiles().getSize();
+            
+            ArrayList<String> names = new ArrayList();
+            String count = getProduct().getProperty(PACKAGES_LENGTH_PROPERTY);
+            if (count != null && count.length() > 0) {
+                for (int i = 1; i <= Integer.parseInt(count); i++) {
+                    String packageName = getProduct().getProperty(String.format(PACKAGE_NAME_PROPERTY_PATTERN, i));                    
+                    names.add(packageName);
+                }
+            }
+            HashMap<String, FileEntry> files = new HashMap();
             for (FileEntry installedFile : getProduct().getInstalledFiles()) {
+                String name = SystemUtils.isLinux() 
+                        ? EnvironmentInfoFactory.getInstance().getPackageType().getPackageNames(installedFile.getName()).iterator().next()
+                        : installedFile.getName().substring(installedFile.getName().lastIndexOf(File.separator) + 1) ;
+                files.put(name, installedFile);
+                LogManager.log("The map to install = " + name + " => " + installedFile.getFile());
+            }
+            
+            
+            for (String name : names) {
+                FileEntry installedFile = files.get(name);
+            //for (FileEntry installedFile : getProduct().getInstalledFiles()) {
                 if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
                     if (!shouldBeSymLinkCreated && installedFile.getName().endsWith(Utils.getSPROsslnkName())) {
+                        continue;
+                    }
+                    if (!needToInstallSPROtweak && name.equals("SPROtweak")) {
                         continue;
                     }
                     String value = getProduct().getProperty(DEVICE_FILE_PACKAGES_COUNTER);
@@ -110,8 +151,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
                     Iterable<String> installedPackageNames = packageInstaller.install(installedFile.getFile().getAbsolutePath());
                     progress.addPercentage(percentageChunk);
                     progress.setDetail("Installing package" + installedFile.getName());
-                    for (String packageName : installedPackageNames) {
-                        Logger.getAnonymousLogger().warning("Installed package: " + packageName);
+                    for (String packageName : installedPackageNames) {                        
                         getProduct().setProperty(DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
                         i++;
                     }
@@ -119,7 +159,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
                     installedFile.getFile().delete();
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e) {           
             throw new InstallationException("Inner Exception", e);
         }
 
@@ -150,7 +190,8 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
                 packageInstaller.uninstall(value);
             }
         } catch (Exception e) {
-            throw new UninstallationException("Inner Exception", e);
+            LogManager.log(e);
+            //throw new UninstallationException("Inner Exception", e);
         }
         LogManager.logExit("Finish uninstalling native package");
         progress.setPercentage(Progress.COMPLETE);
