@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.portalpack.servers.websynergy
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/servers/websynergy/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/servers/websynergy/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.97
+OpenIDE-Module-Specification-Version: 0.98
 

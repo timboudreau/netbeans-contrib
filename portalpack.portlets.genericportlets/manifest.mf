@@ -3,7 +3,7 @@ OpenIDE-Module: org.netbeans.modules.portalpack.portlets.genericportlets
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/portlets/genericportlets/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/portlets/genericportlets/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/portalpack/portlets/genericportlets/ModuleInitializer.class
-OpenIDE-Module-Specification-Version: 2.92
+OpenIDE-Module-Specification-Version: 2.96
 
 Name: org/netbeans/modules/portalpack/portlets/genericportlets/node/ddloaders/PortletXMLDataLoader.class
 OpenIDE-Module-Class: Loader

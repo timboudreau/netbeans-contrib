@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.portalpack.websynergy.servicebuilder
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/websynergy/servicebuilder/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/websynergy/servicebuilder/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.2
+OpenIDE-Module-Specification-Version: 0.3
 
 Name: org/netbeans/modules/portalpack/websynergy/servicebuilder/loader/ServiceBuilderFlowDataLoader.class
 Install-Before: org.openide.loaders.XMLDataObject, org.netbeans.modules.xml.XMLDataObject

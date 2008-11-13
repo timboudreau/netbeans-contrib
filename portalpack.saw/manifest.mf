@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.portalpack.saw
 OpenIDE-Module-Layer: org/netbeans/modules/portalpack/saw/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/portalpack/saw/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.97
+OpenIDE-Module-Specification-Version: 0.98
 
