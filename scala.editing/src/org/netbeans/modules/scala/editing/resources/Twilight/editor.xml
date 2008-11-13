@@ -4,7 +4,7 @@
 
    <fontcolor name="guarded" bgColor="darkGray"/>
    <fontcolor name="caret-color-insert-mode" foreColor="lightGray"/>
-   <fontcolor name="highlight-caret-row" bgColor="ff202020" />
+   <fontcolor name="highlight-caret-row" bgColor="ff181818" />
    <fontcolor name="line-number" foreColor="ffdd7522"/>
    <fontcolor name="text-limit-line-color" foreColor="ff253e5a"/>
    <fontcolor name="code-folding-bar" foreColor="ffdd7522"/>
@@ -18,7 +18,7 @@
    <fontcolor name="synchronized-text-blocks-ext-slave" foreColor="ff996600"/>
    <fontcolor name="status-bar" foreColor="white" bgColor="ff121e31"/>
    <fontcolor name="status-bar-bold" bgColor="red"/>
-   <fontcolor name="nbeditor-bracesMatching-match" foreColor="white" bgColor="ff4BFF0F">
+   <fontcolor name="nbeditor-bracesMatching-match" foreColor="white" bgColor="ff38566f">
       <font style="bold"/>
    </fontcolor>
    <fontcolor name="nbeditor-bracesMatching-mismatch" foreColor="white" bgColor="ff6f3757">
