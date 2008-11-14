@@ -74,11 +74,11 @@ public class GroovyPortletBuilder extends NonJavaPortletBuilder implements Groov
     public static Logger logger = Logger.getLogger(NonJavaPortletConstants.NON_JAVA_PORTLET_LOGGER);
 
     public String getPortletType() {
-        return NbBundle.getMessage(GroovyPortletBuilder.class, "RUBY_PORTLET_TYPE");
+        return NbBundle.getMessage(GroovyPortletBuilder.class, "GROOVY_PORTLET_TYPE");
     }
 
     public String getPortletTypeDesc() {
-        return NbBundle.getMessage(GroovyPortletBuilder.class, "RUBY_PORTLET_TYPE_DESC");
+        return NbBundle.getMessage(GroovyPortletBuilder.class, "GROOVY_PORTLET_TYPE_DESC");
     }
 
     public String getExtension() {
@@ -221,7 +221,7 @@ public class GroovyPortletBuilder extends NonJavaPortletBuilder implements Groov
             
             
             InitParamType initParam1 = portletType.newInitParamType();
-            initParam1.setDescription(new String[]{"Portlet Ruby Action Page"});
+            initParam1.setDescription(new String[]{"Portlet Groovy Action Page"});
             initParam1.setName(ACTION_URI);
             initParam1.setValue(actionRb);
             
@@ -238,7 +238,7 @@ public class GroovyPortletBuilder extends NonJavaPortletBuilder implements Groov
             if(gfiles.length() > 0)
             {
                 InitParamType initParam2 = portletType.newInitParamType();
-                initParam2.setDescription(new String[]{"Global ruby files"});
+                initParam2.setDescription(new String[]{"Global groovy files"});
                 initParam2.setName(GLOBAL_FILES);
                 initParam2.setValue(gfiles);
                 portletType.addInitParam(initParam2);

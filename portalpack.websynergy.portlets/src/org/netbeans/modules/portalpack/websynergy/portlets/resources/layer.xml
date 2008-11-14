@@ -45,7 +45,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="templateCategory" stringvalue="web-types"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.websynergy.portlets.ruby.RubyPortletWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/nonjava/nonjava.html"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/resources/Ruby.html"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
         </folder>
@@ -101,7 +101,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="templateCategory" stringvalue="web-types"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.websynergy.portlets.php.PhpPortletWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/nonjava/nonjava.html"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/php/resources/PHP.html"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
         </folder>
@@ -151,7 +151,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="templateCategory" stringvalue="web-types"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.websynergy.portlets.groovy.GroovyPortletWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/nonjava/nonjava.html"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/resources/Groovy.html"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
         </folder>
