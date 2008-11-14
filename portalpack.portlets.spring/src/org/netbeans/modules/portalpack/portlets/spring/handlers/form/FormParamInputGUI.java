@@ -27,6 +27,7 @@ public class FormParamInputGUI extends javax.swing.JDialog implements DocumentLi
     private InputParamTableModel tm;
     private Vector valueData;
     private int selectedRow;
+    boolean addMode;
 
     /** Creates new form FormParamInputGUI */
     public FormParamInputGUI(java.awt.Frame parent, JTable table, InputParamTableModel tm) {
@@ -39,6 +40,10 @@ public class FormParamInputGUI extends javax.swing.JDialog implements DocumentLi
         setLocation(parent.getX() + (parent.getWidth() - getWidth()) / 2, parent.getY() + (parent.getHeight() - getHeight()) / 2);
         setTitle(NbBundle.getMessage(FormParamInputGUI.class, "FORM_DIALOG_TITLE"));
         changeButton.setEnabled(false);
+        addButton.setEnabled(false);
+        addMode = true;
+        nameTf.getDocument().addDocumentListener(this);
+        labelTf.getDocument().addDocumentListener(this);
         setVisible(true);
     }
 
@@ -52,6 +57,10 @@ public class FormParamInputGUI extends javax.swing.JDialog implements DocumentLi
         this.selectedRow = row;
         setLocation(parent.getX() + (parent.getWidth() - getWidth()) / 2, parent.getY() + (parent.getHeight() - getHeight()) / 2);
         setTitle(NbBundle.getMessage(FormParamInputGUI.class, "FORM_DIALOG_TITLE"));
+        nameTf.getDocument().addDocumentListener(this);
+        labelTf.getDocument().addDocumentListener(this);
+        addMode = false;
+        changeButton.setEnabled(false);
         addButton.setEnabled(false);
         setVisible(true);
     }
@@ -251,9 +260,9 @@ public class FormParamInputGUI extends javax.swing.JDialog implements DocumentLi
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {addButton, changeButton, closeButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {addValueButton, removeValueButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {addButton, changeButton, closeButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -287,10 +296,9 @@ public class FormParamInputGUI extends javax.swing.JDialog implements DocumentLi
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(addButton)
                     .add(changeButton)
-                    .add(closeButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorLabel)
-                .addContainerGap())
+                    .add(closeButton)
+                    .add(errorLabel))
+                .add(31, 31, 31))
         );
 
         pack();
@@ -320,14 +328,13 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     String label = labelTf.getText();
     String componentType = (String) compTypeCombo.getSelectedItem();
     DataType dataType = (DataType) dataTypeCombo.getSelectedItem();
-
     ListModel model = valueList.getModel();
     String[] values = new String[model.getSize()];
 
     for (int i = 0; i < values.length; i++) {
         values[i] = (String) model.getElementAt(i);
     }
-
+    
     InputParam ip = new InputParam(name, label, values, dataType, componentType);
     tm.addRow(ip);
     dispose();
@@ -489,8 +496,35 @@ private void compTypeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     }
 
     private void updateText(DocumentEvent e) {
+        
+        if(addMode && !valid()) {
+            addButton.setEnabled(false);
+        } else if (!addMode && !valid()){
+            //setErroMessage("");
+            changeButton.setEnabled(false);
+        } else if (!addMode && valid()){
+            setErroMessage("");
+            changeButton.setEnabled(true);
+        } else if (addMode && valid()){
+            // Add mode and Valid
+            setErroMessage("");
+            addButton.setEnabled(true);
+        }
+        
     }
 
-    public void validate(String validate) {
+    public boolean valid() {
+        
+        String label = labelTf.getText();
+        String name = nameTf.getText();
+        if(label == null || label.trim().length() == 0) {
+            setErroMessage("Invalid Label. Enter a valid name");
+            return false;
+        } else if (name == null || name.trim().length()== 0) {
+            setErroMessage("Invalid Property Name. Enter a valid name");
+            return false;
+        }
+        
+        return true;
     }
 }
