@@ -18,7 +18,7 @@
    <fontcolor name="synchronized-text-blocks-ext-slave" foreColor="ff996600"/>
    <fontcolor name="status-bar" foreColor="white" bgColor="ff121e31"/>
    <fontcolor name="status-bar-bold" bgColor="red"/>
-   <fontcolor name="nbeditor-bracesMatching-match" foreColor="white" bgColor="ff38566f">
+   <fontcolor name="nbeditor-bracesMatching-match" foreColor="white" bgColor="ff386f38">
       <font style="bold"/>
    </fontcolor>
    <fontcolor name="nbeditor-bracesMatching-mismatch" foreColor="white" bgColor="ff6f3757">
