@@ -74,7 +74,7 @@ import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
  *  - Automatically inserting corresponding pairs when you insert a character.
  *    For example, if you insert a single quote, a corresponding ending quote
  *    is inserted - unless you're typing "over" the existing quote (you should
- *    be able to type foo = "hello" without having to arrow over the second
+ *    be able to type foo := "hello" without having to arrow over the second
  *    quote that was inserted after you typed the first one).
  *  - Automatically adjusting indentation in some scenarios, for example
  *    when you type the final "d" in "end" - and readjusting it back to the
@@ -82,28 +82,22 @@ import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
  *    e.g. "endian".
  *
  * The logic around inserting matching ""'s is heavily based on the Java editor
- * implementation, and probably should be rewritten to be Ruby oriented.
+ * implementation, and probably should be rewritten to be Ada oriented.
  * One thing they did is process the characters BEFORE the character has been
  * inserted into the document. This has some advantages - it's easy to detect
  * whether you're typing in the middle of a string since the token hierarchy
  * has not been updated yet. On the other hand, it makes it hard to identify
  * whether some characters are what we expect - is a "/" truly a regexp starter
- * or something else? The Ruby lexer has lots of logic and state to determine
+ * or something else? The Ada lexer has lots of logic and state to determine
  * this. I think it would be better to switch to after-insert logic for this.
  *
- * @todo Match braces within literal strings, as in #{}
- * @todo Match || in the argument list of blocks? do { |foo| etc. }
- * @todo I'm currently highlighting the indentation tokens (else, elsif, ensure, etc.)
- *   by finding the corresponding begin. For "illegal" tokens, e.g. def foo; else; end;
- *   this means I'll show "def" as the matching token for else, which is wrong.
+ * @todo I'm currently highlighting the indentation tokens (else, elsif, etc.)
+ *   by finding the corresponding begin. For "illegal" tokens, e.g. def foo; else; end if;
+ *   this means I'll show "procedure" as the matching token for else, which is wrong.
  *   I should make the "indentation tokens" list into a map and associate them
  *   with their corresponding tokens, such that an else is only lined up with an if,
  *   etc.
- * @todo Pressing newline in a parameter list doesn't work well if it's on a blockdefining
- *    line - e.g. def foo(a,b => it will insert the end BEFORE the closing paren!
- * @todo Pressing space in a comment beyond the textline limit should wrap text?
- *    http://ruby.netbeans.org/issues/show_bug.cgi?id=11553
- * @todo Make ast-selection pick up =begin/=end documentation blocks
+ * @todo Make ast-selection pick up begin/end documentation blocks
  *
  * @author Andrea Lucarelli
  */
@@ -116,11 +110,10 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     /** When true, continue comments if you press return in a line comment (that does not
      * also have code on the same line 
      */
-    //static final boolean CONTINUE_COMMENTS = !Boolean.getBoolean("ruby.no.cont.comment"); // NOI18N
     static final boolean CONTINUE_COMMENTS = Boolean.getBoolean("ada.cont.comment"); // NOI18N
 
     /** Tokens which indicate that we're within a literal string */
-    private final static TokenId[] STRING_TOKENS = // XXX What about RubyTokenId.STRING_BEGIN or QUOTED_STRING_BEGIN?
+    private final static TokenId[] STRING_TOKENS =
         {
             AdaTokenId.STRING_LITERAL
         };
@@ -217,7 +210,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         Token<?extends AdaTokenId> token = ts.token();
         TokenId id = token.id();
 
-        // Is it an umatched =begin token?
+        // Is it an umatched begin token?
         if (insertMatching && (((id == AdaTokenId.UNKNOWN_TOKEN) && (ts.offset() == (offset - 6))) ||
                 (id == AdaTokenId.BEGIN && ts.offset() == Utilities.getRowStart(doc, offset) + 1))) {
             // NOI18N
@@ -489,7 +482,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         //dumpTokens(doc, caretOffset);
 
         // Gotta look for the string begin pair in tokens since ANY character can
-        // be used in Ruby string like the %x!! form.
+        // be used in Ada string like the %x!! form.
         if (caretOffset == 0) {
             return false;
         }
@@ -605,7 +598,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     // For debugging purposes
     // Probably obsolete - see the tokenspy utility in gsf debugging tools for better help
     //private void dumpTokens(BaseDocument doc, int dot) {
-    //    TokenSequence< ?extends RubyTokenId> ts = LexUtilities.getTokenSequence(doc);
+    //    TokenSequence< ?extends AdaTokenId> ts = LexUtilities.getTokenSequence(doc);
     //
     //    System.out.println("Dumping tokens for dot=" + dot);
     //    int prevOffset = -1;
@@ -613,7 +606,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     //        ts.moveFirst();
     //        int index = 0;
     //        do {
-    //            Token<? extends RubyTokenId> token = ts.token();
+    //            Token<? extends AdaTokenId> token = ts.token();
     //            int offset = ts.offset();
     //            String id = token.id().toString();
     //            String text = token.text().toString().replaceAll("\n", "\\\\n");
@@ -783,13 +776,16 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         ts.move(dotPos+1);
         while (ts.movePrevious() && ts.offset() >= lineStart) {
             TokenId tid = ts.token().id();
-            if (tid == AdaTokenId.DO) {
+            if (tid == AdaTokenId.DO || tid == AdaTokenId.WHILE) {
                 return true;
-//                    } else if (tid == RubyTokenId.IDENTIFIER && ts.token().length() == 1 && "|".equals(ts.token().text().toString())) {
+//                    } else if (tid == AdaTokenId.IDENTIFIER && ts.token().length() == 1 && "|".equals(ts.token().text().toString())) {
 //                        continue;
-//                    } else if (tid == RubyTokenId.NONUNARY_OP && "||".equals(ts.token().text().toString())) {
+//                    } else if (tid == AdaTokenId.NONUNARY_OP && "||".equals(ts.token().text().toString())) {
 //                        continue;
-            } else if (tid == AdaTokenId.END) {
+            } else if (tid == AdaTokenId.END ||
+                    tid == AdaTokenId.END_CASE ||
+                    tid == AdaTokenId.END_IF ||
+                    tid == AdaTokenId.END_LOOP) {
                 break;
             }
         }
@@ -873,13 +869,17 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 return LexUtilities.findFwd(doc, ts, AdaTokenId.LPAREN, AdaTokenId.RPAREN);
             } else if (id == AdaTokenId.RPAREN) {
                 return LexUtilities.findBwd(doc, ts, AdaTokenId.LPAREN, AdaTokenId.RPAREN);
-            } else if (id == AdaTokenId.DO && !LexUtilities.isEndmatchingDo(doc, ts.offset())) {
+            } else if (id == AdaTokenId.DO && !LexUtilities.isEndmatchingLoop(doc, ts.offset())) {
                 // No matching dot for "do" used in conditionals etc.
                 return OffsetRange.NONE;
             } else if (id.primaryCategory().equals("keyword")) {
                 if (LexUtilities.isBeginToken(id, doc, ts)) {
                     return LexUtilities.findEnd(doc, ts);
-                } else if ((id == AdaTokenId.END) || LexUtilities.isIndentToken(id)) { // Find matching block
+                } else if ((id == AdaTokenId.END) ||
+                        (id == AdaTokenId.END_CASE) ||
+                        (id == AdaTokenId.END_IF) ||
+                        (id == AdaTokenId.END_LOOP) ||
+                        LexUtilities.isIndentToken(id)) { // Find matching block
 
                     return LexUtilities.findBegin(doc, ts);
                 }
@@ -1146,7 +1146,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
     // XXX TODO Use embedded string sequence here and see if it
     // really is escaped. I know where those are!
-    // TODO Adjust for Ruby
+    // TODO Adjust for Ada
     private boolean isEscapeSequence(BaseDocument doc, int dotPos)
         throws BadLocationException {
         if (dotPos <= 0) {
@@ -1335,161 +1335,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     }
 
     public List<OffsetRange> findLogicalRanges(CompilationInfo info, int caretOffset) {
-//        Program root = ASTUtils.getRoot(info);
-//
-//        if (root == null) {
-//            return Collections.emptyList();
-//        }
-//
-//        int astOffset = ASTUtils.getAstOffset(info, caretOffset);
-//        if (astOffset == -1) {
-//            return Collections.emptyList();
-//        }
-//
-//        AstPath path = new AstPath(root, astOffset);
-//        List<OffsetRange> ranges = new ArrayList<OffsetRange>();
-//
-//        /** Furthest we can go back in the buffer (in RHTML documents, this
-//         * may be limited to the surrounding &lt;% starting tag
-//         */
-//        int min = 0;
-//        int max = Integer.MAX_VALUE;
-//        int length;
-//
-//        // Check if the caret is within a comment, and if so insert a new
-//        // leaf "node" which contains the comment line and then comment block
-//        try {
-//            BaseDocument doc = (BaseDocument)info.getDocument();
-//            if (doc == null) {
-//                return ranges;
-//            }
-//            length = doc.getLength();
-//
-//            if (RubyUtils.isRhtmlDocument(doc) || RubyUtils.isYamlDocument(doc)) {
-//                TokenHierarchy th = TokenHierarchy.get(doc);
-//                TokenSequence ts = th.tokenSequence();
-//                ts.move(caretOffset);
-//                if (ts.moveNext() || ts.movePrevious()) {
-//                    Token t = ts.token();
-//                    if (t.id().primaryCategory().startsWith("ruby")) { // NOI18N
-//                        min = ts.offset();
-//                        max = min+t.length();
-//                        // Try to extend with delimiters too
-//                        if (ts.movePrevious()) {
-//                            t = ts.token();
-//                            if ("ruby-delimiter".equals(t.id().primaryCategory())) { // NOI18N
-//                                min = ts.offset();
-//                                if (ts.moveNext() && ts.moveNext()) {
-//                                    t = ts.token();
-//                                    if ("ruby-delimiter".equals(t.id().primaryCategory())) { // NOI18N
-//                                        max = ts.offset()+t.length();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            Token<?extends RubyTokenId> token = LexUtilities.getToken(doc, caretOffset);
-//
-//            if ((token != null) && (token.id() == RubyTokenId.LINE_COMMENT)) {
-//                // First add a range for the current line
-//                int begin = Utilities.getRowStart(doc, caretOffset);
-//                int end = Utilities.getRowEnd(doc, caretOffset);
-//
-//                if (LexUtilities.isCommentOnlyLine(doc, caretOffset)) {
-//                    ranges.add(new OffsetRange(Utilities.getRowFirstNonWhite(doc, begin),
-//                            Utilities.getRowLastNonWhite(doc, end)+1));
-//
-//                    int lineBegin = begin;
-//                    int lineEnd = end;
-//
-//                    while (begin > 0) {
-//                        int newBegin = Utilities.getRowStart(doc, begin - 1);
-//
-//                        if ((newBegin < 0) || !LexUtilities.isCommentOnlyLine(doc, newBegin)) {
-//                            begin = Utilities.getRowFirstNonWhite(doc, begin);
-//                            break;
-//                        }
-//
-//                        begin = newBegin;
-//                    }
-//
-//                    while (true) {
-//                        int newEnd = Utilities.getRowEnd(doc, end + 1);
-//
-//                        if ((newEnd >= length) || !LexUtilities.isCommentOnlyLine(doc, newEnd)) {
-//                            end = Utilities.getRowLastNonWhite(doc, end)+1;
-//                            break;
-//                        }
-//
-//                        end = newEnd;
-//                    }
-//
-//                    if ((lineBegin > begin) || (lineEnd < end)) {
-//                        ranges.add(new OffsetRange(begin, end));
-//                    }
-//                } else {
-//                    // It's just a line comment next to some code; select the comment
-//                    TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
-//                    int offset = token.offset(th);
-//                    ranges.add(new OffsetRange(offset, offset + token.length()));
-//                }
-//            } else if (token != null && token.id() == RubyTokenId.DOCUMENTATION) {
-//                // Select the whole token block
-//                TokenHierarchy<BaseDocument> th = TokenHierarchy.get(doc);
-//                int begin = token.offset(th);
-//                int end = begin + token.length();
-//                ranges.add(new OffsetRange(begin, end));
-//            }
-//        } catch (BadLocationException ble) {
-//            Exceptions.printStackTrace(ble);
-//            return ranges;
-//        }
-//
-//        Iterator<Node> it = path.leafToRoot();
-//
-//        OffsetRange previous = OffsetRange.NONE;
-//        while (it.hasNext()) {
-//            Node node = it.next();
-//
-//            // Filter out some uninteresting nodes
-//            if (node.nodeId == NodeType.NEWLINENODE) {
-//                continue;
-//            }
-//
-//            OffsetRange range = AstUtilities.getRange(node);
-//
-//            if (node.nodeId == NodeType.CALLNODE && ranges.size() == 0 && node == path.leaf()) {
-//                // Try to handle scenarios like issue 111941 - in a call like
-//                //  foo.bar.snark
-//                // there's no AST node for the "bar" part - only a CallNode for "foo.bar",
-//                // so add in an extra range for this case
-//                Node receiver = ((CallNode)node).getReceiverNode();
-//                OffsetRange receiverRange = AstUtilities.getRange(receiver);
-//                if (receiver != null && astOffset > receiverRange.getEnd() && receiverRange.getEnd()+1 < range.getEnd()) {
-//                   ranges.add(new OffsetRange(receiverRange.getEnd()+1, range.getEnd()));
-//                }
-//            }
-//
-//            // The contains check should be unnecessary, but I end up getting
-//            // some weird positions for some JRuby AST nodes
-//            if (range.containsInclusive(astOffset) && !range.equals(previous)) {
-//                range = LexUtilities.getLexerOffsets(info, range);
-//                if (range != OffsetRange.NONE) {
-//                    if (range.getStart() < min) {
-//                        ranges.add(new OffsetRange(min, max));
-//                        ranges.add(new OffsetRange(0, length));
-//                        break;
-//                    }
-//                    ranges.add(range);
-//                    previous = range;
-//                }
-//            }
-//        }
-//
-//        return ranges;
+        // TODO: review the original class
         return Collections.<OffsetRange>emptyList();
     }
 

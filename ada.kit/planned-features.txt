@@ -19,7 +19,7 @@ Features:
 
 1. ada.editor:
  a. - Syntax highlighting (lexer) (100%)
- b. - Semantic Analyser (grammar-parser) (95%)
+ b. - Semantic Analyser (grammar-parser) (100%)
  c. - Structure Scanner (AST-parser) (2%)
  d. - Version highlighting (0%) 
  e. - Code Completion (0%)
@@ -29,17 +29,17 @@ Features:
  i. - Formatting (0%)
 
 2. ada.platform:
- a. - GNAT platform (50%) 
- b. - GHS platform (0%) 
- c. - AdaJava (???) (0%) 
+ a. - GNAT platform (60%)
+ b. - Green Hills Ada platform (0%)
  d. - TBD...
 
 3. ada.project:
- a. - Create new Ada project (50%)
- b. - Create new Ada project from existing sources (50%)
+ a. - Create new Ada project (90%)
+ b. - Create new Ada project from existing sources (90%)
  c. - Import from others IDEs (GPS, GHS, ...) (0%)
- d. - Create Ada file from templates (new package specification, body and others) (10%)
+ d. - Create Ada file from templates (new package specification, body and others) (90%)
  e. - Default options
+ f. - Clean/Build/Run/Debug (50%)
  d. - TBD...
 
 4. ada.debugger:
@@ -73,12 +73,12 @@ Features:
 
 Roadmap:
 
-31 October (MS1):
+31 November (MS1):
 1a - 100%
 1b - 100%
 2a - Only compliler and execution for windows platform by GNAT
 3a - 100%
 3d - 100%
 
-31 November (MS2):
+31 Dicember (MS2):
 TBD

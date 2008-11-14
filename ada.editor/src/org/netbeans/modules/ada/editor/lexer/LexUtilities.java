@@ -90,15 +90,13 @@ public class LexUtilities {
         END_PAIRS.add(AdaTokenId.BEGIN);
         END_PAIRS.add(AdaTokenId.FOR);
         END_PAIRS.add(AdaTokenId.PACKAGE);
-        END_PAIRS.add(AdaTokenId.DO);
         END_PAIRS.add(AdaTokenId.WHILE);
         END_PAIRS.add(AdaTokenId.IF);
         END_PAIRS.add(AdaTokenId.PACKAGE);
-        END_PAIRS.add(AdaTokenId.PROCEDURE);
-        END_PAIRS.add(AdaTokenId.FUNCTION);
+//        END_PAIRS.add(AdaTokenId.PROCEDURE);
+//        END_PAIRS.add(AdaTokenId.FUNCTION);
         END_PAIRS.add(AdaTokenId.CASE);
         END_PAIRS.add(AdaTokenId.LOOP);
-        END_PAIRS.add(AdaTokenId.UNTIL);
 
         INDENT_WORDS.addAll(END_PAIRS);
         // Add words that are not matched themselves with an "end",
@@ -152,7 +150,7 @@ public class LexUtilities {
         return astRange;
     }
 
-    /** Find the ruby token sequence (in case it's embedded in something else at the top level */
+    /** Find the Ada token sequence (in case it's embedded in something else at the top level */
     @SuppressWarnings("unchecked")
     public static TokenSequence<?extends AdaTokenId> getAdaTokenSequence(BaseDocument doc, int offset) {
         TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
@@ -284,10 +282,10 @@ public class LexUtilities {
 //        String textSQuotes = "'" + text + "'";
 //
 //        while (ts.movePrevious()) {
-//            Token<?extends RubyTokenId> token = ts.token();
+//            Token<?extends AdaTokenId> token = ts.token();
 //            TokenId id = token.id();
 //
-//            if (id == RubyTokenId.STRING_BEGIN || id == RubyTokenId.QUOTED_STRING_BEGIN) {
+//            if (id == AdaTokenId.STRING_BEGIN || id == AdaTokenId.QUOTED_STRING_BEGIN) {
 //                String t = token.text().toString();
 //                String marker = null;
 //                if (t.startsWith("<<-")) {
@@ -401,16 +399,16 @@ public class LexUtilities {
     /** Determine whether "do" is an indent-token (e.g. matches an end) or if
      * it's simply a separator in while,until,for expressions)
      */
-    public static boolean isEndmatchingDo(BaseDocument doc, int offset) {
+    public static boolean isEndmatchingLoop(BaseDocument doc, int offset) {
         // In the following case, do is dominant:
-        //     expression.do 
+        //     loop
         //        whatever
-        //     end
+        //     end loop;
         //
         // However, not here:
-        //     while true do
+        //     while true lopp
         //        whatever
-        //     end
+        //     end loop;
         //
         // In the second case, the end matches the while, but in the first case
         // the end matches the do
@@ -422,7 +420,7 @@ public class LexUtilities {
                 Token<? extends AdaTokenId> token = getToken(doc, first);
                 if (token != null) {
                     TokenId id = token.id();
-                    if (id == AdaTokenId.WHILE || id == AdaTokenId.UNTIL || id == AdaTokenId.FOR) {
+                    if (id == AdaTokenId.WHILE || id == AdaTokenId.FOR) {
                         return false;
                     }
                 }
@@ -436,12 +434,12 @@ public class LexUtilities {
 
     /**
      * Return true iff the given token is a token that should be matched
-     * with a corresponding "end" token, such as "begin", "def", "module",
+     * with a corresponding "end" token, such as "begin", "package"
      * etc.
      */
     public static boolean isBeginToken(TokenId id, BaseDocument doc, int offset) {
-        if (id == AdaTokenId.DO) {
-            return isEndmatchingDo(doc, offset);
+        if (id == AdaTokenId.LOOP) {
+            return isEndmatchingLoop(doc, offset);
         }
         return END_PAIRS.contains(id);
     }
@@ -452,8 +450,8 @@ public class LexUtilities {
      * etc.
      */
     public static boolean isBeginToken(TokenId id, BaseDocument doc, TokenSequence<?extends AdaTokenId> ts) {
-        if (id == AdaTokenId.DO) {
-            return isEndmatchingDo(doc, ts.offset());
+        if (id == AdaTokenId.LOOP) {
+            return isEndmatchingLoop(doc, ts.offset());
         }
         return END_PAIRS.contains(id);
     }
@@ -583,7 +581,7 @@ public class LexUtilities {
     }
 
     /**
-     * Return true iff the line for the given offset is a Ruby comment line.
+     * Return true iff the line for the given offset is a Ada comment line.
      * This will return false for lines that contain comments (even when the
      * offset is within the comment portion) but also contain code.
      */
@@ -635,7 +633,7 @@ public class LexUtilities {
 
             String string = null;
 
-            // Skip over embedded Ruby segments and literal strings until you find the beginning
+            // Skip over embedded Ada segments and literal strings until you find the beginning
             int segments = 0;
 
             while ((id == AdaTokenId.UNKNOWN_TOKEN) || (id == AdaTokenId.STRING_LITERAL)) {
@@ -707,7 +705,7 @@ public class LexUtilities {
         if (token != null) {
             TokenId id = token.id();
 
-            // Skip over embedded Ruby segments and literal strings until you find the beginning
+            // Skip over embedded Ada segments and literal strings until you find the beginning
             while ((id == AdaTokenId.UNKNOWN_TOKEN) || (id == AdaTokenId.STRING_LITERAL)) {
                 if (!ts.movePrevious()) {
                     return -1;
@@ -788,7 +786,7 @@ public class LexUtilities {
         if (token != null) {
             TokenId id = token.id();
 
-            // Skip over embedded Ruby segments and literal strings until you find the beginning
+            // Skip over embedded Ada segments and literal strings until you find the beginning
             while ((id == AdaTokenId.UNKNOWN_TOKEN) || (id == AdaTokenId.STRING_LITERAL)) {
                 if (!ts.movePrevious()) {
                     return -1;
@@ -1013,7 +1011,7 @@ public class LexUtilities {
                     begin = lineBegin;
                 } else if (line.startsWith("=end") &&
                         (lineBegin == Utilities.getRowStart(baseDoc, offset))) {
-                    // It could be a =begin,=end document - see scanf.rb in Ruby lib for example. Treat this differently.
+                    // It could be a =begin,=end document - see scanf.rb in Ada lib for example. Treat this differently.
                     int docBegin = findInlineDocStart(baseDoc, offset);
                     if (docBegin != -1) {
                         begin = docBegin;
