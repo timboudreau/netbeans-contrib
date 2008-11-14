@@ -292,6 +292,14 @@ ANY_CHAR=(.|[\n])
     "xor"           { return AdaTokenId.XOR; }
 }
 
+// Ada 95 compound keywords
+
+<YYINITIAL> {
+    "end case"      { return AdaTokenId.END_CASE; }
+    "end if"        { return AdaTokenId.END_IF; }
+    "end loop"      { return AdaTokenId.END_LOOP; }
+}
+
 // attributes
 
 <YYINITIAL> {

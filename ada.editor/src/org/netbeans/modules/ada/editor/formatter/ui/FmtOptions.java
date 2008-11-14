@@ -129,30 +129,6 @@ public class FmtOptions {
         return codeStyleProducer.create(p);
     }
 
-//    public static boolean getGlobalExpandTabToSpaces() {
-//        Preferences prefs = MimeLookup.getLookup(RubyInstallation.RUBY_MIME_TYPE).lookup(Preferences.class);
-//        return prefs.getBoolean(SimpleValueNames.EXPAND_TABS, getDefaultAsBoolean(expandTabToSpaces));
-//    }
-//
-//    public static int getGlobalTabSize() {
-//        Preferences prefs = MimeLookup.getLookup(RubyInstallation.RUBY_MIME_TYPE).lookup(Preferences.class);
-//        return prefs.getInt(SimpleValueNames.TAB_SIZE, getDefaultAsInt(tabSize));
-//    }
-//
-//    public static int getGlobalSpacesPerTab() {
-//        Preferences prefs = MimeLookup.getLookup(RubyInstallation.RUBY_MIME_TYPE).lookup(Preferences.class);
-//        return prefs.getInt(SimpleValueNames.SPACES_PER_TAB, getDefaultAsInt(spacesPerTab));
-//    }
-//
-//    public static int getGlobalIndentSize() {
-//        Preferences prefs = MimeLookup.getLookup(RubyInstallation.RUBY_MIME_TYPE).lookup(Preferences.class);
-//        return prefs.getInt(SimpleValueNames.INDENT_SHIFT_WIDTH, -1);
-//    }
-//
-//    public static int getGlobalRightMargin() {
-//        Preferences prefs = MimeLookup.getLookup(RubyInstallation.RUBY_MIME_TYPE).lookup(Preferences.class);
-//        return prefs.getInt(SimpleValueNames.TEXT_LIMIT_WIDTH, getDefaultAsInt(rightMargin));
-//    }
     public static Preferences getPreferences() {
         return MimeLookup.getLookup(AdaMimeResolver.MIME_TYPE).lookup(Preferences.class);
     }

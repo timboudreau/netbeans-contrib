@@ -80,6 +80,9 @@ public enum AdaTokenId implements TokenId {
     ELSE("else", "keyword"), //NOI18N
     ELSIF("elsif", "keyword"), //NOI18N
     END("end", "keyword"), //NOI18N
+    END_CASE("end case", "keyword"), //NOI18N
+    END_IF("end if", "keyword"), //NOI18N
+    END_LOOP("end loop", "keyword"), //NOI18N
     ENTRY("entry", "keyword"), //NOI18N
     EXCEPTION("exception", "keyword"), //NOI18N
     EXIT("exit", "keyword"), //NOI18N

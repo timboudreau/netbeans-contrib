@@ -46,7 +46,6 @@ import javax.swing.text.Document;
 
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
@@ -68,7 +67,6 @@ import org.netbeans.modules.ada.editor.formatter.ui.CodeStyle;
  * @author Andrea Lucarelli
  */
 public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
-    private boolean isEmbeddedDoc;
     private final CodeStyle codeStyle;
     private int rightMarginOverride = -1;
 
@@ -169,15 +167,11 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     public static int getTokenBalanceDelta(TokenId id, Token<? extends AdaTokenId> token,
             BaseDocument doc, TokenSequence<? extends AdaTokenId> ts, boolean includeKeywords) {
         if (id == AdaTokenId.IDENTIFIER) {
-            // In some cases, the [ shows up as an identifier, for example in this expression:
-            //  for k, v in sort{|a1, a2| a1[0].id2name <=> a2[0].id2name}
             if (token.length() == 1) {
                 char c = token.text().charAt(0);
-                if (c == '[') {
+                if (c == '(') {
                     return 1;
-                } else if (c == ']') {
-                    // I've seen "]" come instead of a RBRACKET too - for example in RHTML:
-                    // <%if session[:user]%>
+                } else if (c == ')') {
                     return -1;
                 }
             }
@@ -188,7 +182,10 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         } else if (includeKeywords) {
             if (LexUtilities.isBeginToken(id, doc, ts)) {
                 return 1;
-            } else if (id == AdaTokenId.END) {
+            } else if (id == AdaTokenId.END ||
+                    id == AdaTokenId.END_CASE ||
+                    id == AdaTokenId.END_IF ||
+                    id == AdaTokenId.END_LOOP) {
                 return -1;
             }
         }
@@ -197,62 +194,26 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     }
     
     // TODO RHTML - there can be many discontiguous sections, I've gotta process all of them on the given line
-    public static int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords, boolean rhtml) {
+    public static int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords) {
         int balance = 0;
 
-        if (rhtml) {
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
-            // Probably an RHTML file - gotta process it in sections since I can have lines
-            // made up of both whitespace, ruby, html and delimiters and all ruby sections
-            // can affect the token balance
-            TokenSequence<?> t = th.tokenSequence();
-            if (t == null) {
-                return 0;
-            }
-            t.move(begin);
-            if (!t.moveNext()) {
-                return 0;
-            }
-            
-            do {
-                Token<?> token = t.token();
-                TokenId id = token.id();
-                
-                if (id.primaryCategory().equals("ruby")) { // NOI18N
-                    TokenSequence<? extends AdaTokenId> ts = t.embedded(AdaTokenId.language());
-                    ts.move(begin);
-                    ts.moveNext();
-                    do {
-                        Token<?extends AdaTokenId> rubyToken = ts.token();
-                        if (rubyToken == null) {
-                            break;
-                        }
-                        TokenId rubyId = rubyToken.id();
-
-                        balance += getTokenBalanceDelta(rubyId, rubyToken, doc, ts, includeKeywords);
-                    } while (ts.moveNext() && (ts.offset() < end));
-                }
-
-            } while (t.moveNext() && (t.offset() < end));
-        } else {
-            TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, begin);
-            if (ts == null) {
-                return 0;
-            }
-            
-            ts.move(begin);
-
-            if (!ts.moveNext()) {
-                return 0;
-            }
-
-            do {
-                Token<?extends AdaTokenId> token = ts.token();
-                TokenId id = token.id();
-                
-                balance += getTokenBalanceDelta(id, token, doc, ts, includeKeywords);
-            } while (ts.moveNext() && (ts.offset() < end));
+        TokenSequence<? extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, begin);
+        if (ts == null) {
+            return 0;
         }
+
+        ts.move(begin);
+
+        if (!ts.moveNext()) {
+            return 0;
+        }
+
+        do {
+            Token<? extends AdaTokenId> token = ts.token();
+            TokenId id = token.id();
+
+            balance += getTokenBalanceDelta(id, token, doc, ts, includeKeywords);
+        } while (ts.moveNext() && (ts.offset() < end));
 
         return balance;
     }
@@ -280,7 +241,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 // If we're in a string literal (or regexp or documentation) leave
                 // indentation alone!
                 if (id == AdaTokenId.STRING_LITERAL) {
-                    // No indentation for literal strings in Ruby, since they can
+                    // No indentation for literal strings in Ada, since they can
                     // contain newlines. Leave it as is.
                     return true;
                 }
@@ -300,8 +261,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                     }
                 }
             } else {
-                // No ruby token -- leave the formatting alone!
-                // (Probably in an RHTML file on a line with no Ruby)
+                // No Ada token -- leave the formatting alone!
                 return true;
             }
         } else {
@@ -313,7 +273,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 // If we're in a string literal (or regexp or documentation) leave
                 // indentation alone!
                 if (id == AdaTokenId.STRING_LITERAL) {
-                    // No indentation for literal strings in Ruby, since they can
+                    // No indentation for literal strings in Ada, since they can
                     // contain newlines. Leave it as is.
                     return true;
                 }
@@ -331,7 +291,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
      *    <% if %>
      * }
      * then the "if" embedded token will be returned rather than the RHTML delimiter, or even
-     * the whitespace token (which is the first Ruby token in the embedded sequence).
+     * the whitespace token (which is the first Ada token in the embedded sequence).
      *    
      * </pre>   
      */
@@ -339,22 +299,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
         if (lineBegin != -1) {
-            if (isEmbeddedDoc) {
-                TokenSequence<? extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, lineBegin);
-                if (ts != null) {
-                    ts.moveNext();
-                    Token<?extends AdaTokenId> token = ts.token();
-                    while (token != null && token.id() == AdaTokenId.WHITESPACE) {
-                        if (!ts.moveNext()) {
-                            return null;
-                        }
-                        token = ts.token();
-                    }
-                    return token;
-                }
-            } else {
-                return LexUtilities.getToken(doc, lineBegin);
-            }
+            return LexUtilities.getToken(doc, lineBegin);
         }
         
         return null;
@@ -367,21 +312,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             Token<?extends AdaTokenId> token = getFirstToken(doc, offset);
             
             if (token == null) {
-                if (isEmbeddedDoc) {
-                    // Could be the END of a Ruby section - line begins with "%>"
-                    if (lineBegin < doc.getLength()-2) {
-                        String lineBeginStr = doc.getText(lineBegin, 2);
-                        if (lineBeginStr.equals("-%") && lineBegin < doc.getLength()-3) { // NOI18N
-                            lineBeginStr = doc.getText(lineBegin, 3);
-                            if (lineBeginStr.equals("-%>")) { // NOI18N
-                                return true;
-                            }
-                        } else if (lineBeginStr.equals("%>")) { // NOI18N
-                            return true;
-                        }
-                    }
-                    
-                }
                 return false;
             }
             
@@ -393,6 +323,9 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             return (LexUtilities.isIndentToken(id) &&
                     !LexUtilities.isBeginToken(id, doc, offset)) ||
                     id == AdaTokenId.END ||
+                    id == AdaTokenId.END_CASE ||
+                    id == AdaTokenId.END_IF ||
+                    id == AdaTokenId.END_LOOP ||
                     id == AdaTokenId.RPAREN;
         }
         
@@ -620,13 +553,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             
             int indentSize = codeStyle.getIndentSize();
             int hangingIndentSize = codeStyle.getContinuationIndentSize();
-            
-            // Pending - apply comment formatting too?
-
-            // XXX Look up RHTML too
-            //int indentSize = EditorOptions.get(RubyInstallation.RUBY_MIME_TYPE).getSpacesPerTab();
-            //int hangingIndentSize = indentSize;
-            
+                        
 
             // Build up a set of offsets and indents for lines where I know I need
             // to adjust the offset. I will then go back over the document and adjust
@@ -646,11 +573,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 int indent; // The indentation to be used for the current line
 
                 int hangingIndent = continued ? (hangingIndentSize) : 0;
-
-                if (isEmbeddedDoc && !indentOnly) {
-                    // Pick up the indentation level assigned by the HTML indenter; gets HTML structure
-                    initialIndent = GsfUtilities.getLineIndent(doc, offset);
-                }
                 
                 if (isInLiteral(doc, offset)) {
                     // Skip this line - leave formatting as it is prior to reformatting 
@@ -678,8 +600,8 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 int endOfLine = Utilities.getRowEnd(doc, offset) + 1;
 
                 if (lineBegin != -1) {
-                    balance += getTokenBalance(doc, lineBegin, endOfLine, true, isEmbeddedDoc);
-                    bracketBalance += getTokenBalance(doc, lineBegin, endOfLine, false, isEmbeddedDoc);
+                    balance += getTokenBalance(doc, lineBegin, endOfLine, true);
+                    bracketBalance += getTokenBalance(doc, lineBegin, endOfLine, false);
                     continued = isLineContinued(doc, offset, bracketBalance);
                 }
 
