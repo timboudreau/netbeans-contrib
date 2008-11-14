@@ -3,22 +3,48 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.ada.kit</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="ada-build">
-        <ant dir="../../contrib/ada.editor"/>
-        <ant dir="../../contrib/ada.help"/>
-        <ant dir="../../contrib/ada.options"/>
-        <ant dir="../../contrib/ada.platform"/>
-        <ant dir="../../contrib/ada.project"/>
-        <antcall target="netbeans"/>
+    <target name="ada-clean" description="Cleans all the modules constituting the Ada support">
+        <ant dir="../ada.editor" inheritAll="false" target="clean"/>
+        <ant dir="../ada.help" inheritAll="false" target="clean"/>
+        <ant dir="../ada.options" inheritAll="false" target="clean"/>
+        <ant dir="../ada.platform" inheritAll="false" target="clean"/>
+        <ant dir="../ada.project" inheritAll="false" target="clean"/>
+        <ant dir="." inheritAll="false" target="clean"/>
     </target>
 
-    <target name="ada-clean">
-        <ant dir="../../contrib/ada.editor" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/ada.help" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/ada.options" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/ada.platform" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/ada.project" inheritAll="false" target="clean"/>
-        <ant target="clean"/>
+    <target name="ada-build" description="Builds all the modules constituting the Ada support">
+        <ant dir="../ada.editor" inheritAll="false" target="netbeans"/>
+        <ant dir="../ada.help" inheritAll="false" target="netbeans"/>
+        <ant dir="../ada.options" inheritAll="false" target="netbeans"/>
+        <ant dir="../ada.platform" inheritAll="false" target="netbeans"/>
+        <ant dir="../ada.project" inheritAll="false" target="netbeans"/>
+        <ant dir="." inheritAll="false" target="netbeans"/>
+    </target>
+
+    <target name="ada-nbm" description="Creates nbm archives for all Ada modules">
+        <ant dir="../ada.editor" inheritAll="false" target="nbm"/>
+        <ant dir="../ada.help" inheritAll="false" target="nbm"/>
+        <ant dir="../ada.options" inheritAll="false" target="nbm"/>
+        <ant dir="../ada.platform" inheritAll="false" target="nbm"/>
+        <ant dir="../ada.project" inheritAll="false" target="nbm"/>
+        <ant dir="." inheritAll="false" target="nbm"/>
+        <move todir="." flatten="true">
+            <fileset dir="..">
+                <include name="ada.*/**/*.nbm"/>
+            </fileset>
+        </move>
+        <zip destfile="ada-nbms.zip">
+			<zipfileset dir=".">
+				<include name="*.nbm"/>
+				<include name="history.txt"/>
+				<include name="planned-features.txt"/>
+			</zipfileset>
+		</zip>
+        <delete>
+            <fileset dir=".">
+                <include name="*.nbm"/>
+            </fileset>
+        </delete>
     </target>
 
 </project>
