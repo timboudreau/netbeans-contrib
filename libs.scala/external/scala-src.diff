@@ -1,0 +1,31 @@
+Index: src/compiler/scala/tools/nsc/CompilationUnits.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/CompilationUnits.scala	(revision 16542)
++++ src/compiler/scala/tools/nsc/CompilationUnits.scala	(working copy)
+@@ -16,6 +16,9 @@
+     * It typically corresponds to a single file of source code.  It includes
+     * error-reporting hooks.  */
+   class CompilationUnit(val source: SourceFile) extends CompilationUnitTrait {
++
++    var selectTypeErrors:Map[Tree, Type] = Map()
++
+     /** the fresh name creator */
+     var fresh : FreshNameCreator = new FreshNameCreator.Default
+ 
+Index: src/compiler/scala/tools/nsc/typechecker/Typers.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 16542)
++++ src/compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
+@@ -2795,7 +2795,11 @@
+                   "\npossible cause: maybe a semicolon is missing before `"+decode(name)+"'?"
+                  else ""))
+           }
+-          setError(tree)
++          val tree1 = setError(tree)
++          if (context.unit ne null) {
++            context.unit.selectTypeErrors += (tree1 -> qual.tpe)
++          }
++          tree1
+         } else {
+           val tree1 = tree match {
+             case Select(_, _) => copy.Select(tree, qual, name)

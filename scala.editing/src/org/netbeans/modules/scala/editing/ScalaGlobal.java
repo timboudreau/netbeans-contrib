@@ -395,8 +395,12 @@ public class ScalaGlobal {
             while (units.hasNext()) {
                 CompilationUnit unit = (CompilationUnit) units.next();
                 if (unit.source() == srcFile) {
-                    final CompilationUnit unit1 = unit;
                     if (debug) {
+                        scala.collection.Map selectTypeErrors = unit.selectTypeErrors();
+                        System.out.println("selectTypeErrors:" + selectTypeErrors);
+                    }
+                    if (debug) {
+                        final CompilationUnit unit1 = unit;
                         Runnable browser = new Runnable() {
 
                             public void run() {

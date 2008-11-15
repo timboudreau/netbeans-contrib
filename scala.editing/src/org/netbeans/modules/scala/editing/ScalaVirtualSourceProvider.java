@@ -305,29 +305,29 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                 String clzName = toJavaName(symbol.nameString());
                 out.print(clzName);
 
-                Symbol superClass = symbol.superClass();
-                if (superClass != null) {
-                    String superQName = ScalaElement.symbolQualifiedName(superClass);
-                    out.print(" extends ");
-                    out.print(superQName);
-                }
-
-                scala.List parents = symbol.tpe().parents();
-                int n = 0;
-                for (int i = 0; i < parents.size(); i++) {
-                    Type parent = (Type) parents.apply(i);
-                    if (ScalaElement.typeQualifiedName(parent, false).equals("java.lang.Object")) {
-                        continue;
-                    }
-
-                    if (n == 0) {
-                        out.print(" implements ");
-                    } else {
-                        out.print(",");
-                    }
-                    printType(out, parent);
-                    n++;
-                }
+//                Symbol superClass = symbol.superClass();
+//                if (superClass != null) {
+//                    String superQName = ScalaElement.symbolQualifiedName(superClass);
+//                    out.print(" extends ");
+//                    out.print(superQName);
+//                }
+//
+//                scala.List parents = symbol.tpe().parents();
+//                int n = 0;
+//                for (int i = 0; i < parents.size(); i++) {
+//                    Type parent = (Type) parents.apply(i);
+//                    if (ScalaElement.typeQualifiedName(parent, false).equals("java.lang.Object")) {
+//                        continue;
+//                    }
+//
+//                    if (n == 0) {
+//                        out.print(" implements ");
+//                    } else {
+//                        out.print(",");
+//                    }
+//                    printType(out, parent);
+//                    n++;
+//                }
 
                 out.println(" {");
 

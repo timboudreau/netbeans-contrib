@@ -175,8 +175,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         "{m,n}", "At least m and at most n repetitions of the preceding",
         "?", "At most one repetition of the preceding; same as {0,1}",
         "|", "Either preceding or next expression may match",
-        "()", "Grouping",
-    //"[:alnum:]", "Alphanumeric character class",
+        "()", "Grouping", //"[:alnum:]", "Alphanumeric character class",
     //"[:alpha:]", "Uppercase or lowercase letter",
     //"[:blank:]", "Blank and tab",
     //"[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)",
@@ -205,8 +204,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
         "\\", "\\<i>ooo</i>: The latin character in octal <i>ooo</i>",
         // PENDING: Is this supported?
-        "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
-    };
+        "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",};
     private static final String[] CSS_WORDS =
             new String[]{
         // Dbl-space lines to keep formatter from collapsing pairs into a block
@@ -256,8 +254,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         "image", "All form images (type=\"image\")",
         "reset", "All reset buttons (type=\"reset\")",
         "button", "All other buttons (type=\"button\")",
-        "file", "All file uploads (type=\"file\")",
-    };
+        "file", "All file uploads (type=\"file\")",};
     // From http://code.google.com/p/jsdoc-toolkit/wiki/TagReference
     private static final String[] JSDOC_WORDS =
             new String[]{
@@ -285,8 +282,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         "@scope",
         "@scope",
         "@static",
-        "@type",
-    };
+        "@type",};
 
     public ScalaCodeCompletion() {
     }
@@ -406,18 +402,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 Call call = new Call();
                 findCall(root, ts, th, call, 0);
                 if (call.base != null) {
-                    Symbol symbol = call.base.getSymbol();
-                    if (symbol.nameString().equals("<none>")) {
-                        // this maybe an object, which can not be resolved by scala's compiler
-                        symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
-                    }
-
                     if (call.select != null) {
                         request.prefix = call.select.getName();
                     }
 
-                    if (symbol != null) {
-                        completeSymbolMembers(symbol, proposals, request);
+                    if (call.base.getSymbol() != null) {
+                        completeSymbolMembers(call.base, proposals, request);
                         return completionResult;
                     }
                 }
@@ -439,7 +429,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 completeSymbolMembers(pkgSymbol, proposals, request);
                 return completionResult;
                 }
-                */
+                 */
                 request.prefix = sb.toString();
                 completeImport(proposals, request);
                 return completionResult;
@@ -2004,9 +1994,21 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         return null;
     }
 
-    private boolean completeSymbolMembers(Symbol symbol, List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeSymbolMembers(AstItem item, List<CompletionProposal> proposals, CompletionRequest request) {
+        Symbol symbol = item.getSymbol();
         String prefix = request.prefix;
-        scala.tools.nsc.symtab.Types.Type resType = getResultType(symbol.tpe());
+//        if (symbol.nameString().equals("<none>")) {
+//            // this maybe an object, which can not be resolved by scala's compiler
+//            symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
+//        }
+
+        scala.tools.nsc.symtab.Types.Type resType = symbol.nameString().equals("<none>") // NoSymbol
+                ? item.getType()
+                : getResultType(symbol.tpe());
+
+        if (resType == null) {
+            return false;
+        }
 
         try {
             scala.List members = resType.members();
