@@ -43,6 +43,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.Type;
 
 /**
  *
@@ -61,6 +62,7 @@ public abstract class AstItem {
     private Symbol symbol;
     private Token idToken;
     private AstScope enclosingScope;
+    private Type tpe;
 
     protected AstItem() {
         this(null, null);
@@ -77,6 +79,14 @@ public abstract class AstItem {
     protected AstItem(Symbol symbol, Token idToken) {
         this.symbol = symbol;
         this.idToken = idToken;
+    }
+
+    public void setType(Type tpe) {
+        this.tpe = tpe;
+    }
+
+    public Type getType() {
+        return tpe;
     }
 
     public Symbol getSymbol() {

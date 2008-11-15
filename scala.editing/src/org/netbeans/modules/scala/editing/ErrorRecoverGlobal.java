@@ -54,7 +54,6 @@ import org.openide.util.Exceptions;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
-import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.util.BatchSourceFile;
 
@@ -147,8 +146,7 @@ public class ErrorRecoverGlobal {
 
                 CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                 if (unit != null) {
-                    final Tree tree = unit.body();
-                    AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                    AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
                     AstItem found = root.findFirstItemWithName(itemName);
                     if (found != null) {
                         return found.getSymbol();
@@ -180,8 +178,7 @@ public class ErrorRecoverGlobal {
 
             CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
             if (unit != null) {
-                final Tree tree = unit.body();
-                AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
 
                 int lastDot = pkgQName.lastIndexOf('.');
                 String lastPath = lastDot == -1 ? pkgQName : pkgQName.substring(lastDot + 1, pkgQName.length());

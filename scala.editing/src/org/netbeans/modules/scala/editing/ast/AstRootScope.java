@@ -165,4 +165,25 @@ public class AstRootScope extends AstScope {
             return o1.offset(th) < o2.offset(th) ? -1 : 1;
         }
     }
+    // Sinleton EmptyScope
+    private static AstRootScope EmptyScope;
+
+    public static AstRootScope emptyScope() {
+        if (EmptyScope == null) {
+            EmptyScope = new AstRootScope() {
+
+                @Override
+                public int getBoundsOffset(TokenHierarchy th) {
+                    return -1;
+                }
+
+                @Override
+                public int getBoundsEndOffset(TokenHierarchy th) {
+                    return -1;
+                }
+            };
+        }
+
+        return EmptyScope;
+    }
 }

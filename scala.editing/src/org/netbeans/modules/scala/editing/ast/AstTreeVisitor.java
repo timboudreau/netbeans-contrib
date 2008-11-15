@@ -47,6 +47,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import scala.Option;
+import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -61,6 +63,7 @@ import scala.tools.nsc.ast.Trees.CaseDef;
 import scala.tools.nsc.ast.Trees.ClassDef;
 import scala.tools.nsc.ast.Trees.CompoundTypeTree;
 import scala.tools.nsc.ast.Trees.DefDef;
+import scala.tools.nsc.ast.Trees.DocDef;
 import scala.tools.nsc.ast.Trees.ExistentialTypeTree;
 import scala.tools.nsc.ast.Trees.Function;
 import scala.tools.nsc.ast.Trees.Ident;
@@ -93,6 +96,7 @@ import scala.tools.nsc.ast.Trees.Typed;
 import scala.tools.nsc.ast.Trees.UnApply;
 import scala.tools.nsc.ast.Trees.ValDef;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Types.Type;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
@@ -102,9 +106,10 @@ import scala.tools.nsc.util.BatchSourceFile;
 public class AstTreeVisitor extends AstVisitor {
 
     private final FileObject fo;
+    private Type qualType;
 
-    public AstTreeVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
-        super(rootTree, th, sourceFile);
+    public AstTreeVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
+        super(unit, th, sourceFile);
         setBoundsEndToken(rootScope);
         if (sourceFile != null) {
             File file = new File(sourceFile.path());
@@ -485,14 +490,12 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitSelect(Select tree) {
-        if (tree.isErroneous()) {
-            //System.out.println("error Select tree: " + tree + "\n" + tree.qualifier().tpe());
-        }
         /**
-         * For error tree, for example a.p, the error part's offset will be set to 'p',
+         * For error Select tree, for example a.p, the error part's offset will be set to 'p',
          * The tree.qualifier() part's offset will be 'a'
          */
         Token idToken = getIdToken(tree);
+
         AstRef ref = new AstRef(tree.symbol(), idToken);
         if (scopes.peek().addRef(ref)) {
             info("\tAdded: ", ref);
@@ -504,7 +507,21 @@ public class AstTreeVisitor extends AstVisitor {
         exprs.push(expr);
         // For Select tree, should its idToken to the same expr
         exprs.peek().addToken(idToken);
+
+        /**
+         * For error Select tree, the qual type may stored, try to fetch it now
+         */
+        Tree qual = tree.qualifier();
+        if (qual instanceof Ident) {
+            Symbol qualSym = qual.symbol();
+            if (qualSym != null && isNoSymbol(qualSym)) {
+                scala.collection.Map<Tree, Type> errors = unit.selectTypeErrors();
+                Option<Type> opt = errors.get(tree);
+                qualType = opt.isDefined() ? opt.get() : null;
+            }
+        }
         visit(tree.qualifier());
+        qualType = null;
         exprs.pop();
     }
 
@@ -517,6 +534,9 @@ public class AstTreeVisitor extends AstVisitor {
              * to get error recover in code completion, we need to also add it as a ref
              */
             AstRef ref = new AstRef(symbol, getIdToken(tree));
+            if (isNoSymbol(symbol) && qualType != null) {
+                ref.setType(qualType);
+            }
             if (scopes.peek().addRef(ref)) {
                 info("\tAdded: ", ref);
             }
@@ -591,6 +611,11 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitExistentialTypeTree(ExistentialTypeTree tree) {
         visit(tree.tpt());
         visit(tree.whereClauses());
+    }
+
+    @Override
+    public void visitDocDef(DocDef tree) {
+        visit(tree.definition());
     }
 
     @Override

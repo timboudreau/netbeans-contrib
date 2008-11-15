@@ -47,6 +47,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.Option;
 import scala.Tuple2;
+import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -107,15 +108,18 @@ public abstract class AstVisitor {
     protected int indentLevel;
     protected BatchSourceFile sourceFile;
     protected TokenHierarchy th;
+    protected CompilationUnit unit;
     protected Stack<Tree> astPath = new Stack<Tree>();
     protected AstRootScope rootScope;
     protected Stack<AstScope> scopes = new Stack<AstScope>();
     protected Stack<AstExpr> exprs = new Stack<AstExpr>();
 
-    public AstVisitor(Tree rootTree, TokenHierarchy th, BatchSourceFile sourceFile) {
+    public AstVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
+        this.unit = unit;
         this.th = th;
         this.sourceFile = sourceFile;
-        this.rootScope = new AstRootScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
+        Tree rootTree = unit.body();
+        rootScope = new AstRootScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
         scopes.push(rootScope);
         exprs.push(rootScope.getExprContainer());
         visit(rootTree);

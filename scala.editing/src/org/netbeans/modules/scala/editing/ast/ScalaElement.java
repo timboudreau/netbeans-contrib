@@ -65,7 +65,6 @@ import org.openide.util.Exceptions;
 import scala.Option;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
-import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.io.AbstractFile;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.Type;
@@ -268,8 +267,7 @@ public class ScalaElement implements ScalaElementHandle {
                      */
                     CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                     if (unit != null) {
-                        final Tree tree = unit.body();
-                        AstRootScope root = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+                        AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
                         AstDef def = root.findDefMatched(symbol);
                         if (def != null) {
                             offset = def.getIdOffset(th);

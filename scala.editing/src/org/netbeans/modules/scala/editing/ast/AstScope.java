@@ -771,26 +771,5 @@ public class AstScope implements Iterable<AstScope> {
             return o1.getIdOffset(th) < o2.getIdEndOffset(th) ? -1 : 1;
         }
     }
-    // Sinleton EmptyScope
-    private static AstScope EmptyScope;
-
-    public static AstScope emptyScope() {
-        if (EmptyScope == null) {
-            EmptyScope = new AstScope() {
-
-                @Override
-                public int getBoundsOffset(TokenHierarchy th) {
-                    return -1;
-                }
-
-                @Override
-                public int getBoundsEndOffset(TokenHierarchy th) {
-                    return -1;
-                }
-            };
-        }
-
-        return EmptyScope;
-    }
 }
 

@@ -76,7 +76,6 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
-import scala.tools.nsc.ast.Trees.Tree;
 import scala.tools.nsc.reporters.Reporter;
 import scala.tools.nsc.util.BatchSourceFile;
 import scala.tools.nsc.util.Position;
@@ -546,8 +545,7 @@ public class ScalaParser implements Parser {
         }
         try {
             CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
-            Tree tree = unit.body();
-            rootScope = new AstTreeVisitor(tree, th, srcFile).getRootScope();
+            rootScope = new AstTreeVisitor(unit, th, srcFile).getRootScope();
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
             ScalaGlobal.reset();
