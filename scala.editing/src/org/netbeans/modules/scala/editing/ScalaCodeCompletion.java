@@ -2003,7 +2003,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //        }
 
         scala.tools.nsc.symtab.Types.Type resType = symbol.nameString().equals("<none>") // NoSymbol
-                ? item.getType()
+                ? item.getResultType()
                 : getResultType(symbol.tpe());
 
         if (resType == null) {
@@ -2072,17 +2072,17 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     private void findCall(AstRootScope rootScope, TokenSequence ts, TokenHierarchy th, Call call, int times) {
         assert rootScope != null;
 
-        boolean caretFollowingDot = false;
+        boolean caretAfterDot = false;
         Token idToken = null;
         Token closest = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
         if (closest.id() == ScalaTokenId.Dot) {
-            caretFollowingDot = true;
+            caretAfterDot = true;
+            // skip RParen if it's the previous
             if (ts.movePrevious()) {
                 Token prev = ScalaLexUtilities.findPreviousNonWs(ts);
                 if (prev != null && prev.id() == ScalaTokenId.RParen) {
                     ScalaLexUtilities.skipParenthesis(ts, true);
                 }
-
             }
             idToken = ScalaLexUtilities.findPreviousIncluding(ts, CALL_IDs);
         } else if (CALL_IDs.contains(closest.id())) {
@@ -2092,7 +2092,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         if (idToken != null) {
             AstItem item = rootScope.findItemAt(idToken);
             if (times == 0) {
-                if (caretFollowingDot) {
+                if (caretAfterDot) {
                     call.base = item;
                     return;
                 }

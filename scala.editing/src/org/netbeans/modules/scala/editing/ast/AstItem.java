@@ -62,7 +62,7 @@ public abstract class AstItem {
     private Symbol symbol;
     private Token idToken;
     private AstScope enclosingScope;
-    private Type tpe;
+    private Type resultType;
 
     protected AstItem() {
         this(null, null);
@@ -81,12 +81,12 @@ public abstract class AstItem {
         this.idToken = idToken;
     }
 
-    public void setType(Type tpe) {
-        this.tpe = tpe;
+    public void setResultType(Type tpe) {
+        this.resultType = tpe;
     }
 
-    public Type getType() {
-        return tpe;
+    public Type getResultType() {
+        return resultType;
     }
 
     public Symbol getSymbol() {

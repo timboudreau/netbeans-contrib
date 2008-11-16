@@ -1431,6 +1431,9 @@ public class ScalaLexUtilities {
     }
     public static List<ScalaTokenId> PotentialIdTokens = Arrays.asList(
             ScalaTokenId.Identifier,
+            ScalaTokenId.True,
+            ScalaTokenId.False,
+            ScalaTokenId.Null,
             ScalaTokenId.XmlAttName,
             ScalaTokenId.XmlAttValue,
             ScalaTokenId.XmlCDData,

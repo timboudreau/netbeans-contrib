@@ -106,7 +106,7 @@ import scala.tools.nsc.util.BatchSourceFile;
 public class AstTreeVisitor extends AstVisitor {
 
     private final FileObject fo;
-    private Type qualType;
+    private Type maybeType;
 
     public AstTreeVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(unit, th, sourceFile);
@@ -496,7 +496,11 @@ public class AstTreeVisitor extends AstVisitor {
          */
         Token idToken = getIdToken(tree);
 
-        AstRef ref = new AstRef(tree.symbol(), idToken);
+        Symbol sym = tree.symbol();
+        AstRef ref = new AstRef(sym, idToken);
+        if (sym != null && isNoSymbol(sym) && maybeType != null) {
+            ref.setResultType(maybeType);
+        }
         if (scopes.peek().addRef(ref)) {
             info("\tAdded: ", ref);
         }
@@ -512,16 +516,16 @@ public class AstTreeVisitor extends AstVisitor {
          * For error Select tree, the qual type may stored, try to fetch it now
          */
         Tree qual = tree.qualifier();
-        if (qual instanceof Ident) {
+        if (qual instanceof Ident || qual instanceof Apply) {
             Symbol qualSym = qual.symbol();
             if (qualSym != null && isNoSymbol(qualSym)) {
                 scala.collection.Map<Tree, Type> errors = unit.selectTypeErrors();
                 Option<Type> opt = errors.get(tree);
-                qualType = opt.isDefined() ? opt.get() : null;
+                maybeType = opt.isDefined() ? opt.get() : null;
             }
         }
         visit(tree.qualifier());
-        qualType = null;
+        maybeType = null;
         exprs.pop();
     }
 
@@ -534,8 +538,8 @@ public class AstTreeVisitor extends AstVisitor {
              * to get error recover in code completion, we need to also add it as a ref
              */
             AstRef ref = new AstRef(symbol, getIdToken(tree));
-            if (isNoSymbol(symbol) && qualType != null) {
-                ref.setType(qualType);
+            if (isNoSymbol(symbol) && maybeType != null) {
+                ref.setResultType(maybeType);
             }
             if (scopes.peek().addRef(ref)) {
                 info("\tAdded: ", ref);
