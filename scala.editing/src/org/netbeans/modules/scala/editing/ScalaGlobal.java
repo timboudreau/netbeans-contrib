@@ -417,18 +417,4 @@ public class ScalaGlobal {
         }
     }
 
-//    public static scala.List<BatchSourceFile> buildScalaList(BatchSourceFile f) {
-////        scala.Array<BatchSourceFile> a = new scala.Array<BatchSourceFile>(1);
-////        BatchSourceFile[] b = scala.Array$.MODULE$.apply(a);
-////        b[0] = f;
-////        return scala.List$.MODULE$.apply(a);
-//    }
-//
-//    public static scala.List<String> buildScalaList(String e1, String e2) {
-//        scala.Array<String> a = new scala.Array<String>(2);
-//        String[] b = scala.Array$.MODULE$.apply(a);
-//        b[0] = e1;
-//        b[1] = e2;
-//        return scala.List$.MODULE$.apply(a);
-//    }
 }
