@@ -63,6 +63,7 @@ public abstract class AstItem {
     private Token idToken;
     private AstScope enclosingScope;
     private Type resultType;
+    private String name;
 
     protected AstItem() {
         this(null, null);
@@ -81,6 +82,26 @@ public abstract class AstItem {
         this.idToken = idToken;
     }
 
+    private void setName(Token idToken) {
+        /**
+         * symbol.nameString() is same as idToken's text, for editor, it's always
+         * better to use idToken's text, for example, we'll use this name to
+         * decide occurrences etc.
+         */
+        /** @todo why will throws NPE here? */
+        try {
+            this.name = idToken.text().toString();
+        } catch (Exception ex) {
+            int l = idToken.length();
+            StringBuilder sb = new StringBuilder(l);
+            for (int i = 0; i < l; i++) {
+                sb.append(" ");
+            }
+            this.name = sb.toString();
+            System.out.println("NPE in AstItem#getName:" + getIdToken().id());
+        }
+    }
+
     public void setResultType(Type tpe) {
         this.resultType = tpe;
     }
@@ -94,23 +115,12 @@ public abstract class AstItem {
     }
 
     public String getName() {
-        /**
-         * symbol.nameString() is same as idToken's text, for editor, it's always
-         * better to use idToken's text, for example, we'll use this name to
-         * decide occurrences etc. 
-         */
-        String name = "";
-        /** @todo why will throws NPE here? */
-        try {
-            name = getIdToken().text().toString();
-        } catch (Exception ex) {
-            System.out.println("NPE in AstItem#getName:" + getIdToken().id());
-        }
         return name;
     }
-
+    
     public void setIdToken(Token idToken) {
         this.idToken = idToken;
+        setName(idToken);
     }
 
     public Token getIdToken() {
