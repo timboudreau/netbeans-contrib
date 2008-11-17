@@ -54,17 +54,17 @@ public class AdaMimeResolver extends MIMEResolver {
      * Extensions recognized as being Ada.
      */
     private final static String[] EXTENSIONS = new String[]{
-        "ada", // NOI18N
         "ads", // NOI18N
-        "adb" // NOI18N
+        "adb", // NOI18N
+        "ada" // NOI18N
     };
     /**
      * MIME type for Ada.
      */
-    public static final String MIME_TYPE = "text/x-ada"; // NOI18N
+    public static final String ADA_MIME_TYPE = "text/x-ada"; // NOI18N
 
     public AdaMimeResolver() {
-        super(EXTENSIONS);
+        super(ADA_MIME_TYPE);
     }
 
     public static boolean isAdaExt(String ext) {
@@ -78,6 +78,6 @@ public class AdaMimeResolver extends MIMEResolver {
     }
 
     public String findMIMEType(FileObject fo) {
-        return isAdaExt(fo.getExt()) ? MIME_TYPE : null;
+        return isAdaExt(fo.getExt()) ? ADA_MIME_TYPE : null;
     }
 }

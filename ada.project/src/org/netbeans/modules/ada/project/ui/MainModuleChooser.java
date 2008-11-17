@@ -109,7 +109,7 @@ final class MainModuleChooser extends javax.swing.JPanel {
         if (fo.isFolder() || !fo.isValid() || fo.isVirtual()) {
             return false;
         }
-        return AdaMimeResolver.MIME_TYPE.equals(FileUtil.getMIMEType(fo));
+        return AdaMimeResolver.ADA_MIME_TYPE.equals(FileUtil.getMIMEType(fo));
     }
 
     /** This method is called from within the constructor to
