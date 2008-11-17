@@ -50,6 +50,8 @@ import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.visitors.Visitor
@@ -68,7 +70,9 @@ public interface Visitor {
 
     public void visit(Identifier identifier);
 
-    public void visit(PackageSpecification packageDeclaration);
+    public void visit(PackageSpecification packageSpecification);
+
+    public void visit(PackageBody packageBody);
 
     public void visit(PackageName packageName);
 
@@ -79,4 +83,6 @@ public interface Visitor {
     public void visit(With with);
 
     public void visit(Use use);
+
+    public void visit(Block block);
 }

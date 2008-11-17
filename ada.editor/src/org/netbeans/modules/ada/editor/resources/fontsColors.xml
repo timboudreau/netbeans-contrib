@@ -58,9 +58,27 @@ made subject to such option by the copyright holder.
     <fontcolor name="attribute" foreColor="red"/>
     
     <!--"semantic" highlighting:-->
-    <!-- NOT IMPLEMENTED -->
-    <fontcolor name="mod-enum-declaration" default="identifier">
+    <fontcolor name="mod-unused" waveUnderlined="999999"/>
+    <fontcolor name="mod-abstract" />
+    <fontcolor name="mod-field" default="field"/>
+    <fontcolor name="mod-local-variable" />
+    <fontcolor name="mod-parameter" foreColor="A06001"/>
+    <fontcolor name="mod-method" foreColor="000000" >
         <font style="bold" />
     </fontcolor>
+    <fontcolor name="mod-constructor" >
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-class" >
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-deprecated" strikeThrough="404040" />
+    <fontcolor name="mod-static" >
+        <font style="italic" />
+    </fontcolor>
+    <fontcolor name="mod-private" />
+    <fontcolor name="mod-protected" />
+    <fontcolor name="mod-public" />
+    <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
 
 </fontscolors>

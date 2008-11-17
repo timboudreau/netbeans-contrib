@@ -56,7 +56,7 @@ public class AdaParseResult extends ParserResult {
     private final Program root;
 
     public AdaParseResult(AdaParser parser, ParserFile file, Program rootNode) {
-        super(parser, file, AdaMimeResolver.MIME_TYPE);
+        super(parser, file, AdaMimeResolver.ADA_MIME_TYPE);
         this.root = rootNode;
     }
 

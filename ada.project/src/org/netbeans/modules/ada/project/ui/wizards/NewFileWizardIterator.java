@@ -98,7 +98,7 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
         String ext = FileUtil.getExtension(fname);
 
         FileObject foo = FileUtil.createData(FileUtil.createMemoryFileSystem().getRoot(), fname);
-        if (foo == null || !AdaMimeResolver.MIME_TYPE.equals(FileUtil.getMIMEType(foo))) {
+        if (foo == null || !AdaMimeResolver.ADA_MIME_TYPE.equals(FileUtil.getMIMEType(foo))) {
             if (ext == null || ext.length() == 0) {
                 // TODO: get naming by options
                 Templates.setTargetName(this.wizard, fname); //NOI18N

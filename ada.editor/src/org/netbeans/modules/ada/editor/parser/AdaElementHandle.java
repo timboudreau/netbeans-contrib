@@ -36,15 +36,20 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.parser;
 
+import java.util.Collections;
+import java.util.Set;
+import org.netbeans.modules.gsf.api.Modifier;
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.ada.editor.AdaLanguage;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  * Based on  org.netbeans.modules.php.editor.parser.GSFPHPElementHandle
@@ -52,9 +57,9 @@ import org.netbeans.modules.ada.editor.ast.ASTNode;
  * @author Andrea Lucarelli
  */
 public abstract class AdaElementHandle implements ElementHandle {
-    
+
     final private CompilationInfo info;
-    
+
     AdaElementHandle(CompilationInfo info) {
         this.info = info;
     }
@@ -64,17 +69,80 @@ public abstract class AdaElementHandle implements ElementHandle {
     }
 
     public String getMimeType() {
-        return AdaMimeResolver.MIME_TYPE;
+        return AdaMimeResolver.ADA_MIME_TYPE;
     }
 
+    // TODO what is about?
     public String getIn() {
         return null;
     }
 
     public boolean signatureEquals(ElementHandle handle) {
+        // TODO needs to be done
         return false;
     }
-    
+
     public abstract ASTNode getASTNode();
 
+    public static class PackageSpecificationHandle extends AdaElementHandle {
+
+        private PackageSpecification declaration;
+
+        public PackageSpecificationHandle (CompilationInfo info, PackageSpecification declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            if (declaration.getName() != null) {
+                name = declaration.getName().getName();
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            return ElementKind.CLASS;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+    }
+
+    public static class PackageBodyHandle extends AdaElementHandle {
+
+        private PackageBody declaration;
+
+        public PackageBodyHandle (CompilationInfo info, PackageBody declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            if (declaration.getName() != null) {
+                name = declaration.getName().getName();
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            return ElementKind.CLASS;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+    }
 }

@@ -51,7 +51,7 @@ public class FormattingOptionsPanel extends JPanel implements ActionListener, Pr
     public FormattingOptionsPanel() {        
         initComponents();
         
-        previewPane.setContentType(AdaMimeResolver.MIME_TYPE); // NOI18N
+        previewPane.setContentType(AdaMimeResolver.ADA_MIME_TYPE); // NOI18N
         // Don't highlight caret row 
         previewPane.putClientProperty(
             "HighlightsLayerExcludes", // NOI18N

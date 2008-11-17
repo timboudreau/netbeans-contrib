@@ -60,7 +60,6 @@ public class FmtTabsIndents extends javax.swing.JPanel {
 
         continuationIndentSizeField.putClientProperty(OPTION_ID, continuationIndentSize);
         reformatCommentsCheckBox.putClientProperty(OPTION_ID, reformatComments);
-        indentHtmlCheckBox.putClientProperty(OPTION_ID, indentHtml);
     }
 
     public static FormattingOptionsPanel.Category getController() {
@@ -84,7 +83,6 @@ public class FmtTabsIndents extends javax.swing.JPanel {
         continuationIndentSizeLabel = new javax.swing.JLabel();
         continuationIndentSizeField = new javax.swing.JTextField();
         reformatCommentsCheckBox = new javax.swing.JCheckBox();
-        indentHtmlCheckBox = new javax.swing.JCheckBox();
 
         jTextField3.setText("jTextField3");
 
@@ -97,10 +95,10 @@ public class FmtTabsIndents extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(continuationIndentSizeLabel, org.openide.util.NbBundle.getMessage(FmtTabsIndents.class, "LBL_ContinuationIndentSize")); // NOI18N
 
         continuationIndentSizeField.setColumns(3);
+        continuationIndentSizeField.setEnabled(false);
 
         org.openide.awt.Mnemonics.setLocalizedText(reformatCommentsCheckBox, org.openide.util.NbBundle.getMessage(FmtTabsIndents.class, "LBL_ReformatComments")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(indentHtmlCheckBox, org.openide.util.NbBundle.getMessage(FmtTabsIndents.class, "LBL_IndentHTML")); // NOI18N
+        reformatCommentsCheckBox.setEnabled(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -113,9 +111,6 @@ public class FmtTabsIndents extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .add(reformatCommentsCheckBox)
                 .addContainerGap())
-            .add(layout.createSequentialGroup()
-                .add(indentHtmlCheckBox)
-                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -126,15 +121,12 @@ public class FmtTabsIndents extends javax.swing.JPanel {
                     .add(continuationIndentSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(reformatCommentsCheckBox)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(indentHtmlCheckBox)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField continuationIndentSizeField;
     private javax.swing.JLabel continuationIndentSizeLabel;
-    private javax.swing.JCheckBox indentHtmlCheckBox;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JCheckBox reformatCommentsCheckBox;

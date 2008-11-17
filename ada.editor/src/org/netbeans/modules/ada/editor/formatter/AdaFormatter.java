@@ -193,7 +193,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return 0;
     }
     
-    // TODO RHTML - there can be many discontiguous sections, I've gotta process all of them on the given line
     public static int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords) {
         int balance = 0;
 
@@ -283,18 +282,6 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return false;
     }
     
-    /** 
-     * Get the first token on the given line. Similar to LexUtilities.getToken(doc, lineBegin)
-     * except (a) it computes the line begin from the offset itself, and more importantly,
-     * (b) it handles RHTML tokens specially; e.g. if a line begins with
-     * {@code
-     *    <% if %>
-     * }
-     * then the "if" embedded token will be returned rather than the RHTML delimiter, or even
-     * the whitespace token (which is the first Ada token in the embedded sequence).
-     *    
-     * </pre>   
-     */
     private Token<? extends AdaTokenId> getFirstToken(BaseDocument doc, int offset) throws BadLocationException {
         int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
@@ -333,12 +320,10 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     }
     
     private boolean isLineContinued(BaseDocument doc, int offset, int bracketBalance) throws BadLocationException {
-        // TODO RHTML - this isn't going to work for rhtml embedded strings...
         offset = Utilities.getRowLastNonWhite(doc, offset);
         if (offset == -1) {
             return false;
         }
-
         
         TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, offset);
 

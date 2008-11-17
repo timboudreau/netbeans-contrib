@@ -41,9 +41,11 @@ package org.netbeans.modules.ada.editor.ast.nodes.visitors;
 
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.EmptyStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
@@ -83,6 +85,12 @@ public class DefaultVisitor implements Visitor {
 
     public void visit(PackageSpecification node) {
         scan(node.getName());
+        scan(node.getBody());
+    }
+
+    public void visit(PackageBody node) {
+        scan(node.getName());
+        scan(node.getBody());
     }
 
     public void visit(PackageName node) {
@@ -109,6 +117,10 @@ public class DefaultVisitor implements Visitor {
 
     public void visit(Use node) {
         scan(node.getPackageName());
+    }
+
+    public void visit(Block node) {
+        scan(node.getStatements());
     }
 
 }

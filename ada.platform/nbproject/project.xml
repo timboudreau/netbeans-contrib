@@ -91,13 +91,15 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.ada.kit</friend>
+                <friend>org.netbeans.modules.ada.project</friend>
                 <package>org.netbeans.api.ada.platform</package>
                 <package>org.netbeans.modules.ada.platform.compiler</package>
                 <package>org.netbeans.modules.ada.platform.compiler.gnat</package>
                 <package>org.netbeans.modules.ada.platform.compiler.gnat.commands</package>
                 <package>org.netbeans.modules.ada.platform.ui</package>
-            </public-packages>
+            </friend-packages>
         </data>
     </configuration>
 </project>

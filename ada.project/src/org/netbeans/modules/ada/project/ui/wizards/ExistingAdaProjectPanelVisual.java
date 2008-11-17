@@ -94,10 +94,6 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.projectFolder.text")); // NOI18N
 
-        projectName.setText(org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.projectName.text")); // NOI18N
-
-        projectFolder.setText(org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.projectFolder.text")); // NOI18N
-
         org.openide.awt.Mnemonics.setLocalizedText(browse, org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.browse.text")); // NOI18N
         browse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -116,10 +112,10 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(projectFolder, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+                        .add(projectFolder, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
                         .add(1, 1, 1)
                         .add(browse))
-                    .add(projectName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
+                    .add(projectName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

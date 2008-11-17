@@ -44,6 +44,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
@@ -97,7 +98,6 @@ public class FmtOptions {
     public static final String rightMargin = SimpleValueNames.TEXT_LIMIT_WIDTH; //NOI18N
     public static final String continuationIndentSize = "continuationIndentSize"; //NOI18N
     public static final String reformatComments = "reformatComments"; //NOI18N
-    public static final String indentHtml = "indentHtml"; //NOI18N
     public static Preferences lastValues;
     static final String CODE_STYLE_PROFILE = "CodeStyle"; // NOI18N
     private static final String DEFAULT_PROFILE = "default"; // NOI18N
@@ -130,7 +130,7 @@ public class FmtOptions {
     }
 
     public static Preferences getPreferences() {
-        return MimeLookup.getLookup(AdaMimeResolver.MIME_TYPE).lookup(Preferences.class);
+        return MimeLookup.getLookup(AdaMimeResolver.ADA_MIME_TYPE).lookup(Preferences.class);
     }
 
     public static void flush() {
@@ -164,13 +164,12 @@ public class FmtOptions {
     private static void createDefaults() {
         String defaultValues[][] = {
             {expandTabToSpaces, TRUE}, //NOI18N
-            {tabSize, "2"}, //NOI18N
-            {spacesPerTab, "2"}, //NOI18N
-            {indentSize, "2"}, //NOI18N
-            {continuationIndentSize, "2"}, //NOI18N
-            {rightMargin, "120"}, //NOI18N
+            {tabSize, "4"}, //NOI18N
+            {spacesPerTab, "4"}, //NOI18N
+            {indentSize, "4"}, //NOI18N
+            {continuationIndentSize, "4"}, //NOI18N
+            {rightMargin, "80"}, //NOI18N
             {reformatComments, FALSE}, //NOI18N
-            {indentHtml, TRUE}, //NOI18N
         };
 
         defaults = new HashMap<String, String>();
@@ -229,7 +228,7 @@ public class FmtOptions {
                 previewPane.getAccessibleContext().setAccessibleName(NbBundle.getMessage(FmtOptions.class, "AN_Preview")); //NOI18N
                 previewPane.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(FmtOptions.class, "AD_Preview")); //NOI18N
                 previewPane.putClientProperty("HighlightsLayerIncludes", "^org\\.netbeans\\.modules\\.editor\\.lib2\\.highlighting\\.SyntaxHighlighting$"); //NOI18N
-                previewPane.setEditorKit(CloneableEditorSupport.getEditorKit(AdaMimeResolver.MIME_TYPE));
+                previewPane.setEditorKit(CloneableEditorSupport.getEditorKit(AdaMimeResolver.ADA_MIME_TYPE));
                 previewPane.setEditable(false);
             }
             return previewPane;
@@ -240,8 +239,6 @@ public class FmtOptions {
             for (String[] option : forcedOptions) {
                 p.put(option[0], option[1]);
             }
-
-            System.out.println("PIPPO");
 
             int rm = 30;
             try {
@@ -264,27 +261,22 @@ public class FmtOptions {
                 }
 
             //pane.putClientProperty("TextLimitLine", rm); // NOI18N
+
             } catch (NumberFormatException e) {
                 // Ignore it
             }
 
             CodeStyle codeStyle = FmtOptions.createCodeStyle(p);
 
-            try {
-                BaseDocument doc = new BaseDocument(null, false);
-                doc.putProperty("mimeType", AdaMimeResolver.MIME_TYPE);
-//                doc.putProperty(org.netbeans.api.lexer.Language.class, );
+            pane.setIgnoreRepaint(true);
+            pane.setText(previewText);
 
-                doc.insertString(0, previewText, null);
+            AdaFormatter formatter = new AdaFormatter(codeStyle, rm);
+            formatter.reindent(null, pane.getDocument(), 0, pane.getDocument().getLength(), null, false);
 
-                AdaFormatter formatter = new AdaFormatter(codeStyle, rm);
-                formatter.reindent(null, doc, 0, doc.getLength(), null, false);
-
-                String formatted = doc.getText(0, doc.getLength());
-                pane.setText(formatted);
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
+            pane.setIgnoreRepaint(false);
+            pane.scrollRectToVisible(new Rectangle(0,0,10,10) );
+            pane.repaint(100);
         }
 
         // PreferencesCustomizer implementation --------------------------------

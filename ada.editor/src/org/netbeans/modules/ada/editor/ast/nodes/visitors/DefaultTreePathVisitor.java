@@ -44,8 +44,10 @@ import java.util.LinkedList;
 import java.util.List;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
@@ -83,6 +85,13 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(Block node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(Comment node) {
         path.addFirst(node);
         super.visit(node);
@@ -98,6 +107,13 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
 
     @Override
     public void visit(PackageSpecification node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(PackageBody node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();

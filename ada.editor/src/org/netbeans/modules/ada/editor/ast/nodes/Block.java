@@ -36,48 +36,43 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.ada.editor;
+package org.netbeans.modules.ada.editor.ast.nodes;
 
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MIMEResolver;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Recognize Ada file types
- * 
+ * Based on org.netbeans.modules.php.editor.parser.astnodes.Block
+ *
+ * Represents a block of statements
+ *
  * @author Andrea Lucarelli
  */
-//TODO remove this in NB 7.0. Also remove service entry
-//@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.MIMEResolver.class)
-public class AdaMimeResolver extends MIMEResolver {
+public class Block extends Statement {
 
-    /**
-     * Extensions recognized as being Ada.
-     */
-    private final static String[] EXTENSIONS = new String[]{
-        "ads", // NOI18N
-        "adb", // NOI18N
-        "ada" // NOI18N
-    };
-    /**
-     * MIME type for Ada.
-     */
-    public static final String ADA_MIME_TYPE = "text/x-ada"; // NOI18N
+    private final ArrayList<Statement> statements = new ArrayList<Statement>();
 
-    public AdaMimeResolver() {
-        super(ADA_MIME_TYPE);
-    }
-
-    public static boolean isAdaExt(String ext) {
-        for (int i = 0; i < EXTENSIONS.length; i++) {
-            if (ext.equalsIgnoreCase(EXTENSIONS[i])) {
-                return true;
-            }
+    public Block(int start, int end, List<Statement> statements) {
+        super(start, end);
+        // set the child nodes' parent
+        for (Statement statement : statements) {
+            this.statements.add(statement);
         }
-
-        return false;
     }
 
-    public String findMIMEType(FileObject fo) {
-        return isAdaExt(fo.getExt()) ? ADA_MIME_TYPE : null;
+    /**
+     * Retrieves the statement parts of this block
+     * @return statement parts of this block
+     */
+    public List<Statement> getStatements() {
+        return this.statements;
     }
+    
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
 }
+

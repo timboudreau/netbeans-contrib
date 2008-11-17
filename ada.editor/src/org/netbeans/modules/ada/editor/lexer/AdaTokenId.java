@@ -212,7 +212,7 @@ public enum AdaTokenId implements TokenId {
 
                 @Override
                 protected String mimeType() {
-                    return AdaMimeResolver.MIME_TYPE;
+                    return AdaMimeResolver.ADA_MIME_TYPE;
                 }
 
             }.language();
