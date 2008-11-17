@@ -47,20 +47,32 @@ package org.netbeans.modules.ada.editor.ast.nodes;
 public abstract class PackageDeclaration extends Statement {
 
     private Identifier name;
+    private Block body;
 
-    public PackageDeclaration(int start, int end, final Identifier name) {
+    public PackageDeclaration(int start, int end, final Identifier name, final Block body) {
         super(start, end);
 
-        if (name == null) {
+        System.out.println ("PackageDeclaration.name: " + name.getName());
+
+        if (name == null || body == null) {
             throw new IllegalArgumentException();
         }
 
         this.name = name;
+        this.body = body;
     }
 
     /**
-     * The name of the type declaration node
-     * @return name of the type declaration node
+     * The body component of this package declaration node
+     * @return body component of this package declaration node
+     */
+    public Block getBody() {
+        return body;
+    }
+
+    /**
+     * The name of the package declaration node
+     * @return name of the package declaration node
      */
     public Identifier getName() {
         return this.name;

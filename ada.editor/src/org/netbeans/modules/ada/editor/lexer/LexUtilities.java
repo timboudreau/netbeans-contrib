@@ -72,7 +72,8 @@ import org.openide.util.Exceptions;
  * @author Andrea Lucarelli
  */
 public class LexUtilities {
-    /** Tokens that match a corresponding END statement. Even though while, unless etc.
+    /**
+     * Tokens that match a corresponding END statement. Even though while, unless etc.
      * can be statement modifiers, those luckily have different token ids so are not a problem
      * here.
      */
@@ -93,19 +94,19 @@ public class LexUtilities {
         END_PAIRS.add(AdaTokenId.WHILE);
         END_PAIRS.add(AdaTokenId.IF);
         END_PAIRS.add(AdaTokenId.PACKAGE);
-//        END_PAIRS.add(AdaTokenId.PROCEDURE);
-//        END_PAIRS.add(AdaTokenId.FUNCTION);
         END_PAIRS.add(AdaTokenId.CASE);
         END_PAIRS.add(AdaTokenId.LOOP);
 
         INDENT_WORDS.addAll(END_PAIRS);
         // Add words that are not matched themselves with an "end",
         // but which also provide block structure to indented content
-        // (usually part of a multi-keyword structure such as if-then-elsif-else-end
+        // (usually part of a multi-keyword structure such as if-then-elsif-else-end if
         // where only the "if" is considered an end-pair.)
         INDENT_WORDS.add(AdaTokenId.ELSE);
         INDENT_WORDS.add(AdaTokenId.ELSIF);
         INDENT_WORDS.add(AdaTokenId.WHEN);
+        INDENT_WORDS.add(AdaTokenId.PROCEDURE);
+        INDENT_WORDS.add(AdaTokenId.FUNCTION);
 
         // XXX What about BEGIN{} and END{} ?
     }
@@ -113,9 +114,11 @@ public class LexUtilities {
     private LexUtilities() {
     }
 
-    /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
+    /** 
+     * For a possibly generated offset in an AST, return the corresponding lexing/true document offset
+     */
     public static int getLexerOffset(CompilationInfo info, int astOffset) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {
@@ -130,7 +133,7 @@ public class LexUtilities {
         if (astRange == OffsetRange.NONE) {
             return OffsetRange.NONE;
         }
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {
@@ -150,7 +153,9 @@ public class LexUtilities {
         return astRange;
     }
 
-    /** Find the Ada token sequence (in case it's embedded in something else at the top level */
+    /** 
+     * Find the Ada token sequence (in case it's embedded in something else at the top level
+     */
     @SuppressWarnings("unchecked")
     public static TokenSequence<?extends AdaTokenId> getAdaTokenSequence(BaseDocument doc, int offset) {
         TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
@@ -160,33 +165,6 @@ public class LexUtilities {
     @SuppressWarnings("unchecked")
     public static TokenSequence<?extends AdaTokenId> getAdaTokenSequence(TokenHierarchy<Document> th, int offset) {
         TokenSequence<?extends AdaTokenId> ts = th.tokenSequence(AdaTokenId.language());
-
-        if (ts == null) {
-            // Possibly an embedding scenario such as an RHTML file
-            // First try with backward bias true
-            List<TokenSequence<?>> list = th.embeddedTokenSequences(offset, true);
-
-            for (TokenSequence t : list) {
-                if (t.language() == AdaTokenId.language()) {
-                    ts = t;
-
-                    break;
-                }
-            }
-
-            if (ts == null) {
-                list = th.embeddedTokenSequences(offset, false);
-
-                for (TokenSequence t : list) {
-                    if (t.language() == AdaTokenId.language()) {
-                        ts = t;
-
-                        break;
-                    }
-                }
-            }
-        }
-
         return ts;
     }
 
@@ -302,7 +280,9 @@ public class LexUtilities {
         return OffsetRange.NONE;
     }
     
-    /** Search forwards in the token sequence until a token of type <code>down</code> is found */
+    /** 
+     * Search forwards in the token sequence until a token of type <code>down</code> is found
+     */
     public static OffsetRange findFwd(BaseDocument doc, TokenSequence<?extends AdaTokenId> ts, TokenId up,
         TokenId down) {
         int balance = 0;
@@ -325,7 +305,9 @@ public class LexUtilities {
         return OffsetRange.NONE;
     }
 
-    /** Search backwards in the token sequence until a token of type <code>up</code> is found */
+    /** 
+     * Search backwards in the token sequence until a token of type <code>up</code> is found
+     */
     public static OffsetRange findBwd(BaseDocument doc, TokenSequence<?extends AdaTokenId> ts, TokenId up,
         TokenId down) {
         int balance = 0;
@@ -348,7 +330,8 @@ public class LexUtilities {
         return OffsetRange.NONE;
     }
 
-    /** Find the token that begins a block terminated by "end". This is a token
+    /**
+     * Find the token that begins a block terminated by "end". This is a token
      * in the END_PAIRS array. Walk backwards and find the corresponding token.
      * It does not use indentation for clues since this could be wrong and be
      * precisely the reason why the user is using pair matching to see what's wrong.
@@ -396,22 +379,23 @@ public class LexUtilities {
         return OffsetRange.NONE;
     }
     
-    /** Determine whether "do" is an indent-token (e.g. matches an end) or if
-     * it's simply a separator in while,until,for expressions)
+    /** 
+     * Determine whether "loop" is an indent-token (e.g. matches an end) or if
+     * it's simply a separator in while, for expressions)
      */
     public static boolean isEndmatchingLoop(BaseDocument doc, int offset) {
-        // In the following case, do is dominant:
+        // In the following case, loop is dominant:
         //     loop
         //        whatever
         //     end loop;
         //
         // However, not here:
-        //     while true lopp
+        //     while true loop
         //        whatever
         //     end loop;
         //
         // In the second case, the end matches the while, but in the first case
-        // the end matches the do
+        // the end matches the loop
         
         // Look at the first token of the current line
         try {
@@ -446,7 +430,7 @@ public class LexUtilities {
 
     /**
      * Return true iff the given token is a token that should be matched
-     * with a corresponding "end" token, such as "begin", "def", "module",
+     * with a corresponding "end" token, such as "begin", "package"
      * etc.
      */
     public static boolean isBeginToken(TokenId id, BaseDocument doc, TokenSequence<?extends AdaTokenId> ts) {

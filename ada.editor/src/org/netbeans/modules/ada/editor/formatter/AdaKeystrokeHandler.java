@@ -140,7 +140,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         // The editor options code is calling methods on BaseOptions instead of looking in the settings map :(
         //Boolean b = ((Boolean)Settings.getValue(doc.getKitClass(), SettingsNames.PAIR_CHARACTERS_COMPLETION));
         //return b == null || b.booleanValue();
-        EditorOptions options = EditorOptions.get(AdaMimeResolver.MIME_TYPE);
+        EditorOptions options = EditorOptions.get(AdaMimeResolver.ADA_MIME_TYPE);
         if (options != null) {
             return options.getMatchBrackets();
         }
@@ -337,7 +337,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 int indent = GsfUtilities.getLineIndent(doc, offset);
                 StringBuilder sb = new StringBuilder();
                 sb.append(IndentUtils.createIndentString(doc, indent));
-                sb.append("--"); // NOI18N
+                sb.append("-- "); // NOI18N
                 // Copy existing indentation
                 int afterHash = begin+1;
                 String line = doc.getText(afterHash, Utilities.getRowEnd(doc, afterHash)-afterHash);
@@ -863,15 +863,16 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             }
 
             if (id == AdaTokenId.STRING_LITERAL) {
-                return LexUtilities.findFwd(doc, ts, AdaTokenId.STRING_LITERAL,
-                    AdaTokenId.STRING_LITERAL);
+                return LexUtilities.findFwd(doc, ts, AdaTokenId.STRING_LITERAL, AdaTokenId.STRING_LITERAL);
             } else if (id == AdaTokenId.LPAREN) {
                 return LexUtilities.findFwd(doc, ts, AdaTokenId.LPAREN, AdaTokenId.RPAREN);
             } else if (id == AdaTokenId.RPAREN) {
                 return LexUtilities.findBwd(doc, ts, AdaTokenId.LPAREN, AdaTokenId.RPAREN);
-            } else if (id == AdaTokenId.DO && !LexUtilities.isEndmatchingLoop(doc, ts.offset())) {
-                // No matching dot for "do" used in conditionals etc.
+            } else if (id == AdaTokenId.LOOP && !LexUtilities.isEndmatchingLoop(doc, ts.offset())) {
+                // No matching dot for "loop" used in conditionals etc.
                 return OffsetRange.NONE;
+            } else if (id == AdaTokenId.BEGIN) {
+                return LexUtilities.findBwd(doc, ts, AdaTokenId.PROCEDURE, AdaTokenId.IS);
             } else if (id.primaryCategory().equals("keyword")) {
                 if (LexUtilities.isBeginToken(id, doc, ts)) {
                     return LexUtilities.findEnd(doc, ts);

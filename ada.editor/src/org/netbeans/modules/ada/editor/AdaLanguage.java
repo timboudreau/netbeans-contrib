@@ -58,6 +58,7 @@ import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
 import org.netbeans.modules.ada.editor.parser.AdaStructureScanner;
 import org.netbeans.modules.ada.editor.parser.AdaParser;
+import org.netbeans.modules.ada.editor.parser.AdaSemanticAnalyzer;
 
 /**
  *
@@ -81,7 +82,7 @@ public class AdaLanguage extends DefaultLanguageConfig {
     //
     // Service Registrations
     //
-    
+
     @Override
     public Parser getParser() {
         return new AdaParser();
@@ -110,8 +111,7 @@ public class AdaLanguage extends DefaultLanguageConfig {
 
     @Override
     public SemanticAnalyzer getSemanticAnalyzer() {
-        return null;
-        //return new AdaSemanticAnalyzer();
+        return new AdaSemanticAnalyzer();
     }
 
     @Override

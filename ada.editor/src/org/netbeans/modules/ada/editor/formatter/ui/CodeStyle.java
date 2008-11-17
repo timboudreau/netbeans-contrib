@@ -109,10 +109,6 @@ public final class CodeStyle {
         return preferences.getBoolean(reformatComments, getDefaultAsBoolean(reformatComments));
     }
 
-    public boolean indentHtml() {
-        return preferences.getBoolean(indentHtml, getDefaultAsBoolean(indentHtml));
-    }
-
     public int getRightMargin() {
         return preferences.getInt(rightMargin, getDefaultAsInt(rightMargin));
     }

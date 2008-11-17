@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.parser;
 
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
+import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -58,7 +58,13 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
+import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.Comment;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageBodyHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageSpecificationHandle;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.PhpStructureScanner
@@ -68,16 +74,20 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 public class AdaStructureScanner implements StructureScanner {
 
     private CompilationInfo info;
+    private static final String FOLD_CODE_BLOCKS = "codeblocks"; //NOI18N
+    private static final String FOLD_CLASS = "codeblocks"; //NOI18N
+    private static final String FOLD_ADADOC = "comments"; //NOI18N
+    private static final String FOLD_COMMENT = "initial-comment"; //NOI18N
+    private static final String FONT_GRAY_COLOR = "<font color=\"#999999\">"; //NOI18N
+    private static final String CLOSE_FONT = "</font>";                   //NOI18N
+    private static final String LAST_CORRECT_FOLDING_PROPERTY = "LAST_CORRECT_FOLDING_PROPERY";
 
     public List<? extends StructureItem> scan(final CompilationInfo info) {
-
-        System.out.println("AdaStructureScanner.scan");
-
         this.info = info;
         Program program = ASTUtils.getRoot(info);
         final List<StructureItem> items = new ArrayList<StructureItem>();
         if (program != null) {
-            program.accept(new StructureVisitor(items));
+            program.accept(new StructureVisitor(items, program));
             return items;
         }
         return Collections.emptyList();
@@ -87,7 +97,26 @@ public class AdaStructureScanner implements StructureScanner {
         Program program = ASTUtils.getRoot(info);
         final Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
         if (program != null) {
-            program.accept(new FoldVisitor(folds));
+            if (program.getStatements().size() == 1) {
+                // check whether the ast is broken.
+                if (program.getStatements().get(0) instanceof ASTError) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, List<OffsetRange>> lastCorrect = (Map<String, List<OffsetRange>>) info.getDocument().getProperty(LAST_CORRECT_FOLDING_PROPERTY);
+                    if (lastCorrect != null) {
+                        return lastCorrect;
+                    } else {
+                        return Collections.emptyMap();
+                    }
+                }
+            }
+            (new FoldVisitor(folds)).scan(program);
+            List<Comment> comments = program.getComments();
+            if (comments != null) {
+                for (Comment comment : comments) {
+                    // TODO: for ada doc and spark ???
+                }
+            }
+            info.getDocument().putProperty(LAST_CORRECT_FOLDING_PROPERTY, folds);
             return folds;
         }
         return Collections.emptyMap();
@@ -114,10 +143,40 @@ public class AdaStructureScanner implements StructureScanner {
 
         final List<StructureItem> items;
         private List<StructureItem> children = null;
-        private String className;
+        private String pakageName;
+        private final Program program;
 
-        public StructureVisitor(List<StructureItem> items) {
+        public StructureVisitor(List<StructureItem> items, Program program) {
             this.items = items;
+            this.program = program;
+        }
+
+        @Override
+        public void visit(PackageSpecification pkgspc) {
+            System.out.println("pkgspc.getName(): " + pkgspc.getName());
+            if (pkgspc.getName() != null) {
+                children = new ArrayList<StructureItem>();
+                pakageName = pkgspc.getName().getName();
+                System.out.println("PackageName: " + pakageName);
+                super.visit(pkgspc);
+                AdaStructureItem item = new AdaPackageSpecificationStructureItem(new AdaElementHandle.PackageSpecificationHandle(info, pkgspc), children); //NOI18N
+                items.add(item);
+                children = null;
+            }
+        }
+
+        @Override
+        public void visit(PackageBody pkgbdy) {
+            System.out.println("pkgbdy.getName(): " + pkgbdy.getName());
+            if (pkgbdy.getName() != null) {
+                children = new ArrayList<StructureItem>();
+                pakageName = pkgbdy.getName().getName();
+                System.out.println("PackageName: " + pakageName);
+                super.visit(pkgbdy);
+                AdaStructureItem item = new AdaPackageBodyStructureItem(new AdaElementHandle.PackageBodyHandle(info, pkgbdy), children); //NOI18N
+                items.add(item);
+                children = null;
+            }
         }
 
     }
@@ -136,6 +195,29 @@ public class AdaStructureScanner implements StructureScanner {
             } else {
                 this.children = Collections.emptyList();
             }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            boolean thesame = false;
+            if (obj instanceof AdaStructureItem) {
+                AdaStructureItem item = (AdaStructureItem) obj;
+                if (item.getName() != null && this.getName() != null) {
+                    thesame = item.elementHandle.getName().equals(elementHandle.getName()) && item.elementHandle.getASTNode().getStartOffset() == elementHandle.getASTNode().getStartOffset();
+                }
+            }
+            return thesame;
+        }
+
+        @Override
+        public int hashCode() {
+            //int hashCode = super.hashCode();
+            int hashCode = 11;
+            if (getName() != null) {
+                hashCode = 31 * getName().hashCode() + hashCode;
+            }
+            hashCode = (int) (31 * getPosition() + hashCode);
+            return hashCode;
         }
 
         public String getName() {
@@ -208,8 +290,38 @@ public class AdaStructureScanner implements StructureScanner {
             formatter.appendText(simpleText);
             return formatter.getText();
         }
-
     }
+
+    private class AdaPackageSpecificationStructureItem extends AdaStructureItem {
+
+        public AdaPackageSpecificationStructureItem(AdaElementHandle elementHandle, List<? extends StructureItem> children) {
+            super(elementHandle, children, "pkgspc"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            PackageSpecificationHandle handle = (PackageSpecificationHandle) getElementHandle();
+            formatter.appendText(handle.getName());
+            PackageSpecification pkgspc = (PackageSpecification) handle.getASTNode();
+            return formatter.getText();
+        }
+    }
+
+    private class AdaPackageBodyStructureItem extends AdaStructureItem {
+
+        public AdaPackageBodyStructureItem(AdaElementHandle elementHandle, List<? extends StructureItem> children) {
+            super(elementHandle, children, "pkgbdy"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            PackageBodyHandle handle = (PackageBodyHandle) getElementHandle();
+            formatter.appendText(handle.getName());
+            PackageBody pkgbdy = (PackageBody) handle.getASTNode();
+            return formatter.getText();
+        }
+    }
+
 
     private class FoldVisitor extends DefaultVisitor {
 
@@ -218,8 +330,38 @@ public class AdaStructureScanner implements StructureScanner {
 
         public FoldVisitor(Map<String, List<OffsetRange>> folds) {
             this.folds = folds;
-            foldType = null;
+            this.foldType = null;
 
         }
+
+        @Override
+        public void visit(PackageSpecification pkgspc) {
+            this.foldType = FOLD_CLASS;
+            System.out.println("visit: " + this.foldType);
+            if (pkgspc.getBody() != null) {
+                scan(pkgspc.getBody());
+            }
+        }
+
+        @Override
+        public void visit(PackageBody pkgbdy) {
+            this.foldType = FOLD_CLASS;
+            System.out.println("visit: " + this.foldType);
+            if (pkgbdy.getBody() != null) {
+                scan(pkgbdy.getBody());
+            }
+        }
+
+        @Override
+        public void visit(Block block) {
+            if (foldType != null) {
+                getRanges(folds, foldType).add(createOffsetRange(block));
+                foldType = null;
+            }
+            if (block.getStatements() != null) {
+                scan(block.getStatements());
+            }
+        }
+
     }
 }

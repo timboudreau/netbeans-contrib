@@ -302,6 +302,7 @@ terminal String IDENTIFIER;
 non terminal Program      compilation;
 non terminal List         compilation_unit_list;
 non terminal Statement    compilation_unit;
+non terminal Statement    unit;
 
 // 10.1.2 Context Clauses - With Clauses
 non terminal Statement    context_clause;
@@ -315,6 +316,10 @@ non terminal Statement    use_clause;
 non terminal Statement    package_declaration;
 non terminal Statement    package_specification;
 
+// 7.2 Package Bodies
+non terminal Statement    package_body;
+non terminal Statement    body;
+
 // 3.1 Declarations
 non terminal Statement    declaration;
 non terminal Identifier   defining_identifier;
@@ -323,6 +328,8 @@ non terminal Identifier   defining_identifier;
 non terminal List         declarative_items_opt;
 non terminal List         declarative_item_list;
 non terminal Statement    declarative_item;
+non terminal List         declarative_part;
+non terminal List         declarative_item_or_body_s1;
 
 // 3.3.1 Object Declarations
 non terminal Variable     object_declaration;
@@ -335,6 +342,7 @@ non terminal Variable     number_declaration;
 // TBD sections
 non terminal List         name_list;
 non terminal String       name;
+non terminal String       simple_name;
 non terminal String       compound_name;
 non terminal Expression   object_subtype_def;
 non terminal Expression   init_opt;
@@ -342,7 +350,6 @@ non terminal Expression   init_opt;
 
 // TBD RM sections and types
 non terminal     pragma;
-non terminal     simple_name;
 non terminal     pragma_arg_s;
 non terminal     pragma_arg;
 non terminal     expression;
@@ -410,13 +417,9 @@ non terminal     choice;
 non terminal     discrete_with_range;
 non terminal     prot_opt;
 non terminal     formal_part_opt;
-non terminal     declarative_item_or_body_s1;
-non terminal     decl_part;
 non terminal     rep_spec;
 non terminal     declarative_item_or_body;
-non terminal     body;
 non terminal     subprog_body;
-non terminal     pkg_body;
 non terminal     task_body;
 non terminal     prot_body;
 non terminal     indexed_comp;
@@ -534,7 +537,6 @@ non terminal     select_alt;
 non terminal     stmts_opt;
 non terminal     delay_or_entry_alt;
 non terminal     private_opt;
-non terminal     unit;
 non terminal     subunit;
 non terminal     subunit_body;
 non terminal     exception_handler;
@@ -870,9 +872,15 @@ prot_opt ::=
 ///////////////////////////////////////////////////////////////////////////////
 // 3.11 Declarative Parts
 //
-decl_part ::=
-	| declarative_item_or_body_s1
-	;
+declarative_part ::=
+{:
+	RESULT = new LinkedList();
+:}
+| declarative_item_or_body_s1:statement
+{:
+	RESULT = statement;
+:}
+;
 
 declarative_items_opt ::= 
 {:
@@ -906,19 +914,40 @@ declaration
 | pragma
 ;
 
-declarative_item_or_body_s1 ::= declarative_item_or_body
-	| declarative_item_or_body_s1 declarative_item_or_body
-	;
+declarative_item_or_body_s1 ::=
+declarative_item_or_body:declaritiveItem
+{:
+	List declaritiveItemList = new LinkedList();
+    declaritiveItemList.add(declaritiveItem);
+	RESULT = declaritiveItemList;
+:}
+| declarative_item_or_body_s1:declaritiveItemList declarative_item_or_body:declaritiveItem
+{:
+    declaritiveItemList.add(declaritiveItem);
+	RESULT = declaritiveItemList;
+:}
+;
 
-declarative_item_or_body ::= body
-	| declarative_item
-	;
+declarative_item_or_body ::=
+body:statement
+{:
+	RESULT = statement;
+:}
+| declarative_item:statement
+{:
+	RESULT = statement;
+:}
+;
 
-body ::= subprog_body
-	| pkg_body
-	| task_body
-	| prot_body
-	;
+body ::=
+subprog_body
+| package_body:statement
+{:
+	RESULT = statement;
+:}
+| task_body
+| prot_body
+;
 
 name ::= simple_name
 	| indexed_comp
@@ -932,11 +961,18 @@ mark ::= simple_name
 	| mark DOT simple_name
 	;
 
-simple_name ::= IDENTIFIER
-	;
+simple_name ::=
+IDENTIFIER:identifier
+{:
+    RESULT = identifier;
+:}
+;
 
 compound_name ::= 
-simple_name
+simple_name:simpleName
+{:
+    RESULT = simpleName;
+:}
 | compound_name DOT simple_name
 ;
 
@@ -1203,7 +1239,7 @@ block ::= label_opt block_decl block_body END id_opt SEMICOLON
 	;
 
 block_decl ::=
-	| DECLARE decl_part
+	| DECLARE declarative_part
 	;
 
 block_body ::= BEGIN handled_stmt_s
@@ -1278,7 +1314,7 @@ subprog_spec_is_push ::= subprog_spec IS
 	;
 
 subprog_body ::= subprog_spec_is_push
-	       decl_part block_body END id_opt SEMICOLON
+	       declarative_part block_body END id_opt SEMICOLON
 ;
 
 procedure_call ::= name SEMICOLON
@@ -1288,7 +1324,7 @@ procedure_call ::= name SEMICOLON
 // 7.1 Package Specifications and Declarations
 //
 package_declaration ::= 
-package_specification:statement SEMICOLON
+package_specification:statement
 {:
 	RESULT = statement;
 :}
@@ -1296,12 +1332,13 @@ package_specification:statement SEMICOLON
 ;
 
 package_specification ::= 
-PACKAGE compound_name:packageName IS 
-  declarative_items_opt private_part 
-END compound_name_opt
+PACKAGE:declarationStart compound_name:packageName IS:blockStart
+  declarative_items_opt:declarativeItems private_part
+END compound_name_opt SEMICOLON:declarationEnd
 {:
 	Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
-	PackageSpecification packageSpecification = new PackageSpecification(packageNameleft, packageNameright, packageId);
+	Block block = new Block(blockStartleft, declarationEndright, declarativeItems);
+	PackageSpecification packageSpecification = new PackageSpecification(declarationStartleft, declarationEndright, packageId, block);
 	RESULT = packageSpecification;
 :}
 ;
@@ -1314,9 +1351,19 @@ compound_name_opt ::=
 	| compound_name
 	;
 
-pkg_body ::= PACKAGE BODY compound_name IS
-	       decl_part body_opt END compound_name_opt SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 7.2 Package Bodies
+//
+package_body ::=
+PACKAGE:declarationStart BODY compound_name:packageName IS:blockStart
+  declarative_part:declarativePart body_opt END compound_name_opt SEMICOLON:declarationEnd
+{:
+	Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
+	Block block = new Block(blockStartleft, declarationEndright, declarativePart);
+	PackageBody packageBody = new PackageBody(declarationStartleft, declarationEndright, packageId, block);
+	RESULT = packageBody;
+:}
+;
 
 body_opt ::=
 	| block_body
@@ -1395,7 +1442,7 @@ task_private_opt ::=
 	;
 
 task_body ::= TASK BODY simple_name IS
-	       decl_part block_body END id_opt SEMICOLON
+	       declarative_part block_body END id_opt SEMICOLON
 	;
 
 prot_decl ::= prot_spec SEMICOLON
@@ -1455,7 +1502,7 @@ entry_body ::= ENTRY IDENTIFIER formal_part_opt WHEN condition entry_body_part
 	;
 
 entry_body_part ::= SEMICOLON
-	| IS decl_part block_body END id_opt SEMICOLON
+	| IS declarative_part block_body END id_opt SEMICOLON
 	;
 
 rep_spec_s ::=
@@ -1557,12 +1604,16 @@ compilation_unit_list ::=
 ;
 
 compilation_unit ::=
-context_clause:statement private_opt unit pragma_s
+context_clause private_opt unit:statement pragma_s
 {:
 	RESULT = statement;
 
 :}
-| private_opt unit pragma_s  // 10.1.5 - 5/1
+| private_opt unit:statement pragma_s  // 10.1.5 - 5/1
+{:
+	RESULT = statement;
+
+:}
 ;
 
 private_opt ::=
@@ -1570,8 +1621,14 @@ private_opt ::=
 ;
 
 unit ::= 
-package_declaration
-| pkg_body
+package_declaration:statement
+{:
+	RESULT = statement;
+:}
+| package_body:statement
+{:
+	RESULT = statement;
+:}
 | subprog_decl
 | subprog_body
 | subunit
@@ -1625,10 +1682,13 @@ subunit ::= SEPARATE LPAREN compound_name RPAREN
 	;
 
 subunit_body ::= subprog_body
-	| pkg_body
-	| task_body
-	| prot_body
-	;
+| package_body:statement
+{:
+	RESULT = statement;
+:}
+| task_body
+| prot_body
+;
 
 body_stub ::= TASK BODY simple_name IS SEPARATE SEMICOLON
 	| PACKAGE BODY compound_name IS SEPARATE SEMICOLON

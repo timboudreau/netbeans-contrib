@@ -62,7 +62,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 public class ASTUtils {
 
     public static int getAstOffset(CompilationInfo info, int lexOffset) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {
@@ -103,7 +103,7 @@ public class ASTUtils {
     }
 
     public static Program getRoot(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
 
         if (result == null) {
             return null;

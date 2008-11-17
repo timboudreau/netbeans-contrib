@@ -371,7 +371,7 @@ ANY_CHAR=(.|[\n])
 	yybegin(ST_COMMENT);
 }
 
-<ST_COMMENT>[^\n\r]*(.|{NEWLINE}) {
+<ST_COMMENT>[^\n\r]*{ANY_CHAR} {
         handleLineCommentEnd();
         yybegin(YYINITIAL);
 }
