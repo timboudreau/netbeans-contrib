@@ -80,9 +80,14 @@ public abstract class AstItem {
     protected AstItem(Symbol symbol, Token idToken) {
         this.symbol = symbol;
         this.idToken = idToken;
+        setName(idToken);
     }
 
     private void setName(Token idToken) {
+        if (idToken == null) {
+            name = ""; // should not happen?
+        }
+        
         /**
          * symbol.nameString() is same as idToken's text, for editor, it's always
          * better to use idToken's text, for example, we'll use this name to
@@ -98,9 +103,19 @@ public abstract class AstItem {
                 sb.append(" ");
             }
             this.name = sb.toString();
-            System.out.println("NPE in AstItem#getName:" + getIdToken().id());
+            System.out.println("NPE in AstItem#getName:" + idToken.id());
         }
     }
+
+    public void setIdToken(Token idToken) {
+        this.idToken = idToken;
+        setName(idToken);
+    }
+
+    public Token getIdToken() {
+        return idToken;
+    }
+
 
     public void setResultType(Type tpe) {
         this.resultType = tpe;
@@ -118,15 +133,6 @@ public abstract class AstItem {
         return name;
     }
     
-    public void setIdToken(Token idToken) {
-        this.idToken = idToken;
-        setName(idToken);
-    }
-
-    public Token getIdToken() {
-        return idToken;
-    }
-
     public int getIdOffset(TokenHierarchy th) {
         if (idToken != null) {
             return idToken.offset(th);
