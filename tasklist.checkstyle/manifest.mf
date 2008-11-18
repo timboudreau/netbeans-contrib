@@ -3,4 +3,3 @@ OpenIDE-Module: org.netbeans.modules.tasklist.checkstyle/2
 OpenIDE-Module-Implementation-Version: 18
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/checkstyle/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/checkstyle/mf-layer.xml
-OpenIDE-Module-Specification-Version: 1.38.0

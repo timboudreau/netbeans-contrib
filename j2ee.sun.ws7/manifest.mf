@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.6
 OpenIDE-Module-Implementation-Version: 1
 OpenIDE-Module: org.netbeans.modules.j2ee.sun.ws7/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/j2ee/sun/ws7/resources/Bundle.properties

@@ -3,5 +3,4 @@ OpenIDE-Module: org.netbeans.modules.form.swingx/0
 OpenIDE-Module-Install: org/netbeans/modules/form/swingx/Installer.class
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/form/swingx/Bundle2.properties
 OpenIDE-Module-Layer: org/netbeans/modules/form/swingx/resources/layer.xml
-OpenIDE-Module-Specification-Version: 0.1
 OpenIDE-Module-Implementation-Version: 1
