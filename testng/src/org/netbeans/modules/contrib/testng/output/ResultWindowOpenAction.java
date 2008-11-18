@@ -46,7 +46,7 @@ import javax.swing.AbstractAction;
 import org.openide.util.NbBundle;
 
 /**
- * Action which opens the JUnit Test Results window.
+ * Action which opens the TestNG Test Results window.
  *
  * @see  ResultWindow
  * @author  Marian Petras
@@ -58,14 +58,14 @@ public final class ResultWindowOpenAction extends AbstractAction {
      */
     public ResultWindowOpenAction() {
         String name = NbBundle.getMessage(ResultWindowOpenAction.class,
-                                          "TITLE_TEST_RESULTS");        //NOI18N
+                                          "ACT_TestResult");        //NOI18N
         putValue(NAME, name);
         putValue("iconBase",                                            //NOI18N
                "org/netbeans/modules/contrib/testng/resources/testResults.png");//NOI18N
     }
     
     /**
-     * Opens and activates the JUnit Test Results window.
+     * Opens and activates the TestNG Test Results window.
      *
      * @param  e  event that caused this action to be called
      */

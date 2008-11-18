@@ -53,8 +53,8 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /**
  * Panel containing the toolbar and the tree of test results.
@@ -106,7 +106,7 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
      */
     private void createFilterButton() {
         btnFilter = new JToggleButton(new ImageIcon(
-                Utilities.loadImage(
+                ImageUtilities.loadImage(
                     "org/netbeans/modules/contrib/testng/resources/filter.png", //NOI18N
                     true)));
         btnFilter.getAccessibleContext().setAccessibleName(

@@ -64,7 +64,7 @@ public class RegexpUtilsTest extends TestCase {
         super(testName);
         instRefField = RegexpUtils.class.getDeclaredField("instRef");
         instRefField.setAccessible(true);
-        
+
         methodSpecialTrim = RegexpUtils.class.getDeclaredMethod(
                                     "specialTrim",
                                     new Class[] {String.class});
@@ -74,7 +74,7 @@ public class RegexpUtilsTest extends TestCase {
     @Override
     public void setUp() throws IllegalAccessException {
         instRefField.set(null, null);
-        
+
         inst = RegexpUtils.getInstance();
     }
 
@@ -101,28 +101,26 @@ public class RegexpUtilsTest extends TestCase {
         assertEquals(568, inst.parseTimeMillis(".5675"));
         assertEquals(568, inst.parseTimeMillis(".5676"));
     }
-    
+
     public void testTimeSecsRegex() throws Exception {
-        Pattern pattern = getPattern("TIME_SECS_REGEX");
-        
+        Pattern pattern = getPattern("SECONDS_REGEX");
+
         final String[] matchingStrings = new String[] {
-            "0 s",
-            "0 sec",
-            "3 secs",
-            "3 sec(s)",
-            "5 second",
-            "5 seconds",
-            "5 second(s)",
+            "s",
+            "sec",
+            "secs",
+            "sec(s)",
+            "second",
+            "seconds",
+            "second(s)",
         };
         final String[] nonMatchingStrings = new String[] {
-            "0",
-            "0s",
-            "0 ss",
-            "0 s(s)",
-            "0 secss",
-            "0 secs(s)",
-            "0 secondss",
-            "0 seconds(s)"
+            "ss",
+            "s(s)",
+            "secss",
+            "secs(s)",
+            "secondss",
+            "seconds(s)"
         };
 
         for (int i = 0; i < matchingStrings.length; i++) {
@@ -136,7 +134,7 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     public void testTestcaseIssueRegex() throws Exception {
         Pattern pattern = getPattern("TESTCASE_ISSUE_REGEX");
 
@@ -172,7 +170,7 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     public void testTestcaseHeaderPlainRegex() throws Exception {
         Pattern pattern = getPattern("TESTCASE_HEADER_PLAIN_REGEX");
 
@@ -195,11 +193,9 @@ public class RegexpUtilsTest extends TestCase {
         };
         final String[] nonMatchingStrings = new String[] {
             "12test took 12 seconds",
-            "test took seconds",
+            "test tooks",
             "test took3 seconds",
-            "test took 3seconds",
-            "test took3seconds",
-            "test took . seconds"
+            "test took 3 bflmpsvz",
         };
 
         for (int i = 0; i < matchingStrings.length; i++) {
@@ -213,7 +209,7 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     public void testTestcaseHeaderBriefRegex() throws Exception {
         Pattern pattern = getPattern("TESTCASE_HEADER_BRIEF_REGEX");
 
@@ -252,10 +248,10 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     public void testTestcaseExceptionRegex() throws Exception {
         Pattern pattern = getPattern("TESTCASE_EXCEPTION_REGEX");
-        
+
         final String[] matchingStrings = new String[] {
                 "junit.framework.AssertionFailedException",
                 "junit.framework.AssertionFailedException: The test case is empty.",
@@ -298,9 +294,9 @@ public class RegexpUtilsTest extends TestCase {
             assertFalse("should not match: " + string,
                         pattern.matcher(string).matches());
         }
-                
+
         Matcher matcher;
-                
+
         matcher = pattern.matcher("java.lang.NullPointerException");
         assertTrue(matcher.matches());
         assertEquals("java.lang.NullPointerException", matcher.group(1));
@@ -316,10 +312,10 @@ public class RegexpUtilsTest extends TestCase {
         assertEquals("java.lang.NullPointerException", matcher.group(1));
         assertEquals("Failed", matcher.group(2));
     }
-    
+
     public void testCallstackLineRegex() throws Exception{
         Pattern pattern = getPattern("CALLSTACK_LINE_REGEX");
-        
+
         final String[] matchingStrings = new String[] {
             "  at javaapplication.MainTest.test",
             "   at javaapplication.MainTest.test",
@@ -398,10 +394,10 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     public void testXmlDeclRegex() throws Exception {
         Pattern pattern = getPattern("XML_DECL_REGEX");
-        
+
         final String[] matchingStrings = new String[] {
             "<?xml version=\"1.0\"?>",
             "<?xml    version=\"1.0\"?>",
@@ -447,7 +443,7 @@ public class RegexpUtilsTest extends TestCase {
             "<?xml version=\"1.0\" encoding=\"abc\" standalone=\'yes\'?>",
             "<?xml version=\"1.0\" encoding=\'abc\' standalone=\"yes\"?>",
             "<?xml version=\"1.0\" encoding=\'abc\' standalone=\'yes\'?>",
-                    
+
             "<?xml version=\"1.0\" encoding=\"abc\" standalone=\"yes\"   ?>",
             "<?xml version=\"1.0\" encoding=\"abc\" standalone=\"yes\"\t?>"
         };
@@ -492,7 +488,7 @@ public class RegexpUtilsTest extends TestCase {
                         pattern.matcher(string).matches());
         }
     }
-    
+
     /**
      */
     public void testSpecialTrim() throws IllegalAccessException,
@@ -511,18 +507,18 @@ public class RegexpUtilsTest extends TestCase {
         assertEquals("ab\tc de", specialTrim("ab\tc de "));
         assertEquals("ab c\tde", specialTrim("ab c\tde\t"));
     }
-    
-    
+
+
     private Pattern getPattern(String fieldName) throws Exception {
         return Pattern.compile(getRegex(fieldName));
     }
-    
+
     private String getRegex(String fieldName) throws Exception {
         Field regexField = RegexpUtils.class.getDeclaredField(fieldName);
         regexField.setAccessible(true);
         return (String) regexField.get(null);
     }
-    
+
     /**
      */
     private String specialTrim(String str) throws IllegalAccessException,

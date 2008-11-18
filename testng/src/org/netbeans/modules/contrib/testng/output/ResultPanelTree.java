@@ -257,6 +257,12 @@ final class ResultPanelTree extends JPanel
     
     /**
      */
+    private void fireNodeSelectionChange() {
+        fireChange();
+    }
+
+    /**
+     */
     private void fireChange() {
         assert EventQueue.isDispatchThread();
 
@@ -271,7 +277,32 @@ final class ResultPanelTree extends JPanel
         return explorerManager.getSelectedNodes();
     }
 
-    
+    /**
+     * Selects and activates a given node.
+     * Selects a given node in the tree.
+     * If the nodes cannot be selected and/or activated,
+     * clears the selection (and notifies that no node is currently
+     * activated).
+     * 
+     * @param  node  node to be selected and activated
+     */
+    private void selectAndActivateNode(final Node node) {
+        Node[] nodeArray = new Node[] {node};
+        try {
+            explorerManager.setSelectedNodes(nodeArray);
+            fireNodeSelectionChange();
+        } catch (PropertyVetoException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            nodeArray = new Node[0];
+            try {
+                explorerManager.setSelectedNodes(nodeArray);
+                fireNodeSelectionChange();
+            } catch (PropertyVetoException ex2) {
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex2);
+            }
+        }
+    }
+
     /**
      */
     public ExplorerManager getExplorerManager() {
