@@ -2080,8 +2080,14 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             // skip RParen if it's the previous
             if (ts.movePrevious()) {
                 Token prev = ScalaLexUtilities.findPreviousNonWs(ts);
-                if (prev != null && prev.id() == ScalaTokenId.RParen) {
-                    ScalaLexUtilities.skipParenthesis(ts, true);
+                if (prev != null) {
+                    if (prev.id() == ScalaTokenId.RParen) {
+                        ScalaLexUtilities.skipPair(ts, ScalaTokenId.LParen, ScalaTokenId.RParen, true);
+                    } else if (prev.id() == ScalaTokenId.RBrace) {
+                        ScalaLexUtilities.skipPair(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace, true);
+                    } else if (prev.id() == ScalaTokenId.RBracket) {
+                        ScalaLexUtilities.skipPair(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket, true);
+                    }
                 }
             }
             idToken = ScalaLexUtilities.findPreviousIncluding(ts, CALL_IDs);
