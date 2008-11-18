@@ -49,6 +49,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import org.openide.awt.HtmlRenderer;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
 
@@ -59,9 +60,9 @@ import org.openide.util.NbBundle;
 final class ResultTreeView extends BeanTreeView implements Runnable {
 
     /** */
-    private transient final TreeCellRenderer defaultTreeCellRenderer;
+    private final TreeCellRenderer defaultTreeCellRenderer;
     /** */
-    private transient final TreeCellRenderer noIconTreeCellRenderer;
+    private final TreeCellRenderer noIconTreeCellRenderer;
     
     /** Creates a new instance of ResultTree */
     ResultTreeView() {
@@ -76,10 +77,10 @@ final class ResultTreeView extends BeanTreeView implements Runnable {
     /**
      */
     private void initAccessibility() {
-        AccessibleContext origAccessibleContext = tree.getAccessibleContext();
-        origAccessibleContext.setAccessibleName(
+        AccessibleContext accessibleContext = tree.getAccessibleContext();
+        accessibleContext.setAccessibleName(
               NbBundle.getMessage(getClass(), "ACSN_ResultPanelTree")); //NOI18N
-        origAccessibleContext.setAccessibleDescription(
+        accessibleContext.setAccessibleDescription(
               NbBundle.getMessage(getClass(), "ACSD_ResultPanelTree")); //NOI18N
     }
     

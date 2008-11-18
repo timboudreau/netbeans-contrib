@@ -50,15 +50,30 @@ import org.openide.util.actions.SystemAction;
  * @author Marian Petras
  */
 final class CallstackFrameNode extends AbstractNode {
-    
+
     /** */
-    private final String frameInfo;
+    private Report.Trouble trouble;
+    /** */
+    private String frameInfo;
     
-    /** Creates a new instance of CallstackFrameNode */
-    public CallstackFrameNode(final String frameInfo) {
-        this(frameInfo, null);
+    /**
+     * Creates a node for a call stack frame.
+     * @param  frameInfo  string specifying the call stack frame
+     */
+    CallstackFrameNode(String frameInfo) {
+        this(null, frameInfo, "at " + frameInfo);                       //NOI18N
     }
     
+    /**
+     * Creates a node representing a failure/error or its message.
+     * @param  trouble  the failure or error
+     * @param  displayName  requested display name of this node
+     */
+    CallstackFrameNode(Report.Trouble trouble,
+                       String displayName) {
+        this(trouble, null, displayName);
+    }
+
     /**
      * Creates a new instance of CallstackFrameNode
      *
@@ -67,23 +82,28 @@ final class CallstackFrameNode extends AbstractNode {
      *                      to use the default display name for the given
      *                      callstack frame info
      */
-    public CallstackFrameNode(final String frameInfo,
-                              final String displayName) {
+    private CallstackFrameNode(final Report.Trouble trouble,
+                               final String frameInfo,
+                               final String displayName) {
         super(Children.LEAF);
-        setDisplayName(displayName != null
-                       ? displayName
-                       : "at " + frameInfo);                            //NOI18N
+        setDisplayName(displayName);
         setIconBaseWithExtension(
                 "org/netbeans/modules/contrib/testng/resources/empty.gif");     //NOI18N
 
+        this.trouble = trouble;
         this.frameInfo = frameInfo;
     }
-    
+
     /**
      */
     @Override
     public Action getPreferredAction() {
-        return new JumpAction(this, frameInfo);
+        if (frameInfo != null) {
+            return new JumpAction(this, frameInfo);
+        } else {
+            assert trouble != null;
+            return new JumpAction(this, trouble);
+        }
     }
     
     @Override

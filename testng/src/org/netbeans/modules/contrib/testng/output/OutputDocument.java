@@ -595,7 +595,7 @@ final class OutputDocument implements Document {
         }
 
         public Element[] getChildrenRemoved() {
-            return new Element[0];
+            return null;
         }
 
         public Element[] getChildrenAdded() {

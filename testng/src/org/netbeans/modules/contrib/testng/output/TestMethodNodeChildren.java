@@ -42,8 +42,7 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.NESTED_EXCEPTION_PREFIX;
@@ -56,52 +55,72 @@ final class TestMethodNodeChildren extends Children.Array {
 
     /** */
     private final Report.Testcase testcase;
+    /** */
+    private final Collection<Node> childNodes;
+
+    private TestMethodNodeChildren(final Collection<Node> nodes,
+                                   final Report.Testcase testcase) {
+        super(nodes);
+        this.childNodes = nodes;
+        this.testcase = testcase;
+    }
 
     /** Creates a new instance of TestMethodNodeChildren */
     public TestMethodNodeChildren(final Report.Testcase testcase) {
-        this.testcase = testcase;
+        this(new ArrayList<Node>(getChildrenCount(testcase)), testcase);
+    }
+
+    /**
+     * Count the number of created children if the constructor would be passed
+     * the given {@code Testcase}. The return value of {@code 0} means that
+     * there is no reason for creating an instance of
+     * {@code TestMethodNodeChildren}.
+     * @param  testcase  test for which the number of children should be counted
+     * @return  number of children if the constructor would be passed the given
+     *          {@code Testcase} as an argument
+     */
+    static int getChildrenCount(Report.Testcase testcase) {
+        Report.Trouble trouble = testcase.trouble;
+        if (trouble == null) {
+            return 0;
+        }
+
+        int count = 0;
+        if (trouble.message != null) {
+            count++;
+        }
+        if (trouble.exceptionClsName != null) {
+            count++;
+        }
+        if (trouble.stackTrace != null) {
+            count += trouble.stackTrace.length;
+        }
+        return count;
     }
 
     /**
      */
+    @Override
     protected void addNotify() {
         Report.Trouble trouble = testcase.trouble;
-
-        int nodesCount = 1;                     //exception class name
         if (trouble.message != null) {
-            nodesCount++;
+            childNodes.add(new CallstackFrameNode(trouble,
+                                                  trouble.message));
+        }
+        if (trouble.exceptionClsName != null) {
+            childNodes.add(new CallstackFrameNode(trouble,
+                                                  trouble.exceptionClsName));
         }
         if (trouble.stackTrace != null) {
-            nodesCount += trouble.stackTrace.length;
-        }
-        
-        String topFrameInfo = (trouble.stackTrace != null)
-                                    && (trouble.stackTrace.length != 0)
-                                            ? trouble.stackTrace[0]
-                                            : null;
-
-        Node[] children = new Node[nodesCount];
-        int index = 0;
-        if (trouble.message != null) {
-            children[index++] = new CallstackFrameNode(topFrameInfo,
-                                                       trouble.message);
-        }
-        children[index++] = new CallstackFrameNode(topFrameInfo,
-                                                   trouble.exceptionClsName);
-        for (int i = 0; index < nodesCount; i++) {
-            children[index++] = new CallstackFrameNode(trouble.stackTrace[i]);
+            for (String frameInfo : trouble.stackTrace) {
+                childNodes.add(new CallstackFrameNode(frameInfo));
+            }
         }
         
         if (trouble.nestedTrouble != null) {
-            List<Node> childrenList = new ArrayList<Node>(nodesCount * 3);
-            childrenList.addAll(Arrays.asList(children));
-            
             trouble = trouble.nestedTrouble;
             do {
                 String[] stackTrace = trouble.stackTrace;
-                topFrameInfo = (stackTrace != null) && (stackTrace.length != 0)
-                               ? stackTrace[0]
-                               : null;
                 StringBuilder topNodeDispName = new StringBuilder(200);
                 topNodeDispName.append(NESTED_EXCEPTION_PREFIX);
                 topNodeDispName.append(trouble.exceptionClsName);
@@ -109,25 +128,16 @@ final class TestMethodNodeChildren extends Children.Array {
                     topNodeDispName.append(": ")                        //NOI18N
                                    .append(trouble.message);
                 }
-                childrenList.add(new CallstackFrameNode(topFrameInfo,
-                                                        topNodeDispName.toString()));
+                childNodes.add(new CallstackFrameNode(trouble,
+                                                      topNodeDispName.toString()));
                 if (stackTrace != null) {
                     for (String frameInfo : stackTrace) {
-                        childrenList.add(new CallstackFrameNode(frameInfo));
+                        childNodes.add(new CallstackFrameNode(frameInfo));
                     }
                 }
             } while ((trouble = trouble.nestedTrouble) != null);
-            
-            children = childrenList.toArray(new Node[childrenList.size()]);
         }
         
-        add(children);
+        super.addNotify();
     }
-    
-    /**
-     */
-    protected void removeNotify() {
-        remove(getNodes());
-    }
-    
 }

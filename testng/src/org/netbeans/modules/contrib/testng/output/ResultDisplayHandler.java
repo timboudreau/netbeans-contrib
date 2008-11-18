@@ -97,17 +97,17 @@ final class ResultDisplayHandler {
                 super.addNotify();
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-//                        int loc = JUnitSettings.getDefault().getResultsSplitPaneDivider();
-//                        if (loc != -1) {
-//                            setDividerLocation(loc);
-//                        }
+                        int loc = TestNGSettings.getDefault().getResultsSplitPaneDivider();
+                        if (loc != -1) {
+                            setDividerLocation(loc);
+                        }
                     }
                 });
             }
 
             @Override
             public void removeNotify() {
-//                JUnitSettings.getDefault().setResultsSplitPaneDivider(getDividerLocation());
+                TestNGSettings.getDefault().setResultsSplitPaneDivider(getDividerLocation());
                 super.removeNotify();
             }
         };

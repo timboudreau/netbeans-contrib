@@ -156,7 +156,7 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             case STATE_EXCEPTION:
                 //how to get text msgs here?
-                //exMessage = 
+                //exMessage =
                 if ("message".equals(qName)) { //NOI18N
                     state = STATE_MESSAGE;
                 } else if ("full-stacktrace".equals(qName)) { //NOI18N

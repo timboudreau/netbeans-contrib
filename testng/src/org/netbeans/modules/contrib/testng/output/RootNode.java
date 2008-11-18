@@ -55,7 +55,7 @@ import org.openide.util.actions.SystemAction;
 final class RootNode extends AbstractNode {
 
     /** */
-    static final String name = "JUnit results root node";               //NOI18N
+    static final String name = "TestNG results root node";               //NOI18N
 
     /** constant meaning "information about passed tests not displayed" */
     static final int ALL_PASSED_ABSENT = 0;
@@ -77,6 +77,7 @@ final class RootNode extends AbstractNode {
     private volatile int totalTests = 0;
     private volatile int failures = 0;
     private volatile int errors = 0;
+    private volatile int interruptedTests = 0;
     private volatile int elapsedTimeMillis = 0;
     private volatile int detectedPassedTests = 0;
     private boolean sessionFinished;
@@ -165,6 +166,7 @@ final class RootNode extends AbstractNode {
         failures += report.failures;
         errors += report.errors;
         detectedPassedTests += report.detectedPassedTests;
+        interruptedTests += report.interruptedTests;
         elapsedTimeMillis += report.elapsedTimeMillis;
     }
     
@@ -201,41 +203,36 @@ final class RootNode extends AbstractNode {
             } else {
                 msg = null;
             }
-        } else if ((failures == 0) && (errors == 0)) {
+        } else if ((failures == 0) && (errors == 0) && (interruptedTests == 0)) {
             msg = NbBundle.getMessage(bundleRefClass,
                                       "MSG_TestsInfoAllOK",             //NOI18N
                                       Integer.valueOf(totalTests));
         } else {
-            String passedTestsInfo = NbBundle.getMessage(
-                    bundleRefClass,
-                    "MSG_PassedTestsInfo",                              //NOI18N
-                    Integer.valueOf(totalTests - failures - errors));
-            String failedTestsInfo = (failures == 0)
-                                     ? null
-                                     : NbBundle.getMessage(
-                                            bundleRefClass,
-                                            "MSG_FailedTestsInfo",      //NOI18N
-                                            Integer.valueOf(failures));
-            String errorTestsInfo = (errors == 0)
-                                    ? null
-                                    : NbBundle.getMessage(
-                                            bundleRefClass,
-                                            "MSG_ErrorTestsInfo",       //NOI18N
-                                            Integer.valueOf(errors));
-            if ((failedTestsInfo == null) || (errorTestsInfo == null)) {
-                msg = NbBundle.getMessage(bundleRefClass,
-                                          "MSG_TestsOneIssueType",      //NOI18N
-                                          passedTestsInfo,
-                                          failedTestsInfo != null
-                                                ? failedTestsInfo
-                                                : errorTestsInfo);
-            } else {
-                msg = NbBundle.getMessage(bundleRefClass,
-                                          "MSG_TestsFailErrIssues",     //NOI18N
-                                          passedTestsInfo,
-                                          failedTestsInfo,
-                                          errorTestsInfo);
+            StringBuilder buf = new StringBuilder(40);
+            buf.append(NbBundle.getMessage(bundleRefClass,
+                                           "MSG_PassedTestsInfo",       //NOI18N
+                                           totalTests - failures - errors
+                                                      - interruptedTests));
+            if ((failures != 0) || (errors != 0)) {
+                buf.append(", ");                                       //NOI18N
+                buf.append(NbBundle.getMessage(bundleRefClass,
+                                               "MSG_FailedTestsInfo",   //NOI18N
+                                               failures));
             }
+            if (errors != 0) {
+                buf.append(", ");                                       //NOI18N
+                buf.append(NbBundle.getMessage(bundleRefClass,
+                                               "MSG_ErrorTestsInfo",    //NOI18N
+                                               errors));
+            }
+            if (interruptedTests != 0) {
+                buf.append(", ");                                       //NOI18N
+                buf.append(NbBundle.getMessage(bundleRefClass,
+                                               "MSG_InterruptedTestsInfo",//NOI18N
+                                               interruptedTests));
+            }
+            buf.append('.');
+            msg = buf.toString();
         }
 
         if (totalTests != 0) {
@@ -281,7 +278,7 @@ final class RootNode extends AbstractNode {
      *                           <code>ALL_PASSED_ABSENT</code>
      */
     int getSuccessDisplayedLevel() {
-        int reportedPassedTestsCount = totalTests - failures - errors;
+        int reportedPassedTestsCount = totalTests - failures - errors - interruptedTests;
         if (detectedPassedTests >= reportedPassedTestsCount) {
             return ALL_PASSED_DISPLAYED;
         } else if (detectedPassedTests == 0) {

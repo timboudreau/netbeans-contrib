@@ -40,11 +40,6 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
-import java.util.Collection;
-import org.apache.tools.ant.module.spi.AntSession;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.openide.filesystems.FileObject;
-
 /**
  * Holds information about an <code>AntSession</code>.
  *
@@ -66,27 +61,12 @@ final class AntSessionInfo {
 
     /**
      */
-    AntSessionInfo() {
-    }
+    AntSessionInfo() { }
 
     /**
      */
     long getTimeOfTestTaskStart() {
         return timeOfTestTaskStart;
     }
-    public ClassPath platformSources = null;
-    public String classpath = null;
-    public Collection<FileObject> classpathSourceRoots = null;
-    public String possibleExceptionText = null;
-    public String lastExceptionMessage = null;
-
-    public void setClasspath(String cp) {
-        classpath = cp;
-        classpathSourceRoots = null;
-    }
-
-    public void setPlatformSources(ClassPath platformSources) {
-        this.platformSources = platformSources;
-        classpathSourceRoots = null;
-    }
+    
 }

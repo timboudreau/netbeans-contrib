@@ -49,7 +49,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.modules.contrib.testng.output.antutils.FileSetScanner.AntPattern.PatternPartType;
 import org.netbeans.modules.contrib.testng.output.antutils.FileUtils;
@@ -79,12 +78,17 @@ class FileSetScanner {
     };
     
     /** */
+    private static final String[] EMPTY_STRING_ARR = new String[0];
+    
+    /** */
     private final FileSet fileSet;
     
     /** */
     private File baseDir;
     /** */
     private boolean caseSensitive;
+    /** */
+    private boolean followSymlinks;
     /** */
     private AntPattern[] includePatterns;
     /** */
@@ -118,6 +122,7 @@ class FileSetScanner {
         
         this.baseDir = fileSet.getBaseDir();
         this.caseSensitive = fileSet.isCaseSensitive();
+        this.followSymlinks = fileSet.isFollowSymlinks();
         preparePatterns();
         findMatchingFiles();
         return matchingFiles;
@@ -141,6 +146,13 @@ class FileSetScanner {
             final Collection<PatternTest> patternTests) {
         
         final File[] children = directory.listFiles();
+        if (children == null) {
+            /*
+             * it means that 'directory' does not really point to a directory
+             * - see also bug #130365
+             */
+            return;
+        }
         for (File child : children) {
             final boolean isFile = child.isFile();
             final boolean isDir = child.isDirectory();
@@ -610,14 +622,14 @@ class FileSetScanner {
                    && Arrays.equals(patternParts,
                                     ((AntPattern) object).patternParts);
         }
-
         @Override
         public int hashCode() {
-            int hash = 7;
-            hash = 53 * hash + (this.patternParts != null ? this.patternParts.hashCode() : 0);
+            int hash = 131;
+            for (int i = 0; i < patternParts.length; i++) {
+                hash += patternParts[i].hashCode() << i;
+            }
             return hash;
         }
-        
         @Override
         public String toString() {
             String patternsString;
