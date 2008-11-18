@@ -406,6 +406,55 @@ public class ScalaLexUtilities {
         return false;
     }
 
+    /**
+     * Tries to skip parenthesis
+     */
+    public static boolean skipPair(TokenSequence<ScalaTokenId> ts, ScalaTokenId left, ScalaTokenId right, boolean back) {
+        int balance = 0;
+
+        Token<ScalaTokenId> token = ts.token();
+        if (token == null) {
+            return false;
+        }
+
+        TokenId id = token.id();
+
+        // skip whitespace and comment
+        if (isWsComment(id)) {
+            while ((back ? ts.movePrevious() : ts.moveNext()) && isWsComment(id)) {
+            }
+        }
+
+        // if current token is not parenthesis
+        if (ts.token().id() != (back ? right : left)) {
+            return false;
+        }
+
+        do {
+            token = ts.token();
+            id = token.id();
+
+            if (id == (back ? right : left)) {
+                balance++;
+            } else if (id == (back ? left : right)) {
+                if (balance == 0) {
+                    return false;
+                } else if (balance == 1) {
+                    if (back) {
+                        ts.movePrevious();
+                    } else {
+                        ts.moveNext();
+                    }
+                    return true;
+                }
+
+                balance--;
+            }
+        } while (back ? ts.movePrevious() : ts.moveNext());
+
+        return false;
+    }
+
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
     public static OffsetRange findFwd(BaseDocument doc, TokenSequence<ScalaTokenId> ts, TokenId up,
             TokenId down) {
