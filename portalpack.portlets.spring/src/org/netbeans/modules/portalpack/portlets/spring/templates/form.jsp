@@ -30,7 +30,7 @@
  <#if ip.getComponentType() == "radio" || ip.getComponentType() == "checkbox">
  <tr/>
  <tr>
-    <td>${ip.getLabel()}</td>
+    <td>${ip.getLabel()} :</td>
  </tr>   
     <#foreach d in values>
     <tr>
@@ -42,8 +42,9 @@
     </tr>
     </#foreach>
   <tr/>  
+
  <#elseif ip.getComponentType() == "select">
-    <td>${ip.getLabel()}</td>
+    <td>${ip.getLabel()} :</td>
     <td>
         <select name="${ip.getName()}">
     <#foreach d in values>
@@ -52,10 +53,12 @@
         </select>
     </td>
  <#else>
-    <td>${ip.getLabel()}</td>   
+    <td>${ip.getLabel()} :</td>   
     <td>
         <#if ip.getDataType().getType() == "file">
         <input type="file" name="${ip.getName()}"/>
+        <#elseif ip.getComponentType() == "textarea">
+        <textarea name="${ip.getName()}" cols="30" rows="5"></textarea>
         <#else>
         <input type="${ip.getComponentType()}" name="${ip.getName()}"/>
         </#if>

@@ -50,6 +50,7 @@ public class TypesHelper {
     public static final String CHECKBOX_COMP = "checkbox";
     public static final String RADIO_COMP = "radio";
     public static final String SELECT_COMP = "select";
+    public static final String TEXT_AREA = "textarea";
     
     public static final DataType STRING_TYPE = new DataType("String","String");
     public static final DataType FILE_TYPE = new DataType("file","File");
@@ -70,7 +71,7 @@ public class TypesHelper {
     
     public static String[] getDefaultComponentTypes() {
         
-        String[] componentTypes = {TEXT_COMP,PASSWORD_COMP,CHECKBOX_COMP,RADIO_COMP,SELECT_COMP};       
+        String[] componentTypes = {TEXT_COMP,PASSWORD_COMP,CHECKBOX_COMP,RADIO_COMP,SELECT_COMP,TEXT_AREA};       
         return componentTypes;
     }
     
