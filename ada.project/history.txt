@@ -1,8 +1,9 @@
-1.1: 09-11-2008
+0.1.2: 19-11-2008
+- Update path classes.
 
-- Added initial version of Build/Clean actions.
+0.1.1: 09-11-2008
+- Add initial version of Build/Clean actions.
 
-1.0: 23-09-2008
-
+0.1.0: 23-09-2008
 - Initial, very alpha release.
 - Based on python.project and php.project. Thanks to the authors of nbPython and PHP Project.

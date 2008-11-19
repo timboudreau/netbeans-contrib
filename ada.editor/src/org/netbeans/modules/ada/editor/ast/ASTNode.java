@@ -44,12 +44,12 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.ASTNode
  * 
+ * @author Andrea Lucarelli
  */
 public abstract class ASTNode {
 
     final private int startOffset;
     final private int endOffset;
-    //private ASTNode parent = null;
     
     public ASTNode(int start, int end) {
         this.startOffset = start;

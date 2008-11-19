@@ -4,29 +4,29 @@
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="ada-clean" description="Cleans all the modules constituting the Ada support">
+        <ant dir="../ada.platform" inheritAll="false" target="clean"/>
+        <ant dir="../ada.project" inheritAll="false" target="clean"/>
         <ant dir="../ada.editor" inheritAll="false" target="clean"/>
         <ant dir="../ada.help" inheritAll="false" target="clean"/>
         <ant dir="../ada.options" inheritAll="false" target="clean"/>
-        <ant dir="../ada.platform" inheritAll="false" target="clean"/>
-        <ant dir="../ada.project" inheritAll="false" target="clean"/>
         <ant dir="." inheritAll="false" target="clean"/>
     </target>
 
     <target name="ada-build" description="Builds all the modules constituting the Ada support">
+        <ant dir="../ada.platform" inheritAll="false" target="netbeans"/>
+        <ant dir="../ada.project" inheritAll="false" target="netbeans"/>
         <ant dir="../ada.editor" inheritAll="false" target="netbeans"/>
         <ant dir="../ada.help" inheritAll="false" target="netbeans"/>
         <ant dir="../ada.options" inheritAll="false" target="netbeans"/>
-        <ant dir="../ada.platform" inheritAll="false" target="netbeans"/>
-        <ant dir="../ada.project" inheritAll="false" target="netbeans"/>
         <ant dir="." inheritAll="false" target="netbeans"/>
     </target>
 
     <target name="ada-nbm" description="Creates nbm archives for all Ada modules">
+        <ant dir="../ada.platform" inheritAll="false" target="nbm"/>
+        <ant dir="../ada.project" inheritAll="false" target="nbm"/>
         <ant dir="../ada.editor" inheritAll="false" target="nbm"/>
         <ant dir="../ada.help" inheritAll="false" target="nbm"/>
         <ant dir="../ada.options" inheritAll="false" target="nbm"/>
-        <ant dir="../ada.platform" inheritAll="false" target="nbm"/>
-        <ant dir="../ada.project" inheritAll="false" target="nbm"/>
         <ant dir="." inheritAll="false" target="nbm"/>
         <move todir="." flatten="true">
             <fileset dir="..">

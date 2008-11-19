@@ -53,7 +53,7 @@ import org.netbeans.editor.Utilities;
 import org.netbeans.modules.editor.indent.spi.Context;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.spi.GsfUtilities;
-import org.netbeans.modules.ada.editor.lexer.LexUtilities;
+import org.netbeans.modules.ada.editor.lexer.AdaLexUtilities;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
 import org.openide.util.Exceptions;
 import org.netbeans.modules.ada.editor.formatter.ui.CodeStyle;
@@ -139,7 +139,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
     /** Compute the initial balance of brackets at the given offset. */
     private int getFormatStableStart(BaseDocument doc, int offset) {
-        TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, offset);
+        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
         if (ts == null) {
             return 0;
         }
@@ -180,7 +180,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         } else if (id == AdaTokenId.RPAREN) {
             return -1;
         } else if (includeKeywords) {
-            if (LexUtilities.isBeginToken(id, doc, ts)) {
+            if (AdaLexUtilities.isBeginToken(id, doc, ts)) {
                 return 1;
             } else if (id == AdaTokenId.END ||
                     id == AdaTokenId.END_CASE ||
@@ -196,7 +196,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     public static int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords) {
         int balance = 0;
 
-        TokenSequence<? extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, begin);
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, begin);
         if (ts == null) {
             return 0;
         }
@@ -233,7 +233,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // I can't look at the first position on the line, since
             // for a string array that is indented, the indentation portion
             // is recorded as a blank identifier
-            Token<?extends AdaTokenId> token = LexUtilities.getToken(doc, pos);
+            Token<?extends AdaTokenId> token = AdaLexUtilities.getToken(doc, pos);
 
             if (token != null) {
                 TokenId id = token.id();
@@ -247,9 +247,9 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 
                 if (id == AdaTokenId.STRING_LITERAL) {
                     // Possibly a heredoc
-                    TokenSequence<? extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, pos);
+                    TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, pos);
                     ts.move(pos);
-                    OffsetRange range = LexUtilities.findHeredocBegin(ts, token);
+                    OffsetRange range = AdaLexUtilities.findHeredocBegin(ts, token);
                     if (range != OffsetRange.NONE) {
                         String text = doc.getText(range.getStart(), range.getLength());
                         if (text.startsWith("<<-")) { // NOI18N
@@ -265,7 +265,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             }
         } else {
             // Empty line inside a string, documentation etc. literal?
-            Token<?extends AdaTokenId> token = LexUtilities.getToken(doc, offset);
+            Token<?extends AdaTokenId> token = AdaLexUtilities.getToken(doc, offset);
 
             if (token != null) {
                 TokenId id = token.id();
@@ -286,7 +286,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
         if (lineBegin != -1) {
-            return LexUtilities.getToken(doc, lineBegin);
+            return AdaLexUtilities.getToken(doc, lineBegin);
         }
         
         return null;
@@ -307,8 +307,8 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // If the line starts with an end-marker, such as "end", ")", etc.,
             // find the corresponding opening marker, and indent the line to the same
             // offset as the beginning of that line.
-            return (LexUtilities.isIndentToken(id) &&
-                    !LexUtilities.isBeginToken(id, doc, offset)) ||
+            return (AdaLexUtilities.isIndentToken(id) &&
+                    !AdaLexUtilities.isBeginToken(id, doc, offset)) ||
                     id == AdaTokenId.END ||
                     id == AdaTokenId.END_CASE ||
                     id == AdaTokenId.END_IF ||
@@ -325,7 +325,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             return false;
         }
         
-        TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, offset);
+        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
 
         if (ts == null) {
             return false;
@@ -367,7 +367,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 //    alias eql? ==
                 // or
                 //    def ==
-                token = LexUtilities.getToken(doc, Utilities.getRowFirstNonWhite(doc, offset));
+                token = AdaLexUtilities.getToken(doc, Utilities.getRowFirstNonWhite(doc, offset));
                 if (token != null) {
                     id = token.id();
                     // TODO: to be verify
@@ -399,7 +399,7 @@ public class AdaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
             if (indentOnly) {
                 // Make sure we're not messing with indentation in HTML
-                Token<? extends AdaTokenId> token = LexUtilities.getToken(doc, startOffset);
+                Token<? extends AdaTokenId> token = AdaLexUtilities.getToken(doc, startOffset);
                 if (token == null) {
                     return;
                 }

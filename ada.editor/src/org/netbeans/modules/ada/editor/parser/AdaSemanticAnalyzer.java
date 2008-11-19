@@ -47,9 +47,11 @@ import java.util.Set;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -59,6 +61,7 @@ import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 
 /**
+ * Based on org.netbeans.modules.php.editor.parser.SemanticAnalysis
  *
  * @author Andrea Lucarelli
  */
@@ -172,19 +175,14 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
             }
             Identifier name = node.getName();
             addOffsetRange(name, ColoringAttributes.CLASS_SET);
-            node.getBody().accept(this);
-        }
-
-        @Override
-        public void visit(PackageBody pkgbdy) {
-            if (isCancelled()) {
-                return;
+            // Check if package name end is present
+            if (node.getNameEnd().getName() != null) {
+                Identifier nameEnd = node.getNameEnd();
+                addOffsetRange(nameEnd, ColoringAttributes.CLASS_SET);
             }
-            Identifier name = pkgbdy.getName();
-            addOffsetRange(name, ColoringAttributes.CLASS_SET);
             needToScan = new ArrayList<Block>();
-            if (pkgbdy.getBody() != null) {
-                pkgbdy.getBody().accept(this);
+            if (node.getBody() != null) {
+                node.getBody().accept(this);
 
                 // find all usages in the method bodies
                 for (Block block : needToScan) {
@@ -207,6 +205,66 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                     } else {
                         addOffsetRange(item.identifier, UNUSED_METHOD_SET);
                     }
+                }
+            }
+        }
+
+        @Override
+        public void visit(PackageBody node) {
+            if (isCancelled()) {
+                return;
+            }
+            Identifier name = node.getName();
+            addOffsetRange(name, ColoringAttributes.CLASS_SET);
+            // Check if package name end is present
+            if (node.getNameEnd().getName() != null) {
+                Identifier nameEnd = node.getNameEnd();
+                addOffsetRange(nameEnd, ColoringAttributes.CLASS_SET);
+            }
+            needToScan = new ArrayList<Block>();
+            if (node.getBody() != null) {
+                node.getBody().accept(this);
+
+                // find all usages in the method bodies
+                for (Block block : needToScan) {
+                    block.accept(this);
+                }
+                // are there unused private fields?
+                for (IdentifierColoring item : privateFieldsUsed.values()) {
+                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
+                        addOffsetRange(item.identifier, UNUSED_STATIC_FIELD_SET);
+                    } else {
+                        addOffsetRange(item.identifier, UNUSED_FIELD_SET);
+                    }
+
+                }
+
+                // are there unused private methods?
+                for (IdentifierColoring item : privateMethod.values()) {
+                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
+                        addOffsetRange(item.identifier, UNUSED_STATIC_METHOD_SET);
+                    } else {
+                        addOffsetRange(item.identifier, UNUSED_METHOD_SET);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void visit(FieldsDeclaration node) {
+            if (isCancelled()) {
+                return;
+            }
+
+            EnumSet<ColoringAttributes> coloring = ColoringAttributes.FIELD_SET;
+
+
+            Variable[] variables = node.getVariableNames();
+            for (int i = 0; i < variables.length; i++) {
+                Variable variable = variables[i];
+                if (variable.getName() instanceof Identifier) {
+                    Identifier identifier = (Identifier) variable.getName();
+                    privateFieldsUsed.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
                 }
             }
         }

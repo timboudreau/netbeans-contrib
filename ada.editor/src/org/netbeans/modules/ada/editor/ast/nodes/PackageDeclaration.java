@@ -47,9 +47,10 @@ package org.netbeans.modules.ada.editor.ast.nodes;
 public abstract class PackageDeclaration extends Statement {
 
     private Identifier name;
+    private Identifier nameEnd;
     private Block body;
 
-    public PackageDeclaration(int start, int end, final Identifier name, final Block body) {
+    public PackageDeclaration(int start, int end, final Identifier name, final Identifier nameEnd, final Block body) {
         super(start, end);
 
         System.out.println ("PackageDeclaration.name: " + name.getName());
@@ -60,6 +61,7 @@ public abstract class PackageDeclaration extends Statement {
 
         this.name = name;
         this.body = body;
+        this.nameEnd = nameEnd;
     }
 
     /**
@@ -76,6 +78,15 @@ public abstract class PackageDeclaration extends Statement {
      */
     public Identifier getName() {
         return this.name;
+    }
+
+    /**
+     * The optional name of the package declaration node used at end package
+     * declaration
+     * @return name of the package declaration node
+     */
+    public Identifier getNameEnd() {
+        return this.nameEnd;
     }
 
 }

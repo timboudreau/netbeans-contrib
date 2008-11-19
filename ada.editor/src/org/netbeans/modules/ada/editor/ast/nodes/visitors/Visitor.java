@@ -51,7 +51,9 @@ import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.visitors.Visitor
@@ -68,6 +70,8 @@ public interface Visitor {
 
     public void visit(EmptyStatement emptyStatement);
 
+	public void visit(FieldsDeclaration fieldsDeclaration);
+
     public void visit(Identifier identifier);
 
     public void visit(PackageSpecification packageSpecification);
@@ -77,6 +81,8 @@ public interface Visitor {
     public void visit(PackageName packageName);
 
     public void visit(Program program);
+
+	public void visit(SingleFieldDeclaration singleFieldDeclaration);
 
     public void visit(Variable variable);
 

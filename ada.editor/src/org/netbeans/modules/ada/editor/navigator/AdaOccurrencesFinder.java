@@ -36,35 +36,162 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.navigator;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import org.netbeans.modules.ada.editor.CodeUtils;
+import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.ASTUtils;
+import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Variable;
+import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
+import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement;
+import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
+ * Based on org.netbeans.modules.php.editor.nav.OccurrencesFinderImpl
  *
  * @author Andrea Lucarelli
  */
 public class AdaOccurrencesFinder implements OccurrencesFinder {
 
+    private int offset;
+    private Map<OffsetRange, ColoringAttributes> range2Attribs;
+
     public void setCaretPosition(int position) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.offset = position;
+        this.range2Attribs = new HashMap<OffsetRange, ColoringAttributes>();
     }
 
     public Map<OffsetRange, ColoringAttributes> getOccurrences() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return range2Attribs;
     }
 
     public void cancel() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void run(CompilationInfo parameter) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (OffsetRange r : compute(parameter, offset)) {
+            range2Attribs.put(r, ColoringAttributes.MARK_OCCURRENCES);
+        }
     }
 
+    static Collection<OffsetRange> compute(final CompilationInfo parameter, final int offset) {
+        final List<OffsetRange> result = new LinkedList<OffsetRange>();
+        final List<ASTNode> path = NavUtils.underCaret(parameter, offset);
+        final SemiAttribute a = SemiAttribute.semiAttribute(parameter);
+        final AttributedElement el = NavUtils.findElement(parameter, path, offset, a);
+
+        if (el == null) {
+            return result;
+        }
+        Identifier id = null;
+        Collections.reverse(path);
+        for (ASTNode astNode : path) {
+            if (astNode instanceof Identifier) {
+                Identifier identifier = (Identifier) astNode;
+                if (identifier != null) {
+                    id = identifier;
+                }
+            }
+        }
+
+        final Identifier identifier = id;
+        final List<ASTNode> usages = new LinkedList<ASTNode>();
+        final List<ASTNode> memberDeclaration = new LinkedList<ASTNode>();
+
+        new DefaultVisitor() {
+
+            private String pkgName = null;
+
+            @Override
+            public void visit(SingleFieldDeclaration node) {
+                boolean found = false;
+                if (el instanceof SemiAttribute.PackageMemberElement) {
+                    SemiAttribute.PackageMemberElement clsEl = (SemiAttribute.PackageMemberElement) el;
+                    Variable variable = node.getName();
+                    String varName = CodeUtils.extractVariableName(variable);
+                    if (pkgName != null && clsEl.getClassName().equals(pkgName) && clsEl.getName().equals(varName)) {
+                        memberDeclaration.add(variable);
+                        usages.add(variable);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    super.visit(node);
+                }
+            }
+
+            @Override
+            public void visit(PackageSpecification node) {
+                if (el == a.getElement(node)) {
+                    usages.add(node.getName());
+                    if (node.getNameEnd().getName() != null) {
+                        usages.add(node.getNameEnd());
+                    }
+                }
+                pkgName = CodeUtils.extractPackageName(node);
+                super.visit(node);
+                /*
+                 * do not mark two method decl., if happens then remove
+                 * the superclass method.
+                 */
+                while (memberDeclaration.size() > 1) {
+                    usages.remove(memberDeclaration.remove(0));
+                }
+            }
+
+            @Override
+            public void visit(PackageBody node) {
+                if (el == a.getElement(node)) {
+                    usages.add(node.getName());
+                    if (node.getNameEnd().getName() != null) {
+                        usages.add(node.getNameEnd());
+                    }
+                }
+                pkgName = CodeUtils.extractPackageName(node);
+                super.visit(node);
+                /*
+                 * do not mark two method decl., if happens then remove
+                 * the superclass method.
+                 */
+                while (memberDeclaration.size() > 1) {
+                    usages.remove(memberDeclaration.remove(0));
+                }
+            }
+
+            @Override
+            public void visit(Variable node) {
+                if (el == a.getElement(node)) {
+                    usages.add(node);
+                }
+                super.visit(node);
+            }
+        }.scan(ASTUtils.getRoot(parameter));
+
+        for (ASTNode n : usages) {
+            OffsetRange forNode = forNode(n, el.getKind());
+            if (forNode != null) {
+                result.add(forNode);
+            }
+        }
+
+        return result;
+    }
+
+    private static OffsetRange forNode(ASTNode n, Kind kind) {
+        return new OffsetRange(n.getStartOffset(), n.getEndOffset());
+    }
 }

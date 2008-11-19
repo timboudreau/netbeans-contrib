@@ -54,8 +54,10 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public class PackageSpecification extends PackageDeclaration {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Block body) {
-        super(start, end, packageName, body);
+    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
+        super(start, end, packageName, packageNameEnd, body);
+
+        System.out.println("PackageSpecification: " + packageName.getName());
     }
 
     

@@ -80,4 +80,8 @@ public class AdaMimeResolver extends MIMEResolver {
     public String findMIMEType(FileObject fo) {
         return isAdaExt(fo.getExt()) ? ADA_MIME_TYPE : null;
     }
+
+    public static String[] getEXTENSIONS() {
+        return EXTENSIONS;
+    }
 }

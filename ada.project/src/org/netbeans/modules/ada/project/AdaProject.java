@@ -47,7 +47,7 @@ import javax.swing.ImageIcon;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.modules.ada.project.path.ClassPathProviderImplementation;
+import org.netbeans.modules.ada.project.path.AdaClassPathProvider;
 import org.netbeans.modules.ada.project.ui.Utils;
 import org.netbeans.modules.ada.project.ui.properties.AdaCustomizerProvider;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
@@ -130,7 +130,7 @@ public class AdaProject implements Project {
                     this, //project spec requires a project be in it's own lookup
                     aux, //Auxiliary configuartion to store bookmarks and so on
                     new AdaActionProvider(this), //Provides Standard like build and cleen
-                    new ClassPathProviderImplementation(this),
+                    new AdaClassPathProvider(this),
                     new Info(), // Project information Implementation
                     new AdaLogicalViewProvider(this), // Logical view if project implementation
                     new AdaOpenedHook(), //Called by project framework when project is opened (closed)
@@ -287,7 +287,7 @@ public class AdaProject implements Project {
 
         protected void projectOpened() {
             // register project's classpaths to GlobalPathRegistry
-            final ClassPathProviderImplementation cpProvider = getLookup().lookup(ClassPathProviderImplementation.class);
+            final AdaClassPathProvider cpProvider = getLookup().lookup(AdaClassPathProvider.class);
             assert cpProvider != null;
             GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
             GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
@@ -295,7 +295,7 @@ public class AdaProject implements Project {
 
         protected void projectClosed() {
             // unregister project's classpaths to GlobalPathRegistry
-            final ClassPathProviderImplementation cpProvider = getLookup().lookup(ClassPathProviderImplementation.class);
+            final AdaClassPathProvider cpProvider = getLookup().lookup(AdaClassPathProvider.class);
             assert cpProvider != null;
             GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
             GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));

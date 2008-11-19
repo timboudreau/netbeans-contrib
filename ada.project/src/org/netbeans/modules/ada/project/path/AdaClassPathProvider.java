@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.path;
 
 import java.util.HashMap;
@@ -54,19 +53,32 @@ import org.openide.filesystems.FileUtil;
  * 
  * @author Andrea Lucarelli
  */
-public final class ClassPathProviderImplementation implements ClassPathProvider {
+public final class AdaClassPathProvider implements ClassPathProvider {
 
-    private final SourceRoots sources;
-    private final SourceRoots tests;
-    private final Map<Pair<String, Integer>, ClassPath> cache = new HashMap<Pair<String, Integer>, ClassPath>();
-    private static final int MAX_TYPES = 2;
+    private static SourceRoots sources;
+    private static SourceRoots tests;
 
-    public ClassPathProviderImplementation(final AdaProject project) {
+    /**
+     * Possible types of a file.
+     */
+    public static enum FileType {
 
-        this.sources = project.getSourceRoots();
-        assert this.sources != null;
-        this.tests = project.getTestRoots();
-        assert this.tests != null;
+        /** Project sources. */
+        SOURCE,
+        /** Project test sources. */
+        TEST,
+        /** Unknown file type. */
+        UNKNOWN,
+    }
+
+    private final Map<Pair<String, FileType>, ClassPath> cache = new HashMap<Pair<String, FileType>, ClassPath>();
+
+    public AdaClassPathProvider(final AdaProject project) {
+
+        AdaClassPathProvider.sources = project.getSourceRoots();
+        assert AdaClassPathProvider.sources != null;
+        AdaClassPathProvider.tests = project.getTestRoots();
+        assert AdaClassPathProvider.tests != null;
     }
 
     /**
@@ -81,41 +93,36 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
      *         <dt>-1</dt> <dd>something else</dd>
      *         </dl>
      */
-    private int getType(FileObject file) {
+    public static FileType getType(FileObject file) {
         for (FileObject root : sources.getRoots()) {
             if (root.equals(file) || FileUtil.isParentOf(root, file)) {
-                return 0;
+                return FileType.SOURCE;
             }
         }
         for (FileObject root : tests.getRoots()) {
             if (root.equals(file) || FileUtil.isParentOf(root, file)) {
-                return 1;
+                return FileType.TEST;
             }
         }
-        return -1;
+        return FileType.UNKNOWN;
     }
 
     private synchronized ClassPath getSourcepath(FileObject file) {
-        int type = getType(file);
+        FileType type = getType(file);
         return this.getSourcepath(type);
     }
 
-    private ClassPath getSourcepath(int type) {
-        if (type < 0 || type > MAX_TYPES) {
+    private ClassPath getSourcepath(FileType type) {
+        if (type == FileType.UNKNOWN) {
             return null;
         }
-        final Pair<String, Integer> key = Pair.of(ClassPath.SOURCE, type);
+        final Pair<String, FileType> key = Pair.of(ClassPath.SOURCE, type);
         ClassPath cp = cache.get(key);
         if (cp == null) {
-            switch (type) {
-                case 0:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation(sources));
-                    break;
-                case 1:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation(tests));
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Only sources are available in the Ada project at this point");
+            if (type == FileType.SOURCE) {
+                cp = ClassPathFactory.createClassPath(new AdaClassPathImplementation(sources));
+            } else if (type == FileType.TEST) {
+                cp = ClassPathFactory.createClassPath(new AdaClassPathImplementation(tests));
             }
             cache.put(key, cp);
         }
@@ -123,7 +130,7 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
     }
 
     private synchronized ClassPath getBootClassPath() {
-        final Pair<String, Integer> key = Pair.of(ClassPath.BOOT, 0);
+        final Pair<String, FileType> key = Pair.of(ClassPath.BOOT, FileType.SOURCE);
         ClassPath cp = cache.get(key);
         if (cp == null) {
             cp = ClassPathFactory.createClassPath(new BootClassPathImplementation());
@@ -155,7 +162,7 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
         }
         if (ClassPath.SOURCE.equals(type)) {
             ClassPath[] l = new ClassPath[1];
-            l[0] = getSourcepath(0);
+            l[0] = getSourcepath(FileType.SOURCE);
             return l;
         }
         return null;
@@ -170,9 +177,8 @@ public final class ClassPathProviderImplementation implements ClassPathProvider 
             return getBootClassPath();
         }
         if (ClassPath.SOURCE.equals(type)) {
-            return getSourcepath(0);
+            return getSourcepath(FileType.SOURCE);
         }
         return null;
     }
-
 }
