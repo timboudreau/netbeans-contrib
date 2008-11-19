@@ -44,6 +44,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.java.queries.SourceForBinaryQuery.Result2;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.openide.filesystems.FileObject;
@@ -98,6 +99,22 @@ public class SourceForBinaryImplTest extends NbTestCase {
         assertEquals(Collections.singletonList(pFO.getFileObject("src")),
                 Arrays.asList(SourceForBinaryQuery.findSourceRoots(FileUtil.urlForArchiveOrDir(pJar)).getRoots()));
 
+    }
+
+    public void testNonexistentSourceRoot() throws Exception { // #153044
+        File p = new File(getWorkDir(), "p");
+        p.mkdirs();
+        Cache.put(p.getAbsolutePath() + Cache.PROJECT, "true");
+        File pSrc = new File(p, "src");
+        String pSrcPath = pSrc.getAbsolutePath();
+        Cache.put(pSrcPath + JavaCacheConstants.SOURCE, pSrcPath);
+        File pBin = new File(p, "classes");
+        Cache.put(pSrcPath + JavaCacheConstants.BINARY, pBin.getAbsolutePath());
+        FileObject pFO = FileUtil.toFileObject(p);
+        assertNotNull(pFO);
+        Result2 result = SourceForBinaryQuery.findSourceRoots2(FileUtil.urlForArchiveOrDir(pBin));
+        assertEquals(Collections.emptyList(), Arrays.asList(result.getRoots()));
+        assertTrue(result.preferSources());
     }
 
 }

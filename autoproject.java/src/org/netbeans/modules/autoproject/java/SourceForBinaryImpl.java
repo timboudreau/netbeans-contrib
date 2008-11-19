@@ -104,7 +104,10 @@ class SourceForBinaryImpl implements SourceForBinaryQueryImplementation {
                     translatedRoots = Collections.singletonList(root);
                 }
                 if (k.endsWith(JavaCacheConstants.BINARY) && translatedRoots.contains(entry.getValue())) {
-                    roots.add(FileUtil.toFileObject(new File(k.substring(0, k.length() - JavaCacheConstants.BINARY.length()))));
+                    FileObject r = FileUtil.toFileObject(new File(k.substring(0, k.length() - JavaCacheConstants.BINARY.length())));
+                    if (r != null) {
+                        roots.add(r);
+                    }
                 }
             }
             LOG.log(Level.FINE, "sources of " + root + ": " + roots);
