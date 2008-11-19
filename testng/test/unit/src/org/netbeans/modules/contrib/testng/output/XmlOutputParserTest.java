@@ -42,7 +42,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.Collection;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.contrib.testng.output.Report.Testcase;
 
@@ -63,6 +62,10 @@ public class XmlOutputParserTest extends NbTestCase {
         Testcase[] tcs = result.getTests().toArray(new Testcase[14]);
         assertEquals("test.NewTestNGTest", tcs[13].className);
         assertEquals("setUp", tcs[13].name);
+        assertEquals(4, result.failures);
+        assertEquals(2, result.skips);
+        assertEquals(14, result.totalTests);
+        assertEquals(8, result.detectedPassedTests);
     }
 
     public void testParseXmlOutput() throws Exception {

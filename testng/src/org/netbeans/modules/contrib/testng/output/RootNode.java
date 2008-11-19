@@ -76,7 +76,7 @@ final class RootNode extends AbstractNode {
     
     private volatile int totalTests = 0;
     private volatile int failures = 0;
-    private volatile int errors = 0;
+    private volatile int skips = 0;
     private volatile int interruptedTests = 0;
     private volatile int elapsedTimeMillis = 0;
     private volatile int detectedPassedTests = 0;
@@ -164,7 +164,7 @@ final class RootNode extends AbstractNode {
     private void updateStatistics(final Report report) {
         totalTests += report.totalTests;
         failures += report.failures;
-        errors += report.errors;
+        skips += report.skips;
         detectedPassedTests += report.detectedPassedTests;
         interruptedTests += report.interruptedTests;
         elapsedTimeMillis += report.elapsedTimeMillis;
@@ -203,7 +203,7 @@ final class RootNode extends AbstractNode {
             } else {
                 msg = null;
             }
-        } else if ((failures == 0) && (errors == 0) && (interruptedTests == 0)) {
+        } else if ((failures == 0) && (skips == 0) && (interruptedTests == 0)) {
             msg = NbBundle.getMessage(bundleRefClass,
                                       "MSG_TestsInfoAllOK",             //NOI18N
                                       Integer.valueOf(totalTests));
@@ -211,19 +211,19 @@ final class RootNode extends AbstractNode {
             StringBuilder buf = new StringBuilder(40);
             buf.append(NbBundle.getMessage(bundleRefClass,
                                            "MSG_PassedTestsInfo",       //NOI18N
-                                           totalTests - failures - errors
+                                           totalTests - failures - skips
                                                       - interruptedTests));
-            if ((failures != 0) || (errors != 0)) {
+            if ((failures != 0) || (skips != 0)) {
                 buf.append(", ");                                       //NOI18N
                 buf.append(NbBundle.getMessage(bundleRefClass,
                                                "MSG_FailedTestsInfo",   //NOI18N
                                                failures));
             }
-            if (errors != 0) {
+            if (skips != 0) {
                 buf.append(", ");                                       //NOI18N
                 buf.append(NbBundle.getMessage(bundleRefClass,
                                                "MSG_ErrorTestsInfo",    //NOI18N
-                                               errors));
+                                               skips));
             }
             if (interruptedTests != 0) {
                 buf.append(", ");                                       //NOI18N
@@ -278,7 +278,7 @@ final class RootNode extends AbstractNode {
      *                           <code>ALL_PASSED_ABSENT</code>
      */
     int getSuccessDisplayedLevel() {
-        int reportedPassedTestsCount = totalTests - failures - errors - interruptedTests;
+        int reportedPassedTestsCount = totalTests - failures - skips - interruptedTests;
         if (detectedPassedTests >= reportedPassedTestsCount) {
             return ALL_PASSED_DISPLAYED;
         } else if (detectedPassedTests == 0) {

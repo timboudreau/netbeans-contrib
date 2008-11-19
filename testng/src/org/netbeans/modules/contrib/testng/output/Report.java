@@ -86,7 +86,7 @@ final class Report {
     String[] outputErr;
     int totalTests;
     int failures;
-    int errors;
+    int skips;
     int interruptedTests;
     int elapsedTimeMillis;
     /**
@@ -124,8 +124,8 @@ final class Report {
         if (LOG.isLoggable(FINER)) {
             LOG.finer("reportTest("                                     //NOI18N
                       + (test.trouble == null ? "pass   "               //NOI18N
-                                              : test.trouble.isError() ? "error  "  //NOI18N
-                                                                       : "failure") //NOI18N
+                                              : test.trouble.isFailure() ? "failure "  //NOI18N
+                                                                       : "skip    ") //NOI18N
                       + ", name: " + test.name                          //NOI18N
                       + ", class: " + test.className                    //NOI18N
                       + ')');
@@ -165,10 +165,10 @@ final class Report {
             }
         } else if (updateAllStats) {
             totalTests++;
-            if (test.trouble.isError()) {
-                errors++;
-            } else {
+            if (test.trouble.isFailure()) {
                 failures++;
+            } else {
+                skips++;
             }
         }
     }
@@ -245,7 +245,7 @@ final class Report {
         this.outputErr = report.outputErr;
         this.totalTests = report.totalTests;
         this.failures = report.failures;
-        this.errors = report.errors;
+        this.skips = report.skips;
         this.elapsedTimeMillis = report.elapsedTimeMillis;
         this.detectedPassedTests = report.detectedPassedTests;
         this.tests = report.tests;
@@ -280,7 +280,7 @@ final class Report {
         
         /* Called from the EventDispatch thread */
         
-        return (failures + errors) != 0;
+        return (failures + skips) != 0;
     }
     
     /**
@@ -306,7 +306,7 @@ final class Report {
         static final String COMPARISON_FAILURE_JUNIT4
                 = "org.junit.ComparisonFailure";                        //NOI18N
 
-        boolean error;
+        boolean failure;
         String message;
         String exceptionClsName;
         String[] stackTrace;
@@ -314,13 +314,13 @@ final class Report {
         
         /**
          */
-        Trouble(boolean error) {
-            this.error = error;
+        Trouble(boolean failure) {
+            this.failure = failure;
         }
         
         /** */
-        boolean isError() {
-            return error;
+        boolean isFailure() {
+            return failure;
         }
 
         /** */
@@ -332,7 +332,7 @@ final class Report {
 
         /** */
         boolean isFakeError() {
-            return error && isComparisonFailure();
+            return failure && isComparisonFailure();
         }
     }
     

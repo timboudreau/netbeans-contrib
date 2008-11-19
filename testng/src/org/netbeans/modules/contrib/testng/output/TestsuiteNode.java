@@ -217,7 +217,7 @@ final class TestsuiteNode extends AbstractNode {
     /**
      */
     private boolean containsFailed() {
-        return (report != null) && (report.failures + report.errors != 0);
+        return (report != null) && (report.failures + report.skips != 0);
     }
     
     @Override

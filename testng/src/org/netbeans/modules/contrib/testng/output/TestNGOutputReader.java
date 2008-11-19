@@ -135,7 +135,7 @@ final class TestNGOutputReader {
      */
     private int executedSuitesCount = 0;
     /**
-     * did we already get statistics of tests/failures/errors for the current
+     * did we already get statistics of tests/failures/skips for the current
      * report?
      */
     private boolean testsuiteStatsKnown = false;   //see issue #74979
@@ -449,10 +449,10 @@ final class TestNGOutputReader {
                 }
 
                 if (trouble.isFakeError()) {
-                    trouble.error = false;
+                    trouble.failure = false;
 
                     /* fix also the statistics: */
-                    report.errors--;
+                    report.skips--;
                     report.failures++;
                 }
 
@@ -527,7 +527,7 @@ final class TestNGOutputReader {
                 try {
                     report.totalTests = Integer.parseInt(matcher.group(1));
                     report.failures = Integer.parseInt(matcher.group(2));
-                    report.errors = Integer.parseInt(matcher.group(3));
+                    report.skips = Integer.parseInt(matcher.group(3));
                 } catch (NumberFormatException ex) {
                     //if the string matches the pattern, this should not happen
                     assert false;

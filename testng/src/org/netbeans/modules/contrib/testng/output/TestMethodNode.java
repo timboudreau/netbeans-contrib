@@ -58,6 +58,7 @@ import org.openide.util.lookup.Lookups;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_OK;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_WARNING;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_FAILURE;
+import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_SKIP;
 import static org.netbeans.modules.contrib.testng.output.OutputUtils.NO_ACTIONS;
 import static org.netbeans.modules.contrib.testng.output.Report.Testcase;
 import static org.netbeans.spi.project.SingleMethod.COMMAND_RUN_SINGLE_METHOD;
@@ -113,7 +114,7 @@ final class TestMethodNode extends AbstractNode {
     private void setDisplayName() {
         final int status = (testcase.trouble == null)
                            ? 0
-                           : testcase.trouble.isError() ? 1 : 2;
+                           : testcase.trouble.isFailure() ? 2 : 1;
         
         if ((status == 0) && (testcase.timeMillis < 0)) {
             setDisplayName(testcase.name);
@@ -142,7 +143,7 @@ final class TestMethodNode extends AbstractNode {
     public String getHtmlDisplayName() {
         final int status = (testcase.trouble == null)
                            ? 0
-                           : testcase.trouble.isError() ? 1 : 2;
+                           : testcase.trouble.isFailure() ? 2 : 1;
 
         String bundleKey;
         Object bundleParam;
@@ -159,7 +160,7 @@ final class TestMethodNode extends AbstractNode {
             bundleParam = new Float(testcase.timeMillis/1000f);
         }
         if (color == null) {
-            color = (testcase.trouble != null) ? COLOR_FAILURE : COLOR_OK;
+            color = (testcase.trouble != null) ? testcase.trouble.isFailure() ? COLOR_FAILURE : COLOR_SKIP : COLOR_OK;
         }
                                           
         StringBuilder buf = new StringBuilder(60);

@@ -114,7 +114,7 @@ final class TestsuiteNodeChildren extends Children.Keys<Report.Testcase> {
         }
         this.filtered = filtered;
         
-        if ((report.errors + report.failures) == report.totalTests) {
+        if ((report.skips + report.failures) == report.totalTests) {
             return;
         }
                 

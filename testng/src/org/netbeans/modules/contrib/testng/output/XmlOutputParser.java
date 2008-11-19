@@ -57,7 +57,9 @@ public class XmlOutputParser extends DefaultHandler {
     private static final Logger LOG = Logger.getLogger(XmlOutputParser.class.getName());
     private int allTestsCount;
     private int failedTestsCount;
-    private int skippedTestsCount; //XXX - jUnit calls these errors; need to investigate if there's error state in TestNG
+    private int passedTestsCount;
+    private int skippedTestsCount;
+    private String status;
     private int suiteTime;
     /** */
     private static final int STATE_OUT_OF_SCOPE = 0;
@@ -139,8 +141,17 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_CLASS:
                 if ("test-method".equals(qName)) { //NOI18N
                     int duration = Integer.valueOf(attributes.getValue("duration-ms")); //NOI18N
+                    allTestsCount++;
                     testcase = createTestcaseReport(tcClassName, attributes.getValue("name"), duration); //NOI18N
                     suiteTime += duration;
+                    status = attributes.getValue("status");
+                    if ("FAIL".equals(status)) {
+                        failedTestsCount++;
+                    } else if ("PASS".equals(status)) {
+                        passedTestsCount++;
+                    } else if ("SKIP".equals(status)) {
+                        skippedTestsCount++;
+                    }
                     state = STATE_TEST_METHOD;
                 }
                 break;
@@ -148,10 +159,16 @@ public class XmlOutputParser extends DefaultHandler {
                 if ("params".equals(qName)) { //NOI18N
                     state = STATE_TEST_PARAMS;
                 } else if ("exception".equals(qName)) { //NOI18N
-                    assert testcase != null;
-                    trouble = new Report.Trouble(false); //XXX - do we have errors in TestNG? If so how to distinguish them from failures?
-                    trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
-                    state = STATE_EXCEPTION;
+                    assert testcase != null && status != null;
+                    if ("FAIL".equals(status)) {
+                        trouble = new Report.Trouble(true);
+                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
+                    } else if ("SKIP".equals(status)) {
+                        trouble = new Report.Trouble(false);
+                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
+                    }
+                    //if test passes, skip possible exception element
+                    state = (trouble != null) ? STATE_EXCEPTION : STATE_TEST_METHOD;
                 }
                 break;
             case STATE_EXCEPTION:
@@ -190,10 +207,10 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_SUITE:
                 assert "suite".equals(qName) : "was " + qName; //NOI18N
                 suiteResult.elapsedTimeMillis = suiteTime;
-//            XXX: is this needed?
-//            suiteResult.totalTests = count(/suite/test/class/test-method)
-//            suiteResult.failures = count(/suite/test/class/test-method[@status='FAIL'])
-//            suiteResult.errors = count(/suite/test/class/test-method[@status='????']) - perhaps can use this for skipped tests (@status='SKIP'])
+                suiteResult.skips = skippedTestsCount;
+                suiteResult.failures = failedTestsCount;
+                suiteResult.totalTests = allTestsCount;
+                suiteResult.detectedPassedTests = passedTestsCount;
                 state = STATE_OUT_OF_SCOPE;
                 break;
             case STATE_TEST:
@@ -206,6 +223,10 @@ public class XmlOutputParser extends DefaultHandler {
                 state = STATE_TEST;
                 break;
             case STATE_TEST_METHOD:
+                //if test passes, wait for our element
+                if (!"test-method".equals(qName)) {
+                    break;
+                }
                 assert "test-method".equals(qName) : "was " + qName; //NOI18N
                 assert testcase != null;
                 suiteResult.reportTest(testcase, Report.InfoSource.XML_FILE);
