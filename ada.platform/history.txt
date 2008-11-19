@@ -1,8 +1,6 @@
-1.1: 09-11-2008
-
+0.1.1: 09-11-2008
 - Added first version of gnatmake command. Tested only windows system.
 
-1.0: 23-09-2008
-
+0.1.0: 23-09-2008
 - Initial, very alpha release.
 - Based on python.platform. Thanks to the authors of nbPython.

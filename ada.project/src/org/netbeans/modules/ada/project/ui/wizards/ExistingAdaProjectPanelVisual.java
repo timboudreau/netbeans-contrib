@@ -176,7 +176,7 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
         File projectLocation = (File) settings.getProperty(NewAdaProjectWizardIterator.PROP_PROJECT_LOCATION);
         String defaultName = null;
         if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory()) {
-            defaultName = NewAdaProjectWizardIterator.getFreeFolderName(ProjectChooser.getProjectsFolder(), "NewAdaProject");     //NOI18N
+            defaultName = NewAdaProjectWizardIterator.getFreeFolderName(ProjectChooser.getProjectsFolder(), "NewAdaApplication");     //NOI18N
             projectLocation = new File (ProjectChooser.getProjectsFolder(),defaultName);
         }
         this.projectFolder.setText(projectLocation.getAbsolutePath());

@@ -38,6 +38,7 @@
  */
 
 package org.netbeans.modules.ada.editor.navigator;
+import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
@@ -50,11 +51,11 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class AdaInstantRenamer implements InstantRenamer {
 
     public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
-        return false;
+        return true;
     }
 
     public Set<OffsetRange> getRenameRegions(CompilationInfo info, int caretOffset) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new HashSet<OffsetRange>(AdaOccurrencesFinder.compute(info, caretOffset));
     }
 
 }

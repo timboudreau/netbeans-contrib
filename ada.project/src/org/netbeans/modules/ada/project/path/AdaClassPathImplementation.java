@@ -56,12 +56,12 @@ import org.openide.util.WeakListeners;
  *
  * @author Andrea Lucarelli
  */
-final class SourcePathImplementation implements ClassPathImplementation, PropertyChangeListener {
+final class AdaClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private List<PathResourceImplementation> resources;
     private final SourceRoots src;
 
-    public SourcePathImplementation(SourceRoots sources) {
+    public AdaClassPathImplementation(SourceRoots sources) {
         assert sources != null;
         this.src = sources;
         this.src.addPropertyChangeListener(WeakListeners.propertyChange(this, this.src));

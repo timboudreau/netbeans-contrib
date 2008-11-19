@@ -87,6 +87,7 @@ parser code {:
      * true if it succeeds.
      * @param debug should we produce debugging messages as we parse.
      */
+    @Override
     protected boolean error_recovery(boolean debug) throws java.lang.Exception {
         return errorStrategy.errorRecovery(debug);
     }
@@ -98,6 +99,7 @@ parser code {:
      * @param message an error message.
      * @param info    an extra object reserved for use by specialized subclasses.
      */
+    @Override
     public void report_error(String message, Object info) {
 		 System.out.print("report_eror"  + message);
   		/* if (info instanceof Symbol)
@@ -113,6 +115,7 @@ parser code {:
      * The super class just emit a "Syntax error" error message.
      * @param cur_token the current lookahead Symbol.
      */
+    @Override
     public void syntax_error(java_cup.runtime.Symbol cur_token) {
         java_cup.runtime.Symbol symbol = (java_cup.runtime.Symbol)stack.peek();
         int state = symbol.parse_state;
@@ -140,13 +143,14 @@ parser code {:
      * @param message an error message.
      * @param info    an extra object reserved for use by specialized subclasses.
      */
-
+    @Override
     public void report_fatal_error(String message, Object info) throws Exception {
         if (errorHandler != null) {
             errorHandler.handleError(ParserErrorHandler.Type.FATAL_PARSER_ERROR, null, cur_token, null);
         }
     }
 
+    @Override
     protected int error_sync_size() {
         return 1;
     }
@@ -344,6 +348,7 @@ non terminal List         name_list;
 non terminal String       name;
 non terminal String       simple_name;
 non terminal String       compound_name;
+non terminal String       compound_name_opt;
 non terminal Expression   object_subtype_def;
 non terminal Expression   init_opt;
 
@@ -502,7 +507,6 @@ non terminal     param;
 non terminal     mode;
 non terminal     generic_package_instantiation;
 non terminal     private_part;
-non terminal     compound_name_opt;
 non terminal     body_opt;
 non terminal     renames;
 non terminal     rename_unit;
@@ -583,8 +587,14 @@ pragma_s ::=
 // 3.1 Declarations
 //
 declaration    ::= 
-object_declaration
-| number_declaration
+object_declaration:statement
+{:
+	RESULT = statement;
+:}
+| number_declaration:statement
+{:
+	RESULT = statement;
+:}
 | type_decl
 | subtype_decl
 | subprog_decl
@@ -908,7 +918,13 @@ declarative_item:declaritiveItem
 ;
 
 declarative_item ::= 
-declaration
+declaration:statement
+{:
+	List declaritiveItemList = new LinkedList();
+	declaritiveItemList.add(new ASTNode[] {statement, null});
+	FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(statementleft, statementright, declaritiveItemList);
+	RESULT = fieldsDeclaration;
+:}
 | use_clause
 | rep_spec
 | pragma
@@ -973,7 +989,10 @@ simple_name:simpleName
 {:
     RESULT = simpleName;
 :}
-| compound_name DOT simple_name
+| compound_name:compoundName DOT simple_name:simpleName
+{:
+    RESULT = compoundName + "." + simpleName;
+:}
 ;
 
 compound_name_list ::= 
@@ -1334,12 +1353,18 @@ package_specification:statement
 package_specification ::= 
 PACKAGE:declarationStart compound_name:packageName IS:blockStart
   declarative_items_opt:declarativeItems private_part
-END compound_name_opt SEMICOLON:declarationEnd
+END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
 {:
-	Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
-	Block block = new Block(blockStartleft, declarationEndright, declarativeItems);
-	PackageSpecification packageSpecification = new PackageSpecification(declarationStartleft, declarationEndright, packageId, block);
-	RESULT = packageSpecification;
+    if (packageNameEnd != null && !packageNameEnd.equalsIgnoreCase (packageName)) {
+        this.parser.message_error("mispelling of " + packageName);
+    }
+    else {
+        Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
+        Identifier packageIdEnd = new Identifier(packageNameEndleft, packageNameEndright, packageNameEnd);
+        Block block = new Block(blockStartleft, declarationEndright, declarativeItems);
+        PackageSpecification packageSpecification = new PackageSpecification(declarationStartleft, declarationEndright, packageId, packageIdEnd, block);
+        RESULT = packageSpecification;
+    }
 :}
 ;
 
@@ -1348,20 +1373,29 @@ private_part ::=
 	;
 
 compound_name_opt ::= 
-	| compound_name
-	;
+| compound_name:compoundName
+{:
+    RESULT = compoundName;
+:}
+;
 
 ///////////////////////////////////////////////////////////////////////////////
 // 7.2 Package Bodies
 //
 package_body ::=
 PACKAGE:declarationStart BODY compound_name:packageName IS:blockStart
-  declarative_part:declarativePart body_opt END compound_name_opt SEMICOLON:declarationEnd
+  declarative_part:declarativePart body_opt END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
 {:
-	Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
-	Block block = new Block(blockStartleft, declarationEndright, declarativePart);
-	PackageBody packageBody = new PackageBody(declarationStartleft, declarationEndright, packageId, block);
-	RESULT = packageBody;
+    if (packageNameEnd != null && !packageNameEnd.equalsIgnoreCase (packageName)) {
+        this.parser.message_error("mispelling of " + packageName);
+    }
+    else {
+        Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
+        Identifier packageIdEnd = new Identifier(packageNameEndleft, packageNameEndright, packageNameEnd);
+        Block block = new Block(blockStartleft, declarationEndright, declarativePart);
+        PackageBody packageBody = new PackageBody(declarationStartleft, declarationEndright, packageId, packageIdEnd, block);
+        RESULT = packageBody;
+    }
 :}
 ;
 

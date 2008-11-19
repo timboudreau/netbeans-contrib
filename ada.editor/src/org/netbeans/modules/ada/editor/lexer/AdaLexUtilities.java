@@ -71,7 +71,7 @@ import org.openide.util.Exceptions;
  *
  * @author Andrea Lucarelli
  */
-public class LexUtilities {
+public class AdaLexUtilities {
     /**
      * Tokens that match a corresponding END statement. Even though while, unless etc.
      * can be statement modifiers, those luckily have different token ids so are not a problem
@@ -111,7 +111,7 @@ public class LexUtilities {
         // XXX What about BEGIN{} and END{} ?
     }
 
-    private LexUtilities() {
+    private AdaLexUtilities() {
     }
 
     /** 
@@ -459,7 +459,7 @@ public class LexUtilities {
             int begin = Utilities.getRowStart(doc, offset);
             int end = upToOffset ? offset : Utilities.getRowEnd(doc, offset);
 
-            TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, begin);
+            TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, begin);
             if (ts == null) {
                 return 0;
             }
@@ -497,7 +497,7 @@ public class LexUtilities {
             int begin = Utilities.getRowStart(doc, offset);
             int end = Utilities.getRowEnd(doc, offset);
 
-            TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, begin);
+            TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, begin);
             if (ts == null) {
                 return 0;
             }
@@ -537,7 +537,7 @@ public class LexUtilities {
      */
     public static int getTokenBalance(BaseDocument doc, TokenId open, TokenId close, int offset)
         throws BadLocationException {
-        TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, 0);
+        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, 0);
         if (ts == null) {
             return 0;
         }
@@ -577,7 +577,7 @@ public class LexUtilities {
             return false; // whitespace only
         }
 
-        Token<? extends AdaTokenId> token = LexUtilities.getToken(doc, begin);
+        Token<? extends AdaTokenId> token = AdaLexUtilities.getToken(doc, begin);
         if (token != null) {
             return token.id() == AdaTokenId.COMMENT;
         }
@@ -792,7 +792,7 @@ public class LexUtilities {
     }
 
     public static boolean isInsideQuotedString(BaseDocument doc, int offset) {
-        TokenSequence<?extends AdaTokenId> ts = LexUtilities.getAdaTokenSequence(doc, offset);
+        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
 
         if (ts == null) {
             return false;
@@ -823,19 +823,19 @@ public class LexUtilities {
         // Check if the caret is within a comment, and if so insert a new
         // leaf "node" which contains the comment line and then comment block
         try {
-            Token<?extends AdaTokenId> token = LexUtilities.getToken(doc, caretOffset);
+            Token<?extends AdaTokenId> token = AdaLexUtilities.getToken(doc, caretOffset);
 
             if ((token != null) && (token.id() == AdaTokenId.COMMENT)) {
                 // First add a range for the current line
                 int begin = Utilities.getRowStart(doc, caretOffset);
                 int end = Utilities.getRowEnd(doc, caretOffset);
 
-                if (LexUtilities.isCommentOnlyLine(doc, caretOffset)) {
+                if (AdaLexUtilities.isCommentOnlyLine(doc, caretOffset)) {
 
                     while (begin > 0) {
                         int newBegin = Utilities.getRowStart(doc, begin - 1);
 
-                        if ((newBegin < 0) || !LexUtilities.isCommentOnlyLine(doc, newBegin)) {
+                        if ((newBegin < 0) || !AdaLexUtilities.isCommentOnlyLine(doc, newBegin)) {
                             begin = Utilities.getRowFirstNonWhite(doc, begin);
                             break;
                         }
@@ -848,7 +848,7 @@ public class LexUtilities {
                     while (true) {
                         int newEnd = Utilities.getRowEnd(doc, end + 1);
 
-                        if ((newEnd >= length) || !LexUtilities.isCommentOnlyLine(doc, newEnd)) {
+                        if ((newEnd >= length) || !AdaLexUtilities.isCommentOnlyLine(doc, newEnd)) {
                             end = Utilities.getRowLastNonWhite(doc, end)+1;
                             break;
                         }
@@ -886,7 +886,7 @@ public class LexUtilities {
      * to the lex offset, return the offset itself 
      */
     public static int findSpaceBegin(BaseDocument doc, int lexOffset) {
-        TokenSequence ts = LexUtilities.getAdaTokenSequence(doc, lexOffset);
+        TokenSequence ts = AdaLexUtilities.getAdaTokenSequence(doc, lexOffset);
         if (ts == null) {
             return lexOffset;
         }

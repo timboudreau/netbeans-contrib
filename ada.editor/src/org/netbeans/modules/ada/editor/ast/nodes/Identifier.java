@@ -59,7 +59,6 @@ public class Identifier extends Expression {
     public Identifier(int start, int end, String value) {
         super(start, end);
         this.name = value;
-        System.out.println ("Identifier.value: " + value);
     }
 
     public String getName() {

@@ -46,11 +46,13 @@ import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
+import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Use;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
@@ -99,6 +101,13 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(FieldsDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(Identifier node) {
         path.addFirst(node);
         super.visit(node);
@@ -128,6 +137,13 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
 
     @Override
     public void visit(Program node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(SingleFieldDeclaration node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
