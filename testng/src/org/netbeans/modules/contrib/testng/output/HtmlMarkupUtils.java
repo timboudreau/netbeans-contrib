@@ -53,6 +53,7 @@ final class HtmlMarkupUtils {
     static final String COLOR_OK = "00CC00";        //green             //NOI18N
     static final String COLOR_WARNING = "CE7B00";   //dark orange       //NOI18N
     static final String COLOR_FAILURE = "FF0000";   //red               //NOI18N
+    static final String COLOR_SKIP = "808080";      //grey              //NOI18N
 
     static final String FONT_COLOR_PREFIX = "<font color='#";           //NOI18N
     static final String FONT_COLOR_SUFFIX = "'>";                       //NOI18N
