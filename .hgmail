@@ -56,4 +56,5 @@ jesse.glick@sun.com=autoproject.*/*,java.hints.scripting/*
 david.konecny@sun.com=autoproject.*/*
 cvs@installer.netbeans.org=ssinstaller/*
 jan.lahoda@sun.com=java.hints.scripting/*
+lukas.jungmann@sun.com=testng/*,testng.maven/*
 cvs@nbbuild.netbeans.org=.hg*
