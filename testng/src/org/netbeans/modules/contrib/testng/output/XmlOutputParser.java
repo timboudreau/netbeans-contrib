@@ -40,6 +40,8 @@ package org.netbeans.modules.contrib.testng.output;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
@@ -78,6 +80,7 @@ public class XmlOutputParser extends DefaultHandler {
     private static final int STATE_FULL_STACKTRACE = 15;
     private int state = STATE_OUT_OF_SCOPE;
     /** */
+    private List<Report> reports;
     private Report suiteResult;
     private Report.Testcase testcase;
     private Report.Trouble trouble;
@@ -91,7 +94,7 @@ public class XmlOutputParser extends DefaultHandler {
         xmlReader.setContentHandler(this);
     }
 
-    static Report parseXmlOutput(Reader reader) throws SAXException, IOException {
+    static List<Report> parseXmlOutput(Reader reader) throws SAXException, IOException {
         assert reader != null;
         XmlOutputParser parser = new XmlOutputParser();
         try {
@@ -104,7 +107,7 @@ public class XmlOutputParser extends DefaultHandler {
         } finally {
             reader.close();          //throws IOException
         }
-        return parser.suiteResult;
+        return parser.reports;
     }
 
     @Override
@@ -135,6 +138,7 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_TEST:
                 if ("class".equals(qName)) { //NOI18N
                     tcClassName = attributes.getValue("name"); //NOI18N
+                    suiteResult = new Report(tcClassName); //NOI18N
                     state = STATE_CLASS;
                 }
                 break;
@@ -147,9 +151,11 @@ public class XmlOutputParser extends DefaultHandler {
                     status = attributes.getValue("status");
                     if ("FAIL".equals(status)) {
                         failedTestsCount++;
+                        trouble = new Report.Trouble(true);
                     } else if ("PASS".equals(status)) {
                         passedTestsCount++;
                     } else if ("SKIP".equals(status)) {
+                        trouble = new Report.Trouble(false);
                         skippedTestsCount++;
                     }
                     state = STATE_TEST_METHOD;
@@ -160,11 +166,7 @@ public class XmlOutputParser extends DefaultHandler {
                     state = STATE_TEST_PARAMS;
                 } else if ("exception".equals(qName)) { //NOI18N
                     assert testcase != null && status != null;
-                    if ("FAIL".equals(status)) {
-                        trouble = new Report.Trouble(true);
-                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
-                    } else if ("SKIP".equals(status)) {
-                        trouble = new Report.Trouble(false);
+                    if (!"PASS".equals(status)) {
                         trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
                     }
                     //if test passes, skip possible exception element
@@ -182,8 +184,9 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             default:
                 if (qName.equals("suite")) { //NOI18N
-                    String sName = attributes.getValue("name"); //NOI18N
-                    suiteResult = new Report(sName != null ? sName : "Unknown"); //NOI18N
+//                    String sName = attributes.getValue("name"); //NOI18N
+//                    suiteResult = new Report(sName != null ? sName : "Unknown"); //NOI18N
+                    reports = new ArrayList<Report>();
                     state = STATE_SUITE;
                 }
         }
@@ -206,11 +209,6 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             case STATE_SUITE:
                 assert "suite".equals(qName) : "was " + qName; //NOI18N
-                suiteResult.elapsedTimeMillis = suiteTime;
-                suiteResult.skips = skippedTestsCount;
-                suiteResult.failures = failedTestsCount;
-                suiteResult.totalTests = allTestsCount;
-                suiteResult.detectedPassedTests = passedTestsCount;
                 state = STATE_OUT_OF_SCOPE;
                 break;
             case STATE_TEST:
@@ -219,7 +217,18 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             case STATE_CLASS:
                 assert "class".equals(qName); //NOI18N
+                suiteResult.elapsedTimeMillis = suiteTime;
+                suiteResult.skips = skippedTestsCount;
+                suiteResult.failures = failedTestsCount;
+                suiteResult.totalTests = allTestsCount;
+                suiteResult.detectedPassedTests = passedTestsCount;
+                reports.add(suiteResult);
+                skippedTestsCount = 0;
+                failedTestsCount = 0;
+                allTestsCount = 0;
+                passedTestsCount = 0;
                 tcClassName = null;
+                suiteResult = null;
                 state = STATE_TEST;
                 break;
             case STATE_TEST_METHOD:
@@ -229,7 +238,9 @@ public class XmlOutputParser extends DefaultHandler {
                 }
                 assert "test-method".equals(qName) : "was " + qName; //NOI18N
                 assert testcase != null;
+                testcase.trouble = trouble;
                 suiteResult.reportTest(testcase, Report.InfoSource.XML_FILE);
+                trouble = null;
                 testcase = null;
                 state = STATE_CLASS;
                 break;
@@ -261,8 +272,6 @@ public class XmlOutputParser extends DefaultHandler {
                     trouble.stackTrace = text.toString().split("[\\r\\n]+"); //NOI18N
                     text = null;
                 }
-                testcase.trouble = trouble;
-                trouble = null;
                 state = STATE_EXCEPTION;
                 break;
         }
@@ -276,7 +285,10 @@ public class XmlOutputParser extends DefaultHandler {
                 if (text == null) {
                     text = new StringBuffer(512);
                 }
-                text.append(ch, start, length);
+                String s = new String(ch, start, length);
+                if (s.trim().length() > 0) {
+                    text.append(ch, start, length);
+                }
                 break;
         }
     }

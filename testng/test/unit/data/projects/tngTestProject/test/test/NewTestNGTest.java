@@ -36,58 +36,24 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.contrib.testng.output;
+package test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-import java.util.List;
-import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.contrib.testng.output.Report.Testcase;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
-/**
- *
- * @author lukas
- */
-public class XmlOutputParserTest extends NbTestCase {
+public class NewTestNGTest {
 
-    public XmlOutputParserTest(String name) {
-        super(name);
+    @BeforeClass
+    public void setUp() {
     }
 
-    public void testParseSimpleXmlOutput() throws Exception {
-        List<Report> reports = parseResultXML(new File(getDataDir(), "results/testng-results.xml"));
-        assertEquals(6, reports.size());
-        Report result = reports.get(0);
-        assertEquals("test.FailingTest", result.suiteClassName);
-        assertEquals(3, result.getTests().size());
-        Testcase[] tcs = result.getTests().toArray(new Testcase[3]);
-        assertEquals("aTest", tcs[1].name);
-        assertEquals(1, result.failures);
-        assertEquals(0, result.skips);
-        assertEquals(3, result.totalTests);
-        assertEquals(2, result.detectedPassedTests);
-        assertNotNull(tcs[1].trouble);
-        assertTrue(tcs[1].trouble.isFailure());
-
-        result = reports.get(4);
-        assertEquals("test.SetUpTest", result.suiteClassName);
-        assertEquals(3, result.getTests().size());
-        tcs = result.getTests().toArray(new Testcase[3]);
-        assertEquals("setUp", tcs[0].name);
-        assertEquals(1, result.failures);
-        assertEquals(2, result.skips);
-        assertEquals(3, result.totalTests);
-        assertEquals(0, result.detectedPassedTests);
-        assertNotNull(tcs[0].trouble);
-        assertTrue(tcs[0].trouble.isFailure());
-        assertNotNull(tcs[1].trouble);
-        assertFalse(tcs[1].trouble.isFailure());
+    @Test
+    public void aTest() {
+        System.out.println("Test");
     }
 
-    private List<Report> parseResultXML(File f) throws Exception {
-        Reader reader = new BufferedReader(new FileReader(f));
-        return XmlOutputParser.parseXmlOutput(reader);
+    @AfterClass
+    public void cleanUp() {
     }
 }
