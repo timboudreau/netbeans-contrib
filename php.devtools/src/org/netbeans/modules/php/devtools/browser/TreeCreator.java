@@ -145,7 +145,9 @@ public class TreeCreator implements Visitor {
         TreeASTNodeAdapter helpParent = parentNode;
         parentNode = adapter;
         aa.getName().accept(this);
-        aa.getIndex().accept(this);
+        if (aa.getIndex() != null) {
+            aa.getIndex().accept(this);
+        }
         parentNode = helpParent;
     }
 
@@ -1199,6 +1201,45 @@ public class TreeCreator implements Visitor {
     public void visit(PHPDocTag node) {
         TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
                 node.getKind().name(), node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+    }
+
+    public void visit(PHPDocTypeTag node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
+                node.getKind().name(), node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+        TreeASTNodeAdapter helpParent = parentNode;
+        parentNode = adapter;
+        for(PHPDocNode type: node.getTypes()){
+            type.accept(this);
+        }
+        parentNode = helpParent;
+    }
+
+    public void visit(PHPDocVarTypeTag node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
+                node.getKind().name(), node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+        TreeASTNodeAdapter helpParent = parentNode;
+        parentNode = adapter;
+        for(PHPDocNode type: node.getTypes()){
+            type.accept(this);
+        }
+        if (node.getVariable() != null) {
+            node.getVariable().accept(this);
+        }
+        parentNode = helpParent;
+    }
+
+    public void visit(PHPDocStaticAccessType node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
+                node.getValue(), node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+    }
+
+    public void visit(PHPDocNode node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
+                node.getValue(), node.getStartOffset(), node.getEndOffset());
         parentNode.addChild(adapter);
     }
 
