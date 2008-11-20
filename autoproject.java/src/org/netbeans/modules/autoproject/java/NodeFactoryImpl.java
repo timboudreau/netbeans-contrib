@@ -61,6 +61,7 @@ import org.openide.util.Exceptions;
 /**
  * Displays source roots etc. for the project.
  */
+@NodeFactory.Registration(projectType="org-netbeans-modules-autoproject", position=1000)
 public class NodeFactoryImpl implements NodeFactory {
 
     /** public for layer */
