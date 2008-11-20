@@ -46,10 +46,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.concurrent.Future;
-import org.netbeans.modules.extexecution.api.ExecutionDescriptor;
-import org.netbeans.modules.extexecution.api.ExecutionService;
-import org.netbeans.modules.extexecution.api.ExternalProcessBuilder;
-import org.netbeans.modules.extexecution.api.input.InputProcessor;
+import org.netbeans.api.extexecution.ExecutionDescriptor;
+import org.netbeans.api.extexecution.ExecutionService;
+import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.extexecution.input.InputProcessor;
+import org.netbeans.api.extexecution.input.InputProcessors;
 import org.openide.util.Exceptions;
 
 /**
@@ -264,8 +265,8 @@ public class AdaExecution {
     public void attachOutputProcessor() {
         descriptor = descriptor.outProcessorFactory(new ExecutionDescriptor.InputProcessorFactory() {
 
-            public InputProcessor newInputProcessor() {
-                return (outProcessor);
+            public InputProcessor newInputProcessor(InputProcessor defaultProcessor) {
+                return InputProcessors.proxy(defaultProcessor, outProcessor);
             }
         });
     }
