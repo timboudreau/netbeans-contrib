@@ -274,7 +274,10 @@ public class XmlOutputParser extends DefaultHandler {
                 if (text == null) {
                     text = new StringBuffer(512);
                 }
-                text.append(ch, start, length);
+                String s = new String(ch, start, length);
+                if (s.trim().length() > 0) {
+                    text.append(ch, start, length);
+                }
                 break;
         }
     }
