@@ -128,6 +128,8 @@ final class DTraceTopComponent extends TopComponent {
 	      configuration.setTraceDoubleClickAction(ChimeAction.DISPLAY);
 	      configuration.setChimePathDisplayable(false);
 	      configuration.setProgramDisplayEnabled(false);
+          configuration.setIncludeStdoutMenuItem(false);
+          
 	      launcher = new StatLauncher(configuration);
           launcher.addChimeListener(new ChimeListener() {
 	          public void programDisplayed(ProgramDisplayEvent e) {
