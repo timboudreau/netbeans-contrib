@@ -2,18 +2,24 @@
 <project basedir="." default="netbeans" name="contrib/autoproject.java">
     <import file="../../nbbuild/templates/projectized.xml"/>
     <property name="test.user.dir" location="build/testuserdir"/>
-    <target name="-build-web-module" if="enterprise.cluster.exists">
-        <ant dir="../autoproject.web" target="netbeans"/>
+    <target name="-build-enterprise-cluster" unless="enterprise.cluster.exists">
+        <ant dir="../../nbbuild" target="rebuild-cluster">
+            <property name="rebuild.cluster.name" value="nb.cluster.j2ee"/>
+        </ant>
     </target>
-    <target name="-build-profiler-module" if="profiler.cluster.exists">
-        <ant dir="../autoproject.profiler" target="netbeans"/>
+    <target name="-build-profiler-cluster" unless="profiler.cluster.exists">
+        <ant dir="../../nbbuild" target="rebuild-cluster">
+            <property name="rebuild.cluster.name" value="nb.cluster.profiler"/>
+        </ant>
     </target>
     <target name="debug" description="Build related modules and debug them.">
         <ant dir="../autoproject.core" target="netbeans"/>
         <available property="enterprise.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.j2ee.built"/>
-        <antcall target="-build-web-module"/>
+        <antcall target="-build-enterprise-cluster"/>
+        <ant dir="../autoproject.web" target="netbeans"/>
         <available property="profiler.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.profiler.built"/>
-        <antcall target="-build-profiler-module"/>
+        <antcall target="-build-profiler-cluster"/>
+        <ant dir="../autoproject.profiler" target="netbeans"/>
         <path id="clusters">
             <dirset dir="../../nbbuild/netbeans">
                 <include name="extra"/>

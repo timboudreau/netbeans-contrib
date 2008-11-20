@@ -44,6 +44,7 @@ import org.netbeans.spi.project.LookupProvider;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
+@LookupProvider.Registration(projectType="org-netbeans-modules-autoproject")
 public class LookupProviderImpl implements LookupProvider {
 
     /** public for layer */

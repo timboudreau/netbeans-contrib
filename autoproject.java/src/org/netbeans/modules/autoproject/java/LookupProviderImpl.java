@@ -49,6 +49,7 @@ import org.openide.util.lookup.Lookups;
 /**
  * Inserts extra items into autoproject lookup suited for Java projects.
  */
+@LookupProvider.Registration(projectType="org-netbeans-modules-autoproject")
 public class LookupProviderImpl implements LookupProvider {
 
     /** public for lookup */
