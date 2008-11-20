@@ -147,9 +147,11 @@ public class XmlOutputParser extends DefaultHandler {
                     status = attributes.getValue("status");
                     if ("FAIL".equals(status)) {
                         failedTestsCount++;
+                        trouble = new Report.Trouble(true);
                     } else if ("PASS".equals(status)) {
                         passedTestsCount++;
                     } else if ("SKIP".equals(status)) {
+                        trouble = new Report.Trouble(false);
                         skippedTestsCount++;
                     }
                     state = STATE_TEST_METHOD;
@@ -160,11 +162,7 @@ public class XmlOutputParser extends DefaultHandler {
                     state = STATE_TEST_PARAMS;
                 } else if ("exception".equals(qName)) { //NOI18N
                     assert testcase != null && status != null;
-                    if ("FAIL".equals(status)) {
-                        trouble = new Report.Trouble(true);
-                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
-                    } else if ("SKIP".equals(status)) {
-                        trouble = new Report.Trouble(false);
+                    if (!"PASS".equals(status)) {
                         trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
                     }
                     //if test passes, skip possible exception element
@@ -229,7 +227,9 @@ public class XmlOutputParser extends DefaultHandler {
                 }
                 assert "test-method".equals(qName) : "was " + qName; //NOI18N
                 assert testcase != null;
+                testcase.trouble = trouble;
                 suiteResult.reportTest(testcase, Report.InfoSource.XML_FILE);
+                trouble = null;
                 testcase = null;
                 state = STATE_CLASS;
                 break;
@@ -261,8 +261,6 @@ public class XmlOutputParser extends DefaultHandler {
                     trouble.stackTrace = text.toString().split("[\\r\\n]+"); //NOI18N
                     text = null;
                 }
-                testcase.trouble = trouble;
-                trouble = null;
                 state = STATE_EXCEPTION;
                 break;
         }

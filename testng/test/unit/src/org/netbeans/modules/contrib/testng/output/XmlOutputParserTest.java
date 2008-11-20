@@ -70,6 +70,29 @@ public class XmlOutputParserTest extends NbTestCase {
 
     public void testParseXmlOutput() throws Exception {
         Report result = parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
+        assertEquals("TestNG JDK 1.4", result.suiteClassName);
+        assertEquals(1, result.failures);
+        assertEquals(299, result.getTests().size());
+        assertEquals(0, result.skips);
+        assertEquals(299, result.totalTests);
+        assertEquals(298, result.detectedPassedTests);
+
+        result.update(parseResultXML(new File(getDataDir(), "results/testng-results_2.xml")));
+        assertEquals(6, result.getTests().size());
+        assertEquals("Ant suite", result.suiteClassName);
+        assertEquals(1, result.failures);
+        assertEquals(6, result.totalTests);
+        assertEquals(4, result.detectedPassedTests);
+        assertEquals(1, result.skips);
+        Testcase[] tcs = result.getTests().toArray(new Testcase[6]);
+        assertEquals("javaapplication5.MainTest", tcs[4].className);
+        assertEquals("bTest", tcs[3].name);
+        assertNotNull(tcs[3].trouble);
+        assertFalse(tcs[3].trouble.isFailure());
+        assertEquals("javaapplication5.MainTest", tcs[1].className);
+        assertEquals("cTest", tcs[1].name);
+        assertNotNull(tcs[1].trouble);
+        assertTrue(tcs[1].trouble.isFailure());
     }
     
     private Report parseResultXML(File f) throws Exception {
