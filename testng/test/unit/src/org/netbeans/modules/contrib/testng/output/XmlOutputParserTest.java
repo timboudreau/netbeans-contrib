@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.List;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.contrib.testng.output.Report.Testcase;
 
@@ -56,46 +57,36 @@ public class XmlOutputParserTest extends NbTestCase {
     }
 
     public void testParseSimpleXmlOutput() throws Exception {
-        Report result = parseResultXML(new File(getDataDir(), "results/testng-results.xml"));
-        assertEquals("Ant suite", result.suiteClassName);
-        assertEquals(14, result.getTests().size());
-        Testcase[] tcs = result.getTests().toArray(new Testcase[14]);
-        assertEquals("test.NewTestNGTest", tcs[13].className);
-        assertEquals("setUp", tcs[13].name);
-        assertEquals(4, result.failures);
-        assertEquals(2, result.skips);
-        assertEquals(14, result.totalTests);
-        assertEquals(8, result.detectedPassedTests);
-    }
-
-    public void testParseXmlOutput() throws Exception {
-        Report result = parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
-        assertEquals("TestNG JDK 1.4", result.suiteClassName);
+        List<Report> reports = parseResultXML(new File(getDataDir(), "results/testng-results.xml"));
+        assertEquals(6, reports.size());
+        Report result = reports.get(0);
+        assertEquals("test.FailingTest", result.suiteClassName);
+        assertEquals(3, result.getTests().size());
+        Testcase[] tcs = result.getTests().toArray(new Testcase[3]);
+        assertEquals("aTest", tcs[1].name);
         assertEquals(1, result.failures);
-        assertEquals(299, result.getTests().size());
         assertEquals(0, result.skips);
-        assertEquals(299, result.totalTests);
-        assertEquals(298, result.detectedPassedTests);
-
-        result.update(parseResultXML(new File(getDataDir(), "results/testng-results_2.xml")));
-        assertEquals(6, result.getTests().size());
-        assertEquals("Ant suite", result.suiteClassName);
-        assertEquals(1, result.failures);
-        assertEquals(6, result.totalTests);
-        assertEquals(4, result.detectedPassedTests);
-        assertEquals(1, result.skips);
-        Testcase[] tcs = result.getTests().toArray(new Testcase[6]);
-        assertEquals("javaapplication5.MainTest", tcs[4].className);
-        assertEquals("bTest", tcs[3].name);
-        assertNotNull(tcs[3].trouble);
-        assertFalse(tcs[3].trouble.isFailure());
-        assertEquals("javaapplication5.MainTest", tcs[1].className);
-        assertEquals("cTest", tcs[1].name);
+        assertEquals(3, result.totalTests);
+        assertEquals(2, result.detectedPassedTests);
         assertNotNull(tcs[1].trouble);
         assertTrue(tcs[1].trouble.isFailure());
+
+        result = reports.get(4);
+        assertEquals("test.SetUpTest", result.suiteClassName);
+        assertEquals(3, result.getTests().size());
+        tcs = result.getTests().toArray(new Testcase[3]);
+        assertEquals("setUp", tcs[0].name);
+        assertEquals(1, result.failures);
+        assertEquals(2, result.skips);
+        assertEquals(3, result.totalTests);
+        assertEquals(0, result.detectedPassedTests);
+        assertNotNull(tcs[0].trouble);
+        assertTrue(tcs[0].trouble.isFailure());
+        assertNotNull(tcs[1].trouble);
+        assertFalse(tcs[1].trouble.isFailure());
     }
-    
-    private Report parseResultXML(File f) throws Exception {
+
+    private List<Report> parseResultXML(File f) throws Exception {
         Reader reader = new BufferedReader(new FileReader(f));
         return XmlOutputParser.parseXmlOutput(reader);
     }

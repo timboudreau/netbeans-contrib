@@ -52,6 +52,7 @@ import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntSession;
@@ -781,7 +782,11 @@ final class TestNGOutputReader {
              */
             progressHandle.progress(PROGRESS_WORKUNITS);
         }
-        testReportDirectory = determineResultsDir(event);
+        for (Report r : parseReportFile(new File(determineResultsDir(event), "testng-results.xml"))) {
+            assert r != null;
+            r.markSuiteFinished();
+            manager.displayReport(session, sessionType, r);
+        }
     }
 
     /**
@@ -892,11 +897,6 @@ final class TestNGOutputReader {
      */
     void buildFinished(final AntEvent event) {
         try {
-            if (report == null) {
-                report = parseReportFile(new File(testReportDirectory, "testng-results.xml"));
-            } else {
-                report.update(parseReportFile(new File(testReportDirectory, "testng-results.xml")));
-            }
             buildFinished(event.getException());
 
             if (report != null) {
@@ -1039,18 +1039,19 @@ final class TestNGOutputReader {
 
     private void closePreviousReport(boolean interrupted) {
         if (xmlOutputBuffer != null) {
-            try {
-                String xmlOutput = xmlOutputBuffer.toString();
-                xmlOutputBuffer = null;     //allow GC before parsing XML
-                Report xmlReport;
-                xmlReport = XmlOutputParser.parseXmlOutput(
-                                                new StringReader(xmlOutput));
-                report.update(xmlReport);
-            } catch (SAXException ex) {
-                /* initialization of the parser failed, ignore the output */
-            } catch (IOException ex) {
-                assert false;           //should not happen (StringReader)
-            }
+            throw new UnsupportedOperationException("to be reimplemented");
+//            try {
+//                String xmlOutput = xmlOutputBuffer.toString();
+//                xmlOutputBuffer = null;     //allow GC before parsing XML
+//                Report xmlReport;
+//                xmlReport = XmlOutputParser.parseXmlOutput(
+//                                                new StringReader(xmlOutput));
+//                report.update(xmlReport);
+//            } catch (SAXException ex) {
+//                /* initialization of the parser failed, ignore the output */
+//            } catch (IOException ex) {
+//                assert false;           //should not happen (StringReader)
+//            }
         } else if (report != null) {
             if (interrupted) {
                 if (testcase != null) {
@@ -1065,10 +1066,11 @@ final class TestNGOutputReader {
                 if (report.resultsDir != null) {
                     File reportFile = findReportFile();
                     if ((reportFile != null) && isValidReportFile(reportFile)) {
-                        Report fileReport = parseReportFile(reportFile);
-                        if (fileReport != null) {
-                            report.update(fileReport);
-                        }
+                        throw new UnsupportedOperationException("to be reimplemented");
+//                        Report fileReport = parseReportFile(reportFile);
+//                        if (fileReport != null) {
+//                            report.update(fileReport);
+//                        }
                     }
                 }
             }
@@ -1159,14 +1161,13 @@ final class TestNGOutputReader {
 //        return lastModified >= (timeOfSessionStart - sessStartMillis);
     }
 
-    private static Report parseReportFile(File reportFile) {
-        Report fileReport = null;
+    private static List<Report> parseReportFile(File reportFile) {
+        List<Report> reports = null;
         try {
-            fileReport = XmlOutputParser.parseXmlOutput(
+            reports = XmlOutputParser.parseXmlOutput(
                     new InputStreamReader(
                             new FileInputStream(reportFile),
                             "UTF-8"));                                  //NOI18N
-            fileReport.markSuiteFinished();
         } catch (UnsupportedCharsetException ex) {
             assert false;
         } catch (SAXException ex) {
@@ -1186,9 +1187,9 @@ final class TestNGOutputReader {
                                 "I/O exception while reading JUnit XML report file from JUnit: "));//NOI18N
             }
         }
-        return fileReport;
+        return reports;
     }
-    
+
     /**
      */
     private static int parseNonNegativeInteger(String str)
