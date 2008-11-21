@@ -61,6 +61,8 @@ public class XmlOutputParser extends DefaultHandler {
     private int failedTestsCount;
     private int passedTestsCount;
     private int skippedTestsCount;
+    private int failedConfCount;
+    private int skippedConfCount;
     private String status;
     private int suiteTime;
     /** */
@@ -145,18 +147,29 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_CLASS:
                 if ("test-method".equals(qName)) { //NOI18N
                     int duration = Integer.valueOf(attributes.getValue("duration-ms")); //NOI18N
-                    allTestsCount++;
                     testcase = createTestcaseReport(tcClassName, attributes.getValue("name"), duration); //NOI18N
                     suiteTime += duration;
-                    status = attributes.getValue("status");
-                    if ("FAIL".equals(status)) {
-                        failedTestsCount++;
+                    testcase.confMethod = Boolean.valueOf(attributes.getValue("is-config")); //NOI18N
+                    status = attributes.getValue("status"); //NOI18N
+                    if (!testcase.confMethod) {
+                        allTestsCount++;
+                    }
+                    if ("FAIL".equals(status)) { //NOI18N
+                        if (testcase.confMethod) {
+                            failedConfCount++;
+                        } else {
+                            failedTestsCount++;
+                        }
                         trouble = new Report.Trouble(true);
-                    } else if ("PASS".equals(status)) {
+                    } else if ("PASS".equals(status) && !testcase.confMethod) { //NOI18N
                         passedTestsCount++;
-                    } else if ("SKIP".equals(status)) {
+                    } else if ("SKIP".equals(status)) { //NOI18N
                         trouble = new Report.Trouble(false);
-                        skippedTestsCount++;
+                        if (testcase.confMethod) {
+                            skippedConfCount++;
+                        } else {
+                            skippedTestsCount++;
+                        }
                     }
                     state = STATE_TEST_METHOD;
                 }
@@ -184,8 +197,6 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             default:
                 if (qName.equals("suite")) { //NOI18N
-//                    String sName = attributes.getValue("name"); //NOI18N
-//                    suiteResult = new Report(sName != null ? sName : "Unknown"); //NOI18N
                     reports = new ArrayList<Report>();
                     state = STATE_SUITE;
                 }
@@ -222,11 +233,14 @@ public class XmlOutputParser extends DefaultHandler {
                 suiteResult.failures = failedTestsCount;
                 suiteResult.totalTests = allTestsCount;
                 suiteResult.detectedPassedTests = passedTestsCount;
+                suiteResult.confFailures = failedConfCount;
+                suiteResult.confSkips = skippedConfCount;
                 reports.add(suiteResult);
                 skippedTestsCount = 0;
                 failedTestsCount = 0;
                 allTestsCount = 0;
                 passedTestsCount = 0;
+                failedConfCount = skippedConfCount = 0;
                 tcClassName = null;
                 suiteResult = null;
                 state = STATE_TEST;

@@ -87,6 +87,8 @@ final class Report {
     int totalTests;
     int failures;
     int skips;
+    int confSkips;
+    int confFailures;
     int interruptedTests;
     int elapsedTimeMillis;
     /**
@@ -290,6 +292,7 @@ final class Report {
         static final int NOT_FINISHED_YET = -2;
         String className;
         String name;
+        boolean confMethod = false;
         int timeMillis;
         Trouble trouble;
 

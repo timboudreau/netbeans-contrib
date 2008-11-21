@@ -66,8 +66,10 @@ public class XmlOutputParserTest extends NbTestCase {
         assertEquals("aTest", tcs[1].name);
         assertEquals(1, result.failures);
         assertEquals(0, result.skips);
-        assertEquals(3, result.totalTests);
-        assertEquals(2, result.detectedPassedTests);
+        assertEquals(1, result.totalTests);
+        assertEquals(0, result.detectedPassedTests);
+        assertEquals(0, result.confSkips);
+        assertEquals(0, result.confFailures);
         assertNotNull(tcs[1].trouble);
         assertTrue(tcs[1].trouble.isFailure());
 
@@ -76,17 +78,27 @@ public class XmlOutputParserTest extends NbTestCase {
         assertEquals(3, result.getTests().size());
         tcs = result.getTests().toArray(new Testcase[3]);
         assertEquals("setUp", tcs[0].name);
-        assertEquals(1, result.failures);
-        assertEquals(2, result.skips);
-        assertEquals(3, result.totalTests);
+        assertEquals(0, result.failures);
+        assertEquals(1, result.skips);
+        assertEquals(1, result.totalTests);
         assertEquals(0, result.detectedPassedTests);
+        assertEquals(1, result.confSkips);
+        assertEquals(1, result.confFailures);
         assertNotNull(tcs[0].trouble);
         assertTrue(tcs[0].trouble.isFailure());
         assertNotNull(tcs[1].trouble);
         assertFalse(tcs[1].trouble.isFailure());
     }
 
-    private List<Report> parseResultXML(File f) throws Exception {
+    public void testParseXmlOutput() throws Exception {
+        List<Report> reports = parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
+    }
+
+    public void testParseXmlOutput2() throws Exception {
+        List<Report> reports = parseResultXML(new File(getDataDir(), "results/testng-results_2.xml"));
+    }
+
+    static List<Report> parseResultXML(File f) throws Exception {
         Reader reader = new BufferedReader(new FileReader(f));
         return XmlOutputParser.parseXmlOutput(reader);
     }
