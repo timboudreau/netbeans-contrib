@@ -517,13 +517,13 @@ private void compTypeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN
         
         String label = labelTf.getText();
         String name = nameTf.getText();
-        if(label == null || label.trim().length() == 0) {
-            setErroMessage("Invalid Label. Enter a valid name");
+        if (name == null || name.trim().length()== 0) {
+            setErroMessage(NbBundle.getMessage(FormParamInputGUI.class, "FormParamInputGUI.errorLabel.name"));
             return false;
-        } else if (name == null || name.trim().length()== 0) {
-            setErroMessage("Invalid Property Name. Enter a valid name");
+        } else if (label == null || label.trim().length() == 0) {
+            setErroMessage(NbBundle.getMessage(FormParamInputGUI.class, "FormParamInputGUI.errorLabel.label"));
             return false;
-        }
+        } 
         
         return true;
     }
