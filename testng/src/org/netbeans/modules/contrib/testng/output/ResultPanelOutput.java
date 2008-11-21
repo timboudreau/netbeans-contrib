@@ -154,9 +154,9 @@ final class ResultPanelOutput extends JScrollPane
 
         AccessibleContext accessibleContext = textPane.getAccessibleContext();
         accessibleContext.setAccessibleName(
-                NbBundle.getMessage(getClass(), "ACSN_OutputTextPane"));//NOI18N
+                NbBundle.getMessage(ResultPanelOutput.class, "ACSN_OutputTextPane"));//NOI18N
         accessibleContext.setAccessibleDescription(
-                NbBundle.getMessage(getClass(), "ACSD_OutputTextPane"));//NOI18N
+                NbBundle.getMessage(ResultPanelOutput.class, "ACSD_OutputTextPane"));//NOI18N
         
         this.displayHandler = displayHandler;
     }
@@ -319,7 +319,7 @@ final class ResultPanelOutput extends JScrollPane
         try {
             doc.insertString(
                     0,
-                    NbBundle.getMessage(getClass(), "MSG_StdOutput"),   //NOI18N
+                    NbBundle.getMessage(ResultPanelOutput.class, "MSG_StdOutput"),   //NOI18N
                     headingStyle);
             doc.insertString(
                     doc.getLength(),
@@ -334,7 +334,7 @@ final class ResultPanelOutput extends JScrollPane
                     outputStyle);
             doc.insertString(
                     doc.getLength(),
-                    NbBundle.getMessage(getClass(), "MSG_ErrOutput"),   //NOI18N
+                    NbBundle.getMessage(ResultPanelOutput.class, "MSG_ErrOutput"),   //NOI18N
                     headingStyle);
             if ((report.outputErr != null) && (report.outputErr.length != 0)) {
                 doc.insertString(

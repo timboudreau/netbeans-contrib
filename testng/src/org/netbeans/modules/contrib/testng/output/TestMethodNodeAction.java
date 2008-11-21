@@ -79,7 +79,7 @@ final class TestMethodNodeAction implements Action {
         }
 
         if (key.equals(Action.NAME)) {
-            return NbBundle.getMessage(getClass(), bundleKey);
+            return NbBundle.getMessage(TestMethodNodeAction.class, bundleKey);
         } else if (key.equals(Action.ACTION_COMMAND_KEY)) {
             return command;
         } else {

@@ -68,7 +68,7 @@ import static java.util.logging.Level.FINER;
  */
 final class Report {
 
-    private final Logger LOG = Logger.getLogger(getClass().getName());
+    private final Logger LOG = Logger.getLogger(Report.class.getName());
 
     static enum InfoSource {
         VERBOSE_MSG,

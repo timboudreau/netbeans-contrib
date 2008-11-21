@@ -110,7 +110,7 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
                     "org/netbeans/modules/contrib/testng/resources/filter.png", //NOI18N
                     true)));
         btnFilter.getAccessibleContext().setAccessibleName(
-                NbBundle.getMessage(getClass(), "ACSN_FilterButton"));  //NOI18N
+                NbBundle.getMessage(StatisticsPanel.class, "ACSN_FilterButton"));  //NOI18N
         btnFilter.addItemListener(this);
         
         updateFilterButtonLabel();
@@ -121,10 +121,10 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
     private void updateFilterButtonLabel() {
         if (tooltipShowAll == null) {
             tooltipShowAll = NbBundle.getMessage(
-                    getClass(),
+                    StatisticsPanel.class,
                     "MultiviewPanel.btnFilter.showAll.tooltip");        //NOI18N
             tooltipShowFailures = NbBundle.getMessage(
-                    getClass(),
+                    StatisticsPanel.class,
                     "MultiviewPanel.btnFilter.showFailures.tooltip");   //NOI18N
         }
         btnFilter.setToolTipText(btnFilter.isSelected() ? tooltipShowAll

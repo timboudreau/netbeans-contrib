@@ -223,7 +223,7 @@ final class TestNGOutputReader {
         
         this.progressLogger = Logger.getLogger(
                 "org.netbeans.modules.contrib.testng.outputreader.progress");    //NOI18N
-        this.LOG = Logger.getLogger(getClass().getName());
+        this.LOG = Logger.getLogger(TestNGOutputReader.class.getName());
     }
     
     /**
@@ -726,7 +726,7 @@ final class TestNGOutputReader {
         final boolean willBeDeterminateProgress = (expectedSuitesCount > 0);
         if (progressHandle == null) {
             progressHandle = ProgressHandleFactory.createHandle(
-                NbBundle.getMessage(getClass(), "MSG_ProgressMessage"));//NOI18N
+                NbBundle.getMessage(TestNGOutputReader.class, "MSG_ProgressMessage"));//NOI18N
             
             if (willBeDeterminateProgress) {
                 this.expectedSuitesCount = expectedSuitesCount;
@@ -846,7 +846,7 @@ final class TestNGOutputReader {
                 if (progressStepFormatSuiteName == null) {
                     progressStepFormatSuiteName = new MessageFormat(
                             NbBundle.getMessage(
-                                  getClass(),
+                                  TestNGOutputReader.class,
                                   "MSG_ProgressStepMessage"));          //NOI18N
                 }
                 messageFormat = progressStepFormatSuiteName;
@@ -857,7 +857,7 @@ final class TestNGOutputReader {
                 if (progressStepFormatAnonymous == null) {
                     progressStepFormatAnonymous = new MessageFormat(
                             NbBundle.getMessage(
-                                  getClass(),
+                                  TestNGOutputReader.class,
                                   "MSG_ProgressStepMessageAnonymous")); //NOI18N
                 }
                 messageFormat = progressStepFormatAnonymous;

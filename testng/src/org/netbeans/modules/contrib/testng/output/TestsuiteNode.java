@@ -152,8 +152,8 @@ final class TestsuiteNode extends AbstractNode {
             displayName = suiteName;
         } else {
             displayName = suiteNameKnown
-                          ? NbBundle.getMessage(getClass(), bundleKey, suiteName)
-                          : NbBundle.getMessage(getClass(), bundleKey);
+                          ? NbBundle.getMessage(TestsuiteNode.class, bundleKey, suiteName)
+                          : NbBundle.getMessage(TestsuiteNode.class, bundleKey);
         }
         setDisplayName(displayName);
     }
@@ -169,7 +169,7 @@ final class TestsuiteNode extends AbstractNode {
         if (suiteName != ResultDisplayHandler.ANONYMOUS_SUITE) {
             buf.append(suiteName);
         } else {
-            buf.append(NbBundle.getMessage(getClass(),
+            buf.append(NbBundle.getMessage(TestsuiteNode.class,
                                            "MSG_TestsuiteNoname"));     //NOI18N
         }
         if (report != null) {
@@ -194,7 +194,7 @@ final class TestsuiteNode extends AbstractNode {
         } else {
             buf.append("&nbsp;&nbsp;");                                 //NOI18N
             buf.append(NbBundle.getMessage(
-                                    getClass(),
+                                    TestsuiteNode.class,
                                     "MSG_TestsuiteRunning_HTML"));      //NOI18N
         }
         return buf.toString();

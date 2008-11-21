@@ -129,7 +129,7 @@ final class Manager {
         displayMessage(
                 session,
                 sessionType, 
-                NbBundle.getMessage(getClass(), "LBL_RunningTests"));   //NOI18N
+                NbBundle.getMessage(Manager.class, "LBL_RunningTests"));   //NOI18N
     }
     
     /**

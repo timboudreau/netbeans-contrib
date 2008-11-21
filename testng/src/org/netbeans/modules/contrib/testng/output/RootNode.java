@@ -193,7 +193,7 @@ final class RootNode extends AbstractNode {
         
         /* Called from the EventDispatch thread */
         
-        final Class bundleRefClass = getClass();
+        final Class bundleRefClass = RootNode.class;
         String msg;
 
         if (totalTests == 0) {

@@ -120,9 +120,9 @@ public final class ResultWindow extends TopComponent {
         
         AccessibleContext origAccessibleContext = getAccessibleContext();
         origAccessibleContext.setAccessibleName(
-                NbBundle.getMessage(getClass(), "ACSN_TestResults"));   //NOI18N
+                NbBundle.getMessage(ResultWindow.class, "ACSN_TestResults"));   //NOI18N
         origAccessibleContext.setAccessibleDescription(
-                NbBundle.getMessage(getClass(), "ACSD_TestResults"));   //NOI18N
+                NbBundle.getMessage(ResultWindow.class, "ACSD_TestResults"));   //NOI18N
     }
 
     /**
@@ -171,7 +171,7 @@ public final class ResultWindow extends TopComponent {
      */
     @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(getClass());
+        return new HelpCtx(ResultWindow.class);
     }
     
     /**

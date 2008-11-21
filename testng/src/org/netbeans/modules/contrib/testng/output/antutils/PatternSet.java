@@ -228,7 +228,7 @@ final class PatternSet {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(getClass().getName())
+            Logger.getLogger(PatternSet.class.getName())
                   .log(Level.INFO,
                        "failed to read Ant patterns file "              //NOI18N
                                 + patternsFile.getAbsolutePath(),

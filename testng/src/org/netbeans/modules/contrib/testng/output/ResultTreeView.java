@@ -77,11 +77,11 @@ final class ResultTreeView extends BeanTreeView implements Runnable {
     /**
      */
     private void initAccessibility() {
-        AccessibleContext accessibleContext = tree.getAccessibleContext();
-        accessibleContext.setAccessibleName(
-              NbBundle.getMessage(getClass(), "ACSN_ResultPanelTree")); //NOI18N
-        accessibleContext.setAccessibleDescription(
-              NbBundle.getMessage(getClass(), "ACSD_ResultPanelTree")); //NOI18N
+        AccessibleContext newAccessibleContext = tree.getAccessibleContext();
+        newAccessibleContext.setAccessibleName(
+              NbBundle.getMessage(ResultTreeView.class, "ACSN_ResultPanelTree")); //NOI18N
+        newAccessibleContext.setAccessibleDescription(
+              NbBundle.getMessage(ResultTreeView.class, "ACSD_ResultPanelTree")); //NOI18N
     }
     
     /**
