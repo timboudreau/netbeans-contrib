@@ -107,6 +107,9 @@ final class TestMethodNode extends AbstractNode {
         setDisplayName();
         setIconBaseWithExtension(
                 "org/netbeans/modules/contrib/testng/resources/method.gif");    //NOI18N
+        if (testcase.confMethod) {
+            setShortDescription(NbBundle.getMessage(TestMethodNode.class, "TTP_resultConfMethod"));
+        }
     }
 
     /**
@@ -134,7 +137,7 @@ final class TestMethodNode extends AbstractNode {
             bundleParams = new Object[] {testcase.name,
                                          new Float(testcase.timeMillis/1000f)};
         }
-        setDisplayName(NbBundle.getMessage(getClass(), bundleKey, bundleParams));
+        setDisplayName(NbBundle.getMessage(TestMethodNode.class, bundleKey, bundleParams));
     }
     
     /**
@@ -164,8 +167,14 @@ final class TestMethodNode extends AbstractNode {
         }
                                           
         StringBuilder buf = new StringBuilder(60);
+        if (testcase.confMethod) { //NOI18N
+            buf.append("<i>");
+        }
         buf.append(testcase.name);
         buf.append("&nbsp;&nbsp;");                                     //NOI18N
+        if (testcase.confMethod) {
+            buf.append("</i>"); //NOI18N
+        }
         if (bundleParam == null) {
             HtmlMarkupUtils.appendColourText(buf, color, bundleKey);
         } else {
