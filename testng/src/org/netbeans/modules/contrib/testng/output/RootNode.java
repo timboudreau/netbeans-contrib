@@ -180,9 +180,9 @@ final class RootNode extends AbstractNode {
         }
         this.filtered = filtered;
         
-        Children children = getChildren();
-        if (children != Children.LEAF) {
-            ((RootNodeChildren) children).setFiltered(filtered);
+        Children lChildren = getChildren();
+        if (lChildren != Children.LEAF) {
+            ((RootNodeChildren) lChildren).setFiltered(filtered);
         }
     }
     
