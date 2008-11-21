@@ -492,7 +492,7 @@ public class SemiAttribute extends DefaultVisitor {
 
         public enum Kind {
 
-            VARIABLE, FUNCTION, PACKAGE_SPEC, CONST, PACKAGE_BODY;
+            VARIABLE, PROCEDURE, FUNCTION, PACKAGE_SPEC, PACKAGE_BODY, CONST;
         }
     }
 

@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,48 +37,22 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.ada.editor.indexer;
 
-import java.util.Collections;
 import java.util.Set;
-import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author Tor Norbye
  */
-public abstract class AdaElement implements Element {
-    public abstract String getName();
-    public abstract ElementKind getKind();
-    
-    public String getMimeType() {
-        return AdaMimeResolver.ADA_MIME_TYPE;
-    }
-
-    public boolean signatureEquals(ElementHandle handle) {
-        // XXX TODO
-        return false;
-    }
-
-    public FileObject getFileObject() {
-        return null;
-    }
-    
-    public Set<Modifier> getModifiers() {
-        return Collections.emptySet();
-    }
-
-    public String getIn() {
-        return null;
-    }
+public interface Element extends ElementHandle {
+    String getName();
+    String getIn();
+    ElementKind getKind();
+    Set<Modifier> getModifiers();
 }

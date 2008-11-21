@@ -57,6 +57,7 @@ import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.HintsProvider;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
+import org.netbeans.modules.ada.editor.navigator.AdaDeclarationFinder;
 import org.netbeans.modules.ada.editor.navigator.AdaOccurrencesFinder;
 import org.netbeans.modules.ada.editor.parser.AdaStructureScanner;
 import org.netbeans.modules.ada.editor.parser.AdaParser;
@@ -149,8 +150,7 @@ public class AdaLanguage extends DefaultLanguageConfig {
 
     @Override
     public DeclarationFinder getDeclarationFinder() {
-        return null;
-//        return new AdaDeclarationFinder();
+        return new AdaDeclarationFinder();
     }
 
     @Override

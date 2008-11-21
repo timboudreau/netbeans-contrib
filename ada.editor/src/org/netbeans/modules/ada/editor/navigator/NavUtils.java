@@ -46,6 +46,7 @@ import javax.swing.text.Document;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.Expression;
+import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
@@ -156,6 +157,14 @@ public class NavUtils {
         assert isQuoted(value);
 
         return value.substring(1, value.length() - 1);
+    }
+
+    public static FileObject resolveInclude(CompilationInfo info, With with) {
+        Identifier e = with.getPackageName();
+
+        // TODO: resolve packagename with file
+        
+        return null;
     }
 
     public static FileObject getFile(Document doc) {
