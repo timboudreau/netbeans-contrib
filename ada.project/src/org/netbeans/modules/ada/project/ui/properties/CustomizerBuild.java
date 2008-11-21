@@ -187,14 +187,14 @@ private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 }//GEN-LAST:event_platformsActionPerformed
 
 private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageActionPerformed
-    //Workaround, Needs an API to display platform customizer
-    final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-AdaPlatformAction.instance");  //NOI18N
+    // Workaround, Needs an API to display platform customizer
+    final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
     if (fo != null) {
         try {
             InstanceDataObject ido = (InstanceDataObject) DataObject.find(fo);
             CallableSystemAction action = (CallableSystemAction) ido.instanceCreate();
             action.performAction();
-            platforms.setModel(Utils.createPlatformModel());
+            platforms.setModel(Utils.createPlatformModel()); //Currentl the AdaManager doesn't fire events, we need to replace model.
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ClassNotFoundException ex) {
