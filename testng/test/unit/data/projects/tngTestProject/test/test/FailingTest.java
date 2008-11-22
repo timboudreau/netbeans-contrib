@@ -38,6 +38,10 @@
  */
 package test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -60,6 +64,18 @@ public class FailingTest {
 
     @Test(expectedExceptions={NullPointerException.class})
     public void cTest() {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+
+                public void run() {
+                    assert false;
+                }
+            });
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } catch (InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+        }
         throw new NullPointerException("catch this");
     }
 
