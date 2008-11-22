@@ -105,7 +105,7 @@ final class TestNGOutputReader {
 
     /** */
     private final NumberFormat numberFormat = NumberFormat.getInstance();
-    
+
     /**
      * Does Ant provide detailed information about the currently running test
      * and its output?
@@ -113,13 +113,13 @@ final class TestNGOutputReader {
     private boolean testListenerInfoAvailable = false;
     /**
      * number of tests to be executed in the current test suite
-     * 
+     *
      * @see  #executedOneSuiteTests
      */
     private int expectedOneSuiteTests = 0;
     /**
      * number of tests executed within the current suite so far
-     * 
+     *
      * @see  #expectedOneSuiteTests
      */
     private int executedOneSuiteTests = 0;
@@ -175,7 +175,7 @@ final class TestNGOutputReader {
 
     /** */
     private RegexpUtils regexp = RegexpUtils.getInstance();
-    
+
     ///** */
     //private Report topReport;
     /** */
@@ -191,7 +191,7 @@ final class TestNGOutputReader {
 
     /** */
     private StringBuilder xmlOutputBuffer;
-    
+
     /**
      * Are we reading standard output or standard error output?
      * This variable is used only when reading output from the test cases
@@ -211,7 +211,7 @@ final class TestNGOutputReader {
 
     private File testReportDirectory = null;
 
-       
+
     /** Creates a new instance of TestNGOutputReader */
     TestNGOutputReader(final AntSession session,
                       final TaskType sessionType,
@@ -220,12 +220,12 @@ final class TestNGOutputReader {
         this.sessionType = sessionType;
         this.antScript = session.getOriginatingScript();
         this.timeOfSessionStart = timeOfSessionStart;
-        
+
         this.progressLogger = Logger.getLogger(
                 "org.netbeans.modules.contrib.testng.outputreader.progress");    //NOI18N
         this.LOG = Logger.getLogger(TestNGOutputReader.class.getName());
     }
-    
+
     /**
      */
     void verboseMessageLogged(final AntEvent event) {
@@ -358,7 +358,7 @@ final class TestNGOutputReader {
             }
             return;
         }
-        
+
         /* Look for classpaths: */
 
         /* Code copied from JavaAntLogger */
@@ -379,7 +379,7 @@ final class TestNGOutputReader {
             }
         }
     }
-    
+
     /**
      */
     void messageLogged(final AntEvent event) {
@@ -406,11 +406,11 @@ final class TestNGOutputReader {
         //<editor-fold defaultstate="collapsed" desc="if (waitingForIssueStatus) ...">
         if (waitingForIssueStatus) {
             assert testcase != null;
-            
+
             Matcher matcher = regexp.getTestcaseIssuePattern().matcher(msg);
             if (matcher.matches()) {
                 boolean error = (matcher.group(1) == null);
-            
+
                 trouble = (testcase.trouble = new Report.Trouble(error));
                 waitingForIssueStatus = false;
                 return;
@@ -444,7 +444,7 @@ final class TestNGOutputReader {
             }
             if (troubleParser.processMessage(msg)) {
                 troubleParser = null;
-                
+
                 if ((trouble.stackTrace != null) && (trouble.stackTrace.length != 0)) {
                     report.setClasspathSourceRoots();
                 }
@@ -458,22 +458,22 @@ final class TestNGOutputReader {
                 }
 
                 report.reportTest(testcase);
-                
+
                 trouble = null;
                 testcase = null;
             }
             return;
         }//</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="TESTCASE_PREFIX">
         if (msg.startsWith(TESTCASE_PREFIX)) {
 
             if (report == null) {
                 return;
             }
-            
+
             String header = msg.substring(TESTCASE_PREFIX.length());
-            
+
             boolean success =
                 lastHeaderBrief
                 ? tryParseBriefHeader(header)
@@ -497,7 +497,7 @@ final class TestNGOutputReader {
             Matcher matcher = regexp.getXmlDeclPattern().matcher(msg.trim());
             if (matcher.matches()) {
                 suiteStarted(null);
-                
+
                 xmlOutputBuffer = new StringBuilder(4096);
                 xmlOutputBuffer.append(msg);
             }
@@ -519,11 +519,11 @@ final class TestNGOutputReader {
             if (testsuiteStatsKnown) {
                 return;                     //see issue #74979
             }
-            
+
             Matcher matcher = regexp.getSuiteStatsPattern().matcher(msg);
             if (matcher.matches()) {
                 assert report != null;
-                
+
                 report.markSuiteFinished();
                 try {
                     report.totalTests = Integer.parseInt(matcher.group(1));
@@ -567,7 +567,7 @@ final class TestNGOutputReader {
         }
         return timeMillis;
     }
-    
+
     /**
      * Tries to determine test results directory.
      *
@@ -578,7 +578,7 @@ final class TestNGOutputReader {
      */
     private static File determineResultsDir(final AntEvent event) {
         File resultsDir = null;
-        
+
         final String taskName = event.getTaskName();
         if (taskName != null) {
             if (taskName.equals("testng")) {                             //NOI18N
@@ -587,14 +587,14 @@ final class TestNGOutputReader {
                 resultsDir = determineJavaTaskResultsDir(event);
             }
         }
-        
+
         if ((resultsDir != null) && resultsDir.exists() && resultsDir.isDirectory()) {
             return resultsDir;
         } else {
             return null;
         }
     }
-    
+
     /**
      */
     private static File determineTestNGTaskResultsDir(final AntEvent event) {
@@ -617,7 +617,7 @@ final class TestNGOutputReader {
         }
 
         String todirPath = null;
-        
+
         for (TaskStructure taskChild : taskStruct.getChildren()) {
             String taskChildName = taskChild.getName();
             if (taskChildName.equals("arg")) {                          //NOI18N
@@ -642,7 +642,7 @@ final class TestNGOutputReader {
                 }
             }
         }
-            
+
         if (todirPath == null) {
             return null;
         }
@@ -658,7 +658,7 @@ final class TestNGOutputReader {
         }
         return combine(getBaseDir(event), path);
     }
-    
+
     private static File combine(File parentPath, File path) {
         return (path != null) ? new File(parentPath, path.getPath())
                               : parentPath;
@@ -680,35 +680,38 @@ final class TestNGOutputReader {
      */
     private Report createReport(final String suiteName) {
         Report newReport = new Report(suiteName);
-        
+
         newReport.classpath = classpath;
         newReport.platformSources = platformSources;
-        
+
         this.classpath = null;
         this.platformSources = null;
-        
+
         return newReport;
     }
-    
+
     /**
      */
     private ClassPath findPlatformSources(final String javaExecutable) {
-        
+
         /* Copied from JavaAntLogger */
-        
+
         final JavaPlatform[] platforms = JavaPlatformManager.getDefault().getInstalledPlatforms();
         for (int i = 0; i < platforms.length; i++) {
             FileObject fo = platforms[i].findTool("java");              //NOI18N
             if (fo != null) {
                 File f = FileUtil.toFile(fo);
-                if (f.getAbsolutePath().startsWith(javaExecutable)) {
+                //XXX - look for a "subpath" in case of forked JRE; is there a better way?
+                String path = f.getAbsolutePath();
+                if (path.startsWith(javaExecutable) ||
+                        javaExecutable.startsWith(path.substring(0, path.length() - 8))) {
                     return platforms[i].getSourceFolders();
                 }
             }
         }
         return null;
     }
-    
+
     /**
      * Notifies that a test (Ant) task was just started.
      *
@@ -722,12 +725,12 @@ final class TestNGOutputReader {
         }
 
         this.expectXmlReport = expectXmlOutput;
-        
+
         final boolean willBeDeterminateProgress = (expectedSuitesCount > 0);
         if (progressHandle == null) {
             progressHandle = ProgressHandleFactory.createHandle(
                 NbBundle.getMessage(TestNGOutputReader.class, "MSG_ProgressMessage"));//NOI18N
-            
+
             if (willBeDeterminateProgress) {
                 this.expectedSuitesCount = expectedSuitesCount;
                 progressHandle.start(PROGRESS_WORKUNITS);
@@ -761,10 +764,10 @@ final class TestNGOutputReader {
             //is indeterminate and will be indeterminate - no change
          //
         isDeterminateProgress = willBeDeterminateProgress;
-        
+
         manager.testStarted(session, sessionType);
     }
-    
+
     /**
      */
     void testTaskFinished(AntEvent event) {
@@ -784,9 +787,13 @@ final class TestNGOutputReader {
         }
         for (Report r : parseReportFile(new File(determineResultsDir(event), "testng-results.xml"))) {
             assert r != null;
+            r.classpath = classpath;
+            r.platformSources = platformSources;
             r.markSuiteFinished();
             manager.displayReport(session, sessionType, r);
         }
+        classpath = null;
+        platformSources = null;
     }
 
     /**
@@ -830,15 +837,15 @@ final class TestNGOutputReader {
             progressHandle.progress(message);
         }
     }
-    
+
     /**
      * Updates the progress message - displays name of the running suite.
-     * 
+     *
      * @param  suiteName  name of the running suite, or {@code null}
      */
     private String getProgressStepMessage(String suiteName) {
         String msg;
-        
+
         if (isDeterminateProgress) {
             MessageFormat messageFormat;
             Object[] messageParams;
@@ -871,7 +878,7 @@ final class TestNGOutputReader {
         }
         return msg;
     }
-    
+
     /**
      *
      */
@@ -892,7 +899,7 @@ final class TestNGOutputReader {
             return 0;
         }
     }
-    
+
     /**
      */
     void buildFinished(final AntEvent event) {
@@ -908,7 +915,7 @@ final class TestNGOutputReader {
             progressHandle.finish();
         }
     }
-    
+
     /**
      * Notifies that a test suite was just started.
      *
@@ -918,7 +925,7 @@ final class TestNGOutputReader {
     private Report suiteStarted(final String suiteName) {
         closePreviousReport();
         report = createReport(suiteName);
-        
+
         String stepMessage = getProgressStepMessage(suiteName);
         expectedOneSuiteTests = 0;
         executedOneSuiteTests = 0;
@@ -930,11 +937,11 @@ final class TestNGOutputReader {
         } else {
             progressHandle.progress(stepMessage);
         }
-                
+
         manager.displaySuiteRunning(session, sessionType, suiteName);
         return report;
     }
-    
+
     /**
      */
     private void suiteFinished(final Report report, boolean interrupted) {
@@ -942,10 +949,10 @@ final class TestNGOutputReader {
             progressLogger.finer("actual # of tests in a suite: " + executedOneSuiteTests);
         }
         executedSuitesCount++;
-        
+
         manager.displayReport(session, sessionType, report);
     }
-    
+
     private void buildFinished(final Throwable exception) {
         //<editor-fold defaultstate="collapsed" desc="disabled code">
         //PENDING:
@@ -959,7 +966,7 @@ final class TestNGOutputReader {
             }
         }
          */
-        
+
         /*
         //PENDING: final int status = errStatus;
         Mutex.EVENT.postWriteRequest(new Runnable() {
@@ -967,7 +974,7 @@ final class TestNGOutputReader {
                 //PENDING:
                 //ResultWindow resultView = ResultWindow.getInstance();
                 //resultView.displayReport(topReport, status, antScript);
-                
+
                 final TopComponent resultWindow = ResultWindow.getDefault();
                 resultWindow.open();
                 resultWindow.requestActive();
@@ -976,17 +983,17 @@ final class TestNGOutputReader {
          */
         //</editor-fold>
     }
-    
+
     //------------------ UPDATE OF DISPLAY -------------------
-    
+
     /**
      */
     private void displayOutput(final String text, final boolean error) {
         manager.displayOutput(session, sessionType, text, error);
     }
-    
+
     //--------------------------------------------------------
-    
+
     /**
      */
     private boolean tryParsePlainHeader(String testcaseHeader) {
@@ -996,20 +1003,20 @@ final class TestNGOutputReader {
         if (matcher.matches()) {
             String methodName = matcher.group(1);
             String timeString = matcher.group(2);
-            
+
             testcase = report.findTest(methodName);
             testcase.className = null;
             testcase.timeMillis = parseTime(timeString);
-            
+
             trouble = null;
             troubleParser = null;
-            
+
             return true;
         } else {
             return false;
         }
     }
-    
+
     /**
      */
     private boolean tryParseBriefHeader(String testcaseHeader) {
@@ -1026,13 +1033,13 @@ final class TestNGOutputReader {
             testcase.timeMillis = -1;
 
             trouble = (testcase.trouble = new Report.Trouble(error));
-            
+
             return true;
         } else {
             return false;
         }
     }
-    
+
     private void closePreviousReport() {
         closePreviousReport(false);
     }
@@ -1076,7 +1083,7 @@ final class TestNGOutputReader {
             }
             suiteFinished(report, interrupted);
         }
-        
+
         xmlOutputBuffer = null;
         readingSuiteOutputSummary = false;
         testcase = null;
@@ -1097,35 +1104,35 @@ final class TestNGOutputReader {
         if (!reportFile.canRead()) {
             return false;
         }
-        
+
         if (reportFile.canRead()) {
             return true;
         }
 
         long lastModified = reportFile.lastModified();
         long timeDelta = lastModified - timeOfSessionStart;
-        
+
         final Logger logger = Logger.getLogger("org.netbeans.modules.contrib.testng.outputreader.timestamps");//NOI18N
         final Level logLevel = FINER;
         if (logger.isLoggable(logLevel)) {
             logger.log(logLevel, "Report file: " + reportFile.getPath());//NOI18N
-            
+
             final GregorianCalendar timeStamp = new GregorianCalendar();
-            
+
             timeStamp.setTimeInMillis(timeOfSessionStart);
             logger.log(logLevel, "Session start:    " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(MILLISECOND)));//NOI18N
-            
+
             timeStamp.setTimeInMillis(lastModified);
             logger.log(logLevel, "Report timestamp: " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(MILLISECOND)));//NOI18N
         }
-        
+
         if (timeDelta >= 0) {
             return true;
         }
-        
+
         /*
          * Normally we would return 'false' here, but:
-         * 
+         *
          * We must take into account that modification timestamps of files
          * usually do not hold milliseconds, just seconds.
          * The worst case we must accept is that the session started
@@ -1134,25 +1141,25 @@ final class TestNGOutputReader {
          * 999 milliseconds earlier.
          */
         return -timeDelta <= timeOfSessionStart % 1000;
-        
+
 //        if (timeDelta < -999) {
 //            return false;
 //        }
-//        
+//
 //        final GregorianCalendar sessStartCal = new GregorianCalendar();
 //        sessStartCal.setTimeInMillis(timeOfSessionStart);
 //        int sessStartMillis = sessStartCal.get(MILLISECOND);
 //        if (timeDelta < -sessStartMillis) {
 //            return false;
 //        }
-//        
+//
 //        final GregorianCalendar fileModCal = new GregorianCalendar();
 //        fileModCal.setTimeInMillis(lastModified);
 //        if (fileModCal.get(MILLISECOND) != 0) {
 //            /* So the file's timestamp does hold milliseconds! */
 //            return false;
 //        }
-//        
+//
 //        /*
 //         * Now we know that milliseconds are not part of file's timestamp.
 //         * Let's substract the milliseconds part and check whether the delta is
@@ -1198,13 +1205,13 @@ final class TestNGOutputReader {
         if ((len == 0) || (len > 8)) {
             throw new NumberFormatException();
         }
-        
+
         char c = str.charAt(0);
         if ((c < '0') || (c > '9')) {
             throw new NumberFormatException();
         }
         int result = c - '0';
-        
+
         if (len > 1) {
             for (char d : str.substring(1).toCharArray()) {
                 if ((d < '0') || (d > '9')) {
@@ -1213,7 +1220,7 @@ final class TestNGOutputReader {
                 result = 10 * result + (d - '0');
             }
         }
-        
+
         return result;
     }
 
