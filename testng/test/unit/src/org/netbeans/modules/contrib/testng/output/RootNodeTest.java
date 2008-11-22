@@ -69,46 +69,14 @@ public class RootNodeTest extends NbTestCase {
         //check testsuite nodes
         Node[] suites = rn.getChildren().getNodes(true);
         //failed suite node
-        //0-test.FailPassSkipTest
         Node tsn = suites[0];
         assertEquals(3, tsn.getChildren().getNodesCount(true));
         assertEquals("test.FailPassSkipTest&nbsp;&nbsp;<font color='#FF0000'>FAILED</font>",
                 tsn.getHtmlDisplayName());
         Node[] cases = tsn.getChildren().getNodes(true);
         assertEquals(3, cases.length);
-        assertEquals("bTest&nbsp;&nbsp;<font color='#FF0000'>failed  (0.0 s)</font>",
-                cases[0].getHtmlDisplayName());
-        assertEquals("cTest&nbsp;&nbsp;<font color='#808080'>skipped  (0.0 s)</font>",
-                cases[1].getHtmlDisplayName());
-        assertEquals("aTest&nbsp;&nbsp;<font color='#00CC00'>passed  (0.0 s)</font>",
-                cases[2].getHtmlDisplayName());
-
-        //2-test.CleanUpTest
-        tsn = suites[2];
-        assertEquals(2, tsn.getChildren().getNodesCount(true));
-        assertEquals("test.CleanUpTest&nbsp;&nbsp;<font color='#FF0000'>FAILED</font>", tsn.getHtmlDisplayName());
-        //3-test.FailingTest
-        tsn = suites[3];
-        assertEquals(3, tsn.getChildren().getNodesCount(true));
-        assertEquals("test.FailingTest&nbsp;&nbsp;<font color='#FF0000'>FAILED</font>", tsn.getHtmlDisplayName());
-        //5-test.SetUpTest
-        tsn = suites[5];
-        assertEquals(3, tsn.getChildren().getNodesCount(true));
-        assertEquals("test.SetUpTest&nbsp;&nbsp;<font color='#FF0000'>FAILED</font>", tsn.getHtmlDisplayName());
-        cases = tsn.getChildren().getNodes(true);
-        assertEquals(3, cases.length);
-        assertEquals("<i>setUp&nbsp;&nbsp;</i><font color='#FF0000'>failed  (0.0 s)</font>",
-                cases[0].getHtmlDisplayName());
-        assertEquals("aTest&nbsp;&nbsp;<font color='#808080'>skipped  (0.0 s)</font>",
-                cases[1].getHtmlDisplayName());
-        assertEquals("<i>cleanUp&nbsp;&nbsp;</i><font color='#808080'>skipped  (0.0 s)</font>",
-                cases[2].getHtmlDisplayName());
 
         //skipped suite node
-        //1-test.PassSkipTest
-        tsn = suites[1];
-        assertEquals(2, tsn.getChildren().getNodesCount(true));
-        assertEquals("test.PassSkipTest&nbsp;&nbsp;<font color='#808080'>SKIPPED</font>", tsn.getHtmlDisplayName());
         //6-test.SkippedExceptionTest
         tsn = suites[6];
         assertEquals(1, tsn.getChildren().getNodesCount(true));
@@ -124,8 +92,24 @@ public class RootNodeTest extends NbTestCase {
     public void testNode2() throws Exception {
         final RootNode rn = new RootNode(false);
         rn.getChildren().getNodes(true);
-        R r = new R(new File(getDataDir(), "results/testng-results_1.xml"), rn);
-        SwingUtilities.invokeAndWait(r);
+        SwingUtilities.invokeAndWait(new Runnable() {
+
+            public void run() {
+                try {
+                    List<Report> reports = XmlOutputParserTest.parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
+                    rn.displayReports(reports);
+                    for (Report r : reports) {
+                        r.markSuiteFinished();
+                    }
+                    assertEquals(reports.size(), rn.getChildren().getNodesCount(true));
+                } catch (Throwable ex) {
+                    AssertionError t = new AssertionError(ex.getMessage());
+                    t.initCause(ex);
+                    throw t;
+
+                }
+            }
+        });
         assertEquals("174 tests passed, 1 test failed.", rn.getDisplayName());
 
         filterNode(rn, true);
@@ -135,15 +119,21 @@ public class RootNodeTest extends NbTestCase {
     }
 
     public void testNode3() throws Exception {
-        final RootNode rn = new RootNode(false);
+        final RootNode rn = new RootNode(true);
         rn.getChildren().getNodes(true);
         R r = new R(new File(getDataDir(), "results/testng-results_2.xml"), rn);
         SwingUtilities.invokeAndWait(r);
         assertEquals("2 tests passed, 1 test failed, 1 test skipped.", rn.getDisplayName());
+        SwingUtilities.invokeAndWait(new Runnable() {
 
-        filterNode(rn, true);
-        assertEquals(1, rn.getChildren().getNodesCount(true));
+            public void run() {
+                rn.displayMessageSessionFinished("[Done.]");
+            }
+        });
+        assertEquals("2 tests passed, 1 test failed, 1 test skipped. [Done.]", rn.getDisplayName());
         filterNode(rn, false);
+        assertEquals(1, rn.getChildren().getNodesCount(true));
+        filterNode(rn, true);
         assertEquals(1, rn.getChildren().getNodesCount(true));
     }
 
@@ -157,7 +147,7 @@ public class RootNodeTest extends NbTestCase {
                         rn.setFiltered(filter);
                     }
                 });
-                
+
             }
         });
     }
@@ -165,7 +155,8 @@ public class RootNodeTest extends NbTestCase {
     private static class R implements Runnable {
 
         private final File resource;
-        private RootNode rn;
+        private final RootNode rn;
+        static int z = 0;
 
         R(final File resource, final RootNode rn) {
             this.rn = rn;
@@ -176,9 +167,10 @@ public class RootNodeTest extends NbTestCase {
             try {
                 List<Report> reports = XmlOutputParserTest.parseResultXML(resource);
                 int i = 0;
+                z++;
                 for (Report r : reports) {
                     assertEquals(i++, rn.getChildren().getNodesCount(true));
-                    rn.displaySuiteRunning(r.suiteClassName);
+                    rn.displaySuiteRunning(( z == 2) ? ResultDisplayHandler.ANONYMOUS_SUITE : r.suiteClassName);
                     assertEquals(i, rn.getChildren().getNodesCount(true));
                     r.markSuiteFinished();
                     assertEquals(i, rn.getChildren().getNodesCount(true));
@@ -187,7 +179,7 @@ public class RootNodeTest extends NbTestCase {
                     assertNotNull(tn);
                 }
                 assertEquals(i, reports.size());
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 AssertionError t = new AssertionError(ex.getMessage());
                 t.initCause(ex);
                 throw t;
