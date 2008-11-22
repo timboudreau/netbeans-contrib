@@ -38,12 +38,29 @@
  */
 package test;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class ExceptionTest {
+public class PassSkipTest {
 
-    @Test(expectedExceptions={NullPointerException.class})
+    @BeforeClass
+    public void setUp() {
+        // code that will be invoked before this test starts
+    }
+
+    @Test
     public void aTest() {
-        throw new NullPointerException("catch this");
+        System.out.println("Test");
+    }
+
+    @Test(dependsOnGroups={"xxx"})
+    public void bTest() {
+        System.out.println("Test");
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        // code that will be invoked after this test ends
     }
 }

@@ -64,6 +64,8 @@ final class RootNodeChildren extends Children.Array {
     /** */
     private volatile int failedSuites;
     /** */
+    private volatile int skippedSuites;
+    /** */
     private volatile boolean live = false;
     /** */
     private String runningSuiteName;
@@ -209,7 +211,11 @@ final class RootNodeChildren extends Children.Array {
         if (isPassedSuite) {
             passedSuites++;
         } else {
-            failedSuites++;
+            if (report.confFailures > 0) {
+                skippedSuites++;
+            } else {
+                failedSuites++;
+            }
         }
         return isPassedSuite;
     }
@@ -240,8 +246,8 @@ final class RootNodeChildren extends Children.Array {
      */
     private void addAllMatchingNodes() {
         final boolean filterOn = filtered;
-        final int matchingNodesCount = filterOn ? failedSuites
-                                                : failedSuites + passedSuites;
+        final int matchingNodesCount = filterOn ? failedSuites + skippedSuites
+                                                : failedSuites + skippedSuites + passedSuites;
         final int nodesCount = (runningSuiteNode != null)
                                ? matchingNodesCount + 1
                                : matchingNodesCount;

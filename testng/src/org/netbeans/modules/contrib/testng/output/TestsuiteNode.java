@@ -47,6 +47,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_OK;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_WARNING;
+import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_SKIP;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_FAILURE;
 
 /**
@@ -175,6 +176,7 @@ final class TestsuiteNode extends AbstractNode {
         if (report != null) {
             final boolean containsFailed = containsFailed();
             final boolean interrupted = report.isSuiteInterrupted();
+            final boolean containsSkipped = containsSkipped();
 
             if (containsFailed) {
                 buf.append("&nbsp;&nbsp;");                             //NOI18N
@@ -186,7 +188,12 @@ final class TestsuiteNode extends AbstractNode {
                 HtmlMarkupUtils.appendColourText(
                         buf, COLOR_WARNING, "MSG_TestsuiteInterrupted_HTML");   //NOI18N
             }
-            if (!containsFailed && !interrupted) {
+            if (containsSkipped && !containsFailed()) {
+                buf.append("&nbsp;&nbsp;");                             //NOI18N
+                HtmlMarkupUtils.appendColourText(
+                        buf, COLOR_SKIP, "MSG_TestsuiteSkipped_HTML");   //NOI18N
+            }
+            if (!containsFailed && !interrupted && !containsSkipped) {
                 buf.append("&nbsp;&nbsp;");                             //NOI18N
                 HtmlMarkupUtils.appendColourText(
                         buf, COLOR_OK, "MSG_TestsuitePassed_HTML");     //NOI18N
@@ -217,9 +224,13 @@ final class TestsuiteNode extends AbstractNode {
     /**
      */
     private boolean containsFailed() {
-        return (report != null) && (report.failures + report.skips != 0);
+        return (report != null) && (report.failures + report.confFailures != 0);
     }
-    
+
+    private boolean containsSkipped() {
+        return (report != null) && (report.skips + report.confSkips != 0);
+    }
+
     @Override
     public SystemAction[] getActions(boolean context) {
         return new SystemAction[0];

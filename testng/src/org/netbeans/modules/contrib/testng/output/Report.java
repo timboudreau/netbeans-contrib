@@ -279,12 +279,12 @@ final class Report {
      */
     boolean containsFailed() {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
-        return (failures + skips) != 0;
+
+        return (failures + skips + confFailures + confSkips) != 0;
     }
-    
+
     /**
      */
     static final class Testcase {

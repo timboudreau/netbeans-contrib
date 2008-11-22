@@ -40,10 +40,20 @@ package test;
 
 import org.testng.annotations.Test;
 
-public class FailedExceptionTest {
+public class FailPassSkipTest {
 
-    @Test(expectedExceptions={NullPointerException.class})
+    @Test
     public void aTest() {
+        System.out.println("Test");
+    }
+
+    @Test
+    public void bTest() {
+        assert false;
+    }
+
+    @Test(dependsOnMethods={"aTest", "bTest"})
+    public void cTest() {
         System.out.println("Test");
     }
 }

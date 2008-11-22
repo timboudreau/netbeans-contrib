@@ -53,6 +53,16 @@ public class FailingTest {
         assert false;
     }
 
+    @Test(expectedExceptions={NullPointerException.class})
+    public void bTest() {
+        System.out.println("Test");
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void cTest() {
+        throw new NullPointerException("catch this");
+    }
+
     @AfterClass
     public void cleanUp() {
     }
