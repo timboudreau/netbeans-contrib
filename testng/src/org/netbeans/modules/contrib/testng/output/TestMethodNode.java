@@ -171,10 +171,10 @@ final class TestMethodNode extends AbstractNode {
             buf.append("<i>");
         }
         buf.append(testcase.name);
-        buf.append("&nbsp;&nbsp;");                                     //NOI18N
         if (testcase.confMethod) {
             buf.append("</i>"); //NOI18N
         }
+        buf.append("&nbsp;&nbsp;");                                     //NOI18N
         if (bundleParam == null) {
             HtmlMarkupUtils.appendColourText(buf, color, bundleKey);
         } else {

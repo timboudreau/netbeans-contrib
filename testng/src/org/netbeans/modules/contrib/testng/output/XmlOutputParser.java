@@ -275,7 +275,7 @@ public class XmlOutputParser extends DefaultHandler {
                 assert testcase != null;
                 assert trouble != null;
                 if (text != null) {
-                    trouble.message = text.toString();
+                    trouble.message = text.toString().trim();
                     text = null;
                 }
                 state = STATE_EXCEPTION;
@@ -283,7 +283,7 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_FULL_STACKTRACE:
                 assert "full-stacktrace".equals(qName); //NOI18N
                 if (text != null) {
-                    trouble.stackTrace = text.toString().split("[\\r\\n]+"); //NOI18N
+                    parseTroubleReport(text.toString().trim(), trouble); //NOI18N
                     text = null;
                 }
                 state = STATE_EXCEPTION;
@@ -299,10 +299,7 @@ public class XmlOutputParser extends DefaultHandler {
                 if (text == null) {
                     text = new StringBuffer(512);
                 }
-                String s = new String(ch, start, length);
-                if (s.trim().length() > 0) {
-                    text.append(ch, start, length);
-                }
+                text.append(ch, start, length);
                 break;
         }
     }
@@ -314,4 +311,17 @@ public class XmlOutputParser extends DefaultHandler {
         tc.timeMillis = time;
         return tc;
     }
+
+    private void parseTroubleReport(String report, Report.Trouble trouble) {
+        final String[] lines = report.split("[\\r\\n]+");               //NOI18N
+
+        TroubleParser troubleParser = new TroubleParser(trouble, RegexpUtils.getInstance());
+        for (String line : lines) {
+            if (troubleParser.processMessage(line)) {
+                return;
+            }
+        }
+        troubleParser.finishProcessing();
+    }
+
 }
