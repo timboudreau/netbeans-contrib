@@ -34,7 +34,6 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -52,7 +51,6 @@ import org.netbeans.modules.erlang.platform.gsf.Formatter;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.Exceptions;
 
-import static org.netbeans.modules.erlang.platform.options.CodeStyle.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -284,7 +282,7 @@ public class FmtOptions {
                 doc.insertString(0, previewText, null);
 
                 Formatter formatter = new Formatter(codeStyle, rm);
-                formatter.reformat(doc, 0, doc.getLength(), null);
+                formatter.reindent(null, doc, 0, doc.getLength(), null, false);
 
                 String formatted = doc.getText(0, doc.getLength());
                 pane.setText(formatted);

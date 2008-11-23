@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.editor.indent.spi.Context;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.erlang.platform.options.CodeStyle;
 import org.openide.filesystems.FileUtil;
@@ -83,15 +83,15 @@ public class Formatter implements org.netbeans.modules.gsf.api.Formatter {
     public boolean needsParserResult() {
         return false;
     }
-    
-    public void reindent(Document document, int startOffset, int endOffset) {
-        reindent(document, startOffset, endOffset, null, true);
-    }        
-    
-    public void reformat(Document document, int startOffset, int endOffset, CompilationInfo info) {
-        reindent(document, startOffset, endOffset, info, false);
+
+    public void reindent(Context context) {
+        reindent(context, context.document(), context.startOffset(), context.endOffset(), null, true);
     }
-    
+
+    public void reformat(Context context, CompilationInfo info) {
+        reindent(context, context.document(), context.startOffset(), context.endOffset(), info, false);
+    }
+
     public int indentSize() {
         return codeStyle.getIndentSize();
     }
@@ -155,9 +155,8 @@ public class Formatter implements org.netbeans.modules.gsf.api.Formatter {
         return null;
     }
 
-    
-    private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
-        
+    public void reindent(final Context context, Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
+
 
         try {
             BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
@@ -238,7 +237,13 @@ public class Formatter implements org.netbeans.modules.gsf.api.Formatter {
                     int currentIndent = LexUtilities.getLineIndent(doc, lineBegin);
 
                     if (currentIndent != indent) {
-                        editorFormatter.changeRowIndent(doc, lineBegin, indent);
+                        if (currentIndent != indent) {
+                            if (context != null) {
+                                context.modifyIndent(lineBegin, indent);
+                            } else {
+                                editorFormatter.changeRowIndent(doc, lineBegin, indent);
+                            }
+                        }
                     }
                 }
 
@@ -544,7 +549,7 @@ public class Formatter implements org.netbeans.modules.gsf.api.Formatter {
                                 } else {
                                     isBrace = true;
                                 }
-                                
+
                                 if (isBrace) {
                                     Brace brace = new Brace();
                                     brace.token = token;
