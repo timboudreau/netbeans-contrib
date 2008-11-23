@@ -300,8 +300,9 @@ TypeGuards = TypeGuard ("," TypeGuard)*;
 TypeGuard = <atom> "(" TopTypes ")"; 
 
 TopTypes = TopType ("," TopType)*;
-TopType = Type ("|" Type)*
-        | "(" Type ("|" Type)* ")";
+TopType = TopType1
+        | "(" TopType1 ")";
+TopType1 = Type ("|" Type)*;
 
 Type = <var> 
      | <atom> ["(" [TopTypes] ")"]
