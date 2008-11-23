@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PrintStream;
@@ -20,21 +21,24 @@ import javax.swing.text.BadLocationException;
 import java.io.Serializable;
 import javax.swing.UIManager;
 import javax.swing.text.Caret;
+import org.netbeans.api.extexecution.ExecutionDescriptor;
+import org.netbeans.api.extexecution.ExecutionService;
+import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.modules.erlang.platform.api.RubyExecution;
-import org.netbeans.modules.languages.execution.ExecutionDescriptor;
-import org.netbeans.modules.languages.execution.console.TextAreaReadline;
+import org.netbeans.modules.erlang.console.readline.TextAreaReadline;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.util.Task;
-import org.openide.util.TaskListener;
+import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.openide.util.Utilities;
+import org.openide.windows.InputOutput;
+import org.openide.windows.OutputListener;
+import org.openide.windows.OutputWriter;
 
 /**
  * IRB window.
@@ -54,23 +58,22 @@ import org.openide.util.Utilities;
  *   last line, etc.
  */
 final class ErlangConsoleTopComponent extends TopComponent {
+
     private boolean finished = true;
     private JTextPane textPane;
     private String mimeType = "text/x-console";
-    
     private static ErlangConsoleTopComponent instance;
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "org/netbeans/modules/erlang/console/resources/erlang.png"; // NOI18N
-    
     private static final String PREFERRED_ID = "ErlangConsoleTopComponent"; // NOI18N
-    
+
     private ErlangConsoleTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(ErlangConsoleTopComponent.class, "CTL_ErlangConsoleTopComponent"));
         setToolTipText(NbBundle.getMessage(ErlangConsoleTopComponent.class, "HINT_ErlangConsoleTopComponent"));
         setIcon(Utilities.loadImage(ICON_PATH, true));
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -81,11 +84,9 @@ final class ErlangConsoleTopComponent extends TopComponent {
 
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
-    
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -97,7 +98,7 @@ final class ErlangConsoleTopComponent extends TopComponent {
         }
         return instance;
     }
-    
+
     /**
      * Obtain the IrbTopComponent instance. Never call {@link #getDefault} directly!
      */
@@ -109,18 +110,20 @@ final class ErlangConsoleTopComponent extends TopComponent {
             return getDefault();
         }
         if (win instanceof ErlangConsoleTopComponent) {
-            return (ErlangConsoleTopComponent)win;
+            return (ErlangConsoleTopComponent) win;
         }
         ErrorManager.getDefault().log(ErrorManager.WARNING,
                 "There seem to be multiple components with the '" + PREFERRED_ID +
                 "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
     }
-    
+
+    @Override
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
-    
+
+    @Override
     public void componentOpened() {
         if (finished) {
             // Start a new one
@@ -129,11 +132,12 @@ final class ErlangConsoleTopComponent extends TopComponent {
             createTerminal();
         }
     }
-    
+
+    @Override
     public void componentClosed() {
         // Leave the terminal session running
     }
-    
+
     @Override
     public void componentActivated() {
         // Make the caret visible. See comment under componentDeactivated.
@@ -144,7 +148,7 @@ final class ErlangConsoleTopComponent extends TopComponent {
             }
         }
     }
-    
+
     @Override
     public void componentDeactivated() {
         // I have to turn off the caret when the window loses focus. Text components
@@ -158,34 +162,38 @@ final class ErlangConsoleTopComponent extends TopComponent {
             }
         }
     }
-    
+
     /** replaces this in object stream */
+    @Override
     public Object writeReplace() {
         return new ResolvableHelper();
     }
-    
+
+    @Override
     protected String preferredID() {
         return PREFERRED_ID;
     }
-    
+
     final static class ResolvableHelper implements Serializable {
+
         private static final long serialVersionUID = 1L;
+
         public Object readResolve() {
             return ErlangConsoleTopComponent.getDefault();
         }
     }
-    
+
     public void createTerminal() {
         final PipedInputStream pipeIn = new PipedInputStream();
-        
+
         textPane = new JTextPane();
         textPane.getDocument().putProperty("mimeType", mimeType);
-	
-        textPane.setMargin(new Insets(8,8,8,8));
+
+        textPane.setMargin(new Insets(8, 8, 8, 8));
         textPane.setCaretColor(new Color(0xa4, 0x00, 0x00));
         textPane.setBackground(new Color(0xf2, 0xf2, 0xf2));
         textPane.setForeground(new Color(0xa4, 0x00, 0x00));
-        
+
         // From core/output2/**/AbstractOutputPane
         Integer i = (Integer) UIManager.get("customFontSize"); //NOI18N
         int size;
@@ -195,22 +203,22 @@ final class ErlangConsoleTopComponent extends TopComponent {
             Font f = (Font) UIManager.get("controlFont"); // NOI18N
             size = f != null ? f.getSize() : 11;
         }
-        
+
         Font font = new Font("Monospaced", Font.PLAIN, size); //NOI18N
         if (font == null) {
             font = new Font("Lucida Sans Typewriter", Font.PLAIN, size);
         }
         textPane.setFont(font);
-        
+
         setBorder(BorderFactory.createEmptyBorder());
-        
+
         // Try to initialize colors from NetBeans properties, see core/output2
         Color c = UIManager.getColor("nb.output.selectionBackground"); // NOI18N
         if (c != null) {
             textPane.setSelectionColor(c);
         }
 
-	
+
         //Object value = Settings.getValue(BaseKit.class, SettingsNames.CARET_COLOR_INSERT_MODE);
         //Color caretColor;
         //if (value instanceof Color) {
@@ -241,30 +249,41 @@ final class ErlangConsoleTopComponent extends TopComponent {
         //if (unselectedErr == null) {
         //    unselectedErr = selectedErr;
         //}
-        
-        
+
+
         JScrollPane pane = new JScrollPane();
         pane.setViewportView(textPane);
         pane.setBorder(BorderFactory.createLineBorder(Color.darkGray));
         add(pane);
         validate();
 
-        final TextAreaReadline taReadline = new TextAreaReadline(textPane, " " +  // NOI18N
+        final TextAreaReadline taReadline = new TextAreaReadline(textPane, " " + // NOI18N
                 NbBundle.getMessage(ErlangConsoleTopComponent.class, "ErlangConsoleWelcome") + " \n\n",
                 pipeIn); // NOI18N
         File pwd = getMainProjectWorkPath();
-	String workPath = pwd.getPath();
+        String workPath = pwd.getPath();
         Reader in = new InputStreamReader(pipeIn);
         PrintWriter out = new PrintWriter(new PrintStream(taReadline));
         PrintWriter err = new PrintWriter(new PrintStream(taReadline));
-        ExecutionDescriptor descriptor = new ExecutionDescriptor("Erlang Shell", pwd);
-        descriptor.interactive(true).showProgress(false).showSuspended(false)
-		.initialArgs("-sname erlybird " + "-pa " + workPath + File.separator + "ebin ");  
-        RubyExecution executionService = new RubyExecution(descriptor);
-        Task task = executionService.run(in, out, err);
+        File interpreter = RubyPlatformManager.getDefaultPlatform().getInterpreterFile();
+        if (interpreter == null) {
+            return;
+        }
+        String cmdName = interpreter.getName();
 
-        task.addTaskListener(new TaskListener() {
-            public void taskFinished(Task task) {
+        ExternalProcessBuilder builder = new ExternalProcessBuilder(cmdName);
+        builder.addArgument("-sname erlybird").
+                addArgument("-pa " + workPath + File.separator + "ebin ");
+
+
+        builder = builder.workingDirectory(pwd);
+
+        ExecutionDescriptor execDescriptor = new ExecutionDescriptor().frontWindow(true).
+                inputVisible(true).inputOutput(new CustomInputOutput(in, out, err));
+
+         execDescriptor = execDescriptor.postExecution(new Runnable() {
+
+            public void run() {
                 finished = true;
                 textPane.setEditable(false);
                 SwingUtilities.invokeLater(new Runnable() {
@@ -276,25 +295,32 @@ final class ErlangConsoleTopComponent extends TopComponent {
                 });
             }
         });
-        
+
+        ExecutionService executionService = ExecutionService.newService(
+                builder, execDescriptor, "Erlang Shell");
+
+        executionService.run();
+       
         // [Issue 91208]  avoid of putting cursor in IRB console on line where is not a prompt
         textPane.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent ev) {
                 final int mouseX = ev.getX();
                 final int mouseY = ev.getY();
                 // Ensure that this is done after the textpane's own mouse listener
                 SwingUtilities.invokeLater(new Runnable() {
+
                     public void run() {
                         // Attempt to force the mouse click to appear on the last line of the text input
-                        int pos = textPane.getDocument().getEndPosition().getOffset()-1;
+                        int pos = textPane.getDocument().getEndPosition().getOffset() - 1;
                         if (pos == -1) {
                             return;
                         }
-                        
+
                         try {
                             Rectangle r = textPane.modelToView(pos);
-                            
+
                             if (mouseY >= r.y) {
                                 // The click was on the last line; try to set the X to the position where
                                 // the user clicked since perhaps it was an attempt to edit the existing
@@ -304,7 +330,7 @@ final class ErlangConsoleTopComponent extends TopComponent {
                                 r.x = mouseX;
                                 pos = textPane.viewToModel(r.getLocation());
                             }
-                            
+
                             textPane.getCaret().setDot(pos);
                         } catch (BadLocationException ble) {
                             Exceptions.printStackTrace(ble);
@@ -312,31 +338,31 @@ final class ErlangConsoleTopComponent extends TopComponent {
                     }
                 });
             }
-        }); 
+        });
     }
-    
+
     @Override
     public void requestFocus() {
         if (textPane != null) {
             textPane.requestFocus();
         }
     }
-    
+
     @Override
     public boolean requestFocusInWindow() {
         if (textPane != null) {
             return textPane.requestFocusInWindow();
         }
-        
+
         return false;
     }
-    
+
     private File getMainProjectWorkPath() {
         File pwd = null;
         Project mainProject = OpenProjects.getDefault().getMainProject();
         if (mainProject != null) {
             FileObject fo = mainProject.getProjectDirectory();
-            if (! fo.isFolder()) {
+            if (!fo.isFolder()) {
                 fo = fo.getParent();
             }
             pwd = FileUtil.toFile(fo);
@@ -346,5 +372,85 @@ final class ErlangConsoleTopComponent extends TopComponent {
             pwd = new File(userHome);
         }
         return pwd;
+    }
+
+    private static class CustomInputOutput implements InputOutput {
+
+        private final Reader input;
+        private final PrintWriter out;
+        private final PrintWriter err;
+        private boolean closed;
+
+        public CustomInputOutput(Reader input, PrintWriter out, PrintWriter err) {
+            this.input = input;
+            this.out = out;
+            this.err = err;
+        }
+
+        public void closeInputOutput() {
+            closed = true;
+        }
+
+        public Reader flushReader() {
+            return input;
+        }
+
+        public OutputWriter getErr() {
+            return new CustomOutputWriter(err);
+        }
+
+        public Reader getIn() {
+            return input;
+        }
+
+        public OutputWriter getOut() {
+            return new CustomOutputWriter(out);
+        }
+
+        public boolean isClosed() {
+            return closed;
+        }
+
+        public boolean isErrSeparated() {
+            return false;
+        }
+
+        public boolean isFocusTaken() {
+            return false;
+        }
+
+        public void select() {
+        }
+
+        public void setErrSeparated(boolean value) {
+        }
+
+        public void setErrVisible(boolean value) {
+        }
+
+        public void setFocusTaken(boolean value) {
+        }
+
+        public void setInputVisible(boolean value) {
+        }
+
+        public void setOutputVisible(boolean value) {
+        }
+    }
+
+    private static class CustomOutputWriter extends OutputWriter {
+
+        public CustomOutputWriter(PrintWriter pw) {
+            super(pw);
+        }
+
+        @Override
+        public void println(String s, OutputListener l) throws IOException {
+            println(s);
+        }
+
+        @Override
+        public void reset() throws IOException {
+        }
     }
 }
