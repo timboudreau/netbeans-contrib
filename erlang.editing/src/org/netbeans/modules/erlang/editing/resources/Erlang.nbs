@@ -229,7 +229,7 @@ Form = AttributeDeclaration <stop>
 ##### Begin Attributes of Erlang ####
 ## Hacking: last ")" of define-attribute declaration is included in MacroBody
 AttributeDeclaration = DefineAttribute     "(" MacroName ["(" [MacroParams] ")"] "," MacroBody
-                     | ModuleAttribute     "(" <atom> ("." <atom>)* ")"
+                     | ModuleAttribute     "(" <atom> ("." <atom>)* ["," ModuleParams] ")"
                      | ExportAttribute     "(" "[" [FunctionNames] "]" ")" 
                      | ImportAttribute     "(" <atom> ("." <atom>)* ["," "[" [FunctionNames] "]"] ")"
                      | RecordAttribute     "(" RecordName "," "{" RecordFieldNames "}" ")"
@@ -257,6 +257,9 @@ WildAttribute       = "-" <atom>;
 
 ## Hacking for: Exprs | TypedAttrVal
 WildAttributeContent = Expr [("," Expr)+ | "," TypedRecordFields | "::" [TypeSigs | TopType]];
+
+ModuleParams = "[" "]"
+             | "[" <var> ("," <var>)* "]";
 
 MacroName = <atom> 
           | <var>;
