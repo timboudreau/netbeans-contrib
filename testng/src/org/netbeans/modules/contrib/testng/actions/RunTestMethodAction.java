@@ -48,24 +48,34 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
+import org.netbeans.spi.project.SingleMethod;
 import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.actions.NodeAction;
 
-public final class RunTestMethodAction extends CookieAction {
+public final class RunTestMethodAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger(RunTestMethodAction.class.getName());
 
     @Override
     protected boolean enable(Node[] activatedNodes) {
-        if (super.enable(activatedNodes)) {
-            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
+        if (activatedNodes.length != 1) {
+            return false;
+        }
+        Lookup l = activatedNodes[0].getLookup();
+        DataObject dataObject = l.lookup(DataObject.class);
+        if (dataObject != null) {
             Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            return TestNGSupport.isProjectSupported(p);
+        }
+        SingleMethod sm = l.lookup(SingleMethod.class);
+        if (sm != null) {
+            Project p = FileOwnerQuery.getOwner(sm.getFile());
             return TestNGSupport.isProjectSupported(p);
         }
         return false;
@@ -74,16 +84,24 @@ public final class RunTestMethodAction extends CookieAction {
     protected void performAction(Node[] activatedNodes) {
         Lookup l = activatedNodes[0].getLookup();
         EditorCookie ec = l.lookup(EditorCookie.class);
+        SingleMethod sm = l.lookup(SingleMethod.class);
+        if (ec == null && sm == null) {
+            //should not happen
+            throw new UnsupportedOperationException();
+        }
+        FileObject fo = null;
+        String testMethod = null;
+        TestClassInfoTask task = new TestClassInfoTask(0);
         if (ec != null) {
             JEditorPane[] panes = ec.getOpenedPanes();
             if (panes.length > 0) {
                 final int cursor = panes[0].getCaret().getDot();
                 JavaSource js = JavaSource.forDocument(panes[0].getDocument());
-                TestClassInfoTask task = new TestClassInfoTask(cursor);
+                task = new TestClassInfoTask(cursor);
                 try {
                     js.runUserActionTask(task, true);
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOGGER.log(Level.WARNING, null, ex);
                 }
                 if (task.getMethodName() == null) {
                     //TODO - cursor is outside of a method or a given method is not a test
@@ -91,29 +109,33 @@ public final class RunTestMethodAction extends CookieAction {
                     //using some UI
                 }
                 DataObject dobj = l.lookup(DataObject.class);
-                Project p = FileOwnerQuery.getOwner(dobj.getPrimaryFile());
-                TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
-                TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(dobj.getPrimaryFile(), false, task.getPackageName(), task.getClassName(), task.getMethodName());
-                try {
-                    exec.execute(conf);
-                } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, null, ex);
-                }
-
+                fo = dobj.getPrimaryFile();
+                testMethod = task.getMethodName();
             }
         }
-    }
-
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
+        if (sm != null) {
+            fo = sm.getFile();
+            testMethod = sm.getMethodName();
+            JavaSource js = JavaSource.forFileObject(fo);
+            try {
+                js.runUserActionTask(task, true);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, null, ex);
+            }
+        }
+        assert fo != null;
+        Project p = FileOwnerQuery.getOwner(fo);
+        TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+        TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(fo, false, task.getPackageName(), task.getClassName(), testMethod);
+        try {
+            exec.execute(conf);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     public String getName() {
         return NbBundle.getMessage(RunTestMethodAction.class, "CTL_RunTestMethodAction");
-    }
-
-    protected Class[] cookieClasses() {
-        return new Class[]{DataObject.class, EditorCookie.class};
     }
 
     @Override
@@ -129,7 +151,7 @@ public final class RunTestMethodAction extends CookieAction {
 
     @Override
     protected boolean asynchronous() {
-        return false;
+            return false;
     }
 }
 

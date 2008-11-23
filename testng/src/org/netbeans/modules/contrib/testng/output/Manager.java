@@ -410,7 +410,7 @@ final class Manager {
         public void run() {
             final ResultWindow window = ResultWindow.getInstance();
             if (displayHandler != null) {
-               window.addDisplayComponent(displayHandler.getDisplayComponent());
+               window.addDisplayComponent(displayHandler.getDisplayComponent(), displayHandler.getLookup());
             }
             if (promote) {
                window.promote();

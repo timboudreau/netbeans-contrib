@@ -62,7 +62,7 @@ import org.openide.util.NbBundle;
  * @author  Marian Petras
  */
 public final class StatisticsPanel extends JPanel implements ItemListener {
-    
+
     /** */
     private final ResultPanelTree treePanel;
     /** */
@@ -74,7 +74,7 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
 
     /**
      */
-    public StatisticsPanel(final ResultDisplayHandler displayHandler) {
+    StatisticsPanel(final ResultDisplayHandler displayHandler) {
         super(new BorderLayout(0, 0));
 
         JComponent toolbar = createToolbar();
@@ -94,14 +94,14 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
         toolbar.add(btnFilter);
         toolbar.add(Box.createHorizontalGlue());
-        
+
         toolbar.setFocusable(false);
         toolbar.setFloatable(false);
         toolbar.setBorderPainted(false);
-        
+
         return toolbar;
     }
-    
+
     /**
      */
     private void createFilterButton() {
@@ -112,10 +112,10 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
         btnFilter.getAccessibleContext().setAccessibleName(
                 NbBundle.getMessage(StatisticsPanel.class, "ACSN_FilterButton"));  //NOI18N
         btnFilter.addItemListener(this);
-        
+
         updateFilterButtonLabel();
     }
-    
+
     /**
      */
     private void updateFilterButtonLabel() {
@@ -130,7 +130,7 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
         btnFilter.setToolTipText(btnFilter.isSelected() ? tooltipShowAll
                                                         : tooltipShowFailures);
     }
-    
+
     /**
      */
     public void itemStateChanged(ItemEvent e) {
@@ -138,29 +138,29 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
         treePanel.setFiltered(btnFilter.isSelected());
         updateFilterButtonLabel();
     }
-    
+
     /**
      */
     void displayReport(final Report report) {
         treePanel.displayReport(report);
-        
+
         btnFilter.setEnabled(
             treePanel.getSuccessDisplayedLevel() != RootNode.ALL_PASSED_ABSENT);
     }
-    
+
     /**
      */
     void displayReports(final List<Report> reports) {
         if (reports.isEmpty()) {
             return;
         }
-        
+
         treePanel.displayReports(reports);
-        
+
         btnFilter.setEnabled(
             treePanel.getSuccessDisplayedLevel() != RootNode.ALL_PASSED_ABSENT);
     }
-    
+
     /**
      * Displays a message about a running suite.
      *
@@ -171,11 +171,11 @@ public final class StatisticsPanel extends JPanel implements ItemListener {
     void displaySuiteRunning(final String suiteName) {
         treePanel.displaySuiteRunning(suiteName);
     }
-    
+
     /**
      */
     void displayMsg(final String msg) {
         treePanel.displayMsg(msg);
     }
-    
+
 }

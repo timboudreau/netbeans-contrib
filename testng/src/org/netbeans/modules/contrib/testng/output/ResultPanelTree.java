@@ -47,11 +47,13 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.List;
 import javax.accessibility.AccessibleContext;
+import javax.swing.ActionMap;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
@@ -65,7 +67,7 @@ final class ResultPanelTree extends JPanel
 
     private static java.util.ResourceBundle bundle = org.openide.util.NbBundle.getBundle(
             ResultPanelTree.class);
-    
+
     /** manages the tree of nodes representing found objects */
     private final ExplorerManager explorerManager;
     /** root node of the tree */
@@ -93,16 +95,17 @@ final class ResultPanelTree extends JPanel
         treeView.getAccessibleContext().setAccessibleName(bundle.getString("ACSN_TestResults"));
         treeView.getAccessibleContext().setAccessibleDescription(bundle.getString("ACSD_TestResults"));
         add(treeView, java.awt.BorderLayout.CENTER);
-        
+
         explorerManager = new ExplorerManager();
         explorerManager.setRootContext(rootNode = new RootNode(filtered));
         explorerManager.addPropertyChangeListener(this);
 
         initAccessibility();
-        
+
         this.displayHandler = displayHandler;
+        displayHandler.setLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()));
     }
-    
+
     /**
      */
     private void initAccessibility() {
@@ -125,36 +128,36 @@ final class ResultPanelTree extends JPanel
                                    "ACSN_HorizontalScrollbar"));        //NOI18N
 
     }
-    
+
     /**
      */
     void displayMsg(String msg) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         rootNode.displayMessage(msg);
     }
-    
+
     /**
      */
     void displayMsgSessionFinished(String msg) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         rootNode.displayMessageSessionFinished(msg);
     }
-    
+
     /**
      */
     @Override
     public void addNotify() {
         super.addNotify();
-        
+
         displayHandler.setTreePanel(this);
     }
-    
+
     /**
      * Displays a message about a running suite.
      *
@@ -164,46 +167,46 @@ final class ResultPanelTree extends JPanel
      */
     void displaySuiteRunning(final String suiteName) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         rootNode.displaySuiteRunning(suiteName);
     }
-    
+
     /**
      */
     void displayReport(final Report report) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         TestsuiteNode node = rootNode.displayReport(report);
         if ((node != null) && report.containsFailed()) {
             treeView.expandReportNode(node);
         }
     }
-    
+
     /**
      * @param  reports  non-empty list of reports to be displayed
      */
     void displayReports(final List<Report> reports) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         if (reports.size() == 1) {
             displayReport(reports.get(0));
         } else {
             rootNode.displayReports(reports);
         }
     }
-    
+
     /**
      */
     int getSuccessDisplayedLevel() {
         return rootNode.getSuccessDisplayedLevel();
     }
-    
+
     /**
      */
     void viewOpened() {
@@ -219,9 +222,9 @@ final class ResultPanelTree extends JPanel
         if (filtered == this.filtered) {
             return;
         }
-        
+
         this.filtered = filtered;
-        
+
         rootNode.setFiltered(filtered);
     }
 
@@ -254,7 +257,7 @@ final class ResultPanelTree extends JPanel
             changeEvent = new ChangeEvent(this);
         }
     }
-    
+
     /**
      */
     private void fireNodeSelectionChange() {
@@ -283,7 +286,7 @@ final class ResultPanelTree extends JPanel
      * If the nodes cannot be selected and/or activated,
      * clears the selection (and notifies that no node is currently
      * activated).
-     * 
+     *
      * @param  node  node to be selected and activated
      */
     private void selectAndActivateNode(final Node node) {
@@ -308,7 +311,7 @@ final class ResultPanelTree extends JPanel
     public ExplorerManager getExplorerManager() {
         return explorerManager;
     }
-    
+
     /**
      */
     @Override

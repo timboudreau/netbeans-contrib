@@ -39,6 +39,8 @@
 package org.netbeans.modules.contrib.testng.actions;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
@@ -46,51 +48,60 @@ import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.actions.NodeAction;
 
-public final class RerunFailedTestsAction extends CookieAction {
+public final class RerunFailedTestsAction extends NodeAction {
+
+    private static final Logger LOGGER = Logger.getLogger(RerunFailedTestsAction.class.getName());
 
     public RerunFailedTestsAction() {
-    }
-    
-    protected void performAction(Node[] activatedNodes) {
-        DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
-        Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-        TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
-        assert exec.hasFailedTests();
-        TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(dataObject.getPrimaryFile(), true, null, null, null);
-        try {
-            exec.execute(conf);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     @Override
     protected boolean enable(Node[] activatedNodes) {
-        if (super.enable(activatedNodes)) {
-            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
-            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            if (TestNGSupport.isProjectSupported(p)) {
-                return TestNGSupport.findTestNGSupport(p).createExecutor(p).hasFailedTests();
+        if (activatedNodes.length != 1) {
+            return false;
+        }
+        Lookup l = activatedNodes[0].getLookup();
+        Project p = l.lookup(Project.class);
+        if (p == null) {
+            DataObject dataObject = l.lookup(DataObject.class);
+            if (dataObject != null && dataObject.getPrimaryFile() != null) {
+                p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            } else {
+                return false;
             }
+        }
+        if (TestNGSupport.isProjectSupported(p)) {
+            return TestNGSupport.findTestNGSupport(p).createExecutor(p).hasFailedTests();
         }
         return false;
     }
 
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
+    protected void performAction(Node[] activatedNodes) {
+        Lookup l = activatedNodes[0].getLookup();
+        Project p = l.lookup(Project.class);
+        if (p == null) {
+            DataObject dataObject = l.lookup(DataObject.class);
+            if (dataObject != null) {
+                p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            }
+        }
+        TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+        assert exec.hasFailedTests();
+        TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(p.getProjectDirectory(), true, null, null, null);
+        try {
+            exec.execute(conf);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     public String getName() {
         return NbBundle.getMessage(RerunFailedTestsAction.class, "CTL_RerunFailedTestsAction");
-    }
-
-    protected Class[] cookieClasses() {
-        return new Class[]{DataObject.class};
     }
 
     @Override

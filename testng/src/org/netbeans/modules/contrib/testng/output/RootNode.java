@@ -38,15 +38,22 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.contrib.testng.output;
 
 import java.awt.EventQueue;
 import java.util.Collection;
+import javax.swing.Action;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.contrib.testng.actions.RerunFailedTestsAction;
+import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 /**
  *
@@ -56,24 +63,20 @@ final class RootNode extends AbstractNode {
 
     /** */
     static final String name = "TestNG results root node";               //NOI18N
-
     /** constant meaning "information about passed tests not displayed" */
     static final int ALL_PASSED_ABSENT = 0;
     /** constant meaning "information about some passed tests not displayed" */
     static final int SOME_PASSED_ABSENT = 1;
     /** constant meaning "information about all passed tests displayed */
     static final int ALL_PASSED_DISPLAYED = 2;
-
     /**
      */
     private final RootNodeChildren children;
-    
     /**
      */
     private volatile boolean filtered;
     /** */
     private volatile String message;
-    
     private volatile int totalTests = 0;
     private volatile int failures = 0;
     private volatile int skips = 0;
@@ -81,34 +84,39 @@ final class RootNode extends AbstractNode {
     private volatile int elapsedTimeMillis = 0;
     private volatile int detectedPassedTests = 0;
     private boolean sessionFinished;
-    
-    
-    /**
-     * Creates a new instance of RootNode
-     */
-    public RootNode(final boolean filtered) {
-        super(new RootNodeChildren(filtered));
+    private InstanceContent ic;
+
+    private RootNode(final boolean filtered, InstanceContent ic) {
+        super(new RootNodeChildren(filtered), new AbstractLookup(ic));
         this.filtered = filtered;
+        this.ic = ic;
         children = (RootNodeChildren) getChildren();
         setName(name);   //used by tree cell renderer to recognize the root node
         setIconBaseWithExtension(
                 "org/netbeans/modules/contrib/testng/resources/empty.gif");     //NOI18N
     }
-    
+
+    /**
+     * Creates a new instance of RootNode
+     */
+    public RootNode(final boolean filtered) {
+        this(filtered, new InstanceContent());
+    }
+
     /**
      */
     void displayMessage(final String msg) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         this.message = msg;
         updateDisplayName();
     }
-    
+
     /**
      * Updates the display when the session is finished.
-     * 
+     *
      * @param  msg  optional message to be displayed (e.g. notice that
      *              the sessions has been interrupted); or {@code null}
      */
@@ -116,7 +124,7 @@ final class RootNode extends AbstractNode {
         sessionFinished = true;
         displayMessage(msg);
     }
-    
+
     /**
      * Displays a message that a given test suite is running.
      *
@@ -127,38 +135,38 @@ final class RootNode extends AbstractNode {
      */
     void displaySuiteRunning(final String suiteName) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         children.displaySuiteRunning(suiteName);
     }
-    
+
     /**
      */
     TestsuiteNode displayReport(final Report report) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         updateStatistics(report);
         updateDisplayName();
         return children.displayReport(report);
     }
-    
+
     /**
      */
     void displayReports(final Collection<Report> reports) {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         for (Report report : reports) {
             updateStatistics(report);
         }
         updateDisplayName();
         children.displayReports(reports);
     }
-    
+
     /**
      */
     private void updateStatistics(final Report report) {
@@ -168,68 +176,68 @@ final class RootNode extends AbstractNode {
         detectedPassedTests += report.detectedPassedTests;
         interruptedTests += report.interruptedTests;
         elapsedTimeMillis += report.elapsedTimeMillis;
+        ic.add(report);
     }
-    
+
     /**
      */
     void setFiltered(final boolean filtered) {
         assert EventQueue.isDispatchThread();
-        
+
         if (filtered == this.filtered) {
             return;
         }
         this.filtered = filtered;
-        
+
         Children lChildren = getChildren();
         if (lChildren != Children.LEAF) {
             ((RootNodeChildren) lChildren).setFiltered(filtered);
         }
     }
-    
+
     /**
      */
     private void updateDisplayName() {
         assert EventQueue.isDispatchThread();
-        
+
         /* Called from the EventDispatch thread */
-        
+
         final Class bundleRefClass = RootNode.class;
         String msg;
 
         if (totalTests == 0) {
             if (sessionFinished) {
                 msg = NbBundle.getMessage(bundleRefClass,
-                                          "MSG_TestsInfoNoTests");      //NOI18N
+                        "MSG_TestsInfoNoTests");      //NOI18N
             } else {
                 msg = null;
             }
         } else if ((failures == 0) && (skips == 0) && (interruptedTests == 0)) {
             msg = NbBundle.getMessage(bundleRefClass,
-                                      "MSG_TestsInfoAllOK",             //NOI18N
-                                      Integer.valueOf(totalTests));
+                    "MSG_TestsInfoAllOK", //NOI18N
+                    Integer.valueOf(totalTests));
         } else {
             StringBuilder buf = new StringBuilder(40);
             buf.append(NbBundle.getMessage(bundleRefClass,
-                                           "MSG_PassedTestsInfo",       //NOI18N
-                                           totalTests - failures - skips
-                                                      - interruptedTests));
+                    "MSG_PassedTestsInfo", //NOI18N
+                    totalTests - failures - skips - interruptedTests));
             if ((failures != 0) || (skips != 0)) {
                 buf.append(", ");                                       //NOI18N
                 buf.append(NbBundle.getMessage(bundleRefClass,
-                                               "MSG_FailedTestsInfo",   //NOI18N
-                                               failures));
+                        "MSG_FailedTestsInfo", //NOI18N
+                        failures));
             }
             if (skips != 0) {
                 buf.append(", ");                                       //NOI18N
                 buf.append(NbBundle.getMessage(bundleRefClass,
-                                               "MSG_ErrorTestsInfo",    //NOI18N
-                                               skips));
+                        "MSG_ErrorTestsInfo", //NOI18N
+                        skips));
             }
             if (interruptedTests != 0) {
                 buf.append(", ");                                       //NOI18N
                 buf.append(NbBundle.getMessage(bundleRefClass,
-                                               "MSG_InterruptedTestsInfo",//NOI18N
-                                               interruptedTests));
+                        "MSG_InterruptedTestsInfo",//NOI18N
+                        interruptedTests));
             }
             buf.append('.');
             msg = buf.toString();
@@ -242,14 +250,14 @@ final class RootNode extends AbstractNode {
                 case SOME_PASSED_ABSENT:
                     msg += ' ';
                     msg += NbBundle.getMessage(
-                                        bundleRefClass,
-                                        "MSG_SomePassedNotDisplayed");  //NOI18N
+                            bundleRefClass,
+                            "MSG_SomePassedNotDisplayed");  //NOI18N
                     break;
                 case ALL_PASSED_ABSENT:
                     msg += ' ';
                     msg += NbBundle.getMessage(
-                                        bundleRefClass,
-                                        "MSG_PassedNotDisplayed");      //NOI18N
+                            bundleRefClass,
+                            "MSG_PassedNotDisplayed");      //NOI18N
                     break;
                 case ALL_PASSED_DISPLAYED:
                     break;
@@ -258,7 +266,7 @@ final class RootNode extends AbstractNode {
                     break;
             }
         }
-        
+
         if (this.message != null) {
             if (msg == null) {
                 msg = this.message;
@@ -269,7 +277,7 @@ final class RootNode extends AbstractNode {
 
         setDisplayName(msg);
     }
-    
+
     /**
      * Returns information whether information about passed tests is displayed.
      *
@@ -287,9 +295,26 @@ final class RootNode extends AbstractNode {
             return SOME_PASSED_ABSENT;
         }
     }
-    
+
     @Override
-    public SystemAction[] getActions(boolean context) {
-        return new SystemAction[0];
+    public Action[] getActions(boolean context) {
+        if (getLookup().lookup(Project.class) == null) {
+            Collection<? extends Report> rs = getLookup().lookupAll(Report.class);
+            for (Report r : rs) {
+                if (r.getSourceClassPath() != null) {
+                    ClassPath srcClassPath = r.getSourceClassPath();
+                    String suiteClassName = r.suiteClassName;
+                    String suiteFileName = suiteClassName.replace('.', '/') + ".java"; //NOI18N
+                    FileObject suiteFile = srcClassPath.findResource(suiteFileName);
+                    if (suiteFile != null) {
+                        ic.add(FileOwnerQuery.getOwner(suiteFile));
+                        break;
+                    }
+                }
+            }
+        }
+        return new Action[] {
+                    SystemAction.get(RerunFailedTestsAction.class)
+                };
     }
 }

@@ -41,10 +41,18 @@
 
 package org.netbeans.modules.contrib.testng.output;
 
+import javax.swing.Action;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.contrib.testng.actions.RerunFailedTestsAction;
+import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
+import org.netbeans.spi.project.SingleMethod;
+import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_OK;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_WARNING;
 import static org.netbeans.modules.contrib.testng.output.HtmlMarkupUtils.COLOR_SKIP;
@@ -59,6 +67,7 @@ final class TestsuiteNode extends AbstractNode {
     private String suiteName;
     private Report report;
     private boolean filtered;
+    private InstanceContent ic;
 
     /**
      *
@@ -67,14 +76,14 @@ final class TestsuiteNode extends AbstractNode {
      * @see  ResultDisplayHandler#ANONYMOUS_SUITE
      */
     TestsuiteNode(final String suiteName, final boolean filtered) {
-        this(null, suiteName, filtered);
+        this(null, suiteName, filtered, new InstanceContent());
     }
     
     /**
      * Creates a new instance of TestsuiteNode
      */
     TestsuiteNode(final Report report, final boolean filtered) {
-        this(report, null, filtered);
+        this(report, null, filtered, new InstanceContent());
     }
     
     /**
@@ -85,16 +94,17 @@ final class TestsuiteNode extends AbstractNode {
      */
     private TestsuiteNode(final Report report,
                           final String suiteName,
-                          final boolean filtered) {
+                          final boolean filtered,
+                          InstanceContent ic) {
         super(report != null ? new TestsuiteNodeChildren(report, filtered)
-                             : Children.LEAF);
+                             : Children.LEAF, new AbstractLookup(ic));
         
         this.report = report;
         this.suiteName = (report != null) ? report.suiteClassName : suiteName;
         this.filtered = filtered;
-        
+        this.ic = ic;
         assert this.suiteName != null;
-        
+
         setDisplayName();
         setIconBaseWithExtension(
                 "org/netbeans/modules/contrib/testng/resources/class.gif");     //NOI18N
@@ -109,6 +119,9 @@ final class TestsuiteNode extends AbstractNode {
         
         this.report = report;
         suiteName = report.suiteClassName;
+
+        ic.add(this.report);
+        ic.add(this.suiteName);
         
         setDisplayName();
         setChildren(new TestsuiteNodeChildren(report, filtered));
@@ -232,7 +245,20 @@ final class TestsuiteNode extends AbstractNode {
     }
 
     @Override
-    public SystemAction[] getActions(boolean context) {
-        return new SystemAction[0];
+    public Action[] getActions(boolean context) {
+        if (getLookup().lookup(FileObject.class) == null) {
+            ClassPath srcClassPath = report.getSourceClassPath();
+            if (srcClassPath != null) {
+                String suiteClassName = report.suiteClassName;
+                String suiteFileName = suiteClassName.replace('.', '/') + ".java";                               //NOI18N
+                FileObject suiteFile = srcClassPath.findResource(suiteFileName);
+                if (suiteFile != null) {
+                    ic.add(suiteFile);
+                }
+            }
+        }
+        return new Action[] {
+            SystemAction.get(RunTestClassAction.class),
+        };
     }
 }

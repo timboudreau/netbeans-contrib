@@ -49,22 +49,31 @@ import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.actions.NodeAction;
 
-public final class RunTestClassAction extends CookieAction {
+public final class RunTestClassAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger(RunTestClassAction.class.getName());
 
     @Override
     protected boolean enable(Node[] activatedNodes) {
-        if (super.enable(activatedNodes)) {
-            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
-            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+        if (activatedNodes.length != 1) {
+            return false;
+        }
+        Lookup l = activatedNodes[0].getLookup();
+        FileObject fo = l.lookup(FileObject.class);
+        DataObject dataObject = l.lookup(DataObject.class);
+        if (fo == null && dataObject != null) {
+            fo = dataObject.getPrimaryFile();
+        }
+        if (fo != null) {
+            Project p = FileOwnerQuery.getOwner(fo);
             return TestNGSupport.isProjectSupported(p);
         }
         return false;
@@ -72,41 +81,46 @@ public final class RunTestClassAction extends CookieAction {
 
     protected void performAction(Node[] activatedNodes) {
         Lookup l = activatedNodes[0].getLookup();
+        FileObject fo = l.lookup(FileObject.class);
         EditorCookie ec = l.lookup(EditorCookie.class);
+        if (fo == null && ec == null) {
+            throw new UnsupportedOperationException();
+        }
+        TestClassInfoTask task = null;
         if (ec != null) {
             JEditorPane[] panes = ec.getOpenedPanes();
             if (panes.length > 0) {
                 final int cursor = panes[0].getCaret().getDot();
                 JavaSource js = JavaSource.forDocument(panes[0].getDocument());
-                TestClassInfoTask task = new TestClassInfoTask(cursor);
+                task = new TestClassInfoTask(cursor);
                 try {
                     js.runUserActionTask(task, true);
                 } catch (IOException ex) {
                     LOGGER.log(Level.FINE, null, ex);
                 }
-                DataObject dobj = l.lookup(DataObject.class);
-                Project p = FileOwnerQuery.getOwner(dobj.getPrimaryFile());
-                TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
-                TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(dobj.getPrimaryFile(), false, task.getPackageName(), task.getClassName(), null);
-                try {
-                    exec.execute(conf);
-                } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, null, ex);
-                }
+                fo = js.getFileObjects().iterator().next();
+            }
+        } else {
+            JavaSource js = JavaSource.forFileObject(fo);
+            task = new TestClassInfoTask(0);
+            try {
+                js.runUserActionTask(task, true);
+            } catch (IOException ex) {
+                LOGGER.log(Level.FINE, null, ex);
             }
         }
-    }
-
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
+        Project p = FileOwnerQuery.getOwner(fo);
+        TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+        TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(fo, false, task.getPackageName(), task.getClassName(), null);
+        try {
+            exec.execute(conf);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     public String getName() {
         return NbBundle.getMessage(RunTestClassAction.class, "CTL_RunTestClassAction");
-    }
-
-    protected Class[] cookieClasses() {
-        return new Class[]{DataObject.class, EditorCookie.class};
     }
 
     @Override

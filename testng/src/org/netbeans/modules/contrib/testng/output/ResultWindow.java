@@ -38,16 +38,17 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.contrib.testng.output;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import javax.accessibility.AccessibleContext;
 import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -57,7 +58,7 @@ import org.openide.windows.WindowManager;
  * @author Marian Petras
  */
 public final class ResultWindow extends TopComponent {
-    
+
     /** unique ID of <code>TopComponent</code> (singleton) */
     private static final String ID = "testng-test-results";              //NOI18N
     /**
@@ -66,7 +67,10 @@ public final class ResultWindow extends TopComponent {
      * @see  #getInstance
      */
     private static WeakReference<ResultWindow> instance = null;
-    
+    /** */
+    private Component view;
+    private Object lookup;
+
     /**
      * Returns a singleton of this class.
      *
@@ -80,7 +84,7 @@ public final class ResultWindow extends TopComponent {
         }
         return window;
     }
-    
+
     /**
      * Singleton accessor reserved for the window system only.
      * The window system calls this method to create an instance of this
@@ -99,25 +103,21 @@ public final class ResultWindow extends TopComponent {
         }
         return window;
     }
-    
-    /** */
-    private Component view;
-    
-    
+
     /** Creates a new instance of ResultWindow */
     public ResultWindow() {
         super();
         setFocusable(true);
         setLayout(new BorderLayout());
         //add(tabbedPanel = new JTabbedPane(), BorderLayout.CENTER);
-        
+
         setName(ID);
         setDisplayName(NbBundle.getMessage(ResultWindow.class,
-                                           "TITLE_TEST_RESULTS"));      //NOI18N
+                "TITLE_TEST_RESULTS"));      //NOI18N
         setIcon(ImageUtilities.loadImage(
                 "org/netbeans/modules/contrib/testng/resources/testResults.png",//NOI18N
-	        true));
-        
+                true));
+
         AccessibleContext origAccessibleContext = getAccessibleContext();
         origAccessibleContext.setAccessibleName(
                 NbBundle.getMessage(ResultWindow.class, "ACSN_TestResults"));   //NOI18N
@@ -127,60 +127,77 @@ public final class ResultWindow extends TopComponent {
 
     /**
      */
-    void addDisplayComponent(Component displayComp) {
+    void addDisplayComponent(Component displayComp, Lookup lookup) {
         assert EventQueue.isDispatchThread();
 
         removeAll();
         addView(displayComp);
+        this.lookup = new WeakReference<Lookup>(lookup);
+
         revalidate();
     }
-    
+
     /**
      */
     private void addView(final Component view) {
         assert EventQueue.isDispatchThread();
-        
+
         this.view = view;
         add(view);
     }
-    
+
     /**
      */
     private boolean isActivated() {
         return TopComponent.getRegistry().getActivated() == this;
     }
-    
+
     /**
      */
     void promote() {
         assert EventQueue.isDispatchThread();
-        
+
         open();
         requestVisible();
         requestActive();
     }
-    
+
     /**
      */
     @Override
     protected String preferredID() {
         return ID;
     }
-    
+
     /**
      */
     @Override
     public HelpCtx getHelpCtx() {
         return new HelpCtx(ResultWindow.class);
     }
-    
+
     /**
      */
     @Override
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
-    
+
+    @Override
+    public Lookup getLookup() {
+        if (lookup == null) {
+            return super.getLookup();
+        }
+        if (lookup instanceof Reference) {
+            Object l = ((Reference) lookup).get();
+
+            if (l instanceof Lookup) {
+                return (Lookup) l;
+            }
+        }
+        return null;
+    }
+
     /**
      * Resolves to the {@linkplain #getDefault default instance} of this class.
      *
@@ -190,5 +207,4 @@ public final class ResultWindow extends TopComponent {
     private Object readResolve() throws java.io.ObjectStreamException {
         return ResultWindow.getDefault();
     }
-    
 }
