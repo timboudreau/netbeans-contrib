@@ -14,6 +14,19 @@
         <antcall target="netbeans"/>
     </target>
 
+   <!-- since the minima download package j2se has include above stable modules, only following nbms are needed -->
+   <target name="erlang-nbm" depends="erlang-build">
+      <ant dir="../../contrib/languages.execution" target="nbm"/>
+        <ant dir="../../contrib/c.ericsson.otp.erlang" target="nbm"/>
+        <ant dir="../../contrib/erlang.editing" target="nbm"/>
+        <ant dir="../../contrib/erlang.makeproject" target="nbm"/>
+        <ant dir="../../contrib/erlang.platform" target="nbm"/>
+        <ant dir="../../contrib/erlang.project" target="nbm"/>
+        <ant dir="../../contrib/erlang.console" target="nbm"/>
+      <antcall target="netbeans"/>
+   </target>
+
+
     <target name="erlang-clean">
         <ant dir="../../contrib/erlang.console" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/erlang.project" inheritAll="false" target="clean"/>
