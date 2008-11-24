@@ -41,6 +41,7 @@ package org.netbeans.modules.contrib.testng.actions;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -62,7 +63,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
@@ -96,7 +96,7 @@ public final class CreateTestAction extends CookieAction {
             try {
                 templateDO = DataObject.find(templateFO);
             } catch (DataObjectNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
+                LOGGER.log(Level.FINER, null, ex);
             }
             String n = gui.getTestName();
             String pkg = n.substring(0, n.lastIndexOf("."));
@@ -107,14 +107,14 @@ public final class CreateTestAction extends CookieAction {
             try {
                 targetFolder = FileUtil.createFolder(testFolder, pkg.replace('.', '/'));
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
             if (templateDO != null) {
                 DataObject createdFile = null;
                 try {
                     createdFile = templateDO.createFromTemplate(DataFolder.findFolder(targetFolder), name, Collections.singletonMap("package", pkg));
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                 }
                 FileObject newFile = createdFile.getPrimaryFile();
                 TestNGSupport.findTestNGSupport(FileOwnerQuery.getOwner(newFile)).configureProject(newFile);
