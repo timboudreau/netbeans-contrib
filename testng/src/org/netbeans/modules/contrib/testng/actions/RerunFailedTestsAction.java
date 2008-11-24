@@ -45,6 +45,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -75,7 +76,7 @@ public final class RerunFailedTestsAction extends NodeAction {
                 return false;
             }
         }
-        if (TestNGSupport.isProjectSupported(p)) {
+        if (TestNGSupport.isActionSupported(Action.RUN_FAILED, p)) {
             return TestNGSupport.findTestNGSupport(p).createExecutor(p).hasFailedTests();
         }
         return false;
@@ -94,7 +95,7 @@ public final class RerunFailedTestsAction extends NodeAction {
         assert exec.hasFailedTests();
         TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(p.getProjectDirectory(), true, null, null, null);
         try {
-            exec.execute(conf);
+            exec.execute(Action.RUN_FAILED, conf);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

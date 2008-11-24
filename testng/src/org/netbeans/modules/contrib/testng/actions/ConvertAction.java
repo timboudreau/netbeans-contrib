@@ -44,6 +44,7 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -62,9 +63,7 @@ public final class ConvertAction extends CookieAction {
         if (super.enable(activatedNodes)) {
             DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
             Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            if (TestNGSupport.isProjectSupported(p)) {
-                return TestNGSupport.findTestNGSupport(p).isProjectSupported(p);
-            }
+            return TestNGSupport.isActionSupported(Action.CONVERT, p);
         }
         return false;
     }

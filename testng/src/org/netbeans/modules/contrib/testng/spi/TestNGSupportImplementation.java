@@ -46,6 +46,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -62,7 +63,7 @@ public abstract class TestNGSupportImplementation {
      * @param p project to check
      * @return true if this instance supports given project
      */
-    public abstract boolean isProjectSupported(Project p);
+    public abstract boolean isActionSupported(Action action, Project p);
 
     /**
      * Configure project owning given FileObject
@@ -121,6 +122,6 @@ public abstract class TestNGSupportImplementation {
          *
          * @param config test config to run
          */
-        void execute(TestConfig config) throws IOException;
+        public void execute(Action action, TestConfig config) throws IOException;
     }
 }

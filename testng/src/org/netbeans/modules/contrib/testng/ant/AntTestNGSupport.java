@@ -40,7 +40,10 @@ package org.netbeans.modules.contrib.testng.ant;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.api.support.ActionUtils;
@@ -50,6 +53,7 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.api.project.ant.AntBuildExtender.Extension;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
 import org.netbeans.modules.contrib.testng.spi.XMLSuiteSupport;
@@ -67,9 +71,20 @@ import org.openide.util.lookup.ServiceProvider;
 public class AntTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());
+    private static final Set<Action> SUPPORTED_ACTIONS;
 
-    public boolean isProjectSupported(Project p) {
-        return p.getLookup().lookup(AntArtifactProvider.class) != null;
+    static {
+        Set<Action> s = new HashSet<Action>();
+        s.add(Action.CONVERT);
+        s.add(Action.CREATE_TEST);
+        s.add(Action.RUN_FAILED);
+        s.add(Action.RUN_TEST);
+        s.add(Action.RUN_TESTMETHOD);
+        SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
+    }
+
+    public boolean isActionSupported(Action action,Project p) {
+        return p.getLookup().lookup(AntArtifactProvider.class) != null && SUPPORTED_ACTIONS.contains(action);
     }
 
     public void configureProject(FileObject createdFile) {
@@ -120,7 +135,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
             return failedTestsConfig != null && failedTestsConfig.isValid();
         }
 
-        public void execute(TestConfig config) throws IOException {
+        public void execute(Action action, TestConfig config) throws IOException {
             FileObject projectHome = p.getProjectDirectory();
             Properties props = new Properties();
             if (config.doRerun()) {

@@ -40,11 +40,15 @@ package org.netbeans.modules.contrib.testng.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
 import org.netbeans.modules.contrib.testng.spi.XMLSuiteSupport;
@@ -65,9 +69,19 @@ import org.openide.util.lookup.ServiceProvider;
 public class MavenTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(MavenTestNGSupport.class.getName());
+    private static final Set<Action> SUPPORTED_ACTIONS;
 
-    public boolean isProjectSupported(Project p) {
-        return p.getLookup().lookup(NbMavenProject.class) != null;
+    static {
+        Set<Action> s = new HashSet<Action>();
+        s.add(Action.CREATE_TEST);
+        s.add(Action.RUN_FAILED);
+        s.add(Action.RUN_TEST);
+        s.add(Action.RUN_TESTMETHOD);
+        SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
+    }
+
+    public boolean isActionSupported(Action action,Project p) {
+        return p.getLookup().lookup(NbMavenProject.class) != null && SUPPORTED_ACTIONS.contains(action);
     }
 
     public void configureProject(FileObject createdFile) {
@@ -100,7 +114,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
             return getFailedConfig() != null;
         }
 
-        public void execute(TestConfig config) throws IOException {
+        public void execute(Action action, TestConfig config) throws IOException {
             RunConfig rc = new TestNGActionsProvider().createConfigForDefaultAction("testng.test", p, Lookups.singleton(config.getTest()));
 //            MavenProject mp = rc.getMavenProject();
             rc.setProperty("netbeans.testng.action", "true"); //NOI18N

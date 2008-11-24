@@ -48,6 +48,7 @@ import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
@@ -75,7 +76,7 @@ public final class CreateTestAction extends CookieAction {
         if (super.enable(activatedNodes)) {
             DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
             Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-            return TestNGSupport.isProjectSupported(p);
+            return TestNGSupport.isActionSupported(Action.CREATE_TEST, p);
         }
         return false;
     }
