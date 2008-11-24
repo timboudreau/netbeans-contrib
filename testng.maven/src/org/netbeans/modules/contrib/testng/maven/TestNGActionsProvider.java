@@ -42,13 +42,15 @@ package org.netbeans.modules.contrib.testng.maven;
 import java.io.InputStream;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.maven.spi.actions.AbstractMavenActionsProvider;
+import org.netbeans.modules.maven.spi.actions.MavenActionsProvider;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lukas
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.maven.spi.actions.MavenActionsProvider.class, position=53)
+@ServiceProvider(service=MavenActionsProvider.class, position=53)
 public class TestNGActionsProvider extends AbstractMavenActionsProvider {
 
     /** Creates a new instance of TestNGActionsProvider */

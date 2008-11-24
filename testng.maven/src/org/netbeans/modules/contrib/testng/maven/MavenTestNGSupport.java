@@ -55,12 +55,13 @@ import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lukas
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.class)
+@ServiceProvider(service=TestNGSupportImplementation.class)
 public class MavenTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(MavenTestNGSupport.class.getName());

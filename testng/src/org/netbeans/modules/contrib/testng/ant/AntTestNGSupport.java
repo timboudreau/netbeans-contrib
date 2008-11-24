@@ -57,12 +57,13 @@ import org.netbeans.spi.project.ant.AntArtifactProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lukas
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.class)
+@ServiceProvider(service=TestNGSupportImplementation.class)
 public class AntTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());
