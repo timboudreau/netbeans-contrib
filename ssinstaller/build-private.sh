@@ -5,9 +5,11 @@
 
 
 # The directory to save binaries 
-OUTPUT_DIR="`pwd`/build"
+OUTPUT_DIR=${OUTPUT_DIR-"`pwd`/build"}
 export OUTPUT_DIR
 
+TMP_OUTPUT_DIR="`pwd`/build"
+export TMP_OUTPUT_DIR
 
 # Remote installer use this url
 BUNDLES_URL=file://../packaged
