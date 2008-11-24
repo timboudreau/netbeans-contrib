@@ -69,14 +69,13 @@ BUILD_NUMBER=0
 DIRNAME=`dirname $0`
 cd ${DIRNAME}
 
-
-CACHE_DIR=${OUTPUT_DIR}/cache
+CACHE_DIR=${TMP_OUTPUT_DIR}/cache
 INSTALLED_BITS="file://$CACHE_DIR/packages"
 NB_BUILDS_HOST="file://$CACHE_DIR/packages/nb"
 NB_FILES_PREFIX=netbeans-6.1
 
 TARGET=build
-#rm -rf $OUTPUT_DIR
+#rm -rf $TMP_OUTPUT_DIR
 #
 if [ -z "$REBUILD" ]; then
     bash copy-packages.sh $CACHE_DIR/packages || exit 1
@@ -120,7 +119,7 @@ run() {
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\
 	    \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
-            \"-Doutput.dir=${OUTPUT_DIR}\" \
+            \"-Doutput.dir=${TMP_OUTPUT_DIR}\" \
             \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
             \"-Dss.platform.name=${DISTRS}\" \
 	    \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
@@ -155,7 +154,7 @@ run() {
 	    \"-Dss.name=sunstudio\"\
 	    \"-Dss.version=${SS_VERSION}\"\
             \"-Dproducts.xml=${PRODUCTS_XML_FILE}\"\
-	    \"-Doutput.dir=${OUTPUT_DIR}\" \
+	    \"-Doutput.dir=${TMP_OUTPUT_DIR}\" \
             \"-Dbundles.url=${BUNDLES_URL}\" \
             \"-Dcurrent.platform.name=${CURRENT_PLATFORM}\" \
             \"-Dss.platform.name=${DISTRS}\" \
@@ -188,4 +187,4 @@ run() {
 
 run $*
 
-
+cp $TMP_OUTPUT_DIR/bundles/* $OUTPUT_DIR

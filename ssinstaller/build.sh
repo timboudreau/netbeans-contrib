@@ -7,6 +7,10 @@ which xjc || exit 0;
 
 . build-private.sh
 
+echo OUTPUT_DIR: $OUTPUT_DIR
+
+mkdir -p $OUTPUT_DIR
+
 cd BuildHelper
 xjc -d src -p org.netbeans.xml.schema.productdescription xml-resources/jaxb/description/ProductDescription.xsd
 ant -f build2.xml
