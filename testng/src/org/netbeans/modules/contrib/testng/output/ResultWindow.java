@@ -195,7 +195,7 @@ public final class ResultWindow extends TopComponent {
                 return (Lookup) l;
             }
         }
-        return null;
+        return Lookup.EMPTY;
     }
 
     /**
