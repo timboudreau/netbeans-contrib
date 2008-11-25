@@ -627,24 +627,18 @@ final class TestNGOutputReader {
                 }
                 if (valueAttr != null) {
                     valueAttr = event.evaluate(valueAttr);
-                    if (valueAttr.startsWith("formatter=")) {           //NOI18N
-                        String formatter = valueAttr.substring("formatter=".length());//NOI18N
-                        int commaIndex = formatter.indexOf(',');
-                        if ((commaIndex != -1)
-                                && formatter.substring(0, commaIndex).equals(XML_FORMATTER_CLASS_NAME)) {
-                            String fullReportFileName = formatter.substring(commaIndex + 1);
-                            todirPath = new File(fullReportFileName).getParent();
-                            if (todirPath == null) {
-                                todirPath = ".";                        //NOI18N
-                            }
+                    int index = valueAttr.indexOf("-d "); //NOI18N
+                    if (-1 < index) {
+                        todirPath = valueAttr.substring(index + 3);
+                        if (todirPath.contains(" ")) {
+                            index = todirPath.startsWith("\"") //NOI18N
+                                    ? todirPath.indexOf("\"", 1) + 1 //NOI18N
+                                    : todirPath.indexOf(" "); //NOI18N
+                            todirPath = todirPath.substring(0, index);
                         }
                     }
                 }
             }
-        }
-
-        if (todirPath == null) {
-            return null;
         }
 
         File resultsDir = (todirPath != ".") ? new File(todirPath)      //NOI18N
