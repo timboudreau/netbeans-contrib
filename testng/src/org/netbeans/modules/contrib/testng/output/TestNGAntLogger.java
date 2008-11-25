@@ -44,13 +44,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.modules.contrib.testng.output.antutils.AntProject;
 import org.netbeans.modules.contrib.testng.output.antutils.TestCounter;
-import org.openide.ErrorManager;
 
 /**
  * Ant logger interested in task &quot;junit&quot;,
@@ -312,7 +313,7 @@ public final class TestNGAntLogger extends AntLogger {
                 testClassCount = TestCounter.getTestClassCount(event);
             } catch (Exception ex) {
                 testClassCount = 0;
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+                Logger.getLogger(TestNGAntLogger.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             final boolean hasXmlOutput = hasXmlOutput(event);

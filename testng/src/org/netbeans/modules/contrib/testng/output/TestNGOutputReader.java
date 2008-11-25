@@ -44,7 +44,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.charset.UnsupportedCharsetException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
@@ -62,7 +61,6 @@ import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -1178,15 +1176,8 @@ final class TestNGOutputReader {
              * Failed to read the report file - but we still have
              * the report built from the Ant output.
              */
-            int severity = ErrorManager.INFORMATIONAL;
-            ErrorManager errMgr = ErrorManager.getDefault();
-            if (errMgr.isLoggable(severity)) {
-                errMgr.notify(
-                        severity,
-                        errMgr.annotate(
-                                ex,
-                                "I/O exception while reading JUnit XML report file from JUnit: "));//NOI18N
-            }
+            Logger.getLogger(TestNGOutputReader.class.getName())
+                    .log(Level.INFO, "I/O exception while reading JUnit XML report file from JUnit: ", ex);//NOI18N
         }
         return reports;
     }

@@ -42,10 +42,11 @@ package org.netbeans.modules.contrib.testng.output;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -58,6 +59,8 @@ import org.openide.text.Line;
  * @author Marian Petras
  */
 final class OutputUtils {
+
+    private static final Logger LOGGER = Logger.getLogger(OutputUtils.class.getName());
 
     static final Action[] NO_ACTIONS = new Action[0];
 
@@ -259,11 +262,11 @@ final class OutputUtils {
                 java.awt.Toolkit.getDefaultToolkit().beep();
             }
         } catch (DataObjectNotFoundException ex1) {
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex1);
+            LOGGER.log(Level.WARNING, null, ex1);
         } catch (IOException ex2) {
             // XXX see above, should not be necessary to call openDocument
             // at all
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex2);
+            LOGGER.log(Level.WARNING, null, ex2);
         }
     }
 }
