@@ -129,7 +129,7 @@ public final class RunTestMethodAction extends NodeAction {
         TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
         TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(fo, false, task.getPackageName(), task.getClassName(), testMethod);
         try {
-            exec.execute(Action.DEBUG_TESTMETHOD, conf);
+            exec.execute(Action.RUN_TESTMETHOD, conf);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
