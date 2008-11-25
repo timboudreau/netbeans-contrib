@@ -69,7 +69,7 @@ public final class XMLSuiteSupport {
         }
         pkgName = pkgName.trim();
         classes.put("".equals(pkgName) ? className : pkgName + "." + className, methods); //NOI18N
-        LaunchSuite suite = SuiteGenerator.createSuite(projectName, null, classes, null, null, null, 7);
+        LaunchSuite suite = SuiteGenerator.createSuite(projectName, null, classes, null, null, null, 3);
         File f = suite.save(targetFolder);
         FileUtil.refreshFor(targetFolder);
         return f;
