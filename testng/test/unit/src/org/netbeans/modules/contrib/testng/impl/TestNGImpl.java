@@ -37,44 +37,79 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.contrib.testng.maven;
+package org.netbeans.modules.contrib.testng.impl;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.maven.spi.actions.AbstractMavenActionsProvider;
-import org.netbeans.modules.maven.spi.actions.MavenActionsProvider;
-import org.openide.util.Lookup;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
+import org.openide.filesystems.FileObject;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lukas
  */
-@ServiceProvider(service=MavenActionsProvider.class, position=53)
-public class TestNGActionsProvider extends AbstractMavenActionsProvider {
+@ServiceProvider(service=TestNGSupportImplementation.class)
+public class TestNGImpl extends TestNGSupportImplementation {
 
-    /** Creates a new instance of TestNGActionsProvider */
-    public TestNGActionsProvider() {
+    private static List<Action> sa = new ArrayList<Action>();
+    private boolean configured = false;
+
+    public static void setSupportedActions(Action... a) {
+        sa.clear();
+        sa = Arrays.asList(a);
+    }
+
+    public boolean isConfigured() {
+        return configured;
     }
 
     @Override
-    public boolean isActionEnable(String action, Project project, Lookup lookup) {
-        if (action.startsWith("testng.")) { //NOI18N
-            return true;
-        }
-        return super.isActionEnable(action, project, lookup);
+    public boolean isActionSupported(Action action,Project p) {
+        return sa.contains(action);
     }
-
 
     @Override
-    protected InputStream getActionDefinitionStream() {
-       String path = "/org/netbeans/modules/contrib/testng/maven/testngActionMappings.xml"; //NOI18N
-       InputStream in = getClass().getResourceAsStream(path);
-        if (in == null) {
-            assert false : "No instream for " + path; //NOI18N
-            return null;
-        }
-       return in;
+    public void configureProject(FileObject createdFile) {
+        configured = true;
     }
 
+    @Override
+    public TestExecutor createExecutor(Project p) {
+        return new TestExecutorImpl();
+    }
+
+    private class TestExecutorImpl implements TestExecutor {
+
+        private boolean hasFailed = false;
+
+        private Action executedAction = null;
+        private TestConfig testConfig = null;
+
+        public void setHasFailed(boolean hasFailed) {
+            this.hasFailed = hasFailed;
+        }
+
+        public Action getExecutedAction() {
+            return executedAction;
+        }
+
+        public TestConfig getTestConfig() {
+            return testConfig;
+        }
+
+        public boolean hasFailedTests() {
+            return hasFailed;
+        }
+
+        public void execute(Action action, TestConfig config) throws IOException {
+            executedAction = action;
+            testConfig = config;
+        }
+    }
 }

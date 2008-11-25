@@ -37,44 +37,30 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.contrib.testng.maven;
+package org.netbeans.modules.contrib.testng.impl;
 
-import java.io.InputStream;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.maven.spi.actions.AbstractMavenActionsProvider;
-import org.netbeans.modules.maven.spi.actions.MavenActionsProvider;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lukas
  */
-@ServiceProvider(service=MavenActionsProvider.class, position=53)
-public class TestNGActionsProvider extends AbstractMavenActionsProvider {
+public class ProjectImpl implements Project {
 
-    /** Creates a new instance of TestNGActionsProvider */
-    public TestNGActionsProvider() {
+    private Lookup l;
+    private FileObject root;
+
+    public ProjectImpl(FileObject root, Lookup l) {
+        this.root = root;
+        this.l = l;
+    }
+    public FileObject getProjectDirectory() {
+        return root;
     }
 
-    @Override
-    public boolean isActionEnable(String action, Project project, Lookup lookup) {
-        if (action.startsWith("testng.")) { //NOI18N
-            return true;
-        }
-        return super.isActionEnable(action, project, lookup);
+    public Lookup getLookup() {
+        return l;
     }
-
-
-    @Override
-    protected InputStream getActionDefinitionStream() {
-       String path = "/org/netbeans/modules/contrib/testng/maven/testngActionMappings.xml"; //NOI18N
-       InputStream in = getClass().getResourceAsStream(path);
-        if (in == null) {
-            assert false : "No instream for " + path; //NOI18N
-            return null;
-        }
-       return in;
-    }
-
 }

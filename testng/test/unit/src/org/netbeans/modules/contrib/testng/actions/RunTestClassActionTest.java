@@ -37,44 +37,63 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.contrib.testng.maven;
+package org.netbeans.modules.contrib.testng.actions;
 
-import java.io.InputStream;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.maven.spi.actions.AbstractMavenActionsProvider;
-import org.netbeans.modules.maven.spi.actions.MavenActionsProvider;
+import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
+import org.netbeans.modules.contrib.testng.impl.ProjectImpl;
+import org.netbeans.modules.contrib.testng.impl.TestNGImpl;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.actions.NodeActionsInfraHid;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.test.MockLookup;
 
 /**
  *
  * @author lukas
  */
-@ServiceProvider(service=MavenActionsProvider.class, position=53)
-public class TestNGActionsProvider extends AbstractMavenActionsProvider {
+public class RunTestClassActionTest extends NbTestCase {
 
-    /** Creates a new instance of TestNGActionsProvider */
-    public TestNGActionsProvider() {
+    static {
+        NodeActionsInfraHid.install();
     }
 
-    @Override
-    public boolean isActionEnable(String action, Project project, Lookup lookup) {
-        if (action.startsWith("testng.")) { //NOI18N
-            return true;
+    public RunTestClassActionTest(String name) {
+        super(name);
+    }
+
+    public void testEnable() throws DataObjectNotFoundException {
+        Project p = new ProjectImpl(FileUtil.toFileObject(getDataDir()), Lookup.EMPTY);
+        NodeActionsInfraHid.setCurrentNodes(new Node[0]);
+        RunTestClassAction action = SystemAction.get(RunTestClassAction.class);
+        assertFalse(action.isEnabled());
+        NodeActionsInfraHid.setCurrentNodes(new Node[] {new NodeImpl(), new NodeImpl()});
+        assertFalse(action.isEnabled());
+        NodeActionsInfraHid.setCurrentNodes(new Node[] {new NodeImpl(Lookups.fixed(p.getProjectDirectory()))});
+        TestNGImpl.setSupportedActions(Action.RUN_TEST);
+        assertTrue(action.isEnabled());
+        NodeActionsInfraHid.setCurrentNodes(new Node[] {
+            new NodeImpl(
+                    Lookups.fixed(DataObject.find(p.getProjectDirectory())))});
+        assertTrue(action.isEnabled());
+    }
+
+    static class NodeImpl extends AbstractNode {
+
+        NodeImpl() {
+            this(Lookup.EMPTY);
         }
-        return super.isActionEnable(action, project, lookup);
-    }
 
-
-    @Override
-    protected InputStream getActionDefinitionStream() {
-       String path = "/org/netbeans/modules/contrib/testng/maven/testngActionMappings.xml"; //NOI18N
-       InputStream in = getClass().getResourceAsStream(path);
-        if (in == null) {
-            assert false : "No instream for " + path; //NOI18N
-            return null;
+        NodeImpl(Lookup l) {
+            super(Children.LEAF, l);
         }
-       return in;
     }
-
 }

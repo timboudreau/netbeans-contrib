@@ -56,6 +56,16 @@ public final class TestNGSupport {
     /** Cache of all available TestNGSupportImplementation instances. */
     private static List<TestNGSupportImplementation> cache;
 
+    public static enum Action {
+        CREATE_TEST,
+        RUN_FAILED,
+        RUN_TEST,
+        RUN_TESTMETHOD,
+        DEBUG_TEST,
+        DEBUG_TESTMETHOD,
+        CONVERT
+    }
+
     private TestNGSupport() {
     }
 
@@ -69,8 +79,10 @@ public final class TestNGSupport {
      */
     public static final TestNGSupportImplementation findTestNGSupport(Project p) {
         for (TestNGSupportImplementation s: getInstances()) {
-            if (s.isProjectSupported(p)) {
-                return s;
+            for (Action a : Action.values()) {
+                if (s.isActionSupported(a, p)) {
+                    return s;
+                }
             }
         }
         return null;
@@ -85,9 +97,9 @@ public final class TestNGSupport {
      * @return true if at least one instance of TestNGSupportImplementation
      *      supporting given project is found, false otherwise
      */
-    public static final boolean isProjectSupported(Project p) {
+    public static final boolean isActionSupported(Action action, Project p) {
         for (TestNGSupportImplementation s: getInstances()) {
-            if (s.isProjectSupported(p)) {
+            if (s.isActionSupported(action, p)) {
                 return true;
             }
         }

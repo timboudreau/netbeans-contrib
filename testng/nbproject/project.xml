@@ -290,10 +290,21 @@ made subject to such option by the copyright holder.
                         <recursive/>
                         <compile-dependency/>
                     </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.openide.nodes</code-name-base>
+                        <compile-dependency/>
+                        <test/>
+                    </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.openide.util</code-name-base>
+                        <compile-dependency/>
+                        <test/>
+                    </test-dependency>
                 </test-type>
             </test-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.testng.maven</friend>
+                <package>org.netbeans.modules.contrib.testng.api</package>
                 <package>org.netbeans.modules.contrib.testng.spi</package>
             </friend-packages>
             <class-path-extension>

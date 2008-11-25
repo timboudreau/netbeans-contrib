@@ -47,6 +47,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -74,7 +75,7 @@ public final class RunTestClassAction extends NodeAction {
         }
         if (fo != null) {
             Project p = FileOwnerQuery.getOwner(fo);
-            return TestNGSupport.isProjectSupported(p);
+            return TestNGSupport.isActionSupported(Action.RUN_TEST, p);
         }
         return false;
     }
@@ -113,7 +114,7 @@ public final class RunTestClassAction extends NodeAction {
         TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
         TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(fo, false, task.getPackageName(), task.getClassName(), null);
         try {
-            exec.execute(conf);
+            exec.execute(Action.RUN_TEST, conf);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
