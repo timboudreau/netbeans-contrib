@@ -81,7 +81,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
     }
 
     public boolean isActionSupported(Action action,Project p) {
-        return p.getLookup().lookup(NbMavenProject.class) != null && SUPPORTED_ACTIONS.contains(action);
+        return p != null && p.getLookup().lookup(NbMavenProject.class) != null && SUPPORTED_ACTIONS.contains(action);
     }
 
     public void configureProject(FileObject createdFile) {
