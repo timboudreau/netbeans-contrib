@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.contrib.testng.impl;
 
 import java.io.IOException;
@@ -54,7 +53,9 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author lukas
  */
-@ServiceProvider(service=TestNGSupportImplementation.class)
+@ServiceProvider(service = TestNGSupportImplementation.class,
+    supersedes = {"org.netbeans.modules.contrib.testng.ant.AntTestNGSupport",
+                  "org.netbeans.modules.contrib.testng.maven.MavenTestNGSupport"})
 public class TestNGImpl extends TestNGSupportImplementation {
 
     private static List<Action> sa = new ArrayList<Action>();
@@ -75,7 +76,7 @@ public class TestNGImpl extends TestNGSupportImplementation {
     }
 
     @Override
-    public boolean isActionSupported(Action action,Project p) {
+    public boolean isActionSupported(Action action, Project p) {
         return sa.contains(action);
     }
 
