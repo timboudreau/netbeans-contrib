@@ -59,10 +59,15 @@ public class TestNGImpl extends TestNGSupportImplementation {
 
     private static List<Action> sa = new ArrayList<Action>();
     private boolean configured = false;
+    private static TestExecutorImpl te = new TestExecutorImpl();
 
     public static void setSupportedActions(Action... a) {
         sa.clear();
         sa = Arrays.asList(a);
+    }
+
+    public static TestExecutorImpl getTestExecutor() {
+        return te;
     }
 
     public boolean isConfigured() {
@@ -81,13 +86,14 @@ public class TestNGImpl extends TestNGSupportImplementation {
 
     @Override
     public TestExecutor createExecutor(Project p) {
-        return new TestExecutorImpl();
+        te.p = p;
+        return te;
     }
 
-    private class TestExecutorImpl implements TestExecutor {
+    public static class TestExecutorImpl implements TestExecutor {
 
         private boolean hasFailed = false;
-
+        private Project p;
         private Action executedAction = null;
         private TestConfig testConfig = null;
 

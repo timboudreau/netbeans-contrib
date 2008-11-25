@@ -40,6 +40,8 @@ package org.netbeans.modules.contrib.testng.actions;
 
 import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.impl.TestNGImpl;
+import org.netbeans.spi.project.SingleMethod;
+import org.openide.nodes.Node;
 import org.openide.util.actions.NodeActionsInfraHid;
 import org.openide.util.actions.SystemAction;
 
@@ -47,14 +49,14 @@ import org.openide.util.actions.SystemAction;
  *
  * @author lukas
  */
-public class RunTestClassActionTest extends TestActionT {
+public class RunTestMethodActionTest extends TestActionT {
 
     static {
-        TestNGImpl.setSupportedActions(Action.RUN_TEST);
+        TestNGImpl.setSupportedActions(Action.RUN_TESTMETHOD);
     }
-    private final RunTestClassAction action = SystemAction.get(RunTestClassAction.class);
+    private final RunTestMethodAction action = SystemAction.get(RunTestMethodAction.class);
 
-    public RunTestClassActionTest(String name) {
+    public RunTestMethodActionTest(String name) {
         super(name);
     }
 
@@ -63,9 +65,10 @@ public class RunTestClassActionTest extends TestActionT {
         assertFalse(action.isEnabled());
         NodeActionsInfraHid.setCurrentNodes(EMPTY_NODES);
         assertFalse(action.isEnabled());
-        NodeActionsInfraHid.setCurrentNodes(FILEOBJECT_NODE);
-        assertTrue(action.isEnabled());
         NodeActionsInfraHid.setCurrentNodes(DATAOBJECT_NODE);
+        assertTrue(action.isEnabled());
+        NodeActionsInfraHid.setCurrentNodes(new Node[]{
+                    new NodeImpl(new SingleMethod(p.getProjectDirectory(), "myMethod"))});
         assertTrue(action.isEnabled());
     }
 }

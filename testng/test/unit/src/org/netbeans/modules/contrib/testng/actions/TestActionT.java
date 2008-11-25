@@ -38,34 +38,54 @@
  */
 package org.netbeans.modules.contrib.testng.actions;
 
-import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
-import org.netbeans.modules.contrib.testng.impl.TestNGImpl;
+import org.netbeans.api.project.Project;
+import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.contrib.testng.impl.ProjectImpl;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import org.openide.util.actions.NodeActionsInfraHid;
-import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author lukas
  */
-public class RunTestClassActionTest extends TestActionT {
+public abstract class TestActionT extends NbTestCase {
+
+    protected static final Node[] EMPTY_ARRAY = new Node[0];
+    protected static final Node[] EMPTY_NODES = new Node[] {new NodeImpl(), new NodeImpl()};
+    protected Node[] DATAOBJECT_NODE;
+    protected Node[] PROJECT_NODE;
+    protected Node[] FILEOBJECT_NODE;
+    protected Project p;
 
     static {
-        TestNGImpl.setSupportedActions(Action.RUN_TEST);
+        NodeActionsInfraHid.install();
     }
-    private final RunTestClassAction action = SystemAction.get(RunTestClassAction.class);
 
-    public RunTestClassActionTest(String name) {
+    public TestActionT(String name) {
         super(name);
     }
 
-    public void testEnable() {
-        NodeActionsInfraHid.setCurrentNodes(EMPTY_ARRAY);
-        assertFalse(action.isEnabled());
-        NodeActionsInfraHid.setCurrentNodes(EMPTY_NODES);
-        assertFalse(action.isEnabled());
-        NodeActionsInfraHid.setCurrentNodes(FILEOBJECT_NODE);
-        assertTrue(action.isEnabled());
-        NodeActionsInfraHid.setCurrentNodes(DATAOBJECT_NODE);
-        assertTrue(action.isEnabled());
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        FileObject root = FileUtil.toFileObject(getWorkDir());
+        p = new ProjectImpl(root, Lookup.EMPTY);
+        PROJECT_NODE = new Node[] {new NodeImpl(p)};
+        FILEOBJECT_NODE = new Node[] {new NodeImpl(root)};
+        DATAOBJECT_NODE = new Node[] {new NodeImpl(DataObject.find(root))};
+    }
+
+    static class NodeImpl extends AbstractNode {
+
+        NodeImpl(Object... toLookup) {
+            super(Children.LEAF, toLookup.length < 1 ? Lookup.EMPTY : Lookups.fixed(toLookup));
+        }
     }
 }

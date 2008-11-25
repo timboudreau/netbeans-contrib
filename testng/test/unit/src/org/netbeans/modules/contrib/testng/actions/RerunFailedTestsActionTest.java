@@ -47,14 +47,14 @@ import org.openide.util.actions.SystemAction;
  *
  * @author lukas
  */
-public class RunTestClassActionTest extends TestActionT {
+public class RerunFailedTestsActionTest extends TestActionT {
 
     static {
-        TestNGImpl.setSupportedActions(Action.RUN_TEST);
+        TestNGImpl.setSupportedActions(Action.RUN_FAILED);
     }
-    private final RunTestClassAction action = SystemAction.get(RunTestClassAction.class);
+    private final RerunFailedTestsAction action = SystemAction.get(RerunFailedTestsAction.class);
 
-    public RunTestClassActionTest(String name) {
+    public RerunFailedTestsActionTest(String name) {
         super(name);
     }
 
@@ -63,7 +63,8 @@ public class RunTestClassActionTest extends TestActionT {
         assertFalse(action.isEnabled());
         NodeActionsInfraHid.setCurrentNodes(EMPTY_NODES);
         assertFalse(action.isEnabled());
-        NodeActionsInfraHid.setCurrentNodes(FILEOBJECT_NODE);
+        TestNGImpl.getTestExecutor().setHasFailed(true);
+        NodeActionsInfraHid.setCurrentNodes(PROJECT_NODE);
         assertTrue(action.isEnabled());
         NodeActionsInfraHid.setCurrentNodes(DATAOBJECT_NODE);
         assertTrue(action.isEnabled());
