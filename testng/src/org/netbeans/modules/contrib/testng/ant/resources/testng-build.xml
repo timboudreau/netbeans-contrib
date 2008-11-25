@@ -40,7 +40,7 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="testng-impl" default="default" basedir=".." xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
+<project name="testng-impl" default="default" basedir=".." xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3">
     <target name="default">
         <echo message="Default target is not set."/>
     </target>
@@ -96,7 +96,7 @@ made subject to such option by the copyright holder.
             </sequential>
         </macrodef>
     </target>
-    
+
     <target name="-testng-junit" if="junit.enabled">
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
@@ -130,7 +130,7 @@ made subject to such option by the copyright holder.
             </sequential>
         </macrodef>
     </target>
-    
+
     <target name="-init-macrodef-testng-junit-converter">
         <macrodef name="junit-converter">
             <sequential>
@@ -147,18 +147,21 @@ made subject to such option by the copyright holder.
     </target>
 
     <target name="-reinit-tasks" depends="-init-macrodef-testng, -testng, -testng-junit, -init-macrodef-testng-junit-converter" />
-    
+
     <target name="-run-testng-default" unless="testng.config">
         <testng-ant/>
     </target>
+
     <target name="-run-testng-custom" if="testng.config">
         <testng-ant-xml testSuite="${testng.config}"/>
     </target>
-    <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom">
-    </target>
+
+    <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom"/>
+
     <target name="convert" depends="init, -init-macrodef-testng-junit-converter">
         <junit-converter/>
     </target>
+
     <!-- Call testng from java -->
     <target name="-init-macrodef-testng-java">
         <macrodef name="testng-java">
@@ -188,4 +191,51 @@ made subject to such option by the copyright holder.
             </sequential>
         </macrodef>
     </target>
+
+    <target name="-init-macrodef-testng-java-xml">
+        <macrodef name="testng-java-xml">
+            <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
+            <sequential>
+                <java classname="org.testng.TestNG" dir="${work.dir}">
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                    </classpath>
+                    <arg line="-d ${build.test.results.dir}"/>
+                    <arg line="-sourcedir ${test.src.dir}"/>
+                    <arg line="@{testSuite}"/>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${run.jvmargs}"/>
+                </java>
+            </sequential>
+        </macrodef>
+    </target>
+
+    <!-- DEBUG -->
+    <target depends="init,-do-not-recompile,compile-test-single,-debug-start-debugger-test,-debug-start-debuggee-testng" name="debug-testng"/>
+
+    <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-testng">
+        <fail unless="testng.config">Must select test class in the IDE or set testng.config</fail>
+        <delete dir="${build.test.results.dir}" quiet="true"/>
+        <mkdir dir="${build.test.results.dir}"/>
+        <j2seproject3:debug classname="org.testng.TestNG" classpath="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}">
+            <customize>
+                <arg line="-d ${build.test.results.dir}"/>
+                <arg line="-sourcedir ${test.src.dir}"/>
+                <arg line="${testng.config}"/>
+                <syspropertyset>
+                    <propertyref prefix="test-sys-prop."/>
+                    <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                </syspropertyset>
+                <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
+                <jvmarg value="-ea"/>
+                <jvmarg line="${run.jvmargs}"/>
+            </customize>
+        </j2seproject3:debug>
+    </target>
+
 </project>

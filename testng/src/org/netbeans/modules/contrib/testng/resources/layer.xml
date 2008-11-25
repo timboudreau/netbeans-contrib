@@ -46,6 +46,8 @@ made subject to such option by the copyright holder.
         <folder name="TestNG">
             <file name="org-netbeans-modules-contrib-testng-actions-ConvertAction.instance"/>
             <file name="org-netbeans-modules-contrib-testng-actions-CreateTestAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-DebugTestClassAction.instance"/>
+            <file name="org-netbeans-modules-contrib-testng-actions-DebugTestMethodAction.instance"/>
             <file name="org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.instance"/>
             <file name="org-netbeans-modules-contrib-testng-actions-RunTestClassAction.instance"/>
             <file name="org-netbeans-modules-contrib-testng-actions-RunTestMethodAction.instance"/>
@@ -78,9 +80,17 @@ made subject to such option by the copyright holder.
                             <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-RerunFailedTestsAction.instance"/>
                             <attr name="position" intvalue="400"/>
                         </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-DebugTestMethodAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-DebugTestMethodAction.instance"/>
+                            <attr name="position" intvalue="500"/>
+                        </file>
+                        <file name="org-netbeans-modules-contrib-testng-actions-DebugTestClassAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-DebugTestClassAction.instance"/>
+                            <attr name="position" intvalue="600"/>
+                        </file>
                         <file name="org-netbeans-modules-contrib-testng-actions-ConvertAction.shadow">
                             <attr name="originalFile" stringvalue="Actions/TestNG/org-netbeans-modules-contrib-testng-actions-ConvertAction.instance"/>
-                            <attr name="position" intvalue="500"/>
+                            <attr name="position" intvalue="700"/>
                         </file>
                     </folder>
                 </folder>

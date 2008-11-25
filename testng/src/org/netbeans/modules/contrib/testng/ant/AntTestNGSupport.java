@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -67,7 +68,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author lukas
  */
-@ServiceProvider(service=TestNGSupportImplementation.class)
+@ServiceProvider(service = TestNGSupportImplementation.class)
 public class AntTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());
@@ -80,10 +81,12 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         s.add(Action.RUN_FAILED);
         s.add(Action.RUN_TEST);
         s.add(Action.RUN_TESTMETHOD);
+        s.add(Action.DEBUG_TEST);
+        s.add(Action.DEBUG_TESTMETHOD);
         SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
     }
 
-    public boolean isActionSupported(Action action,Project p) {
+    public boolean isActionSupported(Action action, Project p) {
         return p != null && p.getLookup().lookup(AntArtifactProvider.class) != null && SUPPORTED_ACTIONS.contains(action);
     }
 
@@ -156,7 +159,23 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                 }
             }
             try {
-                ActionUtils.runTarget(projectHome.getFileObject("build.xml"), new String[]{"run-testng"}, props); //NOI18N
+                String target = "run-testng"; //NOI18N
+                if (Action.DEBUG_TEST.equals(action) || Action.DEBUG_TESTMETHOD.equals(action)) {
+                    target = "debug-testng"; //NOI18N
+                    FileObject test = config.getTest();
+                    FileObject[] testRoots = ClassPath.getClassPath(test, ClassPath.SOURCE).getRoots();
+                    FileObject testRoot = null;
+                    for (FileObject root: testRoots) {
+                        if (FileUtil.isParentOf(root, test)) {
+                            testRoot = root;
+                            break;
+                        }
+                    }
+                    assert testRoot != null;
+                    props.put("javac.includes", //NOI18N
+                            ActionUtils.antIncludesList(new FileObject[] {test}, testRoot));
+                }
+                ActionUtils.runTarget(projectHome.getFileObject("build.xml"), new String[]{target}, props); //NOI18N
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, null, ex);
             } catch (IllegalArgumentException ex) {

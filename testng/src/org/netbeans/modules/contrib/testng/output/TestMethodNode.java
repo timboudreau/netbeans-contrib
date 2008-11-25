@@ -42,6 +42,7 @@ package org.netbeans.modules.contrib.testng.output;
 
 import javax.swing.Action;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.contrib.testng.actions.DebugTestMethodAction;
 import org.netbeans.modules.contrib.testng.actions.RunTestMethodAction;
 import org.netbeans.spi.project.SingleMethod;
 import org.openide.filesystems.FileObject;
@@ -207,7 +208,8 @@ final class TestMethodNode extends AbstractNode {
             }
         }
         return new Action[]{
-                    SystemAction.get(RunTestMethodAction.class)
+                    SystemAction.get(RunTestMethodAction.class),
+                    SystemAction.get(DebugTestMethodAction.class)
                 };
 //        if (context) {
 //            return NO_ACTIONS;

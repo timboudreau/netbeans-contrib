@@ -43,9 +43,8 @@ package org.netbeans.modules.contrib.testng.output;
 
 import javax.swing.Action;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.modules.contrib.testng.actions.RerunFailedTestsAction;
+import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
 import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
-import org.netbeans.spi.project.SingleMethod;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -259,6 +258,7 @@ final class TestsuiteNode extends AbstractNode {
         }
         return new Action[] {
             SystemAction.get(RunTestClassAction.class),
+            SystemAction.get(DebugTestClassAction.class)
         };
     }
 }
