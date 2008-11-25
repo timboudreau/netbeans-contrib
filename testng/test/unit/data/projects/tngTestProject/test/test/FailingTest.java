@@ -39,8 +39,6 @@
 package test;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
