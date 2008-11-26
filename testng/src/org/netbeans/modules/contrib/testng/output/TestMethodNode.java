@@ -45,6 +45,8 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.contrib.testng.actions.DebugTestMethodAction;
 import org.netbeans.modules.contrib.testng.actions.RunTestMethodAction;
 import org.netbeans.spi.project.SingleMethod;
+import org.openide.actions.OpenAction;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -200,14 +202,22 @@ final class TestMethodNode extends AbstractNode {
             ClassPath srcClassPath = report.getSourceClassPath();
             if (srcClassPath != null) {
                 String suiteClassName = report.suiteClassName;
-                String suiteFileName = suiteClassName.replace('.', '/') + ".java";                               //NOI18N
-                FileObject suiteFile = srcClassPath.findResource(suiteFileName);
+                String suiteFileName = suiteClassName.replace('.', '/') + ".java"; //NOI18N
+                final String clsName = suiteClassName.substring(suiteClassName.lastIndexOf(".") + 1);
+                final FileObject suiteFile = srcClassPath.findResource(suiteFileName);
                 if (suiteFile != null) {
                     ic.add(new SingleMethod(suiteFile, testcase.name));
+                    ic.add(new OpenCookie() {
+
+                        public void open() {
+                            OutputUtils.openFile(suiteFile, clsName, testcase.name);
+                        }
+                    });
                 }
             }
         }
         return new Action[]{
+                    SystemAction.get(OpenAction.class),
                     SystemAction.get(RunTestMethodAction.class),
                     SystemAction.get(DebugTestMethodAction.class)
                 };

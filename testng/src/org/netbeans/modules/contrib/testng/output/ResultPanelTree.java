@@ -46,12 +46,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.accessibility.AccessibleContext;
 import javax.swing.ActionMap;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.nodes.Node;
@@ -65,8 +67,10 @@ final class ResultPanelTree extends JPanel
                             implements ExplorerManager.Provider,
                                        PropertyChangeListener {
 
-    private static java.util.ResourceBundle bundle = org.openide.util.NbBundle.getBundle(
+    private static ResourceBundle bundle = NbBundle.getBundle(
             ResultPanelTree.class);
+
+    private static final Logger LOGGER = Logger.getLogger(ResultPanelTree.class.getName());
 
     /** manages the tree of nodes representing found objects */
     private final ExplorerManager explorerManager;
@@ -295,13 +299,13 @@ final class ResultPanelTree extends JPanel
             explorerManager.setSelectedNodes(nodeArray);
             fireNodeSelectionChange();
         } catch (PropertyVetoException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             nodeArray = new Node[0];
             try {
                 explorerManager.setSelectedNodes(nodeArray);
                 fireNodeSelectionChange();
             } catch (PropertyVetoException ex2) {
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex2);
+                LOGGER.log(Level.SEVERE, null, ex2);
             }
         }
     }

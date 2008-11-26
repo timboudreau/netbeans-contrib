@@ -46,6 +46,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
@@ -53,7 +55,6 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /**
@@ -63,8 +64,8 @@ import org.openide.util.NbBundle;
 final class ResultPanelOutput extends JScrollPane
                               implements ActionListener {
     
-    private static final boolean LOG = false;
-    
+    private static final Logger LOGGER = Logger.getLogger(ResultPanelOutput.class.getName());
+
     static final Color selectedFg;
     static final Color unselectedFg;
     static final Color selectedErr;
@@ -129,12 +130,10 @@ final class ResultPanelOutput extends JScrollPane
      */
     ResultPanelOutput(ResultDisplayHandler displayHandler) {
         super();
-        if (LOG) {
-            System.out.println("ResultPanelOutput.<init>");
-        }
+        LOGGER.finer("ResultPanelOutput.<init>"); //NOI18N
         
         textPane = new JEditorPane();
-        textPane.setFont(new Font("monospaced", Font.PLAIN, getFont().getSize()));
+        textPane.setFont(new Font("monospaced", Font.PLAIN, getFont().getSize())); //NOI18N
         textPane.setEditorKit(new OutputEditorKit());
         textPane.setEditable(false);
         textPane.getCaret().setVisible(true);
@@ -169,9 +168,7 @@ final class ResultPanelOutput extends JScrollPane
         
         final Object[] pendingOutput;
         
-        if (LOG) {
-            System.out.println("ResultPanelOutput.addNotify()");
-        }
+        LOGGER.finer("ResultPanelOutput.addNotify()"); //NOI18N
         
         /*
          * We must make the following block synchronized using the output queue
@@ -197,9 +194,8 @@ final class ResultPanelOutput extends JScrollPane
 
         /* Called from the AntLogger's thread */
 
-        if (LOG) {
-            System.out.println("ResultOutputPanel.outputAvailable() - called by the AntLogger");
-        }
+        LOGGER.finer("ResultOutputPanel.outputAvailable() - called by the AntLogger");
+
         //synchronized (displayHandler.getOutputQueueLock()):
         final Object[] pendingOutput = displayHandler.consumeOutput();
         assert pendingOutput.length != 0;
@@ -233,9 +229,8 @@ final class ResultPanelOutput extends JScrollPane
         
         assert EventQueue.isDispatchThread();
         
-        if (LOG) {
-            System.out.println("ResultOutputPanel.actionPerformed(...) - called by the timer");
-        }
+        LOGGER.finer("ResultOutputPanel.actionPerformed(...) - called by the timer"); //NOI18N
+
         final Object[] pendingOutput = displayHandler.consumeOutput();
         if (pendingOutput.length != 0) {
             displayOutput(pendingOutput);
@@ -250,9 +245,8 @@ final class ResultPanelOutput extends JScrollPane
     /**
      */
     private void startTimer() {
-        if (LOG) {
-            System.out.println("ResultPanelOutput.startTimer()");
-        }
+        LOGGER.finer("ResultPanelOutput.startTimer()"); //NOI18N
+
         if (timer == null) {
             timer = new Timer(UPDATE_DELAY, this);
         }
@@ -263,9 +257,8 @@ final class ResultPanelOutput extends JScrollPane
     /**
      */
     private void stopTimer() {
-        if (LOG) {
-            System.out.println("ResultPanelOutput.stopTimer()");
-        }
+        LOGGER.finer("ResultPanelOutput.stopTimer()"); //NOI18N
+
         if (timer != null) {
             timer.stop();
             timerRunning = false;
@@ -277,10 +270,10 @@ final class ResultPanelOutput extends JScrollPane
     void displayOutput(final Object[] output) {
         assert EventQueue.isDispatchThread();
 
-        if (LOG) {
-            System.out.println("ResultPanelOutput.displayOutput(...):");
-            for (int i = 0; output[i] != null; i++) {
-                System.out.println("    " + output[i]);
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer("ResultPanelOutput.displayOutput(...):"); //NOI18N
+                for (int i = 0; output[i] != null; i++) {
+                    LOGGER.finer("    " + output[i]); //NOI18N
             }
         }
         Object o;
@@ -303,7 +296,7 @@ final class ResultPanelOutput extends JScrollPane
                              text + "\n",                               //NOI18N
                              error ? OutputDocument.attrs : null);
         } catch (BadLocationException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
     
@@ -344,7 +337,7 @@ final class ResultPanelOutput extends JScrollPane
                 displayText(report.outputErr);
             }
         } catch (BadLocationException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
     */
@@ -358,7 +351,7 @@ final class ResultPanelOutput extends JScrollPane
         try {
             doc.remove(0, doc.getLength());
         } catch (BadLocationException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
     

@@ -49,9 +49,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 
 /**
@@ -60,6 +61,7 @@ import org.openide.util.Lookup;
  */
 final class ResultDisplayHandler {
 
+    private static final Logger LOGGER = Logger.getLogger(ResultDisplayHandler.class.getName());
     /** */
     private static java.util.ResourceBundle bundle = org.openide.util.NbBundle.getBundle(
             ResultDisplayHandler.class);
@@ -329,9 +331,9 @@ final class ResultDisplayHandler {
                 try {
                     method.invoke(treePanel, new Object[] {param});
                 } catch (InvocationTargetException ex) {
-                    ErrorManager.getDefault().notify(ex.getTargetException());
+                    LOGGER.log(Level.SEVERE, null, ex);
                 } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -364,7 +366,7 @@ final class ResultDisplayHandler {
                          .getDeclaredMethod(methodName, new Class[] {paramType});
             } catch (Exception ex) {
                 method = null;
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
             methodsMap.put(methodName, method);
         }
