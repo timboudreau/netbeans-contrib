@@ -40,12 +40,16 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
+import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -53,6 +57,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
+import org.openide.text.NbDocument;
 
 /**
  *
@@ -83,7 +88,7 @@ final class OutputUtils {
 
         final int[] lineNumStorage = new int[1];
         FileObject file = getFile(frameInfo, lineNumStorage, srcClassPath);
-        openFile(file, lineNumStorage[0]);
+        openFile(file, lineNumStorage[0], -1);
     }
 
     /**
@@ -225,8 +230,19 @@ final class OutputUtils {
         return file;
     }
 
+    public static void openFile(FileObject file, String className, String methodName) {
+        TestClassScanner tsc = new TestClassScanner(className, methodName);
+        try {
+            JavaSource.forFileObject(file).runUserActionTask(tsc, true);
+            openFile(file, -1, tsc.getOffset());
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, null, ex);
+        }
+
+    }
+
     //from ...junit.wizard.Utils.java
-    public static void openFile(FileObject file, int lineNum) {
+    public static void openFile(FileObject file, int lineNum, int offset) {
 
         /*
          * Most of the following code was copied from the Ant module, method
@@ -234,7 +250,7 @@ final class OutputUtils {
          */
 
         if (file == null) {
-            java.awt.Toolkit.getDefaultToolkit().beep();
+            Toolkit.getDefaultToolkit().beep();
             return;
         }
 
@@ -243,12 +259,15 @@ final class OutputUtils {
             EditorCookie ed = dob.getCookie(EditorCookie.class);
             if (ed != null && /* not true e.g. for *_ja.properties */
                     file == dob.getPrimaryFile()) {
-                if (lineNum == -1) {
+                if (lineNum == -1 && offset == -1) {
                     // OK, just open it.
                     ed.open();
                 } else {
-                    ed.openDocument();//XXX getLineSet doesn't do it for you
+                    Document doc = ed.openDocument();//XXX getLineSet doesn't do it for you
                     try {
+                        if (offset > -1) {
+                            lineNum = NbDocument.findLineNumber((StyledDocument)doc, offset) + 1;
+                        }
                         Line l = ed.getLineSet().getOriginal(lineNum - 1);
                         if (!l.isDeleted()) {
                             l.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FOCUS);
@@ -259,7 +278,7 @@ final class OutputUtils {
                     }
                 }
             } else {
-                java.awt.Toolkit.getDefaultToolkit().beep();
+                Toolkit.getDefaultToolkit().beep();
             }
         } catch (DataObjectNotFoundException ex1) {
             LOGGER.log(Level.WARNING, null, ex1);

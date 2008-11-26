@@ -45,6 +45,8 @@ import javax.swing.Action;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
 import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
+import org.openide.actions.OpenAction;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -77,14 +79,14 @@ final class TestsuiteNode extends AbstractNode {
     TestsuiteNode(final String suiteName, final boolean filtered) {
         this(null, suiteName, filtered, new InstanceContent());
     }
-    
+
     /**
      * Creates a new instance of TestsuiteNode
      */
     TestsuiteNode(final Report report, final boolean filtered) {
         this(report, null, filtered, new InstanceContent());
     }
-    
+
     /**
      *
      * @param  suiteName  name of the test suite, or {@code ANONYMOUS_SUITE}
@@ -97,7 +99,7 @@ final class TestsuiteNode extends AbstractNode {
                           InstanceContent ic) {
         super(report != null ? new TestsuiteNodeChildren(report, filtered)
                              : Children.LEAF, new AbstractLookup(ic));
-        
+
         this.report = report;
         this.suiteName = (report != null) ? report.suiteClassName : suiteName;
         this.filtered = filtered;
@@ -108,24 +110,24 @@ final class TestsuiteNode extends AbstractNode {
         setIconBaseWithExtension(
                 "org/netbeans/modules/contrib/testng/resources/class.gif");     //NOI18N
     }
-    
+
     /**
      */
     void displayReport(final Report report) {
         assert (this.report == null) && (report != null);
         assert report.suiteClassName.equals(this.suiteName)
                || (this.suiteName == ResultDisplayHandler.ANONYMOUS_SUITE);
-        
+
         this.report = report;
         suiteName = report.suiteClassName;
 
         ic.add(this.report);
         ic.add(this.suiteName);
-        
+
         setDisplayName();
         setChildren(new TestsuiteNodeChildren(report, filtered));
     }
-    
+
     /**
      * Returns a report represented by this node.
      *
@@ -135,7 +137,7 @@ final class TestsuiteNode extends AbstractNode {
     Report getReport() {
         return report;
     }
-    
+
     /**
      */
     private void setDisplayName() {
@@ -170,14 +172,14 @@ final class TestsuiteNode extends AbstractNode {
         }
         setDisplayName(displayName);
     }
-    
+
     /**
      */
     @Override
     public String getHtmlDisplayName() {
-        
+
         assert suiteName != null;
-        
+
         StringBuilder buf = new StringBuilder(60);
         if (suiteName != ResultDisplayHandler.ANONYMOUS_SUITE) {
             buf.append(suiteName);
@@ -218,7 +220,7 @@ final class TestsuiteNode extends AbstractNode {
         }
         return buf.toString();
     }
-    
+
     /**
      */
     void setFiltered(final boolean filtered) {
@@ -226,13 +228,13 @@ final class TestsuiteNode extends AbstractNode {
             return;
         }
         this.filtered = filtered;
-        
+
         Children children = getChildren();
         if (children != Children.LEAF) {
             ((TestsuiteNodeChildren) children).setFiltered(filtered);
         }
     }
-    
+
     /**
      */
     private boolean containsFailed() {
@@ -249,14 +251,22 @@ final class TestsuiteNode extends AbstractNode {
             ClassPath srcClassPath = report.getSourceClassPath();
             if (srcClassPath != null) {
                 String suiteClassName = report.suiteClassName;
-                String suiteFileName = suiteClassName.replace('.', '/') + ".java";                               //NOI18N
-                FileObject suiteFile = srcClassPath.findResource(suiteFileName);
+                String suiteFileName = suiteClassName.replace('.', '/') + ".java"; //NOI18N
+                final String clsName = suiteClassName.substring(suiteClassName.lastIndexOf(".") + 1);
+                final FileObject suiteFile = srcClassPath.findResource(suiteFileName);
                 if (suiteFile != null) {
                     ic.add(suiteFile);
+                    ic.add(new OpenCookie() {
+
+                        public void open() {
+                            OutputUtils.openFile(suiteFile, clsName, null);
+                        }
+                    });
                 }
             }
         }
         return new Action[] {
+            SystemAction.get(OpenAction.class),
             SystemAction.get(RunTestClassAction.class),
             SystemAction.get(DebugTestClassAction.class)
         };
