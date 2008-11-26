@@ -524,7 +524,7 @@ public class AstTreeVisitor extends AstVisitor {
                 maybeType = opt.isDefined() ? opt.get() : null;
             }
         }
-        visit(tree.qualifier());
+        visit(qual);
         maybeType = null;
         exprs.pop();
     }
