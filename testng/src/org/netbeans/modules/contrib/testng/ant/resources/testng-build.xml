@@ -372,7 +372,7 @@ made subject to such option by the copyright holder.
     </target>
 
     <!-- DEBUG -->
-    <target depends="init,compile-test-single,-debug-start-debugger-test,-debug-start-debuggee-testng" name="debug-testng"/>
+    <target depends="-init-env, init, compile-test-single, -debug-start-debugger-test, -debug-start-debuggee-testng" name="debug-testng"/>
 
     <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-testng">
         <fail unless="testng.config">Must select test class in the IDE or set testng.config</fail>
