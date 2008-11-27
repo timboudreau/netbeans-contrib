@@ -781,6 +781,7 @@ final class TestNGOutputReader {
             assert r != null;
             r.classpath = classpath;
             r.platformSources = platformSources;
+            r.setClasspathSourceRoots();
             r.markSuiteFinished();
             manager.displayReport(session, sessionType, r);
         }
