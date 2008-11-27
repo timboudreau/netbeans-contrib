@@ -40,9 +40,15 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="testng-impl" default="default" basedir=".." xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3">
+<project name="testng-impl" default="default" basedir="..">
     <target name="default">
         <echo message="Default target is not set."/>
+    </target>
+
+    <target name="-init-env">
+        <condition property="run.jvmargs.prop" value="${run.jvmargs}" else="">
+            <isset property="run.jvmargs"/>
+        </condition>
     </target>
 
     <!-- Call testng ant task -->
@@ -51,15 +57,16 @@ made subject to such option by the copyright holder.
             <attribute name="testincludes" default="**/*Test.class"/>
             <sequential>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
-                <testng workingDir="${work.dir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
                         <pathelement path="${run.test.classpath}"/>
+                        <pathelement path="${j2ee.platform.classpath}"/>
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
                     <classfileset dir="${build.test.classes.dir}">
                         <filename name="@{testincludes}"/>
                     </classfileset>
-                    <jvmarg line="${run.jvmargs}"/>
+                    <jvmarg line="${run.jvmargs.prop}"/>
                 </testng>
             </sequential>
         </macrodef>
@@ -67,22 +74,69 @@ made subject to such option by the copyright holder.
             <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
             <sequential>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
-                <testng workingDir="${work.dir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
                         <pathelement path="${run.test.classpath}"/>
+                        <pathelement path="${j2ee.platform.classpath}"/>
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
                     <xmlfileset dir="${basedir}">
                         <filename name="@{testSuite}"/>
                     </xmlfileset>
-                    <jvmarg line="${run.jvmargs}"/>
+                    <jvmarg line="${run.jvmargs.prop}"/>
                 </testng>
             </sequential>
         </macrodef>
     </target>
 
     <target name="-testng" unless="junit.enabled">
+        <!-- Java SE projects -->
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- Web Projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/web-project/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- EJB Projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2ee-ejbjarproject/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- Java EE application client projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/car-project/1">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
@@ -98,12 +152,13 @@ made subject to such option by the copyright holder.
     </target>
 
     <target name="-testng-junit" if="junit.enabled">
+        <!-- Java SE projects -->
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${includes}" name="includes"/>
             <attribute default="${excludes}" name="excludes"/>
             <attribute default="**" name="testincludes"/>
             <sequential>
-                <junit dir="${work.dir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
+                <junit dir="${basedir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
                     <batchtest todir="${build.test.results.dir}">
                         <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
                             <filename name="@{testincludes}"/>
@@ -118,7 +173,108 @@ made subject to such option by the copyright holder.
                     </syspropertyset>
                     <formatter type="brief" usefile="false"/>
                     <formatter type="xml"/>
-                    <jvmarg line="${run.jvmargs}"/>
+                    <jvmarg line="${run.jvmargs.prop}"/>
+                </junit>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="junit.tests.failed"/>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- Web Projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2ee-ejbjarproject/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <junit dir="${basedir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <classpath>
+                        <path path="${run.test.classpath}:${j2ee.platform.classpath}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg line="${runmain.jvmargs}"/>
+                </junit>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="junit.tests.failed"/>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- EJB projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/j2ee-ejbjarproject/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <junit dir="${basedir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                        <path path="${j2ee.platform.classpath}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg line="${runmain.jvmargs}"/>
+                </junit>
+                <testng-ant/>
+                <condition property="tests.failed">
+                    <and>
+                        <isset property="junit.tests.failed"/>
+                        <isset property="testng.tests.failed"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <!-- Java EE application client projects -->
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/car-project/1">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <sequential>
+                <junit dir="${basedir}" errorproperty="junit.tests.failed" failureproperty="junit.tests.failed" fork="true" showoutput="true">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.src.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <classpath>
+                        <path path="${run.test.classpath}"/>
+                        <path path="${j2ee.platform.classpath}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg line="${run.jvmargs.param}"/>
                 </junit>
                 <testng-ant/>
                 <condition property="tests.failed">
@@ -134,7 +290,7 @@ made subject to such option by the copyright holder.
     <target name="-init-macrodef-testng-junit-converter">
         <macrodef name="junit-converter">
             <sequential>
-                <java classname="org.testng.JUnitConverter" dir="${work.dir}">
+                <java classname="org.testng.JUnitConverter" dir="${basedir}">
                     <classpath>
                         <path path="${run.test.classpath}:${java.home}/../lib/tools.jar"/>
                     </classpath>
@@ -146,7 +302,7 @@ made subject to such option by the copyright holder.
         </macrodef>
     </target>
 
-    <target name="-reinit-tasks" depends="-init-macrodef-testng, -testng, -testng-junit, -init-macrodef-testng-junit-converter" />
+    <target name="-reinit-tasks" depends="-init-env, -init-macrodef-testng, -testng, -testng-junit, -init-macrodef-testng-junit-converter" />
 
     <target name="-run-testng-default" unless="testng.config">
         <testng-ant/>
@@ -172,9 +328,9 @@ made subject to such option by the copyright holder.
                     </path>
                     <map from="${basedir}${file.separator}" to="-testclass "/>
                 </pathconvert>
-                <java classname="org.testng.TestNG" dir="${work.dir}">
+                <java classname="org.testng.TestNG" dir="${basedir}">
                     <classpath>
-                        <path path="${run.test.classpath}"/>
+                        <path path="${run.test.classpath}:${j2ee.platform.classpath}"/>
                     </classpath>
                     <arg line="-d ${build.test.results.dir}"/>
                     <arg line="-sourcedir ${test.src.dir}"/>
@@ -186,7 +342,7 @@ made subject to such option by the copyright holder.
                     </syspropertyset>
                     <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
                     <jvmarg value="-ea"/>
-                    <jvmarg line="${run.jvmargs}"/>
+                    <jvmarg line="${run.jvmargs.prop}"/>
                 </java>
             </sequential>
         </macrodef>
@@ -196,9 +352,9 @@ made subject to such option by the copyright holder.
         <macrodef name="testng-java-xml">
             <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
             <sequential>
-                <java classname="org.testng.TestNG" dir="${work.dir}">
+                <java classname="org.testng.TestNG" dir="${basedir}">
                     <classpath>
-                        <path path="${run.test.classpath}"/>
+                        <path path="${run.test.classpath}:${j2ee.platform.classpath}"/>
                     </classpath>
                     <arg line="-d ${build.test.results.dir}"/>
                     <arg line="-sourcedir ${test.src.dir}"/>
@@ -209,33 +365,40 @@ made subject to such option by the copyright holder.
                     </syspropertyset>
                     <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
                     <jvmarg value="-ea"/>
-                    <jvmarg line="${run.jvmargs}"/>
+                    <jvmarg line="${run.jvmargs.prop}"/>
                 </java>
             </sequential>
         </macrodef>
     </target>
 
     <!-- DEBUG -->
-    <target depends="init,-do-not-recompile,compile-test-single,-debug-start-debugger-test,-debug-start-debuggee-testng" name="debug-testng"/>
+    <target depends="init,compile-test-single,-debug-start-debugger-test,-debug-start-debuggee-testng" name="debug-testng"/>
 
     <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-testng">
         <fail unless="testng.config">Must select test class in the IDE or set testng.config</fail>
         <delete dir="${build.test.results.dir}" quiet="true"/>
         <mkdir dir="${build.test.results.dir}"/>
-        <j2seproject3:debug classname="org.testng.TestNG" classpath="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}">
-            <customize>
-                <arg line="-d ${build.test.results.dir}"/>
-                <arg line="-sourcedir ${test.src.dir}"/>
-                <arg line="${testng.config}"/>
-                <syspropertyset>
-                    <propertyref prefix="test-sys-prop."/>
-                    <mapper from="test-sys-prop.*" to="*" type="glob"/>
-                </syspropertyset>
-                <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
-                <jvmarg value="-ea"/>
-                <jvmarg line="${run.jvmargs}"/>
-            </customize>
-        </j2seproject3:debug>
+        <java classname="org.testng.TestNG" dir="${basedir}" fork="true">
+            <jvmarg line="${debug-args-line}"/>
+            <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+            <jvmarg line="${run.jvmargs.prop}"/>
+            <arg line="-d ${build.test.results.dir}"/>
+            <arg line="-sourcedir ${test.src.dir}"/>
+            <arg line="${testng.config}"/>
+            <syspropertyset>
+                <propertyref prefix="test-sys-prop."/>
+                <mapper from="test-sys-prop.*" to="*" type="glob"/>
+            </syspropertyset>
+            <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
+            <jvmarg value="-ea"/>
+            <classpath>
+                <path path="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}"/>
+            </classpath>
+            <syspropertyset>
+                <propertyref prefix="run-sys-prop."/>
+                <mapper from="run-sys-prop.*" to="*" type="glob"/>
+            </syspropertyset>
+        </java>
     </target>
 
 </project>
