@@ -145,9 +145,6 @@ made subject to such option by the copyright holder.
             <file name="TestNG-5.8.xml" url="TestNG-5.8.xml"/>
         </folder>
     </folder>
-    <folder name="org-netbeans-modules-contrib-testng">
-        <file name="testng-build.xml" url="nbresloc:/org/netbeans/modules/contrib/testng/ant/resources/testng-build.xml"/>
-    </folder>
     <folder name="Menu">
         <folder name="Window">
             <folder name="Output">

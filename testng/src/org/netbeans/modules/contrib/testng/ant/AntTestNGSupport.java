@@ -40,6 +40,8 @@ package org.netbeans.modules.contrib.testng.ant;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
@@ -59,9 +61,9 @@ import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
 import org.netbeans.modules.contrib.testng.spi.XMLSuiteSupport;
 import org.netbeans.spi.project.ant.AntArtifactProvider;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -103,10 +105,23 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
             Extension extension = extender.getExtension(ID);
             if (extension == null) {
                 LOGGER.finer("Extensible targets: " + extender.getExtensibleTargets());
-                // create testng-build.xml
-                String resource = "org-netbeans-modules-contrib-testng/testng-build.xml"; // NOI18N
                 try {
-                    FileObject testng = FileUtil.copyFile(Repository.getDefault().getDefaultFileSystem().findResource(resource), p.getProjectDirectory().getFileObject("nbproject"), "testng-impl"); //NOI18N
+                    // create testng-build.xml
+                    FileObject testng = p.getProjectDirectory().getFileObject("nbproject").createData("testng-impl", "xml"); //NOI18N
+                    InputStream is = AntTestNGSupport.class.getResourceAsStream("resources/testng-build.xml"); //NOI18N
+                    FileLock lock = testng.lock();
+                    OutputStream os = testng.getOutputStream(lock);
+                    try {
+                        FileUtil.copy(is, os);
+                    } finally {
+                        if (is != null) {
+                            is.close();
+                        }
+                        if (os != null) {
+                            os.close();
+                        }
+                        lock.releaseLock();
+                    }
                     extension = extender.addExtension(ID, testng);
                     extension.addDependency("-pre-pre-compile", "-reinit-tasks"); //NOI18N
                     ProjectManager.getDefault().saveProject(p);
