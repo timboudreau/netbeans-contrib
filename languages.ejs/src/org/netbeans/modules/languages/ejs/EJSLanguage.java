@@ -42,9 +42,15 @@ package org.netbeans.modules.languages.ejs;
 
 
 import org.netbeans.api.lexer.Language;
+import org.netbeans.modules.gsf.api.DeclarationFinder;
 import org.netbeans.modules.gsf.api.IndexSearcher;
 import org.netbeans.modules.gsf.api.Indexer;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.StructureScanner;
+import org.netbeans.modules.gsf.api.StructureScanner.Configuration;
+import org.netbeans.modules.javascript.editing.JsAnalyzer;
 import org.netbeans.modules.javascript.editing.JsLanguage;
+import org.netbeans.modules.javascript.editing.JsonAnalyzer;
 import org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId;
 
 public class EJSLanguage extends JsLanguage {
@@ -74,6 +80,35 @@ public class EJSLanguage extends JsLanguage {
 
     @Override
     public IndexSearcher getIndexSearcher() {
+        return null;
+    }
+
+    @Override
+    public Parser getParser() {
+        // We don't parse EJS directly; embedded sections will be parsed
+        // by the embedded JavaScript language
+        return null;
+    }
+
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
+
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new EjsScanner();
+    }
+
+    private class EjsScanner extends JsAnalyzer {
+        @Override
+        public Configuration getConfiguration() {
+            return new Configuration(false, false, 0);
+        }
+    }
+
+    @Override
+    public DeclarationFinder getDeclarationFinder() {
         return null;
     }
 }

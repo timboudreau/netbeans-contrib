@@ -144,8 +144,8 @@ public class EJSModel {
         // for now this logic is hardcoded into javascript's code completion engine (CodeCompleter)
 
         // Erubis uses _buf; I've seen ejavascript using something else (_erbout?)
-        buffer.append("_buf=''"); // NOI18N
-        codeBlocks.add(new CodeBlockData(0, 0, 0, buffer.length()));
+        //buffer.append("_buf=''"); // NOI18N
+        //codeBlocks.add(new CodeBlockData(0, 0, 0, buffer.length()));
 
         boolean skipNewline = false;
         while(tokenSequence.moveNext()) {
@@ -179,7 +179,8 @@ public class EJSModel {
                 } else {
                     buffer.append(';');
                 }
-                buffer.append("_buf = _buf + (<r><![CDATA["); // NOI18N
+                //buffer.append("_buf = _buf + (<r><![CDATA["); // NOI18N
+                buffer.append("(<r><![CDATA["); // NOI18N
                 if (skipNewline && text.startsWith("\n")) { // NOI18N
                     text = text.substring(1);
                     sourceEnd--;
@@ -189,7 +190,8 @@ public class EJSModel {
                 text = text.replace("'", "\\'");
                 buffer.append(text);
                 // TODO: This "\n" shouldn't be there if the next "<%" is a "<%-" !
-                buffer.append("]]></r>).toString();\n"); // NOI18N
+                //buffer.append("]]></r>).toString();\n"); // NOI18N
+                buffer.append("]]></r>);\n"); // NOI18N
                 int generatedEnd = buffer.length();
 
                 CodeBlockData blockData = new CodeBlockData(sourceStart, sourceEnd, generatedStart, generatedEnd);
@@ -217,7 +219,8 @@ public class EJSModel {
 
                 skipNewline = false;
             } else if (token.id() == EJSTokenId.JAVASCRIPT_EXPRESSION) {
-                buffer.append("_buf = _buf + ("); // NOI18N
+                //buffer.append("_buf = _buf + ("); // NOI18N
+                buffer.append("("); // NOI18N
                 int sourceStart = token.offset(tokenHierarchy);
                 int sourceEnd = sourceStart + token.length();
                 int generatedStart = buffer.length();
