@@ -99,15 +99,19 @@ public final class CreateTestAction extends CookieAction {
                 LOGGER.log(Level.FINER, null, ex);
             }
             String n = gui.getTestName();
-            String pkg = n.substring(0, n.lastIndexOf("."));
+            String pkg = n.indexOf(".") > -1
+                    ? n.substring(0, n.lastIndexOf("."))
+                    : null;
             String name = n.substring(n.lastIndexOf('.') + 1);
             URL[] test = UnitTestForSourceQuery.findUnitTests(cpRoot);
             FileObject testFolder = URLMapper.findFileObject(test[0]);
-            FileObject targetFolder = null;
-            try {
-                targetFolder = FileUtil.createFolder(testFolder, pkg.replace('.', '/'));
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
+            FileObject targetFolder = testFolder;
+            if (pkg != null) {
+                try {
+                    targetFolder = FileUtil.createFolder(testFolder, pkg.replace('.', '/'));
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, null, ex);
+                }
             }
             if (templateDO != null) {
                 DataObject createdFile = null;
