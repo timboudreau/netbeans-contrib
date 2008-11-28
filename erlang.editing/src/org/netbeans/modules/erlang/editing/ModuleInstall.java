@@ -51,45 +51,45 @@ import org.openide.windows.WindowManager;
  * @author Caoyuan Deng
  */
 public class ModuleInstall extends org.openide.modules.ModuleInstall {
-    
-    private PropertyChangeListener l;
-    
-    @Override
-    public void restored() {
-        l = new PropertyChangeListener() {
-            
-            public void propertyChange(PropertyChangeEvent e) {
-                if (e.getPropertyName().equals("activated")) {                    
-                    if (e.getNewValue() instanceof CloneableEditor) {
-                        CloneableEditor editor = (CloneableEditor) e.getNewValue();
-                        Document doc = editor.getEditorPane().getDocument();
-                        String mimeType = (String) doc.getProperty ("mimeType");
-                        if (mimeType != null && mimeType.equals("text/x-erlang")) {
-                            // Hack for initializing doc's SemanticAnalyser
-                            ErlangSemanticAnalyser.getAnalyser(doc);
-                        }
-                    }
-                }
-            }
-        };
-        
-        // On install, install a listener for opened docs
-        WindowManager.getDefault().getRegistry().addPropertyChangeListener(l);
-    }
-    
-    @Override
-    public void uninstalled() {
-        if (l != null) {
-            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
-        }
-    }
-    
-    @Override
-    public boolean closing() {
-        if (l != null) {
-            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
-        }
-        return super.closing();
-    }
+// XXX: parsingapi
+//    private PropertyChangeListener l;
+//
+//    @Override
+//    public void restored() {
+//        l = new PropertyChangeListener() {
+//
+//            public void propertyChange(PropertyChangeEvent e) {
+//                if (e.getPropertyName().equals("activated")) {
+//                    if (e.getNewValue() instanceof CloneableEditor) {
+//                        CloneableEditor editor = (CloneableEditor) e.getNewValue();
+//                        Document doc = editor.getEditorPane().getDocument();
+//                        String mimeType = (String) doc.getProperty ("mimeType");
+//                        if (mimeType != null && mimeType.equals("text/x-erlang")) {
+//                            // Hack for initializing doc's SemanticAnalyser
+//                            ErlangSemanticAnalyser.getAnalyser(doc);
+//                        }
+//                    }
+//                }
+//            }
+//        };
+//
+//        // On install, install a listener for opened docs
+//        WindowManager.getDefault().getRegistry().addPropertyChangeListener(l);
+//    }
+//
+//    @Override
+//    public void uninstalled() {
+//        if (l != null) {
+//            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
+//        }
+//    }
+//
+//    @Override
+//    public boolean closing() {
+//        if (l != null) {
+//            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
+//        }
+//        return super.closing();
+//    }
 }
 

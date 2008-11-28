@@ -101,6 +101,10 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="language.nbs" url="Erlang.nbs">
                     <attr name="icon" stringvalue="org/netbeans/modules/erlang/editing/resources/Erlang.png"/>
                 </file>
+                <file name="erlang-semantic-analyser-scheduler-task-factory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.TaskFactory"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.editing.semantic.ErlangSemanticAnalyser.getESATaskFactory"/>
+                </file>
             </folder>
             <!--
             <folder name="x-string">
