@@ -50,9 +50,6 @@ import javax.swing.text.Document;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
-import org.netbeans.api.languages.ParserManager;
-import org.netbeans.api.languages.ParserManager.State;
-import org.netbeans.api.languages.ParserManagerListener;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.database.DatabaseManager;
 import org.netbeans.modules.editor.NbEditorUtilities;
@@ -101,8 +98,8 @@ public class ErlangSemanticAnalyser {
      */
     private boolean forIndexing;
 
-    private ParserManager parserManager;
-    private ParserManagerListener parserManagerListener;
+//    private ParserManager parserManager;
+//    private ParserManagerListener parserManagerListener;
     
     /** Don't get WILD_VAR to be static, otherwise, it will collect all usages cross all once opened source files */
     private ErlVariable WILD_VAR = new ErlVariable("_", 0, 0, ErlVariable.Scope.LOCAL);
@@ -120,26 +117,26 @@ public class ErlangSemanticAnalyser {
     }
 
     private void initParserManagerListener() {
-        parserManager = ParserManager.get(doc);
-        parserManagerListener = new ParserManagerListener() {
-
-            public void parsed(State state, ASTNode root) {
-                if (state == State.PARSING) {
-                    return;
-                } else {
-                    analyse(root);
-                }
-            }
-        };
-        parserManager.addListener(parserManagerListener);
+//        parserManager = ParserManager.get(doc);
+//        parserManagerListener = new ParserManagerListener() {
+//
+//            public void parsed(State state, ASTNode root) {
+//                if (state == State.PARSING) {
+//                    return;
+//                } else {
+//                    analyse(root);
+//                }
+//            }
+//        };
+//        parserManager.addListener(parserManagerListener);
     }
 
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        if (parserManager != null && parserManagerListener != null) {
-            parserManager.removeListener(parserManagerListener);
-        }
+//        if (parserManager != null && parserManagerListener != null) {
+//            parserManager.removeListener(parserManagerListener);
+//        }
     }    
     
     public ASTNode getAstRoot() {
@@ -236,8 +233,8 @@ public class ErlangSemanticAnalyser {
     public static ErlContext getCurrentRootCtx(Document doc) {
         ErlangSemanticAnalyser analyser = getAnalyser(doc);
         if (analyser.rootCtx == null) {
-             ParserManager parserManager = ParserManager.get(doc);
-             waitingForParsingFinished(parserManager);
+//             ParserManager parserManager = ParserManager.get(doc);
+//             waitingForParsingFinished(parserManager);
         }
         return analyser.rootCtx;
     }
@@ -1171,16 +1168,16 @@ public class ErlangSemanticAnalyser {
         return null;
     }
 
-    private static void waitingForParsingFinished(ParserManager parserManager) {
-        int counter = 0;
-        try {
-            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
-                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
-                Thread.sleep(100);
-                counter++;
-            }
-        } catch (InterruptedException e) {
-        }
-    }
+//    private static void waitingForParsingFinished(ParserManager parserManager) {
+//        int counter = 0;
+//        try {
+//            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
+//                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
+//                Thread.sleep(100);
+//                counter++;
+//            }
+//        } catch (InterruptedException e) {
+//        }
+//    }
     
 }
