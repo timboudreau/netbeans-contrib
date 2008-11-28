@@ -245,7 +245,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml(HtmlFormatter formatter) {
-            JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+//            JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
             org.netbeans.modules.gsf.api.ElementKind kind = getKind();
             boolean strike = false;
@@ -338,7 +338,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                 formatter.type(false);
             }
 
-            JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+//            JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
 
             return formatter.getText();
         }

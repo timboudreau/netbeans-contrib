@@ -808,23 +808,23 @@ public class JavaUtilities {
         final ElementHandle handle = ElementHandle.create(e);
 
         JavaSource source = JavaSource.forFileObject(originFo);
-        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
-            // already under javac's lock
-            CompilationInfo newInfo = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
-
-            Element el = handle.resolve(newInfo);
-            FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
-
-            CompilationUnitTree cu = newInfo.getCompilationUnit();
-
-            v.scan(cu, null);
-            Tree elTree = v.declTree;
-
-            if (elTree != null) {
-                offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
-            }
-
-        } else {
+//        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
+//            // already under javac's lock
+//            CompilationInfo newInfo = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+//
+//            Element el = handle.resolve(newInfo);
+//            FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
+//
+//            CompilationUnitTree cu = newInfo.getCompilationUnit();
+//
+//            v.scan(cu, null);
+//            Tree elTree = v.declTree;
+//
+//            if (elTree != null) {
+//                offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+//            }
+//
+//        } else {
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
 
@@ -850,7 +850,7 @@ public class JavaUtilities {
                 Exceptions.printStackTrace(ex);
             }
 
-        }
+//        }
 
         return offset[0];
     }

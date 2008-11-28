@@ -201,7 +201,7 @@ public class JavaIndex {
 
         final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
 
-        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+//        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
         NameKind originalKind = kind;
         if (kind == NameKind.SIMPLE_NAME) {
@@ -252,7 +252,7 @@ public class JavaIndex {
         }
 
 
-        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+//        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return gsfElements;
     }
 
