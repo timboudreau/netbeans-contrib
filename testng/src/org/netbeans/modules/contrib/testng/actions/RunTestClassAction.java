@@ -90,7 +90,7 @@ public final class RunTestClassAction extends NodeAction {
         TestClassInfoTask task = null;
         if (ec != null) {
             JEditorPane[] panes = ec.getOpenedPanes();
-            if (panes.length > 0) {
+            if (panes != null) {
                 final int cursor = panes[0].getCaret().getDot();
                 JavaSource js = JavaSource.forDocument(panes[0].getDocument());
                 task = new TestClassInfoTask(cursor);
