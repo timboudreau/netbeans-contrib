@@ -245,100 +245,102 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getLhsHtml(HtmlFormatter formatter) {
-//            JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+            JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+            try {
 
-            org.netbeans.modules.gsf.api.ElementKind kind = getKind();
-            boolean strike = false;
-            if (!strike && element.isDeprecated()) {
-                strike = true;
-            }
-            if (strike) {
-                formatter.deprecated(true);
-            }
-            boolean emphasize = !element.isInherited();
-            if (emphasize) {
-                formatter.emphasis(true);
-            }
-            formatter.name(kind, true);
-            formatter.appendText(getName());
-            formatter.name(kind, false);
-            if (emphasize) {
-                formatter.emphasis(false);
-            }
-            if (strike) {
-                formatter.deprecated(false);
-            }
-            List<? extends TypeParameterElement> typeParams = function.getTypeParameters();
-            if (!typeParams.isEmpty()) {
-                formatter.appendHtml("[");
-
-                for (Iterator<? extends TypeParameterElement> itr = typeParams.iterator(); itr.hasNext();) {
-                    TypeParameterElement typeParam = itr.next();
-                    TypeParam.htmlFormat(typeParam, formatter);
-
-                    if (itr.hasNext()) {
-                        formatter.appendText(", "); // NOI18N
-                    }
+                org.netbeans.modules.gsf.api.ElementKind kind = getKind();
+                boolean strike = false;
+                if (!strike && element.isDeprecated()) {
+                    strike = true;
                 }
+                if (strike) {
+                    formatter.deprecated(true);
+                }
+                boolean emphasize = !element.isInherited();
+                if (emphasize) {
+                    formatter.emphasis(true);
+                }
+                formatter.name(kind, true);
+                formatter.appendText(getName());
+                formatter.name(kind, false);
+                if (emphasize) {
+                    formatter.emphasis(false);
+                }
+                if (strike) {
+                    formatter.deprecated(false);
+                }
+                List<? extends TypeParameterElement> typeParams = function.getTypeParameters();
+                if (!typeParams.isEmpty()) {
+                    formatter.appendHtml("[");
 
-                formatter.appendHtml("]");
-            }
+                    for (Iterator<? extends TypeParameterElement> itr = typeParams.iterator(); itr.hasNext();) {
+                        TypeParameterElement typeParam = itr.next();
+                        TypeParam.htmlFormat(typeParam, formatter);
 
-
-            List<? extends VariableElement> params = function.getParameters();
-            if (!params.isEmpty()) {
-                formatter.appendHtml("("); // NOI18N
-
-                for (Iterator<? extends VariableElement> itr = params.iterator(); itr.hasNext();) { // && tIt.hasNext()) {
-                    formatter.parameters(true);
-
-                    VariableElement param = itr.next();
-
-                    formatter.appendText(param.getSimpleName().toString());
-                    formatter.parameters(false);
-                    formatter.appendHtml(" :");
-                    formatter.parameters(true);
-                    
-                    TypeMirror paramType = param.asType();
-//                    int funParamNum = JavaScalaMapping.isFunctionType(paramType);
-//                    if (funParamNum != -1) {
-//                        List<? extends AnnotationMirror> annots = function.getAnnotationMirrors();
-//
-//                        List<VariableElement> funParams = new ArrayList<VariableElement>(funParamNum);
-//                        for (int i = 0; i < funParamNum; i++) {
-//                            if (itr.hasNext()) {
-//                                funParams.add(itr.next());
-//                            }
-//                        }
-//                        formatter.appendText(JavaScalaMapping.classFunctionToScalaSName(paramType, funParamNum, funParams));
-//                    } else {
-                        if (param.asType() != null) {
-                            formatter.type(true);
-                            Type.htmlFormat(formatter, paramType, true);
-                            formatter.type(false);
+                        if (itr.hasNext()) {
+                            formatter.appendText(", "); // NOI18N
                         }
-//                    }
-
-                    formatter.parameters(false);
-
-                    if (itr.hasNext()) {
-                        formatter.appendText(", "); // NOI18N
                     }
 
+                    formatter.appendHtml("]");
                 }
 
-                formatter.appendHtml(")"); // NOI18N
-            }
 
-            TypeMirror retType = function.getReturnType();
-            if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
-                formatter.appendHtml(" :");
-                formatter.type(true);
-                Type.htmlFormat(formatter, retType, true);
-                formatter.type(false);
-            }
+                List<? extends VariableElement> params = function.getParameters();
+                if (!params.isEmpty()) {
+                    formatter.appendHtml("("); // NOI18N
 
-//            JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+                    for (Iterator<? extends VariableElement> itr = params.iterator(); itr.hasNext();) { // && tIt.hasNext()) {
+                        formatter.parameters(true);
+
+                        VariableElement param = itr.next();
+
+                        formatter.appendText(param.getSimpleName().toString());
+                        formatter.parameters(false);
+                        formatter.appendHtml(" :");
+                        formatter.parameters(true);
+
+                        TypeMirror paramType = param.asType();
+    //                    int funParamNum = JavaScalaMapping.isFunctionType(paramType);
+    //                    if (funParamNum != -1) {
+    //                        List<? extends AnnotationMirror> annots = function.getAnnotationMirrors();
+    //
+    //                        List<VariableElement> funParams = new ArrayList<VariableElement>(funParamNum);
+    //                        for (int i = 0; i < funParamNum; i++) {
+    //                            if (itr.hasNext()) {
+    //                                funParams.add(itr.next());
+    //                            }
+    //                        }
+    //                        formatter.appendText(JavaScalaMapping.classFunctionToScalaSName(paramType, funParamNum, funParams));
+    //                    } else {
+                            if (param.asType() != null) {
+                                formatter.type(true);
+                                Type.htmlFormat(formatter, paramType, true);
+                                formatter.type(false);
+                            }
+    //                    }
+
+                        formatter.parameters(false);
+
+                        if (itr.hasNext()) {
+                            formatter.appendText(", "); // NOI18N
+                        }
+
+                    }
+
+                    formatter.appendHtml(")"); // NOI18N
+                }
+
+                TypeMirror retType = function.getReturnType();
+                if (retType != null && element.getKind() != ElementKind.CONSTRUCTOR) {
+                    formatter.appendHtml(" :");
+                    formatter.type(true);
+                    Type.htmlFormat(formatter, retType, true);
+                    formatter.type(false);
+                }
+            } finally {
+              JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
+            }
 
             return formatter.getText();
         }

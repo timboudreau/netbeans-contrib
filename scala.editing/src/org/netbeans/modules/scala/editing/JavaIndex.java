@@ -201,58 +201,64 @@ public class JavaIndex {
 
         final Set<GsfElement> gsfElements = new HashSet<GsfElement>();
 
-//        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
-
-        NameKind originalKind = kind;
-        if (kind == NameKind.SIMPLE_NAME) {
-            // I can't do exact searches on methods because the method
-            // entries include signatures etc. So turn this into a prefix
-            // search and then compare chopped off signatures with the name
-            kind = NameKind.PREFIX;
-        }
-
-        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
-            // TODO - can I do anything about this????
-            //field = ScalaIndexer.FIELD_BASE_LOWER;
-            //terms = FQN_BASE_LOWER;
-        }
-
-        String searchUrl = null;
-        if (context != null) {
-            try {
-                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        if (type == null || type.length() == 0) {
-            type = "Object";
-        }
-
-        Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
-
-        for (ElementHandle<TypeElement> teHandle : dclTypes) {
-            TypeElement te = teHandle.resolve(info);
-
-            boolean isScala = JavaScalaMapping.isScala(te);
-
-            if (isScala) {
-                continue;
+        /**
+         * @Note
+         * Probably not needed to use internal lock method,
+         * the info.getJavaSource().runUserTask() will work.
+         */
+        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+        try {
+            NameKind originalKind = kind;
+            if (kind == NameKind.SIMPLE_NAME) {
+                // I can't do exact searches on methods because the method
+                // entries include signatures etc. So turn this into a prefix
+                // search and then compare chopped off signatures with the name
+                kind = NameKind.PREFIX;
             }
 
-            TypeMirror tm = te.asType();
-            TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
-
-            if (te != null) {
-                GsfElement gsfElement = new GsfElement(typeElem, null, info);
-                gsfElements.add(gsfElement);
+            if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+                // TODO - can I do anything about this????
+                //field = ScalaIndexer.FIELD_BASE_LOWER;
+                //terms = FQN_BASE_LOWER;
             }
 
+            String searchUrl = null;
+            if (context != null) {
+                try {
+                    searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+                } catch (FileStateInvalidException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+
+            if (type == null || type.length() == 0) {
+                type = "Object";
+            }
+
+            Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
+
+            for (ElementHandle<TypeElement> teHandle : dclTypes) {
+                TypeElement te = teHandle.resolve(info);
+
+                boolean isScala = JavaScalaMapping.isScala(te);
+
+                if (isScala) {
+                    continue;
+                }
+
+                TypeMirror tm = te.asType();
+                TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
+
+                if (te != null) {
+                    GsfElement gsfElement = new GsfElement(typeElem, null, info);
+                    gsfElements.add(gsfElement);
+                }
+
+            }
+
+        } finally {
+            JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         }
-
-
-//        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return gsfElements;
     }
 
