@@ -3,7 +3,14 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.erlang.kit</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     
+    <!-- The building dependency is based on "ant -Dcluster.config=java" -->
     <target name="erlang-build">
+        <!-- stable modules -->
+        <ant dir="../../gsfpath.api"/>
+        <ant dir="../../gsf.api"/>
+        <ant dir="../../gsf"/>
+        <ant dir="../../extexecution"/>
+        <!-- contrib modules -->
         <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang"/>
         <ant dir="../../contrib/erlang.editing"/>
