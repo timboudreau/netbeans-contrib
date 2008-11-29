@@ -60,6 +60,53 @@ made subject to such option by the copyright holder.
     <!--"semantic" highlighting:-->
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
     <fontcolor name="mod-abstract" />
+    <fontcolor name="mod-field-declaration" default="field"/>
+    <fontcolor name="mod-local-variable-declaration" default="identifier"/>
+    <fontcolor name="mod-parameter-declaration" default="identifier"/>
+    <fontcolor name="mod-method-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-constructor-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-class-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-interface-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-annotation-type-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-enum-declaration" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-field" default="field"/>
+    <fontcolor name="mod-local-variable" default="identifier"/>
+    <fontcolor name="mod-parameter" default="identifier"/>
+    <fontcolor name="mod-method" default="identifier"/>
+    <fontcolor name="mod-constructor" default="identifier"/>
+    <fontcolor name="mod-class" default="identifier">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-interface" default="identifier"/>
+    <fontcolor name="mod-annotation-type" default="identifier"/>
+    <fontcolor name="mod-enum" default="identifier"/>
+    <fontcolor name="mod-deprecated" strikeThrough="black"/>
+    <fontcolor name="mod-static" >
+        <font style="italic" />
+    </fontcolor>
+    <fontcolor name="mod-private" />
+    <fontcolor name="mod-package-private" />
+    <fontcolor name="mod-protected" />
+    <fontcolor name="mod-public" />
+
+    <!--mark occurrences:-->
+    <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
+
+<!--
+    <fontcolor name="mod-unused" waveUnderlined="999999"/>
+    <fontcolor name="mod-abstract" />
     <fontcolor name="mod-field" default="field"/>
     <fontcolor name="mod-local-variable" />
     <fontcolor name="mod-parameter" foreColor="A06001"/>
@@ -80,5 +127,5 @@ made subject to such option by the copyright holder.
     <fontcolor name="mod-protected" />
     <fontcolor name="mod-public" />
     <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
-
+-->
 </fontscolors>

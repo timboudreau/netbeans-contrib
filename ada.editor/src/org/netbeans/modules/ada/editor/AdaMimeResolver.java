@@ -46,8 +46,7 @@ import org.openide.filesystems.MIMEResolver;
  * 
  * @author Andrea Lucarelli
  */
-//TODO remove this in NB 7.0. Also remove service entry
-//@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.MIMEResolver.class)
+@org.openide.util.lookup.ServiceProvider(service=org.openide.filesystems.MIMEResolver.class)
 public class AdaMimeResolver extends MIMEResolver {
 
     /**

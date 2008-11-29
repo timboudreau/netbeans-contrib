@@ -39,10 +39,32 @@
 
 package org.netbeans.modules.ada.editor.navigator;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.With;
+import org.netbeans.modules.ada.editor.indexer.IndexedElement;
+import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
+import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.DeclarationFinder;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.SourceModel;
+import org.netbeans.modules.gsf.api.SourceModelFactory;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
+import org.openide.util.Union2;
 
 /**
  *
@@ -51,11 +73,143 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class AdaDeclarationFinder implements DeclarationFinder {
 
     public DeclarationLocation findDeclaration(CompilationInfo info, int caretOffset) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return findDeclarationImpl(info, caretOffset);
     }
 
-    public OffsetRange getReferenceSpan(Document doc, int caretOffset) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public OffsetRange getReferenceSpan(Document doc, final int caretOffset) {
+        List<TokenSequence<?>> ets = TokenHierarchy.get(doc).embeddedTokenSequences(caretOffset, false);
+
+        ets = new LinkedList<TokenSequence<?>>(ets);
+
+        Collections.reverse(ets);
+
+        for (TokenSequence<?> ts : ets) {
+            if (ts.language() == AdaTokenId.language()) {
+                Token<?> t = ts.token();
+
+                if (t.id() == AdaTokenId.IDENTIFIER || t.id() == AdaTokenId.STRING_LITERAL) {
+                    return new OffsetRange(ts.offset(), ts.offset() + t.length());
+                }
+            }
+        }
+
+        //XXX: to find out includes, we need to parse - but this means we are parsing on mouse move in AWT!:
+        FileObject file = NavUtils.getFile(doc);
+
+        if (file != null) {
+            SourceModel model = SourceModelFactory.getInstance().getModel(file);
+            final OffsetRange[] result = new OffsetRange[1];
+
+            try {
+                model.runUserActionTask(new CancellableTask<CompilationInfo>() {
+                    public void cancel() {}
+                    public void run(CompilationInfo parameter) throws Exception {
+                        List<ASTNode> path = NavUtils.underCaret(parameter, caretOffset);
+
+                        if (path.size() == 0) {
+                            return ;
+                        }
+
+                        path = new LinkedList<ASTNode>(path);
+
+                        Collections.reverse(path);
+
+                        // TODO: see original file
+                    }
+                }, true);
+            } catch (IOException e) {
+                Exceptions.printStackTrace(e);
+            }
+
+            if (result[0] != null) {
+                return result[0];
+            }
+        }
+
+        return OffsetRange.NONE;
     }
 
+    static DeclarationLocation findDeclarationImpl(CompilationInfo info, final int offset) {
+        List<ASTNode> path = NavUtils.underCaret(info, offset);
+        SemiAttribute a = SemiAttribute.semiAttribute(info);//, offset);
+
+        if (path.size() == 0) {
+            return DeclarationLocation.NONE;
+        }
+
+        path = new LinkedList<ASTNode>(path);
+
+        Collections.reverse(path);
+
+        for (ASTNode n : path) {
+            if (n instanceof With) {
+                FileObject file = NavUtils.resolveInclude(info, (With) n);
+
+                if (file != null) {
+                    return new DeclarationLocation(file, 0);
+                }
+
+                break;
+            }
+        }
+
+        return DeclarationLocation.NONE;
+    }
+
+    private static final class AlternativeLocationImpl implements AlternativeLocation {
+
+        private final IndexedElement el;
+        private final Kind k;
+        private final DeclarationLocation l;
+
+        public AlternativeLocationImpl(IndexedElement el, Kind k, DeclarationLocation l) {
+            this.el = el;
+            this.k = k;
+            this.l = l;
+        }
+
+        public ElementHandle getElement() {
+            return el;
+        }
+
+        public String getDisplayHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            ElementKind ek = null;
+            switch (k) {
+                case PROCEDURE:
+                case FUNCTION:
+                    ek = ElementKind.METHOD;
+                    break;
+                case PACKAGE_SPEC:
+                case PACKAGE_BODY:
+                    ek = ElementKind.CLASS;
+            }
+
+            if (ek != null) {
+                formatter.name(ek, true);
+                formatter.appendText(el.getName());
+                formatter.name(ek, false);
+            } else {
+                formatter.appendText(el.getName());
+            }
+
+            if (l.getFileObject() != null) {
+                formatter.appendText(" in ");
+                formatter.appendText(FileUtil.getFileDisplayName(l.getFileObject()));
+            }
+
+            return formatter.getText();
+        }
+
+        public DeclarationLocation getLocation() {
+            return l;
+        }
+
+        public int compareTo(AlternativeLocation o) {
+            AlternativeLocationImpl i = (AlternativeLocationImpl) o;
+
+            return this.el.getName().compareTo(i.el.getName());
+        }
+
+    }
 }

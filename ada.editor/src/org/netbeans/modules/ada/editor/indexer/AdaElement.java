@@ -42,7 +42,6 @@ package org.netbeans.modules.ada.editor.indexer;
 import java.util.Collections;
 import java.util.Set;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
-import org.netbeans.modules.gsf.api.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
