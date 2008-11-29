@@ -47,8 +47,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
  *
  * @author Andrea Lucarelli
  */
-//TODO remove this in NB 7.0. Also remove service entry
-//@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.support.ant.AntBasedProjectType.class)
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.support.ant.AntBasedProjectType.class)
 public class AdaProjectType implements AntBasedProjectType {
 
     public static final String TYPE = AdaProjectType.class.getPackage().getName();
