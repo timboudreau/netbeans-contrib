@@ -47,6 +47,7 @@ package org.netbeans.modules.accelerators.terminal;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
 
 /**
@@ -83,6 +84,9 @@ public class Util {
     
     private static FileObject getFileObject(Node node) {
         DataObject dataObject = (DataObject)node.getLookup().lookup(DataObject.class);
+        if (dataObject instanceof DataShadow) {
+            dataObject = ((DataShadow) dataObject).getOriginal();
+        }
         if (dataObject != null)
             return dataObject.getPrimaryFile();
         
