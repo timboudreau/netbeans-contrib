@@ -611,8 +611,8 @@ object_declaration:statement
 defining_identifier  ::=
 IDENTIFIER:id
 {:
-	Identifier identifier = new Identifier(idleft, idright, id);
-	RESULT = identifier;
+    Identifier identifier = new Identifier(idleft, idright, id);
+    RESULT = identifier;
 :}
 ;
 
@@ -622,9 +622,9 @@ IDENTIFIER:id
 object_declaration ::= 
 defining_identifier_list:identifierList COLON object_qualifier_opt:objQualified object_subtype_def:subtype init_opt:init SEMICOLON
 {:
-	for (Object identifier : identifierList) {
-		Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
-		RESULT = variable;
+    for (Object identifier : identifierList) {
+        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
+        RESULT = variable;
     }
 :}
 ;
@@ -632,14 +632,14 @@ defining_identifier_list:identifierList COLON object_qualifier_opt:objQualified 
 defining_identifier_list ::= 
 defining_identifier:identifier
 {:
-	List identifierList = new LinkedList();
+    List identifierList = new LinkedList();
     identifierList.add(identifier);
-	RESULT = identifierList;
+    RESULT = identifierList;
 :}
 | defining_identifier_list:identifierList COMMA defining_identifier:identifier
 {:
     identifierList.add(identifier);
-	RESULT = identifierList;
+    RESULT = identifierList;
 :}
 ;
 
@@ -664,9 +664,9 @@ init_opt ::=
 number_declaration ::= 
 defining_identifier_list:identifierList COLON CONSTANT:subtype ASSIGNMENT expression:init SEMICOLON
 {:
-	for (Object identifier : identifierList) {
-		Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
-		RESULT = variable;
+    for (Object identifier : identifierList) {
+        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
+	RESULT = variable;
     }
 :}
 ;
@@ -836,10 +836,10 @@ discrim_spec ::=
 defining_identifier_list COLON access_opt mark init_opt
 | error:theError SEMICOLON  // error statement
 {:
-	ASTError error = new ASTError(theErrorleft, theErrorright);
-	RESULT = error;	
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
 :}
-	;
+;
 
 access_opt ::=
 	| ACCESS
@@ -884,46 +884,46 @@ prot_opt ::=
 //
 declarative_part ::=
 {:
-	RESULT = new LinkedList();
+    RESULT = new LinkedList();
 :}
 | declarative_item_or_body_s1:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 ;
 
 declarative_items_opt ::= 
 {:
-	List declaritiveItemList = new LinkedList();
-	RESULT = declaritiveItemList;
+    List declaritiveItemList = new LinkedList();
+    RESULT = declaritiveItemList;
 :}
 | declarative_item_list:declaritiveItemList
 {:
-	RESULT = declaritiveItemList;
+    RESULT = declaritiveItemList;
 :}
 ;
 
 declarative_item_list ::= 
 declarative_item:declaritiveItem
 {:
-	List declaritiveItemList = new LinkedList();
+    List declaritiveItemList = new LinkedList();
     declaritiveItemList.add(declaritiveItem);
-	RESULT = declaritiveItemList;
+    RESULT = declaritiveItemList;
 :}
 | declarative_item_list:declaritiveItemList declarative_item:declaritiveItem
 {:
     declaritiveItemList.add(declaritiveItem);
-	RESULT = declaritiveItemList;
+    RESULT = declaritiveItemList;
 :}
 ;
 
 declarative_item ::= 
 declaration:statement
 {:
-	List declaritiveItemList = new LinkedList();
-	declaritiveItemList.add(new ASTNode[] {statement, null});
-	FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(statementleft, statementright, declaritiveItemList);
-	RESULT = fieldsDeclaration;
+    List declaritiveItemList = new LinkedList();
+    declaritiveItemList.add(new ASTNode[] {statement, null});
+    FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(statementleft, statementright, declaritiveItemList);
+    RESULT = fieldsDeclaration;
 :}
 | use_clause
 | rep_spec
@@ -933,25 +933,25 @@ declaration:statement
 declarative_item_or_body_s1 ::=
 declarative_item_or_body:declaritiveItem
 {:
-	List declaritiveItemList = new LinkedList();
+    List declaritiveItemList = new LinkedList();
     declaritiveItemList.add(declaritiveItem);
-	RESULT = declaritiveItemList;
+    RESULT = declaritiveItemList;
 :}
 | declarative_item_or_body_s1:declaritiveItemList declarative_item_or_body:declaritiveItem
 {:
     declaritiveItemList.add(declaritiveItem);
-	RESULT = declaritiveItemList;
+    RESULT = declaritiveItemList;
 :}
 ;
 
 declarative_item_or_body ::=
 body:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 | declarative_item:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 ;
 
@@ -959,7 +959,7 @@ body ::=
 subprog_body
 | package_body:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 | task_body
 | prot_body
@@ -1000,12 +1000,12 @@ compound_name:compoundName
 {:
     List nameList = new LinkedList();
     nameList.add(compoundName);
-	RESULT = nameList;
+    RESULT = nameList;
 :}
 | compound_name_list:nameList COMMA compound_name:compoundName
 {:
     nameList.add(compoundName);
-	RESULT = nameList;
+    RESULT = nameList;
 :}
 ;
 
@@ -1027,8 +1027,8 @@ value ::= expression
 | discrete_with_range
 | error:theError /* error statement */
 {:
-	ASTError error = new ASTError(theErrorleft, theErrorright);
-	RESULT = error;	
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
 :}
 ;
 
@@ -1173,8 +1173,8 @@ simple_stmt ::= null_stmt
 	| requeue_stmt
 | error:theError SEMICOLON /* error statement */
 {:
-	ASTError error = new ASTError(theErrorleft, theErrorright);
-	RESULT = error;	
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
 :}
 ;
 
@@ -1317,8 +1317,8 @@ param_s ::= param
 param ::= defining_identifier_list COLON mode mark init_opt
 | error:theError SEMICOLON /* error statement */
 {:
-	ASTError error = new ASTError(theErrorleft, theErrorright);
-	RESULT = error;	
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
 :}
 ;
 
@@ -1345,7 +1345,7 @@ procedure_call ::= name SEMICOLON
 package_declaration ::= 
 package_specification:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 | generic_package_instantiation SEMICOLON
 ;
@@ -1436,12 +1436,12 @@ name:name
 {:
     List nameList = new LinkedList();
     nameList.add(name);
-	RESULT = nameList;
+    RESULT = nameList;
 :}
 | name_list:nameList COMMA name:name
 {:
     nameList.add(name);
-	RESULT = nameList;
+    RESULT = nameList;
 :}
 ;
 
@@ -1616,37 +1616,35 @@ abort_stmt ::= ABORT name_list SEMICOLON
 compilation ::=
 compilation_unit_list:compilationUnitList
 {:
-	Ada95ASTLexer adaAstLexer = (Ada95ASTLexer) parser.getScanner();
-	List commentList = adaAstLexer.getCommentList();
-	Program program = new Program(compilationUnitListleft, compilationUnitListright, compilationUnitList, commentList);
-	RESULT = program;
+    Ada95ASTLexer adaAstLexer = (Ada95ASTLexer) parser.getScanner();
+    List commentList = adaAstLexer.getCommentList();
+    Program program = new Program(compilationUnitListleft, compilationUnitListright, compilationUnitList, commentList);
+    RESULT = program;
 :}
 | pragma pragma_s  // 10.1.5 - 4
 ;
 
 compilation_unit_list ::=
 {:
-	RESULT = new LinkedList();
+    RESULT = new LinkedList();
 :}
 | compilation_unit_list:compilationUnitList compilation_unit:compilationUnit
 {:
-	if(compilationUnit != null) {
-		compilationUnitList.add(compilationUnit);
-	}
-	RESULT = compilationUnitList;
+    if(compilationUnit != null) {
+        compilationUnitList.add(compilationUnit);
+    }
+    RESULT = compilationUnitList;
 :}
 ;
 
 compilation_unit ::=
 context_clause private_opt unit:statement pragma_s
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 | private_opt unit:statement pragma_s  // 10.1.5 - 5/1
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 ;
 
@@ -1657,11 +1655,11 @@ private_opt ::=
 unit ::= 
 package_declaration:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 | package_body:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
 | subprog_decl
 | subprog_body
@@ -1676,23 +1674,19 @@ package_declaration:statement
 context_clause ::= 
 with_clause:statement
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 | use_clause:statement
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 | context_clause with_clause:statement
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 | context_clause use_clause:statement
 {:
-	RESULT = statement;
-
+    RESULT = statement;
 :}
 | context_clause pragma
 ;
@@ -1711,17 +1705,31 @@ WITH compound_name_list:packageList SEMICOLON
 ///////////////////////////////////////////////////////////////////////////////
 // 10.1.3 Subunits of Compilation Units
 //
-subunit ::= SEPARATE LPAREN compound_name RPAREN
-	      subunit_body
-	;
+subunit ::=
+SEPARATE LPAREN compound_name RPAREN
+subunit_body:statement
+{:
+    RESULT = statement;
+:}
+;
 
-subunit_body ::= subprog_body
+subunit_body ::=
+subprog_body:statement
+{:
+    RESULT = statement;
+:}
 | package_body:statement
 {:
-	RESULT = statement;
+    RESULT = statement;
 :}
-| task_body
-| prot_body
+| task_body:statement
+{:
+    RESULT = statement;
+:}
+| prot_body:statement
+{:
+    RESULT = statement;
+:}
 ;
 
 body_stub ::= TASK BODY simple_name IS SEPARATE SEMICOLON
