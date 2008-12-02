@@ -139,7 +139,7 @@ public class NPECheck extends AbstractHint {
             long end = info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), path.getLeaf());
 
             String displayName = NbBundle.getMessage(NPECheck.class, key);
-            List<Fix> fixes = Collections.singletonList(FixFactory.createSuppressWarnings(info, path, "null"));
+            List<Fix> fixes = FixFactory.createSuppressWarnings(info, path, "null");
             warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
         }
         
@@ -204,7 +204,7 @@ public class NPECheck extends AbstractHint {
             
             if (expr == State.NULL) {
                 String displayName = NbBundle.getMessage(NPECheck.class, "ERR_DereferencingNull");
-                List<Fix> fixes = Collections.singletonList(FixFactory.createSuppressWarnings(info, getCurrentPath(), "null"));
+                List<Fix> fixes = FixFactory.createSuppressWarnings(info, getCurrentPath(), "null");
                 warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
                 
                 wasNPE = true;
@@ -212,7 +212,7 @@ public class NPECheck extends AbstractHint {
 
             if (expr == State.POSSIBLE_NULL_REPORT) {
                 String displayName = NbBundle.getMessage(NPECheck.class, "ERR_PossiblyDereferencingNull");
-                List<Fix> fixes = Collections.singletonList(FixFactory.createSuppressWarnings(info, getCurrentPath(), "null"));
+                List<Fix> fixes = FixFactory.createSuppressWarnings(info, getCurrentPath(), "null");
                 warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
                 
                 wasNPE = true;

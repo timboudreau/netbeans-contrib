@@ -199,14 +199,14 @@ public class BatchApply {
             Fix fix = null;
 
             for (Fix f : ed.getFixes().getFixes()) {
-                if (!(f instanceof SuppressWarningsFixer.FixImpl)) {
+//                if (!(f instanceof SuppressWarningsFixer.FixImpl)) {
                     if (fix != null) {
                         fix = null;
                         break;
                     }
 
                     fix = f;
-                }
+//                }
             }
 
             if (fix == null) {
