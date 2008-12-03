@@ -1,0 +1,25 @@
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+<#if package?? && package != "">
+package ${package};
+</#if>
+
+import com.thoughtworks.selenium.SeleneseTestCase;
+
+/**
+ *
+ * @author ${user}
+ */
+public class ${name} extends SeleneseTestCase {
+
+    @Override
+	public void setUp() throws Exception {
+            //super.setUp("http://localhost:8080/");
+	}
+
+	public void testSimple() throws Exception {
+	}
+
+}
