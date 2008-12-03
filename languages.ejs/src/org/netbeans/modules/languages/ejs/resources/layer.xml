@@ -104,7 +104,7 @@
                     <file name="org-netbeans-lib-editor-codetemplates-CodeTemplateCompletionProvider.instance"/>
                     -->
                 </folder>
-   
+
 
 
                 <folder name="HyperlinkProviders">
@@ -113,7 +113,7 @@
                         <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
                     </file>
                 </folder>
-                
+
 
 
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
@@ -132,7 +132,21 @@
                 <file name="EditorKit.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.languages.ejs.editor.EJSKit"/>
                 </file>
+                <folder name="Popup">
+                    <file name="format">
+                        <attr name="position" intvalue="1480"/>
+                    </file>
 
+                    <file name="SeparatorAfterGoToHelp.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1240"/>
+                    </file>
+
+                    <file name="SeparatorBeforeCut.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1960"/>
+                    </file>
+                </folder>
                 <folder name="Keybindings">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -162,7 +176,7 @@
         <folder name="text">
             <folder name="x-ejs">
                 <attr name="useCustomEditorKit" boolvalue="true"/>
-                
+
                 <file name="language.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.fpi.gsf.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.languages.ejs.EJSLanguage"/>
