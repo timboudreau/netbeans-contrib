@@ -38,7 +38,10 @@
  */
 package org.netbeans.modules.java.gotoimpl;
 
+import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -78,6 +81,7 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.ElementDescription;
 import org.netbeans.modules.java.editor.overridden.IsOverriddenPopup;
@@ -115,25 +119,16 @@ public final class GoToImplementation extends AbstractAction implements Property
         try {
             JavaSource.forDocument(c.getDocument()).runUserActionTask(new Task<CompilationController>() {
                 public void run(CompilationController parameter) throws Exception {
-                    TreePath tp = parameter.getTreeUtilities().pathFor(c.getCaretPosition());
+                    parameter.toPhase(Phase.RESOLVED);
+                    
+                    ExecutableElement el = resolveMethod(parameter, c.getCaretPosition());
 
-                    while (tp.getLeaf().getKind() != Kind.METHOD && tp.getLeaf().getKind() != Kind.COMPILATION_UNIT) {
-                        tp = tp.getParentPath();
-                    }
-
-                    if (tp.getLeaf().getKind() == Kind.COMPILATION_UNIT) {
+                    if (el == null) {
                         StatusDisplayer.getDefault().setStatusText("No method");
-                        return;
-                    }
-
-                    Element el = parameter.getTrees().getElement(tp);
-
-                    if (el == null || el.getKind() != ElementKind.METHOD) {
-                        StatusDisplayer.getDefault().setStatusText("No method");
-                        return;
+                        return ;
                     }
                     
-                    List<ElementDescription> overriding = process(parameter, (ExecutableElement) el);
+                    List<ElementDescription> overriding = process(parameter, el);
 
                     if (overriding == null) {
                         StatusDisplayer.getDefault().setStatusText("No overridding method found");
@@ -399,4 +394,51 @@ public final class GoToImplementation extends AbstractAction implements Property
         
         PopupUtil.showPopup(new IsOverriddenPopup(caption, declarations), caption, position.x, position.y, true, 0);
     }
+
+    private static ExecutableElement resolveMethod(CompilationInfo info, int caret) {
+        TreePath tp = info.getTreeUtilities().pathFor(caret);
+
+        Element  elementUnderCaret = info.getTrees().getElement(tp);
+
+        if (elementUnderCaret != null && elementUnderCaret.getKind() == ElementKind.METHOD) {
+            return (ExecutableElement) elementUnderCaret;
+        }
+
+        ExecutableElement ee = resolveMethodHeader(tp, info, caret);
+
+        if (ee == null) {
+            tp = info.getTreeUtilities().pathFor(caret + 1);
+            ee = resolveMethodHeader(tp, info, caret);
+        }
+
+        return ee;
+    }
+    
+    private static ExecutableElement resolveMethodHeader(TreePath tp, CompilationInfo info, int caret) {
+        while (tp.getLeaf().getKind() != Kind.METHOD && tp.getLeaf().getKind() != Kind.COMPILATION_UNIT) {
+            tp = tp.getParentPath();
+        }
+
+        if (tp.getLeaf().getKind() == Kind.COMPILATION_UNIT) {
+            return null;
+        }
+
+        MethodTree mt = (MethodTree) tp.getLeaf();
+        SourcePositions sp = info.getTrees().getSourcePositions();
+        BlockTree body = mt.getBody();
+        long bodyStart = body != null ? sp.getStartPosition(info.getCompilationUnit(), body) : Integer.MAX_VALUE;
+
+        if (caret >= bodyStart) {
+            return null;
+        }
+
+        Element el = info.getTrees().getElement(tp);
+
+        if (el == null || el.getKind() != ElementKind.METHOD) {
+            return null;
+        }
+        
+        return (ExecutableElement) el;
+    }
+
 }
