@@ -38,20 +38,21 @@
  */
 package org.netbeans.modules.contrib.testng.maven;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+import java.util.Collections;
 import java.util.logging.Logger;
-import org.apache.maven.model.Activation;
-import org.apache.maven.model.ActivationProperty;
-import org.apache.maven.model.Build;
-import org.apache.maven.model.BuildBase;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.Profile;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.netbeans.modules.maven.embedder.writer.WriterUtils;
+import org.netbeans.modules.maven.api.Constants;
+import org.netbeans.modules.maven.model.ModelOperation;
+import org.netbeans.modules.maven.model.Utilities;
+import org.netbeans.modules.maven.model.pom.Activation;
+import org.netbeans.modules.maven.model.pom.ActivationProperty;
+import org.netbeans.modules.maven.model.pom.BuildBase;
+import org.netbeans.modules.maven.model.pom.Configuration;
+import org.netbeans.modules.maven.model.pom.POMExtensibilityElement;
+import org.netbeans.modules.maven.model.pom.POMModel;
+import org.netbeans.modules.maven.model.pom.POMQName;
+import org.netbeans.modules.maven.model.pom.Plugin;
+import org.netbeans.modules.maven.model.pom.Profile;
+import org.netbeans.modules.xml.xam.Model.State;
 import org.openide.filesystems.FileObject;
 
 /*
@@ -89,64 +90,42 @@ public class MavenModelUtils {
 
     private static final String PROFILE_NAME = "netbeans-private-testng"; //NOI18N
 
-    public static void addProfile(FileObject fo, String fileName) {
+    public static void addProfile(FileObject fo, final String fileName) {
         assert fo != null;
-        Model m = WriterUtils.loadModel(fo);
+        ModelOperation<POMModel> operation = new ModelOperation<POMModel>() {
+            public void performOperation(POMModel model) {
+                if (!State.VALID.equals(model.getState())) {
+                    return;
+                }
+                Profile prof = model.getProject().findProfileById(PROFILE_NAME);
+                if (prof != null) {
+                    return;
+                }
+                prof = model.getFactory().createProfile();
+                prof.setId(PROFILE_NAME);
+                Activation act =  model.getFactory().createActivation();
+                ActivationProperty prop = model.getFactory().createActivationProperty();
+                prop.setName("netbeans.testng.action"); //NOI18N
+                act.setActivationProperty(prop);
+                prof.setActivation(act);
 
-        for (Object o: m.getProfiles()) {
-            Profile p = (Profile) o;
-            if (PROFILE_NAME.equals(p.getId())) {
-                return;
+                BuildBase base = model.getFactory().createBuildBase();
+                Plugin plug = model.getFactory().createPlugin();
+                plug.setGroupId(Constants.GROUP_APACHE_PLUGINS);
+                plug.setArtifactId(Constants.PLUGIN_SUREFIRE);
+                plug.setVersion("2.4.2"); //NOI18N
+                Configuration conf = model.getFactory().createConfiguration();
+                POMExtensibilityElement suite = model.getFactory().createPOMExtensibilityElement(
+                        POMQName.createQName("suiteXmlFiles", model.getPOMQNames().isNSAware()));//NOI18N
+                suite.setChildElementText("suiteXmlFile", fileName, //NOI18N
+                        POMQName.createQName("suiteXmlFile", model.getPOMQNames().isNSAware()));//NOI18N
+                conf.addExtensibilityElement(suite);
+                plug.setConfiguration(conf);
+                base.addPlugin(plug);
+                prof.setBuildBase(base);
+                model.getProject().addProfile(prof);
             }
-        }
-        Profile ps = new Profile();
-        if (m.getProfiles() == null) {
-            List l = new ArrayList();
-            l.add(ps);
-            m.setProfiles(l);
-        } else {
-            m.getProfiles().add(ps);
-        }
-        ps.setId(PROFILE_NAME);
-        Activation a = ps.getActivation();
-        if (a == null) {
-            a = new Activation();
-            ps.setActivation(a);
-        }
-        a.setActiveByDefault(false);
-        ActivationProperty ap = new ActivationProperty();
-        ap.setName("netbeans.testng.action"); //NOI18N
-        a.setProperty(ap);
-        Plugin plugin = new Plugin();
-        plugin.setGroupId("org.apache.maven.plugins"); //NOI18N
-        plugin.setArtifactId("maven-surefire-plugin"); //NOI18N
-        plugin.setVersion("2.4.2");
-        Xpp3Dom dom = (Xpp3Dom) plugin.getConfiguration();
-        if (dom == null) {
-            dom = new Xpp3Dom("configuration"); //NOI18N
-            plugin.setConfiguration(dom);
-        }
-        Xpp3Dom dom2 = dom.getChild("suiteXmlFiles"); //NOI18N
-        if (dom2 == null) {
-            dom2 = new Xpp3Dom("suiteXmlFiles"); //NOI18N
-            dom.addChild(dom2);
-        }
-        Xpp3Dom dom3 = dom2.getChild("suiteXmlFile"); //NOI18N
-        if (dom3 == null) {
-            dom3 = new Xpp3Dom("suiteXmlFile"); //NOI18N
-            dom2.addChild(dom3);
-        }
-        dom3.setValue(fileName);
-        BuildBase build = ps.getBuild();
-        if (build == null) {
-            build = new Build();
-        }
-        build.getPlugins().add(plugin);
-        ps.setBuild(build);
-        try {
-            WriterUtils.writePomModel(fo, m);
-        } catch (IOException ex) {
-            LOGGER.log(Level.INFO, ex.getMessage(), ex);
-        }
+        };
+        Utilities.performPOMModelOperations(fo, Collections.singletonList(operation));
     }
 }
