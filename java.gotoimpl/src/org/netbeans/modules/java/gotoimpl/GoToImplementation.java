@@ -50,7 +50,6 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -72,8 +71,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.ClassPath.Entry;
-import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.SearchKind;
 import org.netbeans.api.java.source.ClasspathInfo;
@@ -82,16 +79,19 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.ElementDescription;
 import org.netbeans.modules.java.editor.overridden.IsOverriddenPopup;
 import org.netbeans.modules.java.editor.overridden.PopupUtil;
-import org.netbeans.modules.java.editor.overridden.ReverseSourceRootsLookup;
+import org.netbeans.modules.java.source.usages.RepositoryUpdater;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
 import org.openide.util.Exceptions;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
@@ -157,11 +157,13 @@ public final class GoToImplementation extends AbstractAction implements Property
         setEnabled(c != null && JavaSource.forDocument(c.getDocument()) != null);
     }
 
-    private static Set<FileObject> findReverseSourceRoots(final FileObject thisSourceRoot, final FileObject thisFile) {
+    private static Set<URL> findReverseSourceRoots(final FileObject thisSourceRoot, final FileObject thisFile) {
         long startTime = System.currentTimeMillis();
 
         try {
-            return new HashSet<FileObject>(ReverseSourceRootsLookup.reverseSourceRootsLookup(thisSourceRoot));
+            return SourceUtils.getDependentRoots(thisSourceRoot.getURL());
+        } catch (FileStateInvalidException ex) {
+            throw new IllegalStateException(ex);
         } finally {
             long endTime = System.currentTimeMillis();
 
@@ -184,7 +186,7 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
 
     private static List<ElementDescription> process(CompilationInfo info, ExecutableElement ee) {
-        Set<FileObject> reverseSourceRoots;
+        Set<URL> reverseSourceRoots;
         FileObject thisSourceRoot = findSourceRoot(info.getFileObject());
         if (thisSourceRoot == null) {
             return null;
@@ -193,7 +195,7 @@ public final class GoToImplementation extends AbstractAction implements Property
         reverseSourceRoots = findReverseSourceRoots(thisSourceRoot, info.getFileObject());
 
         //XXX: special case "this" source root (no need to create a new JS and load the classes again for it):
-        reverseSourceRoots.add(thisSourceRoot);
+//        reverseSourceRoots.add(thisSourceRoot);
 
 //        LOG.log(Level.FINE, "reverseSourceRoots: {0}", reverseSourceRoots); //NOI18N
 
@@ -208,7 +210,7 @@ public final class GoToImplementation extends AbstractAction implements Property
         long startTime = System.currentTimeMillis();
         long[] classIndexTime = new long[1];
         ElementHandle<TypeElement> sourceTypeHandle = ElementHandle.create((TypeElement) /*!!!*/ ee.getEnclosingElement());
-        final Map<FileObject, Set<ElementHandle<TypeElement>>> users = computeUsers(reverseSourceRoots, sourceTypeHandle, classIndexTime);
+        final Map<URL, Set<ElementHandle<TypeElement>>> users = computeUsers(reverseSourceRoots, sourceTypeHandle, classIndexTime);
         long endTime = System.currentTimeMillis();
 
         if (users == null) {
@@ -220,7 +222,7 @@ public final class GoToImplementation extends AbstractAction implements Property
 //                Logger.getLogger("TIMER").log(Level.FINE, "Overridden Users", //NOI18N
 //                    new Object[] {file, endTime - startTime});
 
-        for (Map.Entry<FileObject, Set<ElementHandle<TypeElement>>> data : users.entrySet()) {
+        for (Map.Entry<URL, Set<ElementHandle<TypeElement>>> data : users.entrySet()) {
             findOverriddenAnnotations(data.getKey(), data.getValue(), sourceTypeHandle, Collections.singletonList(ElementHandle.create(ee)), overriding, overridingClasses);
         }
 
@@ -232,8 +234,8 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
     private static final ClassPath EMPTY = ClassPathSupport.createClassPath(new URL[0]);
 
-    private static Set<ElementHandle<TypeElement>> computeUsers(FileObject source, Set<ElementHandle<TypeElement>> base, long[] classIndexCumulative) {
-        ClasspathInfo cpinfo = ClasspathInfo.create(/*source);/*/EMPTY, EMPTY, ClassPathSupport.createClassPath(new FileObject[]{source}));
+    private static Set<ElementHandle<TypeElement>> computeUsers(URL source, Set<ElementHandle<TypeElement>> base, long[] classIndexCumulative) {
+        ClasspathInfo cpinfo = ClasspathInfo.create(/*source);/*/EMPTY, EMPTY, ClassPathSupport.createClassPath(source));
 
         long startTime = System.currentTimeMillis();
 
@@ -257,49 +259,27 @@ public final class GoToImplementation extends AbstractAction implements Property
         }
     }
 
-    private static Map<FileObject, Set<ElementHandle<TypeElement>>> computeUsers(Set<FileObject> sources, ElementHandle<TypeElement> base, long[] classIndexCumulative) {
-        Map<FileObject, Collection<FileObject>> edges = new HashMap<FileObject, Collection<FileObject>>();
-        Map<FileObject, Collection<FileObject>> dependsOn = new HashMap<FileObject, Collection<FileObject>>();
-
-        for (FileObject source : sources) {
-            edges.put(source, new ArrayList<FileObject>());
-        }
-
-        for (FileObject source : sources) {
-            List<FileObject> deps = new ArrayList<FileObject>();
-
-            dependsOn.put(source, deps);
-
-            for (Entry entry : ClassPath.getClassPath(source, ClassPath.COMPILE).entries()) { //TODO: should also check BOOT?
-                for (FileObject s : SourceForBinaryQuery.findSourceRoots(entry.getURL()).getRoots()) {
-                    Collection<FileObject> targets = edges.get(s);
-
-                    if (targets != null) {
-                        targets.add(source);
-                    }
-
-                    deps.add(s);
-                }
-            }
-        }
-
-        List<FileObject> sourceRoots = new ArrayList<FileObject>(sources);
-
+    private static Map<URL, Set<ElementHandle<TypeElement>>> computeUsers(Set<URL> sourceRootsSet, ElementHandle<TypeElement> base, long[] classIndexCumulative) {
+        Map<URL, List<URL>> deps = RepositoryUpdater.getDefault().getDependencies();
+        List<URL> sourceRoots;
         try {
-            Utilities.topologicalSort(sourceRoots, edges);
+            sourceRoots = new LinkedList<URL>(Utilities.topologicalSort(deps.keySet(), deps));
         } catch (TopologicalSortException ex) {
-//            LOG.log(Level.WARNING, "internal error", ex); //NOI18N
+            Exceptions.attachLocalizedMessage(ex, "Cycle in dependencies");
+            Exceptions.printStackTrace(ex);
             return null;
         }
 
-        Map<FileObject, Set<ElementHandle<TypeElement>>> result = new HashMap<FileObject, Set<ElementHandle<TypeElement>>>();
+        sourceRoots.retainAll(sourceRootsSet);
 
-        for (FileObject file : sourceRoots) {
+        Map<URL, Set<ElementHandle<TypeElement>>> result = new HashMap<URL, Set<ElementHandle<TypeElement>>>();
+
+        for (URL file : sourceRoots) {
             Set<ElementHandle<TypeElement>> baseTypes = new HashSet<ElementHandle<TypeElement>>();
 
             baseTypes.add(base);
 
-            for (FileObject dep : dependsOn.get(file)) {
+            for (URL dep : deps.get(file)) {
                 Set<ElementHandle<TypeElement>> depTypes = result.get(dep);
 
                 if (depTypes != null) {
@@ -318,15 +298,16 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
 
     private static void findOverriddenAnnotations(
-            FileObject sourceRoot,
+            URL sourceRoot,
             final Set<ElementHandle<TypeElement>> users,
             final ElementHandle<TypeElement> originalType,
             final List<ElementHandle<ExecutableElement>> methods,
             final Map<ElementHandle<ExecutableElement>, List<ElementDescription>> overriding,
             final List<ElementDescription> overridingClasses) {
-        ClasspathInfo cpinfo = ClasspathInfo.create(sourceRoot);
-
         if (!users.isEmpty()) {
+            FileObject sourceRootFile = URLMapper.findFileObject(sourceRoot);
+            ClasspathInfo cpinfo = ClasspathInfo.create(sourceRootFile);
+
             JavaSource js = JavaSource.create(cpinfo);
 
             try {
