@@ -177,8 +177,11 @@ public class BuildSnifferTest extends NbTestCase {
         runAnt();
         String cp = Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH);
         assertTrue(cp, cp.contains(prefix + "x.jar"));
-        assertTrue(cp, cp.contains(System.getProperty("java.class.path")));
-        // can also contain tools.jar
+        // Checking that cp contains j.c.p will not work;
+        // Ant module purposely trims j.c.p while script is running (#152620).
+        if (System.getProperty("java.class.path").contains("tools.jar")) {
+            assertTrue(cp, cp.contains("tools.jar"));
+        }
     }
 
     public void testMistakenSourceDir() throws Exception {
