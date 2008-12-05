@@ -172,6 +172,11 @@ public class BuildSniffer extends AntLogger {
         }
         List<String> sources = new ArrayList<String>();
         appendPath(task.getAttribute("srcdir"), event, sources, true);
+        for (TaskStructure child : task.getChildren()) {
+            if (child.getName().equals("src")) {
+                appendPathStructure(child, event, sources, state);
+            }
+        }
         // XXX consider includes/excludes too?
         List<String> _destdir = new ArrayList<String>();
         appendPath(task.getAttribute("destdir"), event, _destdir, false);
@@ -198,9 +203,7 @@ public class BuildSniffer extends AntLogger {
                 appendPath(event.getProperty(cpref), event, classpath, true);
             }
             for (TaskStructure child : task.getChildren()) {
-                if (child.getName().equals("src")) {
-                    appendPathStructure(child, event, sources, state);
-                } else if (child.getName().equals("classpath")) {
+                if (child.getName().equals("classpath")) {
                     appendPathStructure(child, event, classpath, state);
                 }
             }

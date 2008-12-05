@@ -83,6 +83,26 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
     }
 
+    public void testParallelSourceTrees() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <property name='build.sysclasspath' value='only'/>\n" +
+                "  <mkdir dir='s1'/>\n" +
+                "  <mkdir dir='s2'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac destdir='c'>\n" +
+                "   <src path='s1:s2'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(prefix + "s1" + File.pathSeparator + prefix + "s2", Cache.get(prefix + "s1" + JavaCacheConstants.SOURCE));
+        assertEquals(prefix + "s1" + File.pathSeparator + prefix + "s2", Cache.get(prefix + "s2" + JavaCacheConstants.SOURCE));
+        assertEquals(prefix + "c", Cache.get(prefix + "s1" + JavaCacheConstants.BINARY));
+        assertEquals(prefix + "c", Cache.get(prefix + "s2" + JavaCacheConstants.BINARY));
+    }
+
     public void testSourceRootCompiledMultiply() throws Exception {
         write("build.xml",
                 "<project default='c'>\n" +
