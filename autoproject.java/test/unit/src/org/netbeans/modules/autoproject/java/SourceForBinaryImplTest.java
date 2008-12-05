@@ -79,6 +79,27 @@ public class SourceForBinaryImplTest extends NbTestCase {
                 Arrays.asList(SourceForBinaryQuery.findSourceRoots(FileUtil.urlForArchiveOrDir(pBin)).getRoots()));
     }
 
+    public void testParallelSourceTrees() throws Exception {
+        File p = new File(getWorkDir(), "p");
+        Cache.put(p.getAbsolutePath() + Cache.PROJECT, "true");
+        File pSrc1 = new File(p, "src1");
+        pSrc1.mkdirs();
+        String pSrc1Path = pSrc1.getAbsolutePath();
+        File pSrc2 = new File(p, "src2");
+        pSrc2.mkdirs();
+        String pSrc2Path = pSrc2.getAbsolutePath();
+        Cache.put(pSrc1Path + JavaCacheConstants.SOURCE, pSrc1Path + File.pathSeparator + pSrc2Path);
+        Cache.put(pSrc2Path + JavaCacheConstants.SOURCE, pSrc1Path + File.pathSeparator + pSrc2Path);
+        File pBin = new File(p, "classes");
+        pBin.mkdirs();
+        Cache.put(pSrc1Path + JavaCacheConstants.BINARY, pBin.getAbsolutePath());
+        Cache.put(pSrc2Path + JavaCacheConstants.BINARY, pBin.getAbsolutePath());
+        FileObject pFO = FileUtil.toFileObject(p);
+        assertNotNull(pFO);
+        assertEquals(Arrays.asList(pFO.getFileObject("src1"), pFO.getFileObject("src2")),
+                Arrays.asList(SourceForBinaryQuery.findSourceRoots(FileUtil.urlForArchiveOrDir(pBin)).getRoots()));
+    }
+
     public void testJar() throws Exception {
         File p = new File(getWorkDir(), "p");
         Cache.put(p.getAbsolutePath() + Cache.PROJECT, "true");
