@@ -57,4 +57,9 @@ made subject to such option by the copyright holder.
             </file>
         </folder>
     </folder>
+    <folder name="Shortcuts">
+        <file name="DA-B.shadow">
+            <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
+        </file>
+    </folder>
 </filesystem>
