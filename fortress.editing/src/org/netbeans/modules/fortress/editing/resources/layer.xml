@@ -100,8 +100,10 @@
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-fortress">
+                <!-- XXX does not exist:
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/fortress/editing/fortress.png"/>
                 <attr name="iconBase" stringvalue="org/netbeans/modules/fortress/editing/fortress.png"/>
+                -->
                 <folder name="Actions">
                     <file name="OpenAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.OpenAction"/>

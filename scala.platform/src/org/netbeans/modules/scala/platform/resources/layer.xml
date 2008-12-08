@@ -54,7 +54,6 @@ made subject to such option by the copyright holder.
         <folder name="Platforms">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.platform.resources.Bundle"/>
             <folder name="org-netbeans-api-scala-Platform">
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/platform/resources/platformList.gif"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.platform.resources.Bundle"/>
             </folder>
         </folder>
