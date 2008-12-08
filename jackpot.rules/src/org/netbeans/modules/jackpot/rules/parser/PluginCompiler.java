@@ -312,6 +312,7 @@ public class PluginCompiler {
 	    options.put("-source", "1.5");
             options.put("-target", "1.5");
 	    options.put("-d", gcd);
+        options.put("-proc:none", "-proc:none");
 	    options.put("-sourcepath", gcd);
             options.put("-g", "-g");
             if (javacpath != null)
