@@ -43,44 +43,37 @@ package org.netbeans.modules.selenium;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.web.api.webmodule.WebProjectConstants;
+import org.netbeans.modules.web.spi.webmodule.WebModuleProvider;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
+import org.openide.util.actions.NodeAction;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public final class RunSeleniumTestsAction extends CookieAction {
+public final class RunSeleniumTestsAction extends NodeAction {
 
     protected void performAction(Node[] activatedNodes) {
-        Project project = activatedNodes[0].getLookup().lookup(Project.class);
-//        Preferences prefs = ProjectUtils.getPreferences(project, RunSeleniumTestsAction.class, false);
-        SeleniumServerRunner.runServer();
-        ActionProvider provider = project.getLookup().lookup(ActionProvider.class);
-        provider.invokeAction(WebProjectConstants.COMMAND_REDEPLOY, Lookup.EMPTY);
-        provider.invokeAction(ActionProvider.COMMAND_TEST, Lookup.EMPTY);
-    }
-
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
+        for (Node node : activatedNodes) {
+            Project project = node.getLookup().lookup(Project.class);
+            SeleniumServerRunner.runServer();
+            ActionProvider provider = project.getLookup().lookup(ActionProvider.class);
+            provider.invokeAction(WebProjectConstants.COMMAND_REDEPLOY, Lookup.EMPTY);
+            provider.invokeAction(ActionProvider.COMMAND_TEST, Lookup.EMPTY);
+        }
     }
 
     public String getName() {
         return NbBundle.getMessage(RunSeleniumTestsAction.class, "CTL_RunSeleniumTestsAction");
     }
 
-    protected Class[] cookieClasses() {
-        return new Class[]{Project.class};
-    }
-
     @Override
     protected void initialize() {
         super.initialize();
-        // see org.openide.util.actions.SystemAction.iconResource() Javadoc for more details
         putValue("noIconInMenu", Boolean.TRUE);
     }
 
@@ -90,7 +83,21 @@ public final class RunSeleniumTestsAction extends CookieAction {
 
     @Override
     protected boolean asynchronous() {
-        return false;
+        return true;
+    }
+
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        for (Node node : activatedNodes) {
+            Project proj = node.getLookup().lookup(Project.class);
+            if (proj == null){
+                return false;
+            }
+            if (proj.getLookup().lookup(WebModuleProvider.class) == null){
+                return false;
+            }
+        }
+        return activatedNodes.length > 0;
     }
 }
 
