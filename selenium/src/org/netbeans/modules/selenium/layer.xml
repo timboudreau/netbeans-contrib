@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-selenium-RunSeleniumTestsAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="BuildProject">
+            <file name="org-netbeans-modules-selenium-RunSeleniumTestsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-selenium-RunSeleniumTestsAction.instance"/>
+                <attr name="position" intvalue="57"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name ="Selenium">
+            <file name="SeleneseTest.java" url="templates/SeleneseTest.template">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.selenium.templates.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/selenium/templates/SeleneseTest.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.selenium.templates.SeleneseTestWizardOperator.create"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="Selenium.xml" url="Selenium.xml"/>
+        </folder>
+    </folder>
+</filesystem>
