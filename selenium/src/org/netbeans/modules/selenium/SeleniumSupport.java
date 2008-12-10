@@ -89,8 +89,17 @@ public class SeleniumSupport {
 
     private static FileObject prepareProject(Project project) throws IOException{
         FileObject projectDir = project.getProjectDirectory();
-        addLibrary(projectDir.getFileObject("test", null));
-        return addTestSourceRoot(project);
+        FileObject seleniumDir = addTestSourceRoot(project);
+        addLibrary(projectDir.getFileObject("test"));
+        notifyProjectXMLChanges(projectDir.getFileObject("src/java"));
+        return seleniumDir;
+    }
+
+    private static void notifyProjectXMLChanges(FileObject fo) throws IOException {
+        assert fo != null;
+        Library library = LibraryManager.getDefault().getLibrary(SELENIUM_LIBRARY_NAME); //NOI18N
+        ProjectClassPathModifier.addLibraries(new Library[]{library}, fo, ClassPath.COMPILE);
+        ProjectClassPathModifier.removeLibraries(new Library[]{library}, fo, ClassPath.COMPILE);
     }
 
     private static void addLibrary(FileObject fo) throws IOException{
