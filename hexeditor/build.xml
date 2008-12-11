@@ -45,6 +45,13 @@ made subject to such option by the copyright holder.
 
   <import file="../../nbbuild/templates/projectized.xml"/>
 
+  <target name="build-init" depends="compile-editor,projectized.build-init"/>
+
+  <available file="../../contrib/other/hexedit/dist/hexedit.jar" property="editor-compiled"/>
+  <target name="compile-editor" unless="editor-compiled">
+      <ant inheritall="false" inheritrefs="false" antfile="../../contrib/other/hexedit/build.xml" target="jar"/>
+  </target>
+
   <target name="netbeans-extra" depends="build-init">
     <mkdir dir="${cluster}/modules/ext"/>
     <copy file="../../contrib/other/hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>

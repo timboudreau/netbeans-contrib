@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -44,8 +44,11 @@ import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.hexedit.HexEditPanel;
-import org.openide.ErrorManager;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -60,26 +63,75 @@ import org.openide.windows.TopComponent;
  * @author Tim Boudreau
  */
 public class HexEditAction extends CookieAction {
-    
+    private static boolean WARNED =
+            NbPreferences.forModule(HexEditAction.class).getBoolean("warned", //NOI18N
+            false);
     public HexEditAction() {
     }
     
     public void performAction (Node[] n) {
-        DataObject dob = (DataObject) n[0].getLookup().lookup (DataObject.class);
-        FileObject fileObject = dob.getPrimaryFile();
-        File f = FileUtil.toFile (fileObject);
-        if (f != null && f.isFile()) {
-            TopComponent tc = new TopComponent (n[0].getLookup());
-            tc.setDisplayName (n[0].getDisplayName());
-            tc.setLayout (new BorderLayout());
-            try {
-                tc.add (new HexEditPanel (f), BorderLayout.CENTER);
-                tc.open();
-                tc.requestActive();
-            } catch (FileNotFoundException fe) {
-                ErrorManager.getDefault().notify (fe);
+        try {
+            TopComponent tc = new TC(n[0]);
+            tc.open();
+            tc.requestActive();
+            if (!WARNED) {
+                warn();
+            }
+        } catch (FileNotFoundException fe) {
+            Logger.getLogger(HexEditAction.class.getName()).log(Level.INFO,
+                    null, fe);
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
+
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        boolean result = activatedNodes.length == 1;
+        if (result) {
+            DataObject dob = activatedNodes[0].getLookup().lookup(DataObject.class);
+            result = dob != null;
+            if (result && dob.isValid()) {
+                FileObject fo = dob.getPrimaryFile();
+                result = fo.isData() && !fo.isFolder();
+                if (result) {
+                    result = FileUtil.toFile(fo) != null;
+                }
             }
         }
+        return result;
+    }
+
+    private static final class TC extends TopComponent {
+        TC (Node n) throws FileNotFoundException {
+            DataObject dob = (DataObject) n.getLookup().lookup (DataObject.class);
+            FileObject fileObject = dob.getPrimaryFile();
+            File f = FileUtil.toFile (fileObject);
+            setActivatedNodes(new Node[] { n });
+            associateLookup (n.getLookup());
+            setDisplayName (n.getDisplayName());
+            setLayout (new BorderLayout());
+            add (new HexEditPanel (f), BorderLayout.CENTER);
+        }
+        
+        @Override
+        public int getPersistenceType() {
+            return PERSISTENCE_NEVER;
+        }
+
+        @Override
+        protected void componentOpened() {
+            ((HexEditPanel) getComponents()[0]).resetSplitterPosition();
+        }
+    }
+
+    private void warn() {
+        String msg = NbBundle.getMessage (HexEditAction.class, "WARNING"); //NOI18N
+        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg,
+                NotifyDescriptor.WARNING_MESSAGE));
+        NbPreferences.forModule(HexEditAction.class).putBoolean("warned", //NOI18N
+            true);
+        WARNED = true;
     }
     
     protected Class[] cookieClasses() {

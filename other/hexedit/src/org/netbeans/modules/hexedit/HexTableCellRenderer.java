@@ -83,11 +83,14 @@ class HexTableCellRenderer implements TableCellRenderer, ListCellRenderer {
         colCount = jTable.getColumnCount();
         
         Object tip = obj;
+        String tooltip = obj == null ? "" : obj.toString();
         
         obj = Util.convertToString (obj);
         
         ren.setBackground (jTable.getBackground());
         Component result = ren.getTableCellRendererComponent (jTable, obj, sel, focus, row, col);
+
+        ((JComponent) result).setToolTipText(tooltip);
         if (tip == HexTableModel.PARTIAL_VALUE) {
             result.setBackground (new Color (220, 220, 220));
             return result;

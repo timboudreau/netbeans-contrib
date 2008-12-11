@@ -179,7 +179,8 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.subs = new ArrayList<Description>();
                 d.pos = getPosition( e );
                 d.htmlHeader = createHtmlHeader( e, 
-                        info.getElements().isDeprecated(e) );                
+                        info.getElements().isDeprecated(e) );
+                d.content = createTextContent(e);
                 d.javadoc = splitUp (info.getElements().getDocComment(e));
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 d.inner = e.getNestingKind().isNested();
@@ -204,7 +205,9 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.elementHandle = ElementHandle.create(e);
                 d.name = e.getSimpleName().toString();
                 d.pos = getPosition( e );
-                d.htmlHeader = createHtmlHeader( e, info.getElements().isDeprecated(e) ); 
+                boolean dep = info.getElements().isDeprecated(e);
+                d.htmlHeader = createHtmlHeader( e, dep);
+                d.content = createTextContent(e, dep);
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 d.javadoc = splitUp (info.getElements().getDocComment(e));
                 if ( d.pos == -1 ) {
@@ -230,14 +233,16 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 if ( d.pos == -1 ) {
                     return null;
                 }
-                d.htmlHeader = createHtmlHeader(e, info.getElements().isDeprecated(e));
+                boolean dep = info.getElements().isDeprecated(e);
+                d.htmlHeader = createHtmlHeader(e, dep);
+                d.content = createTextContent(e, dep);
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 super.visitExecutable(e, d);
                 p.subs.add(d);            
             }
             return null;
         }
-        
+
         private String splitUp (String s) {
             return s == null ? null : "<html>" + s.replace("\n\n", "<P>").replace (
                     "\n", "<br>");
@@ -321,6 +326,22 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 
             return sb.toString();
         }
+
+
+        private String createTextContent(VariableElement e, boolean isDeprecated) {
+            StringBuilder sb = new StringBuilder();
+            sb.append (e.getSimpleName());
+            if ( isDeprecated ) {
+                sb.append("</s>"); // NOI18N
+            }
+
+            if ( e.getKind() != ElementKind.ENUM_CONSTANT ) {
+                sb.append( " : " ); // NOI18N
+                sb.append(print(e.asType()));
+            }
+
+            return sb.toString();
+        }
         
         private String createHtmlHeader( VariableElement e, boolean isDeprecated ) {
             
@@ -352,7 +373,18 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                         
             return sb.toString();            
         }
-        
+
+
+        private String createTextContent(ExecutableElement e, boolean dep) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(e.getSimpleName());
+            if ( dep ) {
+                sb.append("</s>"); // NOI18N
+            }
+            return sb.toString();
+        }
+
+
         private String createHtmlHeader( TypeElement e, boolean isDeprecated ) {
             
             StringBuilder sb = new StringBuilder();            
@@ -374,6 +406,11 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             if ( isDeprecated ) {
                 sb.append("</s>"); // NOI18N
             }
+            return sb.toString();
+        }
+
+        private String createTextContent (TypeElement e) {
+            StringBuilder sb = new StringBuilder();
             // sb.append(print(e.asType()));            
             List<? extends TypeParameterElement> typeParams = e.getTypeParameters();
             

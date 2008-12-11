@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module-Localizing-Bundle: org/netbeans/swing/scrollbars/Bundle.properties
-OpenIDE-Module: org.netbeans.swing.scrollbars
-OpenIDE-Module-Specification-Version: 1.0
-

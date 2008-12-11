@@ -1,2 +1,0 @@
-The osx-native-installer project has been moved to the cvs module 
-"installer", subdirectory mac/.

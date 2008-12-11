@@ -1,6 +1,8 @@
 Manifest-version: 1.0
 OpenIDE-Module: org.netbeans.modules.hexeditor/1
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/hexeditor/resources/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/hexeditor/resources/layer.xml
 
+Name: org/netbeans/modules/hexeditor/HexEditAction.class
+OpenIDE-Module-Class: Action

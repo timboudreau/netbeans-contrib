@@ -59,7 +59,7 @@ import java.awt.*;
 class ModeComboRenderer implements ListCellRenderer {
     private static final DefaultListCellRenderer ren = new DefaultListCellRenderer();
     private static final String BYTE = Util.getMessage("BYTE");
-    private static final StringINT = Util.getMessage("INT");
+    private static final String INT = Util.getMessage("INT");
     private static final String SHORT = Util.getMessage("SHORT");
     private static final String LONG = Util.getMessage("LONG");
     private static final String CHAR = Util.getMessage("CHAR");

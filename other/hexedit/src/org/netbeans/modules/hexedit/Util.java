@@ -46,11 +46,11 @@
 
 package org.netbeans.modules.hexedit;
 
-import org.netbeans.modules.hexedit.HexTableModel;
-
 import java.util.*;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A few utility methods
@@ -210,7 +210,7 @@ class Util {
             try {
                 return ResourceBundle.getBundle("org.netbeans.modules.hexedit.Bundle", Locale.US).getString(key); //NOI18N
             } catch (MissingResourceException mre2) {
-                mre2.printStackTrace();
+                Logger.getLogger(Util.class.getName()).log (Level.INFO, "key", mre2);
                 return key;
             }
         }
@@ -239,17 +239,17 @@ class Util {
     private static String getWithNbBundle (String key) {
         if (getMessage == null) {
             try {
-                getMessage = NBBUNDLE.getDeclaredMethod("getMessage", new Class[] {String.class});
+                getMessage = NBBUNDLE.getDeclaredMethod("getMessage", new Class[] {Class.class, String.class});
             } catch (Exception e) {
-                e.printStackTrace(); //XXX for testing
+                Logger.getLogger(Util.class.getName()).log (Level.INFO, "key", e);
                 nb = Boolean.FALSE;
                 return key;
             }
         }
         try {
-            return (String) getMessage.invoke(null, new Object[] {key});
+            return (String) getMessage.invoke(null, new Object[] {Util.class, key});
         } catch (Exception e) {
-            e.printStackTrace(); //XXX for testing
+            Logger.getLogger(Util.class.getName()).log (Level.INFO, "key", e);
             return key;
         }
     }

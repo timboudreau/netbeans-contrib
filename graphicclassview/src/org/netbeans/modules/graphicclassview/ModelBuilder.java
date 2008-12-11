@@ -1,9 +1,7 @@
 package org.netbeans.modules.graphicclassview;
 
-import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.*;
 import javax.swing.text.Document;
 import org.netbeans.api.java.source.*;
@@ -11,11 +9,12 @@ import org.netbeans.modules.graphicclassview.javac.ElementFinder;
 import org.netbeans.modules.graphicclassview.javac.UsageFinder;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 public class ModelBuilder {
 
     private static final class T
-            implements Task <CompilationController> {
+            implements CancellableTask <CompilationController> {
         private final Callback notifier;
 
         T(Callback notifier) {
@@ -32,6 +31,10 @@ public class ModelBuilder {
             try {
                 Tree tree;
                 for (Iterator i$ = types.iterator(); i$.hasNext(); tree.accept(elementFinder, result)) {
+                    if (cancelled) {
+                        notifier.failed(NbBundle.getMessage(ModelBuilder.class, "CANCELLED"));
+                        return;
+                    }
                     tree = (Tree) i$.next();
                 }
 
@@ -54,6 +57,11 @@ public class ModelBuilder {
             } finally {
                 notifier.done(result);
             }
+        }
+
+        volatile boolean cancelled;
+        public void cancel() {
+            cancelled = true;;
         }
     }
 

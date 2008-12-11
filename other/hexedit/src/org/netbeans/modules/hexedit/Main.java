@@ -124,6 +124,7 @@ public class Main extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         new Main().setVisible(true);
     }
 

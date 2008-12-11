@@ -64,6 +64,7 @@ public class Description {
     Set<Modifier> modifiers;        
     List<Description> subs; 
     String htmlHeader;
+    String content;
     long pos;
     Description parent = null;
     Icon icon;
@@ -106,6 +107,7 @@ public class Description {
     }
     
     private String txt;
+    @Override
     public String toString() {
         if (txt == null) {
             StringBuilder sb = new StringBuilder("<html>"); //NOI18N            
@@ -123,10 +125,36 @@ public class Description {
                 }
             }
             sb.append (htmlHeader);
+//            sb.append (content);
             txt = sb.toString();
         }
         return txt;
     }
+
+    public String toString(int targetChars) {
+        StringBuilder sb = new StringBuilder("<html>"); //NOI18N
+        Description d = this;
+        while (d != null && d.isInner() && d.parent != null) {
+            if (d.parent.isInner()) {
+                //Don't show inner class name truncated on inner class constructors
+                if ((d.elementHandle.getKind() != ElementKind.CONSTRUCTOR || d != this)) {
+                    sb.insert (6, '.');
+                    sb.insert(6, truncate(d.parent.name));
+                }
+                d = d.parent;
+            } else {
+                d = null;
+            }
+        }
+//        sb.append (content);
+        if (targetChars > 0 && sb.length() > targetChars) {
+            sb = Abbreviations.abbreviate(sb, targetChars);
+            sb.insert(0, htmlHeader);
+            System.err.println("abbrev to " + sb);
+        }
+        return sb.toString();
+    }
+
 
     private static String truncate (String s) {
         if (s == null) {

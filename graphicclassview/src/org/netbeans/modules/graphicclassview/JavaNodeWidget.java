@@ -7,6 +7,7 @@ import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import org.netbeans.api.java.source.*;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.Border;
@@ -47,7 +48,7 @@ public class JavaNodeWidget extends Widget
                     final EditorCookie ck = ob.getLookup().lookup(EditorCookie.class);
                     if (ck != null) {
                         ck.open();
-                        class Opener implements Runnable, Task<CompilationController> {
+                        class Opener implements Runnable, CancellableTask<CompilationController> {
                             long pos = -1L;
                             public void run() {
                                 if (!EventQueue.isDispatchThread()) {
@@ -74,11 +75,20 @@ public class JavaNodeWidget extends Widget
 
                             public void run(CompilationController compiler)
                                     throws Exception {
+                                if (cancelled) return;
                                 TreePathHandle h = el.getHandle();
+                                compiler.toPhase(Phase.RESOLVED);
                                 TreePath path = h.resolve(compiler);
+                                if (cancelled) return;
                                 com.sun.source.tree.Tree tree = path.getLeaf();
                                 pos = compiler.getTrees().getSourcePositions().getStartPosition(compiler.getCompilationUnit(), tree);
+                                if (cancelled) return;
                                 EventQueue.invokeLater(this);
+                            }
+
+                            volatile boolean cancelled;
+                            public void cancel() {
+                                cancelled = true;
                             }
                         }
                         RequestProcessor.getDefault().post(new Opener());

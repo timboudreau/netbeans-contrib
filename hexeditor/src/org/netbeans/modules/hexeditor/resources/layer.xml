@@ -3,7 +3,7 @@
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -27,7 +27,7 @@ your own identifying information:
 Contributor(s):
 
 The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
 Microsystems, Inc. All Rights Reserved.
 
 If you wish your version of this file to be governed by only the CDDL
@@ -43,37 +43,19 @@ made subject to such option by the copyright holder.
 -->
 <filesystem>
     <folder name="Actions">
-        <folder name="Misc">
+        <folder name="Edit">
             <file name="org.netbeans.modules.hexeditor.HexEditAction.instance"/>
         </folder>
     </folder>
-
-    <folder name="Toolbars">
-        <folder name="Edit">
-            <file name="HexEditAction.shadow">
-                <attr name="originalFile"
-                 stringvalue="Actions/Misc/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
-             </file>
-         </folder>
-     </folder>
-                
-    <folder name="Menu">
-        <folder name="Edit">
-            <file name="HexEditAction.shadow">
-                <attr name="originalFile" 
-                 stringvalue="Actions/Misc/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
-             </file>
-         </folder>
-     </folder>
-     
-     <folder name="Loaders">
-        <folder name="text">
-            <folder name="x-java">
+    <folder name="Loaders">
+        <folder name="content">
+            <folder name="unknown">
                 <folder name="Actions">
                     <file name="HexEditAction.shadow">
-                        <attr name="originalFile" 
-                         stringvalue="Actions/Misc/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
-                     </file>
+                        <attr name="position" intvalue="-100"/>
+                        <attr name="originalFile"
+                         stringvalue="Actions/Edit/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
+                    </file>
                 </folder>
             </folder>
         </folder>
@@ -81,11 +63,21 @@ made subject to such option by the copyright holder.
             <folder name="plain">
                 <folder name="Actions">
                     <file name="HexEditAction.shadow">
-                        <attr name="originalFile" 
-                         stringvalue="Actions/Misc/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
-                     </file>
+                        <attr name="originalFile"
+                         stringvalue="Actions/Edit/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
+                         <attr name="position" intvalue="320"/>
+                    </file>
                 </folder>
             </folder>
-        </folder>    
+        </folder>
+        <folder name="application">
+            <folder name="unknown">
+                    <file name="HexEditAction.shadow">
+                        <attr name="originalFile"
+                         stringvalue="Actions/Edit/org.netbeans.modules.hexeditor.HexEditAction.instance"/>
+                         <attr name="position" intvalue="320"/>
+                    </file>
+            </folder>
+        </folder>
     </folder>
 </filesystem>

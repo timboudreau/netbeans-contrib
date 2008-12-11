@@ -46,6 +46,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 
 public class DocBookDataObject extends MultiDataObject {
@@ -55,10 +56,12 @@ public class DocBookDataObject extends MultiDataObject {
         getCookieSet().add(new DocBookEditorSupport(this));
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
     
+    @Override
     protected Node createNodeDelegate() {
         return new DocBookDataNode(this, new InstanceContent());
     }
@@ -70,5 +73,9 @@ public class DocBookDataObject extends MultiDataObject {
     final void removeSaveCookie(SaveCookie save) {
         getCookieSet().remove(save);
     }
-    
+
+    @Override
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
+    }
 }

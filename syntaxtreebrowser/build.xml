@@ -2,4 +2,14 @@
 <project basedir="." default="netbeans" name="contrib/syntaxtreebrowser">
     <description>Builds, tests, and runs the project org.netbeans.modules.syntaxtreebrowser</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <!-- http://syntaxtreebrowser.dev.java.net/SyntaxTreeBrowser.jar -->
+    <target name="init" depends="check-for-jar,projectized.init"/>
+
+    <available file="${basedir}/release/modules/ext/SyntaxTreeBrowser.jar" property="jar-exists"/>
+
+    <target name="check-for-jar" unless="jar-exists">
+        <fail>
+Please download http://syntaxtreebrowser.dev.java.net/SyntaxTreeBrowser.jar and place it in the release/modules/ext subdirectory of this module in order to build.
+        </fail>
+    </target>
 </project>

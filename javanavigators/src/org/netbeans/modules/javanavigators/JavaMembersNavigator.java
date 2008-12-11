@@ -42,10 +42,14 @@ package org.netbeans.modules.javanavigators;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.ref.Reference;
@@ -58,7 +62,9 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -73,7 +79,7 @@ import org.openide.windows.TopComponent;
  *
  * @author Tim Boudreau
  */
-public class JavaMembersNavigator implements NavigatorPanel {
+public class JavaMembersNavigator implements NavigatorPanel, ComponentListener {
     private Reference <JPanel> pnl = null;
     static final String KEY_SORT_POS = "sortMode";        
     public JavaMembersNavigator() {
@@ -137,8 +143,12 @@ public class JavaMembersNavigator implements NavigatorPanel {
         result.add (scroll, BorderLayout.CENTER);
         list.setModel (DataGatheringTaskFactory.getModel());
         list.getSelectionModel().addListSelectionListener(new ListListener(list));
-        list.setCellRenderer (new CellRenderer());
+        CellRenderer cr = new CellRenderer();
+        boolean abbrev = NbPreferences.forModule(JavaMembersNavigator.class).getBoolean("abbreviate", false);
+        cr.setAbbreviate(abbrev);
+        list.setCellRenderer (cr);
         list.addMouseListener (new ML());
+        scroll.addComponentListener(this);
         new ListDragListener (list);
         return result;
     }
@@ -151,9 +161,52 @@ public class JavaMembersNavigator implements NavigatorPanel {
         }
         return null;
     }
+
+    private void updateRendererIfNecessary() {
+        JList l = getList(false);
+        if (l != null && l.isDisplayable()) {
+            Font f = l.getFont();
+            FontMetrics fm = l.getGraphicsConfiguration().createCompatibleImage(1, 1).getGraphics().getFontMetrics(f);
+            CellRenderer cr = (CellRenderer) l.getCellRenderer();
+            cr.setVisibleArea (computeScrollpaneVisibleArea(l), fm);
+        }
+    }
+
+    CellRenderer getCellRenderer() {
+        JList l = getList(false);
+        if (l != null && l.isDisplayable() && l.getCellRenderer() instanceof CellRenderer) {
+            CellRenderer cr = (CellRenderer) l.getCellRenderer();
+            return cr;
+        }
+        return null;
+    }
+
+    int computeScrollpaneVisibleArea(JList l) {
+        JScrollPane parent = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, l);
+        if (parent == null) {
+            return 100;
+        }
+        return parent.getViewport().getViewRect().width;
+    }
+
+    public void componentResized(ComponentEvent e) {
+        updateRendererIfNecessary();
+    }
+
+    public void componentMoved(ComponentEvent e) {
+
+    }
+
+    public void componentShown(ComponentEvent e) {
+        updateRendererIfNecessary();
+    }
+
+    public void componentHidden(ComponentEvent e) {
+    }
     
     private static final class Pnl extends JPanel {
         Boolean prev;
+        @Override
         public void addNotify() {
             super.addNotify();
             TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass (
@@ -164,6 +217,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
             }
         }
         
+        @Override
         public void removeNotify() {
             TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass (
                     TopComponent.class, this);
@@ -174,10 +228,11 @@ public class JavaMembersNavigator implements NavigatorPanel {
         }
     }
     
-    private static class ML extends MouseAdapter implements ActionListener {
+    private class ML extends MouseAdapter implements ActionListener {
         private static final String ACTION_POSITION_SORT = "pos"; //NOI18N
         public static final String ACTION_ALPHA_SORT = "alpha"; //NOI18N
         private AsynchListModel <Description> m;
+        @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON3) {
                 JList l = (JList) e.getSource();
@@ -187,11 +242,11 @@ public class JavaMembersNavigator implements NavigatorPanel {
                 }
                 this.m = (AsynchListModel <Description>) m;
                 JPopupMenu menu = new JPopupMenu();
-                JCheckBoxMenuItem pos = new JCheckBoxMenuItem ();
+                JRadioButtonMenuItem pos = new JRadioButtonMenuItem ();
                 Mnemonics.setLocalizedText(pos, NbBundle.getMessage (
                         JavaMembersNavigator.class,
                         "LBL_POS_SORT")); //NOI18N
-                JCheckBoxMenuItem alpha = new JCheckBoxMenuItem ();
+                JRadioButtonMenuItem alpha = new JRadioButtonMenuItem ();
                 alpha.setSelected (this.m.getComparator() == 
                         Description.ALPHA_COMPARATOR);
                 pos.setSelected (!alpha.isSelected());
@@ -200,6 +255,14 @@ public class JavaMembersNavigator implements NavigatorPanel {
                         "LBL_ALPHA_SORT")); //NOI18N
                 menu.add (alpha);
                 menu.add (pos);
+
+//                menu.add (new JSeparator());
+//                JCheckBoxMenuItem item = new JCheckBoxMenuItem(NbBundle.getMessage(JavaMembersNavigator.class, "ABBREVIATE"));
+//                boolean val = NbPreferences.forModule(JavaMembersNavigator.class).getBoolean("abbreviate", false);
+//                item.setSelected(val);
+//                item.addActionListener(this);
+//                menu.add (item);
+
                 pos.setActionCommand(ACTION_POSITION_SORT);
                 alpha.setActionCommand (ACTION_ALPHA_SORT);
                 pos.addActionListener (this);
@@ -210,16 +273,33 @@ public class JavaMembersNavigator implements NavigatorPanel {
         }
     
         public void actionPerformed(ActionEvent e) {
-            boolean alphaSort = ACTION_ALPHA_SORT.equals(
-                e.getActionCommand());
-            Comparator <Description> c = alphaSort ?
-                Description.ALPHA_COMPARATOR : Description.POSITION_COMPARATOR;
-            m.setComparator (c);
-            NbPreferences.forModule(JavaMembersNavigator.class).putBoolean(KEY_SORT_POS, alphaSort);                    
+            if (e.getSource() instanceof JRadioButtonMenuItem) {
+                boolean alphaSort = ACTION_ALPHA_SORT.equals(
+                    e.getActionCommand());
+                Comparator <Description> c = alphaSort ?
+                    Description.ALPHA_COMPARATOR : Description.POSITION_COMPARATOR;
+                m.setComparator (c);
+                NbPreferences.forModule(JavaMembersNavigator.class).putBoolean(KEY_SORT_POS, alphaSort);
+            } else {
+                boolean val = NbPreferences.forModule(JavaMembersNavigator.class).getBoolean("abbreviate", false); //NOI18N
+                NbPreferences.forModule(JavaMembersNavigator.class).putBoolean("abbreviate", !val); //NOI18N
+                JPanel panel = pnl.get();
+                if (panel != null) {
+                    CellRenderer ren = getCellRenderer();
+                    if (ren != null) {
+                        ren.setAbbreviate(!val);
+                        updateRendererIfNecessary();
+                    }
+                    panel.invalidate();
+                    panel.revalidate();
+                    panel.repaint();
+                }
+            }
         }
     }
     
     private static final class OffsetTooltipJList extends JList {
+        @Override
         public Point getToolTipLocation(MouseEvent e) {
             Point result = super.getToolTipLocation(e);
             if (result == null) {

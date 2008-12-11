@@ -46,17 +46,17 @@
 
 package org.netbeans.modules.hexedit;
 
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-import org.netbeans.modules.hexedit.ByteListModel;
-import org.netbeans.modules.hexedit.HexCellEditor;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -67,7 +67,7 @@ import java.nio.channels.FileChannel;
  *
  * @author  Tim Boudreau
  */
-public class HexEditPanel extends JPanel {
+public class HexEditPanel extends JPanel implements Runnable {
     private JComboBox modeCombo;
     private JLabel modeLabel;
     private JLabel columnsLabel;
@@ -127,6 +127,19 @@ public class HexEditPanel extends JPanel {
         mainScrollPane.setBorder (BorderFactory.createEmptyBorder());
         mainScrollPane.setViewportBorder (BorderFactory.createEmptyBorder());
 
+        addComponentListener (new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resetSplitterPosition();
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+                resetSplitterPosition();
+            }
+        }) ;
+
         add(mainScrollPane, java.awt.BorderLayout.CENTER);
 
         controlPanel.setOpaque(false);
@@ -185,11 +198,10 @@ public class HexEditPanel extends JPanel {
 
         Integer[] vals = new Integer [] {
             new Integer(HexTableModel.MODE_BYTE),
+            new Integer(HexTableModel.MODE_SHORT),
             new Integer(HexTableModel.MODE_INT),
             new Integer(HexTableModel.MODE_LONG),
             new Integer(HexTableModel.MODE_CHAR),
-            new Integer(HexTableModel.MODE_SHORT)
-
         };
 
         modeCombo.setModel(new DefaultComboBoxModel (vals));
@@ -225,12 +237,11 @@ public class HexEditPanel extends JPanel {
         sizeLabel.setBorder(b);
         valueLabel.setBorder(b);
 
-        JPanel statusBar = new JPanel();
+        JPanel statusBar = new JPanel(new FlowLayout());
         statusBar.setBorder (BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder (1, 0, 0, 0, shad),
                 BorderFactory.createEmptyBorder (2, 0, 0, 0)
         ));
-        statusBar.setLayout (new StatusBarLayout());
         statusBar.add (fileLabel);
         statusBar.add (sizeLabel);
         statusBar.add (positionLabel);
@@ -248,48 +259,25 @@ public class HexEditPanel extends JPanel {
     private static final String posString = Util.getMessage ("LBL_POSITION");
     private static final String valString = Util.getMessage ("LBL_VALUE");
 
-    private class StatusBarLayout implements LayoutManager {
-        public void addLayoutComponent(String name, Component comp) {
-
+    public void run() {
+        Dimension r = splitPane.getRightComponent().getPreferredSize();
+        int width = (hexTable.getModel().getColumnCount() * 3) * charWidth;
+        jList1.setFixedCellWidth(width);
+//        splitPane.setDividerLocation(0.75d);
+        if (r.width < splitPane.getWidth()) {
+            splitPane.setDividerLocation(splitPane.getWidth() - r.width);
+        } else {
+            splitPane.setDividerLocation(-1);
         }
-
-        public void removeLayoutComponent(Component comp) {
-
-        }
-
-        public Dimension preferredLayoutSize(Container parent) {
-            Dimension result = new Dimension();
-            merge (result, fileLabel);
-            merge (result, sizeLabel);
-            merge (result, valueLabel);
-            merge (result, positionLabel);
-            return result;
-        }
-
-        private void merge (Dimension target, JComponent c) {
-            Dimension d = c.getPreferredSize();
-            target.width += d.width;
-            target.height = Math.max (d.height, target.height);
-        }
-
-        public Dimension minimumLayoutSize(Container parent) {
-            return new Dimension (20, 20);
-        }
-
-        public void layoutContainer(Container c) {
-            Dimension d = fileLabel.getPreferredSize();
-            fileLabel.setBounds (0, 0, d.width + 3, c.getHeight());
-            Dimension d2 = sizeLabel.getPreferredSize();
-            sizeLabel.setBounds (d.width + 6, 0, d2.width + 3, c.getHeight());
-            int pwidth = positionLabel.getPreferredSize().width + 20;
-
-            valueLabel.setBounds (d.width + d2.width + 12, 0, (c.getWidth() - (pwidth + 3)) - (d2.width + d.width + 12) , c.getHeight());
-
-            positionLabel.setBounds (c.getWidth() - pwidth, 0, pwidth, c.getHeight());
-        }
-
+        mainScrollPane.invalidate();
+        invalidate();
+        revalidate();
+        repaint();
     }
 
+    public void resetSplitterPosition() {
+        EventQueue.invokeLater(this);
+    }
 
     private class Listener extends MouseAdapter implements ListSelectionListener, MouseMotionListener {
         boolean adjusting = false;
@@ -409,12 +397,14 @@ public class HexEditPanel extends JPanel {
             }
         }
 
+        @Override
         public void mouseExited(MouseEvent mouseEvent) {
             int prevCol = renderer.setHighlightColumn(-1);
             int prevRow = renderer.setHighlightRow(-1);
             maybeRepaintRow (prevRow, prevCol, -1, -1);
         }
         
+        @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getSource() == jList1) {
                 Point p = e.getPoint();
@@ -487,6 +477,7 @@ public class HexEditPanel extends JPanel {
 
     private void modeComboChanged() {
         setMode (((Integer) modeCombo.getSelectedItem()).intValue());
+        resetSplitterPosition();
         repaint();
     }
 
@@ -505,9 +496,7 @@ public class HexEditPanel extends JPanel {
     }
 
     private void updateListWidth() {
-        int width = hexTable.getModel().getColumnCount() * charWidth;
-        jList1.setFixedCellWidth(width);
-        splitPane.setDividerLocation(0.75d);
+        resetSplitterPosition();
     }
 
     public int getMode() {

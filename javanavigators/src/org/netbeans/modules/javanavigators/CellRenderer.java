@@ -42,6 +42,8 @@
 package org.netbeans.modules.javanavigators;
 
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -65,7 +67,7 @@ public class CellRenderer implements ListCellRenderer {
             UIManager.getColor("textText"));
     private final Border emptyBorder = 
             BorderFactory.createEmptyBorder();
-    
+    private boolean abbreviate;
     public CellRenderer() {
     }
     
@@ -86,14 +88,21 @@ public class CellRenderer implements ListCellRenderer {
         }
         
         htmlRenderer.setHtml(true);
+        if (item instanceof Description) {
+            Description d = (Description) item;
+            if (abbreviate) {
+//                item = d.toString(targetChars);
+            }
+//            ((JComponent)result).setToolTipText(d.javadoc);
+        }
         Component result = htmlRenderer.getListCellRendererComponent(list, 
                 item, index, selected, lead);
-        
         if (item instanceof Description) {
             Description d = (Description) item;
             htmlRenderer.setIcon(d.icon);
 //            ((JComponent)result).setToolTipText(d.javadoc);
         }
+        
         if (index == dropFeedbackIndex) {
             switch (borderMode) {
                 case BORDER_NONE :
@@ -130,5 +139,21 @@ public class CellRenderer implements ListCellRenderer {
     
     int getDraggingIndex() {
         return draggingIndex;
+    }
+
+    void setVisibleArea(int width, FontMetrics m) {
+        String example = "JComponent.putClientProperty(Object key, Object value)";
+        int fudgedAvgCharWidth = (m.stringWidth(example) / example.length()) + 3;
+        setTargetCharCount (width / fudgedAvgCharWidth);
+    }
+
+    int targetChars = Integer.MAX_VALUE;
+    private void setTargetCharCount(int i) {
+        System.err.println("target char count " + i);
+        targetChars = i;
+    }
+
+    void setAbbreviate(boolean val) {
+        abbreviate = true;
     }
 }

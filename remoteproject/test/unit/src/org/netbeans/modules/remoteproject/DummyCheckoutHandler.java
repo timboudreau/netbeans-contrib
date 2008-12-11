@@ -47,6 +47,7 @@
 
 package org.netbeans.modules.remoteproject;
 
+import java.io.File;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.remoteproject.CheckoutHandler;
 import org.openide.filesystems.FileObject;
@@ -78,5 +79,17 @@ public class DummyCheckoutHandler implements CheckoutHandler {
         FileObject tpl = this.tpl;
         this.tpl = null;
         return tpl != null;
+    }
+
+    public String checkout(FileObject template, FileObject dest, ProgressHandle progress, String username) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getUserName(FileObject template) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File[] getCreatedDirs(FileObject template, File destFolder) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
