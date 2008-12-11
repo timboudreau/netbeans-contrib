@@ -62,4 +62,19 @@ made subject to such option by the copyright holder.
             <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
         </file>
     </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <folder name="goto">
+                        <file name="goto-implementation.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
+                            <attr name="position" intvalue="320"/>
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
 </filesystem>

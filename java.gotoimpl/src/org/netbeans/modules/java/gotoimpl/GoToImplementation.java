@@ -84,7 +84,6 @@ import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.PopupUtil;
 import org.netbeans.modules.java.source.usages.RepositoryUpdater;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -100,7 +99,7 @@ public final class GoToImplementation extends AbstractAction implements Property
 
     public GoToImplementation() {
         putValue(NAME, NbBundle.getMessage(GoToImplementation.class, "CTL_GoToImplementation"));
-        putValue("noIconInMenu", "false");
+        putValue("noIconInMenu", "false"); //NOI18N
 
         EditorRegistry.addPropertyChangeListener(this);
 
@@ -122,14 +121,14 @@ public final class GoToImplementation extends AbstractAction implements Property
                     ExecutableElement el = resolveMethod(parameter, c.getCaretPosition());
 
                     if (el == null) {
-                        StatusDisplayer.getDefault().setStatusText("No method");
+                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(GoToImplementation.class, "LBL_NoMethod"));
                         return ;
                     }
                     
                     List<ElementDescription> overriding = process(parameter, el);
 
                     if (overriding == null) {
-                        StatusDisplayer.getDefault().setStatusText("No overridding method found");
+                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(GoToImplementation.class, "LBL_NoOverridingMethod"));
                         return;
                     }
                     
@@ -263,7 +262,7 @@ public final class GoToImplementation extends AbstractAction implements Property
         try {
             sourceRoots = new LinkedList<URL>(Utilities.topologicalSort(deps.keySet(), deps));
         } catch (TopologicalSortException ex) {
-            Exceptions.attachLocalizedMessage(ex, "Cycle in dependencies");
+            Exceptions.attachLocalizedMessage(ex,NbBundle.getMessage(GoToImplementation.class, "ERR_CycleInDependencies"));
             Exceptions.printStackTrace(ex);
             return null;
         }
@@ -353,7 +352,7 @@ public final class GoToImplementation extends AbstractAction implements Property
                     }
                 }, true);
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(e);
+                Exceptions.printStackTrace(e);
             }
         }
     }
@@ -369,7 +368,7 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
 
     static void performGoToAction(List<ElementDescription> declarations, Point position) {
-        String caption = "Implementors/Overridders";
+        String caption = NbBundle.getMessage(GoToImplementation.class, "LBL_ImplementorsOverriders");
         
         PopupUtil.showPopup(new IsOverriddenPopup(caption, declarations), caption, position.x, position.y, true, 0);
     }
