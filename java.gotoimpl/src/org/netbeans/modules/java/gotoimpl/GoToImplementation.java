@@ -84,7 +84,6 @@ import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.PopupUtil;
 import org.netbeans.modules.java.source.usages.RepositoryUpdater;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -353,7 +352,7 @@ public final class GoToImplementation extends AbstractAction implements Property
                     }
                 }, true);
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(e);
+                Exceptions.printStackTrace(e);
             }
         }
     }
