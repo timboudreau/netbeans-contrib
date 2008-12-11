@@ -89,7 +89,6 @@ made subject to such option by the copyright holder.
     <folder name="SunWS70Resources">
         <attr name="position" intvalue="1900"/>
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.sun.ws7.serverresources.wizards.Bundle"/>
-      <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/sun/ws7/serverresources/wizards/WizardInformation.html"/>
       <!--attr name="templateType_Web" boolvalue="true"/-->
      <file name="JDBC_Resource">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.sun.ws7.serverresources.wizards.Bundle"/>

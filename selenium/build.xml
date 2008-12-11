@@ -40,41 +40,7 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
-<filesystem>
-    <folder name="Actions">
-        <folder name="Other">
-            <file name="org-netbeans-modules-java-gotoimpl-GoToImplementation.instance">
-                <attr name="instanceCreate" newvalue="org.netbeans.modules.java.gotoimpl.GoToImplementation"/>
-            </file>
-        </folder>
-    </folder>
-    <folder name="Menu">
-        <folder name="GoTo">
-            <file name="org-netbeans-modules-java-gotoimpl-GoToImplementation.shadow">
-                <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
-                <attr name="position" intvalue="1025"/>
-            </file>
-        </folder>
-    </folder>
-    <folder name="Shortcuts">
-        <file name="DA-B.shadow">
-            <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
-        </file>
-    </folder>
-    <folder name="Editors">
-        <folder name="text">
-            <folder name="x-java">
-                <folder name="Popup">
-                    <folder name="goto">
-                        <file name="goto-implementation.shadow">
-                            <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-java-gotoimpl-GoToImplementation.instance"/>
-                            <attr name="position" intvalue="320"/>
-                        </file>
-                    </folder>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-
-</filesystem>
+<project name="org.netbeans.modules.selenium" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.modules.selenium.</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+</project>
