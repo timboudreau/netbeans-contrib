@@ -104,7 +104,7 @@ public class HexEditAction extends CookieAction {
 
     private static final class TC extends TopComponent {
         TC (Node n) throws FileNotFoundException {
-            DataObject dob = (DataObject) n.getLookup().lookup (DataObject.class);
+            DataObject dob = n.getLookup().lookup (DataObject.class);
             FileObject fileObject = dob.getPrimaryFile();
             File f = FileUtil.toFile (fileObject);
             setActivatedNodes(new Node[] { n });

@@ -41,20 +41,22 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="contrib/samplemodule/hexeditor" default="netbeans" basedir=".">
+<project name="contrib/hexeditor" default="netbeans" basedir=".">
 
   <import file="../../nbbuild/templates/projectized.xml"/>
 
   <target name="build-init" depends="compile-editor,projectized.build-init"/>
 
-  <available file="../../contrib/other/hexedit/dist/hexedit.jar" property="editor-compiled"/>
-  <target name="compile-editor" unless="editor-compiled">
-      <ant inheritall="false" inheritrefs="false" antfile="../../contrib/other/hexedit/build.xml" target="jar"/>
+  <available file="../other/hexedit/dist/hexedit.jar" property="editor-compiled"/>
+  <target name="compile-editor" unless="editor-compiled" description="Compile the hex editor">
+      <ant inheritall="false" inheritrefs="false" antfile="${basedir}/../other/hexedit/build.xml" dir="${basedir}/../other/hexedit/" target="jar">
+          <!-- <property name="src.dir" value="../../contrib/other/hexedit/src"/> -->
+      </ant>
   </target>
 
   <target name="netbeans-extra" depends="build-init">
     <mkdir dir="${cluster}/modules/ext"/>
-    <copy file="../../contrib/other/hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>
+    <copy file="${basedir}/../other/hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>
   </target>
 
 </project>
