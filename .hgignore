@@ -1,5 +1,6 @@
 ~$
 /build$
+/dist$
 ^[^/]+/external/[^/]+\.(zip|jar|gz|bz2|gem|dll)$
 /nbproject/private$
 /nbproject/sqe.properties$
