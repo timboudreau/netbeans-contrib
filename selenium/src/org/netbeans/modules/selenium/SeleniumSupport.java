@@ -90,8 +90,12 @@ public class SeleniumSupport {
     private static FileObject prepareProject(Project project) throws IOException{
         FileObject projectDir = project.getProjectDirectory();
         FileObject seleniumDir = addTestSourceRoot(project);
-        addLibrary(projectDir.getFileObject("test"));
-        notifyProjectXMLChanges(projectDir.getFileObject("src/java"));
+        addLibrary(seleniumDir);
+        FileObject srcs = projectDir.getFileObject("src/java");
+        if (srcs == null){
+            srcs = projectDir.getFileObject("src");
+        }
+        notifyProjectXMLChanges(srcs);
         return seleniumDir;
     }
 
