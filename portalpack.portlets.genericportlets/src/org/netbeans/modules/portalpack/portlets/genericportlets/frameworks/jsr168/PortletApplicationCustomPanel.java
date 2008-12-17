@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr1
 
 import java.util.Map;
 import javax.swing.JScrollPane;
+import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 
 /**
@@ -36,10 +37,10 @@ public class PortletApplicationCustomPanel extends JScrollPane{
      * @param panel 
      * @param wm 
      */
-    public PortletApplicationCustomPanel(PortletApplicationWizardPanel panel,WebModule wm)
+    public PortletApplicationCustomPanel(PortletApplicationWizardPanel panel,WebModule wm,ExtenderController controller)
     {
         super();
-        visPanel = new PortletApplicationPanelVisual(panel,wm);
+        visPanel = new PortletApplicationPanelVisual(panel,wm,controller);
         this.getViewport().add(visPanel);    
     }
 

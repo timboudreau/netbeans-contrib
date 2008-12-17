@@ -58,7 +58,7 @@ public class PortletApplicationWizardPanel extends WebModuleExtender {
     public JComponent getComponent() {
         if(customizer) return new JPanel();
         if (component == null) {
-            component = new PortletApplicationCustomPanel(this,wm);
+            component = new PortletApplicationCustomPanel(this,wm,controller);
             component.setName(NbBundle.getMessage(PortletApplicationWizardPanel.class, "LBL_CreateProjectStep"));
         }
         return component;

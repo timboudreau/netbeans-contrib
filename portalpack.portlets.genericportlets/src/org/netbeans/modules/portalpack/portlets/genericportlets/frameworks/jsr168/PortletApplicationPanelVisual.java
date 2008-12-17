@@ -30,6 +30,7 @@ import javax.swing.text.Document;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
@@ -37,7 +38,6 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUt
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
@@ -51,14 +51,16 @@ import org.openide.util.NbBundle;
     
     private PortletApplicationWizardPanel panel;
     private WebModule wm;
+    private ExtenderController controller;
     private int type;
     
     /** Creates new form PanelProjectLocationVisual */
-    public PortletApplicationPanelVisual(PortletApplicationWizardPanel panel,WebModule wm) {
+    public PortletApplicationPanelVisual(PortletApplicationWizardPanel panel,WebModule wm,ExtenderController controller) {
         initComponents();
         this.panel = panel;
         this.type = type;
         this.wm = wm;
+        this.controller = controller;
         initData();
         
         portletClassNameTf.getDocument().addDocumentListener(this);
@@ -80,7 +82,8 @@ import org.openide.util.NbBundle;
     }
      
     private void initData()
-    {           
+    {       
+        String prjName = null;
         if(wm != null)
         {         
             Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
@@ -90,9 +93,25 @@ import org.openide.util.NbBundle;
             for(int i=0;i<groups.length;i++)
                 srcCombo.addItem(new CustomSourceGroup(groups[i]));
             
+            //Initialize portlet name. This will most likely happen while adding framework later.
+            prjName = ProjectUtils.getInformation(project).getName();
+            
         }else{
             
+            if(controller != null)
+                prjName = (String) controller.getProperties().getProperty("name");
+            
         }
+        
+        if(prjName != null){
+            portletClassNameTf.setText(prjName);
+            portletNameTf.setText(prjName);
+            portletTitleTf.setText(prjName);
+            portletDescTf.setText(prjName);
+            portletDisplayNameTf.setText(prjName);
+            portletShortTitleTf.setText(prjName);
+        }
+        
         portletVersion.removeAllItems();
         portletVersion.addItem(NetbeanConstants.PORTLET_1_0);
         portletVersion.addItem(NetbeanConstants.PORTLET_2_0);
