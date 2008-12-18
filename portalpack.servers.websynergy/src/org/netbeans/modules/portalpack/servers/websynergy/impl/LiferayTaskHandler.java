@@ -270,14 +270,71 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     public String deploy(String deployedDir, String warfile, String serveruri) throws Exception {
         File warF = new File(warfile);
          String context = warF.getName().substring(0,warF.getName().indexOf("."));
-         try{
+         /*try{
             undeploy(context,"");
          }catch(Exception e){
              e.printStackTrace();
-         }
-        deploy(warfile, serveruri);
+         }*/
+        File deployXmlFile = File.createTempFile("deploy",".xml");
+        FileOutputStream fout = new FileOutputStream(deployXmlFile);
+        String xml = "<Context docBase=\""+ deployedDir + "\"></Context>"; 
+        try{
+            
+            fout.write(xml.getBytes());
+            fout.flush();
+            
+        }catch(Exception e) {
+            e.printStackTrace();
+        }finally {
+            fout.close();
+        }
         
-        deployerHandler.deploy(deployedDir,context);
+        //Copy that file
+        String autoDeployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        File deployDirFile = new File(autoDeployDir);
+        if (!deployDirFile.exists()) {
+            deployDirFile.mkdirs();
+        }
+        
+        String newDepXml = context + ".xml";
+        //long baseTime = System.currentTimeMillis();
+        copy(deployXmlFile.getAbsolutePath(), newDepXml, autoDeployDir);
+        
+        //wait
+        File xmlInAutoDeployDir = new File(autoDeployDir + File.separator + newDepXml);
+        int counter = 0;
+        while (xmlInAutoDeployDir.exists()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter++;
+            if (counter >= 100) {
+                break;
+            }
+        }
+        showServerLog();
+        //deploy(warfile, serveruri);
+        
+        if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            
+            deployerHandler.deploy(deployedDir,context);
+            
+        } else if(psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)
+                    || psconfig.getServerType().equals(ServerConstants.TOMCAT_6_X)){
+            
+            //wait for 5 sec.. 
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+        }
+        
+        if(deployXmlFile.exists())
+            deployXmlFile.delete();
+        
         return "Deployed...";
     }
     
@@ -463,10 +520,16 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         e.printStackTrace(UISupport.getServerIO(uri).getErr());
     }
 
-    public static void copy(String fromFileName, String toFileName)
+     public static void copy(String fromFileName, String toFolder) throws IOException {
+         copy(fromFileName, null, toFolder);
+     }
+    public static void copy(String fromFileName, String newFileName, String toFolder)
         throws IOException {
         File fromFile = new File(fromFileName);
-        File toFile = new File(toFileName);
+        File toFile = new File(toFolder);
+        
+        if(newFileName == null)
+            newFileName = fromFile.getName();
 
         if (!fromFile.exists()) {
             throw new IOException("FileCopy: " + "no such source file: " + fromFileName);
@@ -478,7 +541,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
             throw new IOException("FileCopy: " + "source file is unreadable: " + fromFileName);
         }
         if (toFile.isDirectory()) {
-            toFile = new File(toFile, fromFile.getName());
+            toFile = new File(toFile, newFileName);
         }
         FileInputStream from = null;
         FileOutputStream to = null;

@@ -47,6 +47,7 @@ public class TomcatDeployHandler implements ServerDeployHandler {
     private PSDeploymentManager dm;
     private FileObject taskFile;
     private String DEPLOY_XML = ".liferaytask.xml";
+    private static String TOMCAT_CONF_DIR = "conf" + File.separator + "Catalina" + File.separator + "localhost";
 
     /**
      * Creates a new instance of TomcatDeployHandler
@@ -169,6 +170,19 @@ public class TomcatDeployHandler implements ServerDeployHandler {
         
         if (appDepDir.exists()) {
             undeployDir(appDepDir);
+            
+        } else {
+            //Incase of exploded directory deployment
+            
+            File confDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
+                                        + File.separator + TOMCAT_CONF_DIR);
+            String contextXml = appName + ".xml";
+            
+            File contextXmlFile = new File(confDir,contextXml);
+            
+            if(contextXmlFile.exists())
+                contextXmlFile.delete();
+            
         }
         
         try {

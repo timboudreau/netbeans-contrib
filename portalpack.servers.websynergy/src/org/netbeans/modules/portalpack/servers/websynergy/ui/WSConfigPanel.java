@@ -79,6 +79,7 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
         jLabel5 = new javax.swing.JLabel();
         portalDepDirTf = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        directoryDeploymentCB = new javax.swing.JCheckBox();
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
 
@@ -111,6 +112,8 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
         jLabel5.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_Portal_Deploy_Dir")); // NOI18N
 
         jButton1.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_BrowseButton")); // NOI18N
+
+        directoryDeploymentCB.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_DIRECTORY_DEPLOYMENT")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -153,6 +156,10 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
                     .add(browseButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(directoryDeploymentCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(333, 333, 333))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -186,7 +193,9 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(portalDepDirTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jButton1))))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(directoryDeploymentCB)
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         browseButton.getAccessibleContext().setAccessibleDescription("null");
@@ -208,6 +217,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField autoDeployTf;
     private javax.swing.JButton browseButton;
+    private javax.swing.JCheckBox directoryDeploymentCB;
     private javax.swing.JTextField hostTf;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
@@ -242,6 +252,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         portalDepDirTf.setText(object.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
 
         hostTf.setEnabled(false);
+        directoryDeploymentCB.setSelected(object.isDirectoryDeployment());
         //browseButton.setEnabled(false);
 
     }
@@ -331,6 +342,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         wr.setProperty(LiferayConstants.PORTLET_URI, portletUriTf.getText());
         wr.setProperty(LiferayConstants.AUTO_DEPLOY_DIR, autoDeployTf.getText());
         wr.setProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR, portalDepDirTf.getText());
+        wr.setDirectoryDeployment(directoryDeploymentCB.isSelected());
     //  wr.setPortalUri("/pcdriver");
     }
 
