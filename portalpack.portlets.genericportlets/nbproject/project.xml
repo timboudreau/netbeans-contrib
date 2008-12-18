@@ -354,6 +354,7 @@ Microsystems, Inc. All Rights Reserved.
                 <friend>org.netbeans.modules.portalpack.servers.websynergy</friend>
                 <friend>org.netbeans.modules.portalpack.visualweb</friend>
                 <friend>org.netbeans.modules.portalpack.websynergy.portlets</friend>
+                <friend>org.netbeans.modules.portalpack.websynergy.servicebuilder</friend>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.actions</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util</package>
