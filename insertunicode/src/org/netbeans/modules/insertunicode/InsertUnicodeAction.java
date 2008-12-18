@@ -49,22 +49,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.prefs.Preferences;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.BadLocationException;
-import org.openide.ErrorManager;
-import org.openide.awt.JMenuPlus;
 import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
@@ -87,6 +84,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         return NbBundle.getMessage(InsertUnicodeAction.class, "LBL_insert_unicode");
     }
     
+    @Override
     protected String iconResource() {
         return "org/netbeans/modules/insertunicode/unicode.gif";
     }
@@ -98,7 +96,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     private static JEditorPane getPane() {
         Node[] ns = TopComponent.getRegistry().getCurrentNodes();
         if (ns != null && ns.length == 1) {
-            EditorCookie ed = (EditorCookie)ns[0].getCookie(EditorCookie.class);
+            EditorCookie ed = ns[0].getCookie(EditorCookie.class);
             if (ed != null) {
                 JEditorPane[] panes = ed.getOpenedPanes();
                 if (panes != null) {
@@ -125,13 +123,13 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                     r.close();
                 }
             } catch (IOException ioe) {
-                throw new IllegalStateException(ioe.toString());
+                throw new IllegalStateException(ioe.toString(), ioe);
             }
         }
         return unicodeNames;
     }
     
-    private static abstract class LazyMenu extends JMenuPlus {
+    private static abstract class LazyMenu extends JMenu {
         
         protected LazyMenu() {
         }
@@ -142,6 +140,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         
         private boolean inited = false;
         
+        @Override
         public JPopupMenu getPopupMenu() {
             create();
             return super.getPopupMenu();
@@ -153,20 +152,19 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             } else {
                 inited = true;
             }
-            List items = doCreate();
+            List<JMenuItem> items = doCreate();
             fixupItems(items);
-            Iterator it = items.iterator();
-            while (it.hasNext()) {
-                add((JMenuItem)it.next());
+            for (JMenuItem item : items) {
+                add(item);
             }
         }
         
         private static final int MAX_ITEMS = 25;
         
-        private void fixupItems(List items) {
+        private void fixupItems(List<JMenuItem> items) {
             int idx = 1;
             for (int i = 0; i < Math.min(items.size(), MAX_ITEMS); i++) {
-                JMenuItem item = (JMenuItem)items.get(i);
+                JMenuItem item = items.get(i);
                 if (item.getMnemonic() == 0) {
                     if (idx <= 9) {
                         item.setText(String.valueOf(idx) + " " + item.getText());
@@ -181,34 +179,33 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                 }
             }
             if (items.size() > MAX_ITEMS) {
-                List sub = items.subList(MAX_ITEMS, items.size());
-                List moreitems = new ArrayList(sub);
+                List<JMenuItem> sub = items.subList(MAX_ITEMS, items.size());
+                List<JMenuItem> moreitems = new ArrayList<JMenuItem>(sub);
                 sub.clear();
                 fixupItems(moreitems);
                 JMenuItem more = new JMenu();
                 Mnemonics.setLocalizedText(more, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_more"));
-                Iterator it = moreitems.iterator();
-                while (it.hasNext()) {
-                    more.add((JMenuItem)it.next());
+                for (JMenuItem item : moreitems) {
+                    more.add(item);
                 }
                 items.add(more);
             }
         }
         
-        protected abstract List doCreate(); // List<JMenuItem>
+        protected abstract List<JMenuItem> doCreate();
         
     }
     
     private static final class MainPopup extends LazyMenu /* implements PropertyChangeListener */ {
         
-        private static List blocks = null; // List<Character.UnicodeBlock>
-        private static List starts, ends = null; // List<int>
+        private static List<Character.UnicodeBlock> blocks = null;
+        private static List<Integer> starts, ends = null;
         
         private static synchronized void makeBlocks() {
             if (blocks == null) {
-                blocks = new ArrayList();
-                starts = new ArrayList();
-                ends = new ArrayList();
+                blocks = new ArrayList<Character.UnicodeBlock>();
+                starts = new ArrayList<Integer>();
+                ends = new ArrayList<Integer>();
                 Character.UnicodeBlock curr = null;
                 for (int i = 0; i < 0x10000; i++) {
                     char c = (char)i;
@@ -216,10 +213,10 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                     if (block != curr) {
                         if (curr != null) {
                             blocks.add(curr);
-                            ends.add(new Integer(c));
+                            ends.add((int) c);
                         }
                         if (block != null) {
-                            starts.add(new Integer(c));
+                            starts.add((int) c);
                         }
                         curr = block;
                     }
@@ -237,13 +234,13 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             }
         }
         
-        protected List doCreate() {
+        protected List<JMenuItem> doCreate() {
             makeBlocks();
-            ArrayList ms = new ArrayList(blocks.size() + 1);
+            List<JMenuItem> ms = new ArrayList<JMenuItem>(blocks.size() + 1);
             ms.add(new ModePopup());
             for (int i = 0; i < blocks.size(); i++) {
-                Character.UnicodeBlock block = (Character.UnicodeBlock)blocks.get(i);
-                ms.add(new BlockPopup(block, ((Integer)starts.get(i)).intValue(), ((Integer)ends.get(i)).intValue()));
+                Character.UnicodeBlock block = blocks.get(i);
+                ms.add(new BlockPopup(block, starts.get(i), ends.get(i)));
             }
             return ms;
         }
@@ -267,8 +264,8 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             this.end = end;
         }
         
-        protected List doCreate() {
-            ArrayList l = new ArrayList(end - start);
+        protected List<JMenuItem> doCreate() {
+            List<JMenuItem> l = new ArrayList<JMenuItem>(end - start);
             for (int c = start; c < end; c++) {
                 final char _c = (char)c;
                 if (!Character.isDefined(_c)) continue;
@@ -292,16 +289,16 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                         }
                         String toInsert;
                         switch (getModeChoice()) {
-                        case MODE_RAW:
+                        case RAW:
                             toInsert = new String(new char[] {_c});
                             break;
-                        case MODE_JAVA:
+                        case JAVA:
                             toInsert = "\\u" + hex((int)_c);
                             break;
-                        case MODE_XML:
+                        case XML:
                             toInsert = "&#x" + hex((int)_c) + ";";
                             break;
-                        case MODE_HTML:
+                        case HTML:
                             toInsert = "&#" + ((int)_c) + ";";
                             break;
                         default:
@@ -310,7 +307,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                         try {
                             pane.getDocument().insertString(pane.getCaretPosition(), toInsert, null);
                         } catch (BadLocationException ble) {
-                            ErrorManager.getDefault().notify(ble);
+                            Exceptions.printStackTrace(ble);
                         }
                     }
                 });
@@ -327,13 +324,13 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         
     }
 
-    private static final int MODE_RAW = 0, MODE_JAVA = 1, MODE_XML = 2, MODE_HTML = 3;
+    enum Mode {RAW, JAVA, XML, HTML}
     private static final String KEY_MODE = "unicode.insert.mode"; // NOI18N
-    static int getModeChoice() {
-        return NbPreferences.forModule(InsertUnicodeAction.class).getInt(KEY_MODE, MODE_RAW);
+    static Mode getModeChoice() {
+        return Mode.values()[NbPreferences.forModule(InsertUnicodeAction.class).getInt(KEY_MODE, Mode.RAW.ordinal())];
     }
-    static void setModeChoice(int mode) {
-        NbPreferences.forModule(InsertUnicodeAction.class).putInt(KEY_MODE, mode);
+    static void setModeChoice(Mode mode) {
+        NbPreferences.forModule(InsertUnicodeAction.class).putInt(KEY_MODE, mode.ordinal());
     }
     // XXX make the mode sensitive to content type of current pane
     // default to MODE_JAVA for text/x-java, text/x-properties
@@ -341,35 +338,35 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     // default to MODE_HTML for text/html
     // default to MODE_RAW for all other content types
     
-    private static final class ModePopup extends JMenuPlus {
+    private static final class ModePopup extends JMenu {
         
         public ModePopup() {
             Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "LBL_escape_mode"));
-            add(new ModeChoice(MODE_RAW));
-            add(new ModeChoice(MODE_JAVA));
-            add(new ModeChoice(MODE_XML));
-            add(new ModeChoice(MODE_HTML));
+            add(new ModeChoice(Mode.RAW));
+            add(new ModeChoice(Mode.JAVA));
+            add(new ModeChoice(Mode.XML));
+            add(new ModeChoice(Mode.HTML));
         }
         
     }
     
     private static final class ModeChoice extends JRadioButtonMenuItem implements ActionListener {
         
-        private final int mode;
+        private final Mode mode;
         
-        public ModeChoice(int mode) {
+        public ModeChoice(Mode mode) {
             this.mode = mode;
             switch (mode) {
-            case MODE_RAW:
+            case RAW:
                 Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_raw"));
                 break;
-            case MODE_JAVA:
+            case JAVA:
                 Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_java"));
                 break;
-            case MODE_XML:
+            case XML:
                 Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_xml"));
                 break;
-            case MODE_HTML:
+            case HTML:
                 Mnemonics.setLocalizedText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_html"));
                 break;
             default:
