@@ -169,7 +169,7 @@ public class LiferayModuleConfiguration extends PSModuleConfiguration {
             return;
         Properties props = new Properties();
         props.setProperty("tags", "portlet");
-        props.setProperty("portal.dependency.jars","commons-logging.jar,commons-fileupload.jar");
+        props.setProperty("portal.dependency.jars","commons-logging.jar");
         try{
             OutputStream out = new FileOutputStream(pluginPackageProp);
             props.store(out, "liferay-plugin-package.properties");
