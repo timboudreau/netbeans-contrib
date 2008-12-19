@@ -22,7 +22,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 <!-- for some information on what you could do (e.g. targets to override). -->
 <!-- If you delete this file and reopen the project it will be recreated. -->
 
-<project name="org.netbeans.modules.portalpack.servers.websynergy" default="netbeans" basedir=".">
+<project name="contrib/portalpack.servers.websynergy" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.servers.websynergy.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     

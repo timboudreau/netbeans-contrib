@@ -27,7 +27,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  This is a template build.xml file for all newly created addon modules in portalpack.
  You can directly overwrite your module's build.xml file with this template file.
 -->
-<project name="org.netbeans.modules.portalpack.samplemodule" default="netbeans" basedir=".">
+<project name="contrib/portalpack.samplemodule" default="netbeans" basedir=".">
     
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.portlets.genericportlets.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>

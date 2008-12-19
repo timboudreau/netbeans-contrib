@@ -18,7 +18,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="jnlpmodules" default="netbeans" basedir=".">
+<project name="contrib/jnlpmodules" default="netbeans" basedir=".">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 

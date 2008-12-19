@@ -37,7 +37,7 @@ Contributor(s):
 
 Portions Copyrighted 2008 Sun Microsystems, Inc.
 -->
-<project basedir="." default="netbeans" name="spring.lookup">
+<project basedir="." default="netbeans" name="contrib/spring.lookup">
     <description>Builds, tests, and runs the project org.netbeans.modules.spring.lookup</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>
