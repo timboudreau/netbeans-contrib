@@ -3,7 +3,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 class Custom {
-
+        /*Uncomment the following code to enable Navigation*/
         /*
 	static String navigation(RenderResponse res) { 
 		"""

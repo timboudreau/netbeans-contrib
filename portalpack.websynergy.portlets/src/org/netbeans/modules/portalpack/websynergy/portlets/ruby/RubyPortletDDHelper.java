@@ -87,22 +87,9 @@ public class RubyPortletDDHelper {
     }
     
     public static boolean isRubyPortlet(PortletType portlet) {
-        InitParamType[] initParams = portlet.getInitParam();
         
-        if(portlet.getPortletClass().indexOf("RubyPortlet") 
-                    != -1)
+        if(portlet.getPortletClass().equals(RubyPortletConstants.RUBY_PORTLET_CLASS))
             return true;
-        
-        for(InitParamType initP:initParams) {
-            
-            if(initP.getName().equals(RubyPortletConstants.ACTION_URI)
-                || initP.getName().equals(RubyPortletConstants.VIEW_URI)
-                || initP.getName().equals(RubyPortletConstants.EDIT_URI)
-                || initP.getName().equals(RubyPortletConstants.HELP_URI))
-                
-                return true;
-            
-        }
         
         return false;
     }
