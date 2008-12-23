@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -32,6 +31,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.CodeGenConstants;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -283,8 +283,10 @@ private void addParamButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
         if (wd == null) {
             return true;
         }
+        
         String filterName = filterNameTxt.getText();
-        if (filterName == null || filterName.trim().length() == 0) {
+        
+        if (!CoreUtil.validateString(filterName,false)) {
             wd.putProperty("WizardPanel_errorMessage",
                     "Invalid Filter Name");
             return false;
