@@ -41,7 +41,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
          />
     </target>
     
-    <target name="compile" depends="org.netbeans.modules.portals.sunps7.compile">
+    <target name="compile" depends="contrib/portalpack.servers.sunps.compile">
         <copy todir="build/classes">
              <fileset dir="l10n/ja"/>
              <fileset dir="l10n/pt_BR"/>

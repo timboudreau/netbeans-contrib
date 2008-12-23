@@ -41,7 +41,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
          />
     </target>
     
-    <target name="compile" depends="org.netbeans.modules.portalpack.portlets.genericportlets.compile">
+    <target name="compile" depends="contrib/portalpack.portlets.genericportlets.compile">
         <copy todir="build/classes">
              <fileset dir="l10n/ja"/>
              <fileset dir="l10n/pt_BR"/>
