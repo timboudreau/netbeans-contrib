@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.JarUtils;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
@@ -79,6 +80,89 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         deployerHandler = ServerDeployerHandlerFactory.getServerDeployerHandler(dm);
     }
 
+    public void deployOnGF(String warfile, String serveruri) throws Exception {
+        File warF = new File(warfile);
+        
+        File tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator
+                                    + "portalpack" + File.separator
+                                    + System.currentTimeMillis());
+        
+        //File tempDir = File.createTempFile("temp","",null);
+        System.out.println("Tempfile is:"+tempDir);
+        JarUtils.unjar(new FileInputStream(warF), tempDir);
+        String context = warF.getName().substring(0,warF.getName().indexOf("."));
+         
+        File deployXmlFile = File.createTempFile("deploy",".xml");
+        FileOutputStream fout = new FileOutputStream(deployXmlFile);
+        //String deployedDir = psconfig.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR);
+        String xml = "<Context docBase=\""+ tempDir + "\"></Context>"; 
+        try{
+            
+            fout.write(xml.getBytes());
+            fout.flush();
+            
+        }catch(Exception e) {
+            e.printStackTrace();
+        }finally {
+            fout.close();
+        }
+        
+        //Copy that file
+        String autoDeployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        File deployDirFile = new File(autoDeployDir);
+        if (!deployDirFile.exists()) {
+            deployDirFile.mkdirs();
+        }
+        
+        String newDepXml = context + ".xml";
+        //long baseTime = System.currentTimeMillis();
+        copy(deployXmlFile.getAbsolutePath(), newDepXml, autoDeployDir);
+        File webXml = new File(tempDir, "WEB-INF" + File.separator + "web.xml");
+        long baseTime = webXml.lastModified();
+        
+        //wait
+        File xmlInAutoDeployDir = new File(autoDeployDir + File.separator + newDepXml);
+        int counter = 0;
+        while (xmlInAutoDeployDir.exists()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter++;
+            if (counter >= 100) {
+                break;
+            }
+        }
+        
+        long timestamp = 0;
+        
+        while(timestamp < baseTime) {
+            timestamp = webXml.lastModified();
+            
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter++;
+            if (counter >= 100) {
+                break;
+            }
+        }
+        
+        File destWar = new File(tempDir.getParentFile(),warF.getName());
+        if(destWar.exists())
+            destWar.delete();
+        
+        JarUtils.jar(new FileOutputStream(destWar), tempDir.listFiles());
+        deployerHandler.deploy(destWar.getAbsolutePath());
+        
+        tempDir.delete();
+        showServerLog();
+        //return getDeploymentMessage(warfile, baseTime);
+    }
+    
     public String deploy(String warfile, String serveruri) throws Exception {
 
         /*_deployOnPC(warfile);
@@ -99,6 +183,10 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         //writeErrorToOutput(uri,e);
         throw e;
         }*/
+        if (psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            deployOnGF(warfile, serveruri);
+            return "deployed";
+        }
         String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
         File deployDirFile = new File(deployDir);
         if (!deployDirFile.exists()) {
@@ -252,7 +340,25 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     }
 
     public void undeploy(String portletAppName, String dn) throws Exception {
-
+        /* 
+        if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)){
+            String appPortletWar 
+                    = psconfig.getDomainDir() + File.separator + "autodeploy" +
+                    File.separator + portletAppName+".war";
+            String appPortletWarUndeployed 
+                    = appPortletWar+"_undeployed";
+            File warF = new File(appPortletWar);
+            File warFUndeployed =  new File(appPortletWarUndeployed);
+            if (warF.exists()) {
+                warF.delete();
+                System.out.println("Deleted/Undeployed dude...");
+            } 
+            if (warFUndeployed.exists()) {
+            warFUndeployed.delete();
+            }
+        } else {
+            deployerHandler.undeploy(portletAppName);
+        } */
         deployerHandler.undeploy(portletAppName);
         showServerLog();
     /*if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)){
