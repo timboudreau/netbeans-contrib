@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
@@ -33,6 +35,7 @@ import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -43,7 +46,7 @@ import org.xml.sax.SAXException;
  *
  * @author  satya
  */
-public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
+public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, DocumentListener{
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private static String DEFAULT_DEBUG_PORT = "11589";
@@ -51,6 +54,9 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
     public TomcatConfigPanel() {
         initComponents();
         initData();
+        
+        portTf.getDocument().addDocumentListener(this);
+        debugPortTf.getDocument().addDocumentListener(this);
         
     }
     
@@ -428,7 +434,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         }
         
         String port = portTf.getText();
-        if(port == null || port.trim().length() == 0) {
+        if(!Util.isValidPort(port)) {
             
             setErrorMessage(NbBundle.getMessage(
                 TomcatConfigPanel.class, "MSG_NOT_A_VALID_PORT"));
@@ -436,7 +442,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         }
         
         String debugPort = debugPortTf.getText();
-        if(debugPort == null || debugPort.trim().length() == 0) {
+        if(!Util.isValidPort(debugPort)) {
             
             setErrorMessage(NbBundle.getMessage(
                 TomcatConfigPanel.class, "MSG_NOT_A_VALID_DEBUG_PORT"));
@@ -513,6 +519,17 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         }
     }
     
+    public void insertUpdate(DocumentEvent e) {
+        fireChangeEvent();
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        fireChangeEvent();
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        fireChangeEvent();
+    }
    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

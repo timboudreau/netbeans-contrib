@@ -140,6 +140,9 @@ public class Util {
     
     public static boolean isValidPort(String port)
     {
+        if(port == null || port.trim().length() == 0)
+            return false;
+        
         try{
             Integer.parseInt(port);
         }catch(Exception e){
