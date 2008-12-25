@@ -42,23 +42,51 @@ package org.netbeans.modules.ada.editor.ast.nodes;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a package specification
- * <pre>
- * <pre>e.g.<pre> 
- * package Foo is
- *   Bar : constant := 3;
- *   procedure FooBar;
- * end Foo;
  *
  * @author Andrea Lucarelli
  */
-public class PackageSpecification extends PackageDeclaration {
+public class PrivateType extends Expression {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
-        super(start, end, packageName, packageNameEnd, body);
+    protected final static Integer PRIVATE = new Integer(BodyDeclaration.Modifier.PRIVATE);
+    protected final static Integer TAGGED = new Integer(BodyDeclaration.Modifier.TAGGED);
+    protected final static Integer LIMITED = new Integer(BodyDeclaration.Modifier.LIMITED);
+    protected final static Integer ABSTRACT = new Integer(BodyDeclaration.Modifier.ABSTRACT);
+
+    private Integer modifier;
+
+    public PrivateType(int start, int end, Integer modifier) {
+        super(start, end);
+        this.modifier = modifier;
     }
 
-    
+    public Integer getModifier() {
+        return modifier;
+    }
+
+    public void setPrivate () {
+        if ((this.modifier & PRIVATE) != PRIVATE) {
+            this.modifier |= PRIVATE;
+        }
+    }
+
+    public void setTagged () {
+        if ((this.modifier & TAGGED) != TAGGED) {
+            this.modifier |= TAGGED;
+        }
+    }
+
+    public void setLimited () {
+        if ((this.modifier & LIMITED) != LIMITED) {
+            this.modifier |= LIMITED;
+        }
+    }
+
+    public void setAbstract () {
+        if ((this.modifier & ABSTRACT) != ABSTRACT) {
+            this.modifier |= ABSTRACT;
+        }
+    }
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

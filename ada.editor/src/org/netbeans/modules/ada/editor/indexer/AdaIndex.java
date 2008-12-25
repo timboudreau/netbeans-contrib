@@ -480,7 +480,7 @@ public class AdaIndex {
                 }
                 for (String sign : signatures) {
                     IdentifierSignature idSign = IdentifierSignature.createDeclaration(Signature.get(sign));
-                    if ((!idSign.isClassMember() && !idSign.isIfaceMember()) ||
+                    if ((!idSign.isPackageMember() && !idSign.isIfaceMember()) ||
                             idSign.getTypeName() == null) {
                         continue;
                     }

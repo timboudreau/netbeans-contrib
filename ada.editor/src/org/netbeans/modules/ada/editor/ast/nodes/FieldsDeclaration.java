@@ -55,14 +55,12 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  * Option      : Bit_Vector(1 .. 10) := (others => True);
  * Hello       : constant String := "Hi, world.";
  */
-public class FieldsDeclaration extends Statement {
+public class FieldsDeclaration extends BodyDeclaration {
 
     private final ArrayList<SingleFieldDeclaration> fields = new ArrayList<SingleFieldDeclaration>();
 
     public FieldsDeclaration(int start, int end, List variablesAndDefaults) {
-        super(start, end);
-
-        System.out.println("FieldsDeclaration: " + variablesAndDefaults.size());
+        super(start, end, 0);
         
         if (variablesAndDefaults == null || variablesAndDefaults.size() == 0) {
             throw new IllegalArgumentException();
@@ -71,12 +69,9 @@ public class FieldsDeclaration extends Statement {
         for (Iterator iter = variablesAndDefaults.iterator(); iter.hasNext();) {
             final Object next = iter.next();
             if (next instanceof SingleFieldDeclaration) {
-                System.out.println("FieldsDeclaration: next " + next);
                 this.fields.add((SingleFieldDeclaration) next);
             } else {
                 ASTNode[] element = (ASTNode[]) next;
-                System.out.println("FieldsDeclaration: element[0] " + element[0]);
-                System.out.println("FieldsDeclaration: element[1] " + element[1]);
                 SingleFieldDeclaration field = createField((Variable) element[0], (Expression) element[1]);
                 this.fields.add(field);
             }

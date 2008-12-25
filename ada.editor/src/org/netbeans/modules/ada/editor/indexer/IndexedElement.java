@@ -43,11 +43,15 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.text.Document;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
 import org.netbeans.modules.gsf.api.annotations.CheckForNull;
 import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.ada.project.api.AdaSourcePath;
+import org.netbeans.modules.gsf.api.Modifier;
 
 
 /**
@@ -120,7 +124,16 @@ public abstract class IndexedElement extends AdaElement {
     public String getName() {
         return name;
     }
-        
+
+    // used e.g. for online docs
+    public String getDisplayName(){
+        String modifiersStr = getModifiersString();
+        return  modifiersStr.length() == 0 ? getName() : modifiersStr + " " + getName(); //NOI18N
+    }
+
+    public String getModifiersString(){
+        return BodyDeclaration.Modifier.toString(flags);
+    }
 
     @Override
     public String getIn() {
@@ -130,6 +143,17 @@ public abstract class IndexedElement extends AdaElement {
     @Override
     public ElementKind getKind() {
         return kind;
+    }
+
+    @Override
+    public Set<Modifier> getModifiers() {
+        Set<Modifier> retval = new HashSet<Modifier>();
+        if (isPublic()) {
+            retval.add(Modifier.PUBLIC);
+        } else if (isPrivate()) {
+            retval.add(Modifier.PRIVATE);
+        }
+        return retval;
     }
 
     public String getFilenameUrl() {
@@ -229,6 +253,26 @@ public abstract class IndexedElement extends AdaElement {
         }
         
         return value;
+    }
+
+    public boolean isPublic() {
+        return (flags & BodyDeclaration.Modifier.PUBLIC) != 0;
+    }
+
+    public boolean isLimited() {
+        return (flags & BodyDeclaration.Modifier.LIMITED) != 0;
+    }
+
+    public boolean isPrivate() {
+        return (flags & BodyDeclaration.Modifier.PRIVATE) != 0;
+    }
+
+    public boolean isTagged() {
+        return (flags & BodyDeclaration.Modifier.TAGGED) != 0;
+    }
+
+    public boolean isAbstract() {
+        return (flags & BodyDeclaration.Modifier.ABSTRACT) != 0;
     }
 
     @Override

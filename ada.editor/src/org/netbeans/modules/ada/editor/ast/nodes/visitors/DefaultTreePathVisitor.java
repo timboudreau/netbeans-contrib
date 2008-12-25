@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.ast.nodes.visitors;
 
 import java.util.Collections;
@@ -47,12 +46,19 @@ import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageInstanceCreation;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.ada.editor.ast.nodes.Reference;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Use;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
@@ -108,6 +114,20 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(FormalParameter node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(FunctionDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(Identifier node) {
         path.addFirst(node);
         super.visit(node);
@@ -115,7 +135,7 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
-    public void visit(PackageSpecification node) {
+    public void visit(MethodDeclaration node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -129,7 +149,28 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(PackageInstanceCreation node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(PackageName node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(PackageSpecification node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(ProcedureDeclaration node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -143,7 +184,21 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(Reference node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(SingleFieldDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(TypeDeclaration node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();

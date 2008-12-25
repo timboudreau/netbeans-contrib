@@ -44,9 +44,10 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.Identifier
  * 
- * Holds an identifier.<br>
- * uses for variable name, function name and class name.
- * <pre>e.g.<pre>  Foo : Integer; -- Foo is the identifier,
+ * Holds an identifier.
+ * Uses for variable name, function name, procedure name and package name.
+ * <pre>e.g.<pre>  
+ * Foo : Integer; -- Foo is the identifier,
  * Foo (Foo => Bar) -- Foo is the identifier,
  * Foo.Bar; -- Foo and Bar are identifiers
  *
@@ -55,14 +56,34 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 public class Identifier extends Expression {
 
     private String name;
+    private String parent;
+    private String child;
 
-    public Identifier(int start, int end, String value) {
+    public Identifier(int start, int end, String name) {
         super(start, end);
-        this.name = value;
+		// Fullname unit
+		this.name = name;
+
+		// Parent/child unit name
+//        int lastNameIndex = name.lastIndexOf("."); // NOI18N
+//        this.child = name.substring(lastNameIndex > 0 ? lastNameIndex + 1 : 0, name.length() - 1);
+//        this.parent = name.substring(0, (lastNameIndex > 0) ? lastNameIndex + 1 : name.length() - 1);
     }
 
     public String getName() {
         return name;
+    }
+
+	public String getParent() {
+        return parent;
+    }
+
+	public String getChild() {
+        return child;
+    }
+
+	public Boolean isChild() {
+		return (!child.equalsIgnoreCase(name));
     }
     
     @Override

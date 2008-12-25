@@ -48,8 +48,8 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public abstract class ASTNode {
 
-    final private int startOffset;
-    final private int endOffset;
+    private int startOffset;
+    private int endOffset;
     
     public ASTNode(int start, int end) {
         this.startOffset = start;
@@ -60,8 +60,16 @@ public abstract class ASTNode {
         return startOffset;
     }
 
+	public final void setStartOffset(int startOffset) {
+        this.startOffset = startOffset;
+    }
+
     public final int getEndOffset() {
         return endOffset;
+    }
+
+	public final void setEndOffset(int endOffset) {
+        this.endOffset = endOffset;
     }
     
     public abstract void accept(Visitor visitor);

@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,31 +31,54 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.ast.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a package specification
- * <pre>
+ * Represents a dispaching expression
  * <pre>e.g.<pre> 
- * package Foo is
- *   Bar : constant := 3;
- *   procedure FooBar;
- * end Foo;
- *
- * @author Andrea Lucarelli
+ * MyPackage.foo,
+ * MyPackage.foo(bar : in bar_type)
  */
-public class PackageSpecification extends PackageDeclaration {
+public class MethodInvocation extends Dispatch {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
-        super(start, end, packageName, packageNameEnd, body);
+    private MethodName name;
+    private final ArrayList<Expression> parameters = new ArrayList<Expression>();
+
+    private MethodInvocation(int start, int end, VariableBase dispatcher, MethodName methodName, Expression[] parameters) {
+        super(start, end, dispatcher);
+        this.name = methodName;
+        for (Expression expression : parameters) {
+            this.parameters.add(expression);
+        }
+    }
+
+    public MethodInvocation(int start, int end, VariableBase dispatcher, MethodName methodName, List<Expression> parameters) {
+        this(start, end, dispatcher, methodName, parameters == null ? null : (Expression[]) parameters.toArray(new Expression[parameters.size()]));
+    }
+
+    /**
+     * The method name component of this method invocation
+     * 
+     * @return method name component of this method invocation
+     */
+    public MethodName getMethodName() {
+        return name;
+    }
+
+    /**
+     * @return the parameters component of this method invocation expression
+     */
+    public List<Expression> getParameters() {
+        return parameters;
     }
 
     

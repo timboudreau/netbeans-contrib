@@ -39,6 +39,7 @@
 package org.netbeans.modules.ada.editor.parser;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.openide.filesystems.FileObject;
@@ -47,8 +48,17 @@ import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.ada.editor.AdaLanguage;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.ASTUtils;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
@@ -88,8 +98,8 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         private PackageSpecification declaration;
 
-        public PackageSpecificationHandle (CompilationInfo info, PackageSpecification declaration) {
-            super (info);
+        public PackageSpecificationHandle(CompilationInfo info, PackageSpecification declaration) {
+            super(info);
             this.declaration = declaration;
         }
 
@@ -119,8 +129,8 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         private PackageBody declaration;
 
-        public PackageBodyHandle (CompilationInfo info, PackageBody declaration) {
-            super (info);
+        public PackageBodyHandle(CompilationInfo info, PackageBody declaration) {
+            super(info);
             this.declaration = declaration;
         }
 
@@ -144,5 +154,187 @@ public abstract class AdaElementHandle implements ElementHandle {
         public ASTNode getASTNode() {
             return declaration;
         }
+    }
+
+    public static class TypeDeclarationHandle extends AdaElementHandle {
+
+        private TypeDeclaration declaration;
+
+        public TypeDeclarationHandle (CompilationInfo info, TypeDeclaration declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            Identifier id = declaration.getTypeName();
+            String hName = id.getName();
+            if (hName != null) {
+                name = name + hName;
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            // Custom icon
+            return ElementKind.CONSTRUCTOR;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return translateModifiers(declaration.getModifier());
+        }
+    }
+
+    public static class FieldsDeclarationHandle extends AdaElementHandle {
+
+        private FieldsDeclaration declaration;
+
+        public FieldsDeclarationHandle (CompilationInfo info, FieldsDeclaration declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            Variable[] variables = declaration.getVariableNames();
+            for (Variable variable : variables) {
+                String hName = ASTUtils.resolveVariableName(variable);
+                if (hName != null) {
+                    name = name + hName;
+                }
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            return ElementKind.FIELD;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return translateModifiers(declaration.getModifier());
+        }
+    }
+
+    public static class FunctionDeclarationHandle extends AdaElementHandle {
+
+        private FunctionDeclaration declaration;
+
+        public FunctionDeclarationHandle (CompilationInfo info, FunctionDeclaration declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            if (declaration.getFunctionName() != null) {
+                name = declaration.getFunctionName().getName();
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            return ElementKind.METHOD;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+    }
+
+    public static class ProcedureDeclarationHandle extends AdaElementHandle {
+
+        private ProcedureDeclaration declaration;
+
+        public ProcedureDeclarationHandle (CompilationInfo info, ProcedureDeclaration declaration) {
+            super (info);
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        public String getName() {
+            String name = "";
+            if (declaration.getProcedureName() != null) {
+                name = declaration.getProcedureName().getName();
+            }
+            return name;
+        }
+
+        public ElementKind getKind() {
+            return ElementKind.METHOD;
+        }
+
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+    }
+
+    public static class MethodFunctionDeclarationHandle extends FunctionDeclarationHandle {
+
+        private MethodDeclaration declaration;
+
+        public MethodFunctionDeclarationHandle (CompilationInfo info, MethodDeclaration declaration) {
+            super (info, declaration.getFunction());
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return translateModifiers(declaration.getModifier());
+        }
+    }
+
+    public static class MethodProcedureDeclarationHandle extends ProcedureDeclarationHandle {
+
+        private MethodDeclaration declaration;
+
+        public MethodProcedureDeclarationHandle (CompilationInfo info, MethodDeclaration declaration) {
+            super (info, declaration.getProcedure());
+            this.declaration = declaration;
+        }
+
+        @Override
+        public ASTNode getASTNode() {
+            return declaration;
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return translateModifiers(declaration.getModifier());
+        }
+    }
+
+    private static Set<Modifier> translateModifiers(int modifier) {
+        Set<Modifier> modifiers = new HashSet<Modifier>();
+        if (BodyDeclaration.Modifier.isPrivate(modifier)) {
+            modifiers.add(Modifier.PRIVATE);
+        }
+        if (BodyDeclaration.Modifier.isPublic(modifier)) {
+            modifiers.add(Modifier.PUBLIC);
+        }
+        return modifiers;
     }
 }

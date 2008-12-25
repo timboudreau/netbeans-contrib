@@ -44,32 +44,58 @@ import org.netbeans.modules.ada.editor.ast.*;
 import org.netbeans.modules.ada.editor.ast.nodes.*;
 
 parser code {:
-        private ErrorStrategy defaultStrategy = new DefaultErrorStrategy();;
-        private ErrorStrategy errorStrategy = defaultStrategy;
+    protected final static Integer PUBLIC = new Integer(BodyDeclaration.Modifier.PUBLIC);
+    protected final static Integer PRIVATE = new Integer(BodyDeclaration.Modifier.PRIVATE);
+    protected final static Integer TAGGED = new Integer(BodyDeclaration.Modifier.TAGGED);
+    protected final static Integer LIMITED = new Integer(BodyDeclaration.Modifier.LIMITED);
+    protected final static Integer ABSTRACT = new Integer(BodyDeclaration.Modifier.ABSTRACT);
 
-        private ParserErrorHandler errorHandler = null;
+    private ErrorStrategy defaultStrategy = new DefaultErrorStrategy();;
+    private ErrorStrategy errorStrategy = defaultStrategy;
 
-        public void setErrorHandler (ParserErrorHandler handler) {
-            this.errorHandler = handler;
-        }
+    private ParserErrorHandler errorHandler = null;
 
-        public ParserErrorHandler getErrorHandler () {
-            return this.errorHandler;
-        }
+    public void setErrorHandler (ParserErrorHandler handler) {
+        this.errorHandler = handler;
+    }
+
+    public ParserErrorHandler getErrorHandler () {
+        return this.errorHandler;
+    }
 
 /*
-	public Dispatch createDispatch(DeclarationBase dispatcher, DeclarationBase property) {
-		Dispatch dispatch = null;
-		if (property instanceof Variable) {
-			dispatch = new FieldAccess(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (Variable)property);
-		} else if (property instanceof FunctionInvocation) {
-			dispatch = new MethodInvocation(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (FunctionInvocation)property);
-		} else {
-			throw new IllegalArgumentException();
-		}
-		return dispatch;
+    public Dispatch createDispatch(VariableBase dispatcher, VariableBase property) {
+        Dispatch dispatch = null;
+	if (property instanceof Variable) {
+	   dispatch = new FieldAccess(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (Variable)property);
+	} else if (property instanceof FunctionInvocation) {
+	   dispatch = new MethodInvocation(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (FunctionInvocation)property);
+	} else {
+	   throw new IllegalArgumentException();
 	}
+        return dispatch;
+    }
 */
+
+    public List setModifier(List items, int modifier) {
+        List list = new LinkedList();
+        for (Iterator iter = items.iterator(); iter.hasNext();) {
+            final Object next = iter.next();
+            if (next instanceof TypeDeclaration) {
+                ((TypeDeclaration)next).setModifier(modifier);
+                list.add(next);
+            } else if (next instanceof MethodDeclaration) {
+                ((MethodDeclaration)next).setModifier(modifier);
+                list.add(next);
+            } else if (next instanceof FieldsDeclaration) {
+                ((FieldsDeclaration)next).setModifier(modifier);
+                list.add(next);
+            } else {
+                list.add(next);
+            }
+        }
+        return list;
+    }
 
     interface ErrorStrategy {
         public boolean errorRecovery(boolean debug) throws Exception;
@@ -101,13 +127,7 @@ parser code {:
      */
     @Override
     public void report_error(String message, Object info) {
-		 System.out.print("report_eror"  + message);
-  		/* if (info instanceof Symbol)
-			if (((Symbol)info).left != -1)
-				System.err.println(" at character " + ((Symbol)info).left + " of input");
-			else System.err.println("");
-	     else 
-	   		System.err.println("");*/
+        System.out.print("report_eror"  + message);
     }	
 
     /**
@@ -175,9 +195,9 @@ parser code {:
  *                                                       *
  *********************************************************/
 
-/*****************
- * Terminals     *
- *****************/
+/*************************
+ * JavaCup Terminals     *
+ *************************/
 
 //
 // Ada 95 keywords
@@ -298,70 +318,104 @@ terminal String IDENTIFIER;
 
 
 
-/*****************
- * Non terminals *
- *****************/
+/*************************
+ * JavaCup Non terminals *
+ *************************/
 
 // 10.1.1 Compilation Units - Library Units
-non terminal Program      compilation;
-non terminal List         compilation_unit_list;
-non terminal Statement    compilation_unit;
-non terminal Statement    unit;
+non terminal Program           compilation;
+non terminal List              compilation_unit_list;
+non terminal Statement         compilation_unit;
+non terminal Statement         unit;
 
 // 10.1.2 Context Clauses - With Clauses
-non terminal Statement    context_clause;
-non terminal Statement    with_clause;
-non terminal List         compound_name_list;
+non terminal Statement         context_clause;
+non terminal Statement         with_clause;
+non terminal List              compound_name_list;
 
 // 8.4 Use Clauses
-non terminal Statement    use_clause;
+non terminal Statement         use_clause;
 
 // 7.1 Package Specifications and Declarations
-non terminal Statement    package_declaration;
-non terminal Statement    package_specification;
+non terminal Statement         package_declaration;
+non terminal Statement         package_specification;
 
 // 7.2 Package Bodies
-non terminal Statement    package_body;
-non terminal Statement    body;
+non terminal Statement         package_body;
+non terminal Statement         body;
+
+// 7.3 Private Types and Private Extensions
+non terminal PrivateType       private_type_declaration;
+non terminal Integer           tagged_opt;
+non terminal Integer           limited_opt;
+
+// 6.1 Subprogram Declarations
+non terminal MethodDeclaration subprogram_specification;
+non terminal MethodDeclaration subprogram_specification_is_push;
+non terminal MethodDeclaration generic_subp_inst;
+non terminal MethodDeclaration subprog_body;
 
 // 3.1 Declarations
-non terminal Statement    declaration;
-non terminal Identifier   defining_identifier;
+non terminal Statement         declaration;
+non terminal List              fields_declaration;
+non terminal Statement         type_declaration;
+non terminal Statement         subprog_declaration;
+non terminal Statement         subprog_decl;
+non terminal Identifier        defining_identifier;
 
 // 3.11 Declarative Parts
-non terminal List         declarative_items_opt;
-non terminal List         declarative_item_list;
-non terminal Statement    declarative_item;
-non terminal List         declarative_part;
-non terminal List         declarative_item_or_body_s1;
+non terminal List              declarative_items_opt;
+non terminal List              declarative_item_list;
+non terminal Statement         declarative_item;
+non terminal List              declarative_part;
+non terminal List              declarative_item_or_body_s1;
+non terminal List              private_part;
+non terminal Statement         proper_body;
+non terminal Statement         task_body;
 
 // 3.3.1 Object Declarations
-non terminal Variable     object_declaration;
-non terminal List         defining_identifier_list;
+non terminal List              object_declaration;
+non terminal List              defining_identifier_list;
 
 // 3.3.2 Number Declarations
-non terminal Variable     number_declaration;
+non terminal List              number_declaration;
 
+// 9.4 Protected Units and Protected Objects
+non terminal Statement         protected_body;
 
 // TBD sections
-non terminal List         name_list;
-non terminal String       name;
-non terminal String       simple_name;
-non terminal String       compound_name;
-non terminal String       compound_name_opt;
-non terminal Expression   object_subtype_def;
-non terminal Expression   init_opt;
+non terminal List              name_list;
+non terminal String            name;
+non terminal String            simple_name;
+non terminal String            compound_name;
+non terminal String            compound_name_opt;
+non terminal TypeDeclaration   object_subtype_def;
+non terminal Expression        init_opt;
+non terminal Statement         type_decl;
+non terminal Statement         subtype_decl;
+non terminal Expression        type_completion;
+non terminal TypeDeclaration   subtype_ind;
+non terminal List              param_s;
+non terminal List              formal_part_opt;
+non terminal List              formal_part;
+non terminal List              param;
+non terminal String            subtype_mark;
+non terminal String            designator;
+non terminal Expression        type_def;
+non terminal List              handled_stmt_s;
+non terminal List              statement_s;
+non terminal Statement         statement;
+non terminal List              block_body;
+non terminal FormalParameter.Mode mode;
+non terminal Statement         subunit;
+non terminal Expression        expression;
 
 
 // TBD RM sections and types
 non terminal     pragma;
 non terminal     pragma_arg_s;
 non terminal     pragma_arg;
-non terminal     expression;
 non terminal     pragma_s;
-non terminal     type_decl;
-non terminal     subtype_decl;
-non terminal     subprog_decl;
 non terminal     task_decl;
 non terminal     prot_decl;
 non terminal     exception_decl;
@@ -369,11 +423,8 @@ non terminal     rename_decl;
 non terminal     generic_declaration;
 non terminal     body_stub;
 non terminal     object_qualifier_opt;
-non terminal     subtype_ind;
 non terminal     discrim_part_opt;
-non terminal     type_completion;
 non terminal     discrim_part;
-non terminal     type_def;
 non terminal     enumeration_type;
 non terminal     integer_type;
 non terminal     real_type;
@@ -381,7 +432,6 @@ non terminal     array_type;
 non terminal     record_type;
 non terminal     access_type;
 non terminal     derived_type;
-non terminal     private_type;
 non terminal     constraint;
 non terminal     range_constraint;
 non terminal     decimal_digits_constraint;
@@ -404,8 +454,6 @@ non terminal     aliased_opt;
 non terminal     iter_index_constraint;
 non terminal     iter_discrete_range_s;
 non terminal     discrete_range;
-non terminal     tagged_opt;
-non terminal     limited_opt;
 non terminal     comp_list;
 non terminal     comp_decl_s;
 non terminal     comp_decl;
@@ -414,19 +462,14 @@ non terminal     variant_part;
 non terminal     discrim_spec_s;
 non terminal     discrim_spec;
 non terminal     access_opt;
-non terminal     mark;
 non terminal     variant_s;
 non terminal     variant;
 non terminal     choice_s;
 non terminal     choice;
 non terminal     discrete_with_range;
 non terminal     prot_opt;
-non terminal     formal_part_opt;
 non terminal     rep_spec;
 non terminal     declarative_item_or_body;
-non terminal     subprog_body;
-non terminal     task_body;
-non terminal     prot_body;
 non terminal     indexed_comp;
 non terminal     selected_comp;
 non terminal     attribute;
@@ -453,8 +496,6 @@ non terminal     primary;
 non terminal     allocator;
 non terminal     qualified;
 non terminal     parenthesized_primary;
-non terminal     statement_s;
-non terminal     statement;
 non terminal     unlabeled;
 non terminal     label;
 non terminal     simple_stmt;
@@ -490,23 +531,12 @@ non terminal     basic_loop;
 non terminal     id_opt;
 non terminal     iter_part;
 non terminal     reverse_opt;
-non terminal     designator;
 non terminal     block_decl;
-non terminal     block_body;
-non terminal     handled_stmt_s;
 non terminal     except_handler_part_opt;
 non terminal     except_handler_part;
 non terminal     name_opt;
 non terminal     when_opt;
-non terminal     subprog_spec;
-non terminal     generic_subp_inst;
-non terminal     subprog_spec_is_push;
-non terminal     formal_part;
-non terminal     param_s;
-non terminal     param;
-non terminal     mode;
 non terminal     generic_package_instantiation;
-non terminal     private_part;
 non terminal     body_opt;
 non terminal     renames;
 non terminal     rename_unit;
@@ -541,8 +571,6 @@ non terminal     select_alt;
 non terminal     stmts_opt;
 non terminal     delay_or_entry_alt;
 non terminal     private_opt;
-non terminal     subunit;
-non terminal     subunit_body;
 non terminal     exception_handler;
 non terminal     except_choice_s;
 non terminal     except_choice;
@@ -586,7 +614,7 @@ pragma_s ::=
 ///////////////////////////////////////////////////////////////////////////////
 // 3.1 Declarations
 //
-declaration    ::= 
+fields_declaration    ::=
 object_declaration:statement
 {:
 	RESULT = statement;
@@ -595,10 +623,31 @@ object_declaration:statement
 {:
 	RESULT = statement;
 :}
-| type_decl
-| subtype_decl
-| subprog_decl
-| package_declaration
+;
+
+type_declaration    ::=
+type_decl:statement
+{:
+	RESULT = statement;
+:}
+| subtype_decl:statement
+{:
+	RESULT = statement;
+:}
+;
+
+subprog_declaration    ::=
+subprog_decl:statement
+{:
+	RESULT = statement;
+:}
+;
+
+declaration    ::=
+package_declaration:statement
+{:
+	RESULT = statement;
+:}
 | task_decl
 | prot_decl
 | exception_decl
@@ -622,10 +671,13 @@ IDENTIFIER:id
 object_declaration ::= 
 defining_identifier_list:identifierList COLON object_qualifier_opt:objQualified object_subtype_def:subtype init_opt:init SEMICOLON
 {:
+    List list = new LinkedList();
     for (Object identifier : identifierList) {
-        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
-        RESULT = variable;
+        // TODO: add the type on variable instance
+        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
+	list.add(new ASTNode[] {variable, init});
     }
+    RESULT = list;
 :}
 ;
 
@@ -651,11 +703,20 @@ object_qualifier_opt ::=
 
 object_subtype_def ::= 
 subtype_ind:subtype
+{:
+    RESULT = subtype;
+:}
 | array_type:array
 ;
 
 init_opt ::=
-| ASSIGNMENT expression
+{:
+    RESULT = null;
+:}
+| ASSIGNMENT expression:expr
+{:
+    RESULT = expr;
+:}
 ;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,15 +725,22 @@ init_opt ::=
 number_declaration ::= 
 defining_identifier_list:identifierList COLON CONSTANT:subtype ASSIGNMENT expression:init SEMICOLON
 {:
+    List list = new LinkedList();
     for (Object identifier : identifierList) {
-        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier/*, subtype, init*/);
-	RESULT = variable;
+        // TODO: add the type on variable instance
+        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
+	list.add(new ASTNode[] {variable, init});
     }
+    RESULT = list;
 :}
 ;
 
 type_decl ::= 
-TYPE IDENTIFIER discrim_part_opt type_completion SEMICOLON
+TYPE defining_identifier:identifier discrim_part_opt type_completion:typeCompletion SEMICOLON
+{:
+    TypeDeclaration type = new TypeDeclaration (identifierleft, identifierright, identifier, typeCompletion);
+    RESULT = type;
+:}
 ;
 
 discrim_part_opt ::=
@@ -681,25 +749,48 @@ discrim_part_opt ::=
 	;
 
 type_completion ::=
-	| IS type_def
-	;
+| IS type_def:typeDef
+{:
+    RESULT = typeDef;
+:}
+;
 
-type_def ::= enumeration_type 
-	| integer_type
-	| real_type
-	| array_type
-	| record_type
-	| access_type
-	| derived_type
-	| private_type
-	;
+type_def ::=
+enumeration_type 
+| integer_type
+| real_type
+| array_type
+| record_type
+| access_type
+| derived_type
+| private_type_declaration:privateType
+{:
+    RESULT = privateType;
+:}
+;
 
-subtype_decl ::= SUBTYPE IDENTIFIER IS subtype_ind SEMICOLON
-	;
+subtype_decl ::=
+SUBTYPE defining_identifier:identifier IS subtype_ind:subtypeIndication SEMICOLON
+{:
+    SubtypeDeclaration type = new SubtypeDeclaration (identifierleft, identifierright, identifier, subtypeIndication);
+    RESULT = type;
+:}
+;
 
-subtype_ind ::= name constraint
-	| name
-	;
+subtype_ind ::= 
+name:name constraint
+{:    
+    Identifier identifier = new Identifier(nameleft, nameright, name);
+    TypeDeclaration type = new TypeDeclaration (nameleft, nameright, identifier);
+    RESULT = type;
+:}
+| name:name
+{:    
+    Identifier identifier = new Identifier(nameleft, nameright, name);
+    TypeDeclaration type = new TypeDeclaration (nameleft, nameright, identifier);
+    RESULT = type;
+:}
+;
 
 constraint ::= range_constraint
 	| decimal_digits_constraint
@@ -804,9 +895,18 @@ record_def ::= RECORD pragma_s comp_list END RECORD
 	;
 
 tagged_opt ::=
-	| TAGGED
-	| ABSTRACT TAGGED
-	;
+{:
+    RESULT = 0;
+:}
+| TAGGED
+{:
+    RESULT = Ada95ASTParser.TAGGED;
+:}
+| ABSTRACT TAGGED
+{:
+    RESULT = Ada95ASTParser.TAGGED + Ada95ASTParser.ABSTRACT;
+:}
+;
 
 comp_list ::= comp_decl_s variant_part_opt
 	| variant_part pragma_s
@@ -833,7 +933,7 @@ discrim_spec_s ::= discrim_spec
 	;
 
 discrim_spec ::= 
-defining_identifier_list COLON access_opt mark init_opt
+defining_identifier_list COLON access_opt subtype_mark init_opt
 | error:theError SEMICOLON  // error statement
 {:
     ASTError error = new ASTError(theErrorleft, theErrorright);
@@ -872,7 +972,7 @@ access_type ::= ACCESS subtype_ind
 	| ACCESS CONSTANT subtype_ind
 	| ACCESS ALL subtype_ind
 	| ACCESS prot_opt PROCEDURE formal_part_opt
-	| ACCESS prot_opt FUNCTION formal_part_opt RETURN mark
+	| ACCESS prot_opt FUNCTION formal_part_opt RETURN subtype_mark
 	;
 
 prot_opt ::=
@@ -893,9 +993,9 @@ declarative_part ::=
 ;
 
 declarative_items_opt ::= 
+// empty
 {:
-    List declaritiveItemList = new LinkedList();
-    RESULT = declaritiveItemList;
+    RESULT = new LinkedList();
 :}
 | declarative_item_list:declaritiveItemList
 {:
@@ -918,13 +1018,20 @@ declarative_item:declaritiveItem
 ;
 
 declarative_item ::= 
-declaration:statement
+fields_declaration:list
 {:
-    List declaritiveItemList = new LinkedList();
-    declaritiveItemList.add(new ASTNode[] {statement, null});
-    FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(statementleft, statementright, declaritiveItemList);
+    FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(listleft, listright, list);
     RESULT = fieldsDeclaration;
 :}
+| type_declaration:statement
+{:
+    RESULT = statement;
+:}
+| subprog_declaration:statement
+{:
+    RESULT = statement;
+:}
+| declaration // todo: to be split
 | use_clause
 | rep_spec
 | pragma
@@ -956,14 +1063,43 @@ body:statement
 ;
 
 body ::=
-subprog_body
+subprog_body:statement
+{:
+    RESULT = statement;
+:}
 | package_body:statement
 {:
     RESULT = statement;
 :}
-| task_body
-| prot_body
+| task_body:statement
+{:
+    RESULT = statement;
+:}
+| protected_body:statement
+{:
+    RESULT = statement;
+:}
 ;
+
+proper_body ::=
+subprog_body:statement
+{:
+    RESULT = statement;
+:}
+| package_body:statement
+{:
+    RESULT = statement;
+:}
+| task_body:statement
+{:
+    RESULT = statement;
+:}
+| protected_body:statement
+{:
+    RESULT = statement;
+:}
+;
+
 
 name ::= simple_name
 	| indexed_comp
@@ -972,10 +1108,21 @@ name ::= simple_name
 	| operator_symbol
 	;
 
-mark ::= simple_name
-	| mark TICK attribute_id
-	| mark DOT simple_name
-	;
+subtype_mark ::=
+simple_name:name
+{:
+    RESULT = name;
+:}
+| subtype_mark:name TICK attribute_id
+{:
+    // TODO: manage the attribute
+    RESULT = name;
+:}
+| subtype_mark:name DOT simple_name:simpleName
+{:
+    RESULT = name + "." + simpleName;
+:}
+;
 
 simple_name ::=
 IDENTIFIER:identifier
@@ -1012,7 +1159,8 @@ compound_name:compoundName
 used_char ::= CHAR_LITERAL
 	;
 
-operator_symbol ::= STRING_LITERAL // ??? gestire gli operatori di funzione. es: "+" "and" ecc.
+// TODO: manage the overload operators ex: "+" "and" ecc.
+operator_symbol ::= STRING_LITERAL
 	;
 
 indexed_comp ::= name LPAREN value_s RPAREN
@@ -1147,13 +1295,24 @@ allocator ::= NEW name
 	| NEW qualified
 	;
 
-statement_s ::= statement
-	| statement_s statement
-	;
+statement_s ::=
+statement:statement
+{:
+	List list = new LinkedList();
+    list.add(statement);
+    RESULT = list;
+:}
+| statement_s:list statement:statement
+{:
+    list.add(statement);
+    RESULT = list;
+:}
+;
 
-statement ::= unlabeled
-	| label statement
-	;
+statement ::=
+unlabeled
+| label statement
+;
 
 unlabeled ::= simple_stmt
 	| compound_stmt
@@ -1261,11 +1420,19 @@ block_decl ::=
 	| DECLARE declarative_part
 	;
 
-block_body ::= BEGIN handled_stmt_s
-	;
+block_body ::=
+BEGIN:begin handled_stmt_s:statements
+{:
+    RESULT = statements;
+:}
+;
 
-handled_stmt_s ::= statement_s except_handler_part_opt 
-	; 
+handled_stmt_s ::=
+statement_s:statements except_handler_part_opt
+{:
+    RESULT = statements;
+:}
+; 
 
 except_handler_part_opt ::=
 	| except_handler_part
@@ -1289,55 +1456,159 @@ return_stmt ::= RETURN SEMICOLON
 goto_stmt ::= GOTO name SEMICOLON
 	;
 
-subprog_decl ::= subprog_spec SEMICOLON
-	| generic_subp_inst SEMICOLON
-	| subprog_spec_is_push ABSTRACT SEMICOLON
-	;
+subprog_decl ::=
+subprogram_specification:subprog SEMICOLON:end
+{:
+	RESULT = subprog;
+:}
+| generic_subp_inst:subprog SEMICOLON:end
+{:
+	RESULT = subprog;
+:}
+| subprogram_specification_is_push:subprog ABSTRACT SEMICOLON:end
+{:
+    subprog.setAbstract();
+	RESULT = subprog;
+:}
+;
 
-subprog_spec ::= PROCEDURE compound_name formal_part_opt
-	| FUNCTION designator formal_part_opt RETURN name
-	| FUNCTION designator  /* for generic inst and generic rename */
-	;
+subprogram_specification ::=
+PROCEDURE:procedure compound_name:procedureName formal_part_opt:formalPart
+{:
+	Identifier procedureId = new Identifier(procedureNameleft, procedureNameright, procedureName);
+	ProcedureDeclaration procedureDeclaration = new ProcedureDeclaration(procedureleft, formalPartright, procedureId, formalPart);
+	MethodDeclaration methodDeclaration = new MethodDeclaration(procedureleft, formalPartright, 0/*modifier*/, procedureDeclaration);
+	RESULT = methodDeclaration;
+:}
+| FUNCTION:function designator:functionName formal_part_opt:formalPart RETURN name:ret
+{:
+	Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
+	FunctionDeclaration functionDeclaration = new FunctionDeclaration(functionleft, retright, functionId, formalPart);
+	MethodDeclaration methodDeclaration = new MethodDeclaration(functionleft, retright, 0/*modifier*/, functionDeclaration);
+	RESULT = methodDeclaration;
+:}
+| FUNCTION:function designator:functionName  /* for generic inst and generic rename */
+{:
+	Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
+	FunctionDeclaration functionDeclaration = new FunctionDeclaration(functionleft, functionNameright, functionId);
+	MethodDeclaration methodDeclaration = new MethodDeclaration(functionleft, functionNameright, 0/*modifier*/, functionDeclaration);
+	RESULT = methodDeclaration;
+:}
+;
 
-designator ::= compound_name
-	| STRING_LITERAL
-	;
+designator ::=
+compound_name:name
+{:
+    RESULT = name;
+:}
+| STRING_LITERAL:name
+{:
+    RESULT = name;
+:}
+;
 
-formal_part_opt ::= 
-	| formal_part
-	;
+formal_part_opt ::=
+/* empty */
+{:
+	List list = new LinkedList();
+	RESULT = list;
+:}
+| formal_part:list
+{:
+	RESULT = list;
+:}
+;
 
-formal_part ::= LPAREN param_s RPAREN
-	;
+formal_part ::=
+LPAREN param_s:list RPAREN
+{:
+	RESULT = list;
+:}
+;
 
-param_s ::= param
-	| param_s SEMICOLON param
-	;
+param_s ::=
+param:parameter
+{:
+	List list = new LinkedList();
+	list.addAll(parameter);
+	RESULT = list;
+:}
+| param_s:list SEMICOLON param:parameter
+{:
+	list.addAll(parameter);
+	RESULT = list;
+:}
+;
 
-param ::= defining_identifier_list COLON mode mark init_opt
+param ::=
+defining_identifier_list:identifierList COLON mode:mode subtype_mark:subtype init_opt
+{:
+    List list = new LinkedList();
+    Identifier subtypeId = new Identifier(subtypeleft, subtyperight, subtype);
+    for (Object identifier : identifierList) {
+        // TODO: add the type on variable instance
+        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
+        FormalParameter parameter = new FormalParameter(identifierListleft, identifierListright, variable, mode, subtypeId);
+    	list.add(parameter);
+    }
+    RESULT = list;
+:}
 | error:theError SEMICOLON /* error statement */
 {:
+    List list = new LinkedList();
     ASTError error = new ASTError(theErrorleft, theErrorright);
-    RESULT = error;
+    list.add(error);
+    RESULT = list;
 :}
 ;
 
 mode ::=
-	| IN
-	| OUT
-	| IN OUT
-	| ACCESS
-	;
-
-subprog_spec_is_push ::= subprog_spec IS
-	;
-
-subprog_body ::= subprog_spec_is_push
-	       declarative_part block_body END id_opt SEMICOLON
+/* empty */
+{:
+    RESULT = FormalParameter.Mode.IN;
+:}
+| IN
+{:
+    RESULT = FormalParameter.Mode.IN;
+:}
+| OUT
+{:
+    RESULT = FormalParameter.Mode.OUT;
+:}
+| IN OUT
+{:
+    RESULT = FormalParameter.Mode.IN_OUT;
+:}
+| ACCESS
+{:
+    RESULT = FormalParameter.Mode.ACCESS;
+:}
 ;
 
-procedure_call ::= name SEMICOLON
-	;
+subprogram_specification_is_push ::=
+subprogram_specification:subprog IS
+{:
+    RESULT = subprog;
+:}
+;
+
+subprog_body ::=
+subprogram_specification_is_push:subprog
+declarative_part:declarativePart block_body:blockBody END:end id_opt SEMICOLON
+{:
+    Block declarations = new Block(declarativePartleft, declarativePartright, declarativePart);
+    Block body = new Block(blockBodyleft, endright, blockBody);
+
+    subprog.setDeclarations(declarations);
+    subprog.setBody(body);
+
+    RESULT = subprog;
+:}
+;
+
+procedure_call ::= 
+name:name SEMICOLON:end
+;
 
 ///////////////////////////////////////////////////////////////////////////////
 // 7.1 Package Specifications and Declarations
@@ -1352,7 +1623,7 @@ package_specification:statement
 
 package_specification ::= 
 PACKAGE:declarationStart compound_name:packageName IS:blockStart
-  declarative_items_opt:declarativeItems private_part
+  declarative_items_opt:declarativeItems private_part:privateDeclarativeItems
 END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
 {:
     if (packageNameEnd != null && !packageNameEnd.equalsIgnoreCase (packageName)) {
@@ -1361,6 +1632,8 @@ END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
     else {
         Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
         Identifier packageIdEnd = new Identifier(packageNameEndleft, packageNameEndright, packageNameEnd);
+        declarativeItems.addAll (privateDeclarativeItems);
+        // Add private part on block statements
         Block block = new Block(blockStartleft, declarationEndright, declarativeItems);
         PackageSpecification packageSpecification = new PackageSpecification(declarationStartleft, declarationEndright, packageId, packageIdEnd, block);
         RESULT = packageSpecification;
@@ -1369,8 +1642,14 @@ END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
 ;
 
 private_part ::=
-	| PRIVATE declarative_items_opt
-	;
+{:
+    RESULT = new LinkedList();
+:}
+| PRIVATE declarative_items_opt:declarativeItems
+{:
+    RESULT = this.parser.setModifier (declarativeItems, Ada95ASTParser.PRIVATE);
+:}
+;
 
 compound_name_opt ::= 
 | compound_name:compoundName
@@ -1392,7 +1671,10 @@ PACKAGE:declarationStart BODY compound_name:packageName IS:blockStart
     else {
         Identifier packageId = new Identifier(packageNameleft, packageNameright, packageName);
         Identifier packageIdEnd = new Identifier(packageNameEndleft, packageNameEndright, packageNameEnd);
-        Block block = new Block(blockStartleft, declarationEndright, declarativePart);
+
+        List list = this.parser.setModifier (declarativePart, Ada95ASTParser.PRIVATE);
+        Block block = new Block(blockStartleft, declarationEndright, list);
+
         PackageBody packageBody = new PackageBody(declarationStartleft, declarationEndright, packageId, packageIdEnd, block);
         RESULT = packageBody;
     }
@@ -1403,12 +1685,26 @@ body_opt ::=
 	| block_body
 	;
 
-private_type ::= tagged_opt limited_opt PRIVATE
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 7.3 Private Types and Private Extensions
+//
+private_type_declaration ::=
+tagged_opt:tagged limited_opt:limited PRIVATE:privateKeyword
+{:
+    PrivateType privateType = new PrivateType(taggedleft, privateKeywordright, tagged + limited + Ada95ASTParser.PRIVATE);
+    RESULT = privateType;
+:}
+;
 
 limited_opt ::=
-	| LIMITED
-	;
+{:
+    RESULT = 0;
+:}
+| LIMITED
+{:
+    RESULT = Ada95ASTParser.LIMITED;
+:}
+;
 
 ///////////////////////////////////////////////////////////////////////////////
 // 8.4 Use Clauses
@@ -1452,9 +1748,9 @@ rename_decl ::= defining_identifier_list COLON object_qualifier_opt subtype_ind 
 	;
 
 rename_unit ::= PACKAGE compound_name renames SEMICOLON
-	| subprog_spec renames SEMICOLON
+	| subprogram_specification renames SEMICOLON
 	| generic_formal_part PACKAGE compound_name renames SEMICOLON
-	| generic_formal_part subprog_spec renames SEMICOLON
+	| generic_formal_part subprogram_specification renames SEMICOLON
 	;
 
 renames ::= RENAMES name
@@ -1498,7 +1794,7 @@ prot_op_decl_s ::=
 	;
 
 prot_op_decl ::= entry_decl
-	| subprog_spec SEMICOLON
+	| subprogram_specification SEMICOLON
 	| rep_spec
 	| pragma
 	;
@@ -1509,9 +1805,13 @@ prot_elem_decl_s ::=
 
 prot_elem_decl ::= prot_op_decl | comp_decl ;
 
-prot_body ::= PROTECTED BODY simple_name IS
-	       prot_op_body_s END id_opt SEMICOLON
-	;
+/////////////////////////////////////////////////////////////////
+// 9.4 Protected Units and Protected Objects
+//
+protected_body ::= 
+PROTECTED BODY simple_name:name IS
+prot_op_body_s END id_opt SEMICOLON
+;
 
 prot_op_body_s ::= pragma_s
 	| prot_op_body_s prot_op_body pragma_s
@@ -1519,7 +1819,7 @@ prot_op_body_s ::= pragma_s
 
 prot_op_body ::= entry_body
 	| subprog_body
-	| subprog_spec SEMICOLON
+	| subprogram_specification SEMICOLON
 	;
 
 entry_decl_s ::= pragma_s
@@ -1543,8 +1843,12 @@ rep_spec_s ::=
 	| rep_spec_s rep_spec pragma_s
 	;
 
-entry_call ::= procedure_call
-	;
+entry_call ::= 
+procedure_call:statement
+{:
+    RESULT = statement;
+:}
+;
 
 accept_stmt ::= accept_hdr SEMICOLON
 	| accept_hdr DO handled_stmt_s END id_opt SEMICOLON
@@ -1661,9 +1965,18 @@ package_declaration:statement
 {:
     RESULT = statement;
 :}
-| subprog_decl
-| subprog_body
-| subunit
+| subprog_decl:statement
+{:
+    RESULT = statement;
+:}
+| subprog_body:statement
+{:
+    RESULT = statement;
+:}
+| subunit:statement
+{:
+    RESULT = statement;
+:}
 | generic_declaration
 | rename_unit
 ;
@@ -1707,34 +2020,16 @@ WITH compound_name_list:packageList SEMICOLON
 //
 subunit ::=
 SEPARATE LPAREN compound_name RPAREN
-subunit_body:statement
+proper_body:statement
 {:
     RESULT = statement;
 :}
 ;
 
-subunit_body ::=
-subprog_body:statement
-{:
-    RESULT = statement;
-:}
-| package_body:statement
-{:
-    RESULT = statement;
-:}
-| task_body:statement
-{:
-    RESULT = statement;
-:}
-| prot_body:statement
-{:
-    RESULT = statement;
-:}
-;
 
 body_stub ::= TASK BODY simple_name IS SEPARATE SEMICOLON
 	| PACKAGE BODY compound_name IS SEPARATE SEMICOLON
-	| subprog_spec IS SEPARATE SEMICOLON
+	| subprogram_specification IS SEPARATE SEMICOLON
 	| PROTECTED BODY simple_name IS SEPARATE SEMICOLON
 	;
 
@@ -1768,7 +2063,7 @@ requeue_stmt ::= REQUEUE name SEMICOLON
 // 12.1 Generic Declarations
 //
 generic_declaration ::= 
-generic_formal_part subprog_spec SEMICOLON
+generic_formal_part subprogram_specification SEMICOLON
 | generic_formal_part package_specification SEMICOLON
 ;
 
@@ -1805,7 +2100,7 @@ generic_type_def ::= LPAREN BOX RPAREN
 	| DIGITS BOX
 	| array_type
 	| access_type
-	| private_type
+	| private_type_declaration
 	| generic_derived_type
 	;
 
@@ -1814,8 +2109,12 @@ generic_derived_type ::= NEW subtype_ind
 	| ABSTRACT NEW subtype_ind WITH PRIVATE
 	;
 
-generic_subp_inst ::= subprog_spec IS generic_inst
-	;
+generic_subp_inst ::=
+subprogram_specification:subprog IS generic_inst
+{:
+    RESULT = subprog;
+:}
+;
 
 // 12.3
 generic_package_instantiation ::= 
@@ -1830,10 +2129,10 @@ rep_spec ::= attrib_def
 	| address_spec
 	;
 
-attrib_def ::= FOR mark USE expression SEMICOLON
+attrib_def ::= FOR subtype_mark USE expression SEMICOLON
 	;
 
-record_type_spec ::= FOR mark USE RECORD align_opt comp_loc_s END RECORD SEMICOLON
+record_type_spec ::= FOR subtype_mark USE RECORD align_opt comp_loc_s END RECORD SEMICOLON
 	;
 
 align_opt ::=
@@ -1841,10 +2140,10 @@ align_opt ::=
 	;
 
 comp_loc_s ::=
-	| comp_loc_s mark AT expression RANGE range SEMICOLON
+	| comp_loc_s subtype_mark AT expression RANGE range SEMICOLON
 	;
 
-address_spec ::= FOR mark USE AT expression SEMICOLON
+address_spec ::= FOR subtype_mark USE AT expression SEMICOLON
 	;
 
 code_stmt ::= qualified SEMICOLON

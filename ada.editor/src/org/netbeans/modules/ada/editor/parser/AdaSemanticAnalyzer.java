@@ -47,10 +47,13 @@ import java.util.Set;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration.Modifier;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
@@ -68,10 +71,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 public class AdaSemanticAnalyzer implements SemanticAnalyzer {
 
     public static final EnumSet<ColoringAttributes> UNUSED_FIELD_SET = EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.FIELD);
-    public static final EnumSet<ColoringAttributes> UNUSED_STATIC_FIELD_SET = EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.FIELD, ColoringAttributes.STATIC);
     public static final EnumSet<ColoringAttributes> UNUSED_METHOD_SET = EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.METHOD);
-    public static final EnumSet<ColoringAttributes> STATIC_METHOD_SET = EnumSet.of(ColoringAttributes.STATIC, ColoringAttributes.METHOD);
-    public static final EnumSet<ColoringAttributes> UNUSED_STATIC_METHOD_SET = EnumSet.of(ColoringAttributes.STATIC, ColoringAttributes.METHOD, ColoringAttributes.UNUSED);
     private boolean cancelled;
     private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
 
@@ -190,21 +190,58 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                 }
                 // are there unused private fields?
                 for (IdentifierColoring item : privateFieldsUsed.values()) {
-                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
-                        addOffsetRange(item.identifier, UNUSED_STATIC_FIELD_SET);
-                    } else {
-                        addOffsetRange(item.identifier, UNUSED_FIELD_SET);
-                    }
-
+                    addOffsetRange(item.identifier, UNUSED_FIELD_SET);
                 }
 
                 // are there unused private methods?
                 for (IdentifierColoring item : privateMethod.values()) {
-                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
-                        addOffsetRange(item.identifier, UNUSED_STATIC_METHOD_SET);
-                    } else {
-                        addOffsetRange(item.identifier, UNUSED_METHOD_SET);
-                    }
+                    addOffsetRange(item.identifier, UNUSED_METHOD_SET);
+                }
+            }
+        }
+
+        @Override
+        public void visit(MethodDeclaration md) {
+            boolean isPrivate = Modifier.isPrivate(md.getModifier());
+            EnumSet<ColoringAttributes> coloring = ColoringAttributes.METHOD_SET;
+
+            Identifier identifier;
+            if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                identifier = md.getFunction().getFunctionName();
+            }
+            else {
+                identifier = md.getProcedure().getProcedureName();
+            }
+            String name = identifier.getName();
+            // don't color private magic private method. methods which start __
+            if (isPrivate && name != null) {
+                privateMethod.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
+            }
+            else {
+                // color now only non private method
+                addOffsetRange(identifier, coloring);
+            }
+            if (!Modifier.isAbstract(md.getModifier())) {
+                // don't scan the body now. It should be scanned after all declarations
+                // are known
+                Block block;
+                if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                    block = md.getFunction().getDeclarations();
+                }
+                else {
+                    block = md.getProcedure().getDeclarations();
+                }
+                if (block != null) {
+                    needToScan.add(block);
+                }
+                if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                    block = md.getFunction().getBody();
+                }
+                else {
+                    block = md.getProcedure().getBody();
+                }
+                if (block != null) {
+                    needToScan.add(block);
                 }
             }
         }
@@ -231,21 +268,12 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                 }
                 // are there unused private fields?
                 for (IdentifierColoring item : privateFieldsUsed.values()) {
-                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
-                        addOffsetRange(item.identifier, UNUSED_STATIC_FIELD_SET);
-                    } else {
-                        addOffsetRange(item.identifier, UNUSED_FIELD_SET);
-                    }
-
+                    addOffsetRange(item.identifier, UNUSED_FIELD_SET);
                 }
 
                 // are there unused private methods?
                 for (IdentifierColoring item : privateMethod.values()) {
-                    if (item.coloring.contains(ColoringAttributes.STATIC)) {
-                        addOffsetRange(item.identifier, UNUSED_STATIC_METHOD_SET);
-                    } else {
-                        addOffsetRange(item.identifier, UNUSED_METHOD_SET);
-                    }
+                    addOffsetRange(item.identifier, UNUSED_METHOD_SET);
                 }
             }
         }
@@ -256,16 +284,37 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                 return;
             }
 
+            boolean isPrivate = Modifier.isPrivate(node.getModifier());
             EnumSet<ColoringAttributes> coloring = ColoringAttributes.FIELD_SET;
-
 
             Variable[] variables = node.getVariableNames();
             for (int i = 0; i < variables.length; i++) {
                 Variable variable = variables[i];
-                if (variable.getName() instanceof Identifier) {
-                    Identifier identifier = (Identifier) variable.getName();
-                    privateFieldsUsed.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
+                if (!isPrivate) {
+                    addOffsetRange(variable.getName(), ColoringAttributes.FIELD_SET);
+                } else {
+                    if (variable.getName() instanceof Identifier) {
+                        Identifier identifier =  (Identifier) variable.getName();
+                        privateFieldsUsed.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
+                    }
                 }
+            }
+        }
+
+        @Override
+        public void visit(TypeDeclaration node) {
+            if (isCancelled()) {
+                return;
+            }
+
+            boolean isPrivate = Modifier.isPrivate(node.getModifier());
+            EnumSet<ColoringAttributes> coloring = ColoringAttributes.FIELD_SET;
+
+            Identifier id = node.getTypeName();
+            if (!isPrivate) {
+                addOffsetRange(id, ColoringAttributes.FIELD_SET);
+            } else {
+                privateFieldsUsed.put(id.getName(), new IdentifierColoring(id, coloring));
             }
         }
     }

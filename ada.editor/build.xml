@@ -3,9 +3,10 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.ada.editor.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <!-- For generating lexer and parser set up the right classpath -->
+    <!-- for generationg lexer and parser, uncomment the tasks and set up the right path -->
 
     <!-- SYNTAX LEXER GENERATOR -->
+    <!--
     <taskdef name="jflex"
         classname="JFlex.anttask.JFlexTask"
         classpath="c:/jflex/jflex-1.4.2/lib/JFlex.jar" />
@@ -17,8 +18,10 @@
         skel="${basedir}/src/org/netbeans/modules/ada/editor/lexer/resources/SyntaxLexer.skeleton"
         />
     </target>
+    -->
 
     <!-- AST LEXER GENERATOR -->
+    <!--
     <target name="gen-astlexer" description="Ada AST Lexer">
         <echo message="Rebuilding Ada AST Lexer..."/>
         <jflex file="${basedir}/src/org/netbeans/modules/ada/editor/lexer/resources/Ada95ASTLexer.flex"
@@ -26,6 +29,7 @@
         skel="${basedir}/src/org/netbeans/modules/ada/editor/lexer/resources/ASTLexer.skeleton"
         />
     </target>
+    -->
     
     <!-- AST PARSER GENERATOR -->
     <taskdef name="javacup"

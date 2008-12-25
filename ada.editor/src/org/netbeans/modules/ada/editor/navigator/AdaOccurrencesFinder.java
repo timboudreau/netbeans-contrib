@@ -47,14 +47,19 @@ import java.util.Map;
 import org.netbeans.modules.ada.editor.CodeUtils;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
+import org.netbeans.modules.ada.editor.navigator.SemiAttribute.PackageElement;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
@@ -117,13 +122,64 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             private String pkgName = null;
 
             @Override
-            public void visit(SingleFieldDeclaration node) {
+            public void visit(MethodDeclaration node) {
                 boolean found = false;
                 if (el instanceof SemiAttribute.PackageMemberElement) {
                     SemiAttribute.PackageMemberElement clsEl = (SemiAttribute.PackageMemberElement) el;
+                    String methName = CodeUtils.extractMethodName(node);
+                    Identifier methNode;
+                    if (node.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                        methNode = node.getFunction().getFunctionName();
+                    } else {
+                        methNode = node.getProcedure().getProcedureName();
+                    }
+
+                    if (pkgName != null && clsEl.getPackageName().equals(pkgName) && clsEl.getName().equals(methName)) {
+                        memberDeclaration.add(methNode);
+                        usages.add(methNode);
+                        found = true;
+                    }
+                    PackageElement superClass = clsEl.getPackageElement().getSuperClass();
+                    while(!found && superClass != null) {
+                        if (superClass != null && pkgName != null && superClass.getName().equals(pkgName) && clsEl.getName().equals(methName)) {
+                            memberDeclaration.add(0, methNode);
+                            usages.add(methNode);
+                            found = true;
+                        }
+                        superClass = superClass.getSuperClass();
+                    }
+                }
+                if (!found) {
+                    super.visit(node);
+                }
+            }
+
+            @Override
+            public void visit(TypeDeclaration node) {
+                boolean found = false;
+                if (el instanceof SemiAttribute.PackageMemberElement) {
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
+                    Identifier id = node.getTypeName();
+                    String typeName = id.getName();
+                    if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(typeName)) {
+                        memberDeclaration.add(id);
+                        usages.add(id);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    super.visit(node);
+                }
+            }
+
+            @Override
+            public void visit(SingleFieldDeclaration node) {
+                boolean found = false;
+                if (el instanceof SemiAttribute.PackageMemberElement) {
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
                     Variable variable = node.getName();
                     String varName = CodeUtils.extractVariableName(variable);
-                    if (pkgName != null && clsEl.getClassName().equals(pkgName) && clsEl.getName().equals(varName)) {
+                    if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(varName)) {
                         memberDeclaration.add(variable);
                         usages.add(variable);
                         found = true;
@@ -132,6 +188,26 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
                 if (!found) {
                     super.visit(node);
                 }
+            }
+
+            @Override
+            public void visit(FunctionDeclaration node) {
+                if (!(el instanceof SemiAttribute.PackageMemberElement)) {
+                    if (el == a.getElement(node)) {
+                        usages.add(node.getFunctionName());
+                    }
+                }
+                super.visit(node);
+            }
+
+            @Override
+            public void visit(ProcedureDeclaration node) {
+                if (!(el instanceof SemiAttribute.PackageMemberElement)) {
+                    if (el == a.getElement(node)) {
+                        usages.add(node.getProcedureName());
+                    }
+                }
+                super.visit(node);
             }
 
             @Override

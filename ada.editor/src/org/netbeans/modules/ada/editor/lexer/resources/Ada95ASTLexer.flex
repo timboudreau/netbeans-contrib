@@ -298,7 +298,7 @@ ANY_CHAR=(.|[\n])
     ","             { return createSymbol(Ada95ASTSymbols.COMMA); }
     "-"             { return createSymbol(Ada95ASTSymbols.MINUS); }
     "."             {
-                        pushState(ST_LOOKING_FOR_PROPERTY);
+                        /*pushState(ST_LOOKING_FOR_PROPERTY);*/
                         return createSymbol(Ada95ASTSymbols.DOT);
                     }
     "/"             { return createSymbol(Ada95ASTSymbols.SLASH); }
@@ -328,7 +328,7 @@ ANY_CHAR=(.|[\n])
     "<>"             { return createSymbol(Ada95ASTSymbols.BOX); }
 
 }
-
+/*
 <ST_LOOKING_FOR_PROPERTY>"." {
 	return createSymbol(Ada95ASTSymbols.DOT);
 }
@@ -337,6 +337,7 @@ ANY_CHAR=(.|[\n])
     popState();
     return createFullSymbol(Ada95ASTSymbols.IDENTIFIER);
 }
+*/
 
 <ST_LOOKING_FOR_PROPERTY>{CHAR_LITERAL} {
     yypushback(yylength());
@@ -371,9 +372,9 @@ ANY_CHAR=(.|[\n])
 	yybegin(ST_COMMENT);
 }
 
-<ST_COMMENT>[^\n\r]*{ANY_CHAR} {
-        handleLineCommentEnd();
-        yybegin(YYINITIAL);
+<ST_COMMENT>[^\n\r]*(ANY_CHAR|{NEWLINE}) {
+    handleLineCommentEnd();
+    yybegin(YYINITIAL);
 }
 
 <YYINITIAL> <<EOF>> {

@@ -45,7 +45,7 @@ import org.netbeans.modules.ada.editor.ast.ASTNode;
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.Comment
  *
- * Represents a ADA comment
+ * Represents an ADA comment
  * <pre>e.g.<pre> -- this is a comment,
  * --
  * -- Decription to Foo
@@ -58,7 +58,7 @@ public class Comment extends ASTNode {
     public enum Type {
 
         // TODO: add TYPE_ADA_DOC
-        // TODO: add TYPE_SPARK
+        // TODO: add TYPE_SPARK_DOC
         TYPE_SINGLE_LINE ("singleLine");
         
         private final String text;

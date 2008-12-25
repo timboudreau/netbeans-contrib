@@ -55,17 +55,13 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  *
  * @author Andrea Lucarelli
  */
-public class Variable extends DeclarationBase {
+public class Variable extends VariableBase {
 
     private Identifier name;
-    private Expression init;
-	private Expression subtype;
 
-    public Variable(int start, int end, Identifier variableName/*, Expression subtype, Expression init*/) {
+    public Variable(int start, int end, Identifier variableName) {
         super(start, end);
         this.name = variableName;
-		//this.subtype = subtype;
-        //this.init = init;
     }
 
     /**
@@ -75,23 +71,6 @@ public class Variable extends DeclarationBase {
      */
     public Identifier getName() {
         return name;
-    }
-
-	/**
-     * Returns the subtype (Expression) of this variable
-     * 
-     * @return the subtype node
-     */
-    public Expression getSubtype() {
-        return subtype;
-    }
-    /**
-     * Returns the initilisation (Expression) of this variable
-     * 
-     * @return the initilisation node
-     */
-    public Expression getInit() {
-        return init;
     }
 
     @Override

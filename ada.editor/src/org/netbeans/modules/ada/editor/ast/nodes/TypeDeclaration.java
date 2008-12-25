@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,33 +31,51 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.ast.nodes;
 
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a package specification
- * <pre>
- * <pre>e.g.<pre> 
- * package Foo is
- *   Bar : constant := 3;
- *   procedure FooBar;
- * end Foo;
+ * Represents a type declaration of package
  *
- * @author Andrea Lucarelli
+ * <pre>e.g.<pre>
+ * type Count_Type is range 1..10;
  */
-public class PackageSpecification extends PackageDeclaration {
+public class TypeDeclaration extends BodyDeclaration {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
-        super(start, end, packageName, packageNameEnd, body);
+    private Identifier typeName;
+    private Expression typeDef;
+
+    public TypeDeclaration(int start, int end, Identifier typeName, Expression typeDef) {
+        super(start, end, 0);
+        if (typeDef instanceof PrivateType) {
+            this.setModifier(((PrivateType)typeDef).getModifier());
+        }
+        this.typeName = typeName;
+        this.typeDef = typeDef;
     }
 
+    public TypeDeclaration(int start, int end, Identifier typeName) {
+        this (start, end, typeName, null);
+    }
+    /**
+     * @return the name of the type
+     */
+    public Identifier getTypeName() {
+        return this.typeName;
+    }
+
+    /**
+     * @return the type expression of this field, null if none
+     */
+    public Expression getTypeDef() {
+        return this.typeDef;
+    }
     
     @Override
     public void accept(Visitor visitor) {
