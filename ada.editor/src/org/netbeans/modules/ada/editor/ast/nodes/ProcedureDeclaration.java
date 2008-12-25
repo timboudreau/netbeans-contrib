@@ -38,43 +38,85 @@
  */
 package org.netbeans.modules.ada.editor.ast.nodes;
 
-import org.netbeans.modules.ada.editor.ast.ASTNode;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a fields declaration of package
- *
+ * Represents a procedure declaration
  * <pre>e.g.<pre>
- * Count, Sum  : Integer;
- * Size        : Integer range 0 .. 10_000 := 0;
- * Sorted      : Boolean := False;
- * Color_Table : array(1 .. Max) of Color;
- * Option      : Bit_Vector(1 .. 10) := (others => True);
- * Hello       : constant String := "Hi, world.";
+ * procedure Traverse_Tree;
+ * procedure Increment(X : in out Integer);
+ * procedure Right_Indent(Margin : out Line_Size);
+ * procedure Switch(From, To : in out Link);
  */
-public class SingleFieldDeclaration extends ASTNode {
+public class ProcedureDeclaration extends Statement {
 
-    private Variable name;
-    private Expression value;
+    private boolean isSpefication;
+    private Identifier name;
+    private final ArrayList<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
+    private Block declarations;
+    private Block body;
 
-    public SingleFieldDeclaration(int start, int end, Variable name, Expression value) {
+    private ProcedureDeclaration(int start, int end, Identifier procedureName, FormalParameter[] formalParameters, final boolean isSpecification) {
         super(start, end);
-        this.name = name;
-        this.value = value;
+        this.isSpefication = isSpecification;
+        this.name = procedureName;
+        for (FormalParameter formalParameter : formalParameters) {
+            this.formalParameters.add(formalParameter);
+        }
+    }
+
+    public ProcedureDeclaration(int start, int end, Identifier procedureName, List<FormalParameter> formalParameters) {
+        this(start, end, procedureName, (FormalParameter[]) formalParameters.toArray(new FormalParameter[formalParameters.size()]), false);
+    }
+
+    public Block getDeclarations() {
+        return declarations;
+    }
+
+    public void setDeclarations(Block declarations) {
+        this.declarations = declarations;
     }
 
     /**
-     * @return the name of the field
+     * Body of this procedure declaration
+     * 
+     * @return Body of this procedure declaration
      */
-    public Variable getName() {
-        return this.name;
+    public Block getBody() {
+        return body;
+    }
+
+    public void setBody(Block body) {
+        this.isSpefication = false;
+        this.body = body;
     }
 
     /**
-     * @return the initial value of this field, null if none
+     * List of the formal parameters of this procedure declaration
+     * 
+     * @return the parameters of this declaration   
      */
-    public Expression getValue() {
-        return this.value;
+    public List<FormalParameter> getFormalParameters() {
+        return this.formalParameters;
+    }
+
+    /**
+     * Procedure name of this declaration
+     *   
+     * @return Procedure name of this declaration
+     */
+    public Identifier getProcedureName() {
+        return name;
+    }
+
+    /**
+     * True if this procedure's return variable will be referenced
+     * @return True if this procedure's return variable will be referenced
+     */
+    public boolean isSpefication() {
+        return isSpefication;
     }
     
     @Override

@@ -58,12 +58,21 @@ import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.CodeUtils;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Expression;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.ada.editor.ast.nodes.Reference;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Statement;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.ada.editor.indexer.AdaIndex;
@@ -74,6 +83,7 @@ import org.netbeans.modules.ada.editor.indexer.IndexedVariable;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.Index;
+import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.annotations.CheckForNull;
 import org.openide.util.Union2;
@@ -131,18 +141,6 @@ public class SemiAttribute extends DefaultVisitor {
     }
 
     @Override
-    public void visit(Variable node) {
-        if (!node2Element.containsKey(node)) {
-            String name = extractVariableName(node);
-            if (name != null) {
-                node2Element.put(node, lookup(name, Kind.VARIABLE));
-            }
-        }
-
-        super.visit(node);
-    }
-
-    @Override
     public void visit(PackageSpecification node) {
         String name = node.getName().getName();
         PackageElement ce = (PackageElement) global.enterWrite(name, Kind.PACKAGE_SPEC, node);
@@ -178,12 +176,99 @@ public class SemiAttribute extends DefaultVisitor {
         scopes.pop();
     }
 
+    @Override
+    public void visit(FunctionDeclaration node) {
+        String name = node.getFunctionName().getName();
+        FunctionElement fc = (FunctionElement) global.enterWrite(name, Kind.FUNCTION, node);
+
+        DefinitionScope top = scopes.peek();
+
+        if (!node2Element.containsKey(node)) {
+            assert !top.packageScope;
+            node2Element.put(node, fc);
+        }
+
+        scopes.push(fc.enclosedElements);
+
+        if (top.packageScope) {
+            assert top.thisVar != null;
+            scopes.peek().enter(top.thisVar.name, top.thisVar.getKind(), top.thisVar);
+        }
+
+        super.visit(node);
+
+        scopes.pop();
+    }
+
+    @Override
+    public void visit(ProcedureDeclaration node) {
+        String name = node.getProcedureName().getName();
+        ProcedureElement fc = (ProcedureElement) global.enterWrite(name, Kind.PROCEDURE, node);
+
+        DefinitionScope top = scopes.peek();
+
+        if (!node2Element.containsKey(node)) {
+            assert !top.packageScope;
+            node2Element.put(node, fc);
+        }
+
+        scopes.push(fc.enclosedElements);
+
+        if (top.packageScope) {
+            assert top.thisVar != null;
+            scopes.peek().enter(top.thisVar.name, top.thisVar.getKind(), top.thisVar);
+        }
+
+        super.visit(node);
+
+        scopes.pop();
+    }
+
+    @Override
+    public void visit(FormalParameter node) {
+        Variable var = null;
+        if (node.getParameterName() instanceof Variable) {
+            var = (Variable) node.getParameterName();
+        }
+        if (var != null) {
+            String name = extractVariableName(var);
+            if (name != null) {
+                scopes.peek().enterWrite(name, Kind.VARIABLE, var);
+            }
+        }
+        Identifier parameterType = node.getParameterType();
+        if (parameterType != null) {
+            String name = parameterType.getName();
+            if (name != null) {
+                Collection<AttributedElement> namedGlobalElements = getNamedGlobalElements(Kind.PACKAGE_SPEC, name);
+                if (!namedGlobalElements.isEmpty()) {
+                    node2Element.put(parameterType, lookup(name, Kind.PACKAGE_SPEC));
+                } else {
+                    node2Element.put(parameterType, lookup(name, Kind.PACKAGE_BODY));
+                }
+            }
+        }
+        super.visit(node);
+    }
+
+    @Override
+    public void visit(Variable node) {
+        if (!node2Element.containsKey(node)) {
+            String name = extractVariableName(node);
+            if (name != null) {
+               node2Element.put(node, lookup(name, Kind.VARIABLE));
+            }
+        }
+
+        super.visit(node);
+    }
+
     private PackageElement getCurrentClassElement() {
         PackageElement c = null;
         for (int i = scopes.size() - 1; i >= 0; i--) {
             DefinitionScope scope = scopes.get(i);
-            if (scope != null && scope.enclosingClass != null) {
-                c = scope.enclosingClass;
+            if (scope != null && scope.enclosingPackage != null) {
+                c = scope.enclosingPackage;
                 break;
             }
         }
@@ -208,8 +293,8 @@ public class SemiAttribute extends DefaultVisitor {
         Enumeration<DefinitionScope> elements = scopes.elements();
         while (elements.hasMoreElements()) {
             DefinitionScope nextElement = elements.nextElement();
-            if (nextElement.enclosingClass != null) {
-                contextClassName = nextElement.enclosingClass.getName();
+            if (nextElement.enclosingPackage != null) {
+                contextClassName = nextElement.enclosingPackage.getName();
             }
         }
         return contextClassName;
@@ -320,6 +405,35 @@ public class SemiAttribute extends DefaultVisitor {
 
     private void performEnterPass(DefinitionScope scope, Collection<? extends ASTNode> nodes) {
         for (ASTNode n : nodes) {
+
+            if (n instanceof MethodDeclaration) {
+                MethodDeclaration.Kind kind = ((MethodDeclaration) n).getKind();
+                if (kind == MethodDeclaration.Kind.FUNCTION) {
+                    FunctionDeclaration nn = ((MethodDeclaration) n).getFunction();
+                    String name = nn.getFunctionName().getName();
+                    node2Element.put(n, scope.enterWrite(name, Kind.FUNCTION, n));
+                    node2Element.put(nn, scope.enterWrite(name, Kind.FUNCTION, n));
+                    continue;
+                }
+                else {
+                    ProcedureDeclaration nn = ((MethodDeclaration) n).getProcedure();
+                    String name = nn.getProcedureName().getName();
+                    node2Element.put(n, scope.enterWrite(name, Kind.PROCEDURE, n));
+                    node2Element.put(nn, scope.enterWrite(name, Kind.PROCEDURE, n));
+                    continue;
+                }
+            }
+
+            if (n instanceof FunctionDeclaration) {
+                String name = ((FunctionDeclaration) n).getFunctionName().getName();
+                node2Element.put(n, scope.enterWrite(name, Kind.FUNCTION, n));
+            }
+
+            if (n instanceof ProcedureDeclaration) {
+                String name = ((ProcedureDeclaration) n).getProcedureName().getName();
+                node2Element.put(n, scope.enterWrite(name, Kind.PROCEDURE, n));
+            }
+
             if (n instanceof FieldsDeclaration) {
                 for (SingleFieldDeclaration f : ((FieldsDeclaration) n).getFields()) {
                     String name = extractVariableName(f.getName());
@@ -327,6 +441,14 @@ public class SemiAttribute extends DefaultVisitor {
                     if (name != null) {
                         node2Element.put(n, scope.enterWrite(name, Kind.VARIABLE, n));
                     }
+                }
+            }
+
+            if (n instanceof TypeDeclaration) {
+                String name = ((TypeDeclaration)n).getTypeName().getName();
+
+                if (name != null) {
+                    node2Element.put(n, scope.enterWrite(name, Kind.TYPE, n));
                 }
             }
 
@@ -352,6 +474,7 @@ public class SemiAttribute extends DefaultVisitor {
 
         }
     }
+    
     private static Map<CompilationInfo, SemiAttribute> info2Attr = new WeakHashMap<CompilationInfo, SemiAttribute>();
 
     public static SemiAttribute semiAttribute(CompilationInfo info) {
@@ -413,10 +536,20 @@ public class SemiAttribute extends DefaultVisitor {
         return retval;
     }
 
+    public Collection<AttributedElement> getFunctions() {
+        Collection<AttributedElement> retval = null;
+        if (global != null) {
+            retval = global.getFunctions();
+        } else {
+            retval = Collections.emptyList();
+        }
+        return retval;
+    }
+
     public boolean hasGlobalVisibility(AttributedElement elem) {
         if (elem.isClassMember()) {
             PackageMemberElement cme = (PackageMemberElement) elem;
-            boolean isGlobal = hasGlobalVisibility(cme.getPackageElement());
+            boolean isGlobal = (cme.getModifier() == -1 || !cme.isPrivate()) && hasGlobalVisibility(cme.getPackageElement());
             return isGlobal;
         }
         return (global != null) ? global.getElements(elem.getKind()).contains(elem) : false;
@@ -491,8 +624,7 @@ public class SemiAttribute extends DefaultVisitor {
         }
 
         public enum Kind {
-
-            VARIABLE, PROCEDURE, FUNCTION, PACKAGE_SPEC, PACKAGE_BODY, CONST;
+            TYPE, VARIABLE, PROCEDURE, FUNCTION, PACKAGE_SPEC, PACKAGE_BODY, CONST;
         }
     }
 
@@ -515,26 +647,39 @@ public class SemiAttribute extends DefaultVisitor {
 
     public static class PackageMemberElement extends AttributedElement {
 
-        private PackageElement classElement;
+        private PackageElement packageElement;
         int modifier = -1;
 
-        public PackageMemberElement(Union2<ASTNode, IndexedElement> n, PackageElement classElement, String name, Kind k) {
+        public PackageMemberElement(Union2<ASTNode, IndexedElement> n, PackageElement packageElement, String name, Kind k) {
             super(n, name, k);
-            this.classElement = classElement;
-            assert classElement != null;
+            this.packageElement = packageElement;
+            setModifiers(n, name);
+            assert packageElement != null;
         }
 
-        public String getClassName() {
+        public String getPackageName() {
             return getPackageElement().getName();
         }
 
         @Override
         public String getScopeName() {
-            return getClassName();
+            return getPackageName();
+        }
+
+        public int getModifier() {
+            return modifier;
+        }
+
+        public boolean isPublic() {
+            return BodyDeclaration.Modifier.isPublic(getModifier());
+        }
+
+        public boolean isPrivate() {
+            return BodyDeclaration.Modifier.isPrivate(getModifier());
         }
 
         public PackageElement getPackageElement() {
-            return classElement;
+            return packageElement;
         }
 
         @Override
@@ -542,9 +687,12 @@ public class SemiAttribute extends DefaultVisitor {
             return true;
         }
 
-        public PackageMemberKind getClassMemberKind() {
+        public PackageMemberKind getPackageMemberKind() {
             PackageMemberKind retval = null;
             switch (getKind()) {
+                case TYPE:
+                    retval = PackageMemberKind.TYPE;
+                    break;
                 case CONST:
                     retval = PackageMemberKind.CONST;
                     break;
@@ -562,9 +710,37 @@ public class SemiAttribute extends DefaultVisitor {
             return retval;
         }
 
+        private void setModifiers(Union2<ASTNode, IndexedElement> n, String name) {
+            if (n.hasFirst()) {
+                ASTNode node = n.first();
+                if (node instanceof BodyDeclaration) {
+                    modifier = ((BodyDeclaration) node).getModifier();
+//                } else if (node instanceof ClassConstantDeclaration) {
+//                    modifier |= BodyDeclaration.Modifier.PUBLIC;
+                } else {
+                    assert false : name;
+                }
+            } else if (n.hasSecond()) {
+                IndexedElement index = n.second();
+                if (index != null) {
+                    Set<Modifier> modifiers = index.getModifiers();
+                    for (Modifier mod : modifiers) {
+                        switch (mod) {
+                            case PRIVATE:
+                                modifier |= BodyDeclaration.Modifier.PRIVATE;
+                                break;
+                            case PUBLIC:
+                                modifier |= BodyDeclaration.Modifier.PUBLIC;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
         public enum PackageMemberKind {
 
-            FIELD, METHOD, CONST;
+            TYPE, FIELD, METHOD, CONST;
         }
     }
 
@@ -711,25 +887,79 @@ public class SemiAttribute extends DefaultVisitor {
         }
     }
 
+    public class ProcedureElement extends AttributedElement {
+
+        private final DefinitionScope enclosedElements;
+        private boolean initialized;
+
+        public ProcedureElement(Union2<ASTNode, IndexedElement> n, String name, Kind k) {
+            super(n, name, k);
+            enclosedElements = new DefinitionScope(this);
+        }
+
+        public AttributedElement lookup(String name, Kind k) {
+            return enclosedElements.lookup(name, k);
+        }
+
+        public Collection<AttributedElement> getElements(Kind k) {
+            List<AttributedElement> elements = new ArrayList<AttributedElement>();
+
+            getElements0(elements, k);
+
+            return Collections.unmodifiableList(elements);
+        }
+
+        public Collection<AttributedElement> getNamedElements(Kind k, String... filterNames) {
+            Collection<AttributedElement> elements = getElements(k);
+            List<AttributedElement> retval = new ArrayList<AttributedElement>();
+            for (String fName : filterNames) {
+                for (AttributedElement el : elements) {
+                    if (el.getName().equals(fName)) {
+                        retval.add(el);
+                    }
+                }
+            }
+            return retval;
+        }
+
+        public Collection<AttributedElement> getVariables() {
+            return getElements(Kind.VARIABLE);
+        }
+
+        private void getElements0(List<AttributedElement> elements, Kind k) {
+            elements.addAll(enclosedElements.getElements(k));
+        }
+
+        boolean isInitialized() {
+            return initialized;
+        }
+
+        void initialized() {
+            initialized = true;
+        }
+    }
+
     public class DefinitionScope {
 
         private final Map<Kind, Map<String, AttributedElement>> name2Writes = new HashMap<Kind, Map<String, AttributedElement>>();
 //        private final Map<AttributedElement, ASTNode> reads = new HashMap<AttributedElement, ASTNode>();
-        private boolean classScope;
+        private boolean packageScope;
         private boolean functionScope;
+        private boolean procedureScope;
         private AttributedElement thisVar;
-        private PackageElement enclosingClass;
+        private PackageElement enclosingPackage;
         private FunctionElement enclosingFunction;
+        private ProcedureElement enclosingProcedure;
 
         public DefinitionScope() {
         }
 
         public DefinitionScope(PackageElement enclosingClass) {
-            this.enclosingClass = enclosingClass;
-            this.classScope = enclosingClass != null;
+            this.enclosingPackage = enclosingClass;
+            this.packageScope = enclosingClass != null;
 
 
-            if (classScope) {
+            if (packageScope) {
                 thisVar = enterWrite("this", Kind.VARIABLE, (ASTNode) null, new ClassType(enclosingClass));
             }
         }
@@ -737,6 +967,11 @@ public class SemiAttribute extends DefaultVisitor {
         public DefinitionScope(FunctionElement enclosingFunction) {
             this.enclosingFunction = enclosingFunction;
             this.functionScope = enclosingFunction != null;
+        }
+
+        public DefinitionScope(ProcedureElement enclosingProcedure) {
+            this.enclosingProcedure = enclosingProcedure;
+            this.procedureScope = enclosingProcedure != null;
         }
 
         public AttributedElement enterWrite(String name, Kind k, ASTNode node) {
@@ -764,12 +999,13 @@ public class SemiAttribute extends DefaultVisitor {
                 if (k == Kind.PACKAGE_SPEC || k == Kind.PACKAGE_BODY) {
                     el = new PackageElement(node, name, k);
                 } else {
-                    if (classScope && !Arrays.asList(new String[]{"this"}).contains(name)) {
+                    if (packageScope && !Arrays.asList(new String[]{"this"}).contains(name)) {
                         switch (k) {
                             case CONST:
                             case FUNCTION:
+                            case PROCEDURE:
                             case VARIABLE:
-                                el = new PackageMemberElement(node, enclosingClass, name, k);
+                                el = new PackageMemberElement(node, enclosingPackage, name, k);
                                 break;
                             default:
                                 assert false;
@@ -777,9 +1013,13 @@ public class SemiAttribute extends DefaultVisitor {
                     } else {
                         if (k == Kind.FUNCTION) {
                             el = new FunctionElement(node, name, k);
+                        } else if (k == Kind.PROCEDURE) {
+                            el = new ProcedureElement(node, name, k);
                         } else if (k == Kind.VARIABLE) {
                             if (type == null && functionScope && enclosingFunction != null) {
                                 type = new FunctionType(enclosingFunction);
+                            } else if (type == null && procedureScope && enclosingProcedure != null) {
+                                type = new ProcedureType(enclosingProcedure);
                             }
                             el = new AttributedElement(node, name, k, type);
                         } else {
@@ -892,6 +1132,24 @@ public class SemiAttribute extends DefaultVisitor {
         }
 
         public FunctionElement getElement() {
+            return element;
+        }
+
+        @Override
+        public String getTypeName() {
+            return getElement().getName();
+        }
+    }
+
+    public static class ProcedureType extends AttributedType {
+
+        private ProcedureElement element;
+
+        public ProcedureType(ProcedureElement element) {
+            this.element = element;
+        }
+
+        public ProcedureElement getElement() {
             return element;
         }
 

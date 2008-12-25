@@ -1,12 +1,14 @@
+0.1.4: 19-12-2008
+-- Add improvements on ast parser, indexer and navigator.
+
 0.1.3: 19-11-2008
-- Update api specification version.
+- Add initial instant renamer, indexer, occurences finder and navigator.
 
-0.1.2: 01-11-2008
-- Add Ada Options.
+0.1.2: 17-11-2008
+- Add initial indent, formatting, code folding and semantic analyzer.
 
-0.1.1: 01-11-2008
-- Add Ada Help.
+0.1.1: 09-11-2008
+- Add initial version of Build/Clean actions (tested only windows system) and add help set for Ada Project. Remove previous Ada Platform configured with the previous plug-in version.
 
-0.1.0: 23-09-2008
-- Initial, very alpha release.
-- Wrap ada.editor, ada.platform, ada.project.
+0.1.0: 31-10-2008
+- Add initial very alpha release.

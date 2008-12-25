@@ -53,8 +53,6 @@ public abstract class PackageDeclaration extends Statement {
     public PackageDeclaration(int start, int end, final Identifier name, final Identifier nameEnd, final Block body) {
         super(start, end);
 
-        System.out.println ("PackageDeclaration.name: " + name.getName());
-
         if (name == null || body == null) {
             throw new IllegalArgumentException();
         }

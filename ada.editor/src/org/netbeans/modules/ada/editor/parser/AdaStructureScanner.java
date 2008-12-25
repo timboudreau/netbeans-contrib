@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import org.netbeans.modules.ada.editor.ast.ASTError;
+import org.netbeans.modules.ada.editor.ast.nodes.Statement;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -60,11 +61,23 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
+import org.netbeans.modules.ada.editor.ast.nodes.Expression;
+import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Reference;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodFunctionDeclarationHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodProcedureDeclarationHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageBodyHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageSpecificationHandle;
+import org.openide.util.ImageUtilities;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.PhpStructureScanner
@@ -73,9 +86,11 @@ import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageSpecificat
  */
 public class AdaStructureScanner implements StructureScanner {
 
+    private static ImageIcon TYPE_ICON = null;
+
     private CompilationInfo info;
     private static final String FOLD_CODE_BLOCKS = "codeblocks"; //NOI18N
-    private static final String FOLD_CLASS = "codeblocks"; //NOI18N
+    private static final String FOLD_PACKAGE = "codeblocks"; //NOI18N
     private static final String FOLD_ADADOC = "comments"; //NOI18N
     private static final String FOLD_COMMENT = "initial-comment"; //NOI18N
     private static final String FONT_GRAY_COLOR = "<font color=\"#999999\">"; //NOI18N
@@ -153,11 +168,9 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public void visit(PackageSpecification pkgspc) {
-            System.out.println("pkgspc.getName(): " + pkgspc.getName());
             if (pkgspc.getName() != null) {
                 children = new ArrayList<StructureItem>();
                 pakageName = pkgspc.getName().getName();
-                System.out.println("PackageName: " + pakageName);
                 super.visit(pkgspc);
                 AdaStructureItem item = new AdaPackageSpecificationStructureItem(new AdaElementHandle.PackageSpecificationHandle(info, pkgspc), children); //NOI18N
                 items.add(item);
@@ -167,11 +180,9 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public void visit(PackageBody pkgbdy) {
-            System.out.println("pkgbdy.getName(): " + pkgbdy.getName());
             if (pkgbdy.getName() != null) {
                 children = new ArrayList<StructureItem>();
                 pakageName = pkgbdy.getName().getName();
-                System.out.println("PackageName: " + pakageName);
                 super.visit(pkgbdy);
                 AdaStructureItem item = new AdaPackageBodyStructureItem(new AdaElementHandle.PackageBodyHandle(info, pkgbdy), children); //NOI18N
                 items.add(item);
@@ -179,6 +190,63 @@ public class AdaStructureScanner implements StructureScanner {
             }
         }
 
+        @Override
+        public void visit(FieldsDeclaration fields) {
+            Variable[] variables = fields.getVariableNames();
+            if (variables != null) {
+                for (Variable variable : variables) {
+                    String name = ASTUtils.resolveVariableName(variable);
+                    if (name != null) {
+                        String text = name;
+                        AdaStructureItem item = new AdaSimpleStructureItem(new AdaElementHandle.FieldsDeclarationHandle(info, fields), text, "0"); //NOI18N
+                        children.add(item);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void visit(TypeDeclaration type) {
+            Identifier id = type.getTypeName();
+            if (id != null) {
+                String name = id.getName();
+                if (name != null) {
+                    String text = name;
+                    AdaStructureItem item = new AdaTypeStructureItem(new AdaElementHandle.TypeDeclarationHandle(info, type), text, "0"); //NOI18N
+                    children.add(item);
+                }
+            }
+        }
+
+        @Override
+        public void visit(MethodDeclaration method) {
+            boolean removeChildren = false;
+            if (children == null) {
+                children = new ArrayList<StructureItem>();
+                removeChildren = true;
+            }
+            if (method.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                FunctionDeclaration function = method.getFunction();
+                if (function != null && function.getFunctionName() != null) {
+                    AdaStructureItem item;
+                    // className doesn't have to be defined if it's interace
+                    item = new AdaMethodFunctionStructureItem(new AdaElementHandle.MethodFunctionDeclarationHandle(info, method));
+                    children.add(item);
+                }
+            }
+            else {
+                ProcedureDeclaration procedure = method.getProcedure();
+                if (procedure != null && procedure.getProcedureName() != null) {
+                    AdaStructureItem item;
+                    // className doesn't have to be defined if it's interace
+                    item = new AdaMethodProcedureStructureItem(new AdaElementHandle.MethodProcedureDeclarationHandle(info, method));
+                    children.add(item);
+                }
+            }
+            if (removeChildren) {
+                children = null;
+            }
+        }
     }
 
     private abstract class AdaStructureItem implements StructureItem {
@@ -260,20 +328,171 @@ public class AdaStructureScanner implements StructureScanner {
             return null;
         }
 
-        protected void appendInterfeas(List<Identifier> interfaes, HtmlFormatter formatter) {
-            boolean first = true;
-            for (Identifier identifier : interfaes) {
-                if (identifier != null) {
-                    if (!first) {
-                        formatter.appendText(", ");  //NOI18N
+        protected void appendProcedureDescription(ProcedureDeclaration procedure, HtmlFormatter formatter) {
+            formatter.reset();
+            if (procedure == null || procedure.getProcedureName() == null) {
+                return;
+            }
+            formatter.appendText(procedure.getProcedureName().getName());
+            formatter.appendText("(");   //NOI18N
 
-                    } else {
+            List<FormalParameter> parameters = procedure.getFormalParameters();
+            if (parameters != null && parameters.size() > 0) {
+                boolean first = true;
+                for (FormalParameter formalParameter : parameters) {
+                    String name = null;
+                    Statement parameter = formalParameter.getParameterName();
+                    if (parameter != null) {
+                        Variable variable = null;
+                        boolean isReference = false;
+                        if (parameter instanceof Reference) {
+                            Reference reference = (Reference) parameter;
+                            isReference = true;
+                            if (reference.getExpression() instanceof Variable) {
+                                variable = (Variable) reference.getExpression();
+                            }
+                        } else if (parameter instanceof Variable) {
+                            variable = (Variable) parameter;
+                        }
+
+                        if (variable != null) {
+                            name = ASTUtils.resolveVariableName(variable);
+                            if (name != null) {
+                                if (isReference) {
+                                    name = name; //NOI18N
+                                }
+                            }
+                        } else {
+                            name = "??"; //NOI18N
+                        }
+                    }
+                    String type = null;
+                    if (formalParameter.getParameterType() != null) {
+                        type = formalParameter.getParameterType().getName();
+                    }
+                    if (name != null) {
+                        if (!first) {
+                            formatter.appendText("; "); //NOI18N
+                        }
+
+                        formatter.appendText(name);
+
+                        if (type != null) {
+                            formatter.appendText(" : ");   //NOI18N
+							FormalParameter.Mode mode = formalParameter.getParameterMode();
+                            formatter.appendHtml(FONT_GRAY_COLOR);
+							if (mode == FormalParameter.Mode.IN) {
+								formatter.appendText("in ");   //NOI18N
+							} else if (mode == FormalParameter.Mode.OUT) {
+								formatter.appendText("out ");   //NOI18N
+							} else if (mode == FormalParameter.Mode.IN_OUT) {
+								formatter.appendText("in out ");   //NOI18N
+							}
+                            formatter.appendText(type);
+                            formatter.appendHtml(CLOSE_FONT);
+                        }
                         first = false;
                     }
-                    formatter.appendText(identifier.getName());
                 }
-
             }
+            formatter.appendText(")");   //NOI18N
+
+        }
+
+        protected void appendFunctionDescription(FunctionDeclaration function, HtmlFormatter formatter) {
+            formatter.reset();
+            if (function == null || function.getFunctionName() == null) {
+                return;
+            }
+            formatter.appendText(function.getFunctionName().getName());
+            formatter.appendText("(");   //NOI18N
+
+            List<FormalParameter> parameters = function.getFormalParameters();
+            if (parameters != null && parameters.size() > 0) {
+                boolean first = true;
+                for (FormalParameter formalParameter : parameters) {
+                    String name = null;
+                    Statement parameter = formalParameter.getParameterName();
+                    if (parameter != null) {
+                        Variable variable = null;
+                        boolean isReference = false;
+                        if (parameter instanceof Reference) {
+                            Reference reference = (Reference) parameter;
+                            isReference = true;
+                            if (reference.getExpression() instanceof Variable) {
+                                variable = (Variable) reference.getExpression();
+                            }
+                        } else if (parameter instanceof Variable) {
+                            variable = (Variable) parameter;
+                        }
+
+                        if (variable != null) {
+                            name = ASTUtils.resolveVariableName(variable);
+                            if (name != null) {
+                                if (isReference) {
+                                    name = name; //NOI18N
+                                }
+                            }
+                        } else {
+                            name = "??"; //NOI18N
+                        }
+                    }
+                    String type = null;
+                    if (formalParameter.getParameterType() != null) {
+                        type = formalParameter.getParameterType().getName();
+                    }
+                    if (name != null) {
+                        if (!first) {
+                            formatter.appendText("; "); //NOI18N
+                        }
+
+                        formatter.appendText(name);
+
+                        if (type != null) {
+                            formatter.appendText(" : ");   //NOI18N
+							FormalParameter.Mode mode = formalParameter.getParameterMode();
+                            formatter.appendHtml(FONT_GRAY_COLOR);
+							if (mode == FormalParameter.Mode.IN) {
+								formatter.appendText("in ");   //NOI18N
+							} else if (mode == FormalParameter.Mode.OUT) {
+								formatter.appendText("out ");   //NOI18N
+							} else if (mode == FormalParameter.Mode.IN_OUT) {
+								formatter.appendText("in out ");   //NOI18N
+							}
+                            formatter.appendText(type);
+                            formatter.appendHtml(CLOSE_FONT);
+                        }
+                        first = false;
+                    }
+                }
+            }
+            formatter.appendText(")");   //NOI18N
+
+        }
+    }
+
+    private class AdaTypeStructureItem extends AdaStructureItem {
+
+        private static final String ADA_TYPE_ICON = "org/netbeans/modules/ada/editor/resources/completion/type_16.png"; //NOI18N
+
+        private String simpleText;
+
+        public AdaTypeStructureItem(AdaElementHandle elementHandle, String simpleText, String prefix) {
+            super(elementHandle, null, prefix);
+            this.simpleText = simpleText;
+        }
+
+        @Override
+        public ImageIcon getCustomIcon() {
+            if (TYPE_ICON == null) {
+                TYPE_ICON = new ImageIcon(ImageUtilities.loadImage(ADA_TYPE_ICON));
+            }
+            return TYPE_ICON;
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.appendText(simpleText);
+            return formatter.getText();
         }
     }
 
@@ -322,6 +541,35 @@ public class AdaStructureScanner implements StructureScanner {
         }
     }
 
+    private class AdaMethodProcedureStructureItem extends AdaStructureItem {
+
+        public AdaMethodProcedureStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "prc"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            MethodProcedureDeclarationHandle handle = (MethodProcedureDeclarationHandle) getElementHandle();
+            MethodDeclaration method = (MethodDeclaration) handle.getASTNode();
+            appendProcedureDescription(method.getProcedure(), formatter);
+            return formatter.getText();
+        }
+    }
+
+    private class AdaMethodFunctionStructureItem extends AdaStructureItem {
+
+        public AdaMethodFunctionStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "fn"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            MethodFunctionDeclarationHandle handle = (MethodFunctionDeclarationHandle) getElementHandle();
+            MethodDeclaration method = (MethodDeclaration) handle.getASTNode();
+            appendFunctionDescription(method.getFunction(), formatter);
+            return formatter.getText();
+        }
+    }
 
     private class FoldVisitor extends DefaultVisitor {
 
@@ -336,8 +584,7 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public void visit(PackageSpecification pkgspc) {
-            this.foldType = FOLD_CLASS;
-            System.out.println("visit: " + this.foldType);
+            this.foldType = FOLD_PACKAGE;
             if (pkgspc.getBody() != null) {
                 scan(pkgspc.getBody());
             }
@@ -345,8 +592,7 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public void visit(PackageBody pkgbdy) {
-            this.foldType = FOLD_CLASS;
-            System.out.println("visit: " + this.foldType);
+            this.foldType = FOLD_PACKAGE;
             if (pkgbdy.getBody() != null) {
                 scan(pkgbdy.getBody());
             }
@@ -363,5 +609,20 @@ public class AdaStructureScanner implements StructureScanner {
             }
         }
 
+        @Override
+        public void visit(FunctionDeclaration function) {
+            foldType = FOLD_CODE_BLOCKS;
+            if (function.getBody() != null) {
+                scan(function.getBody());
+            }
+        }
+
+        @Override
+        public void visit(ProcedureDeclaration procedure) {
+            foldType = FOLD_CODE_BLOCKS;
+            if (procedure.getBody() != null) {
+                scan(procedure.getBody());
+            }
+        }
     }
 }

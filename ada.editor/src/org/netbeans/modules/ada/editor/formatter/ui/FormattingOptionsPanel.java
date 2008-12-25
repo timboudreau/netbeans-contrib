@@ -202,7 +202,6 @@ public class FormattingOptionsPanel extends JPanel implements ActionListener, Pr
         categoryPanel.removeAll();
         categoryPanel.add(category.getComponent(null), BorderLayout.CENTER);
         categoryPanel.setVisible(true);
-        System.out.println("PIPPO3" + loaded);
         if (loaded) {
             repaintPreview();
         }

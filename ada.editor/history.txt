@@ -1,3 +1,9 @@
+0.1.5: xx-12-2008
+-- Add improvements on ast parser, indexer and navigator.
+
+0.1.4: 19-12-2008
+-- Add improvements on ast parser, indexer and navigator.
+
 0.1.3: 19-11-2008
 -- Add initial instant renamer, indexer, occurences finder and navigator.
 

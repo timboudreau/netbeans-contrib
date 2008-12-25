@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,33 +31,59 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.ast.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a package specification
- * <pre>
- * <pre>e.g.<pre> 
- * package Foo is
- *   Bar : constant := 3;
- *   procedure FooBar;
- * end Foo;
- *
- * @author Andrea Lucarelli
+ * Represents a class instanciation.
+ * This class holds the class name as an expression and
+ * array of constructor parameters
+ * <pre>e.g.<pre> new MyClass(),
+ * new $a('start'),
+ * new foo()(1, $a)
  */
-public class PackageSpecification extends PackageDeclaration {
+public class PackageInstanceCreation extends Statement {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
-        super(start, end, packageName, packageNameEnd, body);
+    private PackageName packageName;
+    private ArrayList<Expression> ctorParams = new ArrayList<Expression>();
+
+    public PackageInstanceCreation(int start, int end, PackageName packageName, Expression[] ctorParams) {
+        super(start, end);
+        this.packageName = packageName;
+        for (Expression expression : ctorParams) {
+            this.ctorParams.add(expression);
+        }
+    }
+    
+    public PackageInstanceCreation(int start, int end, PackageName packageName, List<Expression> ctorParams) {
+		this(start, end, packageName, ctorParams == null ? null : (Expression[]) ctorParams.toArray(new Expression[ctorParams.size()]));
+	}
+
+    /**
+     * Class name of this instance creation node
+     * 
+     * @return package name
+     */
+    public PackageName getPackageName() {
+        return packageName;
     }
 
+    /**
+     * List of expressions that were given to the the constructor
+     *     
+     * @return list of expressions that were given to the the constructor 
+     */
+    public List<Expression> ctorParams() {
+        return this.ctorParams;
+    }
     
     @Override
     public void accept(Visitor visitor) {

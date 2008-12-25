@@ -50,14 +50,20 @@ import java.util.List;
 import java.util.Map;
 import org.netbeans.modules.ada.editor.AdaLanguage;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
+import org.netbeans.modules.ada.editor.CodeUtils;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Statement;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultTreePathVisitor;
 import org.netbeans.modules.ada.editor.parser.AdaParseResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
@@ -104,7 +110,7 @@ public class AdaIndexer implements Indexer {
     static final String FIELD_PKGBDY = "pkgbdy"; //NOI18N
     static final String FIELD_CONST = "const"; //NOI18N
     static final String FIELD_FIELD = "field"; //NOI18N
-    static final String FIELD_PROCEDURE = "procedure"; //NOI18N
+    static final String FIELD_METHOD = "method"; //NOI18N
     static final String FIELD_WITH = "with"; //NOI18N
     static final String FIELD_IDENTIFIER = "identifier_used"; //NOI18N
     static final String FIELD_IDENTIFIER_DECLARATION = "identifier_declaration"; //NOI18N
@@ -239,6 +245,139 @@ public class AdaIndexer implements Indexer {
             return fieldSignature.toString();
         }
 
+        private void indexTypeDeclaration(TypeDeclaration typeDeclaration, IndexDocument document) {
+            if (typeDeclaration.getTypeName() instanceof Identifier) {
+                Identifier identifier = (Identifier) typeDeclaration.getTypeName();
+                String signature = createTypeDeclarationRecord(identifier.getName(), typeDeclaration.getStartOffset());
+                document.addPair(FIELD_FIELD, signature, false);
+            }
+        }
+
+        private String getBaseSignatureForFunctionDeclaration(FunctionDeclaration functionDeclaration){
+            String fncName = functionDeclaration.getFunctionName().getName();
+            int paramCount = functionDeclaration.getFormalParameters().size();
+            int offset = (functionDeclaration != null) ? functionDeclaration.getStartOffset() : 0;
+            return getBaseSignatureForFunctionDeclaration(fncName, paramCount, offset, functionDeclaration);
+        }
+
+        private String getBaseSignatureForProcedureDeclaration(ProcedureDeclaration procedureDeclaration){
+            String fncName = procedureDeclaration.getProcedureName().getName();
+            int paramCount = procedureDeclaration.getFormalParameters().size();
+            int offset = (procedureDeclaration != null) ? procedureDeclaration.getStartOffset() : 0;
+            return getBaseSignatureForProcedureDeclaration(fncName, paramCount, offset, procedureDeclaration);
+        }
+
+        /**
+         * @param fncName
+         * @param paramCount
+         * @param offset
+         * @param functionDeclaration maybe null just in case when paramCount == 0
+         * @return
+         */
+        private String getBaseSignatureForFunctionDeclaration(String fncName, int paramCount, int offset,
+                FunctionDeclaration functionDeclaration) {
+            assert functionDeclaration != null || paramCount == 0;
+            StringBuilder signature = new StringBuilder();
+            signature.append(fncName + ";");
+            StringBuilder defaultArgs = new StringBuilder();
+            for (int i = 0; i < paramCount; i++) {
+                assert functionDeclaration != null;
+                FormalParameter param = functionDeclaration.getFormalParameters().get(i);
+                String paramName = CodeUtils.getParamDisplayName(param);
+                signature.append(paramName);
+                if (i < paramCount - 1) {
+                    signature.append(",");
+                }
+                if (param.getDefaultValue() != null) {
+                    if (defaultArgs.length() > 0) {
+                        defaultArgs.append(',');
+                    }
+                    defaultArgs.append(Integer.toString(i));
+                }
+            }
+            signature.append(';');
+            signature.append(offset + ";"); //NOI18N
+            signature.append(defaultArgs + ";");
+//            String type = functionDeclaration != null ? getReturnTypeFromPHPDoc(functionDeclaration) : null;
+//            if (type != null && !PredefinedSymbols.MIXED_TYPE.equalsIgnoreCase(type)) {
+//                signature.append(type);
+//            }
+            signature.append(";"); //NOI18N
+            return signature.toString();
+        }
+
+        private String getBaseSignatureForProcedureDeclaration(String fncName, int paramCount, int offset,
+                ProcedureDeclaration procedureDeclaration) {
+            assert procedureDeclaration != null || paramCount == 0;
+            StringBuilder signature = new StringBuilder();
+            signature.append(fncName + ";");
+            StringBuilder defaultArgs = new StringBuilder();
+            for (int i = 0; i < paramCount; i++) {
+                assert procedureDeclaration != null;
+                FormalParameter param = procedureDeclaration.getFormalParameters().get(i);
+                String paramName = CodeUtils.getParamDisplayName(param);
+                signature.append(paramName);
+                if (i < paramCount - 1) {
+                    signature.append(",");
+                }
+                if (param.getDefaultValue() != null) {
+                    if (defaultArgs.length() > 0) {
+                        defaultArgs.append(',');
+                    }
+                    defaultArgs.append(Integer.toString(i));
+                }
+            }
+            signature.append(';');
+            signature.append(offset + ";"); //NOI18N
+            signature.append(defaultArgs + ";");
+//            String type = functionDeclaration != null ? getReturnTypeFromPHPDoc(functionDeclaration) : null;
+//            if (type != null && !PredefinedSymbols.MIXED_TYPE.equalsIgnoreCase(type)) {
+//                signature.append(type);
+//            }
+            signature.append(";"); //NOI18N
+            return signature.toString();
+        }
+
+        private void indexFunction(FunctionDeclaration functionDeclaration, IndexDocument document) {
+            StringBuilder signature = new StringBuilder(functionDeclaration.getFunctionName().getName().toLowerCase() + ";");
+            signature.append(getBaseSignatureForFunctionDeclaration(functionDeclaration));
+
+            document.addPair(FIELD_BASE, signature.toString(), true);
+            document.addPair(FIELD_TOP_LEVEL, functionDeclaration.getFunctionName().getName().toLowerCase(), true);
+        }
+
+        private void indexProcedure(ProcedureDeclaration procedureDeclaration, IndexDocument document) {
+            StringBuilder signature = new StringBuilder(procedureDeclaration.getProcedureName().getName().toLowerCase() + ";");
+            signature.append(getBaseSignatureForProcedureDeclaration(procedureDeclaration));
+
+            document.addPair(FIELD_BASE, signature.toString(), true);
+            document.addPair(FIELD_TOP_LEVEL, procedureDeclaration.getProcedureName().getName().toLowerCase(), true);
+        }
+
+        private void indexMethod(FunctionDeclaration functionDeclaration, int modifiers, IndexDocument document) {
+            StringBuilder signature = new StringBuilder();
+            signature.append(getBaseSignatureForFunctionDeclaration(functionDeclaration));
+            signature.append(modifiers + ";"); //NOI18N
+
+            document.addPair(FIELD_METHOD, signature.toString(), false);
+        }
+
+        private void indexMethod(ProcedureDeclaration procedureDeclaration, int modifiers, IndexDocument document) {
+            StringBuilder signature = new StringBuilder();
+            signature.append(getBaseSignatureForProcedureDeclaration(procedureDeclaration));
+            signature.append(modifiers + ";"); //NOI18N
+
+            document.addPair(FIELD_METHOD, signature.toString(), false);
+        }
+
+        private String createTypeDeclarationRecord(String name, int offset) {
+            StringBuilder fieldSignature = new StringBuilder();
+            fieldSignature.append(name + ";"); //NOI18N
+            fieldSignature.append(offset + ";"); //NOI18N
+            fieldSignature.append(";"); //NOI18N
+            return fieldSignature.toString();
+        }
+
         private class IndexerVisitor extends DefaultTreePathVisitor {
 
             private List<IndexDocument> documents;
@@ -290,6 +429,28 @@ public class AdaIndexer implements Indexer {
                 }
                 super.visit(node);
             }
+
+            @Override
+            public void visit(FunctionDeclaration node) {
+                if (getPath().get(0) instanceof MethodDeclaration){
+                    super.visit(node);
+                    return;
+                }
+
+                indexFunction((FunctionDeclaration)node, defaultDocument);
+                super.visit(node);
+            }
+
+            @Override
+            public void visit(ProcedureDeclaration node) {
+                if (getPath().get(0) instanceof MethodDeclaration){
+                    super.visit(node);
+                    return;
+                }
+
+                indexProcedure((ProcedureDeclaration)node, defaultDocument);
+                super.visit(node);
+            }
         }
 
         public void analyze() throws IOException {
@@ -333,9 +494,27 @@ public class AdaIndexer implements Indexer {
             document.addPair(FIELD_TOP_LEVEL, pkgSpecification.getName().getName().toLowerCase(), true);
 
             for (Statement statement : pkgSpecification.getBody().getStatements()) {
-                if (statement instanceof FieldsDeclaration) {
+                if (statement instanceof MethodDeclaration) {
+                    MethodDeclaration methodDeclaration = (MethodDeclaration) statement;
+                    String methName = CodeUtils.extractMethodName(methodDeclaration);
+//                    if (PredefinedSymbols.MAGIC_METHODS.keySet().contains(methName) &&
+//                            "__construct".equalsIgnoreCase(methName)) {//NOI18N
+//                        isConstructor = true;
+//                        indexConstructor(classDeclaration, methodDeclaration.getFunction(), methodDeclaration.getModifier(), document);
+//                    }
+                     if (methodDeclaration.getKind() == MethodDeclaration.Kind.FUNCTION) {
+                        indexMethod(methodDeclaration.getFunction(), methodDeclaration.getModifier(), document);
+                     } else {
+                        indexMethod(methodDeclaration.getProcedure(), methodDeclaration.getModifier(), document);
+                     }
+                }
+                else if (statement instanceof FieldsDeclaration) {
                     FieldsDeclaration fieldsDeclaration = (FieldsDeclaration) statement;
                     indexFieldsDeclaration(fieldsDeclaration, document);
+                }
+                else if (statement instanceof TypeDeclaration) {
+                    TypeDeclaration typeDeclaration = (TypeDeclaration) statement;
+                    indexTypeDeclaration(typeDeclaration, document);
                 }
             }
         }
@@ -356,6 +535,10 @@ public class AdaIndexer implements Indexer {
                 if (statement instanceof FieldsDeclaration) {
                     FieldsDeclaration fieldsDeclaration = (FieldsDeclaration) statement;
                     indexFieldsDeclaration(fieldsDeclaration, document);
+                }
+                if (statement instanceof TypeDeclaration) {
+                    TypeDeclaration typeDeclaration = (TypeDeclaration) statement;
+                    indexTypeDeclaration(typeDeclaration, document);
                 }
             }
         }
@@ -403,4 +586,5 @@ public class AdaIndexer implements Indexer {
                 url.indexOf("/gems/") == -1 && // NOI18N
                 url.indexOf("lib/ruby/") == -1; // NOI18N
     }
+
 }

@@ -403,7 +403,7 @@ ANY_CHAR=(.|[\n])
     ","             { return AdaTokenId.COMMA; }
     "-"             { return AdaTokenId.MINUS; }
     "."             {
-                        pushState(ST_LOOKING_FOR_PROPERTY);
+                        /*pushState(ST_LOOKING_FOR_PROPERTY);*/
                         return AdaTokenId.DOT;
                     }
     "/"             { return AdaTokenId.SLASH; }
@@ -445,7 +445,7 @@ ANY_CHAR=(.|[\n])
     "false"             { return AdaTokenId.FALSE; }
 
 }
-
+/*
 <ST_LOOKING_FOR_PROPERTY>"." {
     return AdaTokenId.DOT;
 }
@@ -454,6 +454,7 @@ ANY_CHAR=(.|[\n])
     popState();
     return AdaTokenId.IDENTIFIER;
 }
+*/
 
 <YYINITIAL>{IDENTIFIER} {
     return  AdaTokenId.IDENTIFIER;

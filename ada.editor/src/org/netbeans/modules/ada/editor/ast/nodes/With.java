@@ -44,7 +44,8 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
  * Represents with statement
- * <pre>e.g.<pre> with Ada.Text_IO;
+ * <pre>e.g.<pre> 
+ * with Ada.Text_IO;
  * with Rational_Numbers.IO, Ada.Exceptions;
  *
  * @author Andrea Lucarelli

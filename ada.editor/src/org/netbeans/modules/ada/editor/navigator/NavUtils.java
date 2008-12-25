@@ -45,10 +45,12 @@ import java.util.Stack;
 import javax.swing.text.Document;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
-import org.netbeans.modules.ada.editor.ast.nodes.Expression;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
@@ -122,7 +124,6 @@ public class NavUtils {
                 continue;
             }
 
-
             if (leaf instanceof PackageSpecification) {
                 PackageSpecification cDeclaration = (PackageSpecification) leaf;
                 //class declaration
@@ -135,6 +136,20 @@ public class NavUtils {
                 if (iDeclaration.getName() == previous) {
                     return a.getElement(leaf);
                 }
+            } else if (leaf instanceof FormalParameter) {
+                FormalParameter param = (FormalParameter) leaf;
+                Identifier type = param.getParameterType();
+                if (type != null && offset < type.getEndOffset()) {
+                    return a.getElement(type);
+                }
+            }
+
+            if (leaf instanceof FunctionDeclaration && ((FunctionDeclaration) leaf).getFunctionName() == previous) {
+                return a.getElement(leaf);
+            }
+
+            if (leaf instanceof ProcedureDeclaration && ((ProcedureDeclaration) leaf).getProcedureName() == previous) {
+                return a.getElement(leaf);
             }
 
             if (result != null) {
@@ -163,7 +178,7 @@ public class NavUtils {
         Identifier e = with.getPackageName();
 
         // TODO: resolve packagename with file
-        
+
         return null;
     }
 

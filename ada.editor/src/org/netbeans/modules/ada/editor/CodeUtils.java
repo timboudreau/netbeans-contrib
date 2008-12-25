@@ -39,10 +39,16 @@
 package org.netbeans.modules.ada.editor;
 
 import org.netbeans.modules.ada.editor.ast.nodes.Expression;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
+import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Reference;
+import org.netbeans.modules.ada.editor.ast.nodes.Statement;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.gsf.api.annotations.CheckForNull;
 
@@ -51,6 +57,7 @@ import org.netbeans.modules.gsf.api.annotations.CheckForNull;
  * @author tomslot
  */
 public class CodeUtils {
+
     public static final String FUNCTION_TYPE_PREFIX = "@fn:";
     public static final String PROCEDURE_TYPE_PREFIX = "@prc:";
 
@@ -61,8 +68,7 @@ public class CodeUtils {
         Expression name = pkgName.getName();
 
         assert name instanceof Identifier :
-            "unsupported type of PackageName.getName(): "
-            + name.getClass().getName();
+                "unsupported type of PackageName.getName(): " + name.getClass().getName();
 
         return (name instanceof Identifier) ? ((Identifier) name).getName() : "";//NOI18N
     }
@@ -73,6 +79,22 @@ public class CodeUtils {
 
     public static String extractPackageName(PackageBody pkgBody) {
         return pkgBody.getName().getName();
+    }
+
+    public static String extractFunctionName(FunctionDeclaration functionDeclaration){
+        return functionDeclaration.getFunctionName().getName();
+    }
+
+    public static String extractProcedureName(ProcedureDeclaration procedureDeclaration){
+        return procedureDeclaration.getProcedureName().getName();
+    }
+
+    public static String extractMethodName(MethodDeclaration methodDeclaration) {
+        if (methodDeclaration.getKind() == MethodDeclaration.Kind.FUNCTION) {
+            return extractFunctionName(methodDeclaration.getFunction());
+        } else {
+            return extractProcedureName(methodDeclaration.getProcedure());
+        }
     }
 
     @CheckForNull // null for RelectionVariable
@@ -88,4 +110,27 @@ public class CodeUtils {
         return null;
     }
 
+    public static String getParamDisplayName(FormalParameter param) {
+        Statement paramNameExpr = param.getParameterName();
+        StringBuilder paramName = new StringBuilder();
+
+        if (paramNameExpr instanceof Variable) {
+            Variable var = (Variable) paramNameExpr;
+            Identifier id = (Identifier) var.getName();
+
+            paramName.append(id.getName());
+        } else if (paramNameExpr instanceof Reference) {
+            paramName.append("&");
+            Reference reference = (Reference) paramNameExpr;
+
+            if (reference.getExpression() instanceof Variable) {
+                Variable var = (Variable) reference.getExpression();
+
+                Identifier id = (Identifier) var.getName();
+                paramName.append(id.getName());
+            }
+        }
+
+        return paramName.length() == 0 ? null : paramName.toString();
+    }
 }

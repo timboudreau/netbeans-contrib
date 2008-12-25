@@ -84,7 +84,9 @@ made subject to such option by the copyright holder.
     <fontcolor name="mod-field" default="field"/>
     <fontcolor name="mod-local-variable" default="identifier"/>
     <fontcolor name="mod-parameter" default="identifier"/>
-    <fontcolor name="mod-method" default="identifier"/>
+    <fontcolor name="mod-method" default="identifier">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="mod-constructor" default="identifier"/>
     <fontcolor name="mod-class" default="identifier">
         <font style="bold" />
