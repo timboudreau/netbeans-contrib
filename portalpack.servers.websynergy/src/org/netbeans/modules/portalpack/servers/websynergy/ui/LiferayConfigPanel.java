@@ -251,7 +251,6 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         portalDepDirTf.setText(object.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
 
         hostTf.setEnabled(false);
-        browseButton.setEnabled(false);
         directoryDeployment.setSelected(object.isDirectoryDeployment());
 
     }

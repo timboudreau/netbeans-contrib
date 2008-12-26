@@ -219,11 +219,11 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
               //  selectIOTab(dm.getUri());
                 try {
                     dm.getTaskHandler().undeploy(portletAppName,dn);
-                    writeToOutput(dm.getUri(),portletAppName +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLOYED_SUCCESSFULLY"));
+                    writeToOutput(dm.getUri(),portletAppName + " " +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLOYED_SUCCESSFULLY"));
                 } catch (Exception ex) {
                     writeErrorStackToOutput(dm.getUri(),ex);
                     logger.log(Level.SEVERE,"Deployment failed for application "+portletAppName,ex);
-                    writeToOutput(dm.getUri(),portletAppName + org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"));
+                    writeToOutput(dm.getUri(),portletAppName + " " +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"));
                     pes.fireHandleProgressEvent(null,
                                 new Status(ActionType.EXECUTE, cmdType,
                                            org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"),
