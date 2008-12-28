@@ -41,9 +41,8 @@ package org.netbeans.modules.ada.platform.compiler.gnat.commands;
 import java.util.concurrent.Future;
 import org.netbeans.api.ada.platform.AdaException;
 import org.netbeans.api.ada.platform.AdaExecution;
-import org.netbeans.api.ada.platform.AdaPlatform;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
 import org.openide.util.Exceptions;
 
 /**
@@ -54,8 +53,8 @@ public class GnatMake extends GnatCommand {
 
     private static final String COMMAND_ID = GNAT_MAKE;
 
-    public GnatMake(AdaPlatform platform, String projectPath, String sourceFolder, String mainProgram, String executableName, String displayName) {
-        super(platform, projectPath, sourceFolder, mainProgram, executableName, displayName);
+    public GnatMake(GnatCompiler gnatCompiler) {
+        super(gnatCompiler);
     }
 
     @Override
@@ -64,35 +63,30 @@ public class GnatMake extends GnatCommand {
     }
 
     @Override
-    public void invokeCommand() throws IllegalArgumentException, AdaException {
+    public void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException {
 
-        System.out.println(this.getMainFile());
-        
+        // Make the GPR file
+        GnatProject gpr = new GnatProject(this.getGnatCompiler());
+        gpr.write();
+
         try {
             AdaExecution adaExec = new AdaExecution();
-            adaExec.setCommand(this.getPlatform().getCompilerPath() + GNAT_MAKE);
-            adaExec.setCommandArgs(
-                    " -I" + this.getSourceFolder() +
-                    " -D " + this.getProjectPath() + "/build " +
-                    " -o " + this.getProjectPath() + "/dist/" + this.getExecutableFile() +
-                    " " + this.getMainFile());
-            adaExec.setWorkingDirectory(this.getProjectPath());
-            adaExec.setDisplayName(this.getDisplayName());
+            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + GNAT_MAKE);
+            adaExec.setCommandArgs(" -P" + gpr.getGprFilePath());
+            adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
+            adaExec.setDisplayName(displayTitle);
             adaExec.setShowControls(true);
             adaExec.setShowInput(false);
             adaExec.setShowWindow(true);
             adaExec.setShowProgress(true);
             adaExec.setShowSuspended(true);
             adaExec.attachOutputProcessor();
+            adaExec.setRedirectError(true);
             Future<Integer> result = adaExec.run();
             Integer value = result.get();
             if (value.intValue() == 0) {
             } else {
-                throw new AdaException("Could not execution gnatmake command.");
             }
-        } catch (AdaException ex) {
-            Exceptions.printStackTrace(ex);
-            throw ex;
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }

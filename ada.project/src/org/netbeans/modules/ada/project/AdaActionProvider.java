@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project;
 
 import java.util.LinkedHashMap;
@@ -68,10 +67,8 @@ public class AdaActionProvider implements ActionProvider {
      * @see org.netbeans.spi.project.ActionProvider
      */
     public static final String COMMAND_ADADOC = "adadoc"; // NOI18N
-
     final AdaProject project;
-    
-    private final Map<String,Command> commands;
+    private final Map<String, Command> commands;
 
     /**
      * 
@@ -80,17 +77,17 @@ public class AdaActionProvider implements ActionProvider {
     public AdaActionProvider(AdaProject project) {
         assert project != null;
         this.project = project;
-        
+
         commands = new LinkedHashMap<String, Command>();
-        Command[] commandArray = new Command[] {
+        Command[] commandArray = new Command[]{
             new DeleteCommand(project),
             new CopyCommand(project),
             new MoveCommand(project),
             new RenameCommand(project),
             new RunCommand(project),
-            new DebugCommand(project) ,
-            new BuildCommand(project) ,
-            new CleanCommand(project) ,
+            new DebugCommand(project),
+            new BuildCommand(project),
+            new CleanCommand(project),
             new RebuildCommand(project)
         };
         for (Command command : commandArray) {
@@ -123,6 +120,7 @@ public class AdaActionProvider implements ActionProvider {
             command.invokeAction(context);
         } else {
             RequestProcessor.getDefault().post(new Runnable() {
+
                 public void run() {
                     command.invokeAction(context);
                 }
@@ -131,26 +129,25 @@ public class AdaActionProvider implements ActionProvider {
     }
 
     /**
-     * 
+     *
      * @param commandName
      * @param context
      * @return
      * @throws IllegalArgumentException
      */
     public boolean isActionEnabled(String commandName, Lookup context) throws IllegalArgumentException {
-        final Command command = findCommand (commandName);
+        final Command command = findCommand(commandName);
         assert command != null;
         return command.isActionEnabled(context);
     }
-    
+
     /**
-     * 
+     *
      * @param commandName
      * @return
      */
-    private Command findCommand (final String commandName) {
+    private Command findCommand(final String commandName) {
         assert commandName != null;
         return commands.get(commandName);
     }
-
 }

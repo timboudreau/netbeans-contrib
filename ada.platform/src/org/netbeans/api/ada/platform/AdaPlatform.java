@@ -54,6 +54,7 @@ public class AdaPlatform implements Serializable {
     private String compilerPath;
     private String compilerCommand;
     private String compilerArgs;
+    private boolean dirty;
 
     public AdaPlatform() {
     }
@@ -76,6 +77,11 @@ public class AdaPlatform implements Serializable {
 
     public String getCompilerCommand() {
         return compilerCommand;
+    }
+
+    /** Has this platform been changed since the last load? */
+    public boolean isDirty() {
+        return dirty;
     }
 
     public String getName() {

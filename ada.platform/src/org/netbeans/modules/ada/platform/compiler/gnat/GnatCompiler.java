@@ -42,43 +42,47 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.netbeans.api.ada.platform.AdaException;
 import org.netbeans.api.ada.platform.AdaPlatform;
-import org.netbeans.modules.ada.platform.compiler.CompilerCommand;
+import org.netbeans.modules.ada.platform.compiler.CompilerFactory;
+import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatClean;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatMake;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatCommand;
+import org.netbeans.modules.ada.platform.compiler.gnat.commands.Run;
 import org.openide.util.Exceptions;
 
 /**
  *
  * @author  Andrea Lucarelli
  */
-public class GnatCompilerCommand extends CompilerCommand {
+public class GnatCompiler extends CompilerFactory {
 
-	private final Map<String,GnatCommand> gnatCommands;
+    private final Map<String, GnatCommand> gnatCommands;
 
     /**
      * 
      * @param project
      */
-    public GnatCompilerCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainProgram, String executableName, String displayName) {
-        super (platform, projectPath, sourceFolder, mainProgram, executableName, displayName);
+    public GnatCompiler(AdaPlatform platform, String projectName, String projectPath, String sourceFolder, String mainProgram, String executableName, String commandName) {
+        super(platform, projectName, projectPath, sourceFolder, mainProgram, executableName, commandName);
         gnatCommands = new LinkedHashMap<String, GnatCommand>();
-        GnatCommand[] gnatCommandArray = new GnatCommand[] {
-            new GnatMake(platform, projectPath, sourceFolder, mainProgram, executableName, displayName)
+        GnatCommand[] gnatCommandArray = new GnatCommand[]{
+            new GnatMake(this),
+            new GnatClean(this),
+            new Run(this)
         };
         for (GnatCommand gnatCommand : gnatCommandArray) {
             gnatCommands.put(gnatCommand.getCommandId(), gnatCommand);
         }
-   }
+    }
 
     /**
      *
      * @param commandName
      * @throws IllegalArgumentException
      */
-    private void invokeCommand(final String commandName) throws IllegalArgumentException, AdaException {
+    private void invokeCommand(final String commandName, final String displayTitle) throws IllegalArgumentException, AdaException {
         final GnatCommand gnatCommand = findCommand(commandName);
         assert gnatCommand != null;
-		gnatCommand.invokeCommand();
+        gnatCommand.invokeCommand(displayTitle);
     }
 
     /**
@@ -86,7 +90,7 @@ public class GnatCompilerCommand extends CompilerCommand {
      * @param commandName
      * @return
      */
-    private GnatCommand findCommand (final String commandName) {
+    private GnatCommand findCommand(final String commandName) {
         assert commandName != null;
         return gnatCommands.get(commandName);
     }
@@ -94,7 +98,31 @@ public class GnatCompilerCommand extends CompilerCommand {
     @Override
     public void Build() {
         try {
-            invokeCommand(GnatCommand.GNAT_MAKE);
+            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
+        } catch (IllegalArgumentException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (AdaException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    @Override
+    public void Run() {
+        try {
+            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.RUN, this.getProjectName() + "(" + this.getCommandName() + ")");
+        } catch (IllegalArgumentException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (AdaException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    @Override
+    public void Rebuild() {
+        try {
+            invokeCommand(GnatCommand.GNAT_CLEAN, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
@@ -105,7 +133,7 @@ public class GnatCompilerCommand extends CompilerCommand {
     @Override
     public void Compile() {
         try {
-            invokeCommand(GnatCommand.GNAT_COMPILE);
+            invokeCommand(GnatCommand.GNAT_COMPILE, this.getProjectName() + "(" + this.getCommandName() + ")");
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
@@ -116,12 +144,11 @@ public class GnatCompilerCommand extends CompilerCommand {
     @Override
     public void Clean() {
         try {
-            invokeCommand(GnatCommand.GNAT_CLEAN);
+            invokeCommand(GnatCommand.GNAT_CLEAN, this.getProjectName() + "(" + this.getCommandName() + ")");
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
-
 }

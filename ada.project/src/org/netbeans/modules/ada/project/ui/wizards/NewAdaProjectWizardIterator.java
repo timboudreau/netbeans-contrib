@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.ada.project.ui.wizards;
 
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

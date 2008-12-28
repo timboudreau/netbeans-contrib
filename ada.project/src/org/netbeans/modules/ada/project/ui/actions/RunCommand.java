@@ -36,13 +36,14 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.actions;
 
 import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
+import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.openide.util.Lookup;
 
 /**
@@ -64,6 +65,26 @@ public class RunCommand extends Command {
 
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
+        final AdaProject project = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
+        assert platform != null;
+
+        // Retrieve main file
+        String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
+        assert mainFile != null;
+
+        // Init compiler factory
+        GnatCompiler comp = new GnatCompiler(
+                platform,
+                project.getName(),                       // project name
+                project.getProjectDirectory().getPath(), // project location
+                project.getSourcesDirectory().getPath(), // sources location
+                mainFile,                                // main file
+                project.getName(),                        // executable file
+                COMMAND_ID);                              // display name
+
+        // Start run
+        comp.Run();
     }
 
     @Override
@@ -75,5 +96,4 @@ public class RunCommand extends Command {
         }
         return true;
     }
-   
 }

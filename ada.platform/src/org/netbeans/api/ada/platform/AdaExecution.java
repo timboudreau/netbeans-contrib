@@ -50,7 +50,6 @@ import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.extexecution.input.InputProcessor;
-import org.netbeans.api.extexecution.input.InputProcessors;
 import org.openide.util.Exceptions;
 
 /**
@@ -64,6 +63,7 @@ public class AdaExecution {
     private String workingDirectory;
     private String commandArgs;
     private String displayName;
+    private boolean redirect;
     private ExecutionDescriptor descriptor = new ExecutionDescriptor().frontWindow(true).controllable(true).inputVisible(true).showProgress(true).showSuspended(true);
 
     /**
@@ -85,6 +85,7 @@ public class AdaExecution {
     private ExternalProcessBuilder buildProcess() throws IOException {
         ExternalProcessBuilder processBuilder = new ExternalProcessBuilder(command);
         processBuilder = processBuilder.workingDirectory(new File(workingDirectory));
+        processBuilder = processBuilder.redirectErrorStream(redirect);
         if (commandArgs != null) {
             String args[] = org.openide.util.Utilities.parseParameters(commandArgs);
             for (int index = 0; index < args.length; index++) {
@@ -94,7 +95,7 @@ public class AdaExecution {
         return processBuilder;
     }
 
-    // TODO: To use when Custom Execution Servcie will be created.
+    // TODO: To use when Custom Execution Service will be created.
     private static class CheckProcess extends Process {
 
         private final int returnValue;
@@ -242,6 +243,10 @@ public class AdaExecution {
         descriptor = descriptor.showProgress(showProgress);
     }
 
+    public synchronized void setRedirectError(boolean redirect){
+        this.redirect = redirect;
+    }
+
     /**
      * Can the process be suppended
      * @param showSuspended boolean to set the status 
@@ -265,8 +270,12 @@ public class AdaExecution {
     public void attachOutputProcessor() {
         descriptor = descriptor.outProcessorFactory(new ExecutionDescriptor.InputProcessorFactory() {
 
+            public InputProcessor newInputProcessor() {
+                return outProcessor;
+            }
+
             public InputProcessor newInputProcessor(InputProcessor defaultProcessor) {
-                return InputProcessors.proxy(defaultProcessor, outProcessor);
+                return outProcessor;
             }
         });
     }

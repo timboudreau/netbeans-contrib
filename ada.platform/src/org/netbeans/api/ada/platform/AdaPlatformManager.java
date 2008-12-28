@@ -59,10 +59,16 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 import org.openide.util.io.ReaderInputStream;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Mutex;
+import org.openide.util.MutexException;
 
 /**
  *
@@ -74,6 +80,7 @@ public class AdaPlatformManager implements Serializable {
     private static final String PLATFORM_FILE = System.getProperty("netbeans.user") + "/config/ada-platforms.xml";
     private HashMap<String, AdaPlatform> platforms;
     private String defaultPlatform;
+    private volatile boolean autoDetecting = false;
 
     /**
      * Constructor is a singelton
@@ -137,7 +144,7 @@ public class AdaPlatformManager implements Serializable {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     public String getDefaultPlatform() {
         return defaultPlatform;
     }
@@ -167,9 +174,12 @@ public class AdaPlatformManager implements Serializable {
     public static FileObject findTool(String toolName, Collection<FileObject> installFolders) {
         assert toolName != null;
         for (FileObject root : installFolders) {
-            FileObject bin = root.getFileObject("bin"); //NOI18N
-            if (bin == null) {
-                continue;
+            FileObject bin = root;
+            if (!root.getName().toLowerCase().contains("bin")) {
+                bin = root.getFileObject("bin"); //NOI18N
+                if (bin == null) {
+                    continue;
+                }
             }
             FileObject tool = bin.getFileObject(toolName, Utilities.isWindows() ? "exe" : null); //NOI18N
             if (tool != null) {
@@ -237,8 +247,8 @@ public class AdaPlatformManager implements Serializable {
                         while ((line = reader.readLine()) != null) {
                             if (line.contains("GNAT")) {
                                 int startIndex = line.indexOf("GNAT");
-                                platform.setName("GNAT" + line.substring(startIndex+"GNAT".length(),line.indexOf("(")));
-                                platform.setInfo(line.substring(line.indexOf("(")+1,line.indexOf(")")));
+                                platform.setName("GNAT" + line.substring(startIndex + "GNAT".length(), line.indexOf("(")));
+                                platform.setInfo(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
                                 platform.setCompilerCommand("gnatmake");
                                 platform.setCompilerPath(gnat.getPath().substring(0, gnat.getPath().lastIndexOf(gnat.getName())));
                                 if (platforms.size() == 0) {
@@ -268,6 +278,48 @@ public class AdaPlatformManager implements Serializable {
             }
         }
         return platform;
+    }
+
+    public synchronized void autoDetect() {
+        //assert !SwingUtilities.isEventDispatchThread(); // Slow, don't block the UI
+        if (autoDetecting) {
+            // Already in progress
+            return;
+        }
+
+        try {
+            autoDetecting = true;
+            platforms.clear();
+
+            AdaAutoDetector ad = new AdaAutoDetector();
+
+            System.out.println("start autodetect----------------------------------------");
+
+            // TODO - Shouldn't we search the user's $PATH/%Path% instead of the below?
+            if (Utilities.isWindows()) {
+                ad.traverse(new File("c:/"), false);
+                ad.traverse(new File("c:/program files"), false);
+            } else {
+                ad.traverse(new File("/usr/bin"), false);
+            }
+
+            for (String path : ad.getMatches()) {
+                System.out.println(path + " => matched");
+
+                File dir = FileUtil.normalizeFile(new File(path));
+                FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(dir));
+
+                try {
+                    findPlatformProperties(fo);
+                } catch (AdaException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+
+            System.out.println("end autodetect------------------------------------------");
+        } finally {
+            autoDetecting = false;
+        }
     }
 
     public void ensureExecutable(String path) {

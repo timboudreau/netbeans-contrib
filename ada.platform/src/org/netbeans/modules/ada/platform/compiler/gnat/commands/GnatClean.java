@@ -36,60 +36,60 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.ada.platform.compiler;
+package org.netbeans.modules.ada.platform.compiler.gnat.commands;
 
-import org.netbeans.api.ada.platform.AdaPlatform;
+import java.util.concurrent.Future;
+import org.netbeans.api.ada.platform.AdaException;
+import org.netbeans.api.ada.platform.AdaExecution;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public abstract class CompilerCommand {
+public class GnatClean extends GnatCommand {
 
-    private final AdaPlatform platform;
-    private final String projectPath;
-    private final String sourceFolder;
-    private final String mainFile;
-    private final String executableFile;
-    private final String displayName;
+    private static final String COMMAND_ID = GNAT_CLEAN;
 
-    public abstract void Build();
-
-    public abstract void Compile();
-
-    public abstract void Clean();
-
-    public CompilerCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainFile, String executableFile, String displayName) {
-        assert platform != null;
-        this.platform = platform;
-        this.projectPath = projectPath;
-        this.sourceFolder = sourceFolder;
-        this.mainFile = mainFile;
-        this.executableFile = executableFile;
-        this.displayName = displayName;
+    public GnatClean(GnatCompiler gnatCompiler) {
+        super(gnatCompiler);
     }
 
-    public AdaPlatform getPlatform() {
-        return platform;
+    @Override
+    public String getCommandId() {
+        return COMMAND_ID;
     }
 
-    public String getExecutableFile() {
-        return executableFile;
-    }
+    @Override
+    public void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException {
 
-    public String getMainFile() {
-        return mainFile;
-    }
+        // Make the GPR file
+        GnatProject gpr = new GnatProject(this.getGnatCompiler());
+        gpr.write();
 
-    public String getProjectPath() {
-        return projectPath;
-    }
+        try {
+            AdaExecution adaExec = new AdaExecution();
+            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + GNAT_CLEAN);
+            adaExec.setCommandArgs(" -P" + gpr.getGprFilePath());
+            adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
+            adaExec.setDisplayName(displayTitle);
+            adaExec.setShowControls(true);
+            adaExec.setShowInput(false);
+            adaExec.setShowWindow(true);
+            adaExec.setShowProgress(true);
+            adaExec.setShowSuspended(true);
+            adaExec.attachOutputProcessor();
+            adaExec.setRedirectError(true);
+            Future<Integer> result = adaExec.run();
+            Integer value = result.get();
+            if (value.intValue() == 0) {
+            } else {
+            }
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
 
-    public String getSourceFolder() {
-        return sourceFolder;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 }

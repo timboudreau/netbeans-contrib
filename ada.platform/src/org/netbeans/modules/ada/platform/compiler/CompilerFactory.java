@@ -36,67 +36,70 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
-package org.netbeans.modules.ada.project.ui.actions;
+package org.netbeans.modules.ada.platform.compiler;
 
 import org.netbeans.api.ada.platform.AdaPlatform;
-import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
-import org.netbeans.modules.ada.project.AdaActionProvider;
-import org.netbeans.modules.ada.project.AdaProject;
-import org.netbeans.modules.ada.project.AdaProjectUtil;
-import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
-import org.openide.util.Lookup;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class RebuildCommand extends Command {
+public abstract class CompilerFactory {
 
-    private static final String COMMAND_ID = AdaActionProvider.COMMAND_REBUILD;
+    private final AdaPlatform platform;
+    private final String projectName;
+    private final String projectPath;
+    private final String sourceFolder;
+    private final String mainFile;
+    private final String executableFile;
+    private final String commandName;
 
-    public RebuildCommand(AdaProject project) {
-        super(project);
-    }
+    public abstract void Build();
 
-    @Override
-    public String getCommandId() {
-        return COMMAND_ID;
-    }
+    public abstract void Compile();
 
-    @Override
-    public void invokeAction(Lookup context) throws IllegalArgumentException {
-        // Retrieve project and platform
-        final AdaProject project = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
+    public abstract void Clean();
+
+    public abstract void Rebuild();
+
+    public abstract void Run();
+
+    public CompilerFactory(AdaPlatform platform, String projectName, String projectPath, String sourceFolder, String mainFile, String executableFile, String commandName) {
         assert platform != null;
-
-        // Retrieve main file
-        String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
-        assert mainFile != null;
-
-        // Init compiler factory
-        GnatCompiler comp = new GnatCompiler(
-                platform,
-                project.getName(),                        // project name
-                project.getProjectDirectory().getPath(),  // project location
-                project.getSourcesDirectory().getPath(),  // sources location
-                mainFile,                                 // main file
-                project.getName(),                        // executable file
-                COMMAND_ID);                              // display name
-
-        // Start rebuild
-        comp.Rebuild();
+        this.platform = platform;
+        this.projectName = projectName;
+        this.projectPath = projectPath;
+        this.sourceFolder = sourceFolder;
+        this.mainFile = mainFile;
+        this.executableFile = executableFile;
+        this.commandName = commandName;
     }
 
-    @Override
-    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
-        if (platform == null) {
-            return false;
-        }
-        return true;
+    public AdaPlatform getPlatform() {
+        return platform;
     }
-    
+
+    public String getExecutableFile() {
+        return executableFile;
+    }
+
+    public String getCommandName() {
+        return commandName;
+    }
+
+    public String getMainFile() {
+        return mainFile;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public String getSourceFolder() {
+        return sourceFolder;
+    }
 }

@@ -1,2 +1,5 @@
+0.1.1: 28-12-2008
+- Update spec version.
+
 0.1.0: 11-11-2008
 - Initial versions. Move options from Ada Project and Ada Editor.
