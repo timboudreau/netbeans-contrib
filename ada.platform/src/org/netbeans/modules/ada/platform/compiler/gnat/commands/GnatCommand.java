@@ -36,17 +36,18 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.platform.compiler.gnat.commands;
 
 import org.netbeans.api.ada.platform.AdaException;
-import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
 
 /**
  * 
  * @author Andrea Lucarelli
  */
 public abstract class GnatCommand {
+
+    public static final String RUN = "run"; // NOI18N
 
     // List of GNAT available commands
     public static final String GNAT_BIND = "gnatbind"; // NOI18N
@@ -64,49 +65,17 @@ public abstract class GnatCommand {
     public static final String GNAT_PRETTY = "gnatpp"; // NOI18N
     public static final String GNAT_STUB = "gnatstub"; // NOI18N
     public static final String GNAT_XREF = "gnatxref"; // NOI18N
+    private final GnatCompiler gnatCompiler;
 
-    private final AdaPlatform platform;
-    private final String projectPath;
-    private final String sourceFolder;
-    private final String mainFile;
-    private final String executableFile;
-    private final String displayName;
-
-    public GnatCommand(AdaPlatform platform, String projectPath, String sourceFolder, String mainFile, String executableFile, String displayName) {
-        this.platform = platform;
-        this.projectPath = projectPath;
-        this.sourceFolder = sourceFolder;
-        this.mainFile = mainFile;
-        this.executableFile = executableFile;
-        this.displayName = displayName;
+    public GnatCommand(GnatCompiler gnatCompiler) {
+        this.gnatCompiler = gnatCompiler;
     }
 
     public abstract String getCommandId();
 
-    public abstract void invokeCommand() throws IllegalArgumentException, AdaException;
+    public abstract void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException;
 
-    public AdaPlatform getPlatform() {
-        return platform;
+    public GnatCompiler getGnatCompiler() {
+        return gnatCompiler;
     }
-
-    public String getExecutableFile() {
-        return executableFile;
-    }
-
-    public String getProjectPath() {
-        return projectPath;
-    }
-
-    public String getMainFile() {
-        return mainFile;
-    }
-
-    public String getSourceFolder() {
-        return sourceFolder;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
 }

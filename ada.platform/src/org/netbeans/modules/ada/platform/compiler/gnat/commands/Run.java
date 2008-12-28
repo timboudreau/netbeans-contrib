@@ -36,27 +36,25 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.ada.platform.compiler.gnat.commands;
 
-package org.netbeans.modules.ada.project.ui.actions;
-
-import org.netbeans.api.ada.platform.AdaPlatform;
+import java.util.concurrent.Future;
+import org.netbeans.api.ada.platform.AdaException;
+import org.netbeans.api.ada.platform.AdaExecution;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
-import org.netbeans.modules.ada.project.AdaActionProvider;
-import org.netbeans.modules.ada.project.AdaProject;
-import org.netbeans.modules.ada.project.AdaProjectUtil;
-import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
-import org.openide.util.Lookup;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author Andrea Lucarelli
  */
-public class RebuildCommand extends Command {
+public class Run extends GnatCommand {
 
-    private static final String COMMAND_ID = AdaActionProvider.COMMAND_REBUILD;
+    private static final String COMMAND_ID = RUN;
 
-    public RebuildCommand(AdaProject project) {
-        super(project);
+    public Run(GnatCompiler gnatCompiler) {
+        super(gnatCompiler);
     }
 
     @Override
@@ -65,38 +63,33 @@ public class RebuildCommand extends Command {
     }
 
     @Override
-    public void invokeAction(Lookup context) throws IllegalArgumentException {
-        // Retrieve project and platform
-        final AdaProject project = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
-        assert platform != null;
+    public void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException {
 
-        // Retrieve main file
-        String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
-        assert mainFile != null;
+        // Make the GPR file
+        GnatProject gpr = new GnatProject(this.getGnatCompiler());
+        gpr.write();
 
-        // Init compiler factory
-        GnatCompiler comp = new GnatCompiler(
-                platform,
-                project.getName(),                        // project name
-                project.getProjectDirectory().getPath(),  // project location
-                project.getSourcesDirectory().getPath(),  // sources location
-                mainFile,                                 // main file
-                project.getName(),                        // executable file
-                COMMAND_ID);                              // display name
-
-        // Start rebuild
-        comp.Rebuild();
-    }
-
-    @Override
-    public boolean isActionEnabled(Lookup context) throws IllegalArgumentException {
-        final AdaProject adaProject = getProject();
-        AdaPlatform platform = AdaProjectUtil.getActivePlatform(adaProject);
-        if (platform == null) {
-            return false;
+        try {
+            AdaExecution adaExec = new AdaExecution();
+            adaExec.setCommand(this.getGnatCompiler().getProjectPath() + "/dist/" + this.getGnatCompiler().getExecutableFile());
+            adaExec.setCommandArgs("");
+            adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
+            adaExec.setDisplayName(displayTitle);
+            adaExec.setShowControls(true);
+            adaExec.setShowInput(false);
+            adaExec.setShowWindow(true);
+            adaExec.setShowProgress(true);
+            adaExec.setShowSuspended(true);
+            adaExec.attachOutputProcessor();
+            adaExec.setRedirectError(true);
+            Future<Integer> result = adaExec.run();
+            Integer value = result.get();
+            if (value.intValue() == 0) {
+            } else {
+            }
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
         }
-        return true;
+
     }
-    
 }

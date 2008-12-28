@@ -41,7 +41,7 @@ package org.netbeans.modules.ada.project.ui.actions;
 import java.io.File;
 import java.io.IOException;
 import org.netbeans.api.ada.platform.AdaPlatform;
-import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompilerCommand;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
@@ -76,7 +76,7 @@ public class BuildCommand extends Command {
         assert platform != null;
 
         // Retrieve main file
-        final FileObject mainFile = findMainFile(project);
+        String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
         assert mainFile != null;
 
         // Create Build/Dist folders
@@ -88,13 +88,14 @@ public class BuildCommand extends Command {
         }
 
         // Init compiler factory
-        GnatCompilerCommand comp = new GnatCompilerCommand(
+        GnatCompiler comp = new GnatCompiler(
                 platform,
+                project.getName(),                        // project name
                 project.getProjectDirectory().getPath(),  // project location
                 project.getSourcesDirectory().getPath(),  // sources location
-                FileUtil.toFile(mainFile).getPath(),      // main file
+                mainFile,                                 // main file
                 project.getName(),                        // executable file
-                project.getName() + " (build)"); // NOI18N - display name
+                COMMAND_ID);                              // display name
 
         // Start build
         comp.Build();

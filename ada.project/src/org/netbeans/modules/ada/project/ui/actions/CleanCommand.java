@@ -38,14 +38,12 @@
  */
 package org.netbeans.modules.ada.project.ui.actions;
 
-import java.io.File;
-import java.io.IOException;
 import org.netbeans.api.ada.platform.AdaPlatform;
+import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
 import org.netbeans.modules.ada.project.AdaActionProvider;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.AdaProjectUtil;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
+import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.openide.util.Lookup;
 
 /**
@@ -68,16 +66,25 @@ public class CleanCommand extends Command {
     @Override
     public void invokeAction(Lookup context) throws IllegalArgumentException {
         final AdaProject project = getProject();
+        AdaPlatform platform = AdaProjectUtil.getActivePlatform(project);
+        assert platform != null;
 
-        try {
-            // Delete Build Folder
-            deleteBuildRoot(project);
+        // Retrieve main file
+        String mainFile = project.getEvaluator().getProperty(AdaProjectProperties.MAIN_FILE);
+        assert mainFile != null;
 
-            // Delete Dist Folder
-            deleteDistRoot(project);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        // Init compiler factory
+        GnatCompiler comp = new GnatCompiler(
+                platform,
+                project.getName(),                        // project name
+                project.getProjectDirectory().getPath(),  // project location
+                project.getSourcesDirectory().getPath(),  // sources location
+                mainFile,                                 // main file
+                project.getName(),                        // executable file
+                COMMAND_ID);                              // display name
+
+        // Start clean
+        comp.Clean();
     }
 
     @Override
@@ -88,19 +95,5 @@ public class CleanCommand extends Command {
             return false;
         }
         return true;
-    }
-
-    private void deleteBuildRoot(final AdaProject project) throws IOException {
-        File f = new File(project.getProjectDirectory().getPath() + "/build");
-        if (f.exists()) {
-            FileUtil.toFileObject(f).delete();
-        }
-    }
-
-    private void deleteDistRoot(final AdaProject project) throws IOException {
-        File f = new File(project.getProjectDirectory().getPath() + "/dist");
-        if (f.exists()) {
-            FileUtil.toFileObject(f).delete();
-        }
     }
 }

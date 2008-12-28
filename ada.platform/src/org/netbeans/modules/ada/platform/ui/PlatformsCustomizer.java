@@ -142,7 +142,11 @@ public class PlatformsCustomizer extends JPanel {
         });
 
         autoDetectButton.setText(org.openide.util.NbBundle.getMessage(PlatformsCustomizer.class, "PlatformsCustomizer.autoDetectButton.text")); // NOI18N
-        autoDetectButton.setEnabled(false);
+        autoDetectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoDetectButtonActionPerformed(evt);
+            }
+        });
 
         platfromNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         platfromNameLabel.setText(org.openide.util.NbBundle.getMessage(PlatformsCustomizer.class, "PlatformsCustomizer.platfromNameLabel.text")); // NOI18N
@@ -437,6 +441,13 @@ public class PlatformsCustomizer extends JPanel {
             this.makeDefaultButton.setEnabled(isDefaultPLatform(platform));
         }
     }//GEN-LAST:event_PlatformListMouseClicked
+
+    private void autoDetectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoDetectButtonActionPerformed
+        manager.autoDetect();
+//        loadPlatform();
+        platformListModel.refresh();
+        platformName.setEditable(true);
+    }//GEN-LAST:event_autoDetectButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList PlatformList;
