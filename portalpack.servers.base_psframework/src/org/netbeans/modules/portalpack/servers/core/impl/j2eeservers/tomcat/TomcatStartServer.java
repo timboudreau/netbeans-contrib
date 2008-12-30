@@ -96,7 +96,14 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
     }
 
     public int getDebugPort() {
-        return 9090;
+        try{
+            int debugPort = 
+                    Integer.parseInt(psconfig.getProperty(TomcatConstant.DEBUG_PORT));
+            return debugPort;
+        }catch(NumberFormatException e) {
+            
+        }
+        return 11589;
     }
 
     public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
