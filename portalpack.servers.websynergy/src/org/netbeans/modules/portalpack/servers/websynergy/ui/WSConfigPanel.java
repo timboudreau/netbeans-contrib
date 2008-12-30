@@ -114,7 +114,6 @@ public class WSConfigPanel extends ConfigPanel implements DocumentListener {
         jButton1.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_BrowseButton")); // NOI18N
 
         directoryDeploymentCB.setText(org.openide.util.NbBundle.getMessage(WSConfigPanel.class, "LBL_DIRECTORY_DEPLOYMENT")); // NOI18N
-        directoryDeploymentCB.setEnabled(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
