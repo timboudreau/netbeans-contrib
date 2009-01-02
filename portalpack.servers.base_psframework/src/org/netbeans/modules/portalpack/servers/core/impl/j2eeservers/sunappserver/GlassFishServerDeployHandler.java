@@ -174,8 +174,20 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
 
     public boolean deploy(String warFile) throws Exception {
         try{
-           deployOnGlassFish(warFile,null);
-           //_deploy(warFile);
+            
+           String gfVersion = psconfig.getProperty(SunAppServerConstants.GLASSFISH_VERSON);
+           if(gfVersion == null || gfVersion.trim().length() == 0)
+               gfVersion = SunAppServerConstants.GLASSFISH_V2;
+           
+           if(gfVersion.equals(SunAppServerConstants.GLASSFISH_V2)) {
+               
+               _deploy(warFile);
+               
+           }else {
+               
+               deployOnGlassFish(warFile,null);
+           }
+           
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;
@@ -185,8 +197,9 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
 
     public boolean undeploy(String appName) throws Exception {
         try{
-            unDeployFromGlassFish(appName);
-            //_undeploy(appName);
+            //Uncomment the following line to undeploy using asadmin...
+            //unDeployFromGlassFish(appName);
+            _undeploy(appName);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;
@@ -204,6 +217,12 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
    
     public void _deploy(String warFile) throws DeploymentException
     {
+        _deploy(warFile,null);
+    }
+    
+    //context should be passed as null for war deployment.
+    public void _deploy(String warFile, String context) throws DeploymentException
+    {
         Properties props = new Properties();
         props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
         props.put("jsr88.dm.user",psconfig.getAdminUser());
@@ -213,9 +232,14 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
         ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
          
         JSR88DeploymentHandler deploymentHandler = new JSR88DeploymentHandler(ld,props,UISupport.getServerIO(uri));
-        String warFileName = new File(warFile).getName();
-        String contextName = warFileName.substring(0,warFileName.length()-4);
-        deploymentHandler.runApp(warFile,contextName);
+        
+        //For war deployment
+        if(context == null) {
+            String warFileName = new File(warFile).getName();
+            context = warFileName.substring(0,warFileName.length()-4);
+        }
+        
+        deploymentHandler.runApp(warFile,context);
         deploymentHandler.releaseDeploymentManager();
     }
     
@@ -286,8 +310,10 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
 
     public boolean deploy(String dir, String contextName) throws Exception {
         try{
+           //Directory deployment is not yet provided by deployment spi. So 
+           //using asadmin to do the directory deployment.
            deployOnGlassFish(dir,contextName);
-           //_deploy(warFile);
+           //_deploy(dir,contextName);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;

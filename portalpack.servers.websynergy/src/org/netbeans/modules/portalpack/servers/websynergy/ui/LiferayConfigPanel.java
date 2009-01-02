@@ -26,6 +26,7 @@ import javax.swing.event.DocumentListener;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
@@ -39,8 +40,6 @@ import org.openide.util.NbBundle;
 public class LiferayConfigPanel extends ConfigPanel implements DocumentListener {
 
     private String psVersion;
-    private int GLASSFISH_V2 = 2;
-    private int GLASSFISH_V3 = 3;
 
     /** Creates new form LifeRayConfigPanel */
     public LiferayConfigPanel(String psVersion) {
@@ -269,9 +268,9 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
 
             String domainDir = reader.getDomainDir();
-            int version = getGlassFishVersion(reader.getServerHome());
+            String version = getGlassFishVersion(reader.getServerHome());
 
-            if (version == GLASSFISH_V2) {
+            if (version.equals(SunAppServerConstants.GLASSFISH_V2)) {
                 String deployDir = domainDir + File.separator +
                         "applications" + File.separator +
                         "j2ee-modules" + File.separator + "liferay-portal";
@@ -294,16 +293,16 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
     }
 
-    private int getGlassFishVersion(String glassfishHome) {
+    private String getGlassFishVersion(String glassfishHome) {
 
         File javaeeFile = new File(glassfishHome + File.separator + "lib" + File.separator + "javaee.jar");
         File module = new File(glassfishHome + File.separator + "modules");
 
         if (!javaeeFile.exists() && module.exists()) {
-            return GLASSFISH_V3;
+            return SunAppServerConstants.GLASSFISH_V3;
         }
 
-        return GLASSFISH_V2;
+        return SunAppServerConstants.GLASSFISH_V2;
 
     }
 
@@ -323,6 +322,9 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         wr.setProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR, portalDepDirTf.getText());
         wr.setDirectoryDeployment(directoryDeployment.isSelected());
     //  wr.setPortalUri("/pcdriver");
+        
+        String gf_version = getGlassFishVersion(wr.getServerHome());
+        wr.setProperty(SunAppServerConstants.GLASSFISH_VERSON, gf_version);
     }
 
     public boolean validate(Object wizardDescriptor) {

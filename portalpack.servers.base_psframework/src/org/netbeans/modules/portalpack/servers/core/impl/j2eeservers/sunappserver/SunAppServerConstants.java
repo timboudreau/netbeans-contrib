@@ -26,4 +26,9 @@ package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserv
 public interface SunAppServerConstants {
     public static String SERVER_USER = "SERVER_USER";
     public static String SERVER_PASSWORD = "SERVER_PASSWORD";
+    
+    public static String GLASSFISH_VERSON = "Glassfish_version";
+    
+    public static String GLASSFISH_V2 = "v2";
+    public static String GLASSFISH_V3 = "v3";
 }

@@ -121,7 +121,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         if(confDir.exists())
             confDir = null;
         
-        //t1 = System.currentTimeMillis();
+        long t1 = System.currentTimeMillis();
         
         String newDepXml = context + ".xml";
         copy(deployXmlFile.getAbsolutePath(), newDepXml, autoDeployDir);
@@ -138,9 +138,18 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
                 logger.info(ex.getMessage());
             }
             counter++;
-            if (counter >= 100) {
+            if (counter >= 300) {
                 break;
             }
+        }
+        
+        if(counter >= 300) {
+            final String errorMsg = "Massaging could not been done properly." +
+                    "\n Autodeploy scanner might not be responding." +
+                    "\n Please restart your sever and try again... ";
+            writeErrorToOutput(uri, new Exception(errorMsg));
+            
+            throw new DeploymentException(errorMsg);
         }
         
         long timestamp = 0;
@@ -180,8 +189,8 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         JarUtils.jar(new FileOutputStream(destWar), tempDir.listFiles());
         
         writeToOutput(uri, warfile +" file updated successfully.");
-        //t2 = System.currentTimeMillis();
-        //System.out.println("Time taken to JAAAR::::: " + (t2-t1));
+        long t2 = System.currentTimeMillis();
+        writeToOutput(uri, "Time taken for massaging : " + (t2-t1)/1000 + " sec");
         
         //t1 = System.currentTimeMillis();
         deployerHandler.deploy(destWar.getAbsolutePath());
@@ -492,6 +501,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         String newDepXml = context + ".xml";
         copy(deployXmlFile.getAbsolutePath(), newDepXml, autoDeployDir);
         
+        long t1 = System.currentTimeMillis();
         //wait
         File xmlInAutoDeployDir = new File(autoDeployDir + File.separator + newDepXml);
         int counter = 0;
@@ -502,9 +512,18 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
                 logger.info(ex.getMessage());
             }
             counter++;
-            if (counter >= 100) {
+            if (counter >= 300) {
                 break;
             }
+        }
+        
+         if(counter >= 300) {
+            final String errorMsg = "Massaging could not been done properly." +
+                    "\n Autodeploy scanner might not be responding." +
+                    "\n Please restart your sever and try again... ";
+            writeErrorToOutput(uri, new Exception(errorMsg));
+            
+            throw new DeploymentException(errorMsg);
         }
         
         long timestamp = 0;
@@ -534,6 +553,9 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         
         writeToOutput(uri, deployedDir + " updated successfully.");
         //deploy(warfile, serveruri);
+        long t2 = System.currentTimeMillis();
+        
+        writeToOutput(uri, "Time taken for massaging : " + (t2-t1)/1000  + "sec.");
         
         if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
             

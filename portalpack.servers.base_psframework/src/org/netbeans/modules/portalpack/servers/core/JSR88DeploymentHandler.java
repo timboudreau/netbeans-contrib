@@ -1,4 +1,5 @@
 package org.netbeans.modules.portalpack.servers.core;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,21 +25,21 @@ import org.openide.windows.OutputWriter;
  *
  */
 public class JSR88DeploymentHandler {
-    
+
     class DeploymentListener implements ProgressListener {
-        
+
         JSR88DeploymentHandler driver;
         String warContext;
-        
+
         DeploymentListener(JSR88DeploymentHandler driver, String warContext) {
             this.driver = driver;
             this.warContext = warContext;
         }
-        
+
         public void handleProgressEvent(ProgressEvent event) {
-            
+
             writer.println(event.getDeploymentStatus().getMessage());
-            
+
             if (event.getDeploymentStatus().isCompleted()) {
                 try {
                     TargetModuleID[] ids = getDeploymentManager().getNonRunningModules(ModuleType.WAR, getDeploymentManager().getTargets());
@@ -48,14 +49,15 @@ public class JSR88DeploymentHandler {
                             myIDs[0] = id;
                             ProgressObject startProgress = driver.getDeploymentManager().start(myIDs);
                             startProgress.addProgressListener(new ProgressListener() {
+
                                 public void handleProgressEvent(ProgressEvent event) {
-                                    
+
                                     writer.println(event.getDeploymentStatus().getMessage());
-                                    
+
                                     if (event.getDeploymentStatus().isCompleted()) {
                                         driver.setError(false);
                                         driver.setAppStarted(true);
-                                        
+
                                     }
                                 }
                             });
@@ -74,39 +76,37 @@ public class JSR88DeploymentHandler {
                     driver.setError(true);
                     driver.setAppStarted(false);
                 }
-            }else if(event.getDeploymentStatus().isFailed()){
+            } else if (event.getDeploymentStatus().isFailed()) {
                 driver.setError(true);
                 driver.setAppStarted(false);
-                
+
             }
         }
     }
-    
-    
+
     class UnDeploymentListener implements ProgressListener {
-        
+
         JSR88DeploymentHandler driver;
         String warContext;
-        
+
         UnDeploymentListener(JSR88DeploymentHandler driver, String warContext) {
             this.driver = driver;
             this.warContext = warContext;
         }
-        
+
         public void handleProgressEvent(ProgressEvent event) {
-            
+
             writer.println(event.getDeploymentStatus().getMessage());
-            
+
             if (event.getDeploymentStatus().isCompleted()) {
                 driver.setError(false);
                 driver.setAppUndeployed(true);
-            }else if(event.getDeploymentStatus().isFailed()){
+            } else if (event.getDeploymentStatus().isFailed()) {
                 driver.setError(true);
                 driver.setAppUndeployed(false);
             }
         }
     }
-    
     DeploymentManager deploymentManager;
     boolean appStarted;
     boolean appUndeployed;
@@ -117,24 +117,25 @@ public class JSR88DeploymentHandler {
     ClassLoader loader;
     OutputWriter writer;
     OutputWriter errWriter;
-    
+
     synchronized void setError(boolean error) {
         isError = error;
     }
+
     synchronized void setAppStarted(boolean appStarted) {
         this.appStarted = appStarted;
         notifyAll();
     }
-    
+
     synchronized void setAppUndeployed(boolean appUndeployed) {
         this.appUndeployed = appUndeployed;
         notifyAll();
     }
-    
+
     private String getParam(String param) {
         return (null == deploymentProperties) ? null : deploymentProperties.getProperty(param);
     }
-    
+
     public DeploymentManager getDeploymentManager() {
         if (null == deploymentManager) {
             DeploymentFactoryManager dfm = DeploymentFactoryManager.getInstance();
@@ -145,7 +146,7 @@ public class JSR88DeploymentHandler {
                 dfm.registerDeploymentFactory(dfInstance);
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace(errWriter);
-               
+
             } catch (IllegalAccessException ex) {
                 ex.printStackTrace(errWriter);
             } catch (InstantiationException ex) {
@@ -153,19 +154,18 @@ public class JSR88DeploymentHandler {
             }
             try {
                 deploymentManager =
-                    dfm.getDeploymentManager(
-                    getParam("jsr88.dm.id"),getParam("jsr88.dm.user"),getParam("jsr88.dm.passwd"));
+                        dfm.getDeploymentManager(
+                        getParam("jsr88.dm.id"), getParam("jsr88.dm.user"), getParam("jsr88.dm.passwd"));
             } catch (DeploymentManagerCreationException ex) {
                 ex.printStackTrace(errWriter);
             }
         }
         return deploymentManager;
     }
-    
-    public void runApp(String warFilename, String warContext) throws DeploymentException
-    {
+
+    public void runApp(String warFilename, String warContext) throws DeploymentException {
         setAppStarted(false);
-        
+
         boolean redeploy = false;
         TargetModuleID[] tmIds = new TargetModuleID[1];
         try {
@@ -184,22 +184,22 @@ public class JSR88DeploymentHandler {
         } catch (TargetException ex) {
             ex.printStackTrace(errWriter);
         }
-        
+
         ProgressObject deplProgress = null;
-        
-        if(!redeploy) {
-            deplProgress = getDeploymentManager().distribute(getDeploymentManager().getTargets(),new File(warFilename), null);
-        }else {
-            deplProgress = getDeploymentManager().redeploy(tmIds,new File(warFilename), null);
+
+        if (!redeploy) {
+            deplProgress = getDeploymentManager().distribute(getDeploymentManager().getTargets(), new File(warFilename), null);
+        } else {
+            deplProgress = getDeploymentManager().redeploy(tmIds, new File(warFilename), null);
         }
         deplProgress.addProgressListener(new DeploymentListener(this, warContext));
-        waitForAppStart();
-        if(isError)
+        waitForAppStart(warContext);
+        if (isError) {
             throw new DeploymentException("Deployment failed.");
+        }
     }
-    
-    public void undeployApp(String warContext) throws DeploymentException
-    {
+
+    public void undeployApp(String warContext) throws DeploymentException {
         setAppUndeployed(false);
         try {
             TargetModuleID[] ids = getDeploymentManager().getRunningModules(ModuleType.WAR, getDeploymentManager().getTargets());
@@ -208,20 +208,20 @@ public class JSR88DeploymentHandler {
                 if (warContext.equals(id.getModuleID())) {
                     myIDs[0] = id;
                     ProgressObject startProgress = getDeploymentManager().undeploy(myIDs);
-                    startProgress.addProgressListener(new UnDeploymentListener(this,warContext));
-                    
-                        /*new ProgressListener() {
-                        public void handleProgressEvent(ProgressEvent event) {
-                            System.out.println(event.getDeploymentStatus().getMessage());
-                            if (event.getDeploymentStatus().isCompleted()) {
-                                setError(false);
-                                setAppUndeployed(true);
-                            }else if(event.getDeploymentStatus().isFailed()){
-                                setError(true);
-                                setAppUndeployed(false);
-                            }
-                        }
-                    });*/
+                    startProgress.addProgressListener(new UnDeploymentListener(this, warContext));
+
+                /*new ProgressListener() {
+                public void handleProgressEvent(ProgressEvent event) {
+                System.out.println(event.getDeploymentStatus().getMessage());
+                if (event.getDeploymentStatus().isCompleted()) {
+                setError(false);
+                setAppUndeployed(true);
+                }else if(event.getDeploymentStatus().isFailed()){
+                setError(true);
+                setAppUndeployed(false);
+                }
+                }
+                });*/
                 }
             }
         } catch (IllegalStateException ex) {
@@ -230,88 +230,109 @@ public class JSR88DeploymentHandler {
             ex.printStackTrace(errWriter);
         }
         waitForAppUndeployment();
-        if(isError)
+        if (isError) {
             throw new DeploymentException("Undeployment failed.");
+        }
     }
-    
+
     public void releaseDeploymentManager() {
         if (null != deploymentManager) {
             deploymentManager.release();
         }
     }
-    
-    
-    synchronized void waitForAppStart() {
-        while(!appStarted && !isError) {
+
+    synchronized void waitForAppStart(String warContext) {
+        while (!appStarted && !isError) {
             try {
                 wait();
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
+        }
+
+        if (!isError) {
+
+            TargetModuleID[] ids;
+            try {
+                ids = getDeploymentManager().getAvailableModules(
+                        ModuleType.WAR, getDeploymentManager().getTargets());
+                int i = 0;
+                for (i = 0; i < ids.length; i++) {
+                    if (ids[i].getModuleID().equals(warContext)) {
+                        break;
+                    }
+                }
+                getDeploymentManager().start(new TargetModuleID[]{ids[i]});
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            } catch (TargetException e) {
+                e.printStackTrace();
+            }
         }
     }
-    
+
     synchronized void waitForAppUndeployment() {
-        while(!appUndeployed && !isError) {
+        while (!appUndeployed && !isError) {
             try {
                 wait();
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
         }
     }
-    
+
     public Writer getWriter() {
         return writer;
     }
+
     public JSR88DeploymentHandler() {
     }
-    
-    public JSR88DeploymentHandler(ClassLoader loader,Properties props,InputOutput inOut) {
+
+    public JSR88DeploymentHandler(ClassLoader loader, Properties props, InputOutput inOut) {
         this.loader = loader;
         this.writer = inOut.getOut();
         this.errWriter = inOut.getErr();
         setProperties(props);
     }
-    
     private final static String SyntaxHelp = "syntax:\n\tdeploy <warfile>\n\tundeploy <webApp>";
     private final static String PropertiesFilename = "wardeployment.properties";
     private Properties deploymentProperties;
-    
+
     private void setProperties(Properties props) {
-       /* FileInputStream fis = null;
+        /* FileInputStream fis = null;
         try {
-            fis = new FileInputStream(filename);
-            deploymentProperties = new Properties();
-            deploymentProperties.load(fis);
-            fis.close();
+        fis = new FileInputStream(filename);
+        deploymentProperties = new Properties();
+        deploymentProperties.load(fis);
+        fis.close();
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+        ex.printStackTrace();
         } catch (IOException ex) {
-            ex.printStackTrace();
+        ex.printStackTrace();
         }*/
-        
+
         this.deploymentProperties = props;
     }
-    
+
     private static void printHelpAndExit() {
         System.out.println(SyntaxHelp);
         System.exit(1);
     }
-    
     /**
      * @param args the command line arguments
      */
-   /* public static void main(String[] args) {
-        if (args.length < 1) {
-            printHelpAndExit();
-        }
-        JSR88DeploymentHandler worker = new JSR88DeploymentHandler(PropertiesFilename);
-        if ("deploy".equals(args[0])) {
-            System.out.println("Deploying app...");
-            worker.runApp(args[1], args[1].substring(0,args[1].length()-4));
-            worker.releaseDeploymentManager();
-        } else if ("undeploy".equals(args[0])) {
-            System.out.println("Undeploying app...");
-            worker.undeployApp(args[1]);
-            worker.releaseDeploymentManager();
-        }
+    /* public static void main(String[] args) {
+    if (args.length < 1) {
+    printHelpAndExit();
+    }
+    JSR88DeploymentHandler worker = new JSR88DeploymentHandler(PropertiesFilename);
+    if ("deploy".equals(args[0])) {
+    System.out.println("Deploying app...");
+    worker.runApp(args[1], args[1].substring(0,args[1].length()-4));
+    worker.releaseDeploymentManager();
+    } else if ("undeploy".equals(args[0])) {
+    System.out.println("Undeploying app...");
+    worker.undeployApp(args[1]);
+    worker.releaseDeploymentManager();
+    }
     
     }*/
 }
