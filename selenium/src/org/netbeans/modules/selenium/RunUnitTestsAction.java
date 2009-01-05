@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,43 +31,37 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.selenium;
 
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
-import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
-/**
- *
- * @author Jindrich Sedek
- */
-public final class RunSeleniumTestsAction extends ExtendedAction {
+public final class RunUnitTestsAction extends ExtendedAction {
 
     protected void performAction(Node[] activatedNodes) {
         for (Node node : activatedNodes) {
             Project project = node.getLookup().lookup(Project.class);
-            SeleniumServerRunner.runServer();
-            //ActionProvider provider = project.getLookup().lookup(ActionProvider.class);
+            Properties testProperties = new Properties();
+            testProperties.setProperty("forceRedeploy", "false"); //NOI18N
             FileObject buildXML = findBuildXml(project);
-            Properties p = new Properties();
-            p.setProperty("forceRedeploy", "false"); //NOI18N
             try {
-                ExecutorTask task = ActionUtils.runTarget(buildXML, new String[]{"run-deploy"}, p);
-                //wait deployment finished
-                task.result();
-
-                FileObject seleniumSources = SeleniumSupport.getSelenimDir(project);
-                p.setProperty("test.includes", ActionUtils.antIncludesList(seleniumSources.getChildren(), seleniumSources));
-                p.setProperty("javac.includes", ActionUtils.antIncludesList(seleniumSources.getChildren(), seleniumSources));
-                ActionUtils.runTarget(buildXML, new String[]{"test-single"}, p);
+                Properties props = SeleniumSupport.getProjectProperties(project.getProjectDirectory());
+                String unitTestDir = props.getProperty("test.src.dir");
+                FileObject unitTestSources = project.getProjectDirectory().getFileObject(unitTestDir);
+                testProperties.setProperty("test.includes", ActionUtils.antIncludesList(unitTestSources.getChildren(), unitTestSources));
+                testProperties.setProperty("javac.includes", ActionUtils.antIncludesList(unitTestSources.getChildren(), unitTestSources));
+                ActionUtils.runTarget(buildXML, new String[]{"test-single"}, testProperties);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
@@ -83,7 +71,7 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(RunSeleniumTestsAction.class, "CTL_RunSeleniumTestsAction");
+        return NbBundle.getMessage(RunUnitTestsAction.class, "CTL_RunUnitTestAction");
     }
 
     @Override
@@ -91,5 +79,6 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
         super.initialize();
         putValue("noIconInMenu", Boolean.TRUE);
     }
+
 }
 
