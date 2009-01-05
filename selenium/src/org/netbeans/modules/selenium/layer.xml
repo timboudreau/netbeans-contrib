@@ -4,6 +4,7 @@
     <folder name="Actions">
         <folder name="Build">
             <file name="org-netbeans-modules-selenium-RunSeleniumTestsAction.instance"/>
+            <file name="org-netbeans-modules-selenium-RunUnitTestsAction.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
@@ -12,13 +13,21 @@
                 <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-selenium-RunSeleniumTestsAction.instance"/>
                 <attr name="position" intvalue="57"/>
             </file>
+            <file name="org-netbeans-modules-selenium-RunUnitTestsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-selenium-RunUnitTestsAction.instance"/>
+                <attr name="position" intvalue="58"/>
+            </file>
         </folder>
     </folder>
     <folder name="Projects">
         <folder name="Actions">
             <file name="org-netbeans-modules-selenium-RunSeleniumTestsAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-selenium-RunSeleniumTestsAction.instance"/>
-                <attr name="position" intvalue="267"/>
+                <attr name="position" intvalue="301"/>
+            </file>
+            <file name="org-netbeans-modules-selenium-RunUnitTestsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-selenium-RunUnitTestsAction.instance"/>
+                <attr name="position" intvalue="302"/>
             </file>
         </folder>
     </folder>

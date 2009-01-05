@@ -66,6 +66,7 @@ public class SeleniumSupport {
 
     private static final String SELENIUM_FOLDER_NAME = "selenium";
     private static final String SELENIUM_LIBRARY_NAME = "Selenium";
+    private static final String SELENIUM_DIR_PROPERTY = "test.selenium.dir";
 
     private SeleniumSupport() {
     }
@@ -87,12 +88,12 @@ public class SeleniumSupport {
         return result;
     }
 
-    private static FileObject prepareProject(Project project) throws IOException{
+    private static FileObject prepareProject(Project project) throws IOException {
         FileObject projectDir = project.getProjectDirectory();
         FileObject seleniumDir = addTestSourceRoot(project);
         addLibrary(seleniumDir);
         FileObject srcs = projectDir.getFileObject("src/java");
-        if (srcs == null){
+        if (srcs == null) {
             srcs = projectDir.getFileObject("src");
         }
         notifyProjectXMLChanges(srcs);
@@ -106,7 +107,7 @@ public class SeleniumSupport {
         ProjectClassPathModifier.removeLibraries(new Library[]{library}, fo, ClassPath.COMPILE);
     }
 
-    private static void addLibrary(FileObject fo) throws IOException{
+    private static void addLibrary(FileObject fo) throws IOException {
         assert fo != null;
         Project p = FileOwnerQuery.getOwner(fo);
         Library library = LibraryManager.getDefault().getLibrary(SELENIUM_LIBRARY_NAME); //NOI18N
@@ -142,22 +143,28 @@ public class SeleniumSupport {
                     projectXMLOs.close();
 
                     FileObject projectProperties = FileUtil.createData(projectDir, AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                    InputStream propertiesIS = projectProperties.getInputStream();
-                    Properties props = new Properties();
-                    props.load(propertiesIS);
-                    propertiesIS.close();
+                    Properties props = getProjectProperties(projectDir);
 
-                    props.put("test.selenium.dir", seleniumDir.getName());
+                    props.put(SELENIUM_DIR_PROPERTY, seleniumDir.getName());
                     OutputStream propertiesOS = projectProperties.getOutputStream();
                     props.store(propertiesOS, null);
                     propertiesOS.close();
-                    
+
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
         });
         return seleniumDir;
+    }
+
+    public static Properties getProjectProperties(FileObject projectDir) throws IOException {
+        FileObject projectProperties = FileUtil.createData(projectDir, AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        InputStream propertiesIS = projectProperties.getInputStream();
+        Properties props = new Properties();
+        props.load(propertiesIS);
+        propertiesIS.close();
+        return props;
     }
 }
 
