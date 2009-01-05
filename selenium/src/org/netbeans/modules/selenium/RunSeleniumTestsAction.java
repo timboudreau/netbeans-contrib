@@ -60,7 +60,6 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
     protected void performAction(Node[] activatedNodes) {
         for (Node node : activatedNodes) {
             Project project = node.getLookup().lookup(Project.class);
-            SeleniumServerRunner.runServer();
             //ActionProvider provider = project.getLookup().lookup(ActionProvider.class);
             FileObject buildXML = findBuildXml(project);
             Properties p = new Properties();

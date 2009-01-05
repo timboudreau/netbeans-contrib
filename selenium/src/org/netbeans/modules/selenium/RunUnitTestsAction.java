@@ -47,6 +47,10 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
+/**
+ *
+ * @author Jindrich Sedek
+ */
 public final class RunUnitTestsAction extends ExtendedAction {
 
     protected void performAction(Node[] activatedNodes) {
@@ -79,6 +83,5 @@ public final class RunUnitTestsAction extends ExtendedAction {
         super.initialize();
         putValue("noIconInMenu", Boolean.TRUE);
     }
-
 }
 
