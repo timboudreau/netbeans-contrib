@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -85,7 +86,7 @@ public class LabelForPropertyPanel extends javax.swing.JPanel {
 	labelForCombo.setModel(new javax.swing.DefaultComboBoxModel(compNames.toArray()));
 //        labelForCombo.getModel().setSelectedItem(???);
     }
-    
+
     /**
      * Provides selected component from combo
      * @return currently selected component 
@@ -168,7 +169,11 @@ public class LabelForPropertyPanel extends javax.swing.JPanel {
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(LabelForPropertyPanel.class, "LabelForPropertyPanel.AccessibleContext.accessibleDescription")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
     
-    
+
+    public JComboBox getCombo() {
+        return labelForCombo;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel comboLabel;
     private javax.swing.JComboBox labelForCombo;

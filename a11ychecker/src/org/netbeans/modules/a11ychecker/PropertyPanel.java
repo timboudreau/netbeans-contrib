@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.a11ychecker;
 
+import javax.swing.JTextField;
+
 /**
  *
  * @author Max Sauer
@@ -50,6 +52,7 @@ public class PropertyPanel extends javax.swing.JPanel {
     /** Creates new form PropertyPanel */
     public PropertyPanel() {
         initComponents();
+
     }
 
     public String getValueText() {
@@ -63,6 +66,10 @@ public class PropertyPanel extends javax.swing.JPanel {
     public void selectWholeText() {
         valueTextField.selectAll();
         
+    }
+
+    public JTextField getTextField() {
+        return valueTextField;
     }
 
     /** This method is called from within the constructor to
@@ -90,7 +97,7 @@ public class PropertyPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(valueLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(valueTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                .add(valueTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(

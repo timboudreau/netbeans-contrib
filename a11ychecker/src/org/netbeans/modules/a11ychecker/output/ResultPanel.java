@@ -61,8 +61,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -199,6 +201,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         //register doubleclick -- brings up property editor
         messageTable.addMouseListener(new MouseAdapter() {
 
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     //determine roen number
@@ -419,13 +422,12 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     private DialogDescriptor createLabelForEditorDescriptor(final FormDesigner formDesigner, final LabelForPropertyPanel panel, final String header, final RADVisualComponent rvc) {
         DialogDescriptor descriptor;
-        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
+        final ActionListener panelActionListener = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 try {
                     String action = e.getActionCommand();
-                    //                    todo
-                    if (OK_COMMAND.equals(action)) {
+                    if (OK_COMMAND.equals(action) || e.getSource() instanceof JComboBox) {
                         RADVisualComponent comp = (RADVisualComponent) getComponetByName(panel.getSelectedComponentName(), formDesigner);
                         Property prop = comp.getPropertyByName(FormHandler.LABEL_FOR_PROP);
                         ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
@@ -438,7 +440,15 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     DialogDisplayer.getDefault().notify(descriptor);
                 }
             }
+        };
+
+        panel.getCombo().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                panelActionListener.actionPerformed(e);
+            }
         });
+
+        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, panelActionListener);
         return descriptor;
     }
 
@@ -447,13 +457,12 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     private DialogDescriptor createLabelForEditorDescriptor(final FormDesigner formDesigner, final LabelForPropertyPanel panel, final String header, final Property prop) {
         DialogDescriptor descriptor;
-        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
+        final ActionListener panelActionListener = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 try {
                     String action = e.getActionCommand();
-                    //                    todo
-                    if (OK_COMMAND.equals(action)) {
+                    if (OK_COMMAND.equals(action) || e.getSource() instanceof JComboBox) {
                         ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
                         editor.setValue(panel.getSelectedComponent());
                         prop.setValue(editor.getValue());
@@ -464,7 +473,18 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     DialogDisplayer.getDefault().notify(descriptor);
                 }
             }
+        };
+
+        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, panelActionListener);
+
+        //forward the action event -- for [Enter] confirmation
+        panel.getCombo().addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                panelActionListener.actionPerformed(e);
+            }
         });
+
         return descriptor;
     }
 
@@ -474,12 +494,12 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     private DialogDescriptor createPropertyEditorDescriptor(final PropertyPanel panel, final String header, final Property prop) {
         DialogDescriptor descriptor;
-        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
+        final ActionListener descriptorActionListener  = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 try {
                     String action = e.getActionCommand();
-                    if (OK_COMMAND.equals(action)) {
+                    if (OK_COMMAND.equals(action) || e.getSource() instanceof JTextField) {
                         if (!panel.getValueText().equals("")) {
                             String value = panel.getValueText();
                             if (!header.toLowerCase().contains("mnemonic property")) {  //NOI18N hack
@@ -499,7 +519,18 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     DialogDisplayer.getDefault().notify(descriptor);
                 }
             }
+        };
+        //forward action event from textfield, used for [Enter] confirmation
+        panel.getTextField().addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                descriptorActionListener.actionPerformed(e);
+            }
         });
+
+
+
+        descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, descriptorActionListener);
         return descriptor;
     }
 
@@ -507,9 +538,9 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      * Returns component from currently opened form, specified by name
      */
     public RADComponent getComponetByName(String name, FormDesigner formDesigner) {
-        FormModel model = formDesigner.getFormModel();
+        FormModel mod = formDesigner.getFormModel();
         //        XXX divne, v listu nejsou jmenu a jmenuitem, ale jsou jmenucheckbox/radio-item
-        List<RADComponent> list = model.getComponentList();
+        List<RADComponent> list = mod.getComponentList();
         Iterator<RADComponent> compIterator = list.iterator();
         while (compIterator.hasNext()) {
             RADComponent curr = compIterator.next();
@@ -714,16 +745,16 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     }// </editor-fold>//GEN-END:initComponents
 
 private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkButtonActionPerformed
-    new FormHandler(FormBroker.getDefault().findActiveEditor()).check();
-}//GEN-LAST:event_checkButtonActionPerformed
+    new FormHandler(FormBroker.getDefault().findActiveEditor()).check();//GEN-LAST:event_checkButtonActionPerformed
+}                                           
 
     private void infoCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoCheckBoxActionPerformed
-        showSelectedData();
-    }//GEN-LAST:event_infoCheckBoxActionPerformed
+        showSelectedData();//GEN-LAST:event_infoCheckBoxActionPerformed
+    }                                            
 
     private void warningCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_warningCheckBoxActionPerformed
-        showSelectedData();
-    }//GEN-LAST:event_warningCheckBoxActionPerformed
+        showSelectedData();//GEN-LAST:event_warningCheckBoxActionPerformed
+    }                                               
 
     /** Adds new Error to the list */
     public void addNewError(Vector v) {
@@ -808,8 +839,8 @@ public synchronized void setSelectedRow() {
     }
 
     private void errorCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorCheckBoxActionPerformed
-        showSelectedData();
-    }//GEN-LAST:event_errorCheckBoxActionPerformed
+        showSelectedData();//GEN-LAST:event_errorCheckBoxActionPerformed
+    }                                             
 
     /**
      * Triggers automatic i18n
@@ -817,7 +848,7 @@ public synchronized void setSelectedRow() {
      * @param evt the ActionEvent
      */
     private void autoI18nCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoI18nCheckBoxActionPerformed
-        FormHandler fh = new FormHandler(FormBroker.getDefault().findActiveEditor());
+        FormHandler fh = new FormHandler(FormBroker.getDefault().findActiveEditor());//GEN-LAST:event_autoI18nCheckBoxActionPerformed
         //FormEditor fe = fh.getFormDesigner().getFormEditor();
         // HACK to prevent exception when no file is opened and action invoked
         if (fh == null)
@@ -845,10 +876,10 @@ public synchronized void setSelectedRow() {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }//GEN-LAST:event_autoI18nCheckBoxActionPerformed
+    }                                                
 
     private void messageTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_messageTableKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {//GEN-LAST:event_messageTableKeyPressed
                 final int selectedRow = messageTable.getSelectedRow();
                 rowIndex = selectedRow;
                 performTableRowAction(selectedRow);
@@ -865,7 +896,7 @@ public synchronized void setSelectedRow() {
                 //sorter.fireTableDataChanged();
 
         }
-}//GEN-LAST:event_messageTableKeyPressed
+}                                       
 
     private void TraversalEditorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TraversalEditorButtonActionPerformed
         FormDesigner formDesigner = new FormHandler(FormBroker.getDefault().findActiveEditor()).getFormDesigner();
@@ -901,7 +932,7 @@ public synchronized void setSelectedRow() {
                                         property.restoreDefaultValue();
                                     }
                                     dialog.dispose();
-                                } catch (Exception ex) {
+                                } catch (Exception ex) {//GEN-LAST:event_TraversalEditorButtonActionPerformed
                                     NotifyDescriptor descriptor = new NotifyDescriptor.Message(
                                             NbBundle.getBundle(PropertyAction.class).getString("MSG_InvalidValue")); // NOI18N
                                     DialogDisplayer.getDefault().notify(descriptor);
@@ -917,7 +948,7 @@ public synchronized void setSelectedRow() {
             }
             new FormHandler(FormBroker.getDefault().findActiveEditor()).check();
             return;        
-}//GEN-LAST:event_TraversalEditorButtonActionPerformed
+}                                                     
 
     /**
      * Inits buttons for property dialog
