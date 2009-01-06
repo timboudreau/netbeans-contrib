@@ -16,7 +16,7 @@ public class ${name} extends SeleneseTestCase {
 
     @Override
 	public void setUp() throws Exception {
-            //super.setUp("http://localhost:8080/");
+            super.setUp("http://localhost:${server_port}/");
 	}
 
 	public void testSimple() throws Exception {

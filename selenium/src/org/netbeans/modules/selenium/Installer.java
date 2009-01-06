@@ -50,6 +50,12 @@ import org.openide.modules.ModuleInstall;
 public class Installer extends ModuleInstall {
 
     @Override
+    public void restored() {
+        super.restored();
+        SeleniumServerRunner.runServer();
+    }
+
+    @Override
     public void uninstalled() {
         super.uninstalled();
         SeleniumServerRunner.stopServer();
