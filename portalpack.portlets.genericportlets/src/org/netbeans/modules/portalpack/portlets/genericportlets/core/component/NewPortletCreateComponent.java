@@ -81,7 +81,14 @@ public abstract class NewPortletCreateComponent {
         //Create ResourceBundleFile if not present
         if(doCreateResourceBundle((String)retMap.getAttribute(ResultContext.FILE_PATH)))
         {
-            String resBundlePath = (String)retMap.getAttribute(ResultContext.PACKAGE) + "." + "messages"; //NOI18N
+            String resBundlePath = "";
+            String pkg = (String)retMap.getAttribute(ResultContext.PACKAGE);
+            
+            if(pkg == null || pkg.trim().length() == 0)
+                resBundlePath = "messages";  //NOI18N
+            else
+                resBundlePath = pkg + "." + "messages"; //NOI18N
+            
             context.setResourceBundle(resBundlePath);
         }
         doAfterCreate(context,appContext,className,getWebInfDir());
