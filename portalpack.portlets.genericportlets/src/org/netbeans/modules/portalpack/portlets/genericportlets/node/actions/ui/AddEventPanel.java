@@ -93,7 +93,7 @@ public class AddEventPanel extends javax.swing.JDialog {
             }
         });
 
-        qNameCB.setText(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "AddEventPanel.qNameCB.text")); // NOI18N
+        qNameCB.setText(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "LBL_ADD_AS_QNAME")); // NOI18N
         qNameCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 qNameCBActionPerformed(evt);
@@ -102,7 +102,7 @@ public class AddEventPanel extends javax.swing.JDialog {
 
         valueTypeLabel.setText(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "AddEventPanel.valueTypeLabel.text")); // NOI18N
 
-        valueType.setText(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "AddEventPanel.valueType.text")); // NOI18N
+        valueType.setText("java.lang.String"); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -250,6 +250,8 @@ public class AddEventPanel extends javax.swing.JDialog {
         }else{
             prefixTf.setEnabled(false);
             nameSpaceTf.setEnabled(false);
+            prefixTf.setText("");
+            nameSpaceTf.setText("");
         }
     }//GEN-LAST:event_qNameCBActionPerformed
 
