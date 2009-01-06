@@ -40,6 +40,7 @@ package org.netbeans.modules.selenium.templates;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -47,6 +48,8 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.selenium.SeleniumSupport;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
@@ -81,12 +84,23 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
 
         FileObject createdFile = null;
         DataObject dTemplate = DataObject.find(template);
-        DataObject dobj = dTemplate.createFromTemplate(df, targetName);
+        Map<String, Object> params = Collections.singletonMap("server_port", (Object) getServerPort());//NOI18N
+        DataObject dobj = dTemplate.createFromTemplate(df, targetName, params);
         createdFile = dobj.getPrimaryFile();
 
         return Collections.singleton(createdFile);
     }
 
+    private String getServerPort(){
+        Project project = Templates.getProject(wiz);
+        J2eeModuleProvider provider = project.getLookup().lookup(J2eeModuleProvider.class);
+        if (provider != null) {
+            String port = provider.getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER);
+            return port;
+        }
+        return null;
+    }
+    
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
         Project proj = Templates.getProject(wiz);
