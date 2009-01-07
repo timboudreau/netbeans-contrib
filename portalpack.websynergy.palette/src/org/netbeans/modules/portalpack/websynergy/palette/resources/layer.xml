@@ -3,6 +3,7 @@
 <filesystem>
     <folder name="JSPPalette">
         <folder name="WebSynergy_Journal">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.palette.resources.Bundle"/>
             <attr name="position" intvalue="642"/>
             <file name="articleResourceByPK.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articleResourceByPK.xml"/>
 			<file name="articlesById.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/palette/journal/items/resources/articlesById.xml"/>
