@@ -33,7 +33,7 @@
     </folder>
     <folder name="Templates">
         <folder name="Selenium">
-            <attr name="position" intvalue="1250"/>
+            <attr name="position" intvalue="1230"/>
             <file name="SeleneseTest.java" url="templates/SeleneseTest.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.selenium.templates.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
