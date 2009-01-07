@@ -11,7 +11,7 @@
         <param type="java.lang.String" varname="userId"/>
         <param type="java.util.List" varname="taskIdList"/>
         <param type="String" varname="output"/>
-        <param type="java.util.HashMap" varname="customAttributesMap"/>
+        <param type="java.util.Map" varname="customAttributesMap"/>
         <param type="Workflow" varname="workflowImpl"/>
     </params>
     <exceptions>

@@ -1,6 +1,6 @@
 
 <method>
-    <name>checkOutTask</name>
+    <name>checkOutTasks</name>
     <modifiers>
         <modifier>
 		public
