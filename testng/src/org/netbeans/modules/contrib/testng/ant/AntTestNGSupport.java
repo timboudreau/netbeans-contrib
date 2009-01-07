@@ -136,7 +136,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         return new AntExecutor(p);
     }
 
-    public class AntExecutor implements TestNGSupportImplementation.TestExecutor {
+    private static class AntExecutor implements TestNGSupportImplementation.TestExecutor {
 
         private static final String failedConfPath = "build/test/results/testng-failed.xml"; //NOI18N
         private Project p;
