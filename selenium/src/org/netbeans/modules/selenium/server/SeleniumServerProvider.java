@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,57 +31,51 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.selenium.server;
 
-package org.netbeans.modules.selenium;
-
-import org.openide.util.Exceptions;
-import org.openide.util.RequestProcessor;
-import org.openqa.selenium.server.SeleniumServer;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.server.ServerInstance;
+import org.netbeans.spi.server.ServerInstanceFactory;
+import org.netbeans.spi.server.ServerInstanceProvider;
+import org.openide.util.ChangeSupport;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class SeleniumServerRunner implements Runnable {
+public class SeleniumServerProvider implements ServerInstanceProvider {
 
-    private static final SeleniumServerRunner instance = new SeleniumServerRunner();
-    private SeleniumServer server = null;
-    private static boolean start = false;
+    private static SeleniumServerProvider INSTANCE;
+    private ChangeSupport changeSupport;
 
-    public static void runServer() {
-        try {
-            start = true;
-            RequestProcessor.getDefault().post(instance);
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+    public static SeleniumServerProvider getDefault() {
+        if (INSTANCE == null){
+            INSTANCE = new SeleniumServerProvider();
         }
+        return INSTANCE;
     }
 
-    public static void stopServer(){
-        try {
-            start = false;
-            RequestProcessor.getDefault().post(instance);
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-        }
+    public SeleniumServerProvider() {
+        changeSupport = new ChangeSupport(this);
     }
 
-    public void run() {
-        if (start){
-            if (server == null){
-                try {
-                    server = new SeleniumServer();
-                    server.start();
-                } catch (Exception ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-           }
-        }else{
-            if (server != null){
-                server.stop();
-                server = null;
-            }
-        }
+    public List<ServerInstance> getInstances() {
+        ServerInstance si = ServerInstanceFactory.createServerInstance(new SeleniumServerInstance());
+        return Collections.<ServerInstance>singletonList(si);
+    }
+
+    public void addChangeListener(ChangeListener listener) {
+        changeSupport.addChangeListener(listener);
+    }
+
+    public void removeChangeListener(ChangeListener listener) {
+        changeSupport.removeChangeListener(listener);
     }
 }

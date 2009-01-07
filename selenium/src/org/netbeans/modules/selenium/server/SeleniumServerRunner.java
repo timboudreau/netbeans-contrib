@@ -38,34 +38,83 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.selenium.server;
 
-package org.netbeans.modules.selenium;
-
-import org.netbeans.modules.selenium.server.SeleniumServerRunner;
-import org.openide.modules.ModuleInstall;
+import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
+import org.openqa.selenium.server.SeleniumServer;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class Installer extends ModuleInstall {
+public class SeleniumServerRunner implements Runnable {
 
-    @Override
-    public void restored() {
-        super.restored();
-        SeleniumServerRunner.startServer();
+    private static final SeleniumServerRunner instance = new SeleniumServerRunner();
+    private SeleniumServer server = null;
+    private boolean isRunning = false;
+    private static Action action = null;
+
+    private SeleniumServerRunner() {
     }
 
-    @Override
-    public void uninstalled() {
-        super.uninstalled();
-        SeleniumServerRunner.stopServer();
+    public static Task startServer() {
+        if (isRunning()) {
+            return Task.EMPTY;
+        }
+        action = Action.START;
+        return RequestProcessor.getDefault().post(instance);
     }
 
-    @Override
-    public void close() {
-        super.close();
-        SeleniumServerRunner.stopServer();
+    public static Task stopServer() {
+        if (!isRunning()) {
+            return Task.EMPTY;
+        }
+        action = Action.STOP;
+        return RequestProcessor.getDefault().post(instance);
     }
 
+    public static Task restartServer() {
+        if (!isRunning()) {
+            return startServer();
+        } else {
+            action = Action.RESTART;
+            return RequestProcessor.getDefault().post(instance);
+        }
+    }
+
+    public static boolean isRunning() {
+        return instance.isRunning;
+    }
+
+    public void run() {
+        try {
+            if (server == null) {
+                server = new SeleniumServer();
+            }
+            switch (action) {
+                case START:
+                    server.start();
+                    break;
+                case STOP:
+                    server.stop();
+                    break;
+                case RESTART:
+                    server.stop();
+                    server.start();
+                    break;
+                default:
+            }
+            isRunning = (!action.equals(Action.STOP));
+            action = null;
+        } catch (Exception exc) {
+            Exceptions.printStackTrace(exc);
+        }
+    }
+
+    private static enum Action {
+
+        START, STOP, RESTART
+    }
 }
