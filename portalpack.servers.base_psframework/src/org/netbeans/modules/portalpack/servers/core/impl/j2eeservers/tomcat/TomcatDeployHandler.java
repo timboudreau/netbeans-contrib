@@ -171,19 +171,18 @@ public class TomcatDeployHandler implements ServerDeployHandler {
         if (appDepDir.exists()) {
             undeployDir(appDepDir);
             
-        } else {
-            //Incase of exploded directory deployment
+        } 
+        
+        //Incase of exploded directory deployment
             
-            File confDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
+        File confDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
                                         + File.separator + TOMCAT_CONF_DIR);
-            String contextXml = appName + ".xml";
+        String contextXml = appName + ".xml";
             
-            File contextXmlFile = new File(confDir,contextXml);
+        File contextXmlFile = new File(confDir,contextXml);
             
-            if(contextXmlFile.exists())
-                contextXmlFile.delete();
-            
-        }
+        if(contextXmlFile.exists())
+            contextXmlFile.delete();
         
         try {
 
