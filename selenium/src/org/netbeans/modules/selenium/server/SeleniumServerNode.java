@@ -42,6 +42,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Task;
@@ -79,11 +80,16 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
         return result;
     }
 
-    public void taskFinished(Task task) {
-        checkEnabledActions();
+    @Override
+    protected Sheet createSheet() {
+        return SeleniumProperties.createSheet();
     }
 
     // --------------- actions ---------------------- //
+
+    public void taskFinished(Task task) {
+        checkEnabledActions();
+    }
 
     private class RestartServerAction extends SeleniumNodeAction {
 
