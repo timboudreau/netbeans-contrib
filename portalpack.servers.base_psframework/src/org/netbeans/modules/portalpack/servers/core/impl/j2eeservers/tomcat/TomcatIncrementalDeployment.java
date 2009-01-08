@@ -91,7 +91,11 @@ public class TomcatIncrementalDeployment extends IncrementalDeployment{
 
     @Override
     public boolean canFileDeploy(Target target, J2eeModule deployable) {
-        return true;
+        
+        if(dm.getPSConfig().isDirectoryDeployment())
+            return true;
+        else
+            return false;
        
     }
 
