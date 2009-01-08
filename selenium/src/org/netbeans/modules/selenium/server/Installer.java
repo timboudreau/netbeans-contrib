@@ -39,9 +39,8 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.selenium;
+package org.netbeans.modules.selenium.server;
 
-import org.netbeans.modules.selenium.server.SeleniumServerRunner;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -50,10 +49,13 @@ import org.openide.modules.ModuleInstall;
  */
 public class Installer extends ModuleInstall {
 
+
     @Override
     public void restored() {
         super.restored();
-        SeleniumServerRunner.startServer();
+        if (SeleniumProperties.getInstanceProperties().getBoolean(SeleniumProperties.START_ON_STARTUP, true)){
+            SeleniumServerRunner.startServer();
+        }
     }
 
     @Override

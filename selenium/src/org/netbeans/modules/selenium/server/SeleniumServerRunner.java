@@ -55,7 +55,7 @@ import org.openqa.selenium.server.SeleniumServer;
  *
  * @author Jindrich Sedek
  */
-public class SeleniumServerRunner implements Runnable, PropertyChangeListener {
+class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 
     private static final SeleniumServerRunner instance = new SeleniumServerRunner();
     private SeleniumServer server = null;
@@ -65,7 +65,7 @@ public class SeleniumServerRunner implements Runnable, PropertyChangeListener {
     private SeleniumServerRunner() {
     }
 
-    public static Task startServer() {
+    static Task startServer() {
         if (isRunning()) {
             return Task.EMPTY;
         }
@@ -73,7 +73,7 @@ public class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         return RequestProcessor.getDefault().post(instance);
     }
 
-    public static Task stopServer() {
+    static Task stopServer() {
         if (!isRunning()) {
             return Task.EMPTY;
         }
@@ -81,7 +81,7 @@ public class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         return RequestProcessor.getDefault().post(instance);
     }
 
-    public static Task restartServer() {
+    static Task restartServer() {
         if (!isRunning()) {
             return startServer();
         } else {
@@ -90,7 +90,7 @@ public class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         }
     }
 
-    public static boolean isRunning() {
+    static boolean isRunning() {
         return instance.isRunning;
     }
 

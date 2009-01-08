@@ -57,6 +57,7 @@ import org.openqa.selenium.server.SeleniumServer;
 class SeleniumProperties {
 
     static final String PORT = "Port";
+    static final String START_ON_STARTUP = "Startup";
     private static InstanceProperties instanceProps;
     private static final String NAMESPACE = "Selenium server properties namespace"; //NOI18N
 
@@ -64,8 +65,8 @@ class SeleniumProperties {
         InstanceProperties props = getInstanceProperties();
         Sheet sheet = Sheet.createDefault();
         Set set = sheet.get(Sheet.PROPERTIES);
-        Node.Property ip = new ServerIntProperty(PORT, props);      //NOI18N
-        set.put(ip);
+        set.put(new ServerIntProperty(PORT, props));
+        set.put(new ServerBoolProperty(START_ON_STARTUP, props));
         return sheet;
     }
 
@@ -79,21 +80,63 @@ class SeleniumProperties {
             } else {
                 instanceProps = manager.createProperties(NAMESPACE);
                 instanceProps.putInt(PORT, SeleniumServer.DEFAULT_PORT);
+                instanceProps.putBoolean(START_ON_STARTUP, true);
                 allProps.add(instanceProps);
             }
         }
         return instanceProps;
     }
 
-    private static final class ServerIntProperty extends Node.Property<Integer> {
+    private static final class ServerBoolProperty extends ServerProperty<Boolean> {
 
-        private String propertyName;
-        private InstanceProperties props;
+        public ServerBoolProperty(String propertyName, InstanceProperties props) {
+            super(Boolean.class, propertyName, props);
+        }
+
+        @Override
+        public Boolean getValue() throws IllegalAccessException, InvocationTargetException {
+            return props.getBoolean(getName(), true);
+        }
+
+        @Override
+        public void setValue(Boolean val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            Boolean oldValue = getValue();
+            if (oldValue.equals(val)){
+                return;
+            }
+            props.putBoolean(getName(), val);
+        }
+
+    }
+
+    private static final class ServerIntProperty extends ServerProperty<Integer> {
 
         public ServerIntProperty(String propertyName, InstanceProperties props) {
-            super(Integer.class);
-            this.propertyName = propertyName;
+            super(Integer.class, propertyName, props);
+        }
+
+        @Override
+        public Integer getValue() throws IllegalAccessException, InvocationTargetException {
+            return props.getInt(getName(), 0);
+        }
+
+        @Override
+        protected void writeNewValue(Integer val) {
+            props.putInt(getName(), val);
+        }
+
+    }
+
+
+
+    private static abstract class ServerProperty<T> extends Node.Property<T>{
+
+        protected InstanceProperties props;
+
+        public ServerProperty(Class<T> type, String propertyName, InstanceProperties props) {
+            super(type);
             this.props = props;
+            setName(propertyName);
             setDisplayName(NbBundle.getMessage(SeleniumProperties.class, "displayName_" + propertyName));
             setShortDescription(NbBundle.getMessage(SeleniumProperties.class, "desc_" + propertyName));
         }
@@ -109,19 +152,19 @@ class SeleniumProperties {
         }
 
         @Override
-        public Integer getValue() throws IllegalAccessException, InvocationTargetException {
-            return props.getInt(propertyName, 0);
-        }
-
-        @Override
-        public void setValue(Integer val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-            Integer oldValue = props.getInt(propertyName, val);
+        public void setValue(T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            T oldValue = getValue();
             if (oldValue.equals(val)){
                 return;
             }
-            props.putInt(propertyName, val);
-            PropertyChangeEvent evt = new PropertyChangeEvent(this, propertyName, oldValue, val);
+            writeNewValue(val);
+            PropertyChangeEvent evt = new PropertyChangeEvent(this, getName(), oldValue, val);
             SeleniumServerRunner.getPropertyChangeListener().propertyChange(evt);
         }
+
+        protected void writeNewValue(T val){}
+
     }
 }
+
+
