@@ -1224,7 +1224,7 @@ public class ErlangSemanticAnalyser {
 
             ErlangSemanticAnalyser analyser;
             Source source = result.getSnapshot().getSource();
-            Document doc = source.getDocument();
+            Document doc = source.getDocument(false);
             if (doc != null) {
                 analyser = getAnalyser(doc);
             } else {
