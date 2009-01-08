@@ -409,6 +409,7 @@ non terminal List              block_body;
 non terminal FormalParameter.Mode mode;
 non terminal Statement         subunit;
 non terminal Expression        expression;
+non terminal String            id_opt;
 
 
 // TBD RM sections and types
@@ -528,7 +529,6 @@ non terminal     alternative;
 non terminal     label_opt;
 non terminal     iteration;
 non terminal     basic_loop;
-non terminal     id_opt;
 non terminal     iter_part;
 non terminal     reverse_opt;
 non terminal     block_decl;
@@ -1410,8 +1410,12 @@ basic_loop ::= LOOP statement_s END LOOP
 	;
 
 id_opt ::=
-	| designator
-	;
+// empty
+| designator:name
+{:
+    RESULT = name;
+:}
+;
 
 block ::= label_opt block_decl block_body END id_opt SEMICOLON
 	;
@@ -1508,7 +1512,7 @@ compound_name:name
 ;
 
 formal_part_opt ::=
-/* empty */
+// empty
 {:
 	List list = new LinkedList();
 	RESULT = list;
@@ -1563,7 +1567,7 @@ defining_identifier_list:identifierList COLON mode:mode subtype_mark:subtype ini
 ;
 
 mode ::=
-/* empty */
+// empty
 {:
     RESULT = FormalParameter.Mode.IN;
 :}
@@ -1594,15 +1598,22 @@ subprogram_specification:subprog IS
 
 subprog_body ::=
 subprogram_specification_is_push:subprog
-declarative_part:declarativePart block_body:blockBody END:end id_opt SEMICOLON
+declarative_part:declarativePart block_body:blockBody END:end id_opt:idOpt SEMICOLON
 {:
-    Block declarations = new Block(declarativePartleft, declarativePartright, declarativePart);
-    Block body = new Block(blockBodyleft, endright, blockBody);
+    if (idOpt != null && !idOpt.equalsIgnoreCase (subprog.getName())) {
+        this.parser.message_error("mispelling of " + subprog.getName());
+    } else {
+        Block declarations = new Block(declarativePartleft, declarativePartright, declarativePart);
+        Block body = new Block(blockBodyleft, endright, blockBody);
 
-    subprog.setDeclarations(declarations);
-    subprog.setBody(body);
+        subprog.setDeclarations(declarations);
+        subprog.setBody(body);
 
-    RESULT = subprog;
+        Identifier nameEnd = new Identifier(idOptleft, idOptright, idOpt);
+        subprog.setIdentifierEnd (nameEnd);
+
+        RESULT = subprog;
+    }
 :}
 ;
 
@@ -1651,7 +1662,8 @@ private_part ::=
 :}
 ;
 
-compound_name_opt ::= 
+compound_name_opt ::=
+// empty
 | compound_name:compoundName
 {:
     RESULT = compoundName;

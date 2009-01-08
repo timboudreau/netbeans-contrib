@@ -104,6 +104,42 @@ public class GeneralOptionsPanel extends JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        standardsLabel = new javax.swing.JLabel();
+        standardsLineSeparator = new javax.swing.JSeparator();
+        adaDialectsLabel = new javax.swing.JLabel();
+        namingLabel = new javax.swing.JLabel();
+        namingLineSeparator = new javax.swing.JSeparator();
+        errorLabel = new javax.swing.JLabel();
+        adaRestrictionsLabel = new javax.swing.JLabel();
+        adaDialectsComboBox = new javax.swing.JComboBox();
+        adaRestrictionsComboBox = new javax.swing.JComboBox();
+        pkgSpecMaskLabel = new javax.swing.JLabel();
+        pkgBodyMaskLabel = new javax.swing.JLabel();
+        separatorMaskLabel = new javax.swing.JLabel();
+        pkgSpecSepTextField = new javax.swing.JTextField();
+        separateSepTextField = new javax.swing.JTextField();
+        pkgBodySepTextField = new javax.swing.JTextField();
+        extTitleLabel = new javax.swing.JLabel();
+        pkgSpecPrefixComboBox = new javax.swing.JComboBox();
+        prefixTitleLabel = new javax.swing.JLabel();
+        pkgBodyPrefixComboBox = new javax.swing.JComboBox();
+        postfixTitleLabel = new javax.swing.JLabel();
+        pkgSpecPostfixComboBox = new javax.swing.JComboBox();
+        separatePrefixComboBox = new javax.swing.JComboBox();
+        pkgBodyPostfixComboBox = new javax.swing.JComboBox();
+        separatePostfixComboBox = new javax.swing.JComboBox();
+        pkgSpecExtComboBox = new javax.swing.JComboBox();
+        pkgBodyExtComboBox = new javax.swing.JComboBox();
+        separateExtComboBox = new javax.swing.JComboBox();
+        separatorTitleLabel = new javax.swing.JLabel();
+
+
+
+
+        org.openide.awt.Mnemonics.setLocalizedText(standardsLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Standards")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(adaDialectsLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_AdaDialects")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(namingLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Naming")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(errorLabel, "ERROR");
 
 
 
@@ -113,66 +149,36 @@ public class GeneralOptionsPanel extends JPanel {
 
 
 
+        org.openide.awt.Mnemonics.setLocalizedText(adaRestrictionsLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_adaRestrictions")); // NOI18N
+        adaDialectsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ada 83", "Ada 95", "Ada 2005" }));
 
+        adaRestrictionsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Spark", "MIL-STD-498" }));
 
-        standardsLabel = new JLabel();
-        standardsLineSeparator = new JSeparator();
-        adaDialectsLabel = new JLabel();
-        namingLabel = new JLabel();
-        namingLineSeparator = new JSeparator();
-        errorLabel = new JLabel();
-        adaRestrictionsLabel = new JLabel();
-        adaDialectsComboBox = new JComboBox();
-        adaRestrictionsComboBox = new JComboBox();
-        pkgSpecMaskLabel = new JLabel();
-        pkgBodyMaskLabel = new JLabel();
-        separatorMaskLabel = new JLabel();
-        pkgSpecSepTextField = new JTextField();
-        pkgBodySepTextField = new JTextField();
-        separateSepTextField = new JTextField();
-        extTitleLabel = new JLabel();
-        pkgSpecPrefixComboBox = new JComboBox();
-        prefixTitleLabel = new JLabel();
-        pkgBodyPrefixComboBox = new JComboBox();
-        separatePrefixComboBox = new JComboBox();
-        postfixTitleLabel = new JLabel();
-        pkgSpecPostfixComboBox = new JComboBox();
-        pkgBodyPostfixComboBox = new JComboBox();
-        separatePostfixComboBox = new JComboBox();
-        pkgSpecExtComboBox = new JComboBox();
-        pkgBodyExtComboBox = new JComboBox();
-        separateExtComboBox = new JComboBox();
-        separatorTitleLabel = new JLabel();
-        Mnemonics.setLocalizedText(standardsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Standards"));
-        Mnemonics.setLocalizedText(adaDialectsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_AdaDialects"));
-        Mnemonics.setLocalizedText(namingLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_Naming"));
-        Mnemonics.setLocalizedText(errorLabel, "ERROR");
-        Mnemonics.setLocalizedText(adaRestrictionsLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_adaRestrictions"));
-        adaDialectsComboBox.setModel(new DefaultComboBoxModel(new String[] { "Ada 83", "Ada 95", "Ada 2005" }));
+        org.openide.awt.Mnemonics.setLocalizedText(pkgSpecMaskLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgSpecMask")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(pkgBodyMaskLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgBodyMask")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(separatorMaskLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_separatorMask")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(extTitleLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_extTitle")); // NOI18N
+        pkgSpecPrefixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
 
-        adaRestrictionsComboBox.setModel(new DefaultComboBoxModel(new String[] { "None", "Spark", "MIL-STD-498" }));
-        Mnemonics.setLocalizedText(pkgSpecMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgSpecMask"));
-        Mnemonics.setLocalizedText(pkgBodyMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_pkgBodyMask"));
-        Mnemonics.setLocalizedText(separatorMaskLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_separatorMask"));
-        Mnemonics.setLocalizedText(extTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_extTitle"));
-        pkgSpecPrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
-        Mnemonics.setLocalizedText(prefixTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_prefixTitle"));
-        pkgBodyPrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
+        org.openide.awt.Mnemonics.setLocalizedText(prefixTitleLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_prefixTitle")); // NOI18N
+        pkgBodyPrefixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
 
-        separatePrefixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
-        Mnemonics.setLocalizedText(postfixTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_postfixTitle"));
-        pkgSpecPostfixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
+        org.openide.awt.Mnemonics.setLocalizedText(postfixTitleLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "LBL_postfixTitle")); // NOI18N
+        pkgSpecPostfixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
 
-        pkgBodyPostfixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
+        separatePrefixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<package name>", "<free name>" }));
 
-        separatePostfixComboBox.setModel(new DefaultComboBoxModel(new String[] { "<procedure name>", "<free name>", "<none>" }));
+        pkgBodyPostfixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<none>", "<free name>" }));
 
-        pkgSpecExtComboBox.setModel(new DefaultComboBoxModel(new String[] { ".ads", ".ada (deprecated)" }));
+        separatePostfixComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<procedure name>", "<free name>", "<none>" }));
 
-        pkgBodyExtComboBox.setModel(new DefaultComboBoxModel(new String[] { ".adb", ".ada (deprecated)" }));
+        pkgSpecExtComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { ".ads", ".ada" }));
 
-        separateExtComboBox.setModel(new DefaultComboBoxModel(new String[] { ".adb", ".ada (deprecated)" }));
-        Mnemonics.setLocalizedText(separatorTitleLabel, NbBundle.getMessage(GeneralOptionsPanel.class, "GeneralOptionsPanel.separatorTitleLabel.text"));
+        pkgBodyExtComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { ".adb", ".ada" }));
+
+        separateExtComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { ".adb", ".ada" }));
+
+        org.openide.awt.Mnemonics.setLocalizedText(separatorTitleLabel, org.openide.util.NbBundle.getMessage(GeneralOptionsPanel.class, "GeneralOptionsPanel.separatorTitleLabel.text")); // NOI18N
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -185,7 +191,7 @@ public class GeneralOptionsPanel extends JPanel {
                             .add(layout.createSequentialGroup()
                                 .add(standardsLabel)
                                 .addPreferredGap(LayoutStyle.RELATED)
-                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 565, Short.MAX_VALUE))
+                                .add(standardsLineSeparator, GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE))
                             .add(errorLabel)
                             .add(layout.createSequentialGroup()
                                 .add(12, 12, 12)
@@ -212,9 +218,11 @@ public class GeneralOptionsPanel extends JPanel {
                                 .add(prefixTitleLabel))
                             .add(separatePrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(GroupLayout.LEADING)
-                            .add(GroupLayout.TRAILING, pkgSpecSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                            .add(GroupLayout.TRAILING, separatorTitleLabel))
+                        .add(layout.createParallelGroup(GroupLayout.TRAILING)
+                            .add(separatorTitleLabel)
+                            .add(pkgSpecSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(GroupLayout.LEADING, false)
                             .add(pkgBodyPostfixComboBox, 0, 110, Short.MAX_VALUE)
@@ -230,12 +238,6 @@ public class GeneralOptionsPanel extends JPanel {
                                 .add(41, 41, 41)
                                 .add(extTitleLabel))))
                     .add(layout.createSequentialGroup()
-                        .add(262, 262, 262)
-                        .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(262, 262, 262)
-                        .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(namingLabel)
                         .addPreferredGap(LayoutStyle.RELATED)
@@ -243,15 +245,15 @@ public class GeneralOptionsPanel extends JPanel {
                 .addContainerGap())
         );
 
-        layout.linkSize(new Component[] {adaDialectsLabel, adaRestrictionsLabel}, GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {adaDialectsLabel, adaRestrictionsLabel}, GroupLayout.HORIZONTAL);
 
-        layout.linkSize(new Component[] {adaDialectsComboBox, adaRestrictionsComboBox}, GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {adaDialectsComboBox, adaRestrictionsComboBox}, GroupLayout.HORIZONTAL);
 
-        layout.linkSize(new Component[] {pkgBodyMaskLabel, pkgSpecMaskLabel, separatorMaskLabel}, GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {pkgBodyMaskLabel, pkgSpecMaskLabel, separatorMaskLabel}, GroupLayout.HORIZONTAL);
 
-        layout.linkSize(new Component[] {pkgBodySepTextField, pkgSpecSepTextField, separateSepTextField}, GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {pkgBodySepTextField, pkgSpecSepTextField, separateSepTextField}, GroupLayout.HORIZONTAL);
 
-        layout.linkSize(new Component[] {pkgBodyPostfixComboBox, pkgBodyPrefixComboBox, pkgSpecPostfixComboBox, pkgSpecPrefixComboBox, separatePostfixComboBox, separatePrefixComboBox}, GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {pkgBodyPostfixComboBox, pkgBodyPrefixComboBox, pkgSpecPostfixComboBox, pkgSpecPrefixComboBox, separatePostfixComboBox, separatePrefixComboBox}, GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(GroupLayout.LEADING)
@@ -274,82 +276,70 @@ public class GeneralOptionsPanel extends JPanel {
                     .add(namingLabel))
                 .add(1, 1, 1)
                 .add(layout.createParallelGroup(GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(GroupLayout.BASELINE)
-                            .add(prefixTitleLabel)
-                            .add(separatorTitleLabel))
-                        .add(4, 4, 4)
-                        .add(layout.createParallelGroup(GroupLayout.CENTER)
-                            .add(pkgSpecPrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .add(pkgSpecMaskLabel))
-                        .addPreferredGap(LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(GroupLayout.CENTER)
-                            .add(pkgBodyPrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .add(pkgBodyMaskLabel))
-                        .addPreferredGap(LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(GroupLayout.CENTER)
-                            .add(separatePrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .add(separatorMaskLabel))
-                        .addPreferredGap(LayoutStyle.RELATED, 150, Short.MAX_VALUE)
-                        .add(errorLabel))
-                    .add(layout.createParallelGroup(GroupLayout.TRAILING)
-                        .add(layout.createSequentialGroup()
-                            .add(pkgSpecSepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(LayoutStyle.RELATED)
-                            .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(LayoutStyle.RELATED)
-                            .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                        .add(layout.createParallelGroup(GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(extTitleLabel)
-                                .add(4, 4, 4)
-                                .add(pkgSpecExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.RELATED)
-                                .add(pkgBodyExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.RELATED)
-                                .add(separateExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
-                                .add(postfixTitleLabel)
-                                .add(4, 4, 4)
-                                .add(pkgSpecPostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.RELATED)
-                                .add(pkgBodyPostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.RELATED)
-                                .add(separatePostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
+                    .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                        .add(prefixTitleLabel)
+                        .add(separatorTitleLabel))
+                    .add(extTitleLabel)
+                    .add(postfixTitleLabel))
+                .add(4, 4, 4)
+                .add(layout.createParallelGroup(GroupLayout.CENTER)
+                    .add(pkgSpecMaskLabel)
+                    .add(pkgSpecPrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(pkgSpecSepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(pkgSpecPostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(pkgSpecExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(layout.createParallelGroup(GroupLayout.CENTER)
+                        .add(pkgBodyPrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .add(pkgBodyMaskLabel))
+                    .add(pkgBodyExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                        .add(pkgBodyPostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .add(pkgBodySepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(GroupLayout.CENTER)
+                    .add(separatorMaskLabel)
+                    .add(separatePrefixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(separateSepTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(separatePostfixComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(separateExtComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(LayoutStyle.RELATED, 150, Short.MAX_VALUE)
+                .add(errorLabel)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private JComboBox adaDialectsComboBox;
-    private JLabel adaDialectsLabel;
-    private JComboBox adaRestrictionsComboBox;
-    private JLabel adaRestrictionsLabel;
-    private JLabel errorLabel;
-    private JLabel extTitleLabel;
-    private JLabel namingLabel;
-    private JSeparator namingLineSeparator;
-    private JComboBox pkgBodyExtComboBox;
-    private JLabel pkgBodyMaskLabel;
-    private JComboBox pkgBodyPostfixComboBox;
-    private JComboBox pkgBodyPrefixComboBox;
-    private JTextField pkgBodySepTextField;
-    private JComboBox pkgSpecExtComboBox;
-    private JLabel pkgSpecMaskLabel;
-    private JComboBox pkgSpecPostfixComboBox;
-    private JComboBox pkgSpecPrefixComboBox;
-    private JTextField pkgSpecSepTextField;
-    private JLabel postfixTitleLabel;
-    private JLabel prefixTitleLabel;
-    private JComboBox separateExtComboBox;
-    private JComboBox separatePostfixComboBox;
-    private JComboBox separatePrefixComboBox;
-    private JTextField separateSepTextField;
-    private JLabel separatorMaskLabel;
-    private JLabel separatorTitleLabel;
-    private JLabel standardsLabel;
-    private JSeparator standardsLineSeparator;
+    private javax.swing.JComboBox adaDialectsComboBox;
+    private javax.swing.JLabel adaDialectsLabel;
+    private javax.swing.JComboBox adaRestrictionsComboBox;
+    private javax.swing.JLabel adaRestrictionsLabel;
+    private javax.swing.JLabel errorLabel;
+    private javax.swing.JLabel extTitleLabel;
+    private javax.swing.JLabel namingLabel;
+    private javax.swing.JSeparator namingLineSeparator;
+    private javax.swing.JComboBox pkgBodyExtComboBox;
+    private javax.swing.JLabel pkgBodyMaskLabel;
+    private javax.swing.JComboBox pkgBodyPostfixComboBox;
+    private javax.swing.JComboBox pkgBodyPrefixComboBox;
+    private javax.swing.JTextField pkgBodySepTextField;
+    private javax.swing.JComboBox pkgSpecExtComboBox;
+    private javax.swing.JLabel pkgSpecMaskLabel;
+    private javax.swing.JComboBox pkgSpecPostfixComboBox;
+    private javax.swing.JComboBox pkgSpecPrefixComboBox;
+    private javax.swing.JTextField pkgSpecSepTextField;
+    private javax.swing.JLabel postfixTitleLabel;
+    private javax.swing.JLabel prefixTitleLabel;
+    private javax.swing.JComboBox separateExtComboBox;
+    private javax.swing.JComboBox separatePostfixComboBox;
+    private javax.swing.JComboBox separatePrefixComboBox;
+    private javax.swing.JTextField separateSepTextField;
+    private javax.swing.JLabel separatorMaskLabel;
+    private javax.swing.JLabel separatorTitleLabel;
+    private javax.swing.JLabel standardsLabel;
+    private javax.swing.JSeparator standardsLineSeparator;
     // End of variables declaration//GEN-END:variables
 
     private final class DefaultDocumentListener implements DocumentListener {

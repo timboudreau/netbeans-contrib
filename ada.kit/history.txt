@@ -1,3 +1,10 @@
+0.1.6: 05-01-2009
+Note: These corrections have been added thanks to comments posted by comp.lang.ada users --> http://groups.google.it/group/comp.lang.ada/browse_thread/thread/5bcecfde044a119d
+- Fix string and char literal recognition.
+- Fix new ada platform and autodetect in linux system.
+- Fix gpr template file for linux system.
+- Fix project actions for linux systems.
+
 0.1.5: 28-12-2008
 - Add improvements on ast parser, indexer and navigator.
 - Add GNAT Project handler.

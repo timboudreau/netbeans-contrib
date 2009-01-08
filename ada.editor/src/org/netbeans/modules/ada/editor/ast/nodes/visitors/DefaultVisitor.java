@@ -103,7 +103,7 @@ public class DefaultVisitor implements Visitor {
     }
 
     public void visit(FunctionDeclaration node) {
-        scan(node.getFunctionName());
+        scan(node.getIdentifier());
         scan(node.getFormalParameters());
         scan(node.getBody());
     }
@@ -146,7 +146,7 @@ public class DefaultVisitor implements Visitor {
     }
 
     public void visit(ProcedureDeclaration node) {
-        scan(node.getProcedureName());
+        scan(node.getIdentifier());
         scan(node.getFormalParameters());
         scan(node.getBody());
     }

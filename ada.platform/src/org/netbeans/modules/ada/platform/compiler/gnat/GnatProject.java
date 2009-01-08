@@ -69,9 +69,11 @@ public class GnatProject {
         // Remove all *.gpr files
         File folder = new File(gnat.getProjectPath() + '/' + "nbproject"); // UNIX path // NOI18N
         File[] children = folder.listFiles();
-        for (int i = 0; i < children.length; i++) {
-            if (children[i].getName().startsWith("Gprfile-impl")) { // NOI18N
-                children[i].delete();
+        if (children != null) {
+            for (int i = 0; i < children.length; i++) {
+                if (children[i].getName().startsWith("Gprfile-impl")) { // NOI18N
+                    children[i].delete();
+                }
             }
         }
     }
@@ -135,6 +137,4 @@ public class GnatProject {
     public String getGprFilePath() {
         return this.gprFilePath;
     }
-
-
 }

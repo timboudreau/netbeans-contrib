@@ -49,11 +49,11 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="tabbedPane" alignment="0" pref="314" max="32767" attributes="0"/>
+                  <Component id="tabbedPane" alignment="0" pref="321" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="paltformsListTitleLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="platformsListScrollPanel" pref="207" max="32767" attributes="0"/>
+                      <Component id="platformsListScrollPanel" pref="214" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="removeButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -88,7 +88,6 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="PlatformListMouseClicked"/>
             <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="PlatformListValueChanged"/>
           </Events>
         </Component>
@@ -202,7 +201,7 @@
                           <Component id="compilerCommandLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="compilerCommand" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="193" max="32767" attributes="0"/>
+                      <EmptySpace pref="200" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -305,7 +304,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="moveDownPath" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane2" alignment="0" pref="255" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" alignment="0" pref="262" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>

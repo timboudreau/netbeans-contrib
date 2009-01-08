@@ -91,8 +91,8 @@ public class BuildCommand extends Command {
         GnatCompiler comp = new GnatCompiler(
                 platform,
                 project.getName(),                        // project name
-                project.getProjectDirectory().getPath(),  // project location
-                project.getSourcesDirectory().getPath(),  // sources location
+                FileUtil.toFile(project.getProjectDirectory()).getAbsolutePath(),  // project location
+                FileUtil.toFile(project.getSourcesDirectory()).getAbsolutePath(),  // sources location
                 mainFile,                                 // main file
                 project.getName(),                        // executable file
                 COMMAND_ID);                              // display name

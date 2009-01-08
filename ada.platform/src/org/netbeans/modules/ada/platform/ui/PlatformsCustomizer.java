@@ -40,7 +40,6 @@ package org.netbeans.modules.ada.platform.ui;
 
 import java.io.File;
 import java.awt.Dialog;
-import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -59,6 +58,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /**
  * 
@@ -113,11 +113,6 @@ public class PlatformsCustomizer extends JPanel {
         PlatformList.setModel(platformListModel);
         PlatformList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         PlatformList.setCellRenderer(new PlatformListCellRenderer());
-        PlatformList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                PlatformListMouseClicked(evt);
-            }
-        });
         PlatformList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 PlatformListValueChanged(evt);
@@ -208,7 +203,7 @@ public class PlatformsCustomizer extends JPanel {
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(compilerCommandLabel)
                     .add(compilerCommand, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addContainerGap(200, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab(org.openide.util.NbBundle.getMessage(PlatformsCustomizer.class, "PlatformsCustomizer.mainPanel.TabConstraints.tabTitle_1"), mainPanel); // NOI18N
@@ -279,7 +274,7 @@ public class PlatformsCustomizer extends JPanel {
                         .add(moveUpPath)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(moveDownPath))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -316,11 +311,11 @@ public class PlatformsCustomizer extends JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(tabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                    .add(tabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(paltformsListTitleLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(platformsListScrollPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                        .add(platformsListScrollPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(removeButton)
@@ -336,7 +331,7 @@ public class PlatformsCustomizer extends JPanel {
         platformName.setText(adaPlatform.getName());
         platformInfoTextField.setText(adaPlatform.getInfo());
         compilerCommand.setText(adaPlatform.getInterpreterCommand());
-        // TODO: add in main tab the commands list for ada platform
+    // TODO: add in main tab the commands list for ada platform
 //        adaPathModel.setModel(adaPlatform.getCompilerPath());
     }
 
@@ -347,26 +342,51 @@ public class PlatformsCustomizer extends JPanel {
     }
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-        JFileChooser fc = new JFileChooser(AdaPreferences.getPreferences().get(LAST_PLATFORM_DIRECTORY, ""));
+        JFileChooser fc = new JFileChooser();
+        if (!Utilities.isWindows()) {
+            fc.setCurrentDirectory(new File("/usr/bin"));
+            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            fc.setFileFilter(new FileFilter() {
+
+                @Override
+                public boolean accept(File file) {
+                    if (file.isDirectory()) {
+                        return true;
+                    } else if (file.getName().toLowerCase().contains("gnat")) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                @Override
+                public String getDescription() {
+                    return getMessage("AdaPlatformCustomizer.adaCompilerFile");
+                }
+            });
+        } else {
+            fc.setCurrentDirectory(new File("C:/"));
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setFileFilter(new FileFilter() {
+
+                public boolean accept(File f) {
+                    return f.isDirectory(); // NOI18N
+                }
+
+                public String getDescription() {
+                    return getMessage("AdaPlatformCustomizer.adaPlatform");
+                }
+            });
+        }
         fc.setFileHidingEnabled(false);
-        fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.setFileFilter(new FileFilter() {
-
-            public boolean accept(File f) {
-                return f.isDirectory(); // NOI18N
-            }
-
-            public String getDescription() {
-                return getMessage("AdaPlatformCustomizer.adaPlatform");
-            }
-        });
         int returnVal = fc.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            if (file.isFile()) {
+                file = fc.getCurrentDirectory();
+            }
             if (file != null) {
-                file = FileUtil.normalizeFile(file);
-                FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(file));
+                FileObject fo = FileUtil.toFileObject(file);
                 if (fo != null) {
                     try {
                         adaPlatform = manager.findPlatformProperties(fo);
@@ -394,11 +414,13 @@ public class PlatformsCustomizer extends JPanel {
     }//GEN-LAST:event_PlatformListValueChanged
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-        if (PlatformList.getSelectedIndex() != -1) {
+        int selectedIndex = PlatformList.getSelectedIndex();
+        if (selectedIndex != -1) {
             manager.removePlatform(
                     (String) platformListModel.getElementAt(
                     PlatformList.getSelectedIndex()));
             platformListModel.refresh();
+            adaPlatform = null;
             clearPlatform();
         }
 }//GEN-LAST:event_removeButtonActionPerformed
@@ -433,14 +455,6 @@ public class PlatformsCustomizer extends JPanel {
             adaPathModel.add(cmd);
         }
 }//GEN-LAST:event_addPathActionPerformed
-
-    private void PlatformListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PlatformListMouseClicked
-        if (PlatformList.getSelectedIndex() != -1) {
-            String platform = (String) platformListModel.getElementAt(PlatformList.getSelectedIndex());
-            this.removeButton.setEnabled(isDefaultPLatform(platform));
-            this.makeDefaultButton.setEnabled(isDefaultPLatform(platform));
-        }
-    }//GEN-LAST:event_PlatformListMouseClicked
 
     private void autoDetectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoDetectButtonActionPerformed
         manager.autoDetect();
@@ -518,9 +532,9 @@ public class PlatformsCustomizer extends JPanel {
         manager.addPlatform(adaPlatform);
     }
 
-    private boolean isDefaultPLatform (String platform) {
+    private boolean isDefaultPLatform(String platform) {
         String defaultPlatform = manager.getDefaultPlatform();
-        return defaultPlatform!=null && !defaultPlatform.equals(platform);
+        return defaultPlatform != null && !defaultPlatform.equals(platform);
     }
 
 }

@@ -42,10 +42,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.util.Utilities;
 
 /**
+ * Based on org.netbeans.modules.python.api.PythonAdaAutoDetector
  *
- * @author alley
+ * @author Andrea Lucarelli
  */
 public class AdaAutoDetector {
 
@@ -60,19 +62,12 @@ public class AdaAutoDetector {
         if (dir.isFile()) {
             int pos = dir.getName().indexOf(".");
             String name = null;
-            String ext = null;
             if (pos > -1) {
                 name = dir.getName().substring(0, pos);
-                ext = dir.getName().substring(pos + 1);
             } else {
                 name = dir.getName();
-                ext = "";
             }
-            if ((name.equalsIgnoreCase("gnat") ||
-                    name.equalsIgnoreCase("gnatmake")) &&
-                    (ext.equalsIgnoreCase("") ||
-                    ext.equalsIgnoreCase("exe") ||
-                    ext.equalsIgnoreCase("bat"))) {
+            if (name.equalsIgnoreCase("gnat") || name.equalsIgnoreCase("gnatmake")) {
                 matches.add(dir.getParent());
                 if (LOGGER.isLoggable(Level.FINE)) {
                     LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
@@ -80,16 +75,31 @@ public class AdaAutoDetector {
             }
         }
         if (dir.isDirectory()) {
-            if (dir.getName().toLowerCase().contains("mingw") ||
-                    dir.getName().toLowerCase().contains("cygwin") ||
-                    dir.getName().toLowerCase().contains("gnat") ||
-                    dir.getName().toLowerCase().contains("2007") ||
-                    dir.getName().toLowerCase().contains("2008") ||
-                    dir.getName().toLowerCase().contains("bin")) {
-                String[] children = dir.list();
-                if (children != null) {
-                    for (int i = 0; i < children.length; i++) {
-                        traverse(new File(dir, children[i]), searchNestedDirectoies);
+            if (Utilities.isWindows()) {
+                if ((dir.getName().toLowerCase().contains("mingw")) ||
+                    (dir.getName().toLowerCase().contains("bin") && dir.getPath().toLowerCase().contains("mingw")) ||
+                    (dir.getName().toLowerCase().contains("cygwin")) ||
+                    (dir.getName().toLowerCase().contains("bin") && dir.getPath().toLowerCase().contains("cygwin")) ||
+                    (dir.getName().toLowerCase().contains("gnat")) ||
+                    (dir.getName().toLowerCase().contains("2007") && dir.getPath().toLowerCase().contains("gnat")) ||
+                    (dir.getName().toLowerCase().contains("bin") && dir.getPath().toLowerCase().contains("gnat")) ||
+                    (dir.getName().toLowerCase().contains("gnat")) ||
+                    (dir.getName().toLowerCase().contains("2008") && dir.getPath().toLowerCase().contains("gnat")) ||
+                    (dir.getName().toLowerCase().contains("bin") && dir.getPath().toLowerCase().contains("gnat"))) {
+                    String[] children = dir.list();
+                    if (children != null) {
+                        for (int i = 0; i < children.length; i++) {
+                            traverse(new File(dir, children[i]), searchNestedDirectoies);
+                        }
+                    }
+                }
+            } else { // TODO: mac and unix
+                if (dir.getName().toLowerCase().contains("gnat") || dir.getName().toLowerCase().contains("ada")) {
+                    String[] children = dir.list();
+                    if (children != null) {
+                        for (int i = 0; i < children.length; i++) {
+                            traverse(new File(dir, children[i]), searchNestedDirectoies);
+                        }
                     }
                 }
             }
@@ -97,7 +107,7 @@ public class AdaAutoDetector {
 
     }
 
-    public void traverse(File dir, boolean recersive) {
+    public void traverse(File dir, boolean recursive) {
 
         processAction(dir);
 
@@ -105,11 +115,11 @@ public class AdaAutoDetector {
             String[] children = dir.list();
             if (children != null) {
                 if (searchNestedDirectoies) {
-                    if (searchNestedDirectoies != recersive) {
-                        searchNestedDirectoies = recersive;
+                    if (searchNestedDirectoies != recursive) {
+                        searchNestedDirectoies = recursive;
                     }
                     for (int i = 0; i < children.length; i++) {
-                        traverse(new File(dir, children[i]), recersive);
+                        traverse(new File(dir, children[i]), recursive);
                     }
                 }
             }

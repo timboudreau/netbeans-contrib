@@ -52,23 +52,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 import org.openide.util.io.ReaderInputStream;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Mutex;
-import org.openide.util.MutexException;
 
 /**
  *
@@ -171,20 +164,24 @@ public class AdaPlatformManager implements Serializable {
         platforms.remove(name);
     }
 
-    public static FileObject findTool(String toolName, Collection<FileObject> installFolders) {
+//    public static String findTool(String toolName, String root) {
+//          AdaAutoDetector ad = new AdaAutoDetector();
+//          ad.traverse(new File(root), true);
+//          return ad.getMatches().get(0);
+//    }
+
+    public static FileObject findTool(String toolName, FileObject root) {
         assert toolName != null;
-        for (FileObject root : installFolders) {
-            FileObject bin = root;
-            if (!root.getName().toLowerCase().contains("bin")) {
-                bin = root.getFileObject("bin"); //NOI18N
-                if (bin == null) {
-                    continue;
-                }
+        FileObject bin = root;
+        if (!root.getName().toLowerCase().contains("bin")) {
+            bin = root.getFileObject("bin"); //NOI18N
+            if (bin == null) {
+                return null;
             }
-            FileObject tool = bin.getFileObject(toolName, Utilities.isWindows() ? "exe" : null); //NOI18N
-            if (tool != null) {
-                return tool;
-            }
+        }
+        FileObject tool = bin.getFileObject(toolName, Utilities.isWindows() ? "exe" : null); //NOI18N
+        if (tool != null) {
+            return tool;
         }
         return null;
     }
@@ -218,17 +215,20 @@ public class AdaPlatformManager implements Serializable {
     }
 
     public AdaPlatform findPlatformProperties(FileObject folder) throws AdaException {
-        AdaPlatform platform = new AdaPlatform();
+        AdaPlatform platform = null;
+        String id = null;
 
         // Find GNAT Tool
         // ??? Now only GNAT platform is supported
-        FileObject gnat = findTool("gnat", Collections.singleton(folder));
+        FileObject gnat = findTool("gnat", folder);
+        final String PLATFORM = "GNAT";
 
         if (gnat != null) {
 
             try {
+                File tool = FileUtil.toFile(gnat);
                 AdaExecution adaExec = new AdaExecution();
-                adaExec.setCommand(gnat.getPath());
+                adaExec.setCommand(tool.getPath());
                 adaExec.setDisplayName("Ada Platform Properties");
                 adaExec.setShowControls(false);
                 adaExec.setShowInput(false);
@@ -236,7 +236,7 @@ public class AdaPlatformManager implements Serializable {
                 adaExec.setShowProgress(false);
                 adaExec.setShowSuspended(false);
                 adaExec.attachOutputProcessor();
-                adaExec.setWorkingDirectory(gnat.getPath().substring(0, gnat.getPath().lastIndexOf(gnat.getName())));
+                adaExec.setWorkingDirectory(tool.getPath().substring(0, tool.getPath().lastIndexOf(tool.getName())));
                 Future<Integer> result = adaExec.run();
                 Integer value = result.get();
                 if (value.intValue() == 0) {
@@ -245,16 +245,22 @@ public class AdaPlatformManager implements Serializable {
                     String line = null;
                     try {
                         while ((line = reader.readLine()) != null) {
-                            if (line.contains("GNAT")) {
-                                int startIndex = line.indexOf("GNAT");
-                                platform.setName("GNAT" + line.substring(startIndex + "GNAT".length(), line.indexOf("(")));
-                                platform.setInfo(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
+                            if (line.contains(PLATFORM)) {
+                                int startIndex = line.indexOf(PLATFORM) + PLATFORM.length();
+                                int endIndex = line.indexOf("(") < 0 ? line.length() : line.indexOf("(");
+                                int endIndex2 = line.indexOf(")") < 0 ? line.length() : line.indexOf(")");
+                                String name = "GNAT" + line.substring(startIndex, endIndex);
+                                platform = new AdaPlatform();
+                                platform.setName("GNAT" + line.substring(startIndex, endIndex));
+                                if (endIndex < endIndex2) {
+                                    platform.setInfo(line.substring(endIndex + 1, endIndex2));
+                                }
                                 platform.setCompilerCommand("gnatmake");
-                                platform.setCompilerPath(gnat.getPath().substring(0, gnat.getPath().lastIndexOf(gnat.getName())));
+                                platform.setCompilerPath(tool.getPath().substring(0, tool.getPath().lastIndexOf(tool.getName())));
                                 if (platforms.size() == 0) {
                                     setDefaultPlatform(platform.getName());
                                 }
-                                this.addPlatform(platform);
+                                platforms.put(platform.getName(), platform);
                                 break;
                             }
                         }
@@ -299,15 +305,14 @@ public class AdaPlatformManager implements Serializable {
             if (Utilities.isWindows()) {
                 ad.traverse(new File("c:/"), false);
                 ad.traverse(new File("c:/program files"), false);
-            } else {
+            } else { // TODO: mac and unix
                 ad.traverse(new File("/usr/bin"), false);
             }
 
             for (String path : ad.getMatches()) {
                 System.out.println(path + " => matched");
 
-                File dir = FileUtil.normalizeFile(new File(path));
-                FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(dir));
+                FileObject fo = FileUtil.toFileObject(new File(path));
 
                 try {
                     findPlatformProperties(fo);

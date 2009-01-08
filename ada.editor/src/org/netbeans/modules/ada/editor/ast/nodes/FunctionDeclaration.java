@@ -55,6 +55,7 @@ public class FunctionDeclaration extends Statement {
 
     private boolean isSpecification;
     private Identifier name;
+    private Identifier nameEnd;
     private final ArrayList<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
     private Block declarations;
     private Block body;
@@ -82,6 +83,14 @@ public class FunctionDeclaration extends Statement {
 
     public void setDeclarations(Block declarations) {
         this.declarations = declarations;
+    }
+
+    public void setIdentifierEnd(Identifier nameEnd) {
+        this.nameEnd = nameEnd;
+    }
+
+    public Identifier getIdentifierEnd() {
+        return nameEnd;
     }
 
     /**
@@ -112,7 +121,7 @@ public class FunctionDeclaration extends Statement {
      *   
      * @return Function name of this declaration
      */
-    public Identifier getFunctionName() {
+    public Identifier getIdentifier() {
         return name;
     }
 

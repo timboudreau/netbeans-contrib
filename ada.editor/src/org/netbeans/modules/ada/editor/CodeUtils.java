@@ -49,17 +49,20 @@ import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Reference;
 import org.netbeans.modules.ada.editor.ast.nodes.Statement;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.gsf.api.annotations.CheckForNull;
 
 /**
+ * Based on org.netbeans.modules.php.editor.CodeUtils
  *
- * @author tomslot
+ * @author Andrea Lucarelli
  */
 public class CodeUtils {
 
     public static final String FUNCTION_TYPE_PREFIX = "@fn:";
     public static final String PROCEDURE_TYPE_PREFIX = "@prc:";
+    public static final String METHOD_TYPE_PREFIX = "@mtd:";
 
     private CodeUtils() {
     }
@@ -82,11 +85,11 @@ public class CodeUtils {
     }
 
     public static String extractFunctionName(FunctionDeclaration functionDeclaration){
-        return functionDeclaration.getFunctionName().getName();
+        return functionDeclaration.getIdentifier().getName();
     }
 
     public static String extractProcedureName(ProcedureDeclaration procedureDeclaration){
-        return procedureDeclaration.getProcedureName().getName();
+        return procedureDeclaration.getIdentifier().getName();
     }
 
     public static String extractMethodName(MethodDeclaration methodDeclaration) {
@@ -101,6 +104,19 @@ public class CodeUtils {
     public static String extractVariableName(Variable var) {
         if (var.getName() instanceof Identifier) {
             Identifier id = (Identifier) var.getName();
+            StringBuilder varName = new StringBuilder();
+
+            varName.append(id.getName());
+            return varName.toString();
+        }
+
+        return null;
+    }
+
+    @CheckForNull // null for RelectionVariable
+    public static String extractTypeName(TypeDeclaration var) {
+        if (var.getTypeName() instanceof Identifier) {
+            Identifier id = (Identifier) var.getTypeName();
             StringBuilder varName = new StringBuilder();
 
             varName.append(id.getName());

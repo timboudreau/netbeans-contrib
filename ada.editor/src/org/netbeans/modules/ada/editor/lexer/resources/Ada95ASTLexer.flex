@@ -71,7 +71,7 @@ import java_cup.runtime.*;
 
 
 %state ST_LOOKING_FOR_PROPERTY
-%state ST_COMMENT
+%state ST_LINE_COMMENT
 
 %{
     private final List commentList = new LinkedList();
@@ -199,10 +199,10 @@ EXPONENT=([eE](\+?|-){INTEGER})
 DECIMAL_LITERAL={INTEGER}(\.?{INTEGER})?{EXPONENT}?
 BASE={INTEGER}
 BASED_INTEGER={EXTENDED_DIGIT}(_?{EXTENDED_DIGIT})*
-BASED_LITERAL={BASE}#{BASED_INTEGER}(\.{BASED_INTEGER})?#{EXPONENT}?
+BASED_LITERAL={BASE}(#|:){BASED_INTEGER}(\.{BASED_INTEGER})?(#|:){EXPONENT}?
 IDENTIFIER=[a-zA-Z]("_"?[a-zA-Z0-9])*
 WHITESPACE=[ \n\r\t]+
-STRING_LITERAL=(\\\"|[^\n\r\"]|\\{WHITESPACE}+\\)*
+STRING_LITERAL=\"(\"\"|[^\n\"])*\"
 CHAR_LITERAL=\'[^\n]\'
 WHITESPACE=[ \n\r\t]+
 NEWLINE=("\r"|"\n"|"\r\n")
@@ -297,9 +297,8 @@ ANY_CHAR=(.|[\n])
     "+"             { return createSymbol(Ada95ASTSymbols.PLUS); }
     ","             { return createSymbol(Ada95ASTSymbols.COMMA); }
     "-"             { return createSymbol(Ada95ASTSymbols.MINUS); }
-    "."             {
-                        /*pushState(ST_LOOKING_FOR_PROPERTY);*/
-                        return createSymbol(Ada95ASTSymbols.DOT);
+    "."             { pushState(ST_LOOKING_FOR_PROPERTY);
+                      return createSymbol(Ada95ASTSymbols.DOT);
                     }
     "/"             { return createSymbol(Ada95ASTSymbols.SLASH); }
     ":"             { return createSymbol(Ada95ASTSymbols.COLON); }
@@ -328,27 +327,32 @@ ANY_CHAR=(.|[\n])
     "<>"             { return createSymbol(Ada95ASTSymbols.BOX); }
 
 }
-/*
+
 <ST_LOOKING_FOR_PROPERTY>"." {
 	return createSymbol(Ada95ASTSymbols.DOT);
+}
+
+<ST_LOOKING_FOR_PROPERTY>".." {
+    popState();
+	return createSymbol(Ada95ASTSymbols.DOT_DOT);
 }
 
 <ST_LOOKING_FOR_PROPERTY>{IDENTIFIER} {
     popState();
     return createFullSymbol(Ada95ASTSymbols.IDENTIFIER);
 }
-*/
 
-<ST_LOOKING_FOR_PROPERTY>{CHAR_LITERAL} {
+
+<ST_LOOKING_FOR_PROPERTY>{ANY_CHAR} {
     yypushback(yylength());
     popState();
 }
 
-<YYINITIAL>\'{CHAR_LITERAL}\' {
+<YYINITIAL>{CHAR_LITERAL} {
     return createFullSymbol(Ada95ASTSymbols.CHAR_LITERAL);
 }
 
-<YYINITIAL>\"{STRING_LITERAL}\" {
+<YYINITIAL>{STRING_LITERAL} {
     return createFullSymbol(Ada95ASTSymbols.STRING_LITERAL);
 }
 
@@ -369,10 +373,10 @@ ANY_CHAR=(.|[\n])
 
 <YYINITIAL>"--" {
 	handleCommentStart();
-	yybegin(ST_COMMENT);
+	yybegin(ST_LINE_COMMENT);
 }
 
-<ST_COMMENT>[^\n\r]*(ANY_CHAR|{NEWLINE}) {
+<ST_LINE_COMMENT>[^\n\r]*(ANY_CHAR|{NEWLINE}) {
     handleLineCommentEnd();
     yybegin(YYINITIAL);
 }

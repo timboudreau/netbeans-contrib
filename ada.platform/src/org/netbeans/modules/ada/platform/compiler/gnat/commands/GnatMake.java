@@ -71,7 +71,7 @@ public class GnatMake extends GnatCommand {
 
         try {
             AdaExecution adaExec = new AdaExecution();
-            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + GNAT_MAKE);
+            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + "/" + GNAT_MAKE);
             adaExec.setCommandArgs(" -P" + gpr.getGprFilePath());
             adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
             adaExec.setDisplayName(displayTitle);
@@ -80,7 +80,7 @@ public class GnatMake extends GnatCommand {
             adaExec.setShowWindow(true);
             adaExec.setShowProgress(true);
             adaExec.setShowSuspended(true);
-            adaExec.attachOutputProcessor();
+            //adaExec.attachOutputProcessor();
             adaExec.setRedirectError(true);
             Future<Integer> result = adaExec.run();
             Integer value = result.get();

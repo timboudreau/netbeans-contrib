@@ -44,8 +44,8 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-ada">
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/editor/resources/ada-spec-16.png"/>
-                <attr name="iconBase" stringvalue="org/netbeans/modules/ada/editor/resources/ada-spec-16.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/editor/resources/icons/ada-spec-16.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/ada/editor/resources/icons/ada-spec-16.png"/>
             </folder>
         </folder>
     </folder>

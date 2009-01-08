@@ -205,30 +205,21 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
             boolean isPrivate = Modifier.isPrivate(md.getModifier());
             EnumSet<ColoringAttributes> coloring = ColoringAttributes.METHOD_SET;
 
-            Identifier identifier;
-            if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
-                identifier = md.getFunction().getFunctionName();
+            Identifier identifier = md.getIdentifier();
+            addOffsetRange(identifier, coloring);
+            if (md.getNameEnd() != null) {
+                Identifier nameEnd = md.getIdentifierEnd();
+                addOffsetRange(nameEnd, coloring);
             }
-            else {
-                identifier = md.getProcedure().getProcedureName();
-            }
-            String name = identifier.getName();
-            // don't color private magic private method. methods which start __
-            if (isPrivate && name != null) {
-                privateMethod.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
-            }
-            else {
-                // color now only non private method
-                addOffsetRange(identifier, coloring);
-            }
+
+
             if (!Modifier.isAbstract(md.getModifier())) {
                 // don't scan the body now. It should be scanned after all declarations
                 // are known
                 Block block;
                 if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
                     block = md.getFunction().getDeclarations();
-                }
-                else {
+                } else {
                     block = md.getProcedure().getDeclarations();
                 }
                 if (block != null) {
@@ -236,8 +227,7 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                 }
                 if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
                     block = md.getFunction().getBody();
-                }
-                else {
+                } else {
                     block = md.getProcedure().getBody();
                 }
                 if (block != null) {
@@ -294,7 +284,7 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
                     addOffsetRange(variable.getName(), ColoringAttributes.FIELD_SET);
                 } else {
                     if (variable.getName() instanceof Identifier) {
-                        Identifier identifier =  (Identifier) variable.getName();
+                        Identifier identifier = (Identifier) variable.getName();
                         privateFieldsUsed.put(identifier.getName(), new IdentifierColoring(identifier, coloring));
                     }
                 }

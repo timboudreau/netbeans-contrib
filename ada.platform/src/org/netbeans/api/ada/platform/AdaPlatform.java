@@ -48,6 +48,7 @@ import java.util.ArrayList;
  * @author Andrea Lucarelli
  */
 public class AdaPlatform implements Serializable {
+
     private String name;
     private String info;
 

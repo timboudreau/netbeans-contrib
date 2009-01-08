@@ -182,7 +182,7 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         public ElementKind getKind() {
             // Custom icon
-            return ElementKind.CONSTRUCTOR;
+            return ElementKind.OTHER;
         }
 
         public Set<Modifier> getModifiers() {
@@ -241,8 +241,8 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         public String getName() {
             String name = "";
-            if (declaration.getFunctionName() != null) {
-                name = declaration.getFunctionName().getName();
+            if (declaration.getIdentifier() != null) {
+                name = declaration.getIdentifier().getName();
             }
             return name;
         }
@@ -272,8 +272,8 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         public String getName() {
             String name = "";
-            if (declaration.getProcedureName() != null) {
-                name = declaration.getProcedureName().getName();
+            if (declaration.getIdentifier() != null) {
+                name = declaration.getIdentifier().getName();
             }
             return name;
         }
@@ -331,8 +331,7 @@ public abstract class AdaElementHandle implements ElementHandle {
         Set<Modifier> modifiers = new HashSet<Modifier>();
         if (BodyDeclaration.Modifier.isPrivate(modifier)) {
             modifiers.add(Modifier.PRIVATE);
-        }
-        if (BodyDeclaration.Modifier.isPublic(modifier)) {
+        } else if (BodyDeclaration.Modifier.isPublic(modifier)) {
             modifiers.add(Modifier.PUBLIC);
         }
         return modifiers;
