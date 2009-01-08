@@ -60,11 +60,12 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CACHE = "com.sun.portal.portletadmin.PortletRegistryCache";
-    //private FileObject taskFile;
-
+    
+    //PortletWAR updater
+    public static String PORTLET_WAR_UPDATER = "com.sun.portal.portletcontainer.warupdater.PortletWarUpdater";
+    
     protected ServerDeployHandler deployerHandler;
     protected String uri;
-
 
     /** Creates a new instance of JNPCTaskHandler */
     public JNPCTaskHandler(PSDeploymentManager dm) {
@@ -120,6 +121,10 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         String webInfDir = deployedDir + File.separator + "WEB-INF";
         
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/web.xml", "web.xml");
+        copyFilesFromWar(jarFile, webInfDir, "WEB-INF/sun-portlet.tld", "sun-portlet.tld");
+        copyFilesFromWar(jarFile, webInfDir, "WEB-INF/sun-portlet_2_0.tld", "sun-portlet_2_0.tld");
+        
+        //For backward compatibility for PC 2.0
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet.tld", "portlet.tld");
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet_2_0.tld", "portlet_2_0.tld");   
         
@@ -405,7 +410,10 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
     }
 
-    protected void writeErrorToOutput(String uri,Exception e) {
+    protected void writeErrorToOutput(String uri,Throwable e) {
         e.printStackTrace(UISupport.getServerIO(uri).getErr());
+    }
+    protected void writeToOutput(String uri,String msg) {
+        UISupport.getServerIO(uri).getOut().print(msg);
     }
 }

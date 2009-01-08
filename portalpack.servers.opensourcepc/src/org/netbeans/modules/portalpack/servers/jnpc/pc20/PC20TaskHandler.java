@@ -16,11 +16,14 @@
  */
 package org.netbeans.modules.portalpack.servers.jnpc.pc20;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.zip.ZipException;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
+import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
 
 /**
@@ -56,7 +59,17 @@ public class PC20TaskHandler extends JNPCTaskHandler {
                 isDeployed = (Boolean) method.invoke(ob, new Object[]{warfile,new Properties(),new Properties(),Boolean.FALSE});
             } catch (NoSuchMethodException e) {
                 logger.log(Level.SEVERE, "No deploy method is found : ", e);
-            } catch (Exception ex) {
+            } catch(InvocationTargetException ite) {
+                
+                Exception de = new Exception(ite.getMessage()
+                                            + "\n" 
+                                            + "Please do a \"clean and build\" and try again !!!",ite);
+                
+                writeErrorToOutput(uri,ite);
+                writeToOutput(uri, "Please do a \"clean and build\" and try again !!!");
+                throw de;
+                
+            }  catch (Exception ex) {
                 throw ex;
             }
 
