@@ -66,6 +66,7 @@ import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.SeparatorWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuilderEditorContext;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
 import org.openide.filesystems.FileObject;
@@ -74,6 +75,8 @@ import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamode
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui.AddServiceUI;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.GenerateServiceHelper;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.ServiceBuilderHelper;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
@@ -607,9 +610,13 @@ public class DesignView extends JPanel {
             }
             return null;
         }
-
+        
         public void setText(Widget widget, String text) {
-
+            if (text == null || text.trim().length() == 0 || !CoreUtil.validatePackageName(text)) {
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getMessage(DesignView.class, "MSG_INVALID_PACKAGENAME"), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(d);
+                return;
+            }
             if (!(widget instanceof LabelWidget)) {
                 return;
             }
@@ -635,7 +642,12 @@ public class DesignView extends JPanel {
         }
 
         public void setText(Widget widget, String text) {
-
+            if (text == null || text.trim().length() == 0 || !CoreUtil.validateString(text, false)) {
+                NotifyDescriptor d = new NotifyDescriptor.Message(NbBundle.getMessage(DesignView.class, "MSG_INVALID_NAMESPACE"), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(d);
+                return;
+            }
+            
             if (!(widget instanceof LabelWidget)) {
                 return;
             }
