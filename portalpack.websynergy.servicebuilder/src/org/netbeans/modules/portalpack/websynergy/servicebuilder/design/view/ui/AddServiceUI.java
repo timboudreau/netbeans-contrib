@@ -57,6 +57,7 @@ public class AddServiceUI extends javax.swing.JDialog implements DocumentListene
     private boolean remoteService;
     private boolean localService;
     private String tableName;
+    private boolean addMode;
 
     /** Creates new form AddServiceUI */
     public AddServiceUI(java.awt.Frame parent) {
@@ -69,6 +70,7 @@ public class AddServiceUI extends javax.swing.JDialog implements DocumentListene
         tableTf.getDocument().addDocumentListener(this);
         //setBackground(Color.WHITE);
         //setVisible(true);
+        addMode = true;
         addButton.setEnabled(false);
         updateButton.setEnabled(false);
     }
@@ -91,7 +93,7 @@ public class AddServiceUI extends javax.swing.JDialog implements DocumentListene
         remoteServiceCB.setSelected(remoteService);
         
         localService = true;
-        
+        addMode = false;
         addButton.setEnabled(false);
         getRootPane().setDefaultButton(updateButton);
         
@@ -375,15 +377,19 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 
     private void updateText(DocumentEvent e) {
-        
-        if(!valid()) {
+        if(addMode && !valid()) {
             addButton.setEnabled(false);
-        } else if (valid()){
+        } else if (!addMode && !valid()){
+            //setErroMessage("");
+            updateButton.setEnabled(false);
+        } else if (!addMode && valid()){
+            setErrorMessage("");
+            updateButton.setEnabled(true);
+        } else if (addMode && valid()){
             // Add mode and Valid
             setErrorMessage("");
             addButton.setEnabled(true);
         }
-        
     }
     public void stateChanged(ChangeEvent e) {
         throw new UnsupportedOperationException("Not supported yet.");

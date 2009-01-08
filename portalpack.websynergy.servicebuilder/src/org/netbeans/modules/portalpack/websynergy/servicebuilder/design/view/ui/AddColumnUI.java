@@ -38,6 +38,12 @@
  */
 package org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui;
 
+import java.awt.Color;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Column;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.TypeHelper;
 import org.openide.util.NbBundle;
@@ -46,13 +52,14 @@ import org.openide.util.NbBundle;
  *
  * @author  satyaranjan
  */
-public class AddColumnUI extends javax.swing.JDialog {
+public class AddColumnUI extends javax.swing.JDialog implements DocumentListener, ChangeListener{
 
     private String[] dataTypes = TypeHelper.getDataTypes();
     private String name;
     private String dbName;
     private String type;
     private boolean primaryKey;
+    private boolean addMode;
 
     /** Creates new form AddColumnUI */
     public AddColumnUI(java.awt.Frame parent) {
@@ -62,6 +69,10 @@ public class AddColumnUI extends javax.swing.JDialog {
         setTitle(NbBundle.getMessage(AddServiceUI.class, "AddColumnUI.title"));
         changeButton.setEnabled(false);
         getRootPane().setDefaultButton(addButton);
+        nameTf.getDocument().addDocumentListener(this);
+        dbNameTf.getDocument().addDocumentListener(this);
+        addMode = true;
+        addButton.setEnabled(false);
     //setVisible(true);
     }
 
@@ -91,7 +102,7 @@ public class AddColumnUI extends javax.swing.JDialog {
                 boolean pk = Boolean.parseBoolean(pKey);
                 primaryKeyCB.setSelected(pk);
             }
-
+            addMode = false;
             addButton.setEnabled(false);
             changeButton.setEnabled(true);
         }
@@ -115,6 +126,7 @@ public class AddColumnUI extends javax.swing.JDialog {
         typesCB = new javax.swing.JComboBox(dataTypes);
         jLabel1 = new javax.swing.JLabel();
         primaryKeyCB = new javax.swing.JCheckBox();
+        errorLabel = new javax.swing.JLabel();
         addButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         changeButton = new javax.swing.JButton();
@@ -137,6 +149,8 @@ public class AddColumnUI extends javax.swing.JDialog {
 
         primaryKeyCB.setText(org.openide.util.NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.primaryKeyCB.text")); // NOI18N
 
+        errorLabel.setText(org.openide.util.NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.errorLabel.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -147,25 +161,31 @@ public class AddColumnUI extends javax.swing.JDialog {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel1Layout.createSequentialGroup()
-                                .add(nameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                                .add(35, 35, 35))
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(nameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                                        .add(35, 35, 35))
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(dbColNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
+                                        .add(1, 1, 1))
+                                    .add(colType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+                                .add(24, 24, 24))
                             .add(jPanel1Layout.createSequentialGroup()
-                                .add(dbColNameLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
-                                .add(1, 1, 1))
-                            .add(colType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
-                        .add(24, 24, 24))
+                                .add(jLabel1)
+                                .add(63, 63, 63)))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(typesCB, 0, 198, Short.MAX_VALUE)
+                                    .add(dbNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                    .add(nameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+                                .add(68, 68, 68))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(primaryKeyCB)
+                                .addContainerGap(245, Short.MAX_VALUE))))
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .add(59, 59, 59)))
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(typesCB, 0, 198, Short.MAX_VALUE)
-                        .add(dbNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                        .add(nameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(primaryKeyCB)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 177, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(68, 68, 68))
+                        .add(errorLabel)
+                        .addContainerGap(393, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -181,11 +201,12 @@ public class AddColumnUI extends javax.swing.JDialog {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(colType)
                     .add(typesCB, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(18, 18, 18)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel1)
                     .add(primaryKeyCB))
-                .addContainerGap())
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 26, Short.MAX_VALUE)
+                .add(errorLabel))
         );
 
         addButton.setText(org.openide.util.NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.addButton.text")); // NOI18N
@@ -213,34 +234,33 @@ public class AddColumnUI extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(206, Short.MAX_VALUE)
-                .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 55, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(changeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancelButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(14, 14, 14))
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(addButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 55, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(changeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         layout.linkSize(new java.awt.Component[] {addButton, cancelButton, changeButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(cancelButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(changeButton)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -315,6 +335,7 @@ private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel colType;
     private javax.swing.JLabel dbColNameLabel;
     private javax.swing.JTextField dbNameTf;
+    private javax.swing.JLabel errorLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel nameLabel;
@@ -322,4 +343,54 @@ private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JCheckBox primaryKeyCB;
     private javax.swing.JComboBox typesCB;
     // End of variables declaration//GEN-END:variables
+
+    private void setErrorMessage(String msg) {
+        errorLabel.setForeground(Color.RED);
+        errorLabel.setText(msg);
+    }
+
+    public void insertUpdate(DocumentEvent e) {
+        updateText(e);
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        updateText(e);
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        updateText(e);
+    }
+
+    private void updateText(DocumentEvent e) {
+        if(addMode && !valid()) {
+            addButton.setEnabled(false);
+        } else if (!addMode && !valid()){
+            //setErroMessage("");
+            changeButton.setEnabled(false);
+        } else if (!addMode && valid()){
+            setErrorMessage("");
+            changeButton.setEnabled(true);
+        } else if (addMode && valid()){
+            // Add mode and Valid
+            setErrorMessage("");
+            addButton.setEnabled(true);
+        }
+    }
+    public void stateChanged(ChangeEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+     public boolean valid() {
+        String columnName = nameTf.getText();
+        String dbColumnName = dbNameTf.getText();
+        if ((columnName == null || columnName.trim().length() == 0) || !CoreUtil.validateJavaTypeName(columnName)) {
+            setErrorMessage(NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.errorLabel.columnname"));
+            return false;
+        } 
+        if (dbColumnName.trim().length() != 0 && !CoreUtil.validateJavaTypeName(dbColumnName)) {
+                setErrorMessage(NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.errorLabel.dbcolumnname"));
+                return false;
+        }
+        return true;
+     }
 }
