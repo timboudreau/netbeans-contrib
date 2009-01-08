@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +57,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.WeakHashMap;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration.Modifier;
 import org.netbeans.modules.ada.editor.parser.AdaParseResult;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
@@ -67,7 +66,6 @@ import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.annotations.NonNull;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.modules.InstalledFileLocator;
@@ -291,7 +289,35 @@ public class AdaIndex {
         return clusterUrl;
     }
 
-    /** returns all fields of a class or an interface. */
+    /** returns all methods of a package. */
+    public Collection<IndexedFunction> getAllMethods(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+        Map<String, IndexedFunction> methods = new TreeMap<String, IndexedFunction>();
+
+        // #147730 - prefer the current file
+        File currentFile = getCurrentFile(context);
+        Set<String> currentFileClasses = new HashSet<String>();
+
+        for (String className : getClassAncestors(context, typeName)) {
+            int mask = className.equals(typeName) ? attrMask : (attrMask & (~Modifier.PRIVATE));
+
+            for (IndexedFunction method : getMethods(context, className, name, kind, mask)){
+                String methodName = method.getName();
+
+                if (!methods.containsKey(methodName) || className.equals(typeName)){
+                    methods.put(methodName, method);
+                    if (currentFile != null && currentFile.equals(method.getFile().getFile())) {
+                        currentFileClasses.add(className);
+                    }
+                }
+            }
+        }
+
+        Collection<IndexedFunction> result = methods.values();
+        filterClassMembers(result, currentFileClasses, currentFile);
+        return result;
+    }
+
+    /** returns all fields of a package. */
     public Collection<IndexedVariable> getAllFields(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
         Map<String, IndexedVariable> fields = new TreeMap<String, IndexedVariable>();
 
@@ -314,6 +340,33 @@ public class AdaIndex {
         }
 
         Collection<IndexedVariable> result = fields.values();
+        filterClassMembers(result, currentFileClasses, currentFile);
+        return result;
+    }
+
+    /** returns all fields of a package. */
+    public Collection<IndexedType> getAllTypes(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+        Map<String, IndexedType> types = new TreeMap<String, IndexedType>();
+
+        // #147730 - prefer the current file
+        File currentFile = getCurrentFile(context);
+        Set<String> currentFileClasses = new HashSet<String>();
+
+        for (String className : getClassAncestors(context, typeName)) {
+            for (IndexedType field : getTypes(context, className, name, kind)) {
+                String fieldName = field.getName();
+
+                if (!types.containsKey(fieldName) || className.equals(typeName)) {
+                    types.put(fieldName, field);
+                }
+
+                if (currentFile != null && field != null && currentFile.equals(field.getFile().getFile())) {
+                    currentFileClasses.add(className);
+                }
+            }
+        }
+
+        Collection<IndexedType> result = types.values();
         filterClassMembers(result, currentFileClasses, currentFile);
         return result;
     }
@@ -371,12 +424,81 @@ public class AdaIndex {
         return ancestors;
     }
 
-    /** returns fields of a class. */
+    /** returns methods of a package. */
+    public Collection<IndexedFunction> getMethods(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+        Collection<IndexedFunction> methods = new ArrayList<IndexedFunction>();
+        Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_METHOD, name, kind, ALL_SCOPE);
+
+        for (String signature : signaturesMap.keySet()) {
+            //items are not indexed, no case insensitive search key user
+            Signature sig = Signature.get(signature);
+            int flags = sig.integer(5);
+
+            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0){
+                flags |= Modifier.PUBLIC; // default modifier
+            }
+
+            if ((flags & attrMask) != 0) {
+                String funcName = sig.string(0);
+                String args = sig.string(1);
+                int offset = sig.integer(2);
+
+                IndexedFunction func = new IndexedFunction(funcName, typeName,
+                        this, signaturesMap.get(signature), args, offset, flags, ElementKind.METHOD);
+
+                int optionalArgs[] = extractOptionalArgs(sig.string(3));
+                func.setOptionalArgs(optionalArgs);
+                String retType = sig.string(4);
+                retType = retType.length() == 0 ? null : retType;
+                func.setReturnType(retType);
+                methods.add(func);
+            }
+
+        }
+
+        return methods;
+    }
+
+    /** returns fields of a package. */
     public Collection<IndexedVariable> getFields(AdaParseResult context, String typeName, String name, NameKind kind) {
         Collection<IndexedVariable> fields = new ArrayList<IndexedVariable>();
         Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_FIELD, name, kind, ALL_SCOPE);
 
+        for (String signature : signaturesMap.keySet()) {
+            Signature sig = Signature.get(signature);
+            int flags = sig.integer(2);
+
+            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0){
+                flags |= Modifier.PUBLIC; // default modifier
+            }
+
+            /*
+            if ((flags & attrMask) != 0) {
+                String propName = "$" + sig.string(0);
+                int offset = sig.integer(1);
+                String type = sig.string(3);
+
+                if (type.length() == 0){
+                    type = null;
+                }
+
+                IndexedConstant prop = new IndexedConstant(propName, typeName,
+                        this, signaturesMap.get(signature), offset, flags, type,ElementKind.FIELD);
+
+                fields.add(prop);
+            }
+            */
+        }
+
         return fields;
+    }
+
+    /** returns fields of a package. */
+    public Collection<IndexedType> getTypes(AdaParseResult context, String typeName, String name, NameKind kind) {
+        Collection<IndexedType> types = new ArrayList<IndexedType>();
+        Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_TYPE, name, kind, ALL_SCOPE);
+
+        return types;
     }
 
     private Map<String, String> getTypeSpecificSignatures(String typeName, String fieldName, String name, NameKind kind, Set<SearchScope> scope) {
@@ -596,5 +718,24 @@ public class AdaIndex {
         }
         //System.out.println("- resolved to " + result);
         return result;
+    }
+
+    private int[] extractOptionalArgs(String optionalParamsStr) {
+        if (optionalParamsStr.length() == 0){
+            return new int[0];
+        }
+
+        String optionalParamsStrParts[] = optionalParamsStr.split(",");
+        int optionalArgs[] = new int[optionalParamsStrParts.length];
+
+        for (int i = 0; i < optionalParamsStrParts.length; i++) {
+            try{
+            optionalArgs[i] = Integer.parseInt(optionalParamsStrParts[i]);
+            } catch (NumberFormatException e){
+                System.err.println(String.format("*** couldnt parse '%s', part %d", optionalParamsStr, i));
+            }
+        }
+
+        return optionalArgs;
     }
 }

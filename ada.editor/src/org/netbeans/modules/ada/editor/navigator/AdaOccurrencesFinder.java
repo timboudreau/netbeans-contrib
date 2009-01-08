@@ -125,28 +125,17 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             public void visit(MethodDeclaration node) {
                 boolean found = false;
                 if (el instanceof SemiAttribute.PackageMemberElement) {
-                    SemiAttribute.PackageMemberElement clsEl = (SemiAttribute.PackageMemberElement) el;
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
                     String methName = CodeUtils.extractMethodName(node);
-                    Identifier methNode;
-                    if (node.getKind() == MethodDeclaration.Kind.FUNCTION) {
-                        methNode = node.getFunction().getFunctionName();
-                    } else {
-                        methNode = node.getProcedure().getProcedureName();
-                    }
+                    Identifier methNode = node.getIdentifier();
 
-                    if (pkgName != null && clsEl.getPackageName().equals(pkgName) && clsEl.getName().equals(methName)) {
+                    if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(methName)) {
                         memberDeclaration.add(methNode);
                         usages.add(methNode);
-                        found = true;
-                    }
-                    PackageElement superClass = clsEl.getPackageElement().getSuperClass();
-                    while(!found && superClass != null) {
-                        if (superClass != null && pkgName != null && superClass.getName().equals(pkgName) && clsEl.getName().equals(methName)) {
-                            memberDeclaration.add(0, methNode);
-                            usages.add(methNode);
-                            found = true;
+                        if (node.getIdentifierEnd().getName() != null) {
+                            usages.add(node.getIdentifierEnd());
                         }
-                        superClass = superClass.getSuperClass();
+                        found = true;
                     }
                 }
                 if (!found) {
@@ -159,11 +148,11 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
                 boolean found = false;
                 if (el instanceof SemiAttribute.PackageMemberElement) {
                     SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
-                    Identifier id = node.getTypeName();
-                    String typeName = id.getName();
+                    Identifier type = node.getTypeName();
+                    String typeName = type.getName();
                     if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(typeName)) {
-                        memberDeclaration.add(id);
-                        usages.add(id);
+                        memberDeclaration.add(type);
+                        usages.add(type);
                         found = true;
                     }
                 }
@@ -194,7 +183,10 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             public void visit(FunctionDeclaration node) {
                 if (!(el instanceof SemiAttribute.PackageMemberElement)) {
                     if (el == a.getElement(node)) {
-                        usages.add(node.getFunctionName());
+                        usages.add(node.getIdentifier());
+                        if (node.getIdentifierEnd().getName() != null) {
+                            usages.add(node.getIdentifierEnd());
+                        }
                     }
                 }
                 super.visit(node);
@@ -204,7 +196,10 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             public void visit(ProcedureDeclaration node) {
                 if (!(el instanceof SemiAttribute.PackageMemberElement)) {
                     if (el == a.getElement(node)) {
-                        usages.add(node.getProcedureName());
+                        usages.add(node.getIdentifier());
+                        if (node.getIdentifierEnd().getName() != null) {
+                            usages.add(node.getIdentifierEnd());
+                        }
                     }
                 }
                 super.visit(node);

@@ -100,6 +100,58 @@ public class MethodDeclaration extends BodyDeclaration {
         this(start, end, modifier, procedure, false);
     }
 
+    public Identifier getIdentifier () {
+        Identifier identifier;
+        if (this.kind == Kind.FUNCTION) {
+            identifier = this.getFunction().getIdentifier();
+        } else {
+            identifier = this.getProcedure().getIdentifier();
+        }
+        return identifier;
+    }
+
+    public Identifier getIdentifierEnd () {
+        Identifier identifier;
+        if (this.kind == Kind.FUNCTION) {
+            identifier = this.getFunction().getIdentifierEnd();
+        } else {
+            identifier = this.getProcedure().getIdentifierEnd();
+        }
+        return identifier;
+    }
+
+    public void setIdentifierEnd(Identifier nameEnd) {
+        if (this.kind == Kind.FUNCTION) {
+            this.getFunction().setIdentifierEnd(nameEnd);
+        } else {
+            this.getProcedure().setIdentifierEnd(nameEnd);
+        }
+    }
+
+    public String getName () {
+        String name;
+        if (this.kind == Kind.FUNCTION) {
+            name = this.getFunction().getIdentifier().getName();
+        } else {
+            name = this.getProcedure().getIdentifier().getName();
+        }
+        return name;
+    }
+
+    public String getNameEnd () {
+        String name = null;
+        if (this.kind == Kind.FUNCTION) {
+            if (this.getFunction().getIdentifierEnd() != null) {
+                name = this.getFunction().getIdentifierEnd().getName();
+            }
+        } else if (this.kind == Kind.PROCEDURE) {
+            if (this.getProcedure().getIdentifierEnd() != null) {
+                name = this.getProcedure().getIdentifierEnd().getName();
+            }
+        }
+        return name;
+    }
+    
     /**
      * The function declaration component of this method
      *

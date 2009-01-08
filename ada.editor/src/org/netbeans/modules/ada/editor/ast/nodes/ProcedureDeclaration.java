@@ -54,6 +54,7 @@ public class ProcedureDeclaration extends Statement {
 
     private boolean isSpefication;
     private Identifier name;
+    private Identifier nameEnd;
     private final ArrayList<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
     private Block declarations;
     private Block body;
@@ -77,6 +78,14 @@ public class ProcedureDeclaration extends Statement {
 
     public void setDeclarations(Block declarations) {
         this.declarations = declarations;
+    }
+
+    public void setIdentifierEnd(Identifier nameEnd) {
+        this.nameEnd = nameEnd;
+    }
+
+    public Identifier getIdentifierEnd() {
+        return nameEnd;
     }
 
     /**
@@ -107,7 +116,7 @@ public class ProcedureDeclaration extends Statement {
      *   
      * @return Procedure name of this declaration
      */
-    public Identifier getProcedureName() {
+    public Identifier getIdentifier() {
         return name;
     }
 

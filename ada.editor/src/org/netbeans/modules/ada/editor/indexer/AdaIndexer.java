@@ -110,6 +110,7 @@ public class AdaIndexer implements Indexer {
     static final String FIELD_PKGBDY = "pkgbdy"; //NOI18N
     static final String FIELD_CONST = "const"; //NOI18N
     static final String FIELD_FIELD = "field"; //NOI18N
+    static final String FIELD_TYPE = "type"; //NOI18N
     static final String FIELD_METHOD = "method"; //NOI18N
     static final String FIELD_WITH = "with"; //NOI18N
     static final String FIELD_IDENTIFIER = "identifier_used"; //NOI18N
@@ -254,14 +255,14 @@ public class AdaIndexer implements Indexer {
         }
 
         private String getBaseSignatureForFunctionDeclaration(FunctionDeclaration functionDeclaration){
-            String fncName = functionDeclaration.getFunctionName().getName();
+            String fncName = functionDeclaration.getIdentifier().getName();
             int paramCount = functionDeclaration.getFormalParameters().size();
             int offset = (functionDeclaration != null) ? functionDeclaration.getStartOffset() : 0;
             return getBaseSignatureForFunctionDeclaration(fncName, paramCount, offset, functionDeclaration);
         }
 
         private String getBaseSignatureForProcedureDeclaration(ProcedureDeclaration procedureDeclaration){
-            String fncName = procedureDeclaration.getProcedureName().getName();
+            String fncName = procedureDeclaration.getIdentifier().getName();
             int paramCount = procedureDeclaration.getFormalParameters().size();
             int offset = (procedureDeclaration != null) ? procedureDeclaration.getStartOffset() : 0;
             return getBaseSignatureForProcedureDeclaration(fncName, paramCount, offset, procedureDeclaration);
@@ -339,19 +340,19 @@ public class AdaIndexer implements Indexer {
         }
 
         private void indexFunction(FunctionDeclaration functionDeclaration, IndexDocument document) {
-            StringBuilder signature = new StringBuilder(functionDeclaration.getFunctionName().getName().toLowerCase() + ";");
+            StringBuilder signature = new StringBuilder(functionDeclaration.getIdentifier().getName().toLowerCase() + ";");
             signature.append(getBaseSignatureForFunctionDeclaration(functionDeclaration));
 
             document.addPair(FIELD_BASE, signature.toString(), true);
-            document.addPair(FIELD_TOP_LEVEL, functionDeclaration.getFunctionName().getName().toLowerCase(), true);
+            document.addPair(FIELD_TOP_LEVEL, functionDeclaration.getIdentifier().getName().toLowerCase(), true);
         }
 
         private void indexProcedure(ProcedureDeclaration procedureDeclaration, IndexDocument document) {
-            StringBuilder signature = new StringBuilder(procedureDeclaration.getProcedureName().getName().toLowerCase() + ";");
+            StringBuilder signature = new StringBuilder(procedureDeclaration.getIdentifier().getName().toLowerCase() + ";");
             signature.append(getBaseSignatureForProcedureDeclaration(procedureDeclaration));
 
             document.addPair(FIELD_BASE, signature.toString(), true);
-            document.addPair(FIELD_TOP_LEVEL, procedureDeclaration.getProcedureName().getName().toLowerCase(), true);
+            document.addPair(FIELD_TOP_LEVEL, procedureDeclaration.getIdentifier().getName().toLowerCase(), true);
         }
 
         private void indexMethod(FunctionDeclaration functionDeclaration, int modifiers, IndexDocument document) {

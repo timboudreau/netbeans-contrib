@@ -71,7 +71,7 @@ public class GnatClean extends GnatCommand {
 
         try {
             AdaExecution adaExec = new AdaExecution();
-            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + GNAT_CLEAN);
+            adaExec.setCommand(this.getGnatCompiler().getPlatform().getCompilerPath() + "/" + GNAT_CLEAN);
             adaExec.setCommandArgs(" -P" + gpr.getGprFilePath());
             adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
             adaExec.setDisplayName(displayTitle);
@@ -80,7 +80,7 @@ public class GnatClean extends GnatCommand {
             adaExec.setShowWindow(true);
             adaExec.setShowProgress(true);
             adaExec.setShowSuspended(true);
-            adaExec.attachOutputProcessor();
+            //adaExec.attachOutputProcessor();
             adaExec.setRedirectError(true);
             Future<Integer> result = adaExec.run();
             Integer value = result.get();

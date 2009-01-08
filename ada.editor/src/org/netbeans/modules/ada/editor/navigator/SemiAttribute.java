@@ -59,7 +59,6 @@ import org.netbeans.modules.ada.editor.CodeUtils;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.Expression;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
 import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
@@ -69,16 +68,16 @@ import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
-import org.netbeans.modules.ada.editor.ast.nodes.Reference;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.Statement;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.ada.editor.indexer.AdaIndex;
 import org.netbeans.modules.ada.editor.indexer.IndexedElement;
+import org.netbeans.modules.ada.editor.indexer.IndexedFunction;
 import org.netbeans.modules.ada.editor.indexer.IndexedPackageBody;
 import org.netbeans.modules.ada.editor.indexer.IndexedPackageSpec;
+import org.netbeans.modules.ada.editor.indexer.IndexedType;
 import org.netbeans.modules.ada.editor.indexer.IndexedVariable;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -178,7 +177,7 @@ public class SemiAttribute extends DefaultVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) {
-        String name = node.getFunctionName().getName();
+        String name = node.getIdentifier().getName();
         FunctionElement fc = (FunctionElement) global.enterWrite(name, Kind.FUNCTION, node);
 
         DefinitionScope top = scopes.peek();
@@ -202,7 +201,7 @@ public class SemiAttribute extends DefaultVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) {
-        String name = node.getProcedureName().getName();
+        String name = node.getIdentifier().getName();
         ProcedureElement fc = (ProcedureElement) global.enterWrite(name, Kind.PROCEDURE, node);
 
         DefinitionScope top = scopes.peek();
@@ -252,11 +251,23 @@ public class SemiAttribute extends DefaultVisitor {
     }
 
     @Override
+    public void visit(TypeDeclaration node) {
+        if (!node2Element.containsKey(node)) {
+            String name = extractTypeName(node);
+            if (name != null) {
+                node2Element.put(node, lookup(name, Kind.TYPE));
+            }
+        }
+
+        super.visit(node);
+    }
+
+    @Override
     public void visit(Variable node) {
         if (!node2Element.containsKey(node)) {
             String name = extractVariableName(node);
             if (name != null) {
-               node2Element.put(node, lookup(name, Kind.VARIABLE));
+                node2Element.put(node, lookup(name, Kind.VARIABLE));
             }
         }
 
@@ -343,37 +354,16 @@ public class SemiAttribute extends DefaultVisitor {
 
         List<AttributedElement> retval = new ArrayList<AttributedElement>();
         for (String fName : filterNames) {
-            if (fName.equals("self")) {//NOI18N
-                String ctxName = getContextClassName();
-                if (ctxName != null) {
-                    fName = ctxName;
-                }
-            }
-            if (Kind.PACKAGE_SPEC.equals(k) && fName.equals("parent")) {//NOI18N
-                Collection<AttributedElement> values = name2El.values();
-                if (name2El != null) {
-                    for (AttributedElement ael : values) {
-                        if (ael instanceof PackageElement) {
-                            PackageElement ce = (PackageElement) ael;
-                            PackageElement superClass = ce.getSuperClass();
-                            if (superClass != null) {
-                                retval.add(superClass);
-                            }
-                        }
-                    }
-                }
+            AttributedElement el = (name2El != null) ? name2El.get(fName) : null;
+            if (el != null) {
+                retval.add(el);
             } else {
-                AttributedElement el = (name2El != null) ? name2El.get(fName) : null;
-                if (el != null) {
+                Index i = getInfo().getIndex(AdaMimeResolver.ADA_MIME_TYPE);
+                AdaIndex index = AdaIndex.get(i);
+                for (IndexedPackageSpec m : index.getPackageSpec(null, fName, NameKind.PREFIX)) {
+                    String idxName = m.getName();
+                    el = global.enterWrite(idxName, Kind.PACKAGE_SPEC, m);
                     retval.add(el);
-                } else {
-                    Index i = getInfo().getIndex(AdaMimeResolver.ADA_MIME_TYPE);
-                    AdaIndex index = AdaIndex.get(i);
-                    for (IndexedPackageSpec m : index.getPackageSpec(null, fName, NameKind.PREFIX)) {
-                        String idxName = m.getName();
-                        el = global.enterWrite(idxName, Kind.PACKAGE_SPEC, m);
-                        retval.add(el);
-                    }
                 }
             }
         }
@@ -410,14 +400,13 @@ public class SemiAttribute extends DefaultVisitor {
                 MethodDeclaration.Kind kind = ((MethodDeclaration) n).getKind();
                 if (kind == MethodDeclaration.Kind.FUNCTION) {
                     FunctionDeclaration nn = ((MethodDeclaration) n).getFunction();
-                    String name = nn.getFunctionName().getName();
+                    String name = nn.getIdentifier().getName();
                     node2Element.put(n, scope.enterWrite(name, Kind.FUNCTION, n));
                     node2Element.put(nn, scope.enterWrite(name, Kind.FUNCTION, n));
                     continue;
-                }
-                else {
+                } else {
                     ProcedureDeclaration nn = ((MethodDeclaration) n).getProcedure();
-                    String name = nn.getProcedureName().getName();
+                    String name = nn.getIdentifier().getName();
                     node2Element.put(n, scope.enterWrite(name, Kind.PROCEDURE, n));
                     node2Element.put(nn, scope.enterWrite(name, Kind.PROCEDURE, n));
                     continue;
@@ -425,12 +414,12 @@ public class SemiAttribute extends DefaultVisitor {
             }
 
             if (n instanceof FunctionDeclaration) {
-                String name = ((FunctionDeclaration) n).getFunctionName().getName();
+                String name = ((FunctionDeclaration) n).getIdentifier().getName();
                 node2Element.put(n, scope.enterWrite(name, Kind.FUNCTION, n));
             }
 
             if (n instanceof ProcedureDeclaration) {
-                String name = ((ProcedureDeclaration) n).getProcedureName().getName();
+                String name = ((ProcedureDeclaration) n).getIdentifier().getName();
                 node2Element.put(n, scope.enterWrite(name, Kind.PROCEDURE, n));
             }
 
@@ -445,7 +434,7 @@ public class SemiAttribute extends DefaultVisitor {
             }
 
             if (n instanceof TypeDeclaration) {
-                String name = ((TypeDeclaration)n).getTypeName().getName();
+                String name = ((TypeDeclaration) n).getTypeName().getName();
 
                 if (name != null) {
                     node2Element.put(n, scope.enterWrite(name, Kind.TYPE, n));
@@ -474,7 +463,6 @@ public class SemiAttribute extends DefaultVisitor {
 
         }
     }
-    
     private static Map<CompilationInfo, SemiAttribute> info2Attr = new WeakHashMap<CompilationInfo, SemiAttribute>();
 
     public static SemiAttribute semiAttribute(CompilationInfo info) {
@@ -516,6 +504,14 @@ public class SemiAttribute extends DefaultVisitor {
         }
 
         return null;
+    }
+
+    @CheckForNull
+    //TODO converge this method with CodeUtils.extractTypeName()
+    public static String extractTypeName(TypeDeclaration var) {
+        String typeName = CodeUtils.extractTypeName(var);
+
+        return typeName;
     }
 
     @CheckForNull
@@ -624,6 +620,7 @@ public class SemiAttribute extends DefaultVisitor {
         }
 
         public enum Kind {
+
             TYPE, VARIABLE, PROCEDURE, FUNCTION, PACKAGE_SPEC, PACKAGE_BODY, CONST;
         }
     }
@@ -697,6 +694,7 @@ public class SemiAttribute extends DefaultVisitor {
                     retval = PackageMemberKind.CONST;
                     break;
                 case FUNCTION:
+                case PROCEDURE:
                     retval = PackageMemberKind.METHOD;
                     break;
                 case VARIABLE:
@@ -747,8 +745,6 @@ public class SemiAttribute extends DefaultVisitor {
     public class PackageElement extends AttributedElement {
 
         private final DefinitionScope enclosedElements;
-        private PackageElement superClass;
-        private Set<PackageElement> ifaces = new HashSet<PackageElement>();
         private boolean initialized;
 
         public PackageElement(Union2<ASTNode, IndexedElement> n, String name, Kind k) {
@@ -766,10 +762,22 @@ public class SemiAttribute extends DefaultVisitor {
             int attrs = AdaIndex.ANY_ATTR;
 
             switch (k) {
+                case FUNCTION:
+                    for (IndexedFunction m : index.getAllMethods(null, getName(), name, NameKind.PREFIX, attrs)) {
+                        enclosedElements.enterWrite(m.getName(), Kind.FUNCTION, m);
+                    }
+                    break;
+
+                case TYPE:
+                    for (IndexedType m : index.getAllTypes(null, getName(), name, NameKind.PREFIX, attrs)) {
+                        String idxName = m.getName();
+                        enclosedElements.enterWrite(idxName, Kind.TYPE, m);
+                    }
+                    break;
+
                 case VARIABLE:
                     for (IndexedVariable m : index.getAllFields(null, getName(), name, NameKind.PREFIX, attrs)) {
                         String idxName = m.getName();
-                        idxName = (idxName.startsWith("$")) ? idxName.substring(1) : idxName;
                         enclosedElements.enterWrite(idxName, Kind.VARIABLE, m);
                     }
                     break;
@@ -800,30 +808,22 @@ public class SemiAttribute extends DefaultVisitor {
         }
 
         public Collection<AttributedElement> getMethods() {
-            return getElements(Kind.FUNCTION);
+            Collection<AttributedElement> elems = getElements(Kind.FUNCTION);
+            elems.addAll(getElements(Kind.PROCEDURE));
+            return elems;
         }
 
         public Collection<AttributedElement> getFields() {
             Collection<AttributedElement> elems = getElements(Kind.VARIABLE);
             List<AttributedElement> retval = new ArrayList<AttributedElement>();
             for (AttributedElement elm : elems) {
-                if (!elm.getName().equals("this")) {
-                    retval.add(elm);
-                }
+                retval.add(elm);
             }
             return retval;
         }
 
-        public PackageElement getSuperClass() {
-            return superClass;
-        }
-
         private void getElements0(List<AttributedElement> elements, Kind k) {
             elements.addAll(enclosedElements.getElements(k));
-
-            if (superClass != null) {
-                superClass.getElements0(elements, k);
-            }
         }
 
         boolean isInitialized() {

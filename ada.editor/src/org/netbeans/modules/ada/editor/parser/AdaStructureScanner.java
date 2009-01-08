@@ -60,6 +60,7 @@ import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.Expression;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
@@ -77,6 +78,7 @@ import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodFunctionDec
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodProcedureDeclarationHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageBodyHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageSpecificationHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.TypeDeclarationHandle;
 import org.openide.util.ImageUtilities;
 
 /**
@@ -87,7 +89,7 @@ import org.openide.util.ImageUtilities;
 public class AdaStructureScanner implements StructureScanner {
 
     private static ImageIcon TYPE_ICON = null;
-
+    private static ImageIcon TYPE_PRIVATE_ICON = null;
     private CompilationInfo info;
     private static final String FOLD_CODE_BLOCKS = "codeblocks"; //NOI18N
     private static final String FOLD_PACKAGE = "codeblocks"; //NOI18N
@@ -227,16 +229,15 @@ public class AdaStructureScanner implements StructureScanner {
             }
             if (method.getKind() == MethodDeclaration.Kind.FUNCTION) {
                 FunctionDeclaration function = method.getFunction();
-                if (function != null && function.getFunctionName() != null) {
+                if (function != null && function.getIdentifier() != null) {
                     AdaStructureItem item;
                     // className doesn't have to be defined if it's interace
                     item = new AdaMethodFunctionStructureItem(new AdaElementHandle.MethodFunctionDeclarationHandle(info, method));
                     children.add(item);
                 }
-            }
-            else {
+            } else {
                 ProcedureDeclaration procedure = method.getProcedure();
-                if (procedure != null && procedure.getProcedureName() != null) {
+                if (procedure != null && procedure.getIdentifier() != null) {
                     AdaStructureItem item;
                     // className doesn't have to be defined if it's interace
                     item = new AdaMethodProcedureStructureItem(new AdaElementHandle.MethodProcedureDeclarationHandle(info, method));
@@ -330,10 +331,10 @@ public class AdaStructureScanner implements StructureScanner {
 
         protected void appendProcedureDescription(ProcedureDeclaration procedure, HtmlFormatter formatter) {
             formatter.reset();
-            if (procedure == null || procedure.getProcedureName() == null) {
+            if (procedure == null || procedure.getIdentifier() == null) {
                 return;
             }
-            formatter.appendText(procedure.getProcedureName().getName());
+            formatter.appendText(procedure.getIdentifier().getName());
             formatter.appendText("(");   //NOI18N
 
             List<FormalParameter> parameters = procedure.getFormalParameters();
@@ -379,15 +380,15 @@ public class AdaStructureScanner implements StructureScanner {
 
                         if (type != null) {
                             formatter.appendText(" : ");   //NOI18N
-							FormalParameter.Mode mode = formalParameter.getParameterMode();
+                            FormalParameter.Mode mode = formalParameter.getParameterMode();
                             formatter.appendHtml(FONT_GRAY_COLOR);
-							if (mode == FormalParameter.Mode.IN) {
-								formatter.appendText("in ");   //NOI18N
-							} else if (mode == FormalParameter.Mode.OUT) {
-								formatter.appendText("out ");   //NOI18N
-							} else if (mode == FormalParameter.Mode.IN_OUT) {
-								formatter.appendText("in out ");   //NOI18N
-							}
+                            if (mode == FormalParameter.Mode.IN) {
+                                formatter.appendText("in ");   //NOI18N
+                            } else if (mode == FormalParameter.Mode.OUT) {
+                                formatter.appendText("out ");   //NOI18N
+                            } else if (mode == FormalParameter.Mode.IN_OUT) {
+                                formatter.appendText("in out ");   //NOI18N
+                            }
                             formatter.appendText(type);
                             formatter.appendHtml(CLOSE_FONT);
                         }
@@ -401,10 +402,10 @@ public class AdaStructureScanner implements StructureScanner {
 
         protected void appendFunctionDescription(FunctionDeclaration function, HtmlFormatter formatter) {
             formatter.reset();
-            if (function == null || function.getFunctionName() == null) {
+            if (function == null || function.getIdentifier() == null) {
                 return;
             }
-            formatter.appendText(function.getFunctionName().getName());
+            formatter.appendText(function.getIdentifier().getName());
             formatter.appendText("(");   //NOI18N
 
             List<FormalParameter> parameters = function.getFormalParameters();
@@ -450,15 +451,15 @@ public class AdaStructureScanner implements StructureScanner {
 
                         if (type != null) {
                             formatter.appendText(" : ");   //NOI18N
-							FormalParameter.Mode mode = formalParameter.getParameterMode();
+                            FormalParameter.Mode mode = formalParameter.getParameterMode();
                             formatter.appendHtml(FONT_GRAY_COLOR);
-							if (mode == FormalParameter.Mode.IN) {
-								formatter.appendText("in ");   //NOI18N
-							} else if (mode == FormalParameter.Mode.OUT) {
-								formatter.appendText("out ");   //NOI18N
-							} else if (mode == FormalParameter.Mode.IN_OUT) {
-								formatter.appendText("in out ");   //NOI18N
-							}
+                            if (mode == FormalParameter.Mode.IN) {
+                                formatter.appendText("in ");   //NOI18N
+                            } else if (mode == FormalParameter.Mode.OUT) {
+                                formatter.appendText("out ");   //NOI18N
+                            } else if (mode == FormalParameter.Mode.IN_OUT) {
+                                formatter.appendText("in out ");   //NOI18N
+                            }
                             formatter.appendText(type);
                             formatter.appendHtml(CLOSE_FONT);
                         }
@@ -473,8 +474,8 @@ public class AdaStructureScanner implements StructureScanner {
 
     private class AdaTypeStructureItem extends AdaStructureItem {
 
-        private static final String ADA_TYPE_ICON = "org/netbeans/modules/ada/editor/resources/completion/type_16.png"; //NOI18N
-
+        private static final String ADA_TYPE_ICON = "org/netbeans/modules/ada/editor/resources/icons/type_16.png"; //NOI18N
+        private static final String ADA_TYPE_PRIVATE_ICON = "org/netbeans/modules/ada/editor/resources/icons/type_private_16.png"; //NOI18N
         private String simpleText;
 
         public AdaTypeStructureItem(AdaElementHandle elementHandle, String simpleText, String prefix) {
@@ -484,10 +485,23 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public ImageIcon getCustomIcon() {
+            Set<Modifier> modifiers = this.getModifiers();
+
             if (TYPE_ICON == null) {
                 TYPE_ICON = new ImageIcon(ImageUtilities.loadImage(ADA_TYPE_ICON));
             }
-            return TYPE_ICON;
+
+            ImageIcon icon = TYPE_ICON;
+
+            for (Modifier modifier : modifiers) {
+                if (modifier == Modifier.PRIVATE) {
+                    if (TYPE_PRIVATE_ICON == null) {
+                        TYPE_PRIVATE_ICON = new ImageIcon(ImageUtilities.loadImage(ADA_TYPE_PRIVATE_ICON));
+                    }
+                    icon = TYPE_PRIVATE_ICON;
+                }
+            }
+            return icon;
         }
 
         public String getHtml(HtmlFormatter formatter) {
@@ -521,7 +535,7 @@ public class AdaStructureScanner implements StructureScanner {
             formatter.reset();
             PackageSpecificationHandle handle = (PackageSpecificationHandle) getElementHandle();
             formatter.appendText(handle.getName());
-            PackageSpecification pkgspc = (PackageSpecification) handle.getASTNode();
+            formatter.appendHtml(FONT_GRAY_COLOR + " (specification)" + CLOSE_FONT);
             return formatter.getText();
         }
     }
@@ -536,7 +550,7 @@ public class AdaStructureScanner implements StructureScanner {
             formatter.reset();
             PackageBodyHandle handle = (PackageBodyHandle) getElementHandle();
             formatter.appendText(handle.getName());
-            PackageBody pkgbdy = (PackageBody) handle.getASTNode();
+            formatter.appendHtml(FONT_GRAY_COLOR + " (body)" + CLOSE_FONT);
             return formatter.getText();
         }
     }

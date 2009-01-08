@@ -144,11 +144,11 @@ public class NavUtils {
                 }
             }
 
-            if (leaf instanceof FunctionDeclaration && ((FunctionDeclaration) leaf).getFunctionName() == previous) {
+            if (leaf instanceof FunctionDeclaration && ((FunctionDeclaration) leaf).getIdentifier() == previous) {
                 return a.getElement(leaf);
             }
 
-            if (leaf instanceof ProcedureDeclaration && ((ProcedureDeclaration) leaf).getProcedureName() == previous) {
+            if (leaf instanceof ProcedureDeclaration && ((ProcedureDeclaration) leaf).getIdentifier() == previous) {
                 return a.getElement(leaf);
             }
 

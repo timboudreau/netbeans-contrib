@@ -267,12 +267,12 @@ public class IdentifierSignature {
 
     private static void add(MethodDeclaration declaration, String typename, Boolean pkgMember, List<IdentifierSignature> results) {
         if (declaration.getKind() == MethodDeclaration.Kind.FUNCTION) {
-            IdentifierSignature is = new IdentifierSignature(declaration.getFunction().getFunctionName(),
+            IdentifierSignature is = new IdentifierSignature(declaration.getFunction().getIdentifier(),
                     declaration.getModifier(), ElementKind.METHOD, typename, true, pkgMember);
             results.add(is);
         }
         else {
-            IdentifierSignature is = new IdentifierSignature(declaration.getProcedure().getProcedureName(),
+            IdentifierSignature is = new IdentifierSignature(declaration.getProcedure().getIdentifier(),
                     declaration.getModifier(), ElementKind.METHOD, typename, true, pkgMember);
             results.add(is);
         }

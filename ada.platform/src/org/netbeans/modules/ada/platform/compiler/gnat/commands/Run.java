@@ -43,6 +43,7 @@ import org.netbeans.api.ada.platform.AdaException;
 import org.netbeans.api.ada.platform.AdaExecution;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -69,6 +70,9 @@ public class Run extends GnatCommand {
         GnatProject gpr = new GnatProject(this.getGnatCompiler());
         gpr.write();
 
+        System.out.println("ProjectPath: " + this.getGnatCompiler().getProjectPath());
+
+
         try {
             AdaExecution adaExec = new AdaExecution();
             adaExec.setCommand(this.getGnatCompiler().getProjectPath() + "/dist/" + this.getGnatCompiler().getExecutableFile());
@@ -80,7 +84,7 @@ public class Run extends GnatCommand {
             adaExec.setShowWindow(true);
             adaExec.setShowProgress(true);
             adaExec.setShowSuspended(true);
-            adaExec.attachOutputProcessor();
+            //adaExec.attachOutputProcessor();
             adaExec.setRedirectError(true);
             Future<Integer> result = adaExec.run();
             Integer value = result.get();

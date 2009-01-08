@@ -24,7 +24,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="standardsLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="standardsLineSeparator" pref="565" max="32767" attributes="0"/>
+                              <Component id="standardsLineSeparator" pref="572" max="32767" attributes="0"/>
                           </Group>
                           <Component id="errorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
@@ -61,9 +61,11 @@
                           <Component id="separatePrefixComboBox" linkSize="9" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="pkgSpecSepTextField" linkSize="7" alignment="1" min="-2" pref="38" max="-2" attributes="0"/>
-                          <Component id="separatorTitleLabel" alignment="1" min="-2" max="-2" attributes="1"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="separatorTitleLabel" min="-2" max="-2" attributes="1"/>
+                          <Component id="pkgSpecSepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
+                          <Component id="pkgBodySepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
+                          <Component id="separateSepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -84,28 +86,20 @@
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="262" pref="262" max="262" attributes="0"/>
-                      <Component id="separateSepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="262" pref="262" max="262" attributes="0"/>
-                      <Component id="pkgBodySepTextField" linkSize="7" min="-2" pref="38" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="namingLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="namingLineSeparator" pref="560" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="2" attributes="0">
                   <Component id="standardsLineSeparator" alignment="2" min="-2" pref="12" max="-2" attributes="0"/>
                   <Component id="standardsLabel" alignment="2" min="-2" max="-2" attributes="0"/>
@@ -127,59 +121,43 @@
               </Group>
               <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="prefixTitleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="separatorTitleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="pkgSpecPrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="pkgSpecMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="pkgBodyPrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="pkgBodyMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="separatePrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="separatorMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace pref="150" max="32767" attributes="0"/>
-                      <Component id="errorLabel" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="prefixTitleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="separatorTitleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
-                          <Component id="pkgSpecSepTextField" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="pkgBodySepTextField" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="separateSepTextField" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="extTitleLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                              <Component id="pkgSpecExtComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="pkgBodyExtComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="separateExtComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="postfixTitleLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                              <Component id="pkgSpecPostfixComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="pkgBodyPostfixComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="separatePostfixComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+                  <Component id="extTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="postfixTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="pkgSpecMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="pkgSpecPrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="pkgSpecSepTextField" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="pkgSpecPostfixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="pkgSpecExtComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="0" groupAlignment="2" attributes="0">
+                      <Component id="pkgBodyPrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="pkgBodyMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="pkgBodyExtComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="pkgBodyPostfixComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="pkgBodySepTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="separatorMaskLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="separatePrefixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="separateSepTextField" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="separatePostfixComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="separateExtComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="150" max="32767" attributes="0"/>
+              <Component id="errorLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -268,9 +246,9 @@
     </Component>
     <Component class="javax.swing.JTextField" name="pkgSpecSepTextField">
     </Component>
-    <Component class="javax.swing.JTextField" name="pkgBodySepTextField">
-    </Component>
     <Component class="javax.swing.JTextField" name="separateSepTextField">
+    </Component>
+    <Component class="javax.swing.JTextField" name="pkgBodySepTextField">
     </Component>
     <Component class="javax.swing.JLabel" name="extTitleLabel">
       <Properties>
@@ -306,16 +284,6 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="separatePrefixComboBox">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="2">
-            <StringItem index="0" value="&lt;package name&gt;"/>
-            <StringItem index="1" value="&lt;free name&gt;"/>
-          </StringArray>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JLabel" name="postfixTitleLabel">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -328,6 +296,16 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="2">
             <StringItem index="0" value="&lt;none&gt;"/>
+            <StringItem index="1" value="&lt;free name&gt;"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="separatePrefixComboBox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="2">
+            <StringItem index="0" value="&lt;package name&gt;"/>
             <StringItem index="1" value="&lt;free name&gt;"/>
           </StringArray>
         </Property>
@@ -359,7 +337,7 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="2">
             <StringItem index="0" value=".ads"/>
-            <StringItem index="1" value=".ada (deprecated)"/>
+            <StringItem index="1" value=".ada"/>
           </StringArray>
         </Property>
       </Properties>
@@ -369,7 +347,7 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="2">
             <StringItem index="0" value=".adb"/>
-            <StringItem index="1" value=".ada (deprecated)"/>
+            <StringItem index="1" value=".ada"/>
           </StringArray>
         </Property>
       </Properties>
@@ -379,7 +357,7 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="2">
             <StringItem index="0" value=".adb"/>
-            <StringItem index="1" value=".ada (deprecated)"/>
+            <StringItem index="1" value=".ada"/>
           </StringArray>
         </Property>
       </Properties>
