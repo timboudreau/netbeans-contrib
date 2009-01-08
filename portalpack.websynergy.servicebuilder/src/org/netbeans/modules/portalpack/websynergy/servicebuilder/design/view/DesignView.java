@@ -46,7 +46,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +64,7 @@ import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
-import org.netbeans.api.visual.widget.ScrollWidget;
 import org.netbeans.api.visual.widget.SeparatorWidget;
-import org.netbeans.api.visual.widget.SwingScrollWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.api.ServiceBuilderEditorContext;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.beans.Entity;
@@ -279,7 +276,7 @@ public class DesignView extends JPanel {
         //Package-path widget
         Widget packagePathWidget = new Widget(scene);
         packagePathWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
-        LabelWidget packagePathLabelWidget = new LabelWidget(scene, "Package Path :");
+        LabelWidget packagePathLabelWidget = new LabelWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_PACKAGEPATH"));
         packagePathLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
         //packagePathLabelWidget.setForeground(Color.BLUE);
 
@@ -301,7 +298,7 @@ public class DesignView extends JPanel {
         //namespace widget
         Widget namespaceWidget = new Widget(scene);
         namespaceWidget.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.JUSTIFY, 16));
-        LabelWidget namespaceLabelWidget = new LabelWidget(scene, "Namespace     :");
+        LabelWidget namespaceLabelWidget = new LabelWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_NAMESPACE"));
         namespaceLabelWidget.setFont(scene.getFont().deriveFont(Font.BOLD));
         //namespaceLabelWidget.setForeground(Color.BLUE);
 
@@ -413,12 +410,12 @@ public class DesignView extends JPanel {
         headerPanelWidget.addChild(headerWidget);
 
         headerWidget.setBorder(BorderFactory.createEmptyBorder(6, 28, 0, 0));
-        ButtonWidget generateServiceButton = new ButtonWidget(scene, "Genrate Services");
+        ButtonWidget generateServiceButton = new ButtonWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_GENERATESERVICES"));
         generateServiceButton.setOpaque(true);
         generateServiceButton.setRoundedBorder(3, 4, 0, null);
 
         headerPanelWidget.addChild(generateServiceButton);
-        ButtonWidget reloadButton = new ButtonWidget(scene, "Reload");
+        ButtonWidget reloadButton = new ButtonWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_RELOAD"));
         reloadButton.setOpaque(true);
         reloadButton.setRoundedBorder(3, 4, 0, null);
         reloadButton.setAction(new ReloadAction());
