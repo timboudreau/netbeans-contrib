@@ -387,7 +387,7 @@ private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             setErrorMessage(NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.errorLabel.columnname"));
             return false;
         } 
-        if (dbColumnName.trim().length() != 0 && !CoreUtil.validateJavaTypeName(dbColumnName)) {
+        if (dbColumnName.trim().length() != 0 && !CoreUtil.validateString(dbColumnName, false)) {
                 setErrorMessage(NbBundle.getMessage(AddColumnUI.class, "AddColumnUI.errorLabel.dbcolumnname"));
                 return false;
         }
