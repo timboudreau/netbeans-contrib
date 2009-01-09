@@ -69,11 +69,13 @@ public class FindBugsProjectLookupProvider implements LookupProvider {
         }
         return null;
     }
-    
+
+    @LookupProvider.Registration(projectType="org-netbeans-modules-java-j2seproject")
     public static LookupProvider createJ2SELookupProvider() {
         return new FindBugsProjectLookupProvider(Type.J2SE);
     }
     
+    @LookupProvider.Registration(projectType="org-netbeans-modules-apisupport-project")
     public static LookupProvider createNBMLookupProvider() {
         return new FindBugsProjectLookupProvider(Type.NBM);
     }
