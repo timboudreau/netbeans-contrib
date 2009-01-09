@@ -38,49 +38,40 @@
  */
 package org.netbeans.modules.selenium.server;
 
-import java.util.Collections;
-import java.util.List;
-import javax.swing.event.ChangeListener;
-import org.netbeans.api.server.ServerInstance;
-import org.netbeans.spi.server.ServerInstanceFactory;
-import org.netbeans.spi.server.ServerInstanceProvider;
+import org.junit.Test;
+import org.netbeans.api.server.properties.InstanceProperties;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.Sheet.Set;
+import org.openqa.selenium.server.SeleniumServer;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class SeleniumServerProvider implements ServerInstanceProvider {
+public class SeleniumPropertiesTest {
 
-    private static SeleniumServerProvider INSTANCE;
-
-    public static SeleniumServerProvider getDefault() {
-        if (INSTANCE == null){
-            INSTANCE = new SeleniumServerProvider();
-        }
-        return INSTANCE;
+    @Test
+    public void testCreateSheet() throws Exception {
+        Sheet sheet = SeleniumProperties.createSheet();
+        assertNotNull(sheet);
+        assertEquals(1, sheet.toArray().length);
+        Set set = sheet.get(Sheet.PROPERTIES);
+        assertNotNull(set);
+        assertNotNull(set.get(SeleniumProperties.START_ON_STARTUP));
+        assertNotNull(set.get(SeleniumProperties.PORT));
     }
 
-    public SeleniumServerProvider() {
-    }
+    @Test
+    public void testGetInstanceProperties() {
+        InstanceProperties ip = SeleniumProperties.getInstanceProperties();
+        assertEquals(SeleniumServer.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(true, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, false));
 
-    public List<ServerInstance> getInstances() {
-        ServerInstance si = ServerInstanceFactory.createServerInstance(new SeleniumServerInstance());
-        return Collections.<ServerInstance>singletonList(si);
-    }
+        ip.putBoolean(SeleniumProperties.START_ON_STARTUP, false);
+        ip = SeleniumProperties.getInstanceProperties();
+        assertEquals(SeleniumServer.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(false, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, true));
 
-    /**
-     * This method does nothing - no changes are fired. Exactly one selenium server is allowed.
-     *
-     * @param listener
-     */
-    public void addChangeListener(ChangeListener listener) {
-    }
-
-    /**
-     * This method does nothing - no changes are fired. Exactly one selenium server is allowed.
-     *
-     * @param listener
-     */
-    public void removeChangeListener(ChangeListener listener) {
     }
 }

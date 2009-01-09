@@ -159,6 +159,11 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <test-dependencies>
+                <test-type>
+                    <name>unit</name>
+                </test-type>
+            </test-dependencies>
             <public-packages/>
         </data>
     </configuration>

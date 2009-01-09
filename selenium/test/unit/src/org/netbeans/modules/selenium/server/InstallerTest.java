@@ -38,49 +38,52 @@
  */
 package org.netbeans.modules.selenium.server;
 
-import java.util.Collections;
-import java.util.List;
-import javax.swing.event.ChangeListener;
-import org.netbeans.api.server.ServerInstance;
-import org.netbeans.spi.server.ServerInstanceFactory;
-import org.netbeans.spi.server.ServerInstanceProvider;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class SeleniumServerProvider implements ServerInstanceProvider {
+public class InstallerTest {
 
-    private static SeleniumServerProvider INSTANCE;
-
-    public static SeleniumServerProvider getDefault() {
-        if (INSTANCE == null){
-            INSTANCE = new SeleniumServerProvider();
-        }
-        return INSTANCE;
+    static Installer ins = null;
+    @BeforeClass
+    public static void beforeClass() {
+        ins = new Installer();
     }
 
-    public SeleniumServerProvider() {
+    @After
+    public void afterTest(){
+        ins.close();
+    }
+    
+    @Test
+    public void testInstaller() {
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertTrue(SeleniumServerRunner.isRunning());
+
+        ins.uninstalled();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
+
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertTrue(SeleniumServerRunner.isRunning());
+
+        ins.close();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
     }
 
-    public List<ServerInstance> getInstances() {
-        ServerInstance si = ServerInstanceFactory.createServerInstance(new SeleniumServerInstance());
-        return Collections.<ServerInstance>singletonList(si);
-    }
-
-    /**
-     * This method does nothing - no changes are fired. Exactly one selenium server is allowed.
-     *
-     * @param listener
-     */
-    public void addChangeListener(ChangeListener listener) {
-    }
-
-    /**
-     * This method does nothing - no changes are fired. Exactly one selenium server is allowed.
-     *
-     * @param listener
-     */
-    public void removeChangeListener(ChangeListener listener) {
+    @Test
+    public void dontStartOnStartup() {
+        SeleniumProperties.getInstanceProperties().putBoolean(SeleniumProperties.START_ON_STARTUP, false);
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
     }
 }
