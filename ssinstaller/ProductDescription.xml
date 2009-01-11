@@ -167,10 +167,8 @@
             <svr source="SPROmrftn"/>
             <svr source="SPROmride"/>
             <svr source="SPROmrpan"/>
-            <svr source="SPROmrpgn"/>
             <svr source="SPROmrstd"/>
             <svr source="SPROmrtcv"/>
-            <svr source="SPROpnsn"/>
             <svr source="SPROprfan"/>
             <svr source="SPROprflb"/>
             <svr source="SPROsbld"/>
@@ -190,7 +188,6 @@
             <svr source="SPROutool"/>
             <svr source="SPROlklnt"/>
             <svr source="SPROmrmp"/>
-            <svr source="SPROsysprp"/>
             <svr source="SPROdemo"/>
             <svr source="SPROtweak"/>            
         </block>
@@ -235,10 +232,8 @@
             <svr source="SPROmrftn"/>
             <svr source="SPROmride"/>
             <svr source="SPROmrpan"/>
-            <svr source="SPROmrpgn"/>
             <svr source="SPROmrstd"/>
             <svr source="SPROmrtcv"/>
-            <svr source="SPROpnsn"/>
             <svr source="SPROplck"/>
             <svr source="SPROprfan"/>
             <svr source="SPROprflb"/>           
@@ -260,7 +255,6 @@
             <svr source="SPROudchk"/>
             <svr source="SPROtweak"/>
             <svr source="SPROdemo"/>
-            <svr source="SPROsysprp"/>
         </block>
         <block platform="linux">	    
             <rpm source="sun-dwrfb-2008.11-1.i386.rpm"/>
@@ -287,8 +281,6 @@
             <rpm source="sun-mrftn-2008.11-1.i386.rpm"/>
             <rpm source="sun-mrstd-2008.11-1.i386.rpm"/>
             <rpm source="sun-mrpan-2008.11-1.i386.rpm"/>
-            <rpm source="sun-mrpgn-2008.11-1.i386.rpm"/>
-            <rpm source="sun-pnsn-2008.11-1.i386.rpm"/>
             <rpm source="sun-prfan-2008.11-1.x86_64.rpm"/>
             <rpm source="sun-prflb-2008.11-1.x86_64.rpm"/>
             <rpm source="sun-dlight-2008.11-1.x86_64.rpm"/>
@@ -301,7 +293,6 @@
             <rpm source="sun-stl4o-2008.11-1.i386.rpm"/>
             <rpm source="sun-stl4x-2008.11-1.x86_64.rpm"/>
             <rpm source="sun-stl4y-2008.11-1.x86_64.rpm"/>
-            <rpm source="sun-sysprp-2008.11-1.i386.rpm"/>
         </block>
     </component>
     <component  name="Performance Library"
