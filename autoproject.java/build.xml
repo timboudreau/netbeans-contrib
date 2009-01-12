@@ -4,7 +4,7 @@
     <property name="test.user.dir" location="build/testuserdir"/>
     <target name="-build-enterprise-cluster" unless="enterprise.cluster.exists">
         <ant dir="../../nbbuild" target="rebuild-cluster">
-            <property name="rebuild.cluster.name" value="nb.cluster.j2ee"/>
+            <property name="rebuild.cluster.name" value="nb.cluster.enterprise"/>
         </ant>
     </target>
     <target name="-build-profiler-cluster" unless="profiler.cluster.exists">
@@ -14,7 +14,7 @@
     </target>
     <target name="debug" description="Build related modules and debug them.">
         <ant dir="../autoproject.core" target="netbeans"/>
-        <available property="enterprise.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.j2ee.built"/>
+        <available property="enterprise.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.enterprise.built"/>
         <antcall target="-build-enterprise-cluster"/>
         <ant dir="../autoproject.web" target="netbeans"/>
         <available property="profiler.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.profiler.built"/>
