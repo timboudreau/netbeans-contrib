@@ -83,7 +83,7 @@ class ProjectInformationImpl implements ProjectInformation {
     }
 
     public Icon getIcon() {
-        return ImageUtilities.image2Icon(ImageUtilities.loadImage("org/netbeans/modules/ant/freeform/resources/freeform-project.png", true)); // NOI18N
+        return ImageUtilities.image2Icon(ImageUtilities.loadImage("org/netbeans/modules/autoproject/core/autoproject.png", true)); // NOI18N
     }
 
     public Project getProject() {
