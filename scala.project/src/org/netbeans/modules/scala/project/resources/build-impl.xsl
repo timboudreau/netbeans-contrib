@@ -379,6 +379,9 @@ Scala installation directory.
                             <xsl:attribute name="includeantruntime">false</xsl:attribute>
                             <classpath>
                                 <path path="@{{classpath}}"/>
+                                <fileset dir="${{scala.lib}}">
+                                    <include name="**/*.jar"/>
+                                </fileset>
                             </classpath>
                             <compilerarg line="${{javac.compilerargs}} ${{javac.compilerargs.jaxws}}"/>
                             <customize/>
@@ -917,6 +920,7 @@ Scala installation directory.
                 <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if>,-compile-depend</xsl:attribute>
                 <xsl:attribute name="if">have.sources</xsl:attribute>
                 <scalaProject1:scalac/>
+                <scalaProject1:javac/>
                 <copy todir="${{build.classes.dir}}">
                     <xsl:call-template name="createFilesets">
                         <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:source-roots"/>
