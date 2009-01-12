@@ -61,6 +61,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
     private SeleniumServer server = null;
     private boolean isRunning = false;
     private static Action action = null;
+    private static Task latestTask = null;
 
     private SeleniumServerRunner() {
     }
@@ -70,7 +71,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             return Task.EMPTY;
         }
         action = Action.START;
-        return RequestProcessor.getDefault().post(instance);
+        return postTask();
     }
 
     static Task stopServer() {
@@ -78,7 +79,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             return Task.EMPTY;
         }
         action = Action.STOP;
-        return RequestProcessor.getDefault().post(instance);
+        return postTask();
     }
 
     static Task restartServer() {
@@ -86,12 +87,18 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             return startServer();
         } else {
             action = Action.RESTART;
-            return RequestProcessor.getDefault().post(instance);
+            return postTask();
         }
     }
 
     static boolean isRunning() {
         return instance.isRunning;
+    }
+
+    private static Task postTask(){
+        Task t = RequestProcessor.getDefault().post(instance);
+        latestTask = t;
+        return t;
     }
 
     public void run() {
@@ -151,5 +158,14 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
     private static enum Action {
 
         START, STOP, RESTART, RELOAD
+    }
+
+    static void waitAllTasksFinished(){
+        if (latestTask == null){
+            return;
+        }
+        while (!latestTask.isFinished()){
+            latestTask.waitFinished();
+        }
     }
 }
