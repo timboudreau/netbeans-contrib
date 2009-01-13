@@ -43,13 +43,11 @@ package org.netbeans.modules.selenium.server;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.api.server.properties.InstanceProperties;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor.Message;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openqa.selenium.server.SeleniumServer;
+import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
@@ -135,19 +133,17 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 
     private void initializeServer() throws Exception {
         InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        int port = ip.getInt(SeleniumProperties.PORT, SeleniumServer.DEFAULT_PORT);
-        server = new SeleniumServer(port);
+        RemoteControlConfiguration conf = new RemoteControlConfiguration();
+        int port = ip.getInt(SeleniumProperties.PORT, RemoteControlConfiguration.DEFAULT_PORT);
+        conf.setPort(port);
+        server = new SeleniumServer(conf);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        Message desc = new DialogDescriptor.Message("Please restart NetBeans to aply changes", DialogDescriptor.WARNING_MESSAGE);
-        DialogDisplayer.getDefault().notify(desc);
-        // TODO replace message with server reload after selenium update to version 1.0
-//        if (SeleniumProperties.PORT.equals(evt.getPropertyName())){
-//            action = Action.RELOAD;
-//            RequestProcessor.getDefault().post(instance);
-//        }
-
+        if (SeleniumProperties.PORT.equals(evt.getPropertyName())){
+            action = Action.RELOAD;
+            RequestProcessor.getDefault().post(instance);
+        }
     }
 
     // listen on SeleniumProperties

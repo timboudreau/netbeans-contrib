@@ -1,10 +1,11 @@
-Name: selenium-java-client-driver.jar
-Version: 0.9.2
+Name: selenium-server.jar
+Version: 1.0
 Description: Library for management of some selenium java client driver.
 License: Apache_V20
 Origin: http://selenium.seleniumhq.org/
 
-Use of selenium-java-client-driver.jar version 0.9.2 is governed by the terms of the license below:
+Use of selenium-server.jar version 1.0 is governed by the terms of the license below:
+
 
                                  Apache License
                            Version 2.0, January 2004

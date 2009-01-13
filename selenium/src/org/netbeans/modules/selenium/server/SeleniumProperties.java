@@ -48,7 +48,7 @@ import org.openide.nodes.Node.Property;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
-import org.openqa.selenium.server.SeleniumServer;
+import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
@@ -79,7 +79,7 @@ class SeleniumProperties {
                 instanceProps = allProps.iterator().next();
             } else {
                 instanceProps = manager.createProperties(NAMESPACE);
-                instanceProps.putInt(PORT, SeleniumServer.DEFAULT_PORT);
+                instanceProps.putInt(PORT, RemoteControlConfiguration.DEFAULT_PORT);
                 instanceProps.putBoolean(START_ON_STARTUP, true);
                 allProps.add(instanceProps);
             }

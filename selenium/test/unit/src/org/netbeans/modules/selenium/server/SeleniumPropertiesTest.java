@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.netbeans.api.server.properties.InstanceProperties;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
-import org.openqa.selenium.server.SeleniumServer;
+import org.openqa.selenium.server.RemoteControlConfiguration;
 import static org.junit.Assert.*;
 
 /**
@@ -65,12 +65,12 @@ public class SeleniumPropertiesTest {
     @Test
     public void testGetInstanceProperties() {
         InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        assertEquals(SeleniumServer.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(RemoteControlConfiguration.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
         assertEquals(true, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, false));
 
         ip.putBoolean(SeleniumProperties.START_ON_STARTUP, false);
         ip = SeleniumProperties.getInstanceProperties();
-        assertEquals(SeleniumServer.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(RemoteControlConfiguration.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
         assertEquals(false, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, true));
 
     }
