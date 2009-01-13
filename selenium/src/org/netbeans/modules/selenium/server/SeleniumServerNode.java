@@ -38,12 +38,14 @@
  */
 package org.netbeans.modules.selenium.server;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
@@ -58,7 +60,11 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
     private final Action startAction = new StartServerAction();
     private final Action stopAction = new StopServerAction();
     private final Action restartAction = new RestartServerAction();
-
+    private static final String RUNNING_ICON 
+            = "org/netbeans/modules/glassfish/common/resources/running.png"; // NOI18N
+    private static final String IMAGE_PATH = "org/netbeans/modules/selenium/resources/logo16.png";  //NOI18N
+    private static final Image IMG = ImageUtilities.loadImage(IMAGE_PATH);
+    
     public SeleniumServerNode() {
         super(Children.LEAF);
         setDisplayName(NbBundle.getMessage(SeleniumServerInstance.class, "DisplayName"));
@@ -85,10 +91,27 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
         return SeleniumProperties.createSheet();
     }
 
+    @Override
+    public Image getIcon(int type) {
+        if (SeleniumServerRunner.isRunning()){
+            Image badge = ImageUtilities.loadImage(RUNNING_ICON);
+            if (badge!= null){
+                return ImageUtilities.mergeImages(IMG, badge, 15, 8);
+            }
+        }
+        return IMG;
+    }
+
+    @Override
+    public Image getOpenedIcon(int type) {
+        return getIcon(type);
+    }
+
     // --------------- actions ---------------------- //
 
     public void taskFinished(Task task) {
         checkEnabledActions();
+        fireIconChange();
     }
 
     private class RestartServerAction extends SeleniumNodeAction {
