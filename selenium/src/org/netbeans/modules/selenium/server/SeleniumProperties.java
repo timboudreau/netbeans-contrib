@@ -54,10 +54,10 @@ import org.openqa.selenium.server.RemoteControlConfiguration;
  *
  * @author Jindrich Sedek
  */
-class SeleniumProperties {
+public class SeleniumProperties {
 
-    static final String PORT = "Port";
-    static final String START_ON_STARTUP = "Startup";
+    public static final String PORT = "Port";
+    public static final String START_ON_STARTUP = "Startup";
     private static InstanceProperties instanceProps;
     private static final String NAMESPACE = "Selenium server properties namespace"; //NOI18N
 
@@ -70,7 +70,7 @@ class SeleniumProperties {
         return sheet;
     }
 
-    static InstanceProperties getInstanceProperties(){
+    public static InstanceProperties getInstanceProperties(){
         if (instanceProps == null){
             InstancePropertiesManager manager = InstancePropertiesManager.getInstance();
             List<InstanceProperties> allProps = manager.getProperties(NAMESPACE);
