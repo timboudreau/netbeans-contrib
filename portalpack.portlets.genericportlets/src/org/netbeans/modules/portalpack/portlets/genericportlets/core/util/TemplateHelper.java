@@ -28,9 +28,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
 import java.nio.charset.Charset;
 import org.netbeans.api.queries.FileEncodingQuery;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -150,7 +150,9 @@ public class TemplateHelper {
 
     public static FileObject getFolder() {
         if (folder == null) {
-            folder = FileUtil.getConfigFile(templateFolder);
+            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
+            //For NB 7.0
+            //folder = FileUtil.getConfigFile(templateFolder);
         }
         return folder;
     }

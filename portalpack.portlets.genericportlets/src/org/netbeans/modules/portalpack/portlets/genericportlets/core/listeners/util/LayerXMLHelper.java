@@ -47,7 +47,8 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.P
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -62,7 +63,10 @@ public class LayerXMLHelper {
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
     private static FileObject getFolder(String listenerFolder) {
-        FileObject fo = FileUtil.getConfigFile(listenerFolder);
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        FileObject fo = fs.getRoot().getFileObject(listenerFolder);
+        //For NB 7.0
+        //FileObject fo = FileUtil.getConfigFile(listenerFolder);
         return fo;
     }
 

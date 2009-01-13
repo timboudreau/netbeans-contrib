@@ -79,7 +79,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>2.0.5</specification-version>
+                        <specification-version>2.92</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -169,7 +169,8 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.19</specification-version>
+                        <specification-version>7.0</specification-version>
+                        <!-- For NB 7.0 specification-version>7.19</specification-version -->
                     </run-dependency>
                 </dependency>
                 <dependency>

@@ -41,7 +41,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.node;
 
 import java.awt.Image;
 import org.netbeans.api.project.Project;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -76,13 +76,17 @@ public class PortletFileNode extends FilterNode {
     //badge to it by merging it via a NetBeans API utility method:
     
     public Image getIcon(int type) {
-        DataFolder root = DataFolder.findFolder(FileUtil.getConfigRoot());
+        DataFolder root = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot());
+        //For NB 7.0
+        //DataFolder root = DataFolder.findFolder(FileUtil.getConfigRoot());
         Image original = root.getNodeDelegate().getIcon(type);
         return Utilities.mergeImages(original, smallImage, 7, 7);
     }
 
     public Image getOpenedIcon(int type) {
-        DataFolder root = DataFolder.findFolder(FileUtil.getConfigRoot());
+        DataFolder root = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot());
+        //For NB 7.0
+        //DataFolder root = DataFolder.findFolder(FileUtil.getConfigRoot());
         Image original = root.getNodeDelegate().getIcon(type);
         return Utilities.mergeImages(original, smallImage, 7, 7);
     }

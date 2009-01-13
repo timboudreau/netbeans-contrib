@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -189,7 +190,9 @@ public class TemplateHelper {
 
     public FileObject getFolder() {
         if (folder == null) {
-            folder = FileUtil.getConfigFile(templateFolder);
+            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
+            //Uncomment the following line for NB 7.0
+            //folder = FileUtil.getConfigFile(templateFolder);
         }
         return folder;
     }

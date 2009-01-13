@@ -56,6 +56,7 @@ import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.portalpack.websynergy.portlets.nonjava.NonJavaPortletConstants;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -203,7 +204,7 @@ public class TemplateUtil {
             throw new TemplateNotFoundException("Template Folder is not set.");
         }
         if (folder == null) {
-            folder = FileUtil.getConfigFile(templateFolder);
+            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
         }
         return folder;
     }
