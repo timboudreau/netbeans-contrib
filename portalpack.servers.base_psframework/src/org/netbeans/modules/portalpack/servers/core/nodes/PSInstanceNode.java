@@ -21,10 +21,8 @@ package org.netbeans.modules.portalpack.servers.core.nodes;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.ui.PSCustomizerPanel;
-import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowAdminToolAction;
 import java.awt.Component;
-import java.awt.Label;
 import javax.swing.JPanel;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowServerLogAction;
 import org.openide.nodes.AbstractNode;
@@ -45,8 +43,20 @@ public class PSInstanceNode extends AbstractNode implements Node.Cookie {
     public PSInstanceNode(Lookup lookup) {
         super(new Children.Map());
         getCookieSet().add(this);
-        setIconBaseWithExtension(ICON_BASE);
+        
         manager = (PSDeploymentManager)lookup.lookup(PSDeploymentManager.class);        
+        
+        if(manager != null) {
+            String icon = manager.getServerIcon();
+           
+            if(icon != null)
+                setIconBaseWithExtension(icon);
+            else
+                setIconBaseWithExtension(ICON_BASE);
+            
+        } else {
+            setIconBaseWithExtension(ICON_BASE);
+        }
     }
     
     public String getDisplayName() {
@@ -78,5 +88,5 @@ public class PSInstanceNode extends AbstractNode implements Node.Cookie {
     public Component getCustomizer() {
         JPanel panel = new PSCustomizerPanel(manager);
         return panel;
-    }    
+    } 
 }

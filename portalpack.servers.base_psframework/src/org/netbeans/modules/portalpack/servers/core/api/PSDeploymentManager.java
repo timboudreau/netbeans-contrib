@@ -387,6 +387,9 @@ public abstract class PSDeploymentManager implements DeploymentManager {
        //do nothing
    }
   
+   public String getServerIcon() {
+       return null;
+   }
    public abstract PSTaskHandler getTaskHandler();
    public abstract PSConfigPanelManager getPSConfigPanelManager();
    public PSNodeConfiguration getPSNodeConfiguration()

@@ -41,6 +41,7 @@ import org.openide.util.Exceptions;
 public class LiferayDeploymentManager extends PSDeploymentManager {
 
     private PSTaskHandler taskHandler;
+    private static String ICON_BASE = "org/netbeans/modules/portalpack/servers/websynergy/resources/liferay.gif"; // NOI18N
     //private LifeRayNodeConfiguration nodeConfigurator;
 
     public LiferayDeploymentManager(String uri, String psVersion) {
@@ -98,4 +99,10 @@ public class LiferayDeploymentManager extends PSDeploymentManager {
             }
         }
     }
+
+    @Override
+    public String getServerIcon() {
+        return ICON_BASE;
+    }
+    
 }

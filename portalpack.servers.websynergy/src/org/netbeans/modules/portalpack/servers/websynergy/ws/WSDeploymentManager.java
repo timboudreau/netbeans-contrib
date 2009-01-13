@@ -56,5 +56,10 @@ public class WSDeploymentManager extends LiferayDeploymentManager{
     public PSConfigPanelManager getPSConfigPanelManager() {
         return new WSConfigPanelManagerImpl();
     }
-    
+
+    @Override
+    public String getServerIcon() {
+        return null;
+    }
+   
 }
