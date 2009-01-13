@@ -48,15 +48,16 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.Action;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.windows.TopComponent;
 
@@ -101,7 +102,11 @@ public class MainNode extends AbstractNode {
         private void refreshKeys() {
             List l = new LinkedList();
             l.add(LOOKUP_NODE);
-            l.add(Repository.getDefault().getDefaultFileSystem());
+            try {
+                l.add(FileUtil.getConfigRoot().getFileSystem());
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             File[] roots = File.listRoots();
             if (roots != null) {
                 for (int i = 0; i < roots.length; i++) {

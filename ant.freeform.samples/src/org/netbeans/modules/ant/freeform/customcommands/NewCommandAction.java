@@ -61,7 +61,7 @@ import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
@@ -107,7 +107,7 @@ public final class NewCommandAction extends AbstractAction implements ContextAwa
         String displayName = (String) wizardDescriptor.getProperty("displayName"); // NOI18N
         String menu = (String) wizardDescriptor.getProperty("menu"); // NOI18N
         int position = ((Integer) wizardDescriptor.getProperty("position")).intValue();
-        DataFolder menuFolder = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().findResource("Menu/" + menu)); // NOI18N
+        DataFolder menuFolder = DataFolder.findFolder(FileUtil.getConfigFile("Menu/" + menu)); // NOI18N
         try {
             new Command(command, displayName, null).create(menuFolder, position);
         } catch (IOException e) {

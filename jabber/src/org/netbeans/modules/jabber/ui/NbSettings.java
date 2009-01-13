@@ -49,7 +49,7 @@ import java.io.Serializable;
 import org.netbeans.modules.jabber.Settings;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -64,7 +64,7 @@ class NbSettings extends Settings implements Serializable {
     public static synchronized NbSettings getDefault() {
         if (INSTANCE == null) {
             INSTANCE = new NbSettings();
-            INSTANCE.fo = Repository.getDefault().getDefaultFileSystem().findResource("Services/org-netbeans-modules-jabber/config");
+            INSTANCE.fo = FileUtil.getConfigFile("Services/org-netbeans-modules-jabber/config");
         }
         return INSTANCE;
     }

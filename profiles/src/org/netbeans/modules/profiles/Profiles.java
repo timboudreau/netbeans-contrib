@@ -70,9 +70,9 @@ final class Profiles extends Object {
      */
     private static FileObject getProfilesFolder() {
         try {
-            return FileUtil.createFolder (Repository.getDefault().getDefaultFileSystem().getRoot(), "Profiles"); // NOI18N
+            return FileUtil.createFolder (FileUtil.getConfigRoot(), "Profiles"); // NOI18N
         } catch (java.io.IOException ex) {
-            return Repository.getDefault().getDefaultFileSystem(). getRoot();
+            return FileUtil.getConfigRoot();
         }
     }
     
@@ -106,7 +106,7 @@ final class Profiles extends Object {
         
         FileObject o = getProfilesFolder();
         try {
-            FileObject r = generateProfile(o, name, Repository.getDefault().getDefaultFileSystem().getRoot(), new Accept ());
+            FileObject r = generateProfile(o, name, FileUtil.getConfigRoot(), new Accept ());
             activateProfile (r);
         } catch (java.io.IOException ex) {
             org.openide.ErrorManager.getDefault().notify (ex);

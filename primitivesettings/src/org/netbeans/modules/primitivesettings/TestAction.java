@@ -49,7 +49,7 @@ import java.io.OutputStream;
 import java.util.Random;
 import org.netbeans.api.convertor.Convertors;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
@@ -86,7 +86,7 @@ public final class TestAction extends CallableSystemAction {
     private void performActionInternal() throws IOException {
         {
             // test reading
-            FileObject foAll = Repository.getDefault().getDefaultFileSystem().findResource("Tmp/All");
+            FileObject foAll = FileUtil.getConfigFile("Tmp/All");
             FileObject [] all = foAll.getChildren();
             for (FileObject fo : all) {
                 String settingFileName = "All/" + fo.getNameExt();
@@ -133,7 +133,7 @@ public final class TestAction extends CallableSystemAction {
     }
     
     private void dumpFileContents(String fileName) throws IOException {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Tmp/" + fileName);
+        FileObject fo = FileUtil.getConfigFile("Tmp/" + fileName);
         if (fo != null) {
             BufferedReader r = new BufferedReader(new InputStreamReader(fo.getInputStream()));
             try {
@@ -154,7 +154,7 @@ public final class TestAction extends CallableSystemAction {
     }
     
     private Object readSetting(String settingFileName) throws IOException {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Tmp/" + settingFileName);
+        FileObject fo = FileUtil.getConfigFile("Tmp/" + settingFileName);
         if (fo != null) {
             InputStream is = fo.getInputStream();
             try {
@@ -172,7 +172,7 @@ public final class TestAction extends CallableSystemAction {
     }
     
     private void writeSetting(String settingFileName, Object setting) throws IOException {
-        FileObject foTmp = Repository.getDefault().getDefaultFileSystem().findResource("Tmp");
+        FileObject foTmp = FileUtil.getConfigFile("Tmp");
         if (foTmp != null) {
             FileObject fo = foTmp.createData(settingFileName);
             OutputStream os = fo.getOutputStream();

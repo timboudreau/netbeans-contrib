@@ -60,7 +60,7 @@ import org.netbeans.modules.j2ee.oc4j.nodes.actions.UndeployModuleAction;
 import org.netbeans.modules.j2ee.oc4j.nodes.actions.UndeployModuleCookie;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -254,7 +254,7 @@ public class OC4JItemNode extends AbstractNode {
     }
     
     private Node getIconDelegate() {
-        return DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate();
+        return DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
     }
     
     public javax.swing.Action[] getActions(boolean context) {

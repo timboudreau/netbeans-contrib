@@ -56,20 +56,19 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
 
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.util.Exceptions;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -83,19 +82,14 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.xml.XMLUtil;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
-import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
-import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
-import org.netbeans.modules.vcs.advanced.commands.UserCommandIOCompat;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
@@ -184,7 +178,11 @@ public final class ProfilesFactory extends Object {
 
     static synchronized FileSystem getRegistry() {
         if (registry == null) {
-            registry = Repository.getDefault().getDefaultFileSystem ();
+            try {
+                registry = FileUtil.getConfigRoot().getFileSystem();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
         return registry;
     }

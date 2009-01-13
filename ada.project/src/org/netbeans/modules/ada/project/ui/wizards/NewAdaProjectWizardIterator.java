@@ -39,7 +39,6 @@
 
 package org.netbeans.modules.ada.project.ui.wizards;
 
-import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -63,7 +62,6 @@ import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -156,7 +154,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
             // main file
             final String mainName = (String) descriptor.getProperty(NewAdaProjectWizardIterator.MAIN_FILE);        
             if (mainName != null) {            
-                resultSet.add(createMainFile(Repository.getDefault().getDefaultFileSystem().findResource("Templates/Ada/NewAdaMain.adb"),
+                resultSet.add(createMainFile(FileUtil.getConfigFile("Templates/Ada/NewAdaMain.adb"),
                         sourceDir,mainName).getPrimaryFile());
             }
         }

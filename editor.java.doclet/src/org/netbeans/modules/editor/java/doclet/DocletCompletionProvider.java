@@ -74,7 +74,7 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.PositionBounds;
@@ -148,8 +148,7 @@ public class DocletCompletionProvider implements CompletionProvider {
     }
     
     private void loadDocletDescriptors() {
-        FileObject folder = Repository.getDefault().getDefaultFileSystem().
-                findResource(DOCLET_DESCRIPTORS);
+        FileObject folder = FileUtil.getConfigFile(DOCLET_DESCRIPTORS);
         if (folder != null) {
             FileObject[] children = folder.getChildren();
             for (int i = 0; i < children.length; i++) {

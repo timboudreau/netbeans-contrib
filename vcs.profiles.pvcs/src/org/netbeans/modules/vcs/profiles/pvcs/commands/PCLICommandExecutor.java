@@ -45,13 +45,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 
@@ -121,8 +119,7 @@ public class PCLICommandExecutor implements Runnable {
     }
     
     private void initScript() {
-        FileSystem dfs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject vcsfo = dfs.findResource("vcs");
+        FileObject vcsfo = FileUtil.getConfigFile("vcs");
         FileObject pvcsfo = vcsfo.getFileObject(PVCS_FOLDER);
         if (pvcsfo == null) {
             try {

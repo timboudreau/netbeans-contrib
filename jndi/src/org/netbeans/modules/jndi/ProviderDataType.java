@@ -48,11 +48,10 @@ import java.awt.event.ActionEvent;
 import org.openide.util.datatransfer.*;
 import org.openide.*;
 import org.openide.nodes.*;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
+import org.openide.filesystems.FileUtil;
 
 
 /** This class represents a NewType for JndiProvidersNode
@@ -105,8 +104,7 @@ public class ProviderDataType extends NewType {
                                                             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Provider_Exists"),NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
-                                                        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-                                                        FileObject fo = fs.getRoot().getFileObject("JNDI");
+                                                        FileObject fo = FileUtil.getConfigFile("JNDI");
                                                         ProviderProperties p = new ProviderProperties();
                                                         p.setFactory(provider);
                                                         p.setContext(context);

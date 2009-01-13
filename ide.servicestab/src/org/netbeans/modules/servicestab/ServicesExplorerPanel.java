@@ -56,12 +56,11 @@ import javax.swing.JPanel;
 import javax.swing.text.DefaultEditorKit;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
-import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.FolderInstance;
 import org.openide.nodes.AbstractNode;
@@ -122,7 +121,7 @@ public final class ServicesExplorerPanel extends JPanel implements ExplorerManag
      * defined in the layer file  
      */
     public void initialize(){
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("UI/ServiceTab");
+        FileObject fo = FileUtil.getConfigFile("UI/ServiceTab");
         if(fo != null){
             DataFolder folder = DataFolder.findFolder(fo);
             final ServicesFolder servicesFolder = new ServicesFolder(folder);

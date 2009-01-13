@@ -45,21 +45,16 @@ import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.options.SystemOption;
-import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileSystem;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.jndi.JndiRootNode;
-import org.netbeans.modules.jndi.JndiAbstractNode;
 import org.netbeans.modules.jndi.JndiProvidersNode;
 import org.netbeans.modules.jndi.ProviderProperties;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.HashMap;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -156,8 +151,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     public void destroyProvider (String key) throws java.io.IOException {
         FileLock lock = null;
         try{
-            FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-            FileObject fo = fs.getRoot().getFileObject("JNDI");
+            FileObject fo = FileUtil.getConfigFile("JNDI");
             String filename = key.replace('.','_');
             fo = fo.getFileObject(filename,"impl");
             if (fo != null){
@@ -183,9 +177,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
             this.providers = new HashMap ();
         else
             this.providers.clear();
-        Repository repo = Repository.getDefault();
-        FileSystem fs = repo.getDefaultFileSystem();
-        FileObject fo = fs.getRoot().getFileObject("JNDI");
+        FileObject fo = FileUtil.getConfigFile("JNDI");
         if (fo == null) {
             ErrorManager.getDefault().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
             return;
@@ -211,7 +203,7 @@ public class JndiSystemOption extends SystemOption implements PropertyChangeList
     public void propertyChange(java.beans.PropertyChangeEvent event) {
         ProviderProperties properties = (ProviderProperties) event.getSource ();
         String filename = properties.getFactory().replace('.','_');
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("JNDI");
+        FileObject fo = FileUtil.getConfigFile("JNDI");
         if (fo == null){
             notifyFileError();
             return;

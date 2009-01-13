@@ -48,7 +48,6 @@ import org.netbeans.junit.NbTestSuite;
 import org.netbeans.spi.registry.BasicContext;
 import org.netbeans.spi.registry.SpiUtils;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
@@ -56,6 +55,7 @@ import org.openide.util.Lookup;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -392,10 +392,10 @@ public class BindingTest extends NbTestCase {
     }
 
     protected FileObject getRoot() {
-        return Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        return FileUtil.getConfigRoot ();
     }
     
     protected FileObject findResource(String resource) {
-        return Repository.getDefault ().getDefaultFileSystem().findResource (resource);
+        return FileUtil.getConfigFile (resource);
     }
 }

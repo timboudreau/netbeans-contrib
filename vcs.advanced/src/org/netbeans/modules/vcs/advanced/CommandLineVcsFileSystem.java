@@ -46,25 +46,13 @@ import java.io.*;
 import java.util.*;
 import java.beans.*;
 import java.net.URL;
-import java.text.*;
-import javax.swing.*;
 
 import org.openide.*;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileSystem.Status;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.AbstractFileSystem;
-import org.openide.filesystems.DefaultAttributes;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.util.actions.*;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
@@ -89,7 +77,6 @@ import org.netbeans.modules.vcs.advanced.commands.UserCommandIOCompat;
 import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
-import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 
 /** Generic command line VCS filesystem.
@@ -579,11 +566,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         do {
             cacheId = 10000 * (1 + Math.round (Math.random () * 8)) + Math.round (Math.random () * 1000);
         } while (new File(cacheRoot+File.separator+cacheId).isDirectory ());
-        FileSystem dfs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem ();
-        FileObject vcs = dfs.findResource("vcs");
+        FileObject vcs = FileUtil.getConfigFile("vcs");
         try {
             if (vcs == null) {
-                vcs = dfs.getRoot().createFolder("vcs");
+                vcs = FileUtil.getConfigRoot().createFolder("vcs");
             }
             FileObject cache = vcs.getFileObject("cache");
             if (cache == null) {
@@ -1014,10 +1000,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String[] iconResources = null;
             if (varIcons != null) iconResources = VcsUtilities.getQuotedStrings(varIcons.getValue());
             if (iconResources != null) {
-                FileSystem defaultFS = TopManager.getDefault().getRepository().getDefaultFileSystem();
                 for (int i = 0; i < possStatuses.length && i < iconResources.length; i++) {
                     if (iconResources[i].length() == 0) continue;
-                    FileObject resourceFile = defaultFS.findResource(iconResources[i]);
+                    FileObject resourceFile = FileUtil.getConfigFile(iconResources[i]);
                     if (resourceFile == null) {
                         TopManager.getDefault().notify(new NotifyDescriptor.Message(
                             NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));

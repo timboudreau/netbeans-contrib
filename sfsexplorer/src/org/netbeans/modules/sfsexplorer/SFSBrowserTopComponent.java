@@ -65,7 +65,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -122,7 +122,7 @@ final class SFSBrowserTopComponent extends TopComponent {
         sfsView.setRootVisible(false);
         try {
             sfsPanel.getExplorerManager().setRootContext(
-                    new SFSNode(DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate(),
+                    new SFSNode(DataObject.find(FileUtil.getConfigRoot()).getNodeDelegate(),
                     platform));
         } catch (DataObjectNotFoundException ex) {
             log.log(Level.FINE, "Root node not found", ex); // NOI18N

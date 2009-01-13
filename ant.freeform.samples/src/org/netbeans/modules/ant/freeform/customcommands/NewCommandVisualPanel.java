@@ -46,7 +46,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -58,7 +57,7 @@ import org.openide.ErrorManager;
 import org.openide.awt.Mnemonics;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -89,7 +88,7 @@ public final class NewCommandVisualPanel extends JPanel {
     
     private void updateMenus() {
         DefaultComboBoxModel model = new DefaultComboBoxModel();
-        DataFolder menuBarFolder = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().findResource("Menu")); // NOI18N
+        DataFolder menuBarFolder = DataFolder.findFolder(FileUtil.getConfigFile("Menu")); // NOI18N
         DataObject[] kids = menuBarFolder.getChildren();
         for (int i = 0; i < kids.length; i++) {
             if (!(kids[i] instanceof DataFolder)) {
@@ -112,7 +111,7 @@ public final class NewCommandVisualPanel extends JPanel {
     
     private void updatePositions() {
         DefaultComboBoxModel model = new DefaultComboBoxModel();
-        FileObject menuFolderFO = Repository.getDefault().getDefaultFileSystem().findResource("Menu/" + getMenu()); // NOI18N
+        FileObject menuFolderFO = FileUtil.getConfigFile("Menu/" + getMenu()); // NOI18N
         if (menuFolderFO != null) {
             DataFolder menuFolder = DataFolder.findFolder(menuFolderFO);
             DataObject[] kids = menuFolder.getChildren();
@@ -174,7 +173,7 @@ public final class NewCommandVisualPanel extends JPanel {
             String menu = (String) value;
             DataObject d;
             try {
-                d = DataObject.find(Repository.getDefault().getDefaultFileSystem().findResource("Menu/" + menu)); // NOI18N
+                d = DataObject.find(FileUtil.getConfigFile("Menu/" + menu)); // NOI18N
             } catch (DataObjectNotFoundException e) {
                 throw new AssertionError(e);
             }

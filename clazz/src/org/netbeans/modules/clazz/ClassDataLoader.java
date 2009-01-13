@@ -44,11 +44,8 @@ package org.netbeans.modules.clazz;
 import java.io.IOException;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.*;
-import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
-import org.openide.actions.*;
 
 
 /** The DataLoader for ClassDataObjects.
@@ -98,7 +95,7 @@ public final class ClassDataLoader extends MultiFileLoader {
         if (SER_EXT.equals(fo.getExt())) {
             // serialized file, return itself
             try {
-                return fo.getFileSystem() != Repository.getDefault().getDefaultFileSystem() ? fo : null;
+                return fo.getFileSystem().isDefault() ? null : fo;
             } catch (org.openide.filesystems.FileStateInvalidException ex) {
                 return null;
             }

@@ -66,7 +66,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
@@ -243,7 +242,7 @@ public class CodeStylePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_selectionChanged
     
     private List<FileObject> listFiles() {
-        FileObject codestyleDir = Repository.getDefault().getDefaultFileSystem().findResource("org.netbeans.modules.java.codestyle");
+        FileObject codestyleDir = FileUtil.getConfigFile("org.netbeans.modules.java.codestyle");
         
         if (codestyleDir == null) {
             return Collections.emptyList();

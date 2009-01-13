@@ -50,7 +50,7 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -77,7 +77,7 @@ public class Utilities {
     }
 
     public static FileObject getFolder() {
-        return Repository.getDefault().getDefaultFileSystem().findResource("hints");
+        return FileUtil.getConfigFile("hints");
     }
     
     public final static String copyFileToString (FileObject f) throws java.io.IOException {

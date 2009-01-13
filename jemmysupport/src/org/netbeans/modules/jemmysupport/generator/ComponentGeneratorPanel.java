@@ -53,6 +53,7 @@ import org.openide.DialogDisplayer;
 import org.openide.awt.Mnemonics;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
@@ -212,7 +213,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     
     void saveProperties() {
         try {
-            org.openide.filesystems.FileObject fo=org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().getRoot();
+            org.openide.filesystems.FileObject fo=FileUtil.getConfigRoot();
             org.openide.filesystems.FileObject fo2=fo.getFileObject("jemmysupport"); // NOI18N
             if (fo2==null) {
                 fo2=fo.createFolder("jemmysupport"); // NOI18N

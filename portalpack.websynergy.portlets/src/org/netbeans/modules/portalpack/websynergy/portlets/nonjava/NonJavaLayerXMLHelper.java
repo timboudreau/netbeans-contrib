@@ -45,8 +45,7 @@ import java.util.logging.Logger;
 import org.netbeans.modules.portalpack.websynergy.portlets.nonjava.api.NonJavaPortletBuilder;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -101,8 +100,7 @@ public class NonJavaLayerXMLHelper {
     }
 
     private static FileObject getFolder(String listenerFolder) {
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.getRoot().getFileObject(listenerFolder);
+        FileObject fo = FileUtil.getConfigFile(listenerFolder);
         return fo;
     }
 }

@@ -31,7 +31,6 @@ import org.netbeans.modules.erlang.makeproject.spi.support.ReferenceHelper;
 import org.netbeans.modules.erlang.project.ui.customizer.RubyProjectProperties;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -350,7 +349,7 @@ public class RubyProjectGenerator {
             return;
         }
         
-        FileObject mainTemplate = Repository.getDefault().getDefaultFileSystem().findResource( templateName );
+        FileObject mainTemplate = FileUtil.getConfigFile( templateName );
 
         if ( mainTemplate == null ) {
             return; // Don't know the template

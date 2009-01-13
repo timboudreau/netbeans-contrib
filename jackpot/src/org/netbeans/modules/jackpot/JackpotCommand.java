@@ -131,7 +131,7 @@ public class JackpotCommand implements Serializable {
             }
             else if (command.startsWith("file:")) { //NOI18N
                 String name = command.substring(5); // strlen("file:")
-                fo = Repository.getDefault().getDefaultFileSystem().findResource(name);
+                fo = FileUtil.getConfigFile(name);
             }
         }
 	return fo;

@@ -51,7 +51,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -131,8 +130,7 @@ public class ExportAction extends AbstractAction {
     }
         
     private Iterable <String> getNames(String folder) {
-        FileObject fob = Repository.getDefault().getDefaultFileSystem().
-                getRoot().getFileObject(folder);
+        FileObject fob = FileUtil.getConfigFile(folder);
         FileObject[] kids = fob.getChildren();
         List <String> names = new ArrayList<String>();
         for (FileObject f : kids) {
@@ -169,8 +167,7 @@ public class ExportAction extends AbstractAction {
         public void run() {
             handle.start(themes.size());
             int ix = 0;
-            FileObject fob = Repository.getDefault().getDefaultFileSystem().
-                    getRoot().getFileObject(
+            FileObject fob = FileUtil.getConfigFile(
                     kind == Kind.FONTS_AND_COLORS ? 
                         "Editors/FontsColors" : "Editors/Keybindings");
             String codeNameSlashes = codeName.replace(".", "/"); //NOI18N
@@ -226,8 +223,7 @@ public class ExportAction extends AbstractAction {
 
         private List<FileObject> scanForPerMimeThemeDefs(FileObject f) {
             String nm = f.getName();
-            FileObject fob = Repository.getDefault().getDefaultFileSystem().
-                    getRoot().getFileObject("Editors"); //NOI18N
+            FileObject fob = FileUtil.getConfigFile("Editors"); //NOI18N
             List <FileObject> result = new ArrayList <FileObject> ();
             scan (fob, nm, result);
             return result;

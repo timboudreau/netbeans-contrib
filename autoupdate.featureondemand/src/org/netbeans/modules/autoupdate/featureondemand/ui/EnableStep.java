@@ -58,7 +58,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -177,7 +177,7 @@ public class EnableStep implements WizardDescriptor.FinishablePanel<WizardDescri
         while (fo == null) {
             RequestProcessor.getDefault ().post (new Runnable () {
                public void run () {
-                   fo = Repository.getDefault ().getDefaultFileSystem ().findResource (templateResource);
+                   fo = FileUtil.getConfigFile (templateResource);
                } 
             }, 100).waitFinished ();
         }

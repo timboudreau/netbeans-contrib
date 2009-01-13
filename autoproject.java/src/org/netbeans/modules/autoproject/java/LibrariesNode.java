@@ -65,7 +65,6 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.spi.java.project.support.ui.PackageView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -98,13 +97,13 @@ final class LibrariesNode extends AbstractNode {
 
     @Override
     public Image getIcon(int type) {
-        return ImageUtilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
+        return ImageUtilities.mergeImages(DataFolder.findFolder(FileUtil.getConfigRoot()).
                 getNodeDelegate().getIcon(type), ICON_BADGE, 7, 7);
     }
 
     @Override
     public Image getOpenedIcon(int type) {
-        return ImageUtilities.mergeImages(DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).
+        return ImageUtilities.mergeImages(DataFolder.findFolder(FileUtil.getConfigRoot()).
                 getNodeDelegate().getOpenedIcon(type), ICON_BADGE, 7, 7);
     }
     

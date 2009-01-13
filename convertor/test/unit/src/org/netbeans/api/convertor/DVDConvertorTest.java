@@ -48,12 +48,10 @@ import java.io.InputStream;
 import org.netbeans.junit.*;
 import junit.textui.TestRunner;
 import org.netbeans.api.convertor.dvd.DVD;
-import org.netbeans.modules.convertor.PropertiesConvertor;
 import org.netbeans.spi.convertor.Convertor;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
-import org.w3c.dom.Document;
 
 
 /**
@@ -73,7 +71,7 @@ public class DVDConvertorTest extends NbTestCase {
     
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        FileUtil.getConfigRoot ();
     }
     
     private static Convertor conv;

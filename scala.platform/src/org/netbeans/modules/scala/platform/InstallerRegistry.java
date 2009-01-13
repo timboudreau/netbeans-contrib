@@ -118,7 +118,7 @@ public class InstallerRegistry {
         InstallerRegistry regs = defaultInstance.get();
         if (regs != null)
             return regs;
-        regs = new InstallerRegistry(Repository.getDefault().getDefaultFileSystem().findResource(
+        regs = new InstallerRegistry(FileUtil.getConfigFile(
             INSTALLER_REGISTRY_FOLDER));
         defaultInstance = new WeakReference<InstallerRegistry>(regs);
         return regs;

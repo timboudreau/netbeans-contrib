@@ -72,7 +72,6 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
@@ -686,7 +685,7 @@ final class LibrariesNode extends AbstractNode {
         } else {
             base = (Image) UIManager.get(opened ? OPENED_ICON_KEY_UIMANAGER_NB : ICON_KEY_UIMANAGER_NB); // #70263
             if (base == null) { // fallback to our owns                
-                final Node n = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate();
+                final Node n = DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
                 base = opened ? n.getOpenedIcon(BeanInfo.ICON_COLOR_16x16) : n.getIcon(BeanInfo.ICON_COLOR_16x16);                                 
             }
         }

@@ -6,8 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 
@@ -35,8 +34,7 @@ public final class EnableDisableTest extends NbTestCase {
         dbp.mkdirs();
         db.createNewFile();
         
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject folder = fs.findResource("Actions/Test");
+        FileObject folder = FileUtil.getConfigFile("Actions/Test");
         
         boolean found = false;
         for (ModuleInfo info : Lookup.getDefault().lookupAll(ModuleInfo.class)) {

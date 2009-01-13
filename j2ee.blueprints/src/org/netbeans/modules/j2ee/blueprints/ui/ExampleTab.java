@@ -46,10 +46,10 @@ import javax.swing.Action;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 
 import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Tab Panel containing information about sample code for a solutions
@@ -151,8 +151,7 @@ public class ExampleTab
     }
 
     private Action findAction (String key) {
-        FileObject fo = 
-            Repository.getDefault().getDefaultFileSystem().findResource(key);
+        FileObject fo = FileUtil.getConfigFile(key);
         
         if (fo != null && fo.isValid()) {
             try {

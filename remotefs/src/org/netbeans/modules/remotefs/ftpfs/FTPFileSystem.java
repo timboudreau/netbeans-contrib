@@ -55,7 +55,7 @@ import org.netbeans.modules.remotefs.ftpclient.FTPLogInfo;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.options.SystemOption;
 import org.openide.util.Exceptions;
 
@@ -80,7 +80,7 @@ public class FTPFileSystem extends RemoteFileSystem implements FTPClient.Reconne
          * We need a default cache dir. 
          * The default is "ftpcache" in the filesystem's root. Must be created if it doesn't exist.
          */
-        FileObject fr = Repository.getDefault().getDefaultFileSystem().getRoot();
+        FileObject fr = FileUtil.getConfigRoot();
         FileObject fo = fr.getFileObject(CACHE_FOLDER_NAME);
         if (fo == null) {
             try {

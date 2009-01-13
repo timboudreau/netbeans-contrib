@@ -56,7 +56,6 @@ import org.netbeans.Module;
 import org.netbeans.core.startup.Main;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -306,7 +305,7 @@ public final class ModuleDeleterImpl implements ModuleDeleter {
     private class HackModuleListRefresher implements Runnable {
         public void run () {
             // XXX: the modules list should be delete automatically when config/Modules/module.xml is removed
-            FileObject modulesRoot = Repository.getDefault ().getDefaultFileSystem ().findResource ("Modules"); // NOI18N
+            FileObject modulesRoot = FileUtil.getConfigFile ("Modules"); // NOI18N
             err.log(Level.FINE,
                     "It\'s a hack: Call refresh on " + modulesRoot +
                     " file object.");

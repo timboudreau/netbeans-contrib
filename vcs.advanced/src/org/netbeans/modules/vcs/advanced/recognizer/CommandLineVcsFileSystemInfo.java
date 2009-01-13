@@ -62,7 +62,6 @@ import java.util.Vector;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
@@ -78,10 +77,10 @@ import org.netbeans.modules.vcs.advanced.variables.ConditionedVariablesUpdater;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.openide.cookies.InstanceCookie;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.loaders.InstanceDataObject;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -215,14 +214,14 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     
     private void initSettingsFolder() {
         synchronized (CommandLineVcsFileSystemInfo.class) {
-            FileObject sfo = Repository.getDefault().getDefaultFileSystem().findResource (FS_SETTINGS_FOLDER);
+            FileObject sfo = FileUtil.getConfigFile (FS_SETTINGS_FOLDER);
             if (sfo == null) {
                 try {
-                    Repository.getDefault().getDefaultFileSystem().getRoot().createFolder(FS_SETTINGS_FOLDER);
+                    FileUtil.getConfigRoot().createFolder(FS_SETTINGS_FOLDER);
                 } catch (IOException ioex) {
                     org.openide.ErrorManager.getDefault().notify(ioex); // Should not happen
                 }
-                sfo = Repository.getDefault().getDefaultFileSystem().findResource (FS_SETTINGS_FOLDER);
+                sfo = FileUtil.getConfigFile (FS_SETTINGS_FOLDER);
             }
             settingsFolder = DataFolder.findFolder(sfo);
         }

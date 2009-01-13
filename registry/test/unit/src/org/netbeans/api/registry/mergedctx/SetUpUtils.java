@@ -43,7 +43,7 @@ package org.netbeans.api.registry.mergedctx;
 import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextException;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 
 import java.util.ArrayList;
 
@@ -75,13 +75,13 @@ public class SetUpUtils {
     }
 
     static FileObject getSimpleRoot () {
-       return Repository.getDefault ().getDefaultFileSystem ().findResource("first");
+       return FileUtil.getConfigFile("first");
     }
 
     static FileObject findSimpleResource (String resource) {
         if (resource.startsWith("/"))
             resource = resource.substring(1);
-        return Repository.getDefault ().getDefaultFileSystem ().findResource("first/"+resource);
+        return FileUtil.getConfigFile("first/"+resource);
     }
 
     static Context getSubctx1() {

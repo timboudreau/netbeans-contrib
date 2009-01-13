@@ -52,7 +52,7 @@ import org.netbeans.modules.spellchecker.spi.LocaleQueryImplementation;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -72,7 +72,7 @@ public class DefaultLocaleQueryImplementation implements LocaleQueryImplementati
     private static final String FILE_NAME = "spellchecker-default-locale";
     
     private static FileObject getDefaultLocaleFile() {
-        return Repository.getDefault().getDefaultFileSystem().findResource(FILE_NAME);
+        return FileUtil.getConfigFile(FILE_NAME);
     }
     
     public static Locale getDefaultLocale() {
@@ -135,7 +135,7 @@ public class DefaultLocaleQueryImplementation implements LocaleQueryImplementati
         
         try {
             if (file == null) {
-                file = Repository.getDefault().getDefaultFileSystem().getRoot().createData(FILE_NAME);
+                file = FileUtil.getConfigRoot().createData(FILE_NAME);
             }
             
             lock = file.lock();

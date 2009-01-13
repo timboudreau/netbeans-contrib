@@ -43,7 +43,6 @@ package org.netbeans.modules.jackpot.ui;
 
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.MissingResourceException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.jackpot.*;
@@ -51,7 +50,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditCookie;
@@ -65,6 +63,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.openide.filesystems.FileUtil;
 
 /** 
  * Jackpot Menu Manager action.
@@ -192,7 +191,7 @@ public class RefactoringManagerAction extends CallableSystemAction {
     
     private boolean rulesModuleInstalled() {
         try {
-            FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Templates/Jackpot/Rules.rules"); // NOI18N
+            FileObject fo = FileUtil.getConfigFile("Templates/Jackpot/Rules.rules"); // NOI18N
             if (fo == null) // true if rules module hasn't installed template
                 return false;
             DataObject.find(fo); // throws exception if rules file loader isn't installed

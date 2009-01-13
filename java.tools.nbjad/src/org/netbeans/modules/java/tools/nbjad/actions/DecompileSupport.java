@@ -58,7 +58,6 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -286,7 +285,7 @@ public final class DecompileSupport {
     private static void addToFavorites(FileObject nbjadOutputDirectoryFileObject) {
          try {
             FileObject favoritesFileObject = FileUtil.createFolder (
-                Repository.getDefault().getDefaultFileSystem().getRoot(),
+                FileUtil.getConfigRoot(),
                 "Favorites" // NOI18N
             );
 

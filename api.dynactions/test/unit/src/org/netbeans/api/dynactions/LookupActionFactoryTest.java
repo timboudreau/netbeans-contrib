@@ -52,8 +52,8 @@ import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.MultiFileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.util.ContextGlobalProvider;
 import org.openide.util.Lookup;
@@ -78,8 +78,7 @@ public class LookupActionFactoryTest extends NbTestCase {
 
     public void testSanity() {
         System.out.println("testSanity");
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fob = fs.getRoot().getFileObject("check.txt");
+        FileObject fob = FileUtil.getConfigFile("check.txt");
         assertNotNull ("Default filesystem broken", fob);
     }
     

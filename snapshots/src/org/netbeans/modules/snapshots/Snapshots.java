@@ -15,7 +15,6 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataShadow;
@@ -58,10 +57,10 @@ public class Snapshots {
     }
 
     private static FileObject getProjectsFolder(boolean create) {
-        FileObject result = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(PRJS_PATH);
+        FileObject result = FileUtil.getConfigFile(PRJS_PATH);
         if (result == null && create) {
             try {
-                FileUtil.createFolder(Repository.getDefault().getDefaultFileSystem().getRoot(),
+                FileUtil.createFolder(FileUtil.getConfigRoot(),
                         PRJS_PATH);
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
@@ -71,10 +70,10 @@ public class Snapshots {
     }
 
     private static FileObject getWindowsFolder(boolean create) {
-        FileObject result = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(WIN_PATH);
+        FileObject result = FileUtil.getConfigFile(WIN_PATH);
         if (result == null && create) {
             try {
-                result = FileUtil.createFolder(Repository.getDefault().getDefaultFileSystem().getRoot(),
+                result = FileUtil.createFolder(FileUtil.getConfigRoot(),
                         WIN_PATH);
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
@@ -89,10 +88,10 @@ public class Snapshots {
 
     private static FileObject getWindowsSnapshotFolder (String name,  boolean create) {
         String path = getWindowsFolderPath(name);
-        FileObject result = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(path);
+        FileObject result = FileUtil.getConfigFile(path);
         if (result == null && create) {
             try {
-                result = FileUtil.createFolder(Repository.getDefault().getDefaultFileSystem().getRoot(),
+                result = FileUtil.createFolder(FileUtil.getConfigRoot(),
                         path);
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
@@ -103,10 +102,10 @@ public class Snapshots {
 
     private static FileObject getProjectsSnapshotFolder (String name,  boolean create) {
         String path = getProjectsFolderPath(name);
-        FileObject result = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(path);
+        FileObject result = FileUtil.getConfigFile(path);
         if (result == null && create) {
             try {
-                result = FileUtil.createFolder(Repository.getDefault().getDefaultFileSystem().getRoot(),
+                result = FileUtil.createFolder(FileUtil.getConfigRoot(),
                         path);
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
@@ -127,7 +126,7 @@ public class Snapshots {
 
     public static boolean takeSnapshot(String name) {
         try {
-            Repository.getDefault().getDefaultFileSystem().runAtomicAction(
+            FileUtil.runAtomicAction(
                 new SnapshotTaker(name));
             return true;
         } catch (IOException ioe) {
@@ -138,7 +137,7 @@ public class Snapshots {
 
     public static boolean restoreSnapshot(String name) {
         try {
-            Repository.getDefault().getDefaultFileSystem().runAtomicAction(
+            FileUtil.runAtomicAction(
                 new SnapshotRestorer(name));
             return true;
         } catch (IOException ioe) {
@@ -149,7 +148,7 @@ public class Snapshots {
 
 
     private static FileObject getWindowSystemFolder() {
-        return Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("Windows2Local");
+        return FileUtil.getConfigFile("Windows2Local");
     }
 
     private static class SnapshotTaker implements FileSystem.AtomicAction {

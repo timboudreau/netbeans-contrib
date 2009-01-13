@@ -48,11 +48,11 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.LocalFileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 
 import javax.swing.*;
+import org.openide.filesystems.FileUtil;
 
 public class SpiUtilsTest extends NbTestCase {
 
@@ -68,14 +68,14 @@ public class SpiUtilsTest extends NbTestCase {
     
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        root = Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        root = FileUtil.getConfigRoot ();
     }
     
     public void testRootContextCreation() throws Exception {
         BasicContext rootCtx = FileSystemContextFactory.createContext(root);
         Context ctx = SpiUtils.createContext(rootCtx);
         Context subctx = ctx.createSubcontext("abcd");
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("abcd");
+        FileObject fo = FileUtil.getConfigFile("abcd");
         assertTrue ("Cannot create initial context", fo != null);
         ctx.destroySubcontext("abcd");
     }

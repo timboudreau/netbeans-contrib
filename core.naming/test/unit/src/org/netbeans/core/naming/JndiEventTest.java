@@ -53,9 +53,8 @@ import junit.textui.TestRunner;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
@@ -89,7 +88,7 @@ public class JndiEventTest extends NbTestCase {
     
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        folder = Repository.getDefault ().getDefaultFileSystem().getRoot ();
+        folder = FileUtil.getConfigRoot ();
         root = DataFolder.findFolder (folder);
         
         FileObject fo = folder.getFileObject("My"); // NOI18N

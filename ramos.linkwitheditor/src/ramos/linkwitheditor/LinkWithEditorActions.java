@@ -40,7 +40,7 @@ import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.cookies.InstanceCookie;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -109,8 +109,7 @@ public final class LinkWithEditorActions {
   private static Object getTheObject(final String pathInSystemFilesystem)
     throws DataObjectNotFoundException, IOException, ClassNotFoundException {
     InstanceCookie ck;
-    FileObject fo = Repository.getDefault().getDefaultFileSystem().getRoot()
-                              .getFileObject(pathInSystemFilesystem);
+    FileObject fo = FileUtil.getConfigFile(pathInSystemFilesystem);
 
     if (fo == null) {
       return null;

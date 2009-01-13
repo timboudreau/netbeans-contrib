@@ -55,13 +55,12 @@ import javax.swing.event.MenuListener;
 import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
-import org.openide.filesystems.Repository;
 import org.openide.ErrorManager;
 import org.openide.awt.JInlineMenu;
 import org.openide.awt.Actions;
 import org.openide.awt.JMenuPlus;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.HelpCtx;
@@ -106,8 +105,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     }
     
     public JMenuItem getPresenter(boolean inMenu, Lookup lookup) { 
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem ();
-        menuRoot = dfs.findResource(GLOBAL_MENU_FOLDER);
+        menuRoot = FileUtil.getConfigFile(GLOBAL_MENU_FOLDER);
         FileObject[] filob;
         if (menuRoot == null) { // No global menu
             filob = new FileObject[0];

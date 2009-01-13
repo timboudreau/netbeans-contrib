@@ -113,8 +113,7 @@ class TargetButton extends JButton implements ActionListener, NodeListener {
     }
     
     private static FileObject getTargetsFolder() {
-        FileObject result = 
-            Repository.getDefault().getDefaultFileSystem().findResource("Targets"); //NOI18N
+        FileObject result = FileUtil.getConfigFile("Targets"); //NOI18N
         assert result != null : "Targets folder is missing";
         return result;
     }

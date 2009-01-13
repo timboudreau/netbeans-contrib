@@ -46,9 +46,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 /**
  * Manages the working directory.
@@ -68,10 +66,9 @@ final class WorkDir {
      * Get the directory to be used for various purposes by this module.
      */
     public static FileObject get() throws IOException {
-        FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
-        FileObject mounts = sfs.getRoot().getFileObject(PATH_MOUNTS);
+        FileObject mounts = FileUtil.getConfigFile(PATH_MOUNTS);
         if (mounts == null) {
-            mounts = FileUtil.createFolder(sfs.getRoot(), PATH_MOUNTS);
+            mounts = FileUtil.createFolder(FileUtil.getConfigRoot(), PATH_MOUNTS);
         }
         return mounts;
     }

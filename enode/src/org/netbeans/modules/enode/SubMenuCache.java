@@ -59,8 +59,8 @@ import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextListener;
 import org.netbeans.api.registry.SubcontextEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.netbeans.api.enode.ExtensibleNode;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.WeakListeners;
 
 /**
@@ -134,8 +134,7 @@ class SubMenuCache {
     }
     
     private FileObject getSubMenusRoot() {
-        return Repository.getDefault().getDefaultFileSystem().findResource(
-                ExtensibleNode.E_NODE_SUBMENUS);
+        return FileUtil.getConfigFile(ExtensibleNode.E_NODE_SUBMENUS);
     }
     
     private void buildTheCache() {
@@ -204,7 +203,7 @@ class SubMenuCache {
                     log.fine("Shadow file " + child.getPath() + " is missing the originalFile attribute");
                     continue;
                 }
-                FileObject origAction = Repository.getDefault().getDefaultFileSystem().findResource(origPathAttr);
+                FileObject origAction = FileUtil.getConfigFile(origPathAttr);
                 if (origAction == null) {
                     log.fine("originalFile attribute (" + origPathAttr + ") of " + child.getPath() + " does not reference existing action.");
                     continue;

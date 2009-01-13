@@ -69,8 +69,7 @@ public class GroupUtils {
      */
     public static MainVcsGroupNode getMainVcsGroupNodeInstance() {
         MainVcsGroupNode root = null;
-        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = defFs.findResource(MainVcsGroupNode.GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");//NOI18N
+        FileObject fo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");//NOI18N
         if (fo != null) {
             DataObject dobj;
             try {
@@ -94,8 +93,7 @@ public class GroupUtils {
      * returns the folder in the default filesystem where the groups data is stored.
      */
     public static DataFolder getMainVcsGroupFolder() {
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
+        FileObject rootFo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH);
         DataFolder fold = null;
         try {
             fold = (DataFolder)DataObject.find(rootFo);
@@ -197,8 +195,7 @@ public class GroupUtils {
         file = originals[0];
         //System.out.println("findDOInGroups("+dataObj+")");
         //System.out.println(" primaryFile = "+dataObj.getPrimaryFile());
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
+        FileObject rootFo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH);
         Enumeration en = rootFo.getData(true);
         while (en.hasMoreElements()) {
             FileObject fo = (FileObject)en.nextElement();

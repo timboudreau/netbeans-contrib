@@ -77,7 +77,6 @@ import org.openide.awt.Actions;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -368,7 +367,7 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
             pw.println("Recommended templates:");
             for (String template : pt.getPrivilegedTemplates()) {
                 pw.print("  " + template);
-                FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(template);
+                FileObject fo = FileUtil.getConfigFile(template);
                 if (fo != null) {
                     String displayName = DataObject.find(fo).getNodeDelegate().getDisplayName();
                     if (!displayName.equals(fo.getName())) {

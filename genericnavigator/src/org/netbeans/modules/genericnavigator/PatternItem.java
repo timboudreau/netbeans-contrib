@@ -41,7 +41,7 @@ import java.util.regex.PatternSyntaxException;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.Utilities;
@@ -99,8 +99,7 @@ final class PatternItem {
     private int[] includeGroups;
 
     //Unit tests will overwrite this:
-    static FileObject rootfolder = Repository.getDefault().getDefaultFileSystem().findResource(
-            FOLDER);
+    static FileObject rootfolder = FileUtil.getConfigFile(FOLDER);
 
     PatternItem (DataObject ob) {
         this.ob = ob;
@@ -482,8 +481,7 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
     }
 
     private static DataObject[] getItemDataObjects(String mimetype) throws IOException {
-        FileObject fob = Repository.getDefault().getDefaultFileSystem().findResource(
-                FOLDER + mimetype);
+        FileObject fob = FileUtil.getConfigFile(FOLDER + mimetype);
         if (fob != null) {
             DataFolder fld = DataFolder.findFolder(fob);
             return fld.getChildren();
@@ -494,8 +492,7 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
 
     public static FileObject getConfigRoot() {
 //        FileObject root =
-//                Repository.getDefault().getDefaultFileSystem().
-//                getRoot().getFileObject(FOLDER);
+//                FileUtil.getConfigFile(FOLDER);
 //        return root;
         return rootfolder;
     }
@@ -525,9 +522,9 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
     public static void registerNavPanelForMimeType (String mimetype) throws IOException {
         String path = NAVIGATOR_REG_FLD + '/' + mimetype;
         String fname = "org-netbeans-modules-genericnavigator-GenericNavPanel.instance";
-        FileObject fob = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject (path);
+        FileObject fob = FileUtil.getConfigFile (path);
         if (fob == null || fob.getFileObject(fname) == null) {
-            FileObject curr = Repository.getDefault().getDefaultFileSystem().getRoot();
+            FileObject curr = FileUtil.getConfigRoot();
             for (StringTokenizer tok = new StringTokenizer (path, "/");tok.hasMoreTokens();) {
                 String fld = tok.nextToken();
 
@@ -546,11 +543,11 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
     }
 
     public static void maybeUnregisterNavPanelForMimeType (String mimetype) throws IOException {
-        FileObject ourMimeRegistryFolder= Repository.getDefault().getDefaultFileSystem().findResource(
+        FileObject ourMimeRegistryFolder= FileUtil.getConfigFile(
                 FOLDER + '/' + mimetype);
         if (ourMimeRegistryFolder == null || ourMimeRegistryFolder.getChildren().length == 0) {
             String path = FOLDER + mimetype;
-            FileObject fob = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject (path);
+            FileObject fob = FileUtil.getConfigFile (path);
             if (fob != null) {
                 String fname = "org-netbeans-modules-genericnavigator-GenericNavPanel.instance";
                 FileObject ob = fob.getFileObject(fname);

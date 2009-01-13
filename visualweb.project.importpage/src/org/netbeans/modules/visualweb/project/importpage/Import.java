@@ -112,9 +112,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -179,7 +177,6 @@ public class Import {
             context.copyResources = includeResources;
             
             DataFolder folderObj = (DataFolder)webroot;
-            FileSystem fs = (FileSystem) Repository.getDefault().getDefaultFileSystem();
             
             String tmpl;
             // XXX ToDo: These templates are for JSF 1.1 project, should consider JSF 1.2 as well.
@@ -188,7 +185,7 @@ public class Import {
             } else {
                 tmpl = "Templates/JSP_Servlet/Page.jsp"; // NOI18N
             }
-            FileObject fo = fs.findResource(tmpl);
+            FileObject fo = FileUtil.getConfigFile(tmpl);
             
             if (fo == null) {
                 throw new IOException("Can't find template FileObject for " + tmpl); // NOI18N

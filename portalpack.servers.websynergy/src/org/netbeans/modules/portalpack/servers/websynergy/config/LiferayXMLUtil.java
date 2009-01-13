@@ -43,12 +43,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateNotFoundException;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -107,7 +104,7 @@ public class LiferayXMLUtil {
 
     public static FileObject getFolder() {
         if (folder == null) {
-            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
+            folder = FileUtil.getConfigFile(templateFolder);
         }
         return folder;
     }

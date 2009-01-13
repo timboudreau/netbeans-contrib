@@ -68,7 +68,6 @@ import org.netbeans.modules.tasklist.filter.FilteredTopComponent;
 import org.netbeans.modules.tasklist.filter.RemoveFilterAction;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -81,7 +80,7 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.Visualizer;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.SystemAction;
@@ -442,8 +441,7 @@ FilteredTopComponent
         if (cc != null)
             return cc;
 
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
+        FileObject fo = FileUtil.getConfigFile("TaskList/" + category + "/columns.settings"); // NOI18N
         assert fo != null : "Missing config TaskList/" + category + "/columns.settings";  // NOI18N
 
         try {
@@ -463,8 +461,7 @@ FilteredTopComponent
 
 
     protected void loadFilters() {
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
+        FileObject fo = FileUtil.getConfigFile("TaskList/" + category + "/filters.settings"); // NOI18N
         assert fo != null : "Missing config TaskList/" + category + "/filters.settings";  // NOI18N
         
         try {

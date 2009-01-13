@@ -46,7 +46,7 @@ import org.netbeans.api.ada.platform.AdaPlatform;
 import org.netbeans.api.ada.platform.AdaPlatformManager;
 import org.netbeans.modules.ada.project.ui.Utils;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
 import org.openide.util.Exceptions;
@@ -188,7 +188,7 @@ private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
 private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageActionPerformed
     // Workaround, Needs an API to display platform customizer
-    final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
+    final FileObject fo = FileUtil.getConfigFile("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
     if (fo != null) {
         try {
             InstanceDataObject ido = (InstanceDataObject) DataObject.find(fo);

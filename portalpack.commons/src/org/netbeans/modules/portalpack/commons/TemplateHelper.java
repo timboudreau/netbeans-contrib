@@ -29,7 +29,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -190,7 +189,7 @@ public class TemplateHelper {
 
     public FileObject getFolder() {
         if (folder == null) {
-            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
+            folder = FileUtil.getConfigFile(templateFolder);
         }
         return folder;
     }

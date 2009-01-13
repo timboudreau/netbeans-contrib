@@ -56,7 +56,6 @@ import org.openide.cookies.EditorCookie;
 import org.openide.cookies.LineCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -91,7 +90,7 @@ public final class CreateTestAction extends CookieAction {
         DummyUI gui = new DummyUI(s.substring(0, s.length() - 5).replace('/', '.') + "Test");
         Object result = DialogDisplayer.getDefault().notify(new DialogDescriptor(gui, "Create TestNG Test"));
         if (DialogDescriptor.OK_OPTION.equals(result)) {
-            FileObject templateFO = Repository.getDefault().getDefaultFileSystem().findResource("Templates/TestNG/TestNGTest.java");
+            FileObject templateFO = FileUtil.getConfigFile("Templates/TestNG/TestNGTest.java");
             DataObject templateDO = null;
             try {
                 templateDO = DataObject.find(templateFO);

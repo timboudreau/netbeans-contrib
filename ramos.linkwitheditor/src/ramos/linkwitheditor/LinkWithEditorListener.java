@@ -38,8 +38,6 @@ import org.netbeans.modules.editor.NbEditorUtilities;
 
 import org.openide.cookies.InstanceCookie;
 
-import org.openide.filesystems.Repository;
-
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 
@@ -54,7 +52,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 import javax.swing.Action;
-import javax.swing.SwingUtilities;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -100,10 +98,7 @@ public class LinkWithEditorListener
   public static Object getTheObject(final String pathInSystemFilesystem)
     throws DataObjectNotFoundException, IOException, ClassNotFoundException {
     InstanceCookie ck;
-    ck = (InstanceCookie) DataObject.find(Repository.getDefault()
-                                                    .getDefaultFileSystem()
-                                                    .getRoot()
-                                                    .getFileObject(pathInSystemFilesystem))
+    ck = (InstanceCookie) DataObject.find(FileUtil.getConfigFile(pathInSystemFilesystem))
                                     .getCookie(InstanceCookie.class);
 
     return ck.instanceCreate();

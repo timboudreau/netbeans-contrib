@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 /**
  * Tools for executing of ant scripts
@@ -66,7 +65,7 @@ public class ExecutionTools {
      */
     public static FileObject initScript(String resource) throws IOException {
         FileObject script;
-        FileObject sfo = Repository.getDefault().getDefaultFileSystem().findResource(resource);
+        FileObject sfo = FileUtil.getConfigFile(resource);
         File sf = File.createTempFile("project-packager","xml");
         sf.deleteOnExit();
         InputStream in = sfo.getInputStream();

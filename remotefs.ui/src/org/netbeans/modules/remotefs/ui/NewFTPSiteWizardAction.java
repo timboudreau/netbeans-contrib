@@ -14,8 +14,7 @@ import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
@@ -63,7 +62,7 @@ public final class NewFTPSiteWizardAction extends CallableSystemAction {
               //  Repository.getDefault().addFileSystem(fs);
                 ((RootNode.RootNodeChildren)ftpx.getChildren()).add(fs);
                 try {
-                    DataObject find = DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("FTPSites"));
+                    DataObject find = DataObject.find(FileUtil.getConfigFile("FTPSites"));
                     FileObject fld = find.getPrimaryFile();
                     String baseName = info.getUser() + "@" + info.getHost();
                     FileObject writeTo = fld.createData(baseName, "ser");

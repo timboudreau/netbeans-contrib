@@ -43,7 +43,6 @@ package org.netbeans.modules.enode;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -60,11 +59,11 @@ import javax.swing.JComponent;
 import javax.swing.JSeparator;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.util.WeakListeners;
 
 import org.netbeans.api.enode.*;
 import org.netbeans.api.registry.*;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Object that helps the ExtensibleNode to keep track of
@@ -362,14 +361,14 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
     }
 
     private String tryToResolveShadow(String shadowLocation) {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(shadowLocation + ".shadow");
+        FileObject fo = FileUtil.getConfigFile(shadowLocation + ".shadow");
         if (fo != null) {
             String origPathAttr = (String)fo.getAttribute("originalFile");
             if (origPathAttr == null) {
                 log.fine("Shadow file " + fo.getPath() + " is missing the originalFile attribute");
                 return null;
             }
-            FileObject origAction = Repository.getDefault().getDefaultFileSystem().findResource(origPathAttr);
+            FileObject origAction = FileUtil.getConfigFile(origPathAttr);
             if (origAction == null) {
                 log.fine("originalFile attribute (" + origPathAttr + ") of " + fo.getPath() + " does not reference existing action.");
                 return null;

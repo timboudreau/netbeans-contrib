@@ -21,13 +21,11 @@ import org.netbeans.modules.toolsintegration.XMLStorage.Attribs;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataShadow;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -65,7 +63,7 @@ public class Model {
     private static List load () {
         try {
             FileObject toolsFO = FileUtil.createFolder (
-                Repository.getDefault ().getDefaultFileSystem ().getRoot (),
+                FileUtil.getConfigRoot (),
                 "ExternalTools"
             );
             List result = new ArrayList ();
@@ -89,7 +87,7 @@ public class Model {
         // 1) get root folder and delete old data
         try {
             FileObject toolsFO = FileUtil.createFolder (
-                Repository.getDefault ().getDefaultFileSystem ().getRoot (),
+                FileUtil.getConfigRoot (),
                 "ExternalTools"
             );
             Enumeration en = toolsFO.getChildren (false);
@@ -98,7 +96,7 @@ public class Model {
                 file.delete ();
             }
             FileObject menuFO = FileUtil.createFolder (
-                Repository.getDefault ().getDefaultFileSystem ().getRoot (),
+                FileUtil.getConfigRoot (),
                 "Menu/Tools/ExternalTools"
             );
             en = menuFO.getChildren (false);

@@ -52,7 +52,7 @@ import org.netbeans.api.jackpot.Transformer;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -72,7 +72,7 @@ public class InspectionsList extends AbstractListModel {
     }
     
     private InspectionsList() {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("/Jackpot/Inspections"); // NOI18N
+        FileObject fo = FileUtil.getConfigFile("Jackpot/Inspections"); // NOI18N
         inspectionsRoot = DataFolder.findFolder(fo);
         updateInspectionList();
         inspectionsRoot.addPropertyChangeListener(new PropertyChangeListener() {
@@ -83,7 +83,7 @@ public class InspectionsList extends AbstractListModel {
     }
     
     public Inspection create(String query, String refactoring, String description) throws IOException {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("/Templates/Jackpot/Rules.rules"); // NOI18N
+        FileObject fo = FileUtil.getConfigFile("Templates/Jackpot/Rules.rules"); // NOI18N
         DataObject template = DataObject.find(fo);
         DataObject dao = template.createFromTemplate(inspectionsRoot, query);
         return add(dao, query, refactoring, description);

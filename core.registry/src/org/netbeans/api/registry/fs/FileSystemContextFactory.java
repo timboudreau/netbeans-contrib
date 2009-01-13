@@ -48,7 +48,6 @@ import org.netbeans.core.registry.ResettableContextImpl;
 import org.netbeans.spi.registry.BasicContext;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.Repository;
 
 /**
  * This class contains helper methods for creation of BasicContext over the
@@ -74,7 +73,7 @@ public final class FileSystemContextFactory {
         BasicContext rc;
         boolean isSFS = false;
         try {
-            isSFS = root.getFileSystem().equals(Repository.getDefault().getDefaultFileSystem());
+            isSFS = root.getFileSystem().isDefault();
         } catch (FileStateInvalidException ex) {
             Logger.getLogger(FileSystemContextFactory.class.getName()).log(
                     Level.FINE, "", ex);

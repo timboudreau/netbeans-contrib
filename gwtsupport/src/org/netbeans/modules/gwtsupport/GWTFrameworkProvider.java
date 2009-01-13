@@ -69,10 +69,8 @@ import org.netbeans.spi.java.project.classpath.ProjectClassPathExtender;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileSystem.AtomicAction;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -401,7 +399,7 @@ public class GWTFrameworkProvider extends WebFrameworkProvider {
         assert folder != null;
         assert folder.isFolder();
         assert cls != null;
-        final FileObject jc = Repository.getDefault().getDefaultFileSystem().findResource(TEMPLATE_JAVA_CLASS);
+        final FileObject jc = FileUtil.getConfigFile(TEMPLATE_JAVA_CLASS);
         assert jc != null;
         final DataObject template = DataObject.find(jc);
         assert template != null;
@@ -426,9 +424,7 @@ public class GWTFrameworkProvider extends WebFrameworkProvider {
             _javadoc = Collections.singletonList(gwtJavadoc.toURI().toURL());
         }
         final List<URL> javadoc = _javadoc;
-        final FileSystem sysFs = Repository.getDefault().getDefaultFileSystem();
-        assert sysFs != null;
-        final FileObject libsFolder = sysFs.findResource(LIBS_FOLDER);
+        final FileObject libsFolder = FileUtil.getConfigFile(LIBS_FOLDER);
         assert libsFolder != null && libsFolder.isFolder();
         FileObject gwt = libsFolder.getFileObject(LIB_GWT);
         if (gwt == null) {

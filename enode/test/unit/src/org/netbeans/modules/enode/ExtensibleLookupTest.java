@@ -91,12 +91,12 @@ public class ExtensibleLookupTest extends NbTestCase {
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
         String baseFolder = ExtensibleNode.E_NODE_LOOKUP.substring(1, ExtensibleNode.E_NODE_LOOKUP.length()-1);
-        root = Repository.getDefault().getDefaultFileSystem().findResource(baseFolder);
+        root = FileUtil.getConfigFile(baseFolder);
         if (root == null) {
             String s = baseFolder.substring(0, baseFolder.lastIndexOf('/'));
-            FileObject f1 = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(s);
+            FileObject f1 = FileUtil.getConfigFile(s);
             if (f1 == null) {
-                f1 = Repository.getDefault().getDefaultFileSystem().getRoot().createFolder(s);
+                f1 = FileUtil.getConfigRoot().createFolder(s);
             }
             root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
         }

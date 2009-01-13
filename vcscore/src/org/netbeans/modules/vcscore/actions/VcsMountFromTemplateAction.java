@@ -56,6 +56,7 @@ import org.openide.awt.Actions;
 import org.openide.explorer.view.MenuView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
@@ -83,7 +84,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     
     private static DataFolder getVCSFolder() {
         if (vcsFolder == null) {
-            vcsFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("VCSMountTemplates"));
+            vcsFolder = DataFolder.findFolder(FileUtil.getConfigFile("VCSMountTemplates"));
         }
         return vcsFolder;
     }
@@ -384,7 +385,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
          * a option which is not CANCEL_OPTION or CLOSED_OPTION.
          */
         protected synchronized java.util.Set handleInstantiate() throws java.io.IOException {
-            org.openide.filesystems.Repository.getDefault ().getDefaultFileSystem ().runAtomicAction (this);
+            FileUtil.runAtomicAction (this);
             
             return retValue;
         }

@@ -42,17 +42,10 @@
 package org.netbeans.modules.actions.support;
 
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.net.URL;
-import java.util.Arrays;
-import junit.framework.TestCase;
 import javax.swing.Action;
 import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.XMLFileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 
@@ -69,8 +62,7 @@ public class GeneralActionTest extends NbTestCase {
     
     protected void setUp() throws Exception {
         Lookup.getDefault().lookup(org.openide.modules.ModuleInfo.class);
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        folder = fs.findResource("actions/support/test");
+        folder = FileUtil.getConfigFile("actions/support/test");
         assertNotNull("testing layer is loaded: ", folder);
     }
     

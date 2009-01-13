@@ -51,14 +51,14 @@ import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.MultiFileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
-import org.openide.nodes.PropertySupport.ReadOnly;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -110,8 +110,13 @@ class SFSNode extends FilterNode {
      */
     private Action[] getActions(Node node) {
         List<Action> actions = new LinkedList<Action>();
-        MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-        FileObject root = multiFileSystem.getRoot();
+        FileObject root = FileUtil.getConfigRoot();
+        MultiFileSystem multiFileSystem = null;
+        try {
+            multiFileSystem = (MultiFileSystem) root.getFileSystem();
+        } catch (FileStateInvalidException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         SFSBrowserTopComponent.collectActions(node, actions, platform, root);
         DataObject dataObject = node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {

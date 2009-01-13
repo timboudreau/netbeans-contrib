@@ -43,8 +43,6 @@ package org.netbeans.modules.bookmarks;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.*;
-import javax.swing.*;
 
 import junit.textui.TestRunner;
 
@@ -52,8 +50,6 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileSystem;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.*;
@@ -63,6 +59,7 @@ import org.openide.loaders.DataObject;
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.Context;
 import org.netbeans.modules.bookmarks.test.TestBookmark;
+import org.openide.filesystems.FileUtil;
 
 /** 
  * Tests for the BookmarkService class. Those tests run
@@ -89,14 +86,13 @@ public class BookmarkServiceTest extends NbTestCase {
      */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
         String baseFolder = BookmarkServiceImpl.BOOKMARKS_FOLDER; 
-        root = dfs.findResource(baseFolder);
+        root = FileUtil.getConfigFile(baseFolder);
         if (root == null) {
             String s1 = baseFolder.substring(0, baseFolder.lastIndexOf('/'));
-            FileObject f1 = dfs.findResource(s1);
+            FileObject f1 = FileUtil.getConfigFile(s1);
             if (f1 == null) {
-                f1 = dfs.getRoot().createFolder(s1);
+                f1 = FileUtil.getConfigRoot().createFolder(s1);
             } 
             root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
         }

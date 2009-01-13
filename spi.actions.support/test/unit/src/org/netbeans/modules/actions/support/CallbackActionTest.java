@@ -49,12 +49,10 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
-import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.spi.actions.support.Factory;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
@@ -77,8 +75,7 @@ public class CallbackActionTest extends NbTestCase {
     
     protected void setUp() throws Exception {
         Lookup.getDefault().lookup(org.openide.modules.ModuleInfo.class);
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        folder = fs.findResource("actions/support/test");
+        folder = FileUtil.getConfigFile("actions/support/test");
         assertNotNull("testing layer is loaded: ", folder);
     }
     

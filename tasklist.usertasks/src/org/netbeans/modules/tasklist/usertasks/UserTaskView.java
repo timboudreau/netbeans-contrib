@@ -43,7 +43,6 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableModel;
 import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.InputEvent;
@@ -116,9 +115,7 @@ import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -860,8 +857,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      * Loads filters
      */
     protected void loadFilters() {
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + // NOI18N
+        FileObject fo = FileUtil.getConfigFile("TaskList/" + // NOI18N
                 USER_CATEGORY + "/filters.settings"); // NOI18N
         assert fo != null : "Missing config TaskList/" + // NOI18N
                 USER_CATEGORY + "/filters.settings";  // NOI18N

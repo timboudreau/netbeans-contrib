@@ -20,7 +20,6 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
@@ -52,7 +51,7 @@ final class ExplorerTopComponent extends TopComponent implements ExplorerManager
                 setToolTipText(NbBundle.getMessage(ExplorerTopComponent.class, "HINT_ExplorerTopComponent"));
                 setIcon(Utilities.loadImage(ICON_PATH, true));
                 this.manager = new ExplorerManager();
-                DataObject find = DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("FTPSites"));
+                DataObject find = DataObject.find(FileUtil.getConfigFile("FTPSites"));
                 FileObject[] files = find.getPrimaryFile().getChildren();
                 List<FTPLogInfo> siteInfos = new ArrayList<FTPLogInfo>();
                 for (int i = 0; i < files.length; i++) {

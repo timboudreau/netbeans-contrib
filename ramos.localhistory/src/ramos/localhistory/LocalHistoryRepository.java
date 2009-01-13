@@ -39,7 +39,6 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -79,10 +78,7 @@ public class LocalHistoryRepository
   private static final String DOT = ".";
   private static final String DOS_PUNTOS = ":";
   private static final String EMPTY = "";
-  private FileObject LHRepositoryDir = Repository.getDefault()
-     .getDefaultFileSystem()
-     .getRoot()
-     .getFileObject("local history");
+  private FileObject LHRepositoryDir = FileUtil.getConfigFile("local history");
   private HashMap<DataObject, Date> lastModifiedRecord = new HashMap<DataObject, Date>();
   
   /** Creates a new instance of LocalHistoryRepository */
@@ -332,7 +328,7 @@ public class LocalHistoryRepository
     //      try {
     //         //ausser wenn es in system filesystem passiert
     //         if (!ev.getObject().getPrimaryFile().getFileSystem()
-    //                  .equals(Repository.getDefault().getDefaultFileSystem())) {
+    //                  .isDefault()) {
     //            //find  folder for store deleted entries
     //            FileObject deletedFolder = LHRepositoryDir.getFileObject("deleted");
     //
@@ -371,7 +367,7 @@ public class LocalHistoryRepository
     //use parent to build oldPath
     //      try {
     //         if (!ev.getObject().getPrimaryFile().getFileSystem()
-    //                  .equals(Repository.getDefault().getDefaultFileSystem())) {
+    //                  .isDefault()) {
     //            //System.out.println("operationMove");
     ////            handleLocalHistory(ev.getObject());
     ////            makeLocalHistoryCopy(ev.getObject());
@@ -403,7 +399,7 @@ public class LocalHistoryRepository
   public void operationPostCreate(final OperationEvent ev) {
     //    try {
     //         if (!ev.getObject().getPrimaryFile().getFileSystem()
-    //                  .equals(Repository.getDefault().getDefaultFileSystem())) {
+    //                  .isDefault()) {
     //            //System.out.println("operationCreateFromTemplate");
     //            handleLocalHistory(ev.getObject());
     //            //makeLocalHistoryCopy(ev.getObject(),"POSTCREATE recognition");
@@ -444,7 +440,7 @@ public class LocalHistoryRepository
     
     //     try {
     //         if (!ev.getObject().getPrimaryFile().getFileSystem()
-    //                  .equals(Repository.getDefault().getDefaultFileSystem())) {
+    //                  .isDefault()) {
     //            //System.out.println("operationMove");
     //            //should move paths instead
     //            String oldPath = FileUtil.toFile(ev.getOriginalPrimaryFile()).getAbsolutePath();
@@ -503,7 +499,7 @@ public class LocalHistoryRepository
     try {
       ret = dataObject.getPrimaryFile()
          .getFileSystem()
-         .equals(Repository.getDefault().getDefaultFileSystem());
+         .isDefault();
     } catch (final FileStateInvalidException ex) {
       ex.printStackTrace();
     }

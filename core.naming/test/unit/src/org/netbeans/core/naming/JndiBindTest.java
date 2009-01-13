@@ -46,7 +46,6 @@ import junit.textui.TestRunner;
 
 import java.util.*;
 import javax.naming.*;
-import java.io.File;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.modules.ModuleInfo;
@@ -73,7 +72,7 @@ public class JndiBindTest extends NbTestCase {
         Lookup.getDefault().lookup(ModuleInfo.class);
 
         context = new Jndi().getInitialContext (null);
-        root = Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        root = FileUtil.getConfigRoot ();
     }
     
     public void testContextCreation () throws Exception {

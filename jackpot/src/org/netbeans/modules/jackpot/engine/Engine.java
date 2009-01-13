@@ -45,7 +45,6 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.modules.classfile.ClassFile;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -281,7 +280,7 @@ public class Engine {
             path = path.substring(5);
         final InputStream is;
         final long lastmod;
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(path);
+        FileObject fo = FileUtil.getConfigFile(path);
         if (fo == null) {
             File f = new File(path);
             fo = FileUtil.toFileObject(f);

@@ -47,12 +47,11 @@ import java.util.Collections;
 import org.netbeans.samples.modulesystem.sayhello.api.HelloProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 public class ReadTip implements HelloProvider {
     public String giveMeATip() {
         try {
-            FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
+            FileObject root = FileUtil.getConfigRoot();
             FileObject hello = FileUtil.createFolder(root, "HelloWorld");
             hello.refresh();
             FileObject[] arr = hello.getChildren();

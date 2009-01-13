@@ -948,8 +948,7 @@ public class VariableInputDescriptor extends Object {
      * @throws IOException
      */
     private FileObject locateSettingsFile(String command, String provider, boolean createIfDoesNotExist) throws IOException {
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.getRoot();
+        FileObject fo = FileUtil.getConfigRoot();
 //        FileObject config = fo.getFileObject("config");
 //        if (config == null) {
 //            if (createIfDoesNotExist) {

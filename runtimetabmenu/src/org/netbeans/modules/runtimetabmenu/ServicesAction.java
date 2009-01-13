@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
@@ -48,7 +48,7 @@ public final class ServicesAction extends CallableSystemAction implements Presen
     public JMenuItem getMenuPresenter() {
         JMenu result = new JMenu();
         result.setText (getName());
-        FileObject fld = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("UI/Runtime");
+        FileObject fld = FileUtil.getConfigFile("UI/Runtime");
         if (fld != null) {
             try {
                 DataObject dob = DataObject.find (fld);

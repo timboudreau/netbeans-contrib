@@ -42,22 +42,17 @@
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 
 import org.netbeans.api.vcs.commands.Command;
@@ -66,9 +61,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
-import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
@@ -110,8 +103,7 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
      * created or the path contains spaces. CVS can not handle spaces in the editor executable.
      */
     private static File createCatExec() {        
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject root = fs.getRoot();
+        FileObject root = FileUtil.getConfigRoot();
         java.io.File rootFile = FileUtil.toFile(root);
         if (rootFile == null) {
             // The default FS directory either does not exist or contains spaces.
@@ -119,7 +111,7 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
             // perform a workaround - put wincat.bat into the current folder.
             return null;
         }
-        FileObject winCat = fs.findResource(WIN_CAT_FOLDER+"/"+WIN_CAT_NAME+"."+WIN_CAT_EXT);
+        FileObject winCat = FileUtil.getConfigFile(WIN_CAT_FOLDER+"/"+WIN_CAT_NAME+"."+WIN_CAT_EXT);
         //System.out.println("winCat = "+winCat+", fs = "+fs);
         //System.out.println("fs instanceof AbstractFileSystem.Change = "+(fs instanceof AbstractFileSystem.Change));
         if (winCat == null) {

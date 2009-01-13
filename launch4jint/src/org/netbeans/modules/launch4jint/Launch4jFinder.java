@@ -45,7 +45,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 
 /** Handles location of Launch4j installation, asks the user and persists
  * received information.
@@ -61,8 +61,7 @@ public class Launch4jFinder {
     /** A little hack - file object as placeholder to store simple data as its
      * properties */
     private static String CONFIG_PATH = "Services/org-netbeans-modules-launch4jint-Config.data";
-    private static final FileObject configFO = Repository.getDefault().getDefaultFileSystem().
-                                findResource(CONFIG_PATH);
+    private static final FileObject configFO = FileUtil.getConfigFile(CONFIG_PATH);
     
     /** Accepts only files named "launch4j.jar" */
     private static final FilenameFilter LAUNCH4J_JAR = new FilenameFilter () {

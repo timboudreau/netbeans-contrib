@@ -31,7 +31,6 @@
 package ramos.localhistory;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +42,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -50,10 +50,7 @@ import java.util.ListIterator;
  * @author Ramon Ramos
  */
 public class CleanUp {
-  private static FileObject theDir = Repository.getDefault()
-                                        .getDefaultFileSystem()
-                                        .getRoot()
-                                        .getFileObject("local history");
+  private static FileObject theDir = FileUtil.getConfigFile("local history");
   //private int maxcount = 1000;
   private static HashMap<String, List<FileObject>> pathAndListMap;
   private static int deleted = 0;

@@ -9,7 +9,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.TreeTableView;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
@@ -46,9 +46,7 @@ final class DeletedFilesTopComponent extends TopComponent
       map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
       map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
       lookup = ExplorerUtils.createLookup(manager, map);
-      FileObject folder = Repository.getDefault().getDefaultFileSystem()
-                                         .getRoot()
-                                         .getFileObject("local history").getFileObject("deleted");
+      FileObject folder = FileUtil.getConfigFile("local history").getFileObject("deleted");
       try {
          manager.setRootContext(DataObject.find(folder).getNodeDelegate());
       } catch (DataObjectNotFoundException ex) {

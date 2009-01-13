@@ -45,7 +45,6 @@ import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.core.Background;
 import org.netbeans.modules.tasklist.core.CancellableRunnable;
-import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.Cancellable;
 import org.openide.ErrorManager;
@@ -64,6 +63,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.IOException;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Scans project for source todos action performer.
@@ -207,8 +207,7 @@ final class SourceTasksScanner {
     static boolean project(List folders) {
         // HACK XXX ProjectCookie is deprecated without replacement
         // access it's registration file directly
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject registration = fs.findResource("Services/Hidden/org-netbeans-modules-projects-ProjectCookieImpl.instance");
+        FileObject registration = FileUtil.getConfigFile("Services/Hidden/org-netbeans-modules-projects-ProjectCookieImpl.instance");
         if (registration == null) {
             // it's not installed or some incomaptible version
             return false;

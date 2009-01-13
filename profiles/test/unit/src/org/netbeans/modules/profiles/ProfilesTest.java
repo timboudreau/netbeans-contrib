@@ -73,7 +73,7 @@ public class ProfilesTest extends NbTestCase {
     protected void setUp() throws Exception {
         clearWorkDir();
         
-        fs = Repository.getDefault ().getDefaultFileSystem ();
+        fs = FileUtil.getConfigRoot().getFileSystem();
         
         assertEquals ("We are really using the core filesystem", "org.netbeans.core.startup.layers.SystemFileSystem", fs.getClass ().getName ());
 
@@ -177,7 +177,7 @@ public class ProfilesTest extends NbTestCase {
         );
         org.netbeans.core.startup.Main.getModuleSystem ().getManager ().enable (m);
         
-        FileObject p = Repository.getDefault ().getDefaultFileSystem ().findResource ("Profiles/SomeProfile.profile");
+        FileObject p = FileUtil.getConfigFile ("Profiles/SomeProfile.profile");
         assertNotNull ("Profile has been generated", p);
         XMLFileSystem fs = new XMLFileSystem (p.getURL ());
             

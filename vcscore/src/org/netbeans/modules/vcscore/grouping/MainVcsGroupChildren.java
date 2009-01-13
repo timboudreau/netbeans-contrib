@@ -74,16 +74,14 @@ public class MainVcsGroupChildren extends Children.Keys  {
     
         /** add subnodes..
          */
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
+        rootFo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH);
         if (rootFo != null) {
             rootFo.addFileChangeListener(fsListener);
         }
     }
     
     public static DataFolder getMainVcsGroupFolder() {
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
+        FileObject rootFo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH);
         DataFolder fold = null;
         try {
             fold = (DataFolder)DataObject.find(rootFo);
@@ -167,8 +165,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
         /** add subnodes..
          */
         List grList = new LinkedList();
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
+        rootFo = FileUtil.getConfigFile(MainVcsGroupNode.GROUPS_PATH);
         if (rootFo != null) {
             Enumeration en = rootFo.getChildren(false);
             if (en != null) {

@@ -48,7 +48,7 @@ import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -64,7 +64,7 @@ public class MainParser {
 
     private MainParser() {
         //Creating Parser instance
-        perspectiveBase = Repository.getDefault().getDefaultFileSystem().findResource(LAYER_DIR);
+        perspectiveBase = FileUtil.getConfigFile(LAYER_DIR);
 
     }
 
@@ -141,8 +141,7 @@ public class MainParser {
     }
 
     public synchronized void hidePerspective(PerspectiveImpl p) {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().
-                findResource(LAYER_DIR + "/" + p.getName());
+        FileObject fo = FileUtil.getConfigFile(LAYER_DIR + "/" + p.getName());
         if (fo != null) {
             clear(fo);
         }
@@ -166,8 +165,7 @@ public class MainParser {
     }
     
     public void resetPerspective(PerspectiveImpl p){
-       FileObject fo = Repository.getDefault().getDefaultFileSystem().
-                findResource(LAYER_DIR + "/" + p.getName());
+       FileObject fo = FileUtil.getConfigFile(LAYER_DIR + "/" + p.getName());
         if (fo != null) {
             Callable callable = (Callable) fo.getAttribute("removeWritables");
         if (callable != null) {

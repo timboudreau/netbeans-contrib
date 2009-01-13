@@ -35,7 +35,7 @@ import java.io.Serializable;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
@@ -78,7 +78,7 @@ public class RuntimeNodeTC extends TopComponent implements ExplorerManager.Provi
     }
     
     private static Node nodeFor (String path) {
-        FileObject base = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(path);
+        FileObject base = FileUtil.getConfigFile(path);
         Node result = null;
         if (base != null) {
             try {

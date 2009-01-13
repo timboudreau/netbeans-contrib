@@ -56,7 +56,7 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import org.netbeans.spi.project.ui.support.FileSensitiveActions;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
@@ -91,7 +91,7 @@ public final class Command implements Serializable, Action, Presenter.Menu, Pres
     }
     
     private static DataFolder folder(String path) {
-        FileObject f = Repository.getDefault().getDefaultFileSystem().findResource(path);
+        FileObject f = FileUtil.getConfigFile(path);
         return f != null ? DataFolder.findFolder(f) : null;
     }
 

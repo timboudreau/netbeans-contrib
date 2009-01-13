@@ -33,8 +33,7 @@ import javax.swing.DefaultListModel;
 import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 
@@ -204,8 +203,7 @@ public class LanguagesManagerPanel extends javax.swing.JPanel {
         String name = (String) ltLanguages.getSelectedValue ();
         if (name == null) return;
         String mimeType = (String) nameToMimeType.get (name);
-        FileSystem fs = Repository.getDefault ().getDefaultFileSystem ();
-        FileObject fo = fs.findResource ("Editors/" + mimeType + "/language.nbs");
+        FileObject fo = FileUtil.getConfigFile ("Editors/" + mimeType + "/language.nbs");
         try {
             DataObject dob = DataObject.find (fo);
             OpenCookie oc = (OpenCookie) dob.getCookie (OpenCookie.class);
@@ -217,8 +215,7 @@ public class LanguagesManagerPanel extends javax.swing.JPanel {
     
     private static Set<String> getSupportedMimeTypes () {
         Set<String> result = new HashSet<String> ();
-        FileSystem fs = Repository.getDefault ().getDefaultFileSystem ();
-        FileObject root = fs.findResource ("Editors");
+        FileObject root = FileUtil.getConfigFile ("Editors");
         Enumeration e1 = root.getChildren (false);
         while (e1.hasMoreElements ()) {
             FileObject f1 = (FileObject) e1.nextElement ();

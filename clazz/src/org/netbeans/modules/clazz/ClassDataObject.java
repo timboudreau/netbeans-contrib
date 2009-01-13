@@ -70,7 +70,6 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
@@ -418,7 +417,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
 
     static NodeFactoryPool createFactoryPool(String folderName, ElementNodeFactory def) {
-        FileObject f = Repository.getDefault().getDefaultFileSystem().findResource(folderName);
+        FileObject f = FileUtil.getConfigFile(folderName);
 	if (f == null)
     	    return null;
         try {

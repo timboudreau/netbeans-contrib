@@ -63,7 +63,7 @@ public class DefaultScalaPlatformProvider implements ScalaPlatformProvider, File
     private ScalaPlatform defaultPlatform;
 
     public DefaultScalaPlatformProvider () {
-        storage = Repository.getDefault().getDefaultFileSystem().findResource(PLATFORM_STORAGE);
+        storage = FileUtil.getConfigFile(PLATFORM_STORAGE);
         if (storage == null) {
             // Turn this off since it can confuse unit tests running w/o layer merging.
             //assert false : "Cannot find platforms storage";

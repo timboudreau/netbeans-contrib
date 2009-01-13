@@ -47,13 +47,13 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.spi.registry.BasicContext;
 import org.netbeans.spi.registry.SpiUtils;
-import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -84,7 +84,7 @@ public class EventsTest extends NbTestCase {
         final Context ctx = getRootContext().createSubcontext("testFromAtomicAction1");
         Listener listener = new Listener();
         ctx.addContextListener(listener);
-        Repository.getDefault().getDefaultFileSystem().runAtomicAction(
+        FileUtil.runAtomicAction(
             new FileSystem.AtomicAction() {
                 public void run() throws java.io.IOException {
                     try {
@@ -145,7 +145,7 @@ public class EventsTest extends NbTestCase {
          */
         badMode = true;
        
-        BasicContext root = FileSystemContextFactory.createContext(Repository.getDefault().getDefaultFileSystem().getRoot());
+        BasicContext root = FileSystemContextFactory.createContext(FileUtil.getConfigRoot());
         Context rootContext_  = SpiUtils.createContext(root);
         Context ctx = rootContext_.createSubcontext("ev1/en3/ts3");
 

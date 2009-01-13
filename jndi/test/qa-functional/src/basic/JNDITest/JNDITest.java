@@ -92,8 +92,7 @@ public class JNDITest extends org.netbeans.junit.NbTestCase {
             Helper.printProperties (providersNode, ref);
 
         /* Get JNDI System DataFolder */
-            FileSystem dfs = Repository.getDefault ().getDefaultFileSystem ();
-            FileObject[] fos = dfs.getRoot ().getChildren ();
+            FileObject[] fos = FileUtil.getConfigRoot ().getChildren ();
             DataFolder jndiDataFolder = null;
             for (int i = 0; i < fos.length; i ++)
                 if (fos [i].getName ().equals ("JNDI")) {

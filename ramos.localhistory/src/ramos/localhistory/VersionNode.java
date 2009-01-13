@@ -46,7 +46,6 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -221,10 +220,7 @@ public class VersionNode
       //revert secondaries.path to secondaries
       String filenameOfSecondaryCopy = (String)value;
       //get FO
-      FileObject dir = Repository.getDefault()
-         .getDefaultFileSystem()
-         .getRoot()
-         .getFileObject("local history");
+      FileObject dir = FileUtil.getConfigFile("local history");
       FileObject secondaryCopy = dir.getFileObject(filenameOfSecondaryCopy);
       String pathOfSecondary = (String) secondaryCopy.getAttribute("path");
       InputStream secondaryCopyInputStream = null;
@@ -283,10 +279,7 @@ public class VersionNode
             //revert secondaries.path to secondaries
             String filenameOfSecondaryCopy = (String)value;
             //get FO
-            FileObject dir = Repository.getDefault()
-               .getDefaultFileSystem()
-               .getRoot()
-               .getFileObject("local history");
+            FileObject dir = FileUtil.getConfigFile("local history");
             FileObject secondaryCopy = dir.getFileObject(filenameOfSecondaryCopy);
             try {
               secondaryCopy.delete();

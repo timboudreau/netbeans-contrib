@@ -43,7 +43,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.SwingUtilities;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -74,7 +74,7 @@ public class FeatureAction implements ActionListener, Runnable {
             return ;
         }
         
-        FileObject newFile = Repository.getDefault().getDefaultFileSystem().findResource(fo.getPath());
+        FileObject newFile = FileUtil.getConfigFile(fo.getPath());
         if (newFile == null) {
             throw new IllegalStateException("Cannot find file: " + fo.getPath());
         }

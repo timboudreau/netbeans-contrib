@@ -45,12 +45,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -71,13 +68,11 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
 
 /**
  *
@@ -197,7 +192,7 @@ public class ModuleOptions extends OptionProcessor {
 
                     final File file = f;
                     final String codebase = cnb;
-                    final FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
+                    final FileObject root = FileUtil.getConfigRoot();
                     final FileObject dir = FileUtil.createFolder(root, "Modules");
                     final String fn = cnb.replace('.', '-') + ".xml";
 

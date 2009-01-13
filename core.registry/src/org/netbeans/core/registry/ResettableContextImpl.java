@@ -47,8 +47,7 @@ import org.netbeans.spi.registry.SpiUtils;
 import org.netbeans.api.registry.ContextException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
-
+import org.openide.filesystems.FileUtil;
 import java.io.IOException;
 
 @org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.registry.BasicContext.class)
@@ -60,7 +59,7 @@ public class ResettableContextImpl extends ContextImpl implements ResettableCont
     private FileSystem customizations;
     
     public ResettableContextImpl () {
-        this (Repository.getDefault().getDefaultFileSystem().getRoot());        
+        this (FileUtil.getConfigRoot());
     }
     
     public ResettableContextImpl (FileObject folder) {

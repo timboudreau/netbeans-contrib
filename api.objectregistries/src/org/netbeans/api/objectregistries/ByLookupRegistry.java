@@ -48,7 +48,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.objectloader.ObjectLoader;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.Lookup.Provider;
 import org.openide.util.lookup.Lookups;
@@ -183,8 +183,7 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
     }
     
     private FileObject folderFor (String typeName) {
-        FileObject result = Repository.getDefault().getDefaultFileSystem().
-                getRoot().getFileObject(rootFolder + "/" + typeName);
+        FileObject result = FileUtil.getConfigFile(rootFolder + "/" + typeName);
         
         if (result != null && !result.isFolder()) {
             throw new IllegalStateException (result.getPath() + " is a " +

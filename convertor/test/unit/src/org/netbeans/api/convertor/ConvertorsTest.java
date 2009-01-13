@@ -43,19 +43,13 @@ package org.netbeans.api.convertor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.swing.JLabel;
 import org.netbeans.junit.*;
 import junit.textui.TestRunner;
-import org.netbeans.spi.convertor.Convertor;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 
@@ -77,7 +71,7 @@ public class ConvertorsTest extends NbTestCase {
     
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
-        Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        FileUtil.getConfigRoot ();
     }
     
     public void testCanRead() throws Exception {

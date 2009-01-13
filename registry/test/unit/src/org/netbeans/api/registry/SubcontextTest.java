@@ -45,6 +45,7 @@ import junit.textui.TestRunner;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
@@ -183,7 +184,7 @@ public class SubcontextTest extends NbTestCase {
     }
 
     protected FileObject getRoot() {
-        return Repository.getDefault ().getDefaultFileSystem ().getRoot ();
+        return FileUtil.getConfigRoot ();
     }
 
     protected FileObject findResource(String resource) {

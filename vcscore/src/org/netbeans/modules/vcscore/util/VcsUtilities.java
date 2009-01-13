@@ -42,13 +42,10 @@
 package org.netbeans.modules.vcscore.util;
 
 import java.awt.*;
-import java.beans.*;
 import java.io.*;
-import java.text.*;
 import java.util.*;
 import java.util.List;
 
-import org.openide.ErrorManager;
 import org.openide.execution.NbClassLoader;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -58,13 +55,11 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
-import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /** Miscelaneous stuff.
  * 
@@ -517,8 +512,9 @@ public class VcsUtilities {
     public static synchronized ClassLoader getSFSClassLoader() {
         if (sfsClassLoader == null) {
             sfsCLReset = false;
-            FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
+            FileSystem sfs = null;
             try {
+                sfs = FileUtil.getConfigRoot().getFileSystem();
                 sfsClassLoader = new NbClassLoader(new FileObject[] { sfs.getRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
             } catch (FileStateInvalidException e) {
                 throw new AssertionError(e);
@@ -534,7 +530,7 @@ public class VcsUtilities {
         }
         if (sfsCLReset) {
             try {
-                sfsClassLoader = new NbClassLoader(new FileObject[] { Repository.getDefault().getDefaultFileSystem().getRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
+                sfsClassLoader = new NbClassLoader(new FileObject[] { FileUtil.getConfigRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
             } catch (FileStateInvalidException e) {
                 throw new AssertionError(e);
             }

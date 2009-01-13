@@ -43,19 +43,13 @@ package org.netbeans.modules.docbook.resources.solbook;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -67,7 +61,6 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.docbook.OutputWindowStatus;
 import org.netbeans.api.docbook.Renderer;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -75,8 +68,6 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.NbBundle;
 import org.xml.sax.EntityResolver;
@@ -226,8 +217,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
     private FileObject getCss(FileObject outFile) {
         //Pending - find the owning project and see if there is a 
         //project css file - make something like o.n.a.d.ProjectCssProvider
-        FileObject fld = Repository.getDefault().getDefaultFileSystem().
-                getRoot().getFileObject ("docbook");
+        FileObject fld = FileUtil.getConfigFile ("docbook");
         if (fld != null) {
             FileObject css = fld.getFileObject ("docbook.css"); //NOI18N
             return css;

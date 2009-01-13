@@ -238,8 +238,7 @@ public class ClusteringAction extends GeneralCommandAction  {
         JMenuItem item=null;
         JMenu submenu = null;
 
-        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject menuRoot = defFs.findResource(menuPath);
+        FileObject menuRoot = FileUtil.getConfigFile(menuPath);
         if (menuRoot == null) {
             return;
         }

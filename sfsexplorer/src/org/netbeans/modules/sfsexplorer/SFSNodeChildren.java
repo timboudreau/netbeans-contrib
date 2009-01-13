@@ -44,7 +44,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
@@ -66,7 +66,7 @@ class SFSNodeChildren extends Children.Keys<Object> {
         DataObject dataObject = node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {
             FileObject fileObject = dataObject.getPrimaryFile();
-            if (fileObject != null && fileObject != Repository.getDefault().getDefaultFileSystem().getRoot()) {
+            if (fileObject != null && fileObject != FileUtil.getConfigRoot()) {
                 Enumeration<String> attributes = fileObject.getAttributes();
                 while (attributes.hasMoreElements()) {
                     String attribute = attributes.nextElement();

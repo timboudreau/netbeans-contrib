@@ -44,8 +44,6 @@ import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -166,14 +164,14 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                 fLock3.releaseLock();*/
                 FileObject wfc = fileObject.getFileObject("WorkflowConfig", "properties");
                 if (wfc == null) {
-                    FileObject wfcFileObject = Repository.getDefault().getDefaultFileSystem().findResource("templates/saw/WorkflowConfig.template");
+                    FileObject wfcFileObject = FileUtil.getConfigFile("templates/saw/WorkflowConfig.template");
                     wfc = FileUtil.copyFile(wfcFileObject, fileObject, "WorkflowConfig", "properties");
                 }
             }
 
           /*  FileObject sawTld = wm.getWebInf().getFileObject("SAW", "tld");
             if (sawTld == null) {
-                FileObject sawTldFileObject = Repository.getDefault().getDefaultFileSystem().findResource("templates/saw/SAW.tld");
+                FileObject sawTldFileObject = FileUtil.getConfigFile("templates/saw/SAW.tld");
                 FileUtil.copyFile(sawTldFileObject, wm.getWebInf(), "SAW", "tld");
             }*/
 

@@ -42,8 +42,6 @@
 package org.netbeans.core.naming;
 
 import javax.naming.*;
-import java.io.File;
-import javax.swing.Action;
 import java.util.*;
 
 import org.netbeans.junit.*;
@@ -52,7 +50,7 @@ import junit.textui.TestRunner;
 import org.openide.util.Lookup;
 import org.openide.loaders.*;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInfo;
 
 /** Checks whether changes in system filesystem are correctly propagated
@@ -81,7 +79,7 @@ public class JndiFindTest extends NbTestCase {
         
         context = new Jndi().getInitialContext (null);
 
-        folder = Repository.getDefault ().getDefaultFileSystem().getRoot ();
+        folder = FileUtil.getConfigRoot ();
         root = DataFolder.findFolder (folder);
         
         FileObject fo = folder.getFileObject("My");

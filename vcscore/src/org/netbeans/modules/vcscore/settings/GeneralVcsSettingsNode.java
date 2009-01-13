@@ -68,8 +68,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
         setName ("General Vcs Settings"); // or, super.setName if needed  //NOI18N
         setDisplayName(NbBundle.getMessage(GeneralVcsSettingsNode.class, "LBL_GeneralVcsSettingsNode")); //NOI18N
         setShortDescription(NbBundle.getMessage(GeneralVcsSettingsNode.class, "HINT_GeneralVcsSettingsNode")); //NOI18N
-        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = defFs.findResource("Services/Hidden/VersionControl"); //NOI18N
+        FileObject fo = FileUtil.getConfigFile("Services/Hidden/VersionControl"); //NOI18N
         if (fo != null) {
             DataObject dobj;
             try {
@@ -159,8 +158,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
     }
     
     private void putProperties(Sheet.Set props) {
-        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = defFs.findResource("Services/Hidden/org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings"); //NOI18N
+        FileObject fo = FileUtil.getConfigFile("Services/Hidden/org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings"); //NOI18N
         if (fo != null) {
             DataObject dobj;
             try {

@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
 import org.netbeans.api.eview.ControlFactory;
 import org.netbeans.api.registry.AttributeEvent;
 import org.netbeans.api.registry.BindingEvent;
@@ -56,7 +55,7 @@ import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextListener;
 import org.netbeans.api.registry.SubcontextEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.WeakListeners;
 
 /**
@@ -118,8 +117,7 @@ public class Configuration {
     }
 
     private FileObject getConfigRoot() {
-        return Repository.getDefault().getDefaultFileSystem().findResource(
-                location);
+        return FileUtil.getConfigFile(location);
     }
     
     private void build() {

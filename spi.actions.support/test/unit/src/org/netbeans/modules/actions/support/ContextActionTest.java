@@ -61,8 +61,7 @@ import org.netbeans.spi.actions.support.ContextActionPerformer;
 import org.netbeans.spi.actions.support.ContextSelection;
 import org.netbeans.spi.actions.support.Factory;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
@@ -396,8 +395,7 @@ implements Lookup.Provider, ContextActionEnabler<ContextActionTest.Openable> {
     public void testContextXMLDefinition() throws Exception {
         FileObject folder;
         Lookup.getDefault().lookup(org.openide.modules.ModuleInfo.class);
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        folder = fs.findResource("actions/support/test");
+        folder = FileUtil.getConfigFile("actions/support/test");
         assertNotNull("testing layer is loaded: ", folder);
 
         FileObject fo = folder.getFileObject("testContext.instance");
@@ -462,8 +460,7 @@ implements Lookup.Provider, ContextActionEnabler<ContextActionTest.Openable> {
     public void testShareAcceleratorKey() {
         FileObject folder;
         Lookup.getDefault().lookup(org.openide.modules.ModuleInfo.class);
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        folder = fs.findResource("actions/support/test");
+        folder = FileUtil.getConfigFile("actions/support/test");
         assertNotNull("testing layer is loaded: ", folder);
 
         FileObject fo = folder.getFileObject("testContext.instance");
@@ -507,8 +504,7 @@ implements Lookup.Provider, ContextActionEnabler<ContextActionTest.Openable> {
     public void testBasicUsageWithEnablerFromLayer() throws Exception {
         FileObject folder;
         Lookup.getDefault().lookup(org.openide.modules.ModuleInfo.class);
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        folder = fs.findResource("actions/support/test");
+        folder = FileUtil.getConfigFile("actions/support/test");
         assertNotNull("testing layer is loaded: ", folder);
 
         FileObject fo = folder.getFileObject("testContextEnabler.instance");

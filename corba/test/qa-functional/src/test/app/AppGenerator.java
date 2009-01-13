@@ -70,7 +70,7 @@ import java.io.PrintStream;
 import junit.framework.AssertionFailedError;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import util.Environment;
 
 public class AppGenerator {
@@ -376,7 +376,7 @@ public class AppGenerator {
     }
     
     public static DataObject getTemplate(String name) {
-        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Templates/" + name);
+        FileObject fo = FileUtil.getConfigFile("Templates/" + name);
         if (fo == null)
             throw new AssertionFailedError ("Template not found: Template: " + name);
         try {

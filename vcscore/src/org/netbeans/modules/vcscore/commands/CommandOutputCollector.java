@@ -123,11 +123,10 @@ public final class CommandOutputCollector extends Object implements CommandProce
     
     private static synchronized void initRunningFolder() {
         if (runningFolder == null) {
-            org.openide.filesystems.FileSystem defaultFS = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-            FileObject fo = defaultFS.findResource(RUNNING_FOLDER_PATH);
+            FileObject fo = FileUtil.getConfigFile(RUNNING_FOLDER_PATH);
             if (fo == null) {
                 java.util.StringTokenizer folders = new java.util.StringTokenizer(RUNNING_FOLDER_PATH, "/");
-                FileObject root = defaultFS.getRoot();
+                FileObject root = FileUtil.getConfigRoot();
                 while(folders.hasMoreTokens()) {
                     String folder = folders.nextToken();
                     FileObject ff = root.getFileObject(folder);
@@ -141,7 +140,7 @@ public final class CommandOutputCollector extends Object implements CommandProce
                     }
                     root = ff;
                 }
-                fo = defaultFS.findResource(RUNNING_FOLDER_PATH);
+                fo = FileUtil.getConfigFile(RUNNING_FOLDER_PATH);
             }
             if (fo != null) {
                 runningFolder = FileUtil.toFile(fo);

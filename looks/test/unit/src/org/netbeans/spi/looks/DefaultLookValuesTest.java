@@ -53,7 +53,6 @@ import org.openide.util.Lookup;
 import org.netbeans.spi.looks.*;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.util.actions.NodeAction;
 
 
@@ -128,7 +127,7 @@ public class DefaultLookValuesTest extends TestBaseValues {
             "/" + MyAction.class.getName().replace('.', '-') + ".instance";
         
         FileObject fo = FileUtil.createData (
-            Repository.getDefault ().getDefaultFileSystem().getRoot(),
+            FileUtil.getConfigRoot(),
             folderName
         );
         

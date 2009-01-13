@@ -87,7 +87,7 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
 
     private void refreshChildren() {
         if (repFolder == null) {
-            repFolder = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(FOLDER_REPOSITORY);
+            repFolder = FileUtil.getConfigFile(FOLDER_REPOSITORY);
             repFolder.addFileChangeListener(this);
         }
         

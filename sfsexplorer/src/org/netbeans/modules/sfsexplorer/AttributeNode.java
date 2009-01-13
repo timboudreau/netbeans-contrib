@@ -46,8 +46,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MultiFileSystem;
-import org.openide.filesystems.Repository;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -119,8 +118,7 @@ class AttributeNode extends AbstractNode {
                 }
             }
         }
-        MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-        FileObject root = multiFileSystem.getRoot();
+        FileObject root = FileUtil.getConfigRoot();
         SFSBrowserTopComponent.collectActions(node, actions, platform, root);
         return actions.toArray(SFSBrowserTopComponent.EMPTY_ACTIONS);
     }

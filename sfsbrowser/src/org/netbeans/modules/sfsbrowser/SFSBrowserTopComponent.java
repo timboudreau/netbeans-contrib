@@ -62,11 +62,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -81,16 +78,14 @@ import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.InstanceCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.MultiFileSystem;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -147,7 +142,7 @@ final class SFSBrowserTopComponent extends TopComponent {
         sfsView.setRootVisible(false);
         try {
             sfsPanel.getExplorerManager().setRootContext(
-                    new SFSNode(DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate(),
+                    new SFSNode(DataObject.find(FileUtil.getConfigRoot()).getNodeDelegate(),
                     platform));
         } catch (DataObjectNotFoundException ex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
@@ -358,8 +353,13 @@ final class SFSBrowserTopComponent extends TopComponent {
 
         private Action[] getActions(Node node) {
             List<Action> actions = new LinkedList<Action>();
-            MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-            FileObject root = multiFileSystem.getRoot();
+            FileObject root = FileUtil.getConfigRoot();
+            MultiFileSystem multiFileSystem = null;
+            try {
+                multiFileSystem = (MultiFileSystem) root.getFileSystem();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             collectActions(node, actions, platform, root);
             DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
             if (dataObject != null) {
@@ -464,7 +464,7 @@ final class SFSBrowserTopComponent extends TopComponent {
             DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
             if (dataObject != null) {
                 FileObject fileObject = dataObject.getPrimaryFile();
-                if (fileObject != null && fileObject != Repository.getDefault().getDefaultFileSystem().getRoot()) {
+                if (fileObject != null && fileObject != FileUtil.getConfigRoot()) {
                     Enumeration attributes = fileObject.getAttributes();
                     while (attributes.hasMoreElements()) {
                         String attribute = (String) attributes.nextElement();
@@ -550,8 +550,7 @@ final class SFSBrowserTopComponent extends TopComponent {
                     });
                 }
             }
-            MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-            FileObject root = multiFileSystem.getRoot();
+            FileObject root = FileUtil.getConfigRoot();
             collectActions(node, actions, platform, root);
             return actions.toArray(EMPTY_ACTIONS);
         }
