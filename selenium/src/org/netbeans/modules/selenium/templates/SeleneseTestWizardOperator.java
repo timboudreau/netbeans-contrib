@@ -67,6 +67,7 @@ import org.openide.util.NbBundle;
 public class SeleneseTestWizardOperator implements WizardDescriptor.InstantiatingIterator {
 
     private ChangeSupport changeSupport = new ChangeSupport(this);
+    private static final String DEFAULT_SERVER_PORT = "80";         // NOI18N
     private transient WizardDescriptor.Panel panel;
     private transient WizardDescriptor wiz;
 
@@ -84,7 +85,11 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
 
         FileObject createdFile = null;
         DataObject dTemplate = DataObject.find(template);
-        Map<String, Object> params = Collections.singletonMap("server_port", (Object) getServerPort());//NOI18N
+        Object serverPort = getServerPort();
+        if (serverPort == null){
+            serverPort = DEFAULT_SERVER_PORT;
+        }
+        Map<String, Object> params = Collections.singletonMap("server_port", serverPort);   //NOI18N
         DataObject dobj = dTemplate.createFromTemplate(df, targetName, params);
         createdFile = dobj.getPrimaryFile();
 
@@ -95,8 +100,11 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         Project project = Templates.getProject(wiz);
         J2eeModuleProvider provider = project.getLookup().lookup(J2eeModuleProvider.class);
         if (provider != null) {
-            String port = provider.getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER);
-            return port;
+            InstanceProperties ip = provider.getInstanceProperties();
+            if (ip != null){
+                String port = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
+                return port;
+            }
         }
         return null;
     }
