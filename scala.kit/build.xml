@@ -36,6 +36,7 @@
       <ant dir="../../contrib/scala.console" target="nbm"/>
       <ant dir="../../contrib/scala.debugger.projects" target="nbm"/>
       <ant dir="../../contrib/scala.debugger" target="nbm"/>
+      <ant dir="../../contrib/scala.kit" target="nbm"/>
       <antcall target="netbeans"/>
    </target>
 
