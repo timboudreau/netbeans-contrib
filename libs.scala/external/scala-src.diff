@@ -1,7 +1,7 @@
 Index: src/compiler/scala/tools/nsc/CompilationUnits.scala
 ===================================================================
---- src/compiler/scala/tools/nsc/CompilationUnits.scala	(revision 16542)
-+++ src/compiler/scala/tools/nsc/CompilationUnits.scala	(working copy)
+--- src/compiler/scala/tools/nsc/CompilationUnits.scala (revision 16925)
++++ src/compiler/scala/tools/nsc/CompilationUnits.scala (working copy)
 @@ -16,6 +16,9 @@
      * It typically corresponds to a single file of source code.  It includes
      * error-reporting hooks.  */
@@ -14,9 +14,9 @@ Index: src/compiler/scala/tools/nsc/CompilationUnits.scala
  
 Index: src/compiler/scala/tools/nsc/typechecker/Typers.scala
 ===================================================================
---- src/compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 16542)
-+++ src/compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
-@@ -2795,7 +2795,11 @@
+--- src/compiler/scala/tools/nsc/typechecker/Typers.scala       (revision 16925)
++++ src/compiler/scala/tools/nsc/typechecker/Typers.scala       (working copy)
+@@ -2833,7 +2833,11 @@
                    "\npossible cause: maybe a semicolon is missing before `"+decode(name)+"'?"
                   else ""))
            }
