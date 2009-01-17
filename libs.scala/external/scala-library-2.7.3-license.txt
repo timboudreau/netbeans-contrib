@@ -1,9 +1,9 @@
-Name: Scala Bazaar Tests library
-Version: 2.7.2
-Description: Scala Bazaar Tests library
+Name: Scala runtime library
+Version: 2.7.3
+Description: Scala runtime library
 License: BSD-like
 Origin: http://www.scala-lang.org/
-Files: sbaz-tests-2.7.2.jar
+Files: scala-library-2.7.3.jar
 Source: http://www.scala-lang.org/downloads/license.html
 
 Copyright (c) 2002-2008 EPFL, Lausanne, unless otherwise specified.

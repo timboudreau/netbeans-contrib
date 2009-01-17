@@ -1,9 +1,9 @@
-Name: Scala database access library
-Version: 2.7.2
-Description: Scala database access library
+Name: Scala Bazaar library
+Version: 2.7.3
+Description: Scala Bazaar library
 License: BSD-like
 Origin: http://www.scala-lang.org/
-Files: scala-dbc-2.7.2.jar
+Files: sbaz-2.7.3.jar
 Source: http://www.scala-lang.org/downloads/license.html
 
 Copyright (c) 2002-2008 EPFL, Lausanne, unless otherwise specified.
