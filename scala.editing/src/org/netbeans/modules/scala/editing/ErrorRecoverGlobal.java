@@ -146,7 +146,7 @@ public class ErrorRecoverGlobal {
 
                 CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                 if (unit != null) {
-                    AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
+                    AstRootScope root = new AstTreeVisitor(null, unit, th, srcFile).getRootScope();
                     AstItem found = root.findFirstItemWithName(itemName);
                     if (found != null) {
                         return found.getSymbol();
@@ -178,7 +178,7 @@ public class ErrorRecoverGlobal {
 
             CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
             if (unit != null) {
-                AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
+                AstRootScope root = new AstTreeVisitor(null, unit, th, srcFile).getRootScope();
 
                 int lastDot = pkgQName.lastIndexOf('.');
                 String lastPath = lastDot == -1 ? pkgQName : pkgQName.substring(lastDot + 1, pkgQName.length());

@@ -50,6 +50,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import scala.Option;
 import scala.Tuple2;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
+import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;
@@ -116,8 +117,10 @@ public abstract class AstVisitor {
     protected Stack<AstScope> scopes = new Stack<AstScope>();
     protected Stack<AstExpr> exprs = new Stack<AstExpr>();
     protected Set<Tree> visited = new HashSet<Tree>();
+    protected Global global;
 
-    public AstVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
+    public AstVisitor(Global global, CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
+        this.global = global;
         this.unit = unit;
         this.th = th;
         this.sourceFile = sourceFile;

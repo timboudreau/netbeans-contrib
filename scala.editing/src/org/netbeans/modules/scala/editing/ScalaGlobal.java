@@ -392,14 +392,15 @@ public class ScalaGlobal {
                 // just ignore all ex
             }
 
+            if (debug) {
+                scala.collection.Map selectTypeErrors = global.selectTypeErrors();
+                System.out.println("selectTypeErrors:" + selectTypeErrors);
+            }
+
             scala.Iterator units = run.units();
             while (units.hasNext()) {
                 CompilationUnit unit = (CompilationUnit) units.next();
                 if (unit.source() == srcFile) {
-                    if (debug) {
-                        scala.collection.Map selectTypeErrors = global.selectTypeErrors();
-                        System.out.println("selectTypeErrors:" + selectTypeErrors);
-                    }
                     if (debug) {
                         final CompilationUnit unit1 = unit;
                         Runnable browser = new Runnable() {
@@ -417,5 +418,4 @@ public class ScalaGlobal {
             return null;
         }
     }
-
 }

@@ -109,15 +109,8 @@ public class AstTreeVisitor extends AstVisitor {
     private final FileObject fo;
     private Type maybeType;
 
-    private Global global;
-
     public AstTreeVisitor(Global global, CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
-        this(unit, th, sourceFile);
-        this.global = global;
-    }
-
-    public AstTreeVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
-        super(unit, th, sourceFile);
+        super(global, unit, th, sourceFile);
         setBoundsEndToken(rootScope);
         if (sourceFile != null) {
             File file = new File(sourceFile.path());

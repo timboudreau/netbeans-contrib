@@ -267,7 +267,7 @@ public class ScalaElement implements ScalaElementHandle {
                      */
                     CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
                     if (unit != null) {
-                        AstRootScope root = new AstTreeVisitor(unit, th, srcFile).getRootScope();
+                        AstRootScope root = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
                         AstDef def = root.findDefMatched(symbol);
                         if (def != null) {
                             offset = def.getIdOffset(th);
