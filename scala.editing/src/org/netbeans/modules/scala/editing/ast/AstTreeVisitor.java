@@ -49,6 +49,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import scala.Option;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
+import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
 import scala.tools.nsc.ast.Trees.Annotation;

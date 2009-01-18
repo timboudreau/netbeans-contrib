@@ -375,6 +375,7 @@ public class ScalaGlobal {
     public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
         synchronized (global) {
             Global.Run run = global.new Run();
+            global.resetSelectTypeErrors();
 
             scala.List srcFiles = scala.netbeans.Wrapper$.MODULE$.scalaSrcFileList(srcFile);
             try {
@@ -396,7 +397,7 @@ public class ScalaGlobal {
                 CompilationUnit unit = (CompilationUnit) units.next();
                 if (unit.source() == srcFile) {
                     if (debug) {
-                        scala.collection.Map selectTypeErrors = unit.selectTypeErrors();
+                        scala.collection.Map selectTypeErrors = global.selectTypeErrors();
                         System.out.println("selectTypeErrors:" + selectTypeErrors);
                     }
                     if (debug) {
