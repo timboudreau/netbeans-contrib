@@ -545,7 +545,7 @@ public class ScalaParser implements Parser {
         }
         try {
             CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
-            rootScope = new AstTreeVisitor(unit, th, srcFile).getRootScope();
+            rootScope = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
             ScalaGlobal.reset();

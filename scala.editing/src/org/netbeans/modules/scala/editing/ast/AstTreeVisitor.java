@@ -108,6 +108,13 @@ public class AstTreeVisitor extends AstVisitor {
     private final FileObject fo;
     private Type maybeType;
 
+    private Global global;
+
+    public AstTreeVisitor(Global global, CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
+        this(unit, th, sourceFile);
+        this.global = global;
+    }
+
     public AstTreeVisitor(CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(unit, th, sourceFile);
         setBoundsEndToken(rootScope);
@@ -518,8 +525,8 @@ public class AstTreeVisitor extends AstVisitor {
         Tree qual = tree.qualifier();
         if (qual instanceof Ident || qual instanceof Apply) {
             Symbol qualSym = qual.symbol();
-            if (qualSym != null && isNoSymbol(qualSym)) {
-                scala.collection.Map<Tree, Type> errors = unit.selectTypeErrors();
+            if (qualSym != null && isNoSymbol(qualSym) && global != null) {
+                scala.collection.Map<Tree, Type> errors = global.selectTypeErrors();
                 Option<Type> opt = errors.get(tree);
                 maybeType = opt.isDefined() ? opt.get() : null;
             }
