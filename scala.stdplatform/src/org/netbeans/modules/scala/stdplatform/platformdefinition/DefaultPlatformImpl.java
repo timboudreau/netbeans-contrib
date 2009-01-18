@@ -50,12 +50,12 @@ import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
-import org.openide.util.Utilities;
 
 /**
  * Implementation of the "Default" platform. The information here is extracted
@@ -115,6 +115,9 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                     String fileName = scalaFile.getName();
                     if (scalaFile.isDirectory() && fileName.startsWith("scala")) {
                         scalaHome = scalaFile.getAbsolutePath();
+                        if (isBroken(FileUtil.toFileObject(scalaFile))) {
+                            continue;
+                        }
                         System.setProperty("scala.home", scalaHome);
                         int dash = fileName.indexOf('-');
                         String scalaVersion = fileName.substring(dash + 1, fileName.length());
@@ -166,11 +169,10 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                     pathSpec = scalaLib.getAbsolutePath() + File.separator + "scala-library.jar";
                 }
             }
-                        
+
             cp = Util.createClassPath(pathSpec);
 
             /** @todo how to deal with project's custom java platform ? */
-
             JavaPlatform javaPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
             if (javaPlatform != null) {
                 ClassPath javaBootstrap = javaPlatform.getBootstrapLibraries();
@@ -184,7 +186,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                 }
                 cp = ClassPathSupport.createClassPath(urls);
             }
-            
+
             bootstrap = new WeakReference<ClassPath>(cp);
             return cp;
         }
@@ -330,5 +332,15 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
             }
         }
         return null;
+    }
+
+    private static boolean isBroken(FileObject scalaHome) {
+        Collection<FileObject> folders = Collections.singleton(scalaHome);
+        for (String tool : PlatformConvertor.IMPORTANT_TOOLS) {
+            if (Util.findTool(tool, folders, null) == null) {
+                return true;
+            }
+        }
+        return false;
     }
 }
