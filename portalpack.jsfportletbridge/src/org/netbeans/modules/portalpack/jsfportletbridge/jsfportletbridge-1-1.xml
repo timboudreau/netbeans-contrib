@@ -29,4 +29,8 @@ Microsystems, Inc. All Rights Reserved.
     <volume>
         <type>javadoc</type>
     </volume>
+    <volume>
+        <type>maven-pom</type>
+        <resource>http://download.java.net/maven/2/com/sun/faces/portlet/jsf-portlet/1.1.5/jsf-portlet-1.1.5.pom</resource>
+    </volume>
 </library>

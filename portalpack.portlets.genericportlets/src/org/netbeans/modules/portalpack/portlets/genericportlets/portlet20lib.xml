@@ -31,4 +31,9 @@ Microsystems, Inc. All Rights Reserved.
         <type>javadoc</type>
         <resource>jar:nbinst:///modules/ext/portalpack/portlet-api-2.0-doc.jar!/</resource>
     </volume>
+    
+    <volume>
+        <type>maven-pom</type>
+        <resource>http://download.java.net/maven/2/javax/portlet/portlet-api/2.0/portlet-api-2.0.pom</resource>
+    </volume>
 </library>
