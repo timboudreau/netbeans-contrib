@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
@@ -89,6 +90,8 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
                 if(modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier))
                 {
                     ((WebProjectLibrariesModifier)modifierObj).addCompileLibraries(new Library[]{bpLibrary});
+                }else {
+                    ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, getSourceRoot(project), ClassPath.COMPILE);
                 }
                 
               
@@ -100,10 +103,11 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
          FileObject srcFolder = (FileObject)data.get("src_folder");
          if(srcFolder == null)
          {
-            Sources sources = (Sources)project.getLookup().lookup(Sources.class);
-            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-            if(groups.length > 0)
-                srcFolder = groups[0].getRootFolder();
+            //Sources sources = (Sources)project.getLookup().lookup(Sources.class);
+            //SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+            //if(groups.length > 0)
+            //    srcFolder = groups[0].getRootFolder();
+            srcFolder = getSourceRoot(project);
          }
          if(pkg == null) pkg = "";
          if(((String)data.get("generate_portlet")).equals("true"))
@@ -146,6 +150,31 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         File portletXmlFile = new File(FileUtil.toFile(wm.getWebInf()),"portlet.xml");
         return new File[]{portletXmlFile};
         
+    }
+    
+    /**
+     * Convenience method to obtain the source root folder.
+     * @param project the Project object
+     * @return the FileObject of the source root folder
+     */
+    public static FileObject getSourceRoot(Project project) {
+        if (project == null) {
+            return null;
+        }
+        Sources src = (Sources)project.getLookup().lookup(Sources.class);
+        
+        SourceGroup[] grp = src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        for (int i = 0; i < grp.length; i++) {
+            if ("${src.dir}".equals(grp[i].getName())) { // NOI18N
+
+                return grp[i].getRootFolder();
+            }
+        }
+        if (grp.length != 0) {
+            return grp[0].getRootFolder();
+        }
+
+        return null;
     }
 
 }
