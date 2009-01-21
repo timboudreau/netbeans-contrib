@@ -147,7 +147,7 @@ public class Cache {
                 return;
             }
             if (value != null) {
-                String[] pieces = value.split("(?<=[:;])");
+                String[] pieces = value.split("(?<=[" + File.pathSeparator + "])");
                 if (pieces.length > 1) {
                     data.setProperty(key, pieces);
                 } else {
