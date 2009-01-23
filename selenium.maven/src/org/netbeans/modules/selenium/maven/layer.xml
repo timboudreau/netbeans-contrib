@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Selenium">
+            <attr name="position" intvalue="1230"/>
+            <file name="SeleneseTest.java" url="SeleneseTest.template">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.selenium.maven.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/selenium/maven/SeleneseTest.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.selenium.maven.SeleneseTestWizardOperator.create"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
