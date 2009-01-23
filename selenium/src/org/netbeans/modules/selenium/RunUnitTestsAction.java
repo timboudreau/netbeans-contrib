@@ -55,7 +55,7 @@ public final class RunUnitTestsAction extends ExtendedAction {
 
     protected void performAction(Node[] activatedNodes) {
         for (Node node : activatedNodes) {
-            Project project = node.getLookup().lookup(Project.class);
+            Project project = getProjectForNode(node);
             Properties testProperties = new Properties();
             testProperties.setProperty("forceRedeploy", "false"); //NOI18N
             FileObject buildXML = findBuildXml(project);

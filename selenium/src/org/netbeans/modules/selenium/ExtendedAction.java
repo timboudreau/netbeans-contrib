@@ -38,8 +38,8 @@
  */
 package org.netbeans.modules.selenium;
 
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.web.spi.webmodule.WebModuleProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -63,15 +63,23 @@ public abstract class ExtendedAction extends NodeAction {
     @Override
     protected boolean enable(Node[] activatedNodes) {
         for (Node node : activatedNodes) {
-            Project proj = node.getLookup().lookup(Project.class);
-            if (proj == null) {
-                return false;
-            }
-            if (proj.getLookup().lookup(WebModuleProvider.class) == null) {
-                return false;
+            Project proj = getProjectForNode(node);
+            if ((proj != null) && SeleniumSupport.hasSeleniumDir(proj)) {
+                    return true;
             }
         }
-        return activatedNodes.length > 0;
+        return false;
+    }
+
+    protected Project getProjectForNode(Node node) {
+        Project proj = node.getLookup().lookup(Project.class);
+        if (proj == null) {
+            FileObject fo = node.getLookup().lookup(FileObject.class);
+            if (fo != null) {
+                proj = FileOwnerQuery.getOwner(fo);
+            }
+        }
+        return proj;
     }
 
     protected FileObject findBuildXml(Project project) {
