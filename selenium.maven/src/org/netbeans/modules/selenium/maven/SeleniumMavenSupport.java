@@ -70,6 +70,7 @@ final class SeleniumMavenSupport {
     static FileObject getTestRoot(Project project) {
         NbMavenProject nbProject = project.getLookup().lookup(NbMavenProject.class);
         MavenProject mvp = nbProject.getMavenProject();
+        @SuppressWarnings("unchecked")
         List<String> testRoots = mvp.getTestCompileSourceRoots();
         if (testRoots.isEmpty()) {
             return null;
