@@ -14,7 +14,6 @@ import com.thoughtworks.selenium.SeleneseTestCase;
  */
 public class ${name} extends SeleneseTestCase {
 
-    @Override
 	public void setUp() throws Exception {
             super.setUp("http://localhost:${server_port}/");
 	}

@@ -50,6 +50,7 @@ import org.netbeans.modules.maven.api.ModelUtils;
 import org.netbeans.modules.maven.api.NbMavenProject;
 import org.netbeans.modules.maven.model.ModelOperation;
 import org.netbeans.modules.maven.model.Utilities;
+import org.netbeans.modules.maven.model.pom.Build;
 import org.netbeans.modules.maven.model.pom.Configuration;
 import org.netbeans.modules.maven.model.pom.Dependency;
 import org.netbeans.modules.maven.model.pom.POMModel;
@@ -118,9 +119,13 @@ final class SeleniumMavenSupport {
                     "org.openqa.selenium.client-drivers", "selenium-java-client-driver", true);
             dep.setScope("test");
             dep.setVersion("1.0-beta-1");
-
-            model.getProject().getBuild().addPlugin(createSeleniumPlugin(model));
-            model.getProject().getBuild().addPlugin(createSureFirePlugin(model));
+            Build build = model.getProject().getBuild();
+            if (build == null){
+                build = model.getFactory().createBuild();
+                model.getProject().setBuild(build);
+            }
+            build.addPlugin(createSeleniumPlugin(model));
+            build.addPlugin(createSureFirePlugin(model));
         }
 
         private Plugin createSeleniumPlugin(POMModel model) {
