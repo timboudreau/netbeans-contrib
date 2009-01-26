@@ -38,50 +38,41 @@
  */
 package org.netbeans.modules.selenium;
 
-import java.io.IOException;
-import java.util.Properties;
-import org.apache.tools.ant.module.api.support.ActionUtils;
-import org.netbeans.api.project.Project;
+import org.junit.Test;
+import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
-import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public final class RunUnitTestsAction extends ExtendedAction {
+public class ExtendedActionTest extends NbTestCase {
 
-    protected void performAction(Node[] activatedNodes) {
-        for (Node node : activatedNodes) {
-            Project project = getProjectForNode(node);
-            Properties testProperties = new Properties();
-            testProperties.setProperty("forceRedeploy", "false"); //NOI18N
-            FileObject buildXML = findBuildXml(project);
-            try {
-                Properties props = SeleniumSupport.getProjectProperties(project.getProjectDirectory());
-                String unitTestDir = props.getProperty("test.src.dir");
-                FileObject unitTestSources = project.getProjectDirectory().getFileObject(unitTestDir);
-                testProperties.setProperty("test.includes", listAllTestIncludes(unitTestSources));
-                testProperties.setProperty("javac.includes", ActionUtils.antIncludesList(unitTestSources.getChildren(), unitTestSources));
-                ActionUtils.runTarget(buildXML, new String[]{"test-single"}, testProperties);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalArgumentException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-    }
-
-    public String getName() {
-        return NbBundle.getMessage(RunUnitTestsAction.class, "CTL_RunUnitTestAction");
+    public ExtendedActionTest(String name) {
+        super(name);
     }
 
     @Override
-    protected void initialize() {
-        super.initialize();
-        putValue("noIconInMenu", Boolean.TRUE);
+    protected void setUp() throws Exception {
+        super.setUp();
+        clearWorkDir();
+    }
+
+    @Test
+    public void testListIncludedFiles() throws Exception {
+
+        FileObject workDir = FileUtil.createData(getWorkDir());
+        FileObject dir = FileUtil.createFolder(workDir, "simple/test/dir");
+        FileUtil.createData(dir, "pokus.java");
+        FileObject simple = FileUtil.createFolder(workDir, "simple");
+        FileUtil.createData(simple, "pokus.java");
+        String result = ExtendedAction.listAllTestIncludes(workDir);
+        assertEquals("simple/*Test.java,simple/test/dir/*Test.java", result);
+        FileObject test2 = FileUtil.createFolder(simple, "test2");
+        test2.createData("pokus.java");
+        result = ExtendedAction.listAllTestIncludes(workDir);
+        assertEquals("simple/*Test.java,simple/test2/*Test.java,simple/test/dir/*Test.java", result);
     }
 }
 

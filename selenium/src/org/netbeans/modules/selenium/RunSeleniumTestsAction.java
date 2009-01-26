@@ -70,7 +70,7 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
                 task.result();
 
                 FileObject seleniumSources = SeleniumSupport.getSelenimDir(project);
-                p.setProperty("test.includes", ActionUtils.antIncludesList(seleniumSources.getChildren(), seleniumSources));
+                p.setProperty("test.includes", listAllTestIncludes(seleniumSources));
                 p.setProperty("javac.includes", ActionUtils.antIncludesList(seleniumSources.getChildren(), seleniumSources));
                 ActionUtils.runTarget(buildXML, new String[]{"test-single"}, p);
             } catch (IOException ex) {
