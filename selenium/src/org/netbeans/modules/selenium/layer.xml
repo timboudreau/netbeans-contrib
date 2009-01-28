@@ -50,11 +50,4 @@
             <file name="Selenium.xml" url="Selenium.xml"/>
         </folder>
     </folder>
-    <folder name="Servers">
-        <file name="SeleniumServerProvider.instance">
-            <attr name="instanceCreate" methodvalue="org.netbeans.modules.selenium.server.SeleniumServerProvider.getDefault"/>
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.selenium.server.SeleniumServerProvider"/>
-            <attr name="instanceOf" stringvalue="org.netbeans.spi.server.ServerInstanceProvider"/>
-        </file>
-    </folder>
 </filesystem>
