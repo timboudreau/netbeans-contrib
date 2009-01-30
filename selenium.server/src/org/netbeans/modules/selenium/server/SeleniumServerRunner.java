@@ -42,6 +42,9 @@ package org.netbeans.modules.selenium.server;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.BindException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.server.properties.InstanceProperties;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
@@ -126,6 +129,9 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             }
             isRunning = (!action.equals(Action.STOP));
             action = null;
+        } catch (BindException bi){
+            Logger.getLogger(SeleniumServerRunner.class.getName()).log(Level.WARNING,
+                    "Port already in use - the server is probably already running.", bi);
         } catch (Exception exc) {
             Exceptions.printStackTrace(exc);
         }
