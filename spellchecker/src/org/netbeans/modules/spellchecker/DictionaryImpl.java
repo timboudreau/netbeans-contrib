@@ -55,6 +55,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
@@ -74,15 +75,20 @@ public class DictionaryImpl implements Dictionary {
     
     private List<String> dictionary = null;
     private StringBuffer dictionaryText = null;
-    private File source;
-    private AuxiliaryConfiguration ac;
+    private final File source;
+    private final Project p;
+    private final AuxiliaryConfiguration ac;
     
     public DictionaryImpl(File source) {
         this.source = source;
+        this.p = null;
+        this.ac = null;
         loadDictionary(source);
     }
     
-    public DictionaryImpl(AuxiliaryConfiguration ac) {
+    public DictionaryImpl(Project p, AuxiliaryConfiguration ac) {
+        this.source = null;
+        this.p  = p;
         this.ac = ac;
         loadDictionary(ac);
     }
@@ -274,6 +280,14 @@ public class DictionaryImpl implements Dictionary {
                 return null;
             }
         });
+        
+        try {
+            ProjectManager.getDefault().saveProject(p);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalArgumentException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
     
     private Document createXmlDocument() {

@@ -393,7 +393,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         
         if (d == null) {
             AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(p);
-            project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(ac)));
+            project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(p, ac)));
         }
         
         return d;
