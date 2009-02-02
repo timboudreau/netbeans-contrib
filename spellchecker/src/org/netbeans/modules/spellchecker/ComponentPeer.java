@@ -568,7 +568,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 if (currentWSO <= lastCaretPositionCopy[0] && (currentWSO + length) >= lastCaretPositionCopy[0]) {
                     ValidityType validity = d.validateWord(w);
                     
-                    if (validity == ValidityType.BLACKLISTED || validity == ValidityType.INVALID) {
+                    if (validity != ValidityType.VALID) {
                         try {
                             span[0] = doc.createPosition(currentWSO);
                             span[1] = doc.createPosition(currentWSO + length);
