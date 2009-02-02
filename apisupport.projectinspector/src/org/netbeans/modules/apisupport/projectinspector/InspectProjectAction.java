@@ -349,8 +349,13 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
             }
         }
         if (eval != null) {
-            for (Map.Entry<String,String> entry : new TreeMap<String,String>(eval.getProperties()).entrySet()) {
-                pw.println("  " + entry.getKey() + "=" + entry.getValue());
+            Map<String, String> props = eval.getProperties();
+            if (props != null) {
+                for (Map.Entry<String,String> entry : new TreeMap<String,String>(props).entrySet()) {
+                    pw.println("  " + entry.getKey() + "=" + entry.getValue());
+                }
+            } else {
+                pw.println("  <unknown>");
             }
         }
         RecommendedTemplates rt = l.lookup(RecommendedTemplates.class);
