@@ -62,7 +62,6 @@ import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory
 import org.openide.filesystems.FileObject
 import org.openide.filesystems.FileUtil
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
-//import org.openide.modules.InstalledFileLocator
 
 /*
  * Language/lexing configuration for Erlang
@@ -71,156 +70,14 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
  */
 class ErlangLanguage extends DefaultLanguageConfig {
 
-  //private FileObject jsStubsFO;
-  override
-  def getLexerLanguage = ErlangTokenId.language
+   override
+   def getLexerLanguage = ErlangTokenId.language
     
-
-  //    @Override
-  //    public String getLineCommentPrefix() {
-  //        return JsUtils.getLineCommentPrefix();
-  //    }
-  //
-  //    @Override
-  //    public boolean isIdentifierChar(char c) {
-  //        return JsUtils.isIdentifierChar(c);
-  //    }
-  //
-  //
-  //    @Override
-  //    public Collection<FileObject> getCoreLibraries() {
-  //        FileObject f = getJsStubs();
-  //        return f != null ? Collections.singleton(f) : Collections.<FileObject>emptySet();
-  //    }
-
-  // TODO - add classpath recognizer for these ? No, don't need go to declaration inside these files...
-  //    private FileObject getJsStubs() {
-  //        if (jsStubsFO == null) {
-  //            // Core classes: Stubs generated for the "builtin" Ruby libraries.
-  //            File clusterFile = InstalledFileLocator.getDefault().locate(
-  //                    "modules/org-netbeans-modules-javascript-editing.jar", null, false);
-  //
-  //            if (clusterFile != null) {
-  //                File jsStubs =
-  //                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(),
-  //                        "jsstubs"); // NOI18N
-  //                assert jsStubs.exists() && jsStubs.isDirectory() : "No stubs found";
-  //                jsStubsFO = FileUtil.toFileObject(jsStubs);
-  //            } else {
-  //                // During test?
-  //                // HACK - TODO use mock
-  //                String jsDir = System.getProperty("xtest.js.home");
-  //                if (jsDir == null) {
-  //                    throw new RuntimeException("xtest.js.home property has to be set when running within binary distribution");
-  //                }
-  //                File jsStubs = new File(jsDir + File.separator + "jsstubs");
-  //                if (jsStubs.exists()) {
-  //                    jsStubsFO = FileUtil.toFileObject(jsStubs);
-  //                }
-  //            }
-  //        }
-  //
-  //        return jsStubsFO;
-  //    }
+   override
+   def getDisplayName : String =  "Erlang"
     
-  override
-  def getDisplayName : String =  "Erlang"
-    
-  override
-  def getPreferredExtension : String = {
-    "erl" // NOI18N
-  }
-    
-  def getSourceGroupNames : Map[String, String] = {
-    val sourceGroups = new HashMap[String, String]
-
-    sourceGroups.put("J2SEProject", "java") // NOI18N
-        
-    sourceGroups
-  }
-
-  def getBinaryPathIds : Set[String] = {
-    // We don't really have libraries in binary form. IDE bundled javascript
-    // libraries are simply extracted to a project among its original sources
-    // in a special folder.
-    Collections.emptySet()
-  }
-
-  override
-  def getSourcePathIds : Set[String] = {
-    // We don't have our own source path id, because javascript files can be
-    // anywhere in a project. So, for index search we will use all available
-    // sourcepath ids.
-    null
-  }
-
-
-  // Service Registrations
-    
-  //    @Override
-  //    public KeystrokeHandler getKeystrokeHandler() {
-  //        return new JsKeystrokeHandler();
-  //    }
-
-  override def hasFormatter : boolean = false
-
-  //    @Override
-  //    public Formatter getFormatter() {
-  //        return new JsFormatter();
-  //    }
-
-  //    @Override
-  //    public Parser getParser() {
-  //        return new JsParser();
-  //    }
-    
-  //    @Override
-  //    public CodeCompletionHandler getCompletionHandler() {
-  //        return new JsCodeCompletion();
-  //    }
-  //
-  //    @Override
-  //    public boolean hasStructureScanner() {
-  //        return true;
-  //    }
-  //
-  //    @Override
-  //    public StructureScanner getStructureScanner() {
-  //        return new JsAnalyzer();
-  //    }
-
-  //    @Override
-  //    public EmbeddingIndexerFactory getIndexerFactory() {
-  //        return new JsIndexer.Factory();
-  //    }
-
-  //    @Override
-  //    public DeclarationFinder getDeclarationFinder() {
-  //        return new JsDeclarationFinder();
-  //    }
-  //
-  //    @Override
-  //    public SemanticAnalyzer getSemanticAnalyzer() {
-  //        return new JsSemanticAnalyzer();
-  //    }
-
-  //    @Override
-  //    public boolean hasOccurrencesFinder() {
-  //        return true;
-  //    }
-
-  //    @Override
-  //    public OccurrencesFinder getOccurrencesFinder() {
-  //        return new JsOccurrenceFinder();
-  //    }
-  //
-  //    @Override
-  //    public InstantRenamer getInstantRenamer() {
-  //        return new JsRenameHandler();
-  //    }
-  //
-  //    @Override
-  //    public IndexSearcher getIndexSearcher() {
-  //        return new JsTypeSearcher();
-  //    }
+   override
+   def getPreferredExtension : String = {
+      "erl" // NOI18N
+   }
 }

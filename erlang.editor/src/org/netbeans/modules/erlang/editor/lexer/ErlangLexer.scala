@@ -63,204 +63,204 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
  * @author Caoyuan Deng
  */
 object ErlangLexer {
-  private var cached:Option[ErlangLexer] = None
+   private var cached:Option[ErlangLexer] = None
    
-  def create(info:LexerRestartInfo[ErlangTokenId]) = synchronized {
-    cached match {
-      case None => cached = Some(new ErlangLexer)
-      case _ => 
-    }
-    cached.get.restart(info)
-    cached
-  }
+   def create(info:LexerRestartInfo[ErlangTokenId]) = synchronized {
+      cached match {
+         case None => cached = Some(new ErlangLexer)
+         case _ =>
+      }
+      cached.get.restart(info)
+      cached
+   }
 
-  def release = cached = None  
+   def release = cached = None
 }
 
 class ErlangLexer extends Lexer[ErlangTokenId] {
 
-  var info : LexerRestartInfo[ErlangTokenId] = _
-  var input : LexerInput = _
-  var tokenFactory : TokenFactory[ErlangTokenId] = _
-  var lexerInputReader : LexerInputReader = _
+   var info : LexerRestartInfo[ErlangTokenId] = _
+   var input : LexerInput = _
+   var tokenFactory : TokenFactory[ErlangTokenId] = _
+   var lexerInputReader : LexerInputReader = _
     
-  val tokenStream = new ArrayList[TokenInfo]
-  /**
-   * tokenStream.iterator() always return a new iterator, which point the first
-   * item, so we should have a global one.
-   */
-  var tokenStreamItr : Iterator[TokenInfo]  = tokenStream.iterator
-  var lookahead : Int = 0
+   val tokenStream = new ArrayList[TokenInfo]
+   /**
+    * tokenStream.iterator() always return a new iterator, which point the first
+    * item, so we should have a global one.
+    */
+   var tokenStreamItr : Iterator[TokenInfo]  = tokenStream.iterator
+   var lookahead : Int = 0
 
-  def restart(info:LexerRestartInfo[ErlangTokenId]) {
-    this.info = info
-    input = info.input
-    tokenFactory = info.tokenFactory
+   def restart(info:LexerRestartInfo[ErlangTokenId]) {
+      this.info = info
+      input = info.input
+      tokenFactory = info.tokenFactory
 
-    lexerInputReader = new LexerInputReader(input)
-    /**
-     * @Note: it seems input at this time is empty, so we can not do scanning here
-     */
-    tokenStream.clear
-    tokenStreamItr = tokenStream.iterator
-    lookahead = 0
-  }
-
-  def state : Object = null
-
-  def nextToken :Token[ErlangTokenId] = {
-    
-    if (!tokenStreamItr.hasNext) {
-      tokenStream.clear
-      scanTokens
-      tokenStreamItr = tokenStream.iterator
-
+      lexerInputReader = new LexerInputReader(input)
       /**
-       * @Bug of LexerInput.backup(int) ?
-       * backup(0) will cause input.readLength() increase 1
+       * @Note: it seems input at this time is empty, so we can not do scanning here
        */
-      lookahead = input.readLength
-      if (lookahead > 0) {
-        input.backup(lookahead)
-      }
-    }
+      tokenStream.clear
+      tokenStreamItr = tokenStream.iterator
+      lookahead = 0
+   }
 
-    if (tokenStreamItr.hasNext) {
-      val tokenInfo = tokenStreamItr.next
+   def state : Object = null
 
-      if (tokenInfo.length == 0) {
-        // EOF
-        return null
-      }
+   def nextToken :Token[ErlangTokenId] = {
+    
+      if (!tokenStreamItr.hasNext) {
+         tokenStream.clear
+         scanTokens
+         tokenStreamItr = tokenStream.iterator
 
-      // read token's chars according to tokenInfo.length
-      var i = 0
-      while (i < tokenInfo.length) {
-        input.read
-        i += 1
-      }
-
-      // see if needs to lookahead, if true, perform it
-      lookahead -= tokenInfo.length;
-      // to cheat incremently lexer, we needs to lookahead one more char when
-      // tokenStream.size() > 1 (batched tokens that are not context free),
-      // so, when modification happens extractly behind latest token, will
-      // force lexer relexer from the 1st token of tokenStream
-      val lookahead1 = if (tokenStream.size > 1) lookahead + 1 else lookahead
-      if (lookahead1 > 0) {
-        var i = 0
-        while (i < lookahead1) {
-          input.read
-          i += 1
-        }
-        input.backup(lookahead1)
+         /**
+          * @Bug of LexerInput.backup(int) ?
+          * backup(0) will cause input.readLength() increase 1
+          */
+         lookahead = input.readLength
+         if (lookahead > 0) {
+            input.backup(lookahead)
+         }
       }
 
-      val tokenLength = input.readLength
-      createToken(tokenInfo.id, tokenLength)
-    } else {
-      assert(false, "unrecognized input" + input.read)
-      null
-    }
-  }
+      if (tokenStreamItr.hasNext) {
+         val tokenInfo = tokenStreamItr.next
 
-  def createToken(id:ErlangTokenId, length:Int) : Token[ErlangTokenId] = id.fixedText match {
-    case null => tokenFactory.createToken(id, length)
-    case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
-  }
+         if (tokenInfo.length == 0) {
+            // EOF
+            return null
+         }
 
-  def scanTokens : Result = {
-    /**
-     * We cannot keep an instance scope lexer, since lexer (sub-class of ParserBase)
-     * has internal states which keep the read-in chars, index and others, it really
-     * difficult to handle.
-     */
-    val scanner = new LexerErlang(lexerInputReader, "<current>")
-    try {
-      // just scan from position 0, incrmental lexer engine will handle start char in lexerInputReader
-      val r = scanner.pToken(0)
-      if (r.hasValue) {
-        val node = r.semanticValue.asInstanceOf[GNode]
-        flattenToTokenStream(node)
-        r
+         // read token's chars according to tokenInfo.length
+         var i = 0
+         while (i < tokenInfo.length) {
+            input.read
+            i += 1
+         }
+
+         // see if needs to lookahead, if true, perform it
+         lookahead -= tokenInfo.length;
+         // to cheat incremently lexer, we needs to lookahead one more char when
+         // tokenStream.size() > 1 (batched tokens that are not context free),
+         // so, when modification happens extractly behind latest token, will
+         // force lexer relexer from the 1st token of tokenStream
+         val lookahead1 = if (tokenStream.size > 1) lookahead + 1 else lookahead
+         if (lookahead1 > 0) {
+            var i = 0
+            while (i < lookahead1) {
+               input.read
+               i += 1
+            }
+            input.backup(lookahead1)
+         }
+
+         val tokenLength = input.readLength
+         createToken(tokenInfo.id, tokenLength)
       } else {
-        System.err.println(r.parseError.msg)
-        null
+         assert(false, "unrecognized input" + input.read)
+         null
       }
-    } catch {
-      case e:Exception =>
-        e.printStackTrace
-        null
-    }
-  }
+   }
 
-  def flattenToTokenStream(node:GNode) : Unit = {
-    if (node.size == 0) {
-      /** @Note:
-       * When node.size() == 0, it's a void node. This should be limited to
-       * EOF when you define lexical rats.
-       *
-       * And in Rats!, EOF is !_, the input.readLength() will return 0
+   def createToken(id:ErlangTokenId, length:Int) : Token[ErlangTokenId] = id.fixedText match {
+      case null => tokenFactory.createToken(id, length)
+      case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
+   }
+
+   def scanTokens : Result = {
+      /**
+       * We cannot keep an instance scope lexer, since lexer (sub-class of ParserBase)
+       * has internal states which keep the read-in chars, index and others, it really
+       * difficult to handle.
        */
-      
-      //      assert(input.readLength == 0,
-      //             "This generic node: " + node.getName +
-      //             " is a void node, this should happen only on EOF. Check you rats file.")
-      val tokenInfo = new TokenInfo(0, null)
-      tokenStream.add(tokenInfo)
-    }
-
-    var i = 0
-    while (i < node.size) {
-      node.get(i) match {
-        case null =>
-          /** child may be null */
-        case child:GNode =>
-          flattenToTokenStream(child)
-        case child:Pair[_] =>
-          assert(false, "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?")
-        case child:String =>
-          val length = child.length
-          val id = ErlangTokenId.valueOf(node.getName) match {
-            case None => ErlangTokenId.IGNORED
-            case Some(v) => v.asInstanceOf[ErlangTokenId]
-          }
-          
-          val tokenInfo = new TokenInfo(length, id)
-          tokenStream.add(tokenInfo)
-        case child =>
-          println("To be process: " + child)
+      val scanner = new LexerErlang(lexerInputReader, "<current>")
+      try {
+         // just scan from position 0, incrmental lexer engine will handle start char in lexerInputReader
+         val r = scanner.pToken(0)
+         if (r.hasValue) {
+            val node = r.semanticValue.asInstanceOf[GNode]
+            flattenToTokenStream(node)
+            r
+         } else {
+            System.err.println(r.parseError.msg)
+            null
+         }
+      } catch {
+         case e:Exception =>
+            e.printStackTrace
+            null
       }
-      i += 1
-    }
-  }
+   }
 
-  def release = ErlangLexer.release
+   def flattenToTokenStream(node:GNode) : Unit = {
+      if (node.size == 0) {
+         /** @Note:
+          * When node.size() == 0, it's a void node. This should be limited to
+          * EOF when you define lexical rats.
+          *
+          * And in Rats!, EOF is !_, the input.readLength() will return 0
+          */
+      
+         //      assert(input.readLength == 0,
+         //             "This generic node: " + node.getName +
+         //             " is a void node, this should happen only on EOF. Check you rats file.")
+         val tokenInfo = new TokenInfo(0, null)
+         tokenStream.add(tokenInfo)
+      }
 
-  /**
-   * Hacking for <code>xtc.parser.ParserBase</code> of Rats! which use <code>java.io.Reader</code>
-   * as the chars input, but uses only {@link java.io.Reader#read()} of all methods in
-   * {@link xtc.parser.ParserBase#character(int)}
-   */
-  class LexerInputReader(input:LexerInput) extends Reader {
-    override
-    def read : Int = input.read match {
-      case LexerInput.EOF => -1
-      case c => c
-    }
+      var i = 0
+      while (i < node.size) {
+         node.get(i) match {
+            case null =>
+               /** child may be null */
+            case child:GNode =>
+               flattenToTokenStream(child)
+            case child:Pair[_] =>
+               assert(false, "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?")
+            case child:String =>
+               val length = child.length
+               val id = ErlangTokenId.valueOf(node.getName) match {
+                  case None => ErlangTokenId.IGNORED
+                  case Some(v) => v.asInstanceOf[ErlangTokenId]
+               }
+          
+               val tokenInfo = new TokenInfo(length, id)
+               tokenStream.add(tokenInfo)
+            case child =>
+               println("To be process: " + child)
+         }
+         i += 1
+      }
+   }
 
-    override
-    def read(cbuf:Array[Char], off:Int, len:Int) : Int = {
-      throw new UnsupportedOperationException("Not supported yet.")
-      -1
-    }
+   def release = ErlangLexer.release
 
-    override
-    def close = {}
-  }
+   /**
+    * Hacking for <code>xtc.parser.ParserBase</code> of Rats! which use <code>java.io.Reader</code>
+    * as the chars input, but uses only {@link java.io.Reader#read()} of all methods in
+    * {@link xtc.parser.ParserBase#character(int)}
+    */
+   class LexerInputReader(input:LexerInput) extends Reader {
+      override
+      def read : Int = input.read match {
+         case LexerInput.EOF => -1
+         case c => c
+      }
 
-  class TokenInfo(val length:Int, val id:ErlangTokenId) {
-    override
-    def toString = "(id=" + id + ", length=" + length + ")"    
-  }
+      override
+      def read(cbuf:Array[Char], off:Int, len:Int) : Int = {
+         throw new UnsupportedOperationException("Not supported yet.")
+         -1
+      }
+
+      override
+      def close = {}
+   }
+
+   class TokenInfo(val length:Int, val id:ErlangTokenId) {
+      override
+      def toString = "(id=" + id + ", length=" + length + ")"
+   }
 }

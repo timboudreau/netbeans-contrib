@@ -44,7 +44,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 
 /**
- * Recognize Scala file types
+ * Recognize Erlang file types
  * 
  * 
  * @author Caoyuan Deng
@@ -56,13 +56,13 @@ public class ScalaMimeResolver extends MIMEResolver {
      * Extensions recognized as being Scala.
      */
     private final static String[] EXTENSIONS = new String[] {
-        "scala" // NOI18N
+        "erl", "hrl" // NOI18N
     };
     
     /**
      * MIME type for Scala.
      */
-    public static final String MIME_TYPE = "text/x-scala"; // NOI18N
+    public static final String MIME_TYPE = "text/x-erlang"; // NOI18N
     
     public ScalaMimeResolver() {
     }
