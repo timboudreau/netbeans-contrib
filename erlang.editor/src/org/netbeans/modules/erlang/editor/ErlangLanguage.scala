@@ -70,14 +70,14 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
  */
 class ErlangLanguage extends DefaultLanguageConfig {
 
-   override
-   def getLexerLanguage = ErlangTokenId.language
+    override
+    def getLexerLanguage = ErlangTokenId.language
     
-   override
-   def getDisplayName : String =  "Erlang"
+    override
+    def getDisplayName : String =  "Erlang"
     
-   override
-   def getPreferredExtension : String = {
-      "erl" // NOI18N
-   }
+    override
+    def getPreferredExtension : String = {
+        "erl" // NOI18N
+    }
 }
