@@ -74,10 +74,10 @@ class ErlangLanguage extends DefaultLanguageConfig {
     def getLexerLanguage = ErlangTokenId.language
     
     override
-    def getDisplayName : String =  "Erlang"
+    def getDisplayName :String =  "Erlang"
     
     override
-    def getPreferredExtension : String = {
+    def getPreferredExtension :String = {
         "erl" // NOI18N
     }
 }

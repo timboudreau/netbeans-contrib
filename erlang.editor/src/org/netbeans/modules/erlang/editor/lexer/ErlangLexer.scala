@@ -79,18 +79,18 @@ object ErlangLexer {
 
 class ErlangLexer extends Lexer[ErlangTokenId] {
 
-    var info : LexerRestartInfo[ErlangTokenId] = _
-    var input : LexerInput = _
-    var tokenFactory : TokenFactory[ErlangTokenId] = _
-    var lexerInputReader : LexerInputReader = _
+    var info :LexerRestartInfo[ErlangTokenId] = _
+    var input :LexerInput = _
+    var tokenFactory :TokenFactory[ErlangTokenId] = _
+    var lexerInputReader :LexerInputReader = _
     
     val tokenStream = new ArrayList[TokenInfo]
     /**
      * tokenStream.iterator() always return a new iterator, which point the first
      * item, so we should have a global one.
      */
-    var tokenStreamItr : Iterator[TokenInfo]  = tokenStream.iterator
-    var lookahead : Int = 0
+    var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.iterator
+    var lookahead :Int = 0
 
     def restart(info:LexerRestartInfo[ErlangTokenId]) {
         this.info = info
@@ -106,7 +106,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
         lookahead = 0
     }
 
-    def state : Object = null
+    def state :Object = null
 
     def nextToken :Token[ErlangTokenId] = {
     
@@ -164,12 +164,12 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
         }
     }
 
-    def createToken(id:ErlangTokenId, length:Int) : Token[ErlangTokenId] = id.fixedText match {
+    def createToken(id:ErlangTokenId, length:Int) :Token[ErlangTokenId] = id.fixedText match {
         case null => tokenFactory.createToken(id, length)
         case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
     }
 
-    def scanTokens : Result = {
+    def scanTokens :Result = {
         /**
          * We cannot keep an instance scope lexer, since lexer (sub-class of ParserBase)
          * has internal states which keep the read-in chars, index and others, it really
@@ -194,7 +194,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
         }
     }
 
-    def flattenToTokenStream(node:GNode) : Unit = {
+    def flattenToTokenStream(node:GNode) :Unit = {
         if (node.size == 0) {
             /** @Note:
              * When node.size() == 0, it's a void node. This should be limited to
@@ -244,13 +244,13 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
      */
     class LexerInputReader(input:LexerInput) extends Reader {
         override
-        def read : Int = input.read match {
+        def read :Int = input.read match {
             case LexerInput.EOF => -1
             case c => c
         }
 
         override
-        def read(cbuf:Array[Char], off:Int, len:Int) : Int = {
+        def read(cbuf:Array[Char], off:Int, len:Int) :Int = {
             throw new UnsupportedOperationException("Not supported yet.")
             -1
         }

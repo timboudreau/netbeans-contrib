@@ -171,19 +171,19 @@ object ErlangTokenId extends Enumeration {
     def language = new LanguageHierarchy[ErlangTokenId] {
         protected def mimeType = ERLANG_MIME_TYPE
 
-        protected def createTokenIds : Collection[ErlangTokenId] = {
+        protected def createTokenIds :Collection[ErlangTokenId] = {
             val ids = new HashSet[ErlangTokenId]
             elements.foreach{ids add _.asInstanceOf[ErlangTokenId]}
             ids
         }
     
-        protected def createLexer(info:LexerRestartInfo[ErlangTokenId]) : Lexer[ErlangTokenId] = ErlangLexer.create(info) match {
+        protected def createLexer(info:LexerRestartInfo[ErlangTokenId]) :Lexer[ErlangTokenId] = ErlangLexer.create(info) match {
             case None => null
             case Some(l) => l
         }
 
         override
-        protected def createTokenCategories : Map[String, Collection[ErlangTokenId]] = {
+        protected def createTokenCategories :Map[String, Collection[ErlangTokenId]] = {
             val cats = new HashMap[String, Collection[ErlangTokenId]]
             cats
         }
