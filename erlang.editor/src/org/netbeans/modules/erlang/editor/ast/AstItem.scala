@@ -58,8 +58,6 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
     protected def this(idToken:Token[TokenId]) = this(null, idToken)
     protected def this() = this(null, null)
 
-    protected def NO_MEANING_NAME = "-1"
-
     /**
      * @Note:
      * 1. Not all AstItem has pickToken, such as Expr etc.
@@ -69,7 +67,7 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
      */
     private var _enclosingScope :AstScope = _
     var resultType :String = _
-    protected var name :String = _
+    var name :String = _
 
     private def name_=(idToken:Token[TokenId]) {
         if (idToken == null) {

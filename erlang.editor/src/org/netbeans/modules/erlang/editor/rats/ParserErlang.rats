@@ -1,0 +1,390 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+
+/*
+ * Definition of Scala Grammar.
+ * 
+ * @author Caoyuan Deng
+ */
+module org.netbeans.modules.erlang.editor.rats.ParserErlang;
+
+import org.netbeans.modules.erlang.editor.rats.Character;
+import org.netbeans.modules.erlang.editor.rats.Identifier;
+import org.netbeans.modules.erlang.editor.rats.Keyword;
+import org.netbeans.modules.erlang.editor.rats.Literal;
+import org.netbeans.modules.erlang.editor.rats.Spacing;
+import org.netbeans.modules.erlang.editor.rats.Symbol;
+
+option withLocation;
+
+
+public generic S = (Form)+ EOF ;
+
+// Hacking for LL(k), We can not identify function and rule in current LL(k) parser,
+// so just mix them in this definition:
+generic Form = 
+  AttributeDeclaration void:".":s
+/ FunctionDeclaration  void:".":s
+;
+
+// ---- Begin Attributes of Erlang
+// Hacking: last ")" of define-attribute declaration is included in MacroBody
+generic AttributeDeclaration = 
+  DefineAttribute     void:"(":s MacroName ( void:"(":s MacroParams? void:")":s )? "," MacroBody
+/ ModuleAttribute     void:"(":s Atom ( void:".":s Atom )* ( void:",":s ModuleParams )? void:")":s
+/ ExportAttribute     void:"(":s void:"[":s FunctionNames? void:"]":s void:")":s
+/ ImportAttribute     void:"(":s Atom ( void:".":s Atom )* ( void:",":s void:"[":s FunctionNames? void:"]":s )? void:")":s
+/ RecordAttribute     void:"(":s RecordName void:",":s void:"{":s RecordFieldNames void:"}":s void:")":s
+/ IncludeAttribute    void:"(":s StringLiteral void:")":s
+/ IncludeLibAttribute void:"(":s StringLiteral void:")":s
+/ CompileAttribute    void:"(":s Exprs void:")":s
+/ FileAttribute       void:"(":s StringLiteral void:",":s IntegerLiteral void:")":s
+/ SpecAttribute       void:"(":s FunctionName void:"::":s TypeSig void:")":s
+/ TypeAttribute       void:"(":s TypedAttrVal void:")":s
+/ WildAttribute       ( void:"(":s WildAttributeContent? void:")":s )? ;
+
+
+generic DefineAttribute     = "-define" ;
+generic ModuleAttribute     = "-module" ;
+generic ExportAttribute     = "-export" ;
+generic ImportAttribute     = "-import" ;
+generic RecordAttribute     = "-record" ;
+generic IncludeAttribute    = "-include" ;
+generic IncludeLibAttribute = "-include_lib" ;
+generic CompileAttribute    = "-compile" ;
+generic FileAttribute       = "-file" ;
+generic SpecAttribute       = "-spec" ;
+generic TypeAttribute       = "-type" ;
+generic WildAttribute       = "-" Atom ;
+
+// Hacking for: Exprs | TypedAttrVal
+generic WildAttributeContent = 
+  Expr ( ( void:",":s Expr )+
+       / void:",":s TypedRecordFields
+       / void:"::":s ( TypeSigs / TopType )?
+       )?
+;
+
+generic ModuleParams = 
+  void:"[":s void:"]":s
+/ void:"[":s Var ( void:",":s Var )* void:"]":s
+;
+
+generic MacroName = Atom / Var ;
+generic MacroParams = Var ( void:",":s Var )* ;
+generic MacroBody = _+ ;
+
+generic RecordFieldNames = RecordFieldName ( void:",":s RecordFieldName )* ;
+generic RecordFieldName  = Atom ( void:"=":s Expr )? ( void:"::":s TopType )? ;
+
+generic FunctionNames = FunctionName ( void:",":s FunctionName )* ;
+generic FunctionName  = Atom void:"/":s IntegerLiteral ;
+
+// ----- Begin Types
+generic TypedAttrVal = 
+  Expr void:"," :s  TypedRecordFields
+/ Expr void:"::":s ( TypeSigs / TopType )?
+;
+
+generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
+
+generic TypedExprs = TypedExpr ( void:",":s TypedExpr )* ;
+generic TypedExpr  = Expr ( void:"::":s TopType )? ;
+
+generic TypeSigs = TypeSig ( void:";":s TypeSig )* ;
+generic TypeSig =  FunType ( void:"when":k TypeGuards )? ;
+
+generic TypeGuards = TypeGuard ( void:",":s TypeGuard )* ;
+generic TypeGuard  = Atom void:"(":s TopTypes void:")":s ;
+
+generic TopTypes = TopType ( void:",":s TopType )* ;
+generic TopType =
+  TopType1
+/ void:"(":s TopType1 void:")":s
+;
+generic TopType1 = Type ( void:"|":s Type )* ;
+
+generic Type =
+  Var
+/ Atom ( void:"(":s TopTypes? void:")":s )?
+/ void:"[":s TopType? ( void:",":s void:"..." )? void:"]":s
+/ void:"{":s TopTypes? void:"}":s
+/ void:"#":s Atom void:"{":s FieldTypes? void:"}":s
+/ BinaryType
+/ IntType ( void:".." IntType )?
+/ void:"fun":k void:"(":s FunType? void:")":s
+;
+
+generic IntType = ( "-":s )? IntegerLiteral ;
+
+generic FunType = 
+  "(" "." "." "." ")" void:"->":s TopType
+/ void:"(":s ArgTypes? void:")":s void:"->":s TopType
+;
+
+generic ArgTypes = ArgType ( void:",":s ArgType )* ;
+generic ArgType = 
+  Var void:"::":s TopType
+/ TopType
+;
+
+generic FieldTypes = FieldType ( void:",":s FieldType )* ;
+generic FieldType  = Atom void:"::":s TopType ;
+
+generic BinaryType = 
+  void:"<<":s void:">>":s
+/ void:"<<":s BinBaseType ( void:",":s BinUnitType )? void:">>":s
+/ void:"<<":s BinUnitType void:">>":s
+;
+generic BinBaseType = Var void:":":s IntegerLiteral ;
+generic BinUnitType = Var void:":":s Var void:"*":s IntegerLiteral ;
+
+// ----- Begin Functions and Rules of Erlang
+generic FunctionDeclaration = FunctionClauses ;
+generic FunctionClauses = FunctionClause ( void:";":s FunctionClause )* ;
+generic FunctionClause  = Atom void:"(":s Exprs? void:")":s ClauseGuard? FunctionRuleClauseBody ;
+generic FunctionRuleClauseBody = ClauseBody / RuleClauseBody ;
+
+generic ClauseGuard = void:"when":k Guard ;
+generic ClauseBody = void:"->":s Exprs ;
+generic RuleClauseBody = void:":-":s ListComprehensionExprs ;
+
+// ----- Begin Terms of Erlang
+generic List = 
+  void:"[":s void:"]":s
+/ void:"[":s Expr ( void:",":s Expr )* ListTail? void:"]":s
+/ void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s
+;
+generic ListTail = "|" Expr;
+generic ListComprehensionExprs = ListComprehensionExpr ( void:",":s ListComprehensionExpr )* ;
+// Hacking for LL(k), we can not write:
+// ListComprehensionExpr = Expr ["<-" Expr]
+//                       | Binary "<=" Expr];
+// since Binary also belongs to Expr
+generic ListComprehensionExpr = Expr ( void:"<-":s Expr / void:"<=":s Expr )? ;
+
+// Hacking for LL(k), we can not write:
+// Binary = "<<" ">>"
+//        | "<<" BinElement ("," BinElement)* ">>"
+//        | "<<" "<<" BinElement ("," BinElement)* ">>"  "||" ListComprehensionExprs ">>";
+// since "<<" BinElement ("," BinElement)* ">>" also begins with BitExpr -> PrimaryExpr -> Binary
+generic Binary = 
+  void:"<<":s void:">>":s
+/ void:"<<":s BinElement ( void:",":s BinElement )* void:">>":s
+/ void:"<<":s BinElement  void:"||":s ListComprehensionExprs void:">>":s
+;
+generic BinElement = BitExpr OptBitSizeExpr? OptBitTypeList? ;
+generic BitExpr =
+  PrimaryExpr
+/ PrefixOp PrimaryExpr
+;
+generic OptBitSizeExpr = void:":":s BitSizeExpr ;
+generic OptBitTypeList = void:"/":s BitTypeList ;
+generic BitTypeList = BitType ( void:"-":s BitType )* ;
+generic BitType = Atom ( void:":":s IntegerLiteral )? ;
+generic BitSizeExpr = PrimaryExpr ;
+
+generic Tuple = void:"{":s Exprs? void:"}":s ;
+
+// ----- Begin Expressions of Erlang
+
+generic Exprs = Expr ( void:",":s Expr )* ;
+
+generic Expr = 
+  void:"catch":k Expr
+/ MatchSendExpr
+;
+
+generic MatchSendExpr = OrelseExpr ( void:"=":s MatchSendExpr / void:"!":s MatchSendExpr )? ;
+
+generic OrelseExpr = AndalsoExpr ( void:"orelse":k OrelseExpr )? ;
+
+generic AndalsoExpr = CompExpr ( void:"andalso":k AndalsoExpr )? ;
+
+generic CompExpr = ListOpExpr CompOp_ListOpExpr? ;
+generic CompOp_ListOpExpr = CompOp ListOpExpr ;
+
+generic ListOpExpr = AddExpr ListOp_ListOpExpr? ;
+generic ListOp_ListOpExpr = ListOp ListOpExpr ;
+
+generic AddExpr = MultExpr AddOp_MultExpr* ;
+generic AddOp_MultExpr = AddOp MultExpr ;
+
+generic MultExpr = PrefixExpr MultOp_PrefixExpr* ;
+generic MultOp_PrefixExpr = MultOp PrefixExpr ;
+
+generic PrefixExpr =
+  FunctionCallRecordRemoteExpr
+/ PrefixOp FunctionCallRecordRemoteExpr
+;
+
+generic FunctionCallRecordRemoteExpr =
+  FunctionCallExpr
+/ RecordExpr;
+//| RemoteExpr;
+
+// Hacking for LL(k), FunctionCallExpr should be RemoteExpr "(" [Exprs] ")" only:
+generic FunctionCallExpr = RemoteExpr ( void:"(":s Exprs? void:")":s )? ;
+
+generic RemoteExpr = RecordFieldExpr ( void:":":s PrimaryExpr )? ;
+
+// Hacking for LL(k), "PrimaryExpr RecordExpr" actually should be "RecordExpr":
+generic RecordFieldExpr = 
+  PrimaryExpr ( RecordExpr / ( void:".":s Atom )+ )?
+/ ( void:".":s Atom )+
+;
+
+generic RecordExpr = void:"#":s RecordName ( void:".":s Atom / void:"{":s RecordFields? void:"}":s )? ;
+generic RecordName = Atom / Macro ;
+generic RecordFields = RecordField ( void:",":s RecordField )* ;
+generic RecordField = 
+  Atom void:"=":s Expr
+/ Var  void:"=":s Expr
+;
+
+generic PrimaryExpr =
+  Var
+/ IntegerLiteral
+/ FloatingPointLiteral
+/ CharacterLiteral
+/ Atom
+/ StringLiteral ( StringLiteral )*
+/ Tuple
+/ List
+/ Binary
+/ BlockExpr
+/ IfExpr
+/ CaseExpr
+/ ReceiveExpr
+/ FunExpr
+/ QueryExpr
+/ ParenthesizedExpr
+/ TryExpr
+/ Macro ( void:"(":s Exprs? void:")":s )?
+;
+
+generic Macro = void:s"?" ( Atom / Var) ;
+
+generic ParenthesizedExpr = void:"(":s Expr void:")":s ;
+
+generic BlockExpr = void:"begin":k Exprs void:"end":k ;
+
+generic IfExpr    = void:"if":k IfClauses void:"end":k ;
+generic IfClauses = IfClause ( void:";":s IfClause )* ;
+generic IfClause  = Guard ClauseBody ;
+
+generic CaseExpr  = void:"case":k Expr void:"of":k CrClauses void:"end":k ;
+generic CrClauses = CrClause ( void:";":s CrClause )* ;
+generic CrClause  = Expr ClauseGuard? ClauseBody ;
+
+/* @Note Repeated element can have only one production, otherwise will throw error: unable to deduce value,
+ * That's why an extra Expr_ClauseBody
+ */
+generic ReceiveExpr =
+  void:"receive":k CrClauses ( void:"after":k Expr_ClauseBody )? void:"end":k
+/ void:"receive":k             void:"after":k Expr_ClauseBody    void:"end":k
+;
+generic Expr_ClauseBody = Expr ClauseBody ;
+
+generic FunExpr = 
+  void:"fun":k ( Atom / Macro ) ( void:":":s ( Atom / Macro ) )? void:"/":s IntegerLiteral
+/ void:"fun":k FunClauses void:"end":k
+;
+generic FunClauses = FunClause ( void:";":s FunClause )* ;
+generic FunClause  = void:"(":s Exprs? void:")":s ClauseGuard? ClauseBody ;
+
+generic TryExpr = void:"try":k Exprs ( void:"of":k CrClauses )? TryCatch ;
+generic TryCatch =
+  void:"catch":k TryClauses ( void:"after":k Exprs )? void:"end":k
+/ void:"after":k Exprs void:"end":k
+;
+generic TryClauses = TryClause ( void:";":s TryClause )* ;
+// Hacking for LL(k), which should like?:
+// TryClause = Expr [ClauseGuard] ClauseBody |
+//             <atom> ":" Expr [ClauseGuard] ClauseBody |
+//             <var>  ":" Expr [ClauseGuard] ClauseBody;
+generic TryClause = Expr ( void:":":s Expr )? ClauseGuard? ClauseBody ;
+
+generic QueryExpr = void:"query":k void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s void:"end":k ;
+
+generic Guard = Exprs (void:";":s Exprs)* ;
+
+generic PrefixOp =
+  "+"   :s
+/ "-"   :s
+/ "bnot":k
+/ "not" :k
+;
+
+generic MultOp =
+  "/"   :s
+/ "*"   :s
+/ "div" :k
+/ "rem" :k
+/ "band":k
+/ "and" :k
+;
+
+generic AddOp =
+  "+"   :s
+/ "-"   :s
+/ "bor" :k
+/ "bxor":k
+/ "bsl" :k
+/ "bsr" :k
+/ "or"  :k
+/ "xor" :k
+;
+
+generic ListOp =
+  "++":s
+/ "--":s
+;
+
+generic CompOp =
+  "==" :s
+/ "/=" :s
+/ "=<" :s
+/ "<"  :s
+/ ">=" :s
+/ ">"  :s
+/ "=:=":s
+/ "=/=":s
+;
+

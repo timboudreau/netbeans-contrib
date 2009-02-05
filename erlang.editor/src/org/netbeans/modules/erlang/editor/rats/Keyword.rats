@@ -83,6 +83,10 @@ body {
 
 option setOfString(ERLANG_KEYWORDS);
 
+string k = SKIP keyword SKIP_TILL_N ;
+
+// ----- For lexer token
+
 generic Keyword =
     "andalso"   :keyword @Andalso
   / "after"     :keyword @After

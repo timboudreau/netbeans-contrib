@@ -43,7 +43,6 @@ Microsystems, Inc. All Rights Reserved.
             <arg value="${rats.lexer.file}"/>
         </java>
 
-        <!--
         <echo message="Rebuilding grammar parser... ${rats.package.dir}"/>
         <java fork="yes"
              dir="${src.dir}/${rats.package.dir}"
@@ -53,7 +52,6 @@ Microsystems, Inc. All Rights Reserved.
             <arg value="${src.dir}"/>
             <arg value="${rats.parser.file}"/>
         </java>
-        -->
     </target>
     
 </project>
