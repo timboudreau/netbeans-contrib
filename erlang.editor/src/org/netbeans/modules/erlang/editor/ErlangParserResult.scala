@@ -40,48 +40,65 @@
  */
 package org.netbeans.modules.erlang.editor
 
-import _root_.java.io.File
-import _root_.java.util.Collection
-import _root_.java.util.Collections
-import _root_.java.util.HashMap
-import _root_.java.util.Map
-import _root_.java.util.Set
-import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.csl.api.CodeCompletionHandler
-import org.netbeans.modules.csl.api.DeclarationFinder
-import org.netbeans.modules.csl.api.Formatter
-import org.netbeans.modules.csl.api.IndexSearcher
-import org.netbeans.modules.csl.api.InstantRenamer
-import org.netbeans.modules.csl.api.KeystrokeHandler
-import org.netbeans.modules.csl.api.OccurrencesFinder
-import org.netbeans.modules.csl.api.SemanticAnalyzer
-import org.netbeans.modules.csl.api.StructureScanner
-import org.netbeans.modules.csl.spi.DefaultLanguageConfig
-import org.netbeans.modules.parsing.spi.Parser
-import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory
-import org.openide.filesystems.FileObject
-import org.openide.filesystems.FileUtil
-import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
+import _root_.java.util.{Collections, ArrayList, List}
+import org.netbeans.api.lexer.{TokenHierarchy, TokenId}
+import org.netbeans.modules.csl.api.Error
+import org.netbeans.modules.csl.api.OffsetRange
+import org.netbeans.modules.csl.spi.ParserResult
+import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.erlang.editor.rats.ParserErlang
+import xtc.tree.{GNode}
 
-/*
- * Language/lexing configuration for Erlang
+/**
  *
  * @author Caoyuan Deng
  */
-class ErlangLanguage extends DefaultLanguageConfig {
+class ErlangParserResult(parser:ErlangParser,
+                         snapshot:Snapshot,
+                         val rootNode:GNode,
+                         val th:TokenHierarchy[_]) extends ParserResult(snapshot) {
 
     override
-    def getLexerLanguage = ErlangTokenId.language
+    protected def invalidate :Unit = {
+        // XXX: what exactly should we do here?
+    }
 
     override
-    def getLineCommentPrefix = "%"
- 
-    override
-    def getDisplayName :String =  "Erlang"
+    def getDiagnostics :List[Error] = _errors
+
+    private var _errors = Collections.emptyList[Error]
     
-    override
-    def getPreferredExtension :String = "erl" // NOI18N
+    def errors = _errors
+    def errors_=(errors:List[Error]) = {
+        this._errors = new ArrayList[Error](errors)
+    }
+
+    var source :String = _
     
+    /**
+     * Return whether the source code for the parse result was "cleaned"
+     * or "sanitized" (modified to reduce chance of parser errors) or not.
+     * This method returns OffsetRange.NONE if the source was not sanitized,
+     * otherwise returns the actual sanitized range.
+     */
+    var sanitizedRange = OffsetRange.NONE
+    var sanitizedContents :String = _
+    var sanitized :Sanitize = NONE
+
+    var isCommentsAdded :Boolean = false
+    
+    /**
+     * Set the range of source that was sanitized, if any.
+     */
+    def setSanitized(sanitized:Sanitize, sanitizedRange:OffsetRange, sanitizedContents:String) :Unit = {
+        this.sanitized = sanitized
+        this.sanitizedRange = sanitizedRange
+        this.sanitizedContents = sanitizedContents
+    }
+
+
     override
-    def getParser = new ErlangParser
+    def toString = {
+        "ErlangParseResult(file=" + snapshot.getSource.getFileObject + ",rootnode=" + rootNode + ")"
+    }
 }
