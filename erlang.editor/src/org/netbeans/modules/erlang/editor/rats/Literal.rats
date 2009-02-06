@@ -46,7 +46,22 @@ module org.netbeans.modules.erlang.editor.rats.Literal;
 
 import org.netbeans.modules.erlang.editor.rats.Character;
 import org.netbeans.modules.erlang.editor.rats.Identifier;
+import org.netbeans.modules.erlang.editor.rats.Spacing;
 
+
+transient generic Integer = SKIP IntegerLiteral ;
+transient generic Float   = SKIP FloatingPointLiteral ;
+transient generic Char    = SKIP CharacterLiteral ;
+transient generic String  = SKIP StringLiteral ;
+
+// ---- tokens
+
+transient generic Literal =
+  IntegerLiteral
+/ FloatingPointLiteral
+/ CharacterLiteral
+/ StringLiteral
+;
 
 // ----- Integer literals
 
@@ -96,7 +111,5 @@ transient generic CharacterLiteral = characterLiteral ;
 transient String characterLiteral = '$' characterChar? ;
 
 transient generic StringLiteral = stringLiteral ;
-transient String stringLiteral = 
-  ["] stringChar* ["]
-;
+transient String stringLiteral = ["] stringChar* ["] ;
 

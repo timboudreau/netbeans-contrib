@@ -66,12 +66,3 @@ public generic Token =
 / EOF
 ;
 
-// ----- Literal
-
-transient generic Literal =
-  FloatingPointLiteral
-/ IntegerLiteral
-/ CharacterLiteral
-/ StringLiteral
-;
-

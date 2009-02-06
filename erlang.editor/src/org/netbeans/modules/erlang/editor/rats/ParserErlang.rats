@@ -54,7 +54,7 @@ import org.netbeans.modules.erlang.editor.rats.Symbol;
 option withLocation;
 
 
-public generic S = (Form)+ EOF ;
+public generic S = SKIP Form+ EOF ;
 
 // Hacking for LL(k), We can not identify function and rule in current LL(k) parser,
 // so just mix them in this definition:
@@ -64,17 +64,18 @@ generic Form =
 ;
 
 // ---- Begin Attributes of Erlang
+
 // Hacking: last ")" of define-attribute declaration is included in MacroBody
 generic AttributeDeclaration = 
   DefineAttribute     void:"(":s MacroName ( void:"(":s MacroParams? void:")":s )? "," MacroBody
-/ ModuleAttribute     void:"(":s Atom ( void:".":s Atom )* ( void:",":s ModuleParams )? void:")":s
+/ ModuleAttribute     void:"(":s AtomId ( void:".":s AtomId )* ( void:",":s ModuleParams )? void:")":s
 / ExportAttribute     void:"(":s void:"[":s FunctionNames? void:"]":s void:")":s
-/ ImportAttribute     void:"(":s Atom ( void:".":s Atom )* ( void:",":s void:"[":s FunctionNames? void:"]":s )? void:")":s
+/ ImportAttribute     void:"(":s AtomId ( void:".":s AtomId )* ( void:",":s void:"[":s FunctionNames? void:"]":s )? void:")":s
 / RecordAttribute     void:"(":s RecordName void:",":s void:"{":s RecordFieldNames void:"}":s void:")":s
-/ IncludeAttribute    void:"(":s StringLiteral void:")":s
-/ IncludeLibAttribute void:"(":s StringLiteral void:")":s
+/ IncludeAttribute    void:"(":s String void:")":s
+/ IncludeLibAttribute void:"(":s String void:")":s
 / CompileAttribute    void:"(":s Exprs void:")":s
-/ FileAttribute       void:"(":s StringLiteral void:",":s IntegerLiteral void:")":s
+/ FileAttribute       void:"(":s String void:",":s Integer void:")":s
 / SpecAttribute       void:"(":s FunctionName void:"::":s TypeSig void:")":s
 / TypeAttribute       void:"(":s TypedAttrVal void:")":s
 / WildAttribute       ( void:"(":s WildAttributeContent? void:")":s )? ;
@@ -91,7 +92,7 @@ generic CompileAttribute    = "-compile" ;
 generic FileAttribute       = "-file" ;
 generic SpecAttribute       = "-spec" ;
 generic TypeAttribute       = "-type" ;
-generic WildAttribute       = "-" Atom ;
+generic WildAttribute       = "-" AtomId ;
 
 // Hacking for: Exprs | TypedAttrVal
 generic WildAttributeContent = 
@@ -103,20 +104,21 @@ generic WildAttributeContent =
 
 generic ModuleParams = 
   void:"[":s void:"]":s
-/ void:"[":s Var ( void:",":s Var )* void:"]":s
+/ void:"[":s VarId ( void:",":s VarId )* void:"]":s
 ;
 
-generic MacroName = Atom / Var ;
-generic MacroParams = Var ( void:",":s Var )* ;
+generic MacroName = AtomId / VarId ;
+generic MacroParams = VarId ( void:",":s VarId )* ;
 generic MacroBody = _+ ;
 
 generic RecordFieldNames = RecordFieldName ( void:",":s RecordFieldName )* ;
-generic RecordFieldName  = Atom ( void:"=":s Expr )? ( void:"::":s TopType )? ;
+generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
 
 generic FunctionNames = FunctionName ( void:",":s FunctionName )* ;
-generic FunctionName  = Atom void:"/":s IntegerLiteral ;
+generic FunctionName  = AtomId void:"/":s Integer ;
 
 // ----- Begin Types
+
 generic TypedAttrVal = 
   Expr void:"," :s  TypedRecordFields
 / Expr void:"::":s ( TypeSigs / TopType )?
@@ -131,7 +133,7 @@ generic TypeSigs = TypeSig ( void:";":s TypeSig )* ;
 generic TypeSig =  FunType ( void:"when":k TypeGuards )? ;
 
 generic TypeGuards = TypeGuard ( void:",":s TypeGuard )* ;
-generic TypeGuard  = Atom void:"(":s TopTypes void:")":s ;
+generic TypeGuard  = AtomId void:"(":s TopTypes void:")":s ;
 
 generic TopTypes = TopType ( void:",":s TopType )* ;
 generic TopType =
@@ -141,17 +143,17 @@ generic TopType =
 generic TopType1 = Type ( void:"|":s Type )* ;
 
 generic Type =
-  Var
-/ Atom ( void:"(":s TopTypes? void:")":s )?
+  VarId
+/ AtomId ( void:"(":s TopTypes? void:")":s )?
 / void:"[":s TopType? ( void:",":s void:"..." )? void:"]":s
 / void:"{":s TopTypes? void:"}":s
-/ void:"#":s Atom void:"{":s FieldTypes? void:"}":s
+/ void:"#":s AtomId void:"{":s FieldTypes? void:"}":s
 / BinaryType
 / IntType ( void:".." IntType )?
 / void:"fun":k void:"(":s FunType? void:")":s
 ;
 
-generic IntType = ( "-":s )? IntegerLiteral ;
+generic IntType = ( "-":s )? Integer ;
 
 generic FunType = 
   "(" "." "." "." ")" void:"->":s TopType
@@ -160,32 +162,34 @@ generic FunType =
 
 generic ArgTypes = ArgType ( void:",":s ArgType )* ;
 generic ArgType = 
-  Var void:"::":s TopType
+  VarId void:"::":s TopType
 / TopType
 ;
 
 generic FieldTypes = FieldType ( void:",":s FieldType )* ;
-generic FieldType  = Atom void:"::":s TopType ;
+generic FieldType  = AtomId void:"::":s TopType ;
 
 generic BinaryType = 
   void:"<<":s void:">>":s
 / void:"<<":s BinBaseType ( void:",":s BinUnitType )? void:">>":s
 / void:"<<":s BinUnitType void:">>":s
 ;
-generic BinBaseType = Var void:":":s IntegerLiteral ;
-generic BinUnitType = Var void:":":s Var void:"*":s IntegerLiteral ;
+generic BinBaseType = VarId void:":":s Integer ;
+generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
 
 // ----- Begin Functions and Rules of Erlang
+
 generic FunctionDeclaration = FunctionClauses ;
 generic FunctionClauses = FunctionClause ( void:";":s FunctionClause )* ;
-generic FunctionClause  = Atom void:"(":s Exprs? void:")":s ClauseGuard? FunctionRuleClauseBody ;
+generic FunctionClause  = AtomId void:"(":s Exprs? void:")":s ClauseGuard? FunctionRuleClauseBody ;
 generic FunctionRuleClauseBody = ClauseBody / RuleClauseBody ;
 
 generic ClauseGuard = void:"when":k Guard ;
-generic ClauseBody = void:"->":s Exprs ;
+generic ClauseBody  = void:"->":s Exprs ;
 generic RuleClauseBody = void:":-":s ListComprehensionExprs ;
 
 // ----- Begin Terms of Erlang
+
 generic List = 
   void:"[":s void:"]":s
 / void:"[":s Expr ( void:",":s Expr )* ListTail? void:"]":s
@@ -217,7 +221,7 @@ generic BitExpr =
 generic OptBitSizeExpr = void:":":s BitSizeExpr ;
 generic OptBitTypeList = void:"/":s BitTypeList ;
 generic BitTypeList = BitType ( void:"-":s BitType )* ;
-generic BitType = Atom ( void:":":s IntegerLiteral )? ;
+generic BitType = AtomId ( void:":":s Integer )? ;
 generic BitSizeExpr = PrimaryExpr ;
 
 generic Tuple = void:"{":s Exprs? void:"}":s ;
@@ -226,7 +230,7 @@ generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 generic Exprs = Expr ( void:",":s Expr )* ;
 
-generic Expr = 
+generic Expr =
   void:"catch":k Expr
 / MatchSendExpr
 ;
@@ -266,25 +270,25 @@ generic RemoteExpr = RecordFieldExpr ( void:":":s PrimaryExpr )? ;
 
 // Hacking for LL(k), "PrimaryExpr RecordExpr" actually should be "RecordExpr":
 generic RecordFieldExpr = 
-  PrimaryExpr ( RecordExpr / ( void:".":s Atom )+ )?
-/ ( void:".":s Atom )+
+  PrimaryExpr ( RecordExpr / ( void:".":s AtomId )+ )?
+/ ( void:".":s AtomId )+
 ;
 
-generic RecordExpr = void:"#":s RecordName ( void:".":s Atom / void:"{":s RecordFields? void:"}":s )? ;
-generic RecordName = Atom / Macro ;
+generic RecordExpr = void:"#":s RecordName ( void:".":s AtomId / void:"{":s RecordFields? void:"}":s )? ;
+generic RecordName = AtomId / Macro ;
 generic RecordFields = RecordField ( void:",":s RecordField )* ;
 generic RecordField = 
-  Atom void:"=":s Expr
-/ Var  void:"=":s Expr
+  AtomId void:"=":s Expr
+/ VarId  void:"=":s Expr
 ;
 
 generic PrimaryExpr =
-  Var
-/ IntegerLiteral
-/ FloatingPointLiteral
-/ CharacterLiteral
-/ Atom
-/ StringLiteral ( StringLiteral )*
+  Atom
+/ Var
+/ Integer
+/ Float
+/ Char
+/ String ( String )*
 / Tuple
 / List
 / Binary
@@ -299,7 +303,7 @@ generic PrimaryExpr =
 / Macro ( void:"(":s Exprs? void:")":s )?
 ;
 
-generic Macro = void:s"?" ( Atom / Var) ;
+generic Macro = void:s"?" ( AtomId / VarId ) ;
 
 generic ParenthesizedExpr = void:"(":s Expr void:")":s ;
 
@@ -323,7 +327,7 @@ generic ReceiveExpr =
 generic Expr_ClauseBody = Expr ClauseBody ;
 
 generic FunExpr = 
-  void:"fun":k ( Atom / Macro ) ( void:":":s ( Atom / Macro ) )? void:"/":s IntegerLiteral
+  void:"fun":k ( AtomId / Macro ) ( void:":":s ( AtomId / Macro ) )? void:"/":s Integer
 / void:"fun":k FunClauses void:"end":k
 ;
 generic FunClauses = FunClause ( void:";":s FunClause )* ;
@@ -337,8 +341,8 @@ generic TryCatch =
 generic TryClauses = TryClause ( void:";":s TryClause )* ;
 // Hacking for LL(k), which should like?:
 // TryClause = Expr [ClauseGuard] ClauseBody |
-//             <atom> ":" Expr [ClauseGuard] ClauseBody |
-//             <var>  ":" Expr [ClauseGuard] ClauseBody;
+//             <AtomId> ":" Expr [ClauseGuard] ClauseBody |
+//             <VarId>  ":" Expr [ClauseGuard] ClauseBody;
 generic TryClause = Expr ( void:":":s Expr )? ClauseGuard? ClauseBody ;
 
 generic QueryExpr = void:"query":k void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s void:"end":k ;
