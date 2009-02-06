@@ -122,6 +122,9 @@ object ErlangTokenId extends Enumeration {
     val Atom = V("Atom", null, "identifier")
     val Var = V("Var", null, "identifier")
 
+    // --- Stop
+    val Stop = V("Stop", ".", "keyword")
+
     // --- Symbols
     val LParen = V("LParen", "(", "separator")
     val RParen = V("RParan", ")", "separator")

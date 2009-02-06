@@ -46,11 +46,15 @@ module org.netbeans.modules.erlang.editor.rats.Symbol;
 
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 
+transient void STOP = SKIP stop SKIP ;
+
 String s = SKIP separator SKIP ;
 
 // ----- For lexer token
 
-transient generic Separator = 
+transient generic Stop = stop @Stop ;
+
+transient generic Separator =
   "{"   :separator @LBrace
 / "}"   :separator @RBrace
 / "("   :separator @LParen
@@ -90,6 +94,8 @@ transient generic Separator =
 / "!"   :separator @Exclamation
 ;
 
+transient String stop = "." &( w / n / '%' / EOF ) ;
+
 transient String separator = 
   "("
 / ")"
@@ -99,7 +105,7 @@ transient String separator =
 / "}"
 / ","
 / ";"
-/ "."
+/ "." !( w / n / '%' / EOF )
 / "||"
 / "|"
 / "?"

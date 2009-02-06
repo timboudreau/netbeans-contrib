@@ -54,13 +54,13 @@ import org.netbeans.modules.erlang.editor.rats.Symbol;
 option withLocation;
 
 
-public generic S = SKIP Form+ EOF ;
+public generic S = SKIP Form+ SKIP EOF ;
 
 // Hacking for LL(k), We can not identify function and rule in current LL(k) parser,
 // so just mix them in this definition:
 generic Form = 
-  AttributeDeclaration void:".":s
-/ FunctionDeclaration  void:".":s
+  AttributeDeclaration STOP
+/ FunctionDeclaration  STOP
 ;
 
 // ---- Begin Attributes of Erlang
@@ -282,11 +282,12 @@ generic RecordField =
 / VarId  void:"=":s Expr
 ;
 
+/* Should always put FloatingPointLiteral before IntegerLiteral */
 generic PrimaryExpr =
   Atom
 / Var
-/ Integer
 / Float
+/ Integer
 / Char
 / String ( String )*
 / Tuple

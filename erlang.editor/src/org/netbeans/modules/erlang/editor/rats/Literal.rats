@@ -49,16 +49,17 @@ import org.netbeans.modules.erlang.editor.rats.Identifier;
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 
 
-transient generic Integer = SKIP IntegerLiteral ;
 transient generic Float   = SKIP FloatingPointLiteral ;
+transient generic Integer = SKIP IntegerLiteral ;
 transient generic Char    = SKIP CharacterLiteral ;
 transient generic String  = SKIP StringLiteral ;
 
 // ---- tokens
 
+/* Should always put FloatingPointLiteral before IntegerLiteral */
 transient generic Literal =
-  IntegerLiteral
-/ FloatingPointLiteral
+  FloatingPointLiteral
+/ IntegerLiteral
 / CharacterLiteral
 / StringLiteral
 ;
@@ -94,8 +95,7 @@ transient String explicitRadix =
 
 transient generic FloatingPointLiteral = floatingPointLiteral ;
 transient String floatingPointLiteral =
-  digit+ '.' digit* exponent? floatTypeSuffix?
-/        '.' digit+ exponent? floatTypeSuffix?
+  digit+ '.' digit+ exponent? floatTypeSuffix?
 / digit+            exponent  floatTypeSuffix?
 / digit+            exponent? floatTypeSuffix
 ;
