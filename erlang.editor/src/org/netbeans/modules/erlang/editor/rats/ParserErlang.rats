@@ -195,7 +195,7 @@ generic List =
 / void:"[":s Expr ( void:",":s Expr )* ListTail? void:"]":s
 / void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s
 ;
-transient generic ListTail = "|" Expr;
+transient generic ListTail = void:"|":s Expr;
 transient generic ListComprehensionExprs = ListComprehensionExpr ( void:",":s ListComprehensionExpr )* ;
 // Hacking for LL(k), we can not write:
 // ListComprehensionExpr = Expr ["<-" Expr]
@@ -275,7 +275,7 @@ generic RecordFieldExpr =
 ;
 
 transient generic RecordExpr = void:"#":s RecordName ( void:".":s AtomId / void:"{":s RecordFields? void:"}":s )? ;
-generic RecordName = AtomId / Macro ;
+generic RecordName = AtomId / MacroId ;
 transient generic RecordFields = RecordField ( void:",":s RecordField )* ;
 generic RecordField = 
   AtomId void:"=":s Expr
@@ -304,9 +304,7 @@ generic PrimaryExpr =
 / MacroExpr
 ;
 
-transient generic Macro = void:"?":s ( AtomId / VarId ) ;
-
-transient generic MacroExpr = Macro ( void:"(":s Exprs? void:")":s )? ;
+transient generic MacroExpr = MacroId ( void:"(":s Exprs? void:")":s )? ;
 
 transient generic ParenthesizedExpr = void:"(":s Expr void:")":s ;
 
@@ -330,7 +328,7 @@ generic ReceiveExpr =
 transient generic Expr_ClauseBody = Expr ClauseBody ;
 
 generic FunExpr = 
-  void:"fun":k ( AtomId / Macro ) ( void:":":s ( AtomId / Macro ) )? void:"/":s Integer
+  void:"fun":k ( AtomId / MacroId ) ( void:":":s ( AtomId / MacroId ) )? void:"/":s Integer
 / void:"fun":k FunClauses void:"end":k
 ;
 transient generic FunClauses = FunClause ( void:";":s FunClause )* ;

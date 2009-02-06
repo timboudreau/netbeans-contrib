@@ -63,4 +63,5 @@ made subject to such option by the copyright holder.
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="Var" default="field" foreColor="009B00"/>
+    <fontcolor name="Macro" default="identifier" foreColor="2E92C7"/>
 </fontscolors>

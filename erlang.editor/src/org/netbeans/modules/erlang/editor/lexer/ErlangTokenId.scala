@@ -119,6 +119,7 @@ object ErlangTokenId extends Enumeration {
     val Xor = V("Xor", "xor", "keyword")
 
     // --- Identifiers
+    val Macro = V("Macro", null, "identifier")
     val Atom = V("Atom", null, "identifier")
     val Var = V("Var", null, "identifier")
 

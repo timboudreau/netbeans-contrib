@@ -46,18 +46,26 @@ module org.netbeans.modules.erlang.editor.rats.Identifier;
 
 import org.netbeans.modules.erlang.editor.rats.Character;
 import org.netbeans.modules.erlang.editor.rats.Keyword;
-import org.netbeans.modules.erlang.editor.rats.Spacing;
 import org.netbeans.modules.erlang.editor.rats.Literal;
+import org.netbeans.modules.erlang.editor.rats.Spacing;
+import org.netbeans.modules.erlang.editor.rats.Symbol;
 
-generic AtomId = SKIP Atom ;
-generic VarId  = SKIP Var ;
+transient generic MacroId = SKIP Macro ;
+transient generic AtomId  = SKIP Atom ;
+transient generic VarId   = SKIP Var ;
 
 // ----- Token
 
-transient generic Identifier = Atom / Var ;
+transient generic Identifier =
+  Macro
+/ Atom
+/ Var
+;
 
-transient generic Atom = atomIdentifier ;
-transient generic Var  = varIdentifier ;
+/* &'?' will include '?' to production, we can just add a "Separator" to consume this '?' and get a "Separator" production */
+transient generic Macro = &'?' Separator ( Ws / Nl )* ( atomIdentifier / varIdentifier ) ;
+transient generic Atom  = atomIdentifier ;
+transient generic Var   = varIdentifier ;
 
 transient String atomIdentifier = plainAtomIdentifier / quoteAtomIdentifier ;
 
