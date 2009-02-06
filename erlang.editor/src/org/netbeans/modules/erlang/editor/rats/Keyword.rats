@@ -83,7 +83,7 @@ body {
 
 option setOfString(ERLANG_KEYWORDS);
 
-String k = SKIP keyword SKIP_TILL_N ;
+String k = SKIP keyword SKIP ;
 
 // ----- For lexer token
 
