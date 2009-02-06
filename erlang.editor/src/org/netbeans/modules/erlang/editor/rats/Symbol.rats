@@ -46,7 +46,7 @@ module org.netbeans.modules.erlang.editor.rats.Symbol;
 
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 
-string s = SKIP separator SKIP_TILL_N ;
+String s = SKIP separator SKIP_TILL_N ;
 
 // ----- For lexer token
 

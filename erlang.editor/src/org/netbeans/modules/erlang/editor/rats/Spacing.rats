@@ -84,9 +84,7 @@ transient void SKIP_N =
  * don't put after above tokens. 
  */
 transient void SKIP = 
-  &{ yyState.newlineEnable() } 
-  ( w / LineComment )*
-/ ( w / LineComment / n )*
+  ( w / LineComment / n )*
 ;
 
 
