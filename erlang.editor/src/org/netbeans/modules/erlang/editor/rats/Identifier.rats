@@ -50,7 +50,7 @@ import org.netbeans.modules.erlang.editor.rats.Literal;
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 import org.netbeans.modules.erlang.editor.rats.Symbol;
 
-transient generic MacroId = SKIP Macro ;
+transient generic MacroId = SKIP &'?' void:( Separator ( Ws / Nl )* ) ( atomIdentifier / varIdentifier ) ;
 transient generic AtomId  = SKIP Atom ;
 transient generic VarId   = SKIP Var ;
 
