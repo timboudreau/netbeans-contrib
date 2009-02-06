@@ -109,7 +109,7 @@ generic ModuleParams =
 
 transient generic MacroName = AtomId / VarId ;
 transient generic MacroParams = VarId ( void:",":s VarId )* ;
-transient generic MacroBody = _+ ;
+transient generic MacroBody = (!STOP _ )+ ;
 
 transient generic RecordFieldNames = RecordFieldName ( void:",":s RecordFieldName )* ;
 transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
