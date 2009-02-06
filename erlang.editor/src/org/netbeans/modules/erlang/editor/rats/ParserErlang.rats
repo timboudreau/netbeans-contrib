@@ -58,7 +58,7 @@ public generic S = SKIP Form+ SKIP EOF ;
 
 // Hacking for LL(k), We can not identify function and rule in current LL(k) parser,
 // so just mix them in this definition:
-generic Form = 
+generic Form =
   AttributeDeclaration STOP
 / FunctionDeclaration  STOP
 ;
@@ -66,7 +66,7 @@ generic Form =
 // ---- Begin Attributes of Erlang
 
 // Hacking: last ")" of define-attribute declaration is included in MacroBody
-generic AttributeDeclaration = 
+generic AttributeDeclaration =
   DefineAttribute     void:"(":s MacroName ( void:"(":s MacroParams? void:")":s )? "," MacroBody
 / ModuleAttribute     void:"(":s AtomId ( void:".":s AtomId )* ( void:",":s ModuleParams )? void:")":s
 / ExportAttribute     void:"(":s void:"[":s FunctionNames? void:"]":s void:")":s
@@ -81,21 +81,21 @@ generic AttributeDeclaration =
 / WildAttribute       ( void:"(":s WildAttributeContent? void:")":s )? ;
 
 
-generic DefineAttribute     = "-define" ;
-generic ModuleAttribute     = "-module" ;
-generic ExportAttribute     = "-export" ;
-generic ImportAttribute     = "-import" ;
-generic RecordAttribute     = "-record" ;
-generic IncludeAttribute    = "-include" ;
-generic IncludeLibAttribute = "-include_lib" ;
-generic CompileAttribute    = "-compile" ;
-generic FileAttribute       = "-file" ;
-generic SpecAttribute       = "-spec" ;
-generic TypeAttribute       = "-type" ;
-generic WildAttribute       = "-" AtomId ;
+transient generic DefineAttribute     = "-define" ;
+transient generic ModuleAttribute     = "-module" ;
+transient generic ExportAttribute     = "-export" ;
+transient generic ImportAttribute     = "-import" ;
+transient generic RecordAttribute     = "-record" ;
+transient generic IncludeAttribute    = "-include" ;
+transient generic IncludeLibAttribute = "-include_lib" ;
+transient generic CompileAttribute    = "-compile" ;
+transient generic FileAttribute       = "-file" ;
+transient generic SpecAttribute       = "-spec" ;
+transient generic TypeAttribute       = "-type" ;
+transient generic WildAttribute       = "-" AtomId ;
 
 // Hacking for: Exprs | TypedAttrVal
-generic WildAttributeContent = 
+transient generic WildAttributeContent =
   Expr ( ( void:",":s Expr )+
        / void:",":s TypedRecordFields
        / void:"::":s ( TypeSigs / TopType )?
@@ -107,15 +107,15 @@ generic ModuleParams =
 / void:"[":s VarId ( void:",":s VarId )* void:"]":s
 ;
 
-generic MacroName = AtomId / VarId ;
-generic MacroParams = VarId ( void:",":s VarId )* ;
-generic MacroBody = _+ ;
+transient generic MacroName = AtomId / VarId ;
+transient generic MacroParams = VarId ( void:",":s VarId )* ;
+transient generic MacroBody = _+ ;
 
-generic RecordFieldNames = RecordFieldName ( void:",":s RecordFieldName )* ;
-generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
+transient generic RecordFieldNames = RecordFieldName ( void:",":s RecordFieldName )* ;
+transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
 
-generic FunctionNames = FunctionName ( void:",":s FunctionName )* ;
-generic FunctionName  = AtomId void:"/":s Integer ;
+transient generic FunctionNames = FunctionName ( void:",":s FunctionName )* ;
+transient generic FunctionName  = AtomId void:"/":s Integer ;
 
 // ----- Begin Types
 
@@ -124,23 +124,23 @@ generic TypedAttrVal =
 / Expr void:"::":s ( TypeSigs / TopType )?
 ;
 
-generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
+transient generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
 
-generic TypedExprs = TypedExpr ( void:",":s TypedExpr )* ;
-generic TypedExpr  = Expr ( void:"::":s TopType )? ;
+transient generic TypedExprs = TypedExpr ( void:",":s TypedExpr )* ;
+transient generic TypedExpr  = Expr ( void:"::":s TopType )? ;
 
-generic TypeSigs = TypeSig ( void:";":s TypeSig )* ;
-generic TypeSig =  FunType ( void:"when":k TypeGuards )? ;
+transient generic TypeSigs = TypeSig ( void:";":s TypeSig )* ;
+transient generic TypeSig =  FunType ( void:"when":k TypeGuards )? ;
 
-generic TypeGuards = TypeGuard ( void:",":s TypeGuard )* ;
-generic TypeGuard  = AtomId void:"(":s TopTypes void:")":s ;
+transient generic TypeGuards = TypeGuard ( void:",":s TypeGuard )* ;
+transient generic TypeGuard  = AtomId void:"(":s TopTypes void:")":s ;
 
-generic TopTypes = TopType ( void:",":s TopType )* ;
-generic TopType =
+transient generic TopTypes = TopType ( void:",":s TopType )* ;
+transient generic TopType =
   TopType1
 / void:"(":s TopType1 void:")":s
 ;
-generic TopType1 = Type ( void:"|":s Type )* ;
+transient generic TopType1 = Type ( void:"|":s Type )* ;
 
 generic Type =
   VarId
@@ -153,40 +153,40 @@ generic Type =
 / void:"fun":k void:"(":s FunType? void:")":s
 ;
 
-generic IntType = ( "-":s )? Integer ;
+transient generic IntType = ( "-":s )? Integer ;
 
-generic FunType = 
+generic FunType =
   "(" "." "." "." ")" void:"->":s TopType
 / void:"(":s ArgTypes? void:")":s void:"->":s TopType
 ;
 
-generic ArgTypes = ArgType ( void:",":s ArgType )* ;
-generic ArgType = 
+transient generic ArgTypes = ArgType ( void:",":s ArgType )* ;
+generic ArgType =
   VarId void:"::":s TopType
 / TopType
 ;
 
-generic FieldTypes = FieldType ( void:",":s FieldType )* ;
-generic FieldType  = AtomId void:"::":s TopType ;
+transient generic FieldTypes = FieldType ( void:",":s FieldType )* ;
+transient generic FieldType  = AtomId void:"::":s TopType ;
 
 generic BinaryType = 
   void:"<<":s void:">>":s
 / void:"<<":s BinBaseType ( void:",":s BinUnitType )? void:">>":s
 / void:"<<":s BinUnitType void:">>":s
 ;
-generic BinBaseType = VarId void:":":s Integer ;
-generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
+transient generic BinBaseType = VarId void:":":s Integer ;
+transient generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
 
 // ----- Begin Functions and Rules of Erlang
 
-generic FunctionDeclaration = FunctionClauses ;
-generic FunctionClauses = FunctionClause ( void:";":s FunctionClause )* ;
-generic FunctionClause  = AtomId void:"(":s Exprs? void:")":s ClauseGuard? FunctionRuleClauseBody ;
-generic FunctionRuleClauseBody = ClauseBody / RuleClauseBody ;
+transient generic FunctionDeclaration = FunctionClauses ;
+transient generic FunctionClauses = FunctionClause ( void:";":s FunctionClause )* ;
+transient generic FunctionClause  = AtomId void:"(":s Exprs? void:")":s ClauseGuard? FunctionRuleClauseBody ;
+transient generic FunctionRuleClauseBody = ClauseBody / RuleClauseBody ;
 
-generic ClauseGuard = void:"when":k Guard ;
-generic ClauseBody  = void:"->":s Exprs ;
-generic RuleClauseBody = void:":-":s ListComprehensionExprs ;
+transient generic ClauseGuard = void:"when":k Guard ;
+transient generic ClauseBody  = void:"->":s Exprs ;
+transient generic RuleClauseBody = void:":-":s ListComprehensionExprs ;
 
 // ----- Begin Terms of Erlang
 
@@ -195,13 +195,13 @@ generic List =
 / void:"[":s Expr ( void:",":s Expr )* ListTail? void:"]":s
 / void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s
 ;
-generic ListTail = "|" Expr;
-generic ListComprehensionExprs = ListComprehensionExpr ( void:",":s ListComprehensionExpr )* ;
+transient generic ListTail = "|" Expr;
+transient generic ListComprehensionExprs = ListComprehensionExpr ( void:",":s ListComprehensionExpr )* ;
 // Hacking for LL(k), we can not write:
 // ListComprehensionExpr = Expr ["<-" Expr]
 //                       | Binary "<=" Expr];
 // since Binary also belongs to Expr
-generic ListComprehensionExpr = Expr ( void:"<-":s Expr / void:"<=":s Expr )? ;
+transient generic ListComprehensionExpr = Expr ( void:"<-":s Expr / void:"<=":s Expr )? ;
 
 // Hacking for LL(k), we can not write:
 // Binary = "<<" ">>"
@@ -213,45 +213,45 @@ generic Binary =
 / void:"<<":s BinElement ( void:",":s BinElement )* void:">>":s
 / void:"<<":s BinElement  void:"||":s ListComprehensionExprs void:">>":s
 ;
-generic BinElement = BitExpr OptBitSizeExpr? OptBitTypeList? ;
+transient generic BinElement = BitExpr OptBitSizeExpr? OptBitTypeList? ;
 generic BitExpr =
   PrimaryExpr
 / PrefixOp PrimaryExpr
 ;
-generic OptBitSizeExpr = void:":":s BitSizeExpr ;
-generic OptBitTypeList = void:"/":s BitTypeList ;
-generic BitTypeList = BitType ( void:"-":s BitType )* ;
-generic BitType = AtomId ( void:":":s Integer )? ;
-generic BitSizeExpr = PrimaryExpr ;
+transient generic OptBitSizeExpr = void:":":s BitSizeExpr ;
+transient generic OptBitTypeList = void:"/":s BitTypeList ;
+transient generic BitTypeList = BitType ( void:"-":s BitType )* ;
+transient generic BitType = AtomId ( void:":":s Integer )? ;
+transient generic BitSizeExpr = PrimaryExpr ;
 
-generic Tuple = void:"{":s Exprs? void:"}":s ;
+transient generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 // ----- Begin Expressions of Erlang
 
-generic Exprs = Expr ( void:",":s Expr )* ;
+transient generic Exprs = Expr ( void:",":s Expr )* ;
 
 generic Expr =
   void:"catch":k Expr
 / MatchSendExpr
 ;
 
-generic MatchSendExpr = OrelseExpr ( void:"=":s MatchSendExpr / void:"!":s MatchSendExpr )? ;
+transient generic MatchSendExpr = OrelseExpr ( void:"=":s MatchSendExpr / void:"!":s MatchSendExpr )? ;
 
-generic OrelseExpr = AndalsoExpr ( void:"orelse":k OrelseExpr )? ;
+transient generic OrelseExpr = AndalsoExpr ( void:"orelse":k OrelseExpr )? ;
 
-generic AndalsoExpr = CompExpr ( void:"andalso":k AndalsoExpr )? ;
+transient generic AndalsoExpr = CompExpr ( void:"andalso":k AndalsoExpr )? ;
 
-generic CompExpr = ListOpExpr CompOp_ListOpExpr? ;
-generic CompOp_ListOpExpr = CompOp ListOpExpr ;
+transient generic CompExpr = ListOpExpr CompOp_ListOpExpr? ;
+transient generic CompOp_ListOpExpr = CompOp ListOpExpr ;
 
-generic ListOpExpr = AddExpr ListOp_ListOpExpr? ;
-generic ListOp_ListOpExpr = ListOp ListOpExpr ;
+transient generic ListOpExpr = AddExpr ListOp_ListOpExpr? ;
+transient generic ListOp_ListOpExpr = ListOp ListOpExpr ;
 
-generic AddExpr = MultExpr AddOp_MultExpr* ;
-generic AddOp_MultExpr = AddOp MultExpr ;
+transient generic AddExpr = MultExpr AddOp_MultExpr* ;
+transient generic AddOp_MultExpr = AddOp MultExpr ;
 
-generic MultExpr = PrefixExpr MultOp_PrefixExpr* ;
-generic MultOp_PrefixExpr = MultOp PrefixExpr ;
+transient generic MultExpr = PrefixExpr MultOp_PrefixExpr* ;
+transient generic MultOp_PrefixExpr = MultOp PrefixExpr ;
 
 generic PrefixExpr =
   FunctionCallRecordRemoteExpr
@@ -264,9 +264,9 @@ generic FunctionCallRecordRemoteExpr =
 //| RemoteExpr;
 
 // Hacking for LL(k), FunctionCallExpr should be RemoteExpr "(" [Exprs] ")" only:
-generic FunctionCallExpr = RemoteExpr ( void:"(":s Exprs? void:")":s )? ;
+transient generic FunctionCallExpr = RemoteExpr ( void:"(":s Exprs? void:")":s )? ;
 
-generic RemoteExpr = RecordFieldExpr ( void:":":s PrimaryExpr )? ;
+transient generic RemoteExpr = RecordFieldExpr ( void:":":s PrimaryExpr )? ;
 
 // Hacking for LL(k), "PrimaryExpr RecordExpr" actually should be "RecordExpr":
 generic RecordFieldExpr = 
@@ -274,9 +274,9 @@ generic RecordFieldExpr =
 / ( void:".":s AtomId )+
 ;
 
-generic RecordExpr = void:"#":s RecordName ( void:".":s AtomId / void:"{":s RecordFields? void:"}":s )? ;
+transient generic RecordExpr = void:"#":s RecordName ( void:".":s AtomId / void:"{":s RecordFields? void:"}":s )? ;
 generic RecordName = AtomId / Macro ;
-generic RecordFields = RecordField ( void:",":s RecordField )* ;
+transient generic RecordFields = RecordField ( void:",":s RecordField )* ;
 generic RecordField = 
   AtomId void:"=":s Expr
 / VarId  void:"=":s Expr
@@ -304,19 +304,19 @@ generic PrimaryExpr =
 / Macro ( void:"(":s Exprs? void:")":s )?
 ;
 
-generic Macro = void:s"?" ( AtomId / VarId ) ;
+transient generic Macro = void:s"?" ( AtomId / VarId ) ;
 
-generic ParenthesizedExpr = void:"(":s Expr void:")":s ;
+transient generic ParenthesizedExpr = void:"(":s Expr void:")":s ;
 
-generic BlockExpr = void:"begin":k Exprs void:"end":k ;
+transient generic BlockExpr = void:"begin":k Exprs void:"end":k ;
 
-generic IfExpr    = void:"if":k IfClauses void:"end":k ;
-generic IfClauses = IfClause ( void:";":s IfClause )* ;
-generic IfClause  = Guard ClauseBody ;
+transient generic IfExpr    = void:"if":k IfClauses void:"end":k ;
+transient generic IfClauses = IfClause ( void:";":s IfClause )* ;
+transient generic IfClause  = Guard ClauseBody ;
 
-generic CaseExpr  = void:"case":k Expr void:"of":k CrClauses void:"end":k ;
-generic CrClauses = CrClause ( void:";":s CrClause )* ;
-generic CrClause  = Expr ClauseGuard? ClauseBody ;
+transient generic CaseExpr  = void:"case":k Expr void:"of":k CrClauses void:"end":k ;
+transient generic CrClauses = CrClause ( void:";":s CrClause )* ;
+transient generic CrClause  = Expr ClauseGuard? ClauseBody ;
 
 /* @Note Repeated element can have only one production, otherwise will throw error: unable to deduce value,
  * That's why an extra Expr_ClauseBody
@@ -325,30 +325,36 @@ generic ReceiveExpr =
   void:"receive":k CrClauses ( void:"after":k Expr_ClauseBody )? void:"end":k
 / void:"receive":k             void:"after":k Expr_ClauseBody    void:"end":k
 ;
-generic Expr_ClauseBody = Expr ClauseBody ;
+transient generic Expr_ClauseBody = Expr ClauseBody ;
 
 generic FunExpr = 
   void:"fun":k ( AtomId / Macro ) ( void:":":s ( AtomId / Macro ) )? void:"/":s Integer
 / void:"fun":k FunClauses void:"end":k
 ;
-generic FunClauses = FunClause ( void:";":s FunClause )* ;
-generic FunClause  = void:"(":s Exprs? void:")":s ClauseGuard? ClauseBody ;
+transient generic FunClauses = FunClause ( void:";":s FunClause )* ;
+transient generic FunClause  = void:"(":s Exprs? void:")":s ClauseGuard? ClauseBody ;
 
-generic TryExpr = void:"try":k Exprs ( void:"of":k CrClauses )? TryCatch ;
+transient generic TryExpr = void:"try":k Exprs ( void:"of":k CrClauses )? TryCatch ;
 generic TryCatch =
   void:"catch":k TryClauses ( void:"after":k Exprs )? void:"end":k
 / void:"after":k Exprs void:"end":k
 ;
-generic TryClauses = TryClause ( void:";":s TryClause )* ;
+transient generic TryClauses = TryClause ( void:";":s TryClause )* ;
 // Hacking for LL(k), which should like?:
 // TryClause = Expr [ClauseGuard] ClauseBody |
 //             <AtomId> ":" Expr [ClauseGuard] ClauseBody |
 //             <VarId>  ":" Expr [ClauseGuard] ClauseBody;
 generic TryClause = Expr ( void:":":s Expr )? ClauseGuard? ClauseBody ;
+//generic TryClause =
+//  AtomId void:":":s Expr ClauseGuard? ClauseBody
+/// VarId  void:":":s Expr ClauseGuard? ClauseBody
+/// Expr ClauseGuard? ClauseBody
+//;
 
-generic QueryExpr = void:"query":k void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s void:"end":k ;
 
-generic Guard = Exprs (void:";":s Exprs)* ;
+transient generic QueryExpr = void:"query":k void:"[":s Expr void:"||":s ListComprehensionExprs void:"]":s void:"end":k ;
+
+transient generic Guard = Exprs (void:";":s Exprs)* ;
 
 generic PrefixOp =
   "+"   :s
