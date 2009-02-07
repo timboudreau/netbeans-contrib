@@ -126,7 +126,7 @@ generic Type =
 / void:"[":s void:"]":s
 / void:"[":s TopType ( void:",":s SKIP "..." SKIP )? void:"]":s
 / void:"{":s TopTypes? void:"}":s
-/ '#' AtomId1 void:"{":s FieldTypes? void:"}":s
+/ RecId void:"{":s FieldTypes? void:"}":s
 / BinaryType
 / IntType ( void:".":s void:".":s IntType )?
 / void:"fun":k void:"(":s FunType100? void:")":s
@@ -277,8 +277,8 @@ generic LcExpr =
 transient generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 transient generic RecordExpr =
-  void:"#":s AtomId1 ( void:".":s AtomId1 / RecordTuple )
-/ ExprMax void:"#":s AtomId1 ( void:".":s AtomId1 / RecordTuple )
+  RecId ( void:".":s AtomId1 / RecordTuple )
+/ ExprMax RecId ( void:".":s AtomId1 / RecordTuple )
 ;
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;

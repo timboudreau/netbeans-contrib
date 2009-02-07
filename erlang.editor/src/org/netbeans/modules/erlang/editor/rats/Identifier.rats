@@ -68,7 +68,7 @@ transient generic Identifier =
 transient generic Macro = &'?' Separator ( Ws / Nl )* ( atomIdentifier / varIdentifier ) ;
 transient generic Atom  = atomIdentifier ;
 transient generic Var   = varIdentifier ;
-transient generic Rec   = !digit &'#' Separator ( atomIdentifier / "spec":keyword ) ;
+transient generic Rec   = !digit &'#' Separator ( Ws / Nl )* ( atomIdentifier / "spec":keyword ) ;
 
 transient String atomIdentifier = plainAtomIdentifier / quoteAtomIdentifier ;
 
