@@ -148,10 +148,10 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
             // force lexer relexer from the 1st token of tokenStream
             val lookahead1 = if (tokenStream.size > 1) lookahead + 1 else lookahead
             if (lookahead1 > 0) {
-                var i = 0
-                while (i < lookahead1) {
+                var j = 0
+                while (j < lookahead1) {
                     input.read
-                    i += 1
+                    j += 1
                 }
                 input.backup(lookahead1)
             }

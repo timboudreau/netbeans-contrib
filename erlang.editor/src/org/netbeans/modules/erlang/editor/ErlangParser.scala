@@ -247,8 +247,12 @@ class ErlangParser extends Parser {
                     // todo
                 }
             }
-            doc.runAtomic(analyzingTask)
-
+            if (doc != null) {
+                doc.runAtomic(analyzingTask)
+            } else {
+                new Thread(analyzingTask).start
+            }
+            
             context.sanitized = sanitizing
             context.root = root
             val r = createParseResult(context)
