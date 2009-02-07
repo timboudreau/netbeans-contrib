@@ -80,11 +80,11 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
 import org.netbeans.modules.erlang.editor.rats.ParserErlang
 
 /**
- * 
+ *
  * @author Caoyuan Deng
  */
 class ErlangParser extends Parser {
-    
+
     private var lastResult :ErlangParserResult = _
 
     @throws(classOf[ParseException])
@@ -141,13 +141,13 @@ class ErlangParser extends Parser {
         }
     }
 
-    protected def notifyError(context:Context, message:String, sourceName:String, 
+    protected def notifyError(context:Context, message:String, sourceName:String,
                               start:Int, lineSource:String, end:Int,
                               sanitizing:Sanitize, severity:Severity,
                               key:String, params:Object) :Unit = {
 
         val error = new DefaultError(key, message, null, context.fo, start, end, severity)
-        
+
         params match {
             case null =>
             case x:Array[Object] => error.setParameters(x)
@@ -164,7 +164,7 @@ class ErlangParser extends Parser {
     protected def parseBuffer(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
         var sanitizedSource = false
         var source = context.source
-        
+
         sanitizing match {
             case NONE | NEVER =>
             case _ =>
@@ -203,12 +203,9 @@ class ErlangParser extends Parser {
         context.th = th
 
         val parser = createParser(context)
-        
+
         val ignoreErrors = sanitizedSource
         var root :GNode = null
-        if (doc != null) {
-            doc.readLock // Read-lock due to Token hierarchy use
-        }
         try {
             var error :ParseError = null
             val r = parser.pS(0)
@@ -240,11 +237,18 @@ class ErlangParser extends Parser {
                             0, "", 0,
                             sanitizing, Severity.ERROR,
                             "SYNTAX_ERROR", Array(e))
-        } finally {
-            if (doc != null) {doc.readUnlock}
         }
 
         if (root != null) {
+            // Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
+            val analyzingTask = new Runnable {
+                override
+                def run :Unit = {
+                    // todo
+                }
+            }
+            doc.runAtomic(analyzingTask)
+
             context.sanitized = sanitizing
             context.root = root
             val r = createParseResult(context)
@@ -259,21 +263,21 @@ class ErlangParser extends Parser {
     protected def createParser(context:Context) :ParserErlang = {
         val in = new StringReader(context.source)
         val fileName = if (context.fo != null) context.fo.getNameExt else "<current>"
-        
+
         val parser = new ParserErlang(in, fileName)
         context.parser = parser
-        
+
         parser
     }
-    
+
     private def createParseResult(context:Context) :ErlangParserResult = {
         new ErlangParserResult(this, context.snapshot, context.root, context.th)
     }
- 
+
     /** Parsing context */
     class Context(val snapshot:Snapshot, event:SourceModificationEvent) {
         val errors :List[Error] = new ArrayList[Error]
-        
+
         var source :String = ErlangParser.asString(snapshot.getText)
         var caretOffset :Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
 
@@ -292,7 +296,7 @@ class ErlangParser extends Parser {
 
         override
         def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
-        
+
     }
 }
 
@@ -314,6 +318,3 @@ sealed case class Sanitize
 case object NEVER extends Sanitize
 /** Perform no sanitization */
 case object NONE extends Sanitize
-
-
-
