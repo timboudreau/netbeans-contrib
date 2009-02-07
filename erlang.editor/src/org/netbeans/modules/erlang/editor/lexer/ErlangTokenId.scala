@@ -123,6 +123,7 @@ object ErlangTokenId extends Enumeration {
     val Macro = V("Macro", null, "identifier")
     val Atom = V("Atom", null, "identifier")
     val Var = V("Var", null, "identifier")
+    val Rec = V("Rec", null, "identifier")
 
     // --- Stop
     val Stop = V("Stop", ".", "separator")

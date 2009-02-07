@@ -53,6 +53,7 @@ import org.netbeans.modules.erlang.editor.rats.Symbol;
 transient generic MacroId = SKIP &'?' void:( Separator ( Ws / Nl )* ) ( atomIdentifier / varIdentifier ) ;
 transient generic AtomId  = SKIP Atom ;
 transient generic VarId   = SKIP Var ;
+transient generic RecId   = SKIP !digit &'#' void:( Separator ( Ws / Nl )* ) ( atomIdentifier / "spec":keyword ) ;
 
 // ----- Token
 
@@ -60,12 +61,14 @@ transient generic Identifier =
   Macro
 / Atom
 / Var
+/ Rec
 ;
 
 /* &'?' will include '?' to production, we can just add a "Separator" to consume this '?' and get a "Separator" production */
 transient generic Macro = &'?' Separator ( Ws / Nl )* ( atomIdentifier / varIdentifier ) ;
 transient generic Atom  = atomIdentifier ;
 transient generic Var   = varIdentifier ;
+transient generic Rec   = !digit &'#' Separator ( atomIdentifier / "spec":keyword ) ;
 
 transient String atomIdentifier = plainAtomIdentifier / quoteAtomIdentifier ;
 
