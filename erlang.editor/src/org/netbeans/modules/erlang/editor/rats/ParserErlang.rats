@@ -129,7 +129,7 @@ generic Type =
 / '#' AtomId1 void:"{":s FieldTypes? void:"}":s
 / BinaryType
 / IntType ( void:".":s void:".":s IntType )?
-/ void:"fun":s void:"(":s FunType100? void:")":s
+/ void:"fun":k void:"(":s FunType100? void:")":s
 ;
 
 transient generic IntType = ( void:"-":s )? Integer ;
