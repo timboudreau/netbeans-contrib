@@ -59,7 +59,7 @@ public generic Token =
 / LineComment
 / Identifier  
 / Nl           
-/ Ws                  
+/ Ws
 / Literal
 / Stop
 / Separator

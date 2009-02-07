@@ -87,7 +87,7 @@ generic SpecFun =
 ;
 
 generic TypedAttrVal =
-  Expr void:",":s  TypedRecordFields
+  Expr void:"," :s TypedRecordFields
 / Expr void:"::":s TopType
 ;
 
