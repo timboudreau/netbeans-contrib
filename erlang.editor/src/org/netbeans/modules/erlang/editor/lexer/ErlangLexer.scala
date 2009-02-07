@@ -45,7 +45,7 @@ import _root_.java.io.Reader
 import _root_.java.util.ArrayList
 import _root_.java.util.Iterator
 import _root_.java.util.List
-import org.netbeans.api.lexer.Token
+import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.erlang.editor.rats.LexerErlang
 import org.netbeans.spi.lexer.Lexer
 import org.netbeans.spi.lexer.LexerInput
@@ -65,7 +65,7 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 object ErlangLexer {
     private var cached:Option[ErlangLexer] = None
    
-    def create(info:LexerRestartInfo[ErlangTokenId]) = synchronized {
+    def create(info:LexerRestartInfo[TokenId]) = synchronized {
         cached match {
             case None => cached = Some(new ErlangLexer)
             case _ =>
@@ -77,11 +77,11 @@ object ErlangLexer {
     def release = cached = None
 }
 
-class ErlangLexer extends Lexer[ErlangTokenId] {
+class ErlangLexer extends Lexer[TokenId] {
 
-    var info :LexerRestartInfo[ErlangTokenId] = _
+    var info :LexerRestartInfo[TokenId] = _
     var input :LexerInput = _
-    var tokenFactory :TokenFactory[ErlangTokenId] = _
+    var tokenFactory :TokenFactory[TokenId] = _
     var lexerInputReader :LexerInputReader = _
     
     val tokenStream = new ArrayList[TokenInfo]
@@ -92,7 +92,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
     var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.iterator
     var lookahead :Int = 0
 
-    def restart(info:LexerRestartInfo[ErlangTokenId]) {
+    def restart(info:LexerRestartInfo[TokenId]) {
         this.info = info
         input = info.input
         tokenFactory = info.tokenFactory
@@ -108,7 +108,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
 
     def state :Object = null
 
-    def nextToken :Token[ErlangTokenId] = {
+    def nextToken :Token[TokenId] = {
     
         if (!tokenStreamItr.hasNext) {
             tokenStream.clear
@@ -164,7 +164,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
         }
     }
 
-    def createToken(id:ErlangTokenId, length:Int) :Token[ErlangTokenId] = id.fixedText match {
+    def createToken(id:TokenId, length:Int) :Token[TokenId] = id.asInstanceOf[ErlangTokenId].fixedText match {
         case null => tokenFactory.createToken(id, length)
         case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
     }
@@ -189,29 +189,31 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
             }
         } catch {
             case e:Exception =>
-                e.printStackTrace
+                System.err.println(e.getMessage)
                 null
         }
     }
 
     def flattenToTokenStream(node:GNode) :Unit = {
-        if (node.size == 0) {
+        val l = node.size
+        if (l == 0) {
             /** @Note:
-             * When node.size() == 0, it's a void node. This should be limited to
+             * When node.size == 0, it's a void node. This should be limited to
              * EOF when you define lexical rats.
              *
              * And in Rats!, EOF is !_, the input.readLength() will return 0
-             */
-      
-            //      assert(input.readLength == 0,
-            //             "This generic node: " + node.getName +
-            //             " is a void node, this should happen only on EOF. Check you rats file.")
+             */      
+            assert(input.readLength == 0,
+                   "This generic node: " + node.getName +
+                   " is a void node, this should happen only on EOF. Check you rats file.")
+
             val tokenInfo = new TokenInfo(0, null)
             tokenStream.add(tokenInfo)
+            return
         }
-
+        
         var i = 0
-        while (i < node.size) {
+        while (i < l) {
             node.get(i) match {
                 case null =>
                     /** child may be null */
@@ -223,7 +225,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
                     val length = child.length
                     val id = ErlangTokenId.valueOf(node.getName) match {
                         case None => ErlangTokenId.IGNORED
-                        case Some(v) => v.asInstanceOf[ErlangTokenId]
+                        case Some(v) => v.asInstanceOf[TokenId]
                     }
           
                     val tokenInfo = new TokenInfo(length, id)
@@ -232,7 +234,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
                     println("To be process: " + child)
             }
             i += 1
-        }
+        } // end while
     }
 
     def release = ErlangLexer.release
@@ -259,7 +261,7 @@ class ErlangLexer extends Lexer[ErlangTokenId] {
         def close = {}
     }
 
-    class TokenInfo(val length:Int, val id:ErlangTokenId) {
+    class TokenInfo(val length:Int, val id:TokenId) {
         override
         def toString = "(id=" + id + ", length=" + length + ")"
     }

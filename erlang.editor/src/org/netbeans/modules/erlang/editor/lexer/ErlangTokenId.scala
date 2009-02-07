@@ -174,28 +174,28 @@ object ErlangTokenId extends Enumeration {
     val ERLANG_MIME_TYPE = "text/x-erlang"; // NOI18N
 
     /** should use def instead of val here, which will be called from instanceCreate of NetBeans' system  */
-    def language = new LanguageHierarchy[ErlangTokenId] {
+    def language = new LanguageHierarchy[TokenId] {
         protected def mimeType = ERLANG_MIME_TYPE
 
-        protected def createTokenIds :Collection[ErlangTokenId] = {
-            val ids = new HashSet[ErlangTokenId]
-            elements.foreach{ids add _.asInstanceOf[ErlangTokenId]}
+        protected def createTokenIds :Collection[TokenId] = {
+            val ids = new HashSet[TokenId]
+            elements.foreach{ids add _.asInstanceOf[TokenId]}
             ids
         }
     
-        protected def createLexer(info:LexerRestartInfo[ErlangTokenId]) :Lexer[ErlangTokenId] = ErlangLexer.create(info) match {
+        protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ErlangLexer.create(info) match {
             case None => null
             case Some(l) => l
         }
 
         override
-        protected def createTokenCategories :Map[String, Collection[ErlangTokenId]] = {
-            val cats = new HashMap[String, Collection[ErlangTokenId]]
+        protected def createTokenCategories :Map[String, Collection[TokenId]] = {
+            val cats = new HashMap[String, Collection[TokenId]]
             cats
         }
 
         override
-        protected def embedding(token:Token[ErlangTokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
+        protected def embedding(token:Token[TokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
             null // No embedding
         }
     }.language
