@@ -74,6 +74,7 @@ body {
       "query",
       "receive",
       "rem",
+      "spec",
       "try",
       "when",
       "xor"
@@ -112,6 +113,7 @@ generic Keyword =
   / "query"     :keyword @Query
   / "receive"   :keyword @Receive
   / "rem"       :keyword @Rem
+  / "spec"      :keyword @Spec
   / "try"       :keyword @Try
   / "when"      :keyword @When
   / "xor"       :keyword @Xor
@@ -144,6 +146,7 @@ String keyword =
   / "receive"   !( idrest )
   / "rem"       !( idrest )
   / "try"       !( idrest )
+  / "spec"      !( idrest )
   / "when"      !( idrest )
   / "xor"       !( idrest )
   )

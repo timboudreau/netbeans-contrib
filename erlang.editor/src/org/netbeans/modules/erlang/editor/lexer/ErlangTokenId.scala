@@ -115,6 +115,7 @@ object ErlangTokenId extends Enumeration {
     val Receive = V("Receive", "receive", "keyword")
     val Rem = V("Rem", "rem", "keyword")
     val Try = V("Try", "try", "keyword")
+    val Spec = V("Spec", "spec", "keyword")
     val When = V("When", "when", "keyword")
     val Xor = V("Xor", "xor", "keyword")
 
