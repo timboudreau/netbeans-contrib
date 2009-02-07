@@ -183,25 +183,6 @@ class ErlangParser extends Parser {
             context.errorOffset = -1
         }
 
-        var th :TokenHierarchy[_] = null
-        var doc :BaseDocument = null
-        /** If this file is under editing, always get th from incrementally lexed one via opened document */
-        val target = EditorRegistry.lastFocusedComponent
-        if (target != null) {
-            doc = target.getDocument.asInstanceOf[BaseDocument]
-            if (doc != null) {
-                val fo = NbEditorUtilities.getFileObject(doc)
-                if (fo == context.fo) {
-                    th = TokenHierarchy.get(doc)
-                }
-            }
-        }
-
-        if (th == null) {
-            th = TokenHierarchy.create(source, ErlangTokenId.language)
-        }
-        context.th = th
-
         val parser = createParser(context)
 
         val ignoreErrors = sanitizedSource
@@ -239,28 +220,54 @@ class ErlangParser extends Parser {
                             "SYNTAX_ERROR", Array(e))
         }
 
-        if (root != null) {
-            // Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
-            val analyzingTask = new Runnable {
-                override
-                def run :Unit = {
-                    // todo
-                }
-            }
-            if (doc != null) {
-                doc.runAtomic(analyzingTask)
-            } else {
-                new Thread(analyzingTask).start
-            }
-            
+        if (root != null) {            
             context.sanitized = sanitizing
             context.root = root
+
+            analyze(context)
+
             val r = createParseResult(context)
             r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
             r.source = source
             r
         } else {
             sanitize(context, sanitizing)
+        }
+    }
+
+    private def analyze(context:Context) = {
+        // we need TokenHierarchy to do anaylzing task
+        var th :TokenHierarchy[_] = null
+        var doc :BaseDocument = null
+        /** If this file is under editing, always get th from incrementally lexed one via opened document */
+        val target = EditorRegistry.lastFocusedComponent
+        if (target != null) {
+            doc = target.getDocument.asInstanceOf[BaseDocument]
+            if (doc != null) {
+                val fo = NbEditorUtilities.getFileObject(doc)
+                if (fo == context.fo) {
+                    th = TokenHierarchy.get(doc)
+                }
+            }
+        }
+
+        if (th == null) {
+            th = TokenHierarchy.create(context.source, ErlangTokenId.language)
+        }
+        context.th = th
+
+        // Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
+        val analyzingTask = new Runnable {
+            override
+            def run :Unit = {
+                // todo
+            }
+        }
+
+        if (doc != null) {
+            doc.runAtomic(analyzingTask)
+        } else {
+            new Thread(analyzingTask).start
         }
     }
 
