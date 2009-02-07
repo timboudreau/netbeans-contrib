@@ -43,7 +43,7 @@ package org.netbeans.modules.erlang.editor.lexer
 import _root_.java.io.IOException
 import _root_.java.io.Reader
 import _root_.java.util.ArrayList
-import _root_.java.util.Iterator
+//import _root_.java.util.Iterator
 import _root_.java.util.List
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.erlang.editor.rats.LexerErlang
@@ -55,6 +55,7 @@ import xtc.parser.Result
 import xtc.tree.GNode
 import xtc.util.Pair
 
+import scala.collection.mutable.ArrayBuffer
 
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 
@@ -84,12 +85,12 @@ class ErlangLexer extends Lexer[TokenId] {
     var tokenFactory :TokenFactory[TokenId] = _
     var lexerInputReader :LexerInputReader = _
     
-    val tokenStream = new ArrayList[TokenInfo]
+    val tokenStream = new ArrayBuffer[TokenInfo]
     /**
      * tokenStream.iterator() always return a new iterator, which point the first
      * item, so we should have a global one.
      */
-    var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.iterator
+    var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.elements
     var lookahead :Int = 0
 
     def restart(info:LexerRestartInfo[TokenId]) {
@@ -102,7 +103,7 @@ class ErlangLexer extends Lexer[TokenId] {
          * @Note: it seems input at this time is empty, so we can not do scanning here
          */
         tokenStream.clear
-        tokenStreamItr = tokenStream.iterator
+        tokenStreamItr = tokenStream.elements
         lookahead = 0
     }
 
@@ -113,7 +114,7 @@ class ErlangLexer extends Lexer[TokenId] {
         if (!tokenStreamItr.hasNext) {
             tokenStream.clear
             scanTokens
-            tokenStreamItr = tokenStream.iterator
+            tokenStreamItr = tokenStream.elements
 
             /**
              * @Bug of LexerInput.backup(int) ?
@@ -208,7 +209,7 @@ class ErlangLexer extends Lexer[TokenId] {
                    " is a void node, this should happen only on EOF. Check you rats file.")
 
             val tokenInfo = new TokenInfo(0, null)
-            tokenStream.add(tokenInfo)
+            tokenStream += tokenInfo
             return
         }
         
@@ -229,7 +230,7 @@ class ErlangLexer extends Lexer[TokenId] {
                     }
           
                     val tokenInfo = new TokenInfo(length, id)
-                    tokenStream.add(tokenInfo)
+                    tokenStream += tokenInfo
                 case child =>
                     println("To be process: " + child)
             }
