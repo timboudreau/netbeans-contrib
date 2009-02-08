@@ -47,7 +47,7 @@ import org.netbeans.modules.csl.api.ElementHandle
  */
 trait AstElementHandle extends ElementHandle {
 
-    def symbol :OtpErlangObject
+    def symbol :Option[OtpErlangObject]
 
     def tpe :String
     

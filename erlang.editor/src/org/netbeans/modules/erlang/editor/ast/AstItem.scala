@@ -52,7 +52,7 @@ import org.openide.filesystems.{FileObject}
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) extends ForElementHandle {
+abstract class AstItem(aSymbol:OtpErlangObject, aIdToken:Token[TokenId]) extends ForElementHandle {
 
     protected def this(symbol:OtpErlangObject) = this(symbol, null)
     protected def this(idToken:Token[TokenId]) = this(null, idToken)
@@ -65,13 +65,32 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private var _enclosingScope :AstScope = _
+    private var _idToken :Option[Token[TokenId]] = _
+    private var _symbol :Option[OtpErlangObject] = _
+    private var _name :String = _
+    private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
-    var name :String = _
 
-    private def name_=(idToken:Token[TokenId]) {
+    idToken_=(aIdToken)
+    symbol_=(aSymbol)
+    
+    def symbol = _symbol
+    def symbol_=(symbol:OtpErlangObject) = symbol match {
+        case null => this._symbol = None
+        case _ => this._symbol = Some(symbol)
+    }
+
+    def idToken = _idToken
+    def idToken_=(idToken:Token[TokenId]) = idToken match {
+        case null => this._idToken = None
+        case _ => this._idToken = Some(idToken); name = idToken.text.toString
+    }
+
+    def name = _name
+    def name_=(name:String) = _name = name
+    def name_=(idToken:Token[TokenId]) = {
         if (idToken == null) {
-            name = "" // should not happen?
+            _name = "" // should not happen?
         }
         
         /**
@@ -81,7 +100,7 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
          */
         /** @todo why will throws NPE here? */
         try {
-            this.name = idToken.text.toString
+            _name = idToken.text.toString
         } catch {
             case ex:Exception =>
                 val l = idToken.length()
@@ -91,40 +110,30 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
                     sb.append(" ")
                     i += 1
                 }
-                this.name = sb.toString
-                System.out.println("NPE in AstItem#getName:" + idToken.id)
+                _name = sb.toString
+                println("NPE in AstItem#getName:" + idToken.id)
         }
+        this
     }
 
-    def idToken = _idToken
-    
-    def idToken_=(idToken:Token[TokenId]) {
-        this._idToken = idToken
-        name = idToken
-    }
-
-    def idOffset(th:TokenHierarchy[TokenId]) = {
-        if (idToken != null) {
-            idToken.offset(th)
-        } else {
-            assert(false, getName + ": Should implement getIdOffset(th)")
+    def idOffset(th:TokenHierarchy[TokenId]) = idToken match {
+        case None =>
+            assert(false, getName + ": Should implement offset(th)")
             -1
-        }
+        case Some(x) => x.offset(th)
     }
 
-    def idEndOffset(th:TokenHierarchy[TokenId]) :Int = {
-        if (idToken != null) {
-            idToken.offset(th) + idToken.length()
-        } else {
+    def idEndOffset(th:TokenHierarchy[TokenId]) :Int = idToken match {
+        case None =>
             assert(false, name + ": Should implement getIdEndOffset(th)")
             -1
-        }
+        case Some(x) => x.offset(th) + x.length
     }
 
     def binaryName = name
 
     def enclosingDef[T <: AstDef](clazz:Class[T]) :Option[T] = {
-        enclosingScope.enclosingDef(clazz)
+        enclosingScope.get.enclosingDef(clazz)
     }
 
     /**
@@ -132,15 +141,18 @@ abstract class AstItem(var symbol:OtpErlangObject, var _idToken:Token[TokenId]) 
      *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
      */
     def enclosingScope_=(enclosingScope:AstScope) :AstItem = {
-        this._enclosingScope = enclosingScope
+        enclosingScope match {
+            case null => this._enclosingScope = None
+            case _ => this._enclosingScope = Some(enclosingScope)
+        }
         this
     }
 
     /**
      * @return the scope that encloses this item
      */
-    def enclosingScope :AstScope = {
-        assert(_enclosingScope != null, name + ": Each item should set enclosing scope!, except native TypeRef")
+    def enclosingScope :Option[AstScope] = {
+        assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
         _enclosingScope
     }
 }

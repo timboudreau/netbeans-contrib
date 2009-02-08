@@ -59,14 +59,14 @@ import scala.collection.mutable.ArrayBuffer
  * 
  * @author Caoyuan Deng
  */
-class AstDef(symbol:OtpErlangObject,
+class AstDef(aSymbol:OtpErlangObject,
              pickToken:Token[TokenId],
              private var _bindingScope:AstScope,
              var kind:ElementKind,
-             var fo:FileObject ) extends AstItem(symbol, pickToken) with AstElementHandle {
+             var fo:FileObject ) extends AstItem(aSymbol, pickToken) with AstElementHandle {
 
     if (_bindingScope != null) {
-        _bindingScope.bindingDef = this
+        _bindingScope.bindingDef = Some(this)
     }
 
     private var modifiers :Set[Modifier] = _
@@ -100,7 +100,7 @@ class AstDef(symbol:OtpErlangObject,
         } else new ArrayBuffer
     }
 
-    def enclosingDef :AstDef = enclosingScope.bindingDef
+    def enclosingDef :Option[AstDef] = enclosingScope.get.bindingDef
 
     override
     def toString = {

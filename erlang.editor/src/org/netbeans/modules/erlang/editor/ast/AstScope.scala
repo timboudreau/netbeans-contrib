@@ -56,25 +56,28 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         assert(boundsTokens.length <= 2)
         boundsTokens.length match {
             case 1 =>
-                boundsToken = boundsTokens(0)
+                boundsToken = Some(boundsTokens(0))
             case 2 =>
-                boundsToken = boundsTokens(0)
-                boundsEndToken = boundsTokens(1)
+                boundsToken = Some(boundsTokens(0))
+                boundsEndToken = Some(boundsTokens(1))
         }
     }
 
-    var boundsToken :Token[TokenId] = _
-    var boundsEndToken :Token[TokenId] = _
-    var bindingDef :AstDef = _
-    var parent :AstScope = _
-    private var _subScopes :ArrayBuffer[AstScope] = _
-    private var _defs :ArrayBuffer[AstDef] = _
-    private var _refs :ArrayBuffer[AstRef] = _
-    private var scopesSorted :Boolean = _
-    private var defsSorted :Boolean = _
-    private var refsSorted :Boolean = _
+    var boundsToken :Option[Token[TokenId]] = None
+    var boundsEndToken :Option[Token[TokenId]] = None
+    var bindingDef :Option[AstDef] = None
+    var parent :Option[AstScope] = None
+    private var _subScopes :Option[ArrayBuffer[AstScope]] = None
+    private var _defs :Option[ArrayBuffer[AstDef]] = None
+    private var _refs :Option[ArrayBuffer[AstRef]] = None
+    private var scopesSorted :Boolean = false
+    private var defsSorted :Boolean = false
+    private var refsSorted :Boolean = false
 
-    def isRoot = parent == null
+    def isRoot = parent match {
+        case None => true
+        case Some(_) => false
+    }
 
     def isScopesSorted :Boolean = scopesSorted
 
@@ -83,34 +86,37 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     }
 
     def boundsOffset(th:TokenHierarchy[TokenId]) :Int = boundsToken match {
-        case null => -1
-        case token => token.offset(th)
+        case None => -1
+        case Some(x) => x.offset(th)
     }
 
     def boundsEndOffset(th:TokenHierarchy[TokenId]) :Int = boundsEndToken match {
-        case null => -1
-        case token => token.offset(th) + token.length
+        case None => -1
+        case Some(x) => x.offset(th) + x.length
     }
   
-    def subScopes :ArrayBuffer[AstScope] = {
-        if (_subScopes == null) new ArrayBuffer else _subScopes
+    def subScopes :ArrayBuffer[AstScope] = _subScopes match {
+        case None => new ArrayBuffer
+        case Some(x) => x
     }
 
-    def defs :ArrayBuffer[AstDef] = {
-        if (_defs == null) new ArrayBuffer else _defs
+    def defs :ArrayBuffer[AstDef] = _defs match {
+        case None => new ArrayBuffer
+        case Some(x) => x
     }
 
-    def refs :ArrayBuffer[AstRef] = {
-        if (_refs == null) new ArrayBuffer else _refs
+    def refs :ArrayBuffer[AstRef] = _refs match {
+        case None => new ArrayBuffer
+        case Some(x) => x
     }
 
     protected def addScope(scope:AstScope) :Unit = {
-        if (_subScopes == null) {
-            _subScopes = new ArrayBuffer
+        if (_subScopes == None) {
+            _subScopes = Some(new ArrayBuffer)
         }
-        _subScopes += scope
+        _subScopes.get += scope
         scopesSorted = false
-        scope.parent = this
+        scope.parent = Some(this)
     }
 
     /**
@@ -118,19 +124,19 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
      * @retrun added successfully or not
      */
     protected def addDef(adef:AstDef) :Boolean = adef.idToken match {
-        case null => false
-        case idToken =>
+        case None => false
+        case Some(x) =>
             /** @todo tempary solution */
             //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
             //            return false
             //        }
 
             /** a def will always be added */
-            root.tryToPut(idToken, adef)
-            if (_defs == null) {
-                _defs = new ArrayBuffer
+            root.tryToPut(x, adef)
+            if (_defs == None) {
+                _defs = Some(new ArrayBuffer)
             }
-            _defs += adef
+            _defs.get += adef
             defsSorted = false
             adef.enclosingScope = this
             true
@@ -141,23 +147,23 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
      * @retrun added successfully or not
      */
     def addRef(ref:AstRef) :Boolean = ref.idToken match {
-        case null => false
-        case idToken =>
+        case None => false
+        case Some(x) =>
             /** @todo tempary solution */
             //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
             //            return false;
             //        }
 
             /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
-            if (root.contains(idToken)) {
+            if (root.contains(x)) {
                 return false
             }
 
-            root.tryToPut(idToken, ref)
-            if (_refs == null) {
-                _refs = new ArrayBuffer
+            root.tryToPut(x, ref)
+            if (_refs == None) {
+                _refs = Some(new ArrayBuffer)
             }
-            _refs += ref
+            _refs.get += ref
             refsSorted = false
             ref.enclosingScope = this
             true
@@ -165,16 +171,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
 
     def findItemAt(th:TokenHierarchy[TokenId], offset:Int) :Option[AstItem] = {
         // Always seach Ref first, since Ref can be included in Def's range
-        if (_refs != null) {
+        for (xs <- _refs) {
             if (!refsSorted) {
-                Sorter.sort(_refs){compareRef(th, _, _)}
+                Sorter.sort(xs){compareRef(th, _, _)}
                 refsSorted = true
             }
             var lo = 0
-            var hi = _refs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 var mid = (lo + hi) >> 1
-                val middle = _refs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -185,16 +191,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        if (_defs != null) {
+        for (xs <- _defs) {
             if (!defsSorted) {
-                Sorter.sort(_defs){compareDef(th, _, _)}
+                Sorter.sort(xs){compareDef(th, _, _)}
                 defsSorted = true
             }
             var lo = 0
-            var hi = _defs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 var mid = (lo + hi) >> 1
-                val middle = _defs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -205,16 +211,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        if (_subScopes != null) {
+        for (xs <- _subScopes) {
             if (!scopesSorted) {
-                Sorter.sort(_subScopes){compareScope(th, _, _)}
+                Sorter.sort(xs){compareScope(th, _, _)}
                 scopesSorted = true
             }
             var lo = 0
-            var hi = _subScopes.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 var mid = (lo + hi) >> 1
-                val middle = _subScopes(mid)
+                val middle = xs(mid)
                 if (offset < middle.boundsOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.boundsEndOffset(th)) {
@@ -231,16 +237,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     def findItemAt(th:TokenHierarchy[TokenId], token:Token[TokenId]) :Option[AstItem] = {
         val offset = token.offset(th)
         // Always seach Ref first, since Ref can be included in Def's range
-        if (_refs != null) {
+        for (xs <- _refs) {
             if (!refsSorted) {
-                Sorter.sort(_refs){compareRef(th, _, _)}
+                Sorter.sort(xs){compareRef(th, _, _)}
                 refsSorted = true
             }
             var lo = 0
-            var hi = _refs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _refs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -254,16 +260,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        if (_defs != null) {
+        for (xs <- _defs) {
             if (!defsSorted) {
-                Sorter.sort(_defs){compareDef(th, _, _)}
+                Sorter.sort(xs){compareDef(th, _, _)}
                 defsSorted = true
             }
             var lo = 0
-            var hi = _defs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _defs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -274,16 +280,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        if (_subScopes != null) {
+        for (xs <- _subScopes) {
             if (!scopesSorted) {
-                Sorter.sort(_subScopes){compareScope(th, _, _)}
+                Sorter.sort(xs){compareScope(th, _, _)}
                 scopesSorted = true
             }
             var lo = 0
-            var hi = _subScopes.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _subScopes(mid)
+                val middle = xs(mid)
                 if (offset < middle.boundsOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.boundsEndOffset(th)) {
@@ -298,16 +304,17 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     }
 
     def findDefAt[T <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
-        if (_defs != null) {
+
+        for (xs <- _defs) {
             if (!defsSorted) {
-                Sorter.sort(_defs){compareDef(th, _, _)}
+                Sorter.sort(xs){compareDef(th, _, _)}
                 defsSorted = true
             }
             var lo = 0
-            var hi = _defs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _defs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -318,16 +325,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             }
         }
     
-        if (_subScopes != null) {
+        for (xs <- _subScopes) {
             if (!scopesSorted) {
-                Sorter.sort(_subScopes){compareScope(th, _, _)}
+                Sorter.sort(xs){compareScope(th, _, _)}
                 scopesSorted = true
             }
             var lo = 0
-            var hi = _subScopes.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _subScopes(mid)
+                val middle = xs(mid)
                 if (offset < middle.boundsOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.boundsEndOffset(th)) {
@@ -342,16 +349,17 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     }
     
     def findRefAt[T <: AstRef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
-        if (_refs != null) {
+
+        for (xs <- _refs) {
             if (!refsSorted) {
-                Sorter.sort(_refs){compareRef(th, _, _)}
+                Sorter.sort(xs){compareRef(th, _, _)}
                 refsSorted = true
             }
             var lo = 0
-            var hi = _refs.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _refs(mid)
+                val middle = xs(mid)
                 if (offset < middle.idOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.idEndOffset(th)) {
@@ -361,18 +369,17 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
                 }
             }
         }
-    
-    
-        if (_subScopes != null) {
+        
+        for (xs <- _subScopes) {
             if (!scopesSorted) {
-                Sorter.sort(_subScopes){compareScope(th, _, _)}
+                Sorter.sort(xs){compareScope(th, _, _)}
                 scopesSorted = true
             }
             var lo = 0
-            var hi = _subScopes.size - 1
+            var hi = xs.size - 1
             while (lo <= hi) {
                 val mid = (lo + hi) >> 1
-                val middle = _subScopes(mid)
+                val middle = xs(mid)
                 if (offset < middle.boundsOffset(th)) {
                     hi = mid - 1
                 } else if (offset >= middle.boundsEndOffset(th)) {
@@ -391,17 +398,18 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             case x:AstDef => Some(x)
             case x:AstRef => findDefOf(x)
         }
-    
-        if (aDef == None) {
-            // def maybe remote one, just try to find all same refs
-            return findAllRefsSameAs(item.asInstanceOf[AstRef]).asInstanceOf[ArrayBuffer[AstItem]]
+
+        aDef match {
+            case None =>
+                // def maybe remote one, just try to find all same refs
+                findAllRefsSameAs(item.asInstanceOf[AstRef]).asInstanceOf[ArrayBuffer[AstItem]]
+            case _ =>
+                val occurrences = new ArrayBuffer[AstItem]
+                occurrences += aDef.get
+                occurrences ++= findRefsOf(aDef.get)
+
+                occurrences
         }
-    
-        val occurrences = new ArrayBuffer[AstItem]
-        occurrences += aDef.get
-        occurrences ++= findRefsOf(aDef.get)
-    
-        occurrences
     }
 
     def findDefOf(item:AstItem) :Option[AstDef] = item match {
@@ -410,55 +418,58 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     }
   
 
-    private def findDefOf(aRef:AstRef) :Option[AstDef] = {
-        val closestScope = aRef.enclosingScope
-        closestScope.findDefOfUpward(aRef)
+    private def findDefOf(aRef:AstRef) :Option[AstDef] = aRef.enclosingScope match {
+        case None => None
+        case Some(x) => x.findDefOfUpward(aRef)
     }
 
     private def findDefOfUpward(aRef:AstRef) :Option[AstDef] = {
-        if (_defs != null) {
-            _defs.find{_ isReferredBy aRef} match {
+        for (xs <- _defs) {
+            xs.find{_ isReferredBy aRef} match {
                 case None =>
                 case Some(x) => return Some(x)
             }
         }
 
         /** search upward */
-        if (parent != null) {
-            parent.findDefOfUpward(aRef)
-        } else None
+        parent match {
+            case None => None;
+            case Some(x) => x.findDefOfUpward(aRef)
+        }
     }
 
     def findRefsOf(aDef:AstDef) :ArrayBuffer[AstRef] = {
         val result = new ArrayBuffer[AstRef]
 
-        val enclosingScope = aDef.enclosingScope
-        enclosingScope.findRefsOfDownward(aDef, result)
-
+        val enclosingScope = aDef.enclosingScope match {
+            case None =>
+            case Some(x) => x.findRefsOfDownward(aDef, result)
+        }
         result
     }
 
     private def findRefsOfDownward(aDef:AstDef, result:ArrayBuffer[AstRef]) :Unit = {
         // find if there is closest override Def, if so, we shoud bypass it now:
-        if (_defs != null) {
-            _defs.find{_def => _def != aDef && _def.mayEqual(aDef)} match {
+        for (xs <- _defs) {
+            xs.find{_def => _def != aDef && _def.mayEqual(aDef)} match {
                 case None =>
                 case Some(x) => return
             }
         }
 
-        if (_refs != null) {
-            result ++= _refs.filter{aDef isReferredBy _}
+        for (xs <- _refs) {
+            result ++= xs.filter{aDef isReferredBy _}
         }
 
         /** search downward */
-        if (_subScopes != null) {
-            _subScopes.foreach{_.findRefsOfDownward(aDef, result)}
+        for (xs <- _subScopes) {
+            xs.foreach{_.findRefsOfDownward(aDef, result)}
         }
     }
 
-    final def root :AstRootScope = {
-        if (parent == null) this.asInstanceOf[AstRootScope] else parent.root
+    final def root :AstRootScope = parent match {
+        case None => this.asInstanceOf[AstRootScope]
+        case Some(x) => x.root
     }
 
     private def findAllRefsSameAs(ref:AstRef) :ArrayBuffer[AstRef] = {
@@ -470,14 +481,14 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         result
     }
 
-    protected final def findAllRefsSameAsDownward(ref:AstRef,  result:ArrayBuffer[AstRef]) :Unit = {
-        if (_refs != null) {
-            result ++= _refs.filter{ref.isOccurence(_)}
+    protected def findAllRefsSameAsDownward(ref:AstRef,  result:ArrayBuffer[AstRef]) :Unit = {
+        for (xs <- _refs) {
+            result ++= xs.filter{ref.isOccurence(_)}
         }
 
         /** search downward */
-        if (_subScopes != null) {
-            _subScopes.foreach{_.findAllRefsSameAsDownward(ref, result)}
+        for (xs <- _subScopes) {
+            xs.foreach{_.findAllRefsSameAsDownward(ref, result)}
         }
     }
 
@@ -485,27 +496,19 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         offset >= boundsOffset(th) && offset < boundsEndOffset(th)
     }
 
-    def closestScope(th:TokenHierarchy[TokenId], offset:Int) :AstScope = {
-        //var result :Option[AstScope] = None
-
-        val result = if (_subScopes != null) {
+    def closestScope(th:TokenHierarchy[TokenId], offset:Int) :Option[AstScope] = _subScopes match {
+        case Some(xs) =>
             /** search children first */
-            _subScopes.find{_.contains(th, offset)} match {
+            xs.find{_.contains(th, offset)} match {
                 case None => None
-                case Some(child) => Some(child.closestScope(th, offset))
+                case Some(child) => child.closestScope(th, offset)
             }
-        } else None
-
-        result match {
-            case None =>
-                if (this.contains(th, offset)) this
-                /* we should return null here, since it may under a parent context's call,
-                 * we shall tell the parent there is none in this and children of this
-                 */
-                else null
-            case Some(x) => x
-        }
-    }
+        case None if this.contains(th, offset) => Some(this)
+            /* we should return None here, since it may under a parent context's call,
+             * we shall tell the parent there is none in this and children of this
+             */
+        case None => None
+    } 
 
     def visibleDefs(kind:ElementKind) :ArrayBuffer[AstDef] = {
         val result = new ArrayBuffer[AstDef]
@@ -513,29 +516,30 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         result
     }
 
-    private final def visibleDefsUpward(kind:ElementKind, result:ArrayBuffer[AstDef]) :Unit = {
-        if (_defs != null) {
-            result ++= _defs.filter{_.getKind == kind}
+    private def visibleDefsUpward(kind:ElementKind, result:ArrayBuffer[AstDef]) :Unit = {
+        for (xs <- _defs) {
+            result ++= xs.filter{_.getKind == kind}
         }
 
-        if (parent != null) {
-            parent.visibleDefsUpward(kind, result)
+        for (x <- parent) {
+            x.visibleDefsUpward(kind, result)
         }
     }
 
     def enclosinDef(kind:ElementKind, th:TokenHierarchy[TokenId], offset:Int) :Option[AstDef] = {
-        val scope = closestScope(th, offset)
-        scope.enclosingDef(kind)
+        closestScope(th, offset) match {
+            case None => None
+            case Some(x) => x.enclosingDef(kind)
+        }
     }
 
-    def enclosingDef(kind:ElementKind) :Option[AstDef] = {
-        if (bindingDef != null && bindingDef.getKind == kind) {
-            Some(bindingDef)
-        } else {
-            if (parent != null) {
-                parent.enclosingDef(kind)
-            } else None
-        }
+    def enclosingDef(kind:ElementKind) :Option[AstDef] = bindingDef match {
+        case None => parent match {
+                case None => None
+                case Some(x) => x.enclosingDef(kind)
+            }
+        case Some(x) if x.getKind == kind => bindingDef
+        case _ => None
     }
 
     def  visibleDefs[T <: AstDef](clazz:Class[T]) :ArrayBuffer[T] = {
@@ -545,30 +549,29 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
     }
     
     private final def visibleDefsUpward[T <: AstDef](clazz:Class[T], result:ArrayBuffer[T]) :Unit = {
-        if (_defs != null) {
-            result ++= _defs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[T]]
+        for (xs <- _defs) {
+            result ++= xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[T]]
         }
     
-        if (parent != null) {
-            parent.visibleDefsUpward(clazz, result)
+        for (x <- parent) {
+            x.visibleDefsUpward(clazz, result)
         }
     }
     
     def enclosinDef[T <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T]= {
-        val scope = closestScope(th, offset)
-        scope.enclosingDef(clazz)
+        closestScope(th, offset) match {
+            case None => None
+            case Some(x) => x.enclosingDef(clazz)
+        }
     }
     
-    def enclosingDef[T <: AstDef](clazz:Class[T]) :Option[T] = {
-        if (bindingDef != null && clazz.isInstance(bindingDef)) {
-            return Some(bindingDef.asInstanceOf[T])
-        } else {
-            if (parent != null) {
-                return parent.enclosingDef(clazz)
-            } else {
-                return None
+    def enclosingDef[T <: AstDef](clazz:Class[T]) :Option[T] = bindingDef match {
+        case None => parent match {
+                case None => None
+                case Some(x) => x.enclosingDef(clazz)
             }
-        }
+        case Some(x) if clazz.isInstance(x) => bindingDef.asInstanceOf[Option[T]]
+        case _ => None
     }
 
     def findDefMatched(symbol:OtpErlangObject) :Option[AstDef] = {
