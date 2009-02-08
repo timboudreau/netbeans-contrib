@@ -50,7 +50,7 @@ import scala.collection.mutable.ArrayBuffer
  *
  * @author Caoyuan Deng
  */
-class AstScope(boundsTokens:Token[TokenId]*) {
+class AstScope(boundsTokens:Array[Token[TokenId]]) {
 
     if (boundsTokens != null) {
         assert(boundsTokens.length <= 2)
@@ -297,7 +297,7 @@ class AstScope(boundsTokens:Token[TokenId]*) {
         return None
     }
 
-    def findDefAt[T  <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
+    def findDefAt[T <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
         if (_defs != null) {
             if (!defsSorted) {
                 Sorter.sort(_defs){compareDef(th, _, _)}
@@ -539,7 +539,7 @@ class AstScope(boundsTokens:Token[TokenId]*) {
     }
 
     def  visibleDefs[T <: AstDef](clazz:Class[T]) :ArrayBuffer[T] = {
-        val result = new ArrayBuffer[T]    
+        val result = new ArrayBuffer[T]
         visibleDefsUpward(clazz, result)
         result
     }

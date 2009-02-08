@@ -45,7 +45,7 @@ import scala.collection.mutable.{ArrayBuffer, HashMap}
  *
  * @author Caoyuan Deng
  */
-class AstRootScope(boundsTokens:Token[TokenId]*) extends AstScope(boundsTokens:_*) {
+class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) {
 
     private val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
     private var tokens :List[Token[TokenId]] = Nil
@@ -130,8 +130,8 @@ class AstRootScope(boundsTokens:Token[TokenId]*) extends AstScope(boundsTokens:_
 }
 
 object AstRootScope {
-    // Sinleton EmptyScope
-    val emptyScope = new AstRootScope {
+    // * Sinleton EmptyScope
+    val emptyScope = new AstRootScope(Array()) {
         override
         def boundsOffset(th:TokenHierarchy[TokenId]) = -1
 
