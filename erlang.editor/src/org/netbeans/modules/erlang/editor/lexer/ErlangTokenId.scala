@@ -183,10 +183,7 @@ object ErlangTokenId extends Enumeration {
             ids
         }
     
-        protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ErlangLexer.create(info) match {
-            case None => null
-            case Some(l) => l
-        }
+        protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ErlangLexer.create(info)
 
         override
         protected def createTokenCategories :Map[String, Collection[TokenId]] = {

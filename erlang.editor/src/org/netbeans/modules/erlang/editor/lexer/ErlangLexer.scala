@@ -42,9 +42,6 @@ package org.netbeans.modules.erlang.editor.lexer
 
 import _root_.java.io.IOException
 import _root_.java.io.Reader
-import _root_.java.util.ArrayList
-//import _root_.java.util.Iterator
-import _root_.java.util.List
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.erlang.editor.rats.LexerErlang
 import org.netbeans.spi.lexer.Lexer
@@ -64,53 +61,40 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
  * @author Caoyuan Deng
  */
 object ErlangLexer {
-    private var cached:Option[ErlangLexer] = None
-   
-    def create(info:LexerRestartInfo[TokenId]) = synchronized {
-        cached match {
-            case None => cached = Some(new ErlangLexer)
-            case _ =>
-        }
-        cached.get.restart(info)
-        cached
-    }
-
-    def release = cached = None
+    /** @Note:
+     * ErlangLexer class is not Reentrant safe, it seems when source size is large than 16 * 1024,
+     * there will be more than one input are used, which causes the offset states, such as readed 
+     * token length, offset etc in these inputs conflict?. Anyway it's safe to create a new one always.
+     */
+    def create(info:LexerRestartInfo[TokenId]) = new ErlangLexer(info)
 }
 
-class ErlangLexer extends Lexer[TokenId] {
+class ErlangLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
+    /** @Note:
+     * it seems input at this time is empty, so we can not do scanning here.
+     * input will be filled in chars when call nextToken
+     */
 
-    var info :LexerRestartInfo[TokenId] = _
-    var input :LexerInput = _
-    var tokenFactory :TokenFactory[TokenId] = _
-    var lexerInputReader :LexerInputReader = _
+    var input :LexerInput = info.input
+    var tokenFactory :TokenFactory[TokenId] = info.tokenFactory
+    var lexerInputReader :LexerInputReader = new LexerInputReader(input)
     
     val tokenStream = new ArrayBuffer[TokenInfo]
-    /**
-     * tokenStream.iterator() always return a new iterator, which point the first
-     * item, so we should have a global one.
-     */
+    // * tokenStream.elements always return a new iterator, which point the first
+    // * item, so we should have a global one.
     var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.elements
     var lookahead :Int = 0
 
-    def restart(info:LexerRestartInfo[TokenId]) {
-        this.info = info
-        input = info.input
-        tokenFactory = info.tokenFactory
+    override
+    def release = {}
 
-        lexerInputReader = new LexerInputReader(input)
-        /**
-         * @Note: it seems input at this time is empty, so we can not do scanning here
-         */
-        tokenStream.clear
-        tokenStreamItr = tokenStream.elements
-        lookahead = 0
-    }
-
+    override
     def state :Object = null
 
+    override
     def nextToken :Token[TokenId] = {
-    
+        // * In case of embedded tokens, there may be tokens that had been scanned
+        // * but not taken yet, check first
         if (!tokenStreamItr.hasNext) {
             tokenStream.clear
             scanTokens
@@ -122,7 +106,10 @@ class ErlangLexer extends Lexer[TokenId] {
              */
             lookahead = input.readLength
             if (lookahead > 0) {
+                // * backup all, we will re-read from begin to create token at following step
                 input.backup(lookahead)
+            } else {
+                return null
             }
         }
 
@@ -130,29 +117,29 @@ class ErlangLexer extends Lexer[TokenId] {
             val tokenInfo = tokenStreamItr.next
 
             if (tokenInfo.length == 0) {
-                // EOF
+                // * EOF
                 return null
             }
 
-            // read token's chars according to tokenInfo.length
+            // * read token's chars according to tokenInfo.length
             var i = 0
             while (i < tokenInfo.length) {
                 input.read
                 i += 1
             }
 
-            // see if needs to lookahead, if true, perform it
-            lookahead -= tokenInfo.length;
-            // to cheat incremently lexer, we needs to lookahead one more char when
-            // tokenStream.size() > 1 (batched tokens that are not context free),
-            // so, when modification happens extractly behind latest token, will
-            // force lexer relexer from the 1st token of tokenStream
+            // * see if needs to lookahead, if true, perform it
+            lookahead -= tokenInfo.length
+            // * to cheat incremently lexer, we needs to lookahead one more char when
+            // * tokenStream.size() > 1 (batched tokens that are not context free),
+            // * so, when modification happens extractly behind latest token, will
+            // * force lexer relexer from the 1st token of tokenStream
             val lookahead1 = if (tokenStream.size > 1) lookahead + 1 else lookahead
             if (lookahead1 > 0) {
-                var j = 0
-                while (j < lookahead1) {
+                var i = 0
+                while (i < lookahead1) {
                     input.read
-                    j += 1
+                    i += 1
                 }
                 input.backup(lookahead1)
             }
@@ -178,7 +165,7 @@ class ErlangLexer extends Lexer[TokenId] {
          */
         val scanner = new LexerErlang(lexerInputReader, "<current>")
         try {
-            // just scan from position 0, incrmental lexer engine will handle start char in lexerInputReader
+            // * just scan from position 0, incrmental lexer engine will handle start char in lexerInputReader
             val r = scanner.pToken(0)
             if (r.hasValue) {
                 val node = r.semanticValue.asInstanceOf[GNode]
@@ -217,7 +204,7 @@ class ErlangLexer extends Lexer[TokenId] {
         while (i < l) {
             node.get(i) match {
                 case null =>
-                    /** child may be null */
+                    // * child may be null
                 case child:GNode =>
                     flattenToTokenStream(child)
                 case child:Pair[_] =>
@@ -235,10 +222,8 @@ class ErlangLexer extends Lexer[TokenId] {
                     println("To be process: " + child)
             }
             i += 1
-        } // end while
+        }
     }
-
-    def release = ErlangLexer.release
 
     /**
      * Hacking for <code>xtc.parser.ParserBase</code> of Rats! which use <code>java.io.Reader</code>
@@ -255,7 +240,6 @@ class ErlangLexer extends Lexer[TokenId] {
         override
         def read(cbuf:Array[Char], off:Int, len:Int) :Int = {
             throw new UnsupportedOperationException("Not supported yet.")
-            -1
         }
 
         override
