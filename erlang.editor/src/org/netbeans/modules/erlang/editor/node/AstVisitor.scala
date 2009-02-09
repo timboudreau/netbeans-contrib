@@ -61,7 +61,6 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
 abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) extends Visitor {
 
     val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode).asInstanceOf[Array[Token[TokenId]]])
-    val errors = new ArrayBuffer[GNode]
 
     private var indentLevel :Int = 0
     protected val astPath = new Stack[GNode]

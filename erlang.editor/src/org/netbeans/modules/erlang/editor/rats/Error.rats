@@ -68,6 +68,3 @@ transient void SEMI =
   void:";":s
 ;
 
-
-transient generic EndExpected = !( [{_] ) { yyValue = GNode.create("Error", "keyword: end expected"); } ;
-
