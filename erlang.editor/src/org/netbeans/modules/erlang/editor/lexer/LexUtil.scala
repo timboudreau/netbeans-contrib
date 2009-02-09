@@ -13,33 +13,26 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 
 object LexUtil {
 
-    def tokenSequence(th:TokenHierarchy[ErlangTokenId], offset:Int) :TokenSequence[ErlangTokenId] = th.tokenSequence(ErlangTokenId.language) match {
-        case null =>
+    def tokenSequence(th:TokenHierarchy[ErlangTokenId], offset:Int) :Option[TokenSequence[ErlangTokenId]] = th.tokenSequence(ErlangTokenId.language) match {
+        case null =>       
             // * Possibly an embedding scenario such as an RHTML file
+            def find(itr:_root_.java.util.Iterator[TokenSequence[_]]) :Option[TokenSequence[ErlangTokenId]] = itr.hasNext match {
+                case true => itr.next match {
+                        case ts if ts.language == ErlangTokenId.language => Some(ts)
+                        case _ => find(itr)
+                    }
+                case false => None
+            }
+         
             // * First try with backward bias true
-            var list = th.embeddedTokenSequences(offset, true)
-
-            var itr = list.iterator
-            while (itr.hasNext) {
-                val t = itr.next
-                if (t.language == ErlangTokenId.language) {
-                    return t.asInstanceOf[TokenSequence[ErlangTokenId]]
-                }
+            find(th.embeddedTokenSequences(offset, true).iterator) match {
+                case None => find(th.embeddedTokenSequences(offset, true).iterator)
+                case x => x
             }
-
-            list = th.embeddedTokenSequences(offset, false)
-
-            itr = list.iterator
-            while (itr.hasNext) {
-                val t = itr.next
-                if (t.language == ErlangTokenId.language) {
-                    return t.asInstanceOf[TokenSequence[ErlangTokenId]]
-                }
-            }
-        
-            null
-        case ts => ts.asInstanceOf[TokenSequence[ErlangTokenId]]
+        case ts => Some(ts)
     }
+
+    implicit def TokenId2ErlangTokenId(ts:TokenSequence[_]) :TokenSequence[ErlangTokenId] = ts.asInstanceOf[TokenSequence[ErlangTokenId]]
 
     private def WS_COMMENT :List[ErlangTokenId] = List(ErlangTokenId.Ws,
                                                        ErlangTokenId.Nl,
@@ -212,8 +205,8 @@ object LexUtil {
     }
 
     def isWsComment(id:TokenId) :Boolean = id match {
-        case _ if isComment(id) => true
         case ErlangTokenId.Ws | ErlangTokenId.Nl => true
+        case _ if isComment(id) => true
         case _ => false
     }
 

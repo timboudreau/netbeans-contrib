@@ -173,8 +173,11 @@ object ErlangTokenId extends Enumeration {
      */
     val ERLANG_MIME_TYPE = "text/x-erlang"; // NOI18N
 
-    /** should use def instead of val here, which will be called from instanceCreate of NetBeans' system  */
-    def language = new LanguageHierarchy[TokenId] {
+    // * should use "val" instead of "def" here to get a singleton language val, which  
+    // * will be used to identity the token's language by "==" comparasion by other classes.
+    // * Be aware of the init order! to get createTokenIds gathers all TokenIds, should
+    // * be put after all token id val definition
+    val language = new LanguageHierarchy[TokenId] {
         protected def mimeType = ERLANG_MIME_TYPE
 
         protected def createTokenIds :Collection[TokenId] = {

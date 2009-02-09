@@ -57,5 +57,4 @@ import xtc.util.Pair
  */
 class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) extends AstVisitor(rootNode, th) {
 
-
 }

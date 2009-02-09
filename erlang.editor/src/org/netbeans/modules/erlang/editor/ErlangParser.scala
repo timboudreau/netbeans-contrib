@@ -77,7 +77,9 @@ import xtc.parser.{ParseError, SemanticValue}
 import xtc.tree.{GNode, Location}
 
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
+import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.rats.ParserErlang
+import org.netbeans.modules.erlang.editor.node.AstNodeVisitor
 
 /**
  *
@@ -236,38 +238,48 @@ class ErlangParser extends Parser {
     }
 
     private def analyze(context:Context) = {
-        // we need TokenHierarchy to do anaylzing task
-        var th :TokenHierarchy[_] = null
-        var doc :BaseDocument = null
-        /** If this file is under editing, always get th from incrementally lexed one via opened document */
-        val target = EditorRegistry.lastFocusedComponent
-        if (target != null) {
-            doc = target.getDocument.asInstanceOf[BaseDocument]
-            if (doc != null) {
-                val fo = NbEditorUtilities.getFileObject(doc)
-                if (fo == context.fo) {
-                    th = TokenHierarchy.get(doc)
+        // * we need TokenHierarchy to do anaylzing task
+        // * If this file is under editing, always get th from incrementally lexed one via opened document
+        val (doc, th) = EditorRegistry.lastFocusedComponent match {
+            case null => (null, null)
+            case target => target.getDocument match {
+                    case null => (null, null)
+                    case docX =>
+                        val thX = NbEditorUtilities.getFileObject(docX) match {
+                            case fo if fo == context.fo => TokenHierarchy.get(docX)
+                            case _ => null
+                        }
+                        (docX, thX)
+                }
+        }
+
+        context.th = th match {
+            case null => TokenHierarchy.create(context.source, ErlangTokenId.language)
+            case _ => th
+        }
+
+        // * Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
+        val analyzingTask = new Runnable {
+            override
+            def run :Unit = {
+                val visitor = new AstNodeVisitor(context.root, th.asInstanceOf[TokenHierarchy[ErlangTokenId]])
+                visitor.simpleVisit(context.root)
+                val itr = visitor.errors.elements
+                while (itr.hasNext) {
+                    val errorNode = itr.next
+                    val msg = errorNode.getString(0)
+                    val loc = errorNode.getLocation
+                    notifyError(context, msg, "",
+                                loc.offset, "", loc.endOffset,
+                                context.sanitized, Severity.ERROR,
+                                "SYNTAX_ERROR", Array(errorNode))
                 }
             }
         }
 
-        if (th == null) {
-            th = TokenHierarchy.create(context.source, ErlangTokenId.language)
-        }
-        context.th = th
-
-        // Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
-        val analyzingTask = new Runnable {
-            override
-            def run :Unit = {
-                // todo
-            }
-        }
-
-        if (doc != null) {
-            doc.runAtomic(analyzingTask)
-        } else {
-            new Thread(analyzingTask).start
+        doc match {
+            case null => new Thread(analyzingTask).start
+            case _ => doc.asInstanceOf[BaseDocument].runAtomic(analyzingTask)
         }
     }
 

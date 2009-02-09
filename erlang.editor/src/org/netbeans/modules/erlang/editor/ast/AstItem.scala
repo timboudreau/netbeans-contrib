@@ -71,8 +71,8 @@ abstract class AstItem(aSymbol:OtpErlangObject, aIdToken:Token[TokenId]) extends
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
 
-    idToken_=(aIdToken)
-    symbol_=(aSymbol)
+    idToken = aIdToken
+    symbol  = aSymbol
     
     def symbol = _symbol
     def symbol_=(symbol:OtpErlangObject) = symbol match {

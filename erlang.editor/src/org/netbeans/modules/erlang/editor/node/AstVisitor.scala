@@ -61,12 +61,13 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
 abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) extends Visitor {
 
     val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode).asInstanceOf[Array[Token[TokenId]]])
-    scopeStack += rootScope
     val errors = new ArrayBuffer[GNode]
 
-    private var indentLevel :Int = _
+    private var indentLevel :Int = 0
     protected val astPath = new Stack[GNode]
     protected val scopeStack = new Stack[AstScope]
+
+    scopeStack += rootScope
 
     def visit(node:GNode) {
         enter(node)
@@ -96,6 +97,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
             itr.next match {
                 case x:GNode => dispatch(x)
                 case x:Pair[_] => visitPair(x)
+                case _ => 
             }
         }
     }
@@ -108,6 +110,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
             itr.next match {
                 case x:GNode => dispatch(x)
                 case x:Pair[_] => visitPair(x)
+                case _ =>
             }
         }
         indentLevel -= 1
@@ -120,9 +123,47 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
         null
     }
 
+    // --- Simple visit functons, which won't do dispatch visit
+    
+    def simpleVisit(node:GNode) {
+        enter(node)
+        simpleVisitChildren(node)
+        exit(node)
+    }
+
+
+    protected def simpleVisitChildren(node:GNode) {
+        val itr = node.iterator
+        while (itr.hasNext) {
+            itr.next match {
+                case x:GNode => simpleVisit(x)
+                case x:Pair[_] => simpleVisitPair(x)
+                case _ =>
+            }
+        }
+    }
+
+    private def simpleVisitPair(pair:Pair[_]) {
+        //println(indent + "[")
+        indentLevel += 1
+        val itr = pair.iterator
+        while (itr.hasNext) {
+            itr.next match {
+                case x:GNode => simpleVisit(x)
+                case x:Pair[_] => simpleVisitPair(x)
+                case _ =>
+            }
+        }
+        indentLevel -= 1
+        //println(indent + "]")
+    }
+
+
+    // --- Token helpers
+
     protected def boundsTokens(node:Node) :Array[Token[ErlangTokenId]] = {
         val loc = node.getLocation
-        val ts = LexUtil.tokenSequence(th, loc.offset)
+        val ts = LexUtil.tokenSequence(th, loc.offset).get
 
         ts.move(loc.offset)
         if (!ts.moveNext && !ts.movePrevious) {
@@ -153,7 +194,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
      */
     protected def idToken(idNode:Node) :Token[ErlangTokenId] = {
         val loc = idNode.getLocation
-        val ts = LexUtil.tokenSequence(th, loc.offset)
+        val ts = LexUtil.tokenSequence(th, loc.offset).get
         ts.move(loc.offset)
         if (!ts.moveNext && !ts.movePrevious) {
             assert(false, "Should not happen!")

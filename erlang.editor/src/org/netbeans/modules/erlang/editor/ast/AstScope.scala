@@ -433,7 +433,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
 
         /** search upward */
         parent match {
-            case None => None;
+            case None => None
             case Some(x) => x.findDefOfUpward(aRef)
         }
     }
