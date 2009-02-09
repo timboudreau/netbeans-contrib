@@ -195,21 +195,32 @@ class ErlangParser extends Parser {
             if (r.hasValue) {
                 val v = r.asInstanceOf[SemanticValue]
                 root = v.value.asInstanceOf[GNode]
+
+                for (err <- parser.errors) {
+                    val start = err.index match {
+                        case -1 => 0
+                        case i  => i
+                    }
+                    notifyError(context, err.msg, "Syntax error",
+                                start, "", start,
+                                sanitizing, Severity.ERROR,
+                                "SYNTAX_ERROR", Array(err))
+                }
             } else {
                 error = r.parseError
             }
 
             if (error != null && !ignoreErrors) {
-                var start = 0
-                if (error.index != -1) {
-                    start = error.index
+                val start = error.index match {
+                    case -1 => 0
+                    case i  => i
                 }
                 notifyError(context, error.msg, "Syntax error",
                             start, "", start,
                             sanitizing, Severity.ERROR,
                             "SYNTAX_ERROR", Array(error))
 
-                System.err.println(error.msg)
+                //System.err.println(error.msg)
             }
 
         } catch {
@@ -264,16 +275,6 @@ class ErlangParser extends Parser {
             def run :Unit = {
                 val visitor = new AstNodeVisitor(context.root, th.asInstanceOf[TokenHierarchy[ErlangTokenId]])
                 visitor.simpleVisit(context.root)
-                val itr = visitor.errors.elements
-                while (itr.hasNext) {
-                    val errorNode = itr.next
-                    val msg = errorNode.getString(0)
-                    val loc = errorNode.getLocation
-                    notifyError(context, msg, "",
-                                loc.offset, "", loc.endOffset,
-                                context.sanitized, Severity.ERROR,
-                                "SYNTAX_ERROR", Array(errorNode))
-                }
             }
         }
 

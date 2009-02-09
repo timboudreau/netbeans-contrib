@@ -85,12 +85,6 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
         astPath.pop
     }
 
-    protected def visitError(node:GNode) {
-        if (node.getName.equals("Error") && node.size > 0) {
-            errors += node
-        }
-    }
-
     protected def visitChildren(node:GNode) {
         val itr = node.iterator
         while (itr.hasNext) {
@@ -127,7 +121,6 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
     
     def simpleVisit(node:GNode) {
         enter(node)
-        visitError(node)
         simpleVisitChildren(node)
         exit(node)
     }
@@ -203,7 +196,6 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
 
         val name = idNode.getString(0).trim
         val token = name match {
-            case "expected" => ts.token
             case "MacroId" => LexUtil.findNext(ts, ErlangTokenId.Macro)
             case "AtomId"  => LexUtil.findNext(ts, ErlangTokenId.Atom)
             case "VarId"   => LexUtil.findNext(ts, ErlangTokenId.Var)

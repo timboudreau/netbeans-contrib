@@ -101,7 +101,7 @@ generic TypedExprs =
 
 transient generic TypedExpr = Expr void:"::":s TopType ;
 
-transient generic TypeSigs = TypeSig ( void:";":s TypeSig )* ;
+transient generic TypeSigs = TypeSig ( SEMI TypeSig )* ;
 
 transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
 
@@ -168,7 +168,7 @@ generic AttrVal =
 
 transient generic Function = FunctionClauses ;
 
-transient generic FunctionClauses = FunctionClause ( void:";":s FunctionClause )* ;
+transient generic FunctionClauses = FunctionClause ( SEMI FunctionClause )* ;
 
 transient generic FunctionClause = AtomId1 ClauseArgs ClauseGuard? ClauseBody ;
 
@@ -295,13 +295,13 @@ transient generic FunctionCall = Expr800 ArgumentList ;
 
 transient generic IfExpr = void:"if":k IfClauses END;
 
-transient generic IfClauses = IfClause ( void:";":s IfClauses )* ;
+transient generic IfClauses = IfClause ( SEMI IfClauses )* ;
 
 transient generic IfClause = Guard ClauseBody ;
 
 transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses END ;
 
-transient generic CrClauses = CrClause ( void:";":s CrClause )* ;
+transient generic CrClauses = CrClause ( SEMI CrClause )* ;
 
 transient generic CrClause = Expr ClauseGuard? ClauseBody;
 
@@ -317,7 +317,7 @@ generic FunExpr =
 / void:"fun":k FunClauses END
 ;
 
-transient generic FunClauses = FunClause ( void:";":s FunClauses )? ;
+transient generic FunClauses = FunClause ( SEMI FunClauses )? ;
 
 transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
 
@@ -331,7 +331,7 @@ generic TryCatch =
 /                             void:"after":k Exprs END
 ;
 
-transient generic tryClauses = tryClause ( void:";":s tryClause )* ;
+transient generic tryClauses = tryClause ( SEMI tryClause )* ;
 
 generic tryClause =
   AtomId1 void:":":s Expr ClauseGuard? ClauseBody
@@ -349,7 +349,7 @@ generic ArgumentList =
 
 transient generic Exprs = Expr ( void:",":s Expr )* ;
 
-transient generic Guard = Exprs ( void:";":s Exprs )* ;
+transient generic Guard = Exprs ( SEMI Exprs )* ;
 
 transient generic Atomic =
   Char
@@ -407,7 +407,7 @@ void CompOp =
 
 transient generic Rule = RuleClauses ;
 
-transient generic RuleClauses = RuleClause ( void:";":s RuleClause )* ;
+transient generic RuleClauses = RuleClause ( SEMI RuleClause )* ;
 
 transient generic RuleClause = AtomId1 ClauseArgs ClauseGuard? RuleBody ;
 
