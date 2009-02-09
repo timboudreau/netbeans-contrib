@@ -50,6 +50,7 @@ import org.netbeans.modules.erlang.editor.rats.Keyword;
 import org.netbeans.modules.erlang.editor.rats.Literal;
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 import org.netbeans.modules.erlang.editor.rats.Symbol;
+import org.netbeans.modules.erlang.editor.rats.Error;
 
 option withLocation;
 
@@ -224,7 +225,7 @@ generic ExprMax =
 / BinaryComprehension
 / Tuple
 / void:"(":s Expr void:")":s
-/ void:"begin":k Exprs void:"end":k
+/ void:"begin":k Exprs END
 / IfExpr
 / CaseExpr
 / ReceiveExpr
@@ -292,28 +293,28 @@ transient generic RecordField =
 
 transient generic FunctionCall = Expr800 ArgumentList ;
 
-transient generic IfExpr = void:"if":k IfClauses void:"end":k ;
+transient generic IfExpr = void:"if":k IfClauses END;
 
 transient generic IfClauses = IfClause ( void:";":s IfClauses )* ;
 
 transient generic IfClause = Guard ClauseBody ;
 
-transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses void:"end":k ;
+transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses END ;
 
 transient generic CrClauses = CrClause ( void:";":s CrClause )* ;
 
 transient generic CrClause = Expr ClauseGuard? ClauseBody;
 
 generic ReceiveExpr =
-  void:"receive":k CrClauses                                void:"end":k
-/ void:"receive":k           void:"after":k Expr ClauseBody void:"end":k
-/ void:"receive":k CrClauses void:"after":k Expr ClauseBody void:"end":k
+  void:"receive":k CrClauses                                END
+/ void:"receive":k           void:"after":k Expr ClauseBody END
+/ void:"receive":k CrClauses void:"after":k Expr ClauseBody END
 ;
 
 generic FunExpr =
   void:"fun":k ( AtomId1 / MacroId ) void:":":s ( AtomId1 / MacroId ) void:"/":s Integer
 / void:"fun":k                                  ( AtomId1 / MacroId ) void:"/":s Integer
-/ void:"fun":k FunClauses void:"end":k
+/ void:"fun":k FunClauses END
 ;
 
 transient generic FunClauses = FunClause ( void:";":s FunClauses )? ;
@@ -326,9 +327,8 @@ generic TryExpr =
 ;
 
 generic TryCatch =
-  void:"catch":k tryClauses                      void:"end":k
-/ void:"catch":k tryClauses void:"after":k Exprs void:"end":k
-/                           void:"after":k Exprs void:"end":k
+  void:"catch":k tryClauses ( void:"after":k Exprs )? END
+/                             void:"after":k Exprs END
 ;
 
 transient generic tryClauses = tryClause ( void:";":s tryClause )* ;
@@ -339,7 +339,7 @@ generic tryClause =
 /                    Expr ClauseGuard? ClauseBody
 ;
 
-transient generic QueryExpr = void:"query":s ListComprehension void:"end":k ;
+transient generic QueryExpr = void:"query":s ListComprehension END ;
 
 
 generic ArgumentList =

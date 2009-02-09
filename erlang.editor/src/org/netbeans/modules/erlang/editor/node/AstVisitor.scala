@@ -127,6 +127,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
     
     def simpleVisit(node:GNode) {
         enter(node)
+        visitError(node)
         simpleVisitChildren(node)
         exit(node)
     }
