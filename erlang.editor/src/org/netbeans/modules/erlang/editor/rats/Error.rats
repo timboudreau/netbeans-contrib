@@ -67,7 +67,7 @@ transient void END_E =
 ;
 
 transient void COMMA = void:",":s ;
-transient void COMMA_E =
+void COMMA_E =
   COMMA
 / &( Expr ) { error("',' expected", yyStart); }
 ;
@@ -75,5 +75,13 @@ transient void COMMA_E =
 transient void SEMI = void:";":s ;
 transient void SEMI_E =
   SEMI
-/ &( Expr ) { error("';' expected", yyStart); }
+/ &( TypeSig
+   / FunctionClause
+   / IfClauses
+   / CrClause
+   / FunClauses
+   / TryClause
+   / Exprs
+   / RuleClause 
+   ) { error("';' expected", yyStart); }
 ;

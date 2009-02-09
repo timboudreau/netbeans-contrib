@@ -101,7 +101,7 @@ generic TypedExprs =
 
 transient generic TypedExpr = Expr void:"::":s TopType ;
 
-transient generic TypeSigs = TypeSig ( SEMI TypeSig )* ;
+transient generic TypeSigs = TypeSig ( SEMI_E TypeSig )* ;
 
 transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
 
@@ -168,7 +168,7 @@ generic AttrVal =
 
 transient generic Function = FunctionClauses ;
 
-transient generic FunctionClauses = FunctionClause ( SEMI FunctionClause )* ;
+transient generic FunctionClauses = FunctionClause ( SEMI_E FunctionClause )* ;
 
 transient generic FunctionClause = AtomId1 ClauseArgs ClauseGuard? ClauseBody ;
 
@@ -327,13 +327,13 @@ generic TryExpr =
 ;
 
 generic TryCatch =
-  void:"catch":k tryClauses ( void:"after":k Exprs )? END_E
+  void:"catch":k TryClauses ( void:"after":k Exprs )? END_E
 /                             void:"after":k Exprs    END_E
 ;
 
-transient generic tryClauses = tryClause ( SEMI tryClause )* ;
+transient generic TryClauses = TryClause ( SEMI_E TryClause )* ;
 
-generic tryClause =
+generic TryClause =
   AtomId1 void:":":s Expr ClauseGuard? ClauseBody
 / VarId   void:":":s Expr ClauseGuard? ClauseBody
 /                    Expr ClauseGuard? ClauseBody
@@ -349,7 +349,7 @@ transient generic QueryExpr = void:"query":s ListComprehension END_E ;
 
 transient generic Exprs = Expr ( COMMA Expr )* ;
 
-transient generic Guard = Exprs ( SEMI Exprs )* ;
+transient generic Guard = Exprs ( SEMI_E Exprs )* ;
 
 transient generic Atomic =
   Char
@@ -407,7 +407,7 @@ void CompOp =
 
 transient generic Rule = RuleClauses ;
 
-transient generic RuleClauses = RuleClause ( SEMI RuleClause )* ;
+transient generic RuleClauses = RuleClause ( SEMI_E RuleClause )* ;
 
 transient generic RuleClause = AtomId1 ClauseArgs ClauseGuard? RuleBody ;
 
