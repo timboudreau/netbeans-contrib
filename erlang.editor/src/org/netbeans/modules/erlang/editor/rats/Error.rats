@@ -63,7 +63,9 @@ body {
 transient void END = void:"end":k ;
 transient void END_E =
   END
-/ &( COMMA / SEMI / STOP ) { error("'end' expected", yyStart); }
+/ &( COMMA 
+   / SEMI
+   / STOP ) { error("'end' expected", yyStart); }
 ;
 
 transient void COMMA = void:",":s ;
@@ -82,6 +84,6 @@ transient void SEMI_E =
    / FunClauses
    / TryClause
    / Exprs
-   / RuleClause 
+   / RuleClause
    ) { error("';' expected", yyStart); }
 ;
