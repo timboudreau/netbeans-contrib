@@ -95,8 +95,8 @@ generic TypedAttrVal =
 transient generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
 
 generic TypedExprs =
-  Expr      ( void:",":s ( TypedExpr / Expr ) )*
-/ TypedExpr ( void:",":s ( TypedExpr / Expr ) )*
+  Expr      ( COMMA ( TypedExpr / Expr ) )*
+/ TypedExpr ( COMMA ( TypedExpr / Expr ) )*
 ;
 
 transient generic TypedExpr = Expr void:"::":s TopType ;
@@ -105,11 +105,11 @@ transient generic TypeSigs = TypeSig ( SEMI TypeSig )* ;
 
 transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
 
-transient generic TypeGuards = TypeGuard ( void:",":s TypeGuard )* ;
+transient generic TypeGuards = TypeGuard ( COMMA TypeGuard )* ;
 
 transient generic TypeGuard = AtomId1 void:"(":s TopTypes void:")":s ;
 
-transient generic TopTypes = TopType ( void:",":s TopType )* ;
+transient generic TopTypes = TopType ( COMMA TopType )* ;
 
 generic TopType =
   VarId void:"::":s TopType100
@@ -125,7 +125,7 @@ generic Type =
 / AtomId1 void:":":s AtomId1 void:"(":s TopTypes? void:")":s
 / AtomId1
 / void:"[":s void:"]":s
-/ void:"[":s TopType ( void:",":s SKIP "..." SKIP )? void:"]":s
+/ void:"[":s TopType ( COMMA SKIP "..." SKIP )? void:"]":s
 / void:"{":s TopTypes? void:"}":s
 / RecId void:"{":s FieldTypes? void:"}":s
 / BinaryType
@@ -145,7 +145,7 @@ transient generic FunType =
 / void:"(":s TopTypes void:")":s void:"->":s TopType
 ;
 
-transient generic FieldTypes = FieldType ( void:",":s FieldType )* ;
+transient generic FieldTypes = FieldType ( COMMA FieldType )* ;
 
 transient generic FieldType = AtomId1 void:"::":s TopType ;
 
@@ -153,7 +153,7 @@ generic BinaryType =
   void:"<<":s                                   void:">>":s
 / void:"<<":s BinBaseType                       void:">>":s
 / void:"<<":s                        BinUnitType void:">>":s
-/ void:"<<":s BinBaseType void:",":s BinUnitType void:">>":s
+/ void:"<<":s BinBaseType COMMA BinUnitType void:">>":s
 / VarId void:":":s Integer
 ;
 
@@ -162,8 +162,8 @@ transient generic BinBaseType = VarId void:":":s Integer ;
 transient generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
 
 generic AttrVal =
-  void:"(":s Expr void:",":s Exprs void:")":s
-/ Expr ( void:",":s Exprs )?
+  void:"(":s Expr COMMA Exprs void:")":s
+/ Expr ( COMMA Exprs )?
 ;
 
 transient generic Function = FunctionClauses ;
@@ -225,7 +225,7 @@ generic ExprMax =
 / BinaryComprehension
 / Tuple
 / void:"(":s Expr void:")":s
-/ void:"begin":k Exprs END
+/ void:"begin":k Exprs END_E
 / IfExpr
 / CaseExpr
 / ReceiveExpr
@@ -243,12 +243,12 @@ generic List =
 transient generic Tail =
   void:"]":s
 / void:"|":s Expr void:"]":s
-/ void:",":s Expr Tail
+/ COMMA Expr Tail
 ;
 
 transient generic Binary = void:"<<":s BinElements? void:">>":s ;
 
-transient generic BinElements = BinElement ( void:",":s BinElement )* ;
+transient generic BinElements = BinElement ( COMMA BinElement )* ;
 
 transient generic BinElement = BitExpr OptBitsizeExpr OptBitTypeList ;
 
@@ -268,7 +268,7 @@ transient generic ListComprehension = void:"[":s Expr void:"||":s LcExprs void:"
 
 transient generic BinaryComprehension = void:"<<":s Binary void:"||":s LcExprs void:">>":s ;
 
-transient generic LcExprs = LcExpr ( void:",":s LcExpr )* ;
+transient generic LcExprs = LcExpr ( COMMA LcExpr )* ;
 
 generic LcExpr =
   Binary   void:"<=":s Expr
@@ -284,7 +284,7 @@ transient generic RecordExpr =
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
 
-transient generic RecordFields = RecordField ( void:",":s RecordField )* ;
+transient generic RecordFields = RecordField ( COMMA RecordField )* ;
 
 transient generic RecordField =
   VarId   void:"=":s Expr
@@ -293,31 +293,31 @@ transient generic RecordField =
 
 transient generic FunctionCall = Expr800 ArgumentList ;
 
-transient generic IfExpr = void:"if":k IfClauses END;
+transient generic IfExpr = void:"if":k IfClauses END_E;
 
-transient generic IfClauses = IfClause ( SEMI IfClauses )* ;
+transient generic IfClauses = IfClause ( SEMI_E IfClauses )* ;
 
 transient generic IfClause = Guard ClauseBody ;
 
-transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses END ;
+transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses END_E ;
 
-transient generic CrClauses = CrClause ( SEMI CrClause )* ;
+transient generic CrClauses = CrClause ( SEMI_E CrClause )* ;
 
 transient generic CrClause = Expr ClauseGuard? ClauseBody;
 
 generic ReceiveExpr =
-  void:"receive":k CrClauses                                END
-/ void:"receive":k           void:"after":k Expr ClauseBody END
-/ void:"receive":k CrClauses void:"after":k Expr ClauseBody END
+  void:"receive":k CrClauses                                END_E
+/ void:"receive":k           void:"after":k Expr ClauseBody END_E
+/ void:"receive":k CrClauses void:"after":k Expr ClauseBody END_E
 ;
 
 generic FunExpr =
   void:"fun":k ( AtomId1 / MacroId ) void:":":s ( AtomId1 / MacroId ) void:"/":s Integer
 / void:"fun":k                                  ( AtomId1 / MacroId ) void:"/":s Integer
-/ void:"fun":k FunClauses END
+/ void:"fun":k FunClauses END_E
 ;
 
-transient generic FunClauses = FunClause ( SEMI FunClauses )? ;
+transient generic FunClauses = FunClause ( SEMI_E FunClauses )? ;
 
 transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
 
@@ -327,8 +327,8 @@ generic TryExpr =
 ;
 
 generic TryCatch =
-  void:"catch":k tryClauses ( void:"after":k Exprs )? END
-/                             void:"after":k Exprs END
+  void:"catch":k tryClauses ( void:"after":k Exprs )? END_E
+/                             void:"after":k Exprs    END_E
 ;
 
 transient generic tryClauses = tryClause ( SEMI tryClause )* ;
@@ -339,15 +339,15 @@ generic tryClause =
 /                    Expr ClauseGuard? ClauseBody
 ;
 
-transient generic QueryExpr = void:"query":s ListComprehension END ;
+transient generic QueryExpr = void:"query":s ListComprehension END_E ;
 
 
-generic ArgumentList =
+    generic ArgumentList =
   void:"(":s       void:")":s
 / void:"(":s Exprs void:")":s
 ;
 
-transient generic Exprs = Expr ( void:",":s Expr )* ;
+transient generic Exprs = Expr ( COMMA Expr )* ;
 
 transient generic Guard = Exprs ( SEMI Exprs )* ;
 

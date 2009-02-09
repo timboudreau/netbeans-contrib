@@ -50,6 +50,8 @@ import org.netbeans.modules.erlang.editor.rats.Literal;
 import org.netbeans.modules.erlang.editor.rats.Spacing;
 import org.netbeans.modules.erlang.editor.rats.Symbol;
 
+import org.netbeans.modules.erlang.editor.rats.ParserErlang;
+
 body {
   public scala.collection.mutable.ArrayBuffer<ParseError> errors = new scala.collection.mutable.ArrayBuffer<ParseError>();
 
@@ -58,13 +60,20 @@ body {
   }
 }
 
-
-transient void END =
-  void:"end":k
-/ !( [{_] ) { error("keyword: end expected", yyStart); }
+transient void END = void:"end":k ;
+transient void END_E =
+  END
+/ &( COMMA / SEMI / STOP ) { error("'end' expected", yyStart); }
 ;
 
-transient void SEMI =
-  void:";":s
+transient void COMMA = void:",":s ;
+transient void COMMA_E =
+  COMMA
+/ &( Expr ) { error("',' expected", yyStart); }
 ;
 
+transient void SEMI = void:";":s ;
+transient void SEMI_E =
+  SEMI
+/ &( Expr ) { error("';' expected", yyStart); }
+;
