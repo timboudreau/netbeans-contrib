@@ -60,24 +60,39 @@ body {
   }
 }
 
+/* @Note: error recover can not handle followed: "catch" Expr, which conflicts with TryExpr */
+
 transient void END = void:"end":k ;
 transient void END_E =
   END
-/ &( COMMA 
+/ SKIP
+  &( COMMA
    / SEMI
-   / STOP ) { error("'end' expected", yyStart); }
+   / STOP
+   ) SKIP { error("'end' expected", yyStart); }
 ;
 
 transient void COMMA = void:",":s ;
 void COMMA_E =
   COMMA
-/ &( Expr ) { error("',' expected", yyStart); }
+/ SKIP !( void:"catch":k )
+  &( TypedExpr
+   / TypeGuard
+   / TopType
+   / FieldType
+   / BinUnitType
+   / BinElement
+   / LcExpr
+   / RecordField
+   / Expr
+   ) SKIP { error("',' expected", yyStart); }
 ;
 
 transient void SEMI = void:";":s ;
 transient void SEMI_E =
   SEMI
-/ &( TypeSig
+/ SKIP !( void:"catch":k )
+  &( TypeSig
    / FunctionClause
    / IfClauses
    / CrClause
@@ -85,5 +100,5 @@ transient void SEMI_E =
    / TryClause
    / Exprs
    / RuleClause
-   ) { error("';' expected", yyStart); }
+   ) SKIP { error("';' expected", yyStart); }
 ;

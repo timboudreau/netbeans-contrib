@@ -95,8 +95,8 @@ generic TypedAttrVal =
 transient generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
 
 generic TypedExprs =
-  Expr      ( COMMA ( TypedExpr / Expr ) )*
-/ TypedExpr ( COMMA ( TypedExpr / Expr ) )*
+  Expr      ( COMMA_E ( TypedExpr / Expr ) )*
+/ TypedExpr ( COMMA_E ( TypedExpr / Expr ) )*
 ;
 
 transient generic TypedExpr = Expr void:"::":s TopType ;
@@ -105,11 +105,11 @@ transient generic TypeSigs = TypeSig ( SEMI_E TypeSig )* ;
 
 transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
 
-transient generic TypeGuards = TypeGuard ( COMMA TypeGuard )* ;
+transient generic TypeGuards = TypeGuard ( COMMA_E TypeGuard )* ;
 
 transient generic TypeGuard = AtomId1 void:"(":s TopTypes void:")":s ;
 
-transient generic TopTypes = TopType ( COMMA TopType )* ;
+transient generic TopTypes = TopType ( COMMA_E TopType )* ;
 
 generic TopType =
   VarId void:"::":s TopType100
@@ -145,7 +145,7 @@ transient generic FunType =
 / void:"(":s TopTypes void:")":s void:"->":s TopType
 ;
 
-transient generic FieldTypes = FieldType ( COMMA FieldType )* ;
+transient generic FieldTypes = FieldType ( COMMA_E FieldType )* ;
 
 transient generic FieldType = AtomId1 void:"::":s TopType ;
 
@@ -153,7 +153,7 @@ generic BinaryType =
   void:"<<":s                                   void:">>":s
 / void:"<<":s BinBaseType                       void:">>":s
 / void:"<<":s                        BinUnitType void:">>":s
-/ void:"<<":s BinBaseType COMMA BinUnitType void:">>":s
+/ void:"<<":s BinBaseType COMMA_E BinUnitType void:">>":s
 / VarId void:":":s Integer
 ;
 
@@ -162,8 +162,8 @@ transient generic BinBaseType = VarId void:":":s Integer ;
 transient generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
 
 generic AttrVal =
-  void:"(":s Expr COMMA Exprs void:")":s
-/ Expr ( COMMA Exprs )?
+  void:"(":s Expr ( COMMA_E Expr )* void:")":s
+/ Expr ( COMMA_E Expr )*
 ;
 
 transient generic Function = FunctionClauses ;
@@ -243,12 +243,12 @@ generic List =
 transient generic Tail =
   void:"]":s
 / void:"|":s Expr void:"]":s
-/ COMMA Expr Tail
+/ COMMA_E Expr Tail
 ;
 
 transient generic Binary = void:"<<":s BinElements? void:">>":s ;
 
-transient generic BinElements = BinElement ( COMMA BinElement )* ;
+transient generic BinElements = BinElement ( COMMA_E BinElement )* ;
 
 transient generic BinElement = BitExpr OptBitsizeExpr OptBitTypeList ;
 
@@ -268,7 +268,7 @@ transient generic ListComprehension = void:"[":s Expr void:"||":s LcExprs void:"
 
 transient generic BinaryComprehension = void:"<<":s Binary void:"||":s LcExprs void:">>":s ;
 
-transient generic LcExprs = LcExpr ( COMMA LcExpr )* ;
+transient generic LcExprs = LcExpr ( COMMA_E LcExpr )* ;
 
 generic LcExpr =
   Binary   void:"<=":s Expr
@@ -284,7 +284,7 @@ transient generic RecordExpr =
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
 
-transient generic RecordFields = RecordField ( COMMA RecordField )* ;
+transient generic RecordFields = RecordField ( COMMA_E RecordField )* ;
 
 transient generic RecordField =
   VarId   void:"=":s Expr
@@ -321,10 +321,7 @@ transient generic FunClauses = FunClause ( SEMI_E FunClauses )? ;
 
 transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
 
-generic TryExpr =
-  void:"try":k Exprs void:"of":k CrClauses TryCatch
-/ void:"try":k Exprs                       TryCatch
-;
+generic TryExpr = void:"try":k Exprs ( void:"of":k CrClauses )? TryCatch ;
 
 generic TryCatch =
   void:"catch":k TryClauses ( void:"after":k Exprs )? END_E
@@ -347,7 +344,7 @@ transient generic QueryExpr = void:"query":s ListComprehension END_E ;
 / void:"(":s Exprs void:")":s
 ;
 
-transient generic Exprs = Expr ( COMMA Expr )* ;
+transient generic Exprs = Expr ( COMMA_E Expr )* ;
 
 transient generic Guard = Exprs ( SEMI_E Exprs )* ;
 

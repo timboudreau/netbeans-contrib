@@ -190,13 +190,17 @@ class ErlangParser extends Parser {
         val ignoreErrors = sanitizedSource
         var root :GNode = null
         try {
-            var error :ParseError = null
+            var error :Option[ParseError] = None
             val r = parser.pS(0)
             if (r.hasValue) {
                 val v = r.asInstanceOf[SemanticValue]
                 root = v.value.asInstanceOf[GNode]
+            } else {
+                error = Some(r.parseError)
+            }
 
-                for (err <- parser.errors) {
+            if (!ignoreErrors) {
+                def syntaxError(err:ParseError) = {
                     val start = err.index match {
                         case -1 => 0
                         case i  => i
@@ -206,23 +210,18 @@ class ErlangParser extends Parser {
                                 sanitizing, Severity.ERROR,
                                 "SYNTAX_ERROR", Array(err))
                 }
-            } else {
-                error = r.parseError
-            }
-
-            if (error != null && !ignoreErrors) {
-                val start = error.index match {
-                    case -1 => 0
-                    case i  => i
+                
+                // --- recovered errors
+                for (err <- parser.errors) {
+                    syntaxError(err)
                 }
-                notifyError(context, error.msg, "Syntax error",
-                            start, "", start,
-                            sanitizing, Severity.ERROR,
-                            "SYNTAX_ERROR", Array(error))
 
-                //System.err.println(error.msg)
+                // --- No-recoverable error
+                for (err <- error) {
+                    syntaxError(err)
+                    //System.err.println(err.msg)
+                }
             }
-
         } catch {
             case e:IOException => e.printStackTrace
             case e:IllegalArgumentException =>
