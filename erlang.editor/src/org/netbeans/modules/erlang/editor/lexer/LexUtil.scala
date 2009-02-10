@@ -63,7 +63,7 @@ object LexUtil {
          
             // * First try with backward bias true
             find(th.embeddedTokenSequences(offset, true).iterator) match {
-                case None => find(th.embeddedTokenSequences(offset, true).iterator)
+                case None => find(th.embeddedTokenSequences(offset, false).iterator)
                 case x => x
             }
         case ts => Some(ts)
