@@ -36,7 +36,7 @@
  * 
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.erlang.editor.node
+package org.netbeans.modules.erlang.editor.ast
 
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}

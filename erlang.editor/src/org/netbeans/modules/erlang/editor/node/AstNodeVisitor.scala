@@ -40,6 +40,7 @@ package org.netbeans.modules.erlang.editor.node
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 
+import org.netbeans.modules.erlang.editor.ast.{AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
 
