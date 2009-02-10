@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Set, HashSet}
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.HtmlFormatter
 import org.netbeans.modules.csl.api.Modifier
@@ -61,7 +61,7 @@ import xtc.tree.{GNode}
  * @author Caoyuan Deng
  */
 class AstDef(aSymbol:GNode,
-             pickToken:Token[TokenId],
+             pickToken:Token[_],
              private var _bindingScope:AstScope,
              var kind:ElementKind,
              var fo:FileObject ) extends AstItem(aSymbol, pickToken) with AstElementHandle {
@@ -113,15 +113,15 @@ class AstDef(aSymbol:GNode,
         _bindingScope
     }
 
-    def boundsOffset(th:TokenHierarchy[TokenId]) :Int = {
+    def boundsOffset(th:TokenHierarchy[_]) :Int = {
         bindingScope.boundsOffset(th)
     }
 
-    def boundsEndOffset(th:TokenHierarchy[TokenId]) :Int ={
+    def boundsEndOffset(th:TokenHierarchy[_]) :Int ={
         bindingScope.boundsEndOffset(th)
     }
 
-    def range(th:TokenHierarchy[TokenId]) :OffsetRange = {
+    def range(th:TokenHierarchy[_]) :OffsetRange = {
         bindingScope.range(th)
     }
 

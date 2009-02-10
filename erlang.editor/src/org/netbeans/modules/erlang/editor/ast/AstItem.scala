@@ -40,7 +40,6 @@ package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Collections, Set}
 import org.netbeans.api.lexer.Token
-import org.netbeans.api.lexer.TokenId
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, OffsetRange}
 import org.netbeans.modules.csl.spi.{ParserResult}
@@ -52,10 +51,10 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(aSymbol:GNode, aIdToken:Token[TokenId]) extends ForElementHandle {
+abstract class AstItem(aSymbol:GNode, aIdToken:Token[_]) extends ForElementHandle {
 
     protected def this(symbol:GNode) = this(symbol, null)
-    protected def this(idToken:Token[TokenId]) = this(null, idToken)
+    protected def this(idToken:Token[_]) = this(null, idToken)
     protected def this() = this(null, null)
 
     /**
@@ -65,7 +64,7 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[TokenId]) extends ForElemen
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private var _idToken :Option[Token[TokenId]] = _
+    private var _idToken :Option[Token[_]] = _
     private var _symbol :Option[GNode] = _
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
@@ -81,14 +80,14 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[TokenId]) extends ForElemen
     }
 
     def idToken = _idToken
-    def idToken_=(idToken:Token[TokenId]) = idToken match {
+    def idToken_=(idToken:Token[_]) = idToken match {
         case null => this._idToken = None
         case _ => this._idToken = Some(idToken); name = idToken.text.toString
     }
 
     def name = _name
     def name_=(name:String) = _name = name
-    def name_=(idToken:Token[TokenId]) = {
+    def name_=(idToken:Token[_]) = {
         if (idToken == null) {
             _name = "" // should not happen?
         }
@@ -116,14 +115,14 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[TokenId]) extends ForElemen
         this
     }
 
-    def idOffset(th:TokenHierarchy[TokenId]) = idToken match {
+    def idOffset(th:TokenHierarchy[_]) = idToken match {
         case None =>
             assert(false, getName + ": Should implement offset(th)")
             -1
         case Some(x) => x.offset(th)
     }
 
-    def idEndOffset(th:TokenHierarchy[TokenId]) :Int = idToken match {
+    def idEndOffset(th:TokenHierarchy[_]) :Int = idToken match {
         case None =>
             assert(false, name + ": Should implement getIdEndOffset(th)")
             -1

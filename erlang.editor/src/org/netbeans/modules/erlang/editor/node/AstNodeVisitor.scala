@@ -39,10 +39,12 @@
 package org.netbeans.modules.erlang.editor.node
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import org.netbeans.modules.csl.api.ElementKind
 
-import org.netbeans.modules.erlang.editor.ast.{AstVisitor}
+import org.netbeans.modules.erlang.editor.ast.{AstDef, AstItem, AstRef, AstRootScope, AstScope, AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
+import org.openide.filesystems.FileObject
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -56,6 +58,42 @@ import xtc.util.Pair
  *
  * @author Caoyuan Deng
  */
-class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) extends AstVisitor(rootNode, th) {
+class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
 
+    def visitS(that:GNode) = {
+        val formNodes = that.getList(0).iterator
+        while(formNodes.hasNext) {
+            visitForm(formNodes.next)
+        }
+    }
+
+    def visitForm(that:GNode) = {
+        enter(that)
+
+        val scope = new AstScope(rootScope.boundsTokens)
+        scopes.top.addScope(scope)
+
+        scopes.push(scope)
+        visitChildren(that)
+        
+        exit(that)
+        scopes.pop
+    }
+
+
+    def visitAttribute(that:GNode) = {
+        that.get(0) match {
+            case atomId:GNode =>
+                val attr = new AstDef(that, idToken(that), scopes.top, ElementKind.ATTRIBUTE, fo)
+                scopes.top.addDef(attr)
+        }
+    }
+
+    def visitFunction(that:GNode) = {
+
+    }
+
+    def visitRule(that:GNode) = {
+
+    }
 }

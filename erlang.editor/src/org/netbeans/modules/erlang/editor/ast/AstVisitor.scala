@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
 import xtc.tree.Annotation
 import xtc.tree.GNode
 import xtc.tree.Location
@@ -58,15 +58,15 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
  *
  * @author Caoyuan Deng
  */
-abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) extends Visitor {
+abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
 
-    val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode).asInstanceOf[Array[Token[TokenId]]])
+    val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode))
 
     private var indentLevel :Int = 0
     protected val astPath = new Stack[GNode]
-    protected val scopeStack = new Stack[AstScope]
+    protected val scopes = new Stack[AstScope]
 
-    scopeStack += rootScope
+    scopes += rootScope
 
     def visit(node:GNode) {
         enter(node)
@@ -154,7 +154,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
 
     // --- Token helpers
 
-    protected def boundsTokens(node:Node) :Array[Token[ErlangTokenId]] = {
+    protected def boundsTokens(node:Node) :Array[Token[_]] = {
         val loc = node.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
 
@@ -185,7 +185,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[ErlangTokenId]) exten
      * following void productions, but nameString has stripped the void productions,
      * so we should adjust nameRange according to name and its length.
      */
-    protected def idToken(idNode:Node) :Token[ErlangTokenId] = {
+    protected def idToken(idNode:Node) :Token[_] = {
         val loc = idNode.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
         ts.move(loc.offset)

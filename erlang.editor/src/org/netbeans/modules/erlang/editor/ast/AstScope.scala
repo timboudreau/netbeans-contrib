@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.erlang.editor.util.Sorter
@@ -52,7 +52,7 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
-class AstScope(boundsTokens:Array[Token[TokenId]]) {
+class AstScope(var boundsTokens:Array[Token[_]]) {
 
     if (boundsTokens != null) {
         assert(boundsTokens.length <= 2)
@@ -65,8 +65,8 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         }
     }
 
-    var boundsToken :Option[Token[TokenId]] = None
-    var boundsEndToken :Option[Token[TokenId]] = None
+    var boundsToken :Option[Token[_]] = None
+    var boundsEndToken :Option[Token[_]] = None
     var bindingDef :Option[AstDef] = None
     var parent :Option[AstScope] = None
     private var _subScopes :Option[ArrayBuffer[AstScope]] = None
@@ -83,16 +83,16 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
 
     def isScopesSorted :Boolean = scopesSorted
 
-    def range(th:TokenHierarchy[TokenId]) :OffsetRange = {
+    def range(th:TokenHierarchy[_]) :OffsetRange = {
         new OffsetRange(boundsOffset(th), boundsEndOffset(th))
     }
 
-    def boundsOffset(th:TokenHierarchy[TokenId]) :Int = boundsToken match {
+    def boundsOffset(th:TokenHierarchy[_]) :Int = boundsToken match {
         case None => -1
         case Some(x) => x.offset(th)
     }
 
-    def boundsEndOffset(th:TokenHierarchy[TokenId]) :Int = boundsEndToken match {
+    def boundsEndOffset(th:TokenHierarchy[_]) :Int = boundsEndToken match {
         case None => -1
         case Some(x) => x.offset(th) + x.length
     }
@@ -112,7 +112,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         case Some(x) => x
     }
 
-    protected def addScope(scope:AstScope) :Unit = {
+    def addScope(scope:AstScope) :Unit = {
         if (_subScopes == None) {
             _subScopes = Some(new ArrayBuffer)
         }
@@ -125,7 +125,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
      * @param def to be added
      * @retrun added successfully or not
      */
-    protected def addDef(adef:AstDef) :Boolean = adef.idToken match {
+    def addDef(adef:AstDef) :Boolean = adef.idToken match {
         case None => false
         case Some(x) =>
             /** @todo tempary solution */
@@ -171,7 +171,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
             true
     }
 
-    def findItemAt(th:TokenHierarchy[TokenId], offset:Int) :Option[AstItem] = {
+    def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
         // Always seach Ref first, since Ref can be included in Def's range
         for (xs <- _refs) {
             if (!refsSorted) {
@@ -236,7 +236,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         None
     }
 
-    def findItemAt(th:TokenHierarchy[TokenId], token:Token[TokenId]) :Option[AstItem] = {
+    def findItemAt(th:TokenHierarchy[_], token:Token[_]) :Option[AstItem] = {
         val offset = token.offset(th)
         // Always seach Ref first, since Ref can be included in Def's range
         for (xs <- _refs) {
@@ -305,7 +305,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         return None
     }
 
-    def findDefAt[T <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
+    def findDefAt[T <: AstDef](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T] = {
 
         for (xs <- _defs) {
             if (!defsSorted) {
@@ -350,7 +350,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         None
     }
     
-    def findRefAt[T <: AstRef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T] = {
+    def findRefAt[T <: AstRef](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T] = {
 
         for (xs <- _refs) {
             if (!refsSorted) {
@@ -494,11 +494,11 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         }
     }
 
-    private def contains(th:TokenHierarchy[TokenId], offset:Int) :Boolean = {
+    private def contains(th:TokenHierarchy[_], offset:Int) :Boolean = {
         offset >= boundsOffset(th) && offset < boundsEndOffset(th)
     }
 
-    def closestScope(th:TokenHierarchy[TokenId], offset:Int) :Option[AstScope] = _subScopes match {
+    def closestScope(th:TokenHierarchy[_], offset:Int) :Option[AstScope] = _subScopes match {
         case Some(xs) =>
             /** search children first */
             xs.find{_.contains(th, offset)} match {
@@ -528,7 +528,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         }
     }
 
-    def enclosinDef(kind:ElementKind, th:TokenHierarchy[TokenId], offset:Int) :Option[AstDef] = {
+    def enclosinDef(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDef] = {
         closestScope(th, offset) match {
             case None => None
             case Some(x) => x.enclosingDef(kind)
@@ -560,7 +560,7 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         }
     }
     
-    def enclosinDef[T <: AstDef](clazz:Class[T], th:TokenHierarchy[TokenId], offset:Int) :Option[T]= {
+    def enclosinDef[T <: AstDef](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T]= {
         closestScope(th, offset) match {
             case None => None
             case Some(x) => x.enclosingDef(clazz)
@@ -613,15 +613,15 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
 
     // ----- compare functions
 
-    private def compareScope(th:TokenHierarchy[TokenId], o1:AstScope, o2:AstScope) :Boolean = {
+    private def compareScope(th:TokenHierarchy[_], o1:AstScope, o2:AstScope) :Boolean = {
         o1.boundsOffset(th) < o2.boundsOffset(th)
     }
 
-    private def compareDef(th:TokenHierarchy[TokenId], o1:AstDef, o2:AstDef) :Boolean = {
+    private def compareDef(th:TokenHierarchy[_], o1:AstDef, o2:AstDef) :Boolean = {
         o1.idOffset(th) < o2.idOffset(th)
     }
 
-    private def compareRef(th:TokenHierarchy[TokenId], o1:AstRef, o2:AstRef) :Boolean = {
+    private def compareRef(th:TokenHierarchy[_], o1:AstRef, o2:AstRef) :Boolean = {
         o1.idOffset(th) < o2.idEndOffset(th)
     }
 }

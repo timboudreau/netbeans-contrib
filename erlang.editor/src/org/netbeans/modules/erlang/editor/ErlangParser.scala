@@ -272,7 +272,7 @@ class ErlangParser extends Parser {
         val analyzingTask = new Runnable {
             override
             def run :Unit = {
-                val visitor = new AstNodeVisitor(context.root, th.asInstanceOf[TokenHierarchy[ErlangTokenId]])
+                val visitor = new AstNodeVisitor(context.root, th, context.fo)
                 visitor.simpleVisit(context.root)
             }
         }

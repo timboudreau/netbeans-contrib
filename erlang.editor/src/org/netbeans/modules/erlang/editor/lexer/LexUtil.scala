@@ -11,12 +11,17 @@ import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 
+trait LexUtil {
+    implicit def TokenId2ErlangTokenId(ts:TokenSequence[_]) :TokenSequence[ErlangTokenId] = ts.asInstanceOf[TokenSequence[ErlangTokenId]]
+    implicit def ErlangTokenId2TokenId(ts:TokenSequence[ErlangTokenId]) :TokenSequence[TokenId] = ts.asInstanceOf[TokenSequence[TokenId]]
+}
+
 object LexUtil {
 
-    def tokenSequence(th:TokenHierarchy[ErlangTokenId], offset:Int) :Option[TokenSequence[ErlangTokenId]] = th.tokenSequence(ErlangTokenId.language) match {
+    def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[_]] = th.tokenSequence(ErlangTokenId.language) match {
         case null =>       
             // * Possibly an embedding scenario such as an RHTML file
-            def find(itr:_root_.java.util.Iterator[TokenSequence[_]]) :Option[TokenSequence[ErlangTokenId]] = itr.hasNext match {
+            def find(itr:_root_.java.util.Iterator[TokenSequence[_]]) :Option[TokenSequence[_]] = itr.hasNext match {
                 case true => itr.next match {
                         case ts if ts.language == ErlangTokenId.language => Some(ts)
                         case _ => find(itr)
@@ -32,86 +37,84 @@ object LexUtil {
         case ts => Some(ts)
     }
 
-    implicit def TokenId2ErlangTokenId(ts:TokenSequence[_]) :TokenSequence[ErlangTokenId] = ts.asInstanceOf[TokenSequence[ErlangTokenId]]
+    private def WS_COMMENT :List[TokenId] = List(ErlangTokenId.Ws,
+                                                 ErlangTokenId.Nl,
+                                                 ErlangTokenId.LineComment)
 
-    private def WS_COMMENT :List[ErlangTokenId] = List(ErlangTokenId.Ws,
-                                                       ErlangTokenId.Nl,
-                                                       ErlangTokenId.LineComment)
-
-    def findNextNonWsNonComment(ts:TokenSequence[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findNextNonWsNonComment(ts:TokenSequence[_]) :Token[_] = {
         findNext(ts, WS_COMMENT)
     }
 
-    def findPreviousNonWsNonComment(ts:TokenSequence[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findPreviousNonWsNonComment(ts:TokenSequence[_]) :Token[_] = {
         findPrevious(ts, WS_COMMENT)
     }
 
-    private val WS :List[ErlangTokenId] = List(ErlangTokenId.Ws,
-                                               ErlangTokenId.Nl)
+    private val WS :List[TokenId] = List(ErlangTokenId.Ws,
+                                         ErlangTokenId.Nl)
 
-    def findNextNonWs(ts:TokenSequence[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findNextNonWs(ts:TokenSequence[_]) :Token[_] = {
         findNext(ts, WS)
     }
 
-    def findPreviousNonWs(ts:TokenSequence[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findPreviousNonWs(ts:TokenSequence[_]) :Token[_] = {
         findPrevious(ts, WS)
     }
 
-    def findNext(ts:TokenSequence[ErlangTokenId], ignores:List[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findNext(ts:TokenSequence[_], ignores:List[TokenId]) :Token[_] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.moveNext && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrevious(ts:TokenSequence[ErlangTokenId], ignores:List[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findPrevious(ts:TokenSequence[_], ignores:List[TokenId]) :Token[_] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.movePrevious && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findNext(ts:TokenSequence[ErlangTokenId], id:ErlangTokenId) :Token[ErlangTokenId] = {
+    def findNext(ts:TokenSequence[_], id:TokenId) :Token[_] = {
         if (ts.token.id != id) {
             while (ts.moveNext && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIn(ts:TokenSequence[ErlangTokenId], includes:List[ErlangTokenId] ) :Token[ErlangTokenId] = {
+    def findNextIn(ts:TokenSequence[_], includes:List[TokenId] ) :Token[_] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.moveNext && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrev(ts:TokenSequence[ErlangTokenId], id:ErlangTokenId) :Token[ErlangTokenId] = {
+    def findPrev(ts:TokenSequence[_], id:TokenId) :Token[_] = {
         if (ts.token.id != id) {
             while (ts.movePrevious && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIncluding(ts:TokenSequence[ErlangTokenId], includes:List[ErlangTokenId] ) :Token[ErlangTokenId] = {
+    def findNextIncluding(ts:TokenSequence[_], includes:List[TokenId] ) :Token[_] = {
         while (ts.moveNext && !includes.contains(ts.token.id)) {}
         ts.token
     }
 
-    def findPrevIncluding(ts:TokenSequence[ErlangTokenId], includes:List[ErlangTokenId]) :Token[ErlangTokenId] = {
+    def findPrevIncluding(ts:TokenSequence[_], includes:List[TokenId]) :Token[_] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.movePrevious && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def skipParenthesis(ts:TokenSequence[ErlangTokenId]) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[TokenId]) :Boolean = {
         skipParenthesis(ts, false)
     }
 
     /**
      * Tries to skip parenthesis
      */
-    def skipParenthesis(ts:TokenSequence[ErlangTokenId], back:Boolean) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[TokenId], back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
@@ -159,7 +162,7 @@ object LexUtil {
     /**
      * Tries to skip parenthesis
      */
-    def skipPair(ts:TokenSequence[ErlangTokenId], left:ErlangTokenId, right:ErlangTokenId, back:Boolean) :Boolean = {
+    def skipPair(ts:TokenSequence[TokenId], left:TokenId, right:TokenId, back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
