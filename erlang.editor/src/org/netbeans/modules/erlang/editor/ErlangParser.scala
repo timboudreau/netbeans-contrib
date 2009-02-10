@@ -273,7 +273,7 @@ class ErlangParser extends Parser {
             override
             def run :Unit = {
                 val visitor = new AstNodeVisitor(context.root, th, context.fo)
-                visitor.simpleVisit(context.root)
+                visitor.visit(context.root)
             }
         }
 

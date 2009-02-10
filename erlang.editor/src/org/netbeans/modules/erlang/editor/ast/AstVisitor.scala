@@ -84,6 +84,13 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
         astPath.pop
     }
 
+    protected def visitNodeOnly(node:GNode) {
+        enter(node)
+        dispatch(node)
+        exit(node)
+    }
+
+
     protected def visitChildren(node:GNode) {
         val itr = node.iterator
         while (itr.hasNext) {

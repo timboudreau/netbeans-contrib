@@ -74,7 +74,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         scopes.top.addScope(scope)
 
         scopes.push(scope)
-        visitChildren(that)
+        visitNodeOnly(that.getGeneric(0))
         
         exit(that)
         scopes.pop
@@ -84,16 +84,41 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitAttribute(that:GNode) = {
         that.get(0) match {
             case atomId:GNode =>
-                val attr = new AstDef(that, idToken(that), scopes.top, ElementKind.ATTRIBUTE, fo)
+                val scope = new AstScope(boundsTokens(that))
+                scopes.top.addScope(scope)
+
+                val attr = new AstDef(that, idToken(that), scope, ElementKind.ATTRIBUTE, fo)
                 scopes.top.addDef(attr)
         }
     }
 
     def visitFunction(that:GNode) = {
+        visitFunctionClauses(that.getGeneric(0))
+    }
 
+    def visitFunctionClauses(that:GNode) = {
+        val fstClauseNode = that.getGeneric(0)
+        visitvisitFunctionClause(fstClauseNode)
+    }
+
+    def visitvisitFunctionClause(that:GNode) = {
+        val idNode = visitAtomId1(that.getGeneric(0))
+
+        val scope = new AstScope(boundsTokens(that))
+        scopes.top.addScope(scope)
+
+        val fun = new AstDef(that, idToken(idNode), scope, ElementKind.METHOD, fo)
+        scopes.top.addDef(fun)
     }
 
     def visitRule(that:GNode) = {
 
+    }
+
+    def visitAtomId1(that:GNode) :Node = {
+        that.getNode(0) match {
+            case atomId:GNode => atomId.getNode(0)
+            case sNode => sNode
+        }
     }
 }
