@@ -39,6 +39,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.action.PopupMenuActionTest",
         "test.action.SelectLockedActionTest",
         "test.action.WheelPanActionTest",
+        "test.alignwith.AlignCompositeWidgetTest",
         "test.alignwith.AlignWithClientAreaTest",
         "test.alignwith.AlignWithMoveGuideLinesTest",
         "test.alignwith.AlignWithTest",
