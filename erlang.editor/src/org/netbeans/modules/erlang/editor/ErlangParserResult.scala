@@ -40,8 +40,8 @@
  */
 package org.netbeans.modules.erlang.editor
 
+import javax.swing.text.Document
 import _root_.java.util.{Collections, ArrayList, List}
-import org.netbeans.api.lexer.{TokenHierarchy, TokenId}
 import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
@@ -57,8 +57,7 @@ import xtc.tree.{GNode}
 class ErlangParserResult(parser:ErlangParser,
                          val snapshot:Snapshot,
                          val rootNode:GNode,
-                         val rootScope:AstRootScope,
-                         val th:TokenHierarchy[_]
+                         val rootScope:AstRootScope
 ) extends ParserResult(snapshot) {
 
     override

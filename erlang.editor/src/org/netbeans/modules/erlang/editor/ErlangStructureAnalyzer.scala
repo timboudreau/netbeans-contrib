@@ -38,11 +38,11 @@
  */
 package org.netbeans.modules.erlang.editor;
 
-import _root_.java.util.{ArrayList, Collections, HashMap, List, Map, Set}
+import _root_.java.util.{ArrayList, Collections, HashMap, List, Map, Set, Stack}
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
@@ -60,6 +60,7 @@ import org.netbeans.modules.erlang.editor.ast.{AstDfn, AstRootScope, AstScope}
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
 import org.openide.util.Exceptions
 
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
@@ -78,14 +79,93 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 case rootScope =>
                     val items = new ArrayList[StructureItem](rootScope.dfns.size)
                     scanTopForms(rootScope, items, pResult)
-
-                    items;
+                    items
             }
     }
 
     override
-    def folds(result:ParserResult) :Map[String, List[OffsetRange]] = {
-        Collections.emptyMap[String, List[OffsetRange]]
+    def folds(result:ParserResult) :Map[String, List[OffsetRange]] = result match {
+        case null => Collections.emptyMap[String, List[OffsetRange]]
+        case pResult:ErlangParserResult =>
+            val rootScope = pResult.rootScope
+            if (rootScope == null) {
+                return Collections.emptyMap[String, List[OffsetRange]]
+            }
+
+            val doc = LexUtil.document(pResult, true) match {
+                case None => return Collections.emptyMap[String, List[OffsetRange]]
+                case Some(x) => x
+            }
+
+            val th = LexUtil.tokenHierarchy(pResult) match {
+                case None => return Collections.emptyMap[String, List[OffsetRange]]
+                case Some(x) => x
+            }
+
+            val folds = new HashMap[String, List[OffsetRange]]
+            val codefolds = new ArrayList[OffsetRange]
+            folds.put("codeblocks", codefolds); // NOI18N
+
+            // * Read-lock due to Token hierarchy use
+            doc.readLock
+
+            val ts = LexUtil.tokenSequence(th, 1).get
+
+            var lineCommentStart = 0
+            var lineCommentEnd = 0
+            var startLineCommentSet = false
+
+            val comments = new Stack[Array[Integer]]
+            val blocks = new Stack[Integer]
+
+            while (ts.isValid && ts.moveNext) {
+                val tk = ts.token.asInstanceOf[Token[_]]
+                tk.id match {
+                    case ErlangTokenId.LineComment =>
+                        val offset = ts.offset
+                        if (!startLineCommentSet) {
+                            lineCommentStart = offset
+                            startLineCommentSet = true
+                        }
+                        lineCommentEnd = offset
+
+                    case ErlangTokenId.Case | ErlangTokenId.If | ErlangTokenId.Try | ErlangTokenId.Receive =>
+                        val blockStart = ts.offset
+                        blocks.push(blockStart)
+
+                        startLineCommentSet = false
+                        
+                    case ErlangTokenId.End if !blocks.empty =>
+                        val blockStart = blocks.pop.asInstanceOf[Int]
+                        val blockRange = new OffsetRange(blockStart, ts.offset + tk.length)
+                        codefolds.add(blockRange)
+
+                        startLineCommentSet = false
+                    case _ =>
+                        startLineCommentSet = false
+                }
+            }
+
+            doc.readUnlock
+
+            try {
+                /** @see GsfFoldManager#addTree() for suitable fold names. */
+                lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
+
+                // same strategy here for the import statements: We have to have
+                // *more* than one line to fold them.
+
+                if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
+                    val lineCommentsFolds = new ArrayList[OffsetRange];
+                    val range = new OffsetRange(lineCommentStart, lineCommentEnd)
+                    lineCommentsFolds.add(range)
+                    folds.put("comments", lineCommentsFolds) // NOI18N
+                }
+            } catch {
+                case ex:BadLocationException => Exceptions.printStackTrace(ex)
+            }
+
+            folds
     }
 
     override
@@ -101,163 +181,50 @@ class ErlangStructureAnalyzer extends StructureScanner {
         }
     }
 
-    //    public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
-    //        ScalaParserResult pResult = AstUtilities.getParserResult(info);
-    //        if (pResult == null) {
-    //            return Collections.emptyMap();
-    //        }
-    //
-    //        AstRootScope rootScope = pResult.getRootScope();
-    //        if (rootScope == null) {
-    //            return Collections.emptyMap();
-    //        }
-    //
-    //        Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
-    //        List<OffsetRange> codefolds = new ArrayList<OffsetRange>();
-    //        folds.put("codeblocks", codefolds); // NOI18N
-    //
-    //        BaseDocument doc = (BaseDocument) info.getDocument();
-    //        if (doc == null) {
-    //            return Collections.emptyMap();
-    //        }
-    //
-    //        TokenHierarchy th = TokenHierarchy.get(doc);
-    //        if (th == null) {
-    //            return Collections.emptyMap();
-    //        }
-    //
-    //        // Read-lock due to Token hierarchy use
-    //        doc.readLock();
-    //
-    //        List<OffsetRange> commentfolds = new ArrayList<OffsetRange>();
-    //        TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, 1);
-    //
-    //        int importStart = 0;
-    //        int importEnd = 0;
-    //        boolean startImportSet = false;
-    //
-    //        Stack<Integer[]> comments = new Stack<Integer[]>();
-    //        Stack<Integer> blocks = new Stack<Integer>();
-    //
-    //        while (ts.isValid() && ts.moveNext()) {
-    //            Token tk = ts.token();
-    //            if (tk.id() == ScalaTokenId.Import) {
-    //                int offset = ts.offset();
-    //                if (!startImportSet) {
-    //                    importStart = offset;
-    //                    startImportSet = true;
-    //                }
-    //                importEnd = offset;
-    //            } else if (tk.id() == ScalaTokenId.BlockCommentStart || tk.id() == ScalaTokenId.DocCommentStart) {
-    //                int commentStart = ts.offset();
-    //                int commentLines = 0;
-    //                comments.push(new Integer[]{commentStart, commentLines});
-    //            } else if (tk.id() == ScalaTokenId.BlockCommentData || tk.id() == ScalaTokenId.DocCommentData) {
-    //                // does this block comment (per BlockCommentData/DocCommentData per line as lexer) span multiple lines?
-    //                comments.peek()[1] = comments.peek()[1] + 1;
-    //            } else if (tk.id() == ScalaTokenId.BlockCommentEnd || tk.id() == ScalaTokenId.DocCommentEnd) {
-    //                if (!comments.empty()) {
-    //                    Integer[] comment = comments.pop();
-    //                    if (comment[1] > 1) {
-    //                        // multiple lines
-    //                        OffsetRange commentRange = new OffsetRange(comment[0], ts.offset() + tk.length());
-    //                        commentfolds.add(commentRange);
-    //                    }
-    //                }
-    //            } else if (tk.id() == ScalaTokenId.LBrace) {
-    //                int blockStart = ts.offset();
-    //                blocks.push(blockStart);
-    //            } else if (tk.id() == ScalaTokenId.RBrace) {
-    //                if (!blocks.empty()) {
-    //                    int blockStart = blocks.pop();
-    //                    OffsetRange blockRange = new OffsetRange(blockStart, ts.offset() + tk.length());
-    //                    codefolds.add(blockRange);
-    //                }
-    //            }
-    //        }
-    //
-    //        doc.readUnlock();
-    //
-    //        try {
-    //            /** @see GsfFoldManager#addTree() for suitable fold names. */
-    //            importEnd = Utilities.getRowEnd(doc, importEnd);
-    //
-    //            // same strategy here for the import statements: We have to have
-    //            // *more* than one line to fold them.
-    //
-    //            if (Utilities.getRowCount(doc, importStart, importEnd) > 1) {
-    //                List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
-    //                OffsetRange range = new OffsetRange(importStart, importEnd);
-    //                importfolds.add(range);
-    //                folds.put("imports", importfolds); // NOI18N
-    //            }
-    //
-    //            folds.put("comments", commentfolds); // NOI18N
-    //        } catch (BadLocationException ex) {
-    //            Exceptions.printStackTrace(ex);
-    //        }
-    //
-    //        return folds;
-    //    }
 
     /**
      * Usage: addFolds(doc, rootScope.getDefs(), th, folds, codefolds);
      * @Note: needs precise end offset of each defs or scopes
      * Do we need folding code according to AST tree?, it seems lex LBrace/RBrace pair is enough */
-    //    private void addFolds(BaseDocument doc, List<? extends AstDef> defs, TokenHierarchy th,
-    //                          Map<String, List<OffsetRange>> folds, List<OffsetRange> codeblocks) throws BadLocationException {
-    //
-    //        for (AstDef def : defs) {
-    //            if (def.getSymbol().isPrimaryConstructor()) {
-    //                // don't fold primary constructor
-    //                continue;
-    //            }
-    //
-    //            ElementKind kind = def.getKind();
-    //            switch (kind) {
-    //                case FIELD:
-    //                case METHOD:
-    //                case CONSTRUCTOR:
-    //                case CLASS:
-    //                case MODULE:
-    //
-    //                    OffsetRange range = AstUtilities.getRange(th, def);
-    //                    System.out.println("floder:" + range + "def: " + def);
-    //
-    //                    //System.out.println("### range: " + element + ", " + range.getStart() + ", " + range.getLength());
-    //
-    //                    if (kind == ElementKind.METHOD || kind == ElementKind.CONSTRUCTOR ||
-    //                        (kind == ElementKind.FIELD) ||
-    //                        // Only make nested classes/modules foldable, similar to what the java editor is doing
-    //                        (range.getStart() > Utilities.getRowStart(doc, range.getStart())) && kind != ElementKind.FIELD) {
-    //
-    //                        int start = range.getStart();
-    //                        // Start the fold at the END of the line behind last non-whitespace, remove curly brace, if any
-    //                        start = Utilities.getRowLastNonWhite(doc, start);
-    //                        if (doc.getChars(start, 1)[0] != '{') {
-    //                            start++;
-    //                        }
-    //                        int end = range.getEnd();
-    //                        if (start != -1 && end != -1 && start < end && end <= doc.getLength()) {
-    //                            range = new OffsetRange(start, end);
-    //                            codeblocks.add(range);
-    //                        }
-    //                    }
-    //                    break;
-    //            }
-    //
-    //            List<? extends AstDef> children = def.getBindingScope().getDefs();
-    //
-    //            if (children != null && children.size() > 0) {
-    //                addFolds(doc, children, th, folds, codeblocks);
-    //            }
-    //        }
-    //    }
-
-    private class ErlangStructureItem(val dfn:AstDfn, info:ErlangParserResult) extends StructureItem {
+    @throws(classOf[BadLocationException])
+    private def addFolds(pResult:ErlangParserResult, doc:BaseDocument, defs:ArrayBuffer[AstDfn] , th:TokenHierarchy[_],
+                         folds:Map[String, List[OffsetRange]], codeblocks:List[OffsetRange]) :Unit = {
         import ElementKind._
+        
+        for (dfn <- defs) {
+            val kind = dfn.getKind
+            kind match {
+                case FIELD | METHOD | CONSTRUCTOR | CLASS | MODULE =>
+                    var range = dfn.getOffsetRange(pResult)
+    
+                    //System.out.println("### range: " + element + ", " + range.getStart() + ", " + range.getLength());
+                    if (kind == ElementKind.METHOD || kind == ElementKind.ATTRIBUTE || kind == ElementKind.FIELD ||
+                        // Only make nested classes/modules foldable, similar to what the java editor is doing
+                        (range.getStart > Utilities.getRowStart(doc, range.getStart)) && kind != ElementKind.FIELD) {
+    
+                        var start = range.getStart
+                        // Start the fold at the END of the line behind last non-whitespace, remove curly brace, if any
+                        start = Utilities.getRowLastNonWhite(doc, start)
+                        if (doc.getChars(start, 3)(0) != '{') {
+                            start += 1
+                        }
+                        val end = range.getEnd
+                        if (start != -1 && end != -1 && start < end && end <= doc.getLength()) {
+                            range = new OffsetRange(start, end)
+                            codeblocks.add(range);
+                        }
+                    }
+            }
+    
+            val children = dfn.bindingScope.dfns
+            if (children.size > 0) {
+                addFolds(pResult, doc, children, th, folds, codeblocks);
+            }
+        }
+    }
 
-        private val doc:Document = info.snapshot.getSource.getDocument(false)
+    private class ErlangStructureItem(val dfn:AstDfn, pResult:ParserResult) extends StructureItem {
+        import ElementKind._
 
         override
         def getName :String = dfn.getName
@@ -267,8 +234,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
         override
         def getHtml(formatter:HtmlFormatter) :String = {
-            formatter.reset
-            formatter.appendText(getName);
+            dfn.htmlFormat(formatter)
             formatter.getText
         }
 
@@ -293,14 +259,13 @@ class ErlangStructureAnalyzer extends StructureScanner {
         override
         def getNestedItems : List[StructureItem] = {
             val nested = dfn.bindingScope.dfns
-
             if (nested.size > 0) {
                 val children = new ArrayList[StructureItem](nested.size)
 
                 for (child <- nested) {
                     child.kind match {
                         case PARAMETER | VARIABLE | OTHER =>
-                        case _ => children.add(new ErlangStructureItem(child, info))
+                        case _ => children.add(new ErlangStructureItem(child, pResult))
                     }
                 }
 
@@ -319,8 +284,10 @@ class ErlangStructureAnalyzer extends StructureScanner {
              * is performed. Therefore, you need to make sure doc != null. (TN)
              */
             try {
-                val th = TokenHierarchy.get(doc)
-                dfn.boundsOffset(th)
+                LexUtil.tokenHierarchy(pResult) match {
+                    case None => 0
+                    case Some(th) => dfn.boundsOffset(th)
+                }
             } catch {
                 case ex:Exception => 0
             }
@@ -328,10 +295,12 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
         override
         def getEndPosition :Long = {
-            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig */
+            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't know why, need further dig */
             try {
-                val th = TokenHierarchy.get(doc)
-                dfn.boundsEndOffset(th)
+                LexUtil.tokenHierarchy(pResult) match {
+                    case None => 0
+                    case Some(th) => dfn.boundsEndOffset(th)
+                }
             } catch {
                 case ex:Exception => 0
             }

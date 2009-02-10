@@ -8,7 +8,9 @@
 package org.netbeans.modules.erlang.editor.lexer
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
-
+import org.netbeans.modules.csl.spi.ParserResult
+import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 
 trait LexUtil {
@@ -18,8 +20,38 @@ trait LexUtil {
 
 object LexUtil {
 
+    def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
+        case null => None
+        case _ => document(pResult.getSnapshot, forceOpen)
+    }
+
+    def document(snapshot:Snapshot, forceOpen:Boolean) :Option[BaseDocument] = snapshot match {
+        case null => None
+        case _ => snapshot.getSource.getDocument(forceOpen) match {
+                case doc:BaseDocument => Some(doc)
+                case _ => None
+            }
+    }
+
+    def tokenHierarchy(snapshot:Snapshot) :Option[TokenHierarchy[_]] = document(snapshot, false) match {
+        // * try get th from BaseDocument first, if it has been opened, th should has been there
+        case doc:BaseDocument => TokenHierarchy.get(doc) match {
+                case null => None
+                case th => Some(th)
+            }
+        case _ => TokenHierarchy.create(snapshot.getText, ErlangTokenId.language) match {
+                case null => None
+                case th => Some(th)
+            }
+    }
+
+    def tokenHierarchy(pResult:ParserResult) :Option[TokenHierarchy[_]] = pResult match {
+        case null => null
+        case _ => tokenHierarchy(pResult.getSnapshot)
+    }
+
     def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[_]] = th.tokenSequence(ErlangTokenId.language) match {
-        case null =>       
+        case null =>
             // * Possibly an embedding scenario such as an RHTML file
             def find(itr:_root_.java.util.Iterator[TokenSequence[_]]) :Option[TokenSequence[_]] = itr.hasNext match {
                 case true => itr.next match {

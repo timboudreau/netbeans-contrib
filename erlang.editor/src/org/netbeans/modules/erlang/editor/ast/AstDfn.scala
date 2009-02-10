@@ -47,6 +47,8 @@ import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.filesystems.FileObject
 
+import org.netbeans.modules.erlang.editor.lexer.LexUtil
+
 import scala.collection.mutable.ArrayBuffer
 
 import xtc.tree.{GNode}
@@ -87,8 +89,11 @@ class AstDfn(aSymbol:GNode,
     }
 
     override
-    def getOffsetRange(result:ParserResult) :OffsetRange = {
-        OffsetRange.NONE
+    def getOffsetRange(pResult:ParserResult) :OffsetRange = {
+        LexUtil.tokenHierarchy(pResult) match {
+            case None => OffsetRange.NONE
+            case Some(th) => new OffsetRange(boundsOffset(th), boundsEndOffset(th))
+        }        
     }
 
     def tpe :String = {
@@ -101,7 +106,7 @@ class AstDfn(aSymbol:GNode,
         } else new ArrayBuffer
     }
 
-    def enclosingDef :Option[AstDfn] = enclosingScope.get.bindingDfn
+    def enclosingDfn :Option[AstDfn] = enclosingScope.get.bindingDfn
 
     override
     def toString = {

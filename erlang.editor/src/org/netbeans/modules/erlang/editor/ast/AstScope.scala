@@ -54,6 +54,9 @@ import xtc.tree.{GNode}
  */
 class AstScope(var boundsTokens:Array[Token[_]]) {
 
+    var boundsToken :Option[Token[_]] = None
+    var boundsEndToken :Option[Token[_]] = None
+    
     if (boundsTokens != null) {
         assert(boundsTokens.length <= 2)
         boundsTokens.length match {
@@ -65,8 +68,6 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         }
     }
 
-    var boundsToken :Option[Token[_]] = None
-    var boundsEndToken :Option[Token[_]] = None
     var bindingDfn :Option[AstDfn] = None
     var parent :Option[AstScope] = None
     private var _subScopes :Option[ArrayBuffer[AstScope]] = None
