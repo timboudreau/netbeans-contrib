@@ -47,13 +47,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.csl.api.{ElementHandle,
-                                     ElementKind,
-                                     HtmlFormatter,
-                                     Modifier,
-                                     OffsetRange,
-                                     StructureItem,
-                                     StructureScanner}
+import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, HtmlFormatter, Modifier, OffsetRange, StructureItem, StructureScanner}
 import org.netbeans.modules.csl.api.StructureScanner._
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.erlang.editor.ast.{AstDfn, AstRootScope, AstScope}
@@ -68,8 +62,8 @@ import scala.collection.mutable.ArrayBuffer
  */
 class ErlangStructureAnalyzer extends StructureScanner {
 
-    val NETBEANS_IMPORT_FILE = "__netbeans_import__"; // NOI18N
-    val DOT_CALL = ".call"; // NOI18N
+    override
+    def getConfiguration :Configuration = null
 
     override
     def scan(result:ParserResult) :List[StructureItem] = result match {
@@ -81,6 +75,16 @@ class ErlangStructureAnalyzer extends StructureScanner {
                     scanTopForms(rootScope, items, pResult)
                     items
             }
+    }
+
+    private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
+        for (dfn <- scope.dfns) {
+            dfn.getKind match {
+                case ElementKind.ATTRIBUTE | ElementKind.METHOD => items.add(new ErlangStructureItem(dfn, pResult))
+                case _ =>
+            }
+            scanTopForms(dfn.bindingScope, items, pResult)
+        }
     }
 
     override
@@ -102,6 +106,11 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 case Some(x) => x
             }
 
+            val ts = LexUtil.tokenSequence(th, 1) match {
+                case None => return Collections.emptyMap[String, List[OffsetRange]]
+                case Some(x) => x
+            }
+
             val folds = new HashMap[String, List[OffsetRange]]
             val codefolds = new ArrayList[OffsetRange]
             folds.put("codeblocks", codefolds); // NOI18N
@@ -109,7 +118,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
             // * Read-lock due to Token hierarchy use
             doc.readLock
 
-            val ts = LexUtil.tokenSequence(th, 1).get
+            addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
 
             var lineCommentStart = 0
             var lineCommentEnd = 0
@@ -119,8 +128,8 @@ class ErlangStructureAnalyzer extends StructureScanner {
             val blocks = new Stack[Integer]
 
             while (ts.isValid && ts.moveNext) {
-                val tk = ts.token.asInstanceOf[Token[_]]
-                tk.id match {
+                val token = ts.token.asInstanceOf[Token[_]]
+                token.id match {
                     case ErlangTokenId.LineComment =>
                         val offset = ts.offset
                         if (!startLineCommentSet) {
@@ -137,7 +146,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
                         
                     case ErlangTokenId.End if !blocks.empty =>
                         val blockStart = blocks.pop.asInstanceOf[Int]
-                        val blockRange = new OffsetRange(blockStart, ts.offset + tk.length)
+                        val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
                         codefolds.add(blockRange)
 
                         startLineCommentSet = false
@@ -152,9 +161,6 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 /** @see GsfFoldManager#addTree() for suitable fold names. */
                 lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
 
-                // same strategy here for the import statements: We have to have
-                // *more* than one line to fold them.
-
                 if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
                     val lineCommentsFolds = new ArrayList[OffsetRange];
                     val range = new OffsetRange(lineCommentStart, lineCommentEnd)
@@ -168,58 +174,28 @@ class ErlangStructureAnalyzer extends StructureScanner {
             folds
     }
 
-    override
-    def getConfiguration :Configuration = null
-
-    private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
-        for (dfn <- scope.dfns) {
-            dfn.getKind match {
-                case ElementKind.ATTRIBUTE | ElementKind.METHOD => items.add(new ErlangStructureItem(dfn, pResult))
-                case _ =>
-            }
-            scanTopForms(dfn.bindingScope, items, pResult)
-        }
-    }
-
-
-    /**
-     * Usage: addFolds(doc, rootScope.getDefs(), th, folds, codefolds);
-     * @Note: needs precise end offset of each defs or scopes
-     * Do we need folding code according to AST tree?, it seems lex LBrace/RBrace pair is enough */
     @throws(classOf[BadLocationException])
-    private def addFolds(pResult:ErlangParserResult, doc:BaseDocument, defs:ArrayBuffer[AstDfn] , th:TokenHierarchy[_],
-                         folds:Map[String, List[OffsetRange]], codeblocks:List[OffsetRange]) :Unit = {
+    private def addCodeFolds(pResult:ErlangParserResult, doc:BaseDocument, defs:ArrayBuffer[AstDfn], codeblocks:List[OffsetRange]) :Unit = {
         import ElementKind._
-        
+       
         for (dfn <- defs) {
             val kind = dfn.getKind
             kind match {
-                case FIELD | METHOD | CONSTRUCTOR | CLASS | MODULE =>
+                case FIELD | METHOD | CONSTRUCTOR | CLASS | MODULE | ATTRIBUTE =>
                     var range = dfn.getOffsetRange(pResult)
-    
-                    //System.out.println("### range: " + element + ", " + range.getStart() + ", " + range.getLength());
-                    if (kind == ElementKind.METHOD || kind == ElementKind.ATTRIBUTE || kind == ElementKind.FIELD ||
-                        // Only make nested classes/modules foldable, similar to what the java editor is doing
-                        (range.getStart > Utilities.getRowStart(doc, range.getStart)) && kind != ElementKind.FIELD) {
-    
-                        var start = range.getStart
-                        // Start the fold at the END of the line behind last non-whitespace, remove curly brace, if any
-                        start = Utilities.getRowLastNonWhite(doc, start)
-                        if (doc.getChars(start, 3)(0) != '{') {
-                            start += 1
-                        }
-                        val end = range.getEnd
-                        if (start != -1 && end != -1 && start < end && end <= doc.getLength()) {
-                            range = new OffsetRange(start, end)
-                            codeblocks.add(range);
-                        }
+                    var start = range.getStart
+                    // * start the fold at the end of the line behind last non-whitespace, should add 1 to start after "->"
+                    start = Utilities.getRowLastNonWhite(doc, start) + 1
+                    val end = range.getEnd
+                    if (start != -1 && end != -1 && start < end && end <= doc.getLength) {
+                        range = new OffsetRange(start, end)
+                        codeblocks.add(range)
                     }
+                case _ =>
             }
     
             val children = dfn.bindingScope.dfns
-            if (children.size > 0) {
-                addFolds(pResult, doc, children, th, folds, codeblocks);
-            }
+            addCodeFolds(pResult, doc, children, codeblocks)
         }
     }
 
@@ -250,10 +226,9 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
         override
         def isLeaf :Boolean = dfn.getKind match {
-            case CONSTRUCTOR | METHOD | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
-            case PACKAGE => true // the enclosed defs should has been processed in scanTopTmpls
             case MODULE | CLASS => false
-            case _ => throw new RuntimeException("Unhandled kind: " + dfn.getKind)
+            case CONSTRUCTOR | METHOD | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+            case _ => true
         }
 
         override
@@ -270,40 +245,27 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 }
 
                 children
-            } else {
-                Collections.emptyList[StructureItem]
-            }
+            } else Collections.emptyList[StructureItem]            
         }
 
         override
         def getPosition :Long = {
-            /**
-             * @Todo: TokenHierarchy.get(doc) may throw NPE, don't know why, need further dig
-             * NOTE - CompilationInfo.getDocument() can return null - this generally happens when documents
-             * are closed or deleted while (a slower) parse tree related task such as navigation/folding
-             * is performed. Therefore, you need to make sure doc != null. (TN)
-             */
             try {
                 LexUtil.tokenHierarchy(pResult) match {
                     case None => 0
                     case Some(th) => dfn.boundsOffset(th)
                 }
-            } catch {
-                case ex:Exception => 0
-            }
+            } catch {case ex:Exception => 0}
         }
 
         override
         def getEndPosition :Long = {
-            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't know why, need further dig */
             try {
                 LexUtil.tokenHierarchy(pResult) match {
                     case None => 0
                     case Some(th) => dfn.boundsEndOffset(th)
                 }
-            } catch {
-                case ex:Exception => 0
-            }
+            } catch {case ex:Exception => 0}
         }
 
         override
