@@ -107,9 +107,4 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitRule(that:GNode) = {
 
     }
-
-    private def idNode(that:Node) :Node = that.get(0) match {
-        case _:String => that
-        case node:Node => idNode(node)
-    }
 }

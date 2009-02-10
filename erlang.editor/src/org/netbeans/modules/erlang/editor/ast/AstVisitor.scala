@@ -187,6 +187,11 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
         Array(startToken, endToken)
     }
 
+    protected def idNode(that:Node) :Node = that.get(0) match {
+        case _:String => that
+        case node:Node => idNode(node)
+    }
+
     /**
      * @Note: nameNode may contains preceding void productions, and may also contains
      * following void productions, but nameString has stripped the void productions,
