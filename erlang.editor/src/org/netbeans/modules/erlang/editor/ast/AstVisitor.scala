@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 
-import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
+import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 import xtc.tree.Annotation
 import xtc.tree.GNode
 import xtc.tree.Location
@@ -219,7 +219,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
             token
         }
     }
-
+    
     protected def astPathString :String = {
         val sb = new StringBuilder
 

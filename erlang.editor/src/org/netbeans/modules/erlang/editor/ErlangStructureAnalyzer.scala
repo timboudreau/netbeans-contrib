@@ -128,7 +128,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
             val blocks = new Stack[Integer]
 
             while (ts.isValid && ts.moveNext) {
-                val token = ts.token.asInstanceOf[Token[_]]
+                val token = ts.token
                 token.id match {
                     case ErlangTokenId.LineComment =>
                         val offset = ts.offset
@@ -220,7 +220,6 @@ class ErlangStructureAnalyzer extends StructureScanner {
         override
         def getKind :ElementKind = dfn.getKind
         
-
         override
         def getModifiers :Set[Modifier] = dfn.getModifiers
 
@@ -278,10 +277,8 @@ class ErlangStructureAnalyzer extends StructureScanner {
         override
         def hashCode :Int = {
             var hash = 7
-
             hash = (29 * hash) + (if (getName != null) getName.hashCode else 0)
             hash = (29 * hash) + (if (dfn.getKind != null) dfn.getKind.hashCode else 0)
-
             hash
         }
 
