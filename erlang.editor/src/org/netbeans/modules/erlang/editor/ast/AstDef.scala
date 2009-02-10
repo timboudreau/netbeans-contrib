@@ -39,7 +39,6 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Set, HashSet}
-import com.ericsson.otp.erlang.OtpErlangObject
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.HtmlFormatter
@@ -50,6 +49,8 @@ import org.openide.filesystems.FileObject
 
 import scala.collection.mutable.ArrayBuffer
 
+import xtc.tree.{GNode}
+
 /**
  * AST Definition
  * 
@@ -59,7 +60,7 @@ import scala.collection.mutable.ArrayBuffer
  * 
  * @author Caoyuan Deng
  */
-class AstDef(aSymbol:OtpErlangObject,
+class AstDef(aSymbol:GNode,
              pickToken:Token[TokenId],
              private var _bindingScope:AstScope,
              var kind:ElementKind,

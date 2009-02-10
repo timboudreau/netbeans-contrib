@@ -38,9 +38,9 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import com.ericsson.otp.erlang.OtpErlangObject
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.csl.api.ElementKind
+import xtc.tree.{GNode}
 
 /**
  * Mirror with AstNode information
@@ -49,7 +49,7 @@ import org.netbeans.modules.csl.api.ElementKind
  * 
  * @author Caoyuan Deng
  */
-class AstRef(symbol:OtpErlangObject, idToken:Token[TokenId]) extends AstItem(symbol, idToken) {
+class AstRef(symbol:GNode, idToken:Token[TokenId]) extends AstItem(symbol, idToken) {
 
     override
     def getKind :ElementKind = {

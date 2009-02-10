@@ -38,8 +38,9 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import com.ericsson.otp.erlang.OtpErlangObject
 import org.netbeans.modules.csl.api.ElementHandle
+import xtc.tree.{GNode}
+
 
 /**
  *
@@ -47,7 +48,7 @@ import org.netbeans.modules.csl.api.ElementHandle
  */
 trait AstElementHandle extends ElementHandle {
 
-    def symbol :Option[OtpErlangObject]
+    def symbol :Option[GNode]
 
     def tpe :String
     

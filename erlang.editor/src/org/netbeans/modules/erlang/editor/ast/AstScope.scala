@@ -38,13 +38,15 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import com.ericsson.otp.erlang.OtpErlangObject
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.erlang.editor.util.Sorter
 
 import scala.collection.mutable.ArrayBuffer
+
+import xtc.tree.{GNode}
+
 
 /**
  *
@@ -574,12 +576,12 @@ class AstScope(boundsTokens:Array[Token[TokenId]]) {
         case _ => None
     }
 
-    def findDefMatched(symbol:OtpErlangObject) :Option[AstDef] = {
+    def findDefMatched(symbol:GNode) :Option[AstDef] = {
         val name = symbol.toString
         findDefMatchedDownside(name, symbol, defs)
     }
 
-    private def findDefMatchedDownside(name:String, symbol:OtpErlangObject, defs:ArrayBuffer[AstDef]) :Option[AstDef] = {
+    private def findDefMatchedDownside(name:String, symbol:GNode, defs:ArrayBuffer[AstDef]) :Option[AstDef] = {
         for (aDef <- defs) {
             val mySymbol = aDef.symbol
             //            if (symbol.isType()) {

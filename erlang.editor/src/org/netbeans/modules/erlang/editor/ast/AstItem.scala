@@ -39,7 +39,6 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Collections, Set}
-import com.ericsson.otp.erlang.OtpErlangObject
 import org.netbeans.api.lexer.Token
 import org.netbeans.api.lexer.TokenId
 import org.netbeans.api.lexer.TokenHierarchy
@@ -47,14 +46,15 @@ import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, Offse
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.netbeans.modules.erlang.editor.ErlangMimeResolver
 import org.openide.filesystems.{FileObject}
+import xtc.tree.{GNode}
 
 /**
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(aSymbol:OtpErlangObject, aIdToken:Token[TokenId]) extends ForElementHandle {
+abstract class AstItem(aSymbol:GNode, aIdToken:Token[TokenId]) extends ForElementHandle {
 
-    protected def this(symbol:OtpErlangObject) = this(symbol, null)
+    protected def this(symbol:GNode) = this(symbol, null)
     protected def this(idToken:Token[TokenId]) = this(null, idToken)
     protected def this() = this(null, null)
 
@@ -66,7 +66,7 @@ abstract class AstItem(aSymbol:OtpErlangObject, aIdToken:Token[TokenId]) extends
      *    will return null when an Identifier token modified, seems sync issue
      */
     private var _idToken :Option[Token[TokenId]] = _
-    private var _symbol :Option[OtpErlangObject] = _
+    private var _symbol :Option[GNode] = _
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
@@ -75,7 +75,7 @@ abstract class AstItem(aSymbol:OtpErlangObject, aIdToken:Token[TokenId]) extends
     symbol  = aSymbol
     
     def symbol = _symbol
-    def symbol_=(symbol:OtpErlangObject) = symbol match {
+    def symbol_=(symbol:GNode) = symbol match {
         case null => this._symbol = None
         case _ => this._symbol = Some(symbol)
     }
