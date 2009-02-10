@@ -195,17 +195,17 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
     protected def idToken(idNode:Node) :Token[_] = {
         val loc = idNode.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
+        
         ts.move(loc.offset)
         if (!ts.moveNext && !ts.movePrevious) {
             assert(false, "Should not happen!")
         }
 
-        val name = idNode.getString(0).trim
-        val token = name match {
+        val token = idNode.getName match {
             case "MacroId" => LexUtil.findNext(ts, ErlangTokenId.Macro)
-            case "AtomId"  => LexUtil.findNext(ts, ErlangTokenId.Atom)
-            case "VarId"   => LexUtil.findNext(ts, ErlangTokenId.Var)
             case "RecId"   => LexUtil.findNext(ts, ErlangTokenId.Rec)
+            case "Atom"    => LexUtil.findNext(ts, ErlangTokenId.Atom)
+            case "Var"     => LexUtil.findNext(ts, ErlangTokenId.Var)
         }
 
         if (token.isFlyweight) {

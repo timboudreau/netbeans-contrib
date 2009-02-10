@@ -60,14 +60,14 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstDef(aSymbol:GNode,
+class AstDfn(aSymbol:GNode,
              pickToken:Token[_],
              private var _bindingScope:AstScope,
              var kind:ElementKind,
              var fo:FileObject ) extends AstItem(aSymbol, pickToken) with AstElementHandle {
 
     if (_bindingScope != null) {
-        _bindingScope.bindingDef = Some(this)
+        _bindingScope.bindingDfn = Some(this)
     }
 
     private var modifiers :Set[Modifier] = _
@@ -95,13 +95,13 @@ class AstDef(aSymbol:GNode,
         null
     }
 
-    def enclosedElements :ArrayBuffer[AstDef] = {
+    def enclosedElements :ArrayBuffer[AstDfn] = {
         if (_bindingScope != null) {
-            _bindingScope.defs
+            _bindingScope.dfns
         } else new ArrayBuffer
     }
 
-    def enclosingDef :Option[AstDef] = enclosingScope.get.bindingDef
+    def enclosingDef :Option[AstDfn] = enclosingScope.get.bindingDfn
 
     override
     def toString = {
@@ -135,8 +135,8 @@ class AstDef(aSymbol:GNode,
         } else false
     }
 
-    def mayEqual(aDef:AstDef) :Boolean = {
-        this == aDef
+    def mayEqual(dfn:AstDfn) :Boolean = {
+        this == dfn
         //return getName().equals(def.getName())
     }
 

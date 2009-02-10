@@ -127,9 +127,9 @@
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.editor.ErlangLanguage"/>
                 </file>
-            <!--file name="structure.instance">
-               <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
-            </file-->
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.editor.ErlangStructureAnalyzer"/>
+                </file>
             </folder>
         </folder>
     </folder>

@@ -74,14 +74,17 @@ class ErlangLanguage extends DefaultLanguageConfig {
     def getLexerLanguage = ErlangTokenId.language
 
     override
-    def getLineCommentPrefix = "%"
+    def getLineCommentPrefix = "%" // NOI18N
  
     override
-    def getDisplayName :String =  "Erlang"
+    def getDisplayName :String =  "Erlang" // NOI18N
     
     override
     def getPreferredExtension :String = "erl" // NOI18N
     
     override
     def getParser = new ErlangParser
+
+    override
+    def getStructureScanner = new ErlangStructureAnalyzer
 }

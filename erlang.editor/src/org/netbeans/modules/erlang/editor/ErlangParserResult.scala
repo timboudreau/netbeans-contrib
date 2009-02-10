@@ -46,6 +46,7 @@ import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.erlang.editor.ast.AstRootScope
 import org.netbeans.modules.erlang.editor.rats.ParserErlang
 import xtc.tree.{GNode}
 
@@ -54,9 +55,11 @@ import xtc.tree.{GNode}
  * @author Caoyuan Deng
  */
 class ErlangParserResult(parser:ErlangParser,
-                         snapshot:Snapshot,
+                         val snapshot:Snapshot,
                          val rootNode:GNode,
-                         val th:TokenHierarchy[_]) extends ParserResult(snapshot) {
+                         val rootScope:AstRootScope,
+                         val th:TokenHierarchy[_]
+) extends ParserResult(snapshot) {
 
     override
     protected def invalidate :Unit = {

@@ -76,6 +76,7 @@ import org.netbeans.modules.editor.NbEditorUtilities
 import xtc.parser.{ParseError, SemanticValue}
 import xtc.tree.{GNode, Location}
 
+import org.netbeans.modules.erlang.editor.ast.AstRootScope
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.rats.ParserErlang
@@ -274,6 +275,7 @@ class ErlangParser extends Parser {
             def run :Unit = {
                 val visitor = new AstNodeVisitor(context.root, th, context.fo)
                 visitor.visit(context.root)
+                context.rootScope = visitor.rootScope
             }
         }
 
@@ -294,7 +296,7 @@ class ErlangParser extends Parser {
     }
 
     private def createParseResult(context:Context) :ErlangParserResult = {
-        new ErlangParserResult(this, context.snapshot, context.root, context.th)
+        new ErlangParserResult(this, context.snapshot, context.root, context.rootScope, context.th)
     }
 
     /** Parsing context */
@@ -305,6 +307,7 @@ class ErlangParser extends Parser {
         var caretOffset :Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
 
         var root :GNode = _
+        var rootScope :AstRootScope = _
         var th :TokenHierarchy[_] = _
         var parser :ParserErlang = _
         var errorOffset :Int = _

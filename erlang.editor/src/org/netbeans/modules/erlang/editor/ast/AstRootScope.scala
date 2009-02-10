@@ -82,7 +82,7 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
             true
         case Some(exsitOne) =>
             // if existOne is def and with narrow visible than new one, replace it
-            if (item.isInstanceOf[AstDef]) {
+            if (item.isInstanceOf[AstDfn]) {
                 _idTokenToItem.put(idToken, item)
                 tokensSorted = false
                 true

@@ -41,7 +41,7 @@ package org.netbeans.modules.erlang.editor.node
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 import org.netbeans.modules.csl.api.ElementKind
 
-import org.netbeans.modules.erlang.editor.ast.{AstDef, AstItem, AstRef, AstRootScope, AstScope, AstVisitor}
+import org.netbeans.modules.erlang.editor.ast.{AstDfn, AstItem, AstRef, AstRootScope, AstScope, AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
 import org.openide.filesystems.FileObject
@@ -70,8 +70,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitForm(that:GNode) = {
         enter(that)
 
-        val scope = new AstScope(rootScope.boundsTokens)
-        scopes.top.addScope(scope)
+        val scope = new AstScope(boundsTokens(that))
+        rootScope.addScope(scope)
 
         scopes.push(scope)
         visitNodeOnly(that.getGeneric(0))
@@ -84,11 +84,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitAttribute(that:GNode) = {
         that.get(0) match {
             case atomId:GNode =>
-                val scope = new AstScope(boundsTokens(that))
-                scopes.top.addScope(scope)
-
-                val attr = new AstDef(that, idToken(that), scope, ElementKind.ATTRIBUTE, fo)
-                scopes.top.addDef(attr)
+                val attr = new AstDfn(that, idToken(idNode(atomId)), scopes.top, ElementKind.ATTRIBUTE, fo)
+                rootScope.addDfn(attr)
         }
     }
 
@@ -98,27 +95,21 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitFunctionClauses(that:GNode) = {
         val fstClauseNode = that.getGeneric(0)
-        visitvisitFunctionClause(fstClauseNode)
+        visitFunctionClause(fstClauseNode)
     }
 
-    def visitvisitFunctionClause(that:GNode) = {
-        val idNode = visitAtomId1(that.getGeneric(0))
-
-        val scope = new AstScope(boundsTokens(that))
-        scopes.top.addScope(scope)
-
-        val fun = new AstDef(that, idToken(idNode), scope, ElementKind.METHOD, fo)
-        scopes.top.addDef(fun)
+    def visitFunctionClause(that:GNode) = {
+        val id = idNode(that.getGeneric(0))
+        val fun = new AstDfn(that, idToken(id), scopes.top, ElementKind.METHOD, fo)
+        rootScope.addDfn(fun)
     }
 
     def visitRule(that:GNode) = {
 
     }
 
-    def visitAtomId1(that:GNode) :Node = {
-        that.getNode(0) match {
-            case atomId:GNode => atomId.getNode(0)
-            case sNode => sNode
-        }
+    private def idNode(that:Node) :Node = that.get(0) match {
+        case _:String => that
+        case node:Node => idNode(node)
     }
 }

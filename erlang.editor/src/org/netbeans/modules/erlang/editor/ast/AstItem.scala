@@ -131,8 +131,8 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[_]) extends ForElementHandl
 
     def binaryName = name
 
-    def enclosingDef[T <: AstDef](clazz:Class[T]) :Option[T] = {
-        enclosingScope.get.enclosingDef(clazz)
+    def enclosingDef[T <: AstDfn](clazz:Class[T]) :Option[T] = {
+        enclosingScope.get.enclosingDfn(clazz)
     }
 
     /**
