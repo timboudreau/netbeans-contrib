@@ -13,12 +13,34 @@ import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 
-trait LexUtil {
-    implicit def TokenId2ErlangTokenId(ts:TokenSequence[_]) :TokenSequence[ErlangTokenId] = ts.asInstanceOf[TokenSequence[ErlangTokenId]]
-    implicit def ErlangTokenId2TokenId(ts:TokenSequence[ErlangTokenId]) :TokenSequence[TokenId] = ts.asInstanceOf[TokenSequence[TokenId]]
+object LexUtil extends BaseLexUtil[TokenId]
+
+/**
+ * Special functions for ErlangTokenId
+ */
+trait LanguageLexUtil {
+    protected val language = ErlangTokenId.language
+
+    protected val WS = Set(ErlangTokenId.Ws,
+                           ErlangTokenId.Nl)
+
+    protected val WS_COMMENT = Set(ErlangTokenId.Ws,
+                                   ErlangTokenId.Nl,
+                                   ErlangTokenId.LineComment)
+
+    def isWs(id:TokenId) = id == ErlangTokenId.Ws
+    def isNl(id:TokenId) = id == ErlangTokenId.Nl
+
+    def isComment(id:TokenId) :Boolean = id match {
+        case ErlangTokenId.LineComment => true
+        case _ => false
+    }
+
+    protected val LPAREN = ErlangTokenId.LParen
+    protected val RPAREN = ErlangTokenId.RParen
 }
 
-object LexUtil {
+trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
 
     def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
         case null => None
@@ -39,7 +61,7 @@ object LexUtil {
                 case null => None
                 case th => Some(th)
             }
-        case _ => TokenHierarchy.create(snapshot.getText, ErlangTokenId.language) match {
+        case _ => TokenHierarchy.create(snapshot.getText, language) match {
                 case null => None
                 case th => Some(th)
             }
@@ -50,103 +72,99 @@ object LexUtil {
         case _ => tokenHierarchy(pResult.getSnapshot)
     }
 
-    def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[_]] = th.tokenSequence(ErlangTokenId.language) match {
+    def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[T]] = th.tokenSequence(language) match {
         case null =>
             // * Possibly an embedding scenario such as an RHTML file
-            def find(itr:_root_.java.util.Iterator[TokenSequence[_]]) :Option[TokenSequence[_]] = itr.hasNext match {
+            def find(itr:_root_.java.util.Iterator[TokenSequence[T]]) :Option[TokenSequence[T]] = itr.hasNext match {
                 case true => itr.next match {
-                        case ts if ts.language == ErlangTokenId.language => Some(ts)
+                        case ts if ts.language == language => Some(ts)
                         case _ => find(itr)
                     }
                 case false => None
             }
          
             // * First try with backward bias true
-            find(th.embeddedTokenSequences(offset, true).iterator) match {
-                case None => find(th.embeddedTokenSequences(offset, false).iterator)
+            val itr1 = th.embeddedTokenSequences(offset, true).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[T]]]
+            find(itr1) match {
+                case None =>
+                    val itr2 = th.embeddedTokenSequences(offset, false).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[T]]]
+                    find(itr2)
                 case x => x
             }
-        case ts => Some(ts)
+        case ts => Some(ts.asInstanceOf[TokenSequence[T]])
     }
 
-    private def WS_COMMENT :List[TokenId] = List(ErlangTokenId.Ws,
-                                                 ErlangTokenId.Nl,
-                                                 ErlangTokenId.LineComment)
-
-    def findNextNonWsNonComment(ts:TokenSequence[_]) :Token[_] = {
-        findNext(ts, WS_COMMENT)
+    def findNextNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {
+        findNext(ts, WS_COMMENT.asInstanceOf[Set[T]])
     }
 
-    def findPreviousNonWsNonComment(ts:TokenSequence[_]) :Token[_] = {
-        findPrevious(ts, WS_COMMENT)
+    def findPreviousNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {
+        findPrevious(ts, WS_COMMENT.asInstanceOf[Set[T]])
     }
 
-    private val WS :List[TokenId] = List(ErlangTokenId.Ws,
-                                         ErlangTokenId.Nl)
-
-    def findNextNonWs(ts:TokenSequence[_]) :Token[_] = {
-        findNext(ts, WS)
+    def findNextNonWs(ts:TokenSequence[T]) :Token[T] = {
+        findNext(ts, WS.asInstanceOf[Set[T]])
     }
 
-    def findPreviousNonWs(ts:TokenSequence[_]) :Token[_] = {
-        findPrevious(ts, WS)
+    def findPreviousNonWs(ts:TokenSequence[T]) :Token[T] = {
+        findPrevious(ts, WS.asInstanceOf[Set[T]])
     }
 
-    def findNext(ts:TokenSequence[_], ignores:List[TokenId]) :Token[_] = {
+    def findNext(ts:TokenSequence[T], ignores:Set[T]) :Token[T] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.moveNext && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrevious(ts:TokenSequence[_], ignores:List[TokenId]) :Token[_] = {
+    def findPrevious(ts:TokenSequence[T], ignores:Set[T]) :Token[T] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.movePrevious && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findNext(ts:TokenSequence[_], id:TokenId) :Token[_] = {
+    def findNext(ts:TokenSequence[T], id:T) :Token[T] = {
         if (ts.token.id != id) {
             while (ts.moveNext && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIn(ts:TokenSequence[_], includes:List[TokenId] ) :Token[_] = {
+    def findNextIn(ts:TokenSequence[T], includes:Set[T] ) :Token[T] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.moveNext && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrev(ts:TokenSequence[_], id:TokenId) :Token[_] = {
+    def findPrev(ts:TokenSequence[T], id:T) :Token[T] = {
         if (ts.token.id != id) {
             while (ts.movePrevious && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIncluding(ts:TokenSequence[_], includes:List[TokenId] ) :Token[_] = {
+    def findNextIncluding(ts:TokenSequence[T], includes:Set[T] ) :Token[T] = {
         while (ts.moveNext && !includes.contains(ts.token.id)) {}
         ts.token
     }
 
-    def findPrevIncluding(ts:TokenSequence[_], includes:List[TokenId]) :Token[_] = {
+    def findPrevIncluding(ts:TokenSequence[T], includes:Set[T]) :Token[_] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.movePrevious && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def skipParenthesis(ts:TokenSequence[TokenId]) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[T]) :Boolean = {
         skipParenthesis(ts, false)
     }
 
     /**
      * Tries to skip parenthesis
      */
-    def skipParenthesis(ts:TokenSequence[TokenId], back:Boolean) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[T], back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
@@ -162,7 +180,7 @@ object LexUtil {
         }
 
         // if current token is not parenthesis
-        if (ts.token.id != (if (back) ErlangTokenId.RParen else ErlangTokenId.LParen)) {
+        if (ts.token.id != (if (back) RPAREN else LPAREN)) {
             return false
         }
 
@@ -170,9 +188,9 @@ object LexUtil {
             token = ts.token
             id = token.id
 
-            if (id == (if (back) ErlangTokenId.RParen else ErlangTokenId.LParen)) {
+            if (id == (if (back) RPAREN else LPAREN)) {
                 balance += 1
-            } else if (id == (if (back) ErlangTokenId.LParen else ErlangTokenId.RParen)) {
+            } else if (id == (if (back) LPAREN else RPAREN)) {
                 balance match {
                     case 0 =>
                         return false
@@ -194,7 +212,7 @@ object LexUtil {
     /**
      * Tries to skip parenthesis
      */
-    def skipPair(ts:TokenSequence[TokenId], left:TokenId, right:TokenId, back:Boolean) :Boolean = {
+    def skipPair(ts:TokenSequence[T], left:T, right:T, back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
@@ -239,15 +257,6 @@ object LexUtil {
         false
     }
 
-    def isWsComment(id:TokenId) :Boolean = id match {
-        case ErlangTokenId.Ws | ErlangTokenId.Nl => true
-        case _ if isComment(id) => true
-        case _ => false
-    }
-
-    def isComment(id:TokenId) :Boolean = id match {
-        case ErlangTokenId.LineComment => true
-        case _ => false
-    }
-
+    def isWsComment(id:T) :Boolean = isWs(id) || isNl(id) || isComment(id)
 }
+
