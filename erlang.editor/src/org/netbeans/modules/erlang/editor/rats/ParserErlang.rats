@@ -295,7 +295,7 @@ transient generic FunctionCall = Expr800 ArgumentList ;
 
 transient generic IfExpr = void:"if":k IfClauses END_E;
 
-transient generic IfClauses = IfClause ( SEMI_E IfClauses )* ;
+transient generic IfClauses = IfClause ( SEMI_E IfClause )* ;
 
 transient generic IfClause = Guard ClauseBody ;
 
@@ -317,7 +317,7 @@ generic FunExpr =
 / void:"fun":k FunClauses END_E
 ;
 
-transient generic FunClauses = FunClause ( SEMI_E FunClauses )? ;
+transient generic FunClauses = FunClause ( SEMI_E FunClause )? ;
 
 transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
 
@@ -344,7 +344,7 @@ transient generic QueryExpr = void:"query":s ListComprehension END_E ;
 / void:"(":s Exprs void:")":s
 ;
 
-transient generic Exprs = Expr ( COMMA_E Expr )* ;
+transient generic Exprs = Expr ( COMMA_E_IN_EXPRS Expr )* ;
 
 transient generic Guard = Exprs ( SEMI_E Exprs )* ;
 

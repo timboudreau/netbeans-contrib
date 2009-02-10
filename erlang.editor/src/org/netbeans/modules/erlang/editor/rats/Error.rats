@@ -76,7 +76,7 @@ transient void COMMA = void:",":s ;
 void COMMA_E =
   COMMA
 / SKIP !( void:"catch":k )
-  &( TypedExpr
+  &( TypedExprs ( SEMI / STOP / END )
    / TypeGuard
    / TopType
    / FieldType
@@ -84,8 +84,13 @@ void COMMA_E =
    / BinElement
    / LcExpr
    / RecordField
-   / Expr
    ) SKIP { error("',' expected", yyStart); }
+;
+void COMMA_E_IN_EXPRS =
+  COMMA
+/ SKIP !( void:"catch":k ) 
+  &( Exprs ( SEMI / STOP / END ) )
+  SKIP { error("',' expected", yyStart); }
 ;
 
 transient void SEMI = void:";":s ;
@@ -94,9 +99,9 @@ transient void SEMI_E =
 / SKIP !( void:"catch":k )
   &( TypeSig
    / FunctionClause
-   / IfClauses
+   / IfClause
    / CrClause
-   / FunClauses
+   / FunClause
    / TryClause
    / Exprs
    / RuleClause
