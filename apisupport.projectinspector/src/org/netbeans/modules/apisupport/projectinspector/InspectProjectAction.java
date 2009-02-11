@@ -372,12 +372,17 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
             pw.println("Recommended templates:");
             for (String template : pt.getPrivilegedTemplates()) {
                 pw.print("  " + template);
-                FileObject fo = FileUtil.getConfigFile(template);
+                final FileObject fo = FileUtil.getConfigFile(template);
                 if (fo != null) {
-                    String displayName = DataObject.find(fo).getNodeDelegate().getDisplayName();
-                    if (!displayName.equals(fo.getName())) {
-                        pw.print(" (\"" + displayName + "\")");
-                    }
+                    final DataObject d = DataObject.find(fo);
+                    EventQueue.invokeAndWait(new Runnable() {
+                        public void run() {
+                            String displayName = d.getNodeDelegate().getDisplayName();
+                            if (!displayName.equals(fo.getName())) {
+                                pw.print(" (\"" + displayName + "\")");
+                            }
+                        }
+                    });
                 }
                 pw.println();
             }
