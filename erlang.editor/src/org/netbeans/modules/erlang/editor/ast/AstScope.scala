@@ -627,3 +627,14 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
     }
 }
 
+object AstScope {
+    // * Sinleton EmptyScope
+    val EMPTY_SCOPE = new AstScope(Array()) {
+        override
+        def boundsOffset(th:TokenHierarchy[_]) = -1
+
+        override
+        def boundsEndOffset(th:TokenHierarchy[_]) = -1
+    }
+}
+

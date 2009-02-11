@@ -262,7 +262,7 @@ class ErlangParser extends Parser {
                     visitor.visit(context.root)
                     context.rootScope = visitor.rootScope
                 } catch {
-                    case _ =>
+                    case ex:Throwable => ex.printStackTrace
                 } finally {
                     for (x <- doc) {x.readUnlock}
                 }

@@ -224,15 +224,15 @@ generic ExprMax =
 / ListComprehension
 / BinaryComprehension
 / Tuple
-/ void:"(":s Expr void:")":s
-/ void:"begin":k Exprs END_E
+/ void:"(":s Expr void:")":s @ParenExpr
+/ void:"begin":k Exprs END_E @BeginExpr
 / IfExpr
 / CaseExpr
 / ReceiveExpr
 / FunExpr
 / TryExpr
 / QueryExpr
-/ MacroId ( void:"(":s Exprs? void:")":s )?
+/ MacroId ( void:"(":s Exprs? void:")":s )? @MacroExpr
 ;
 
 generic List =

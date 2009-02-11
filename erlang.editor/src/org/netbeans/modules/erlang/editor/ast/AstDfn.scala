@@ -114,7 +114,7 @@ class AstDfn(aSymbol:GNode,
     }
 
     def bindingScope :AstScope = {
-        assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
+        assert(_bindingScope != null, name + ": Each definition should set binding scope!")
         _bindingScope
     }
 

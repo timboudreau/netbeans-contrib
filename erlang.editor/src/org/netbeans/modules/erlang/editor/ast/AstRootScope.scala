@@ -128,14 +128,3 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
         o1.offset(th) < o2.offset(th)
     }
 }
-
-object AstRootScope {
-    // * Sinleton EmptyScope
-    val emptyScope = new AstRootScope(Array()) {
-        override
-        def boundsOffset(th:TokenHierarchy[_]) = -1
-
-        override
-        def boundsEndOffset(th:TokenHierarchy[_]) = -1
-    }
-}
