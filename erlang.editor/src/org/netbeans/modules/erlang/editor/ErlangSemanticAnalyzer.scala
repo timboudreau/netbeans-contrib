@@ -87,14 +87,12 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
 
         for (rootScope <- pResult.rootScope;
              th <- LexUtil.tokenHierarchy(pResult);
-             doc = LexUtil.document(pResult, true)
+             doc <- LexUtil.document(pResult, true)
         ) {
             var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
             visitItems(th.asInstanceOf[TokenHierarchy[TokenId]], rootScope, highlights)
 
-            this.semanticHighlights = if (highlights.size > 0) {
-                highlights
-            } else null
+            this.semanticHighlights = if (highlights.size > 0) highlights else null
         }
     }
 
