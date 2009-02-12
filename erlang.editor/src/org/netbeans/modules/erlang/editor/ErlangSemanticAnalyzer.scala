@@ -77,43 +77,39 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
 
     @throws(classOf[Exception])
     override
-    def run(result:ErlangParserResult, event:SchedulerEvent) :Unit = {
+    def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
         resume
         semanticHighlights = null
-        
-        result match {
-            case null => return
-            case pResult:ErlangParserResult =>
-                if (isCancelled) {
-                    return
-                }
 
-                if (isCancelled) {
-                    return
-                }
-
-                val rootScope = pResult.rootScope
-                if (rootScope == null) {
-                    return
-                }
-
-                val th = LexUtil.tokenHierarchy(pResult) match {
-                    case None => return
-                    case Some(x) => x
-                }
-
-                val doc = LexUtil.document(pResult, true) match {
-                    case None => return
-                    case Some(x) => x
-                }
-
-                var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-                visitItems(th, rootScope, highlights)
-
-                this.semanticHighlights = if (highlights.size > 0) {
-                    highlights
-                } else null
+        if (pResult == null) {
+            return
         }
+
+        if (isCancelled) {
+            return
+        }
+
+        val rootScope = pResult.rootScope
+        if (rootScope == null) {
+            return
+        }
+
+        val th = LexUtil.tokenHierarchy(pResult) match {
+            case None => return
+            case Some(x) => x
+        }
+
+        val doc = LexUtil.document(pResult, true) match {
+            case None => return
+            case Some(x) => x
+        }
+
+        var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
+        visitItems(th, rootScope, highlights)
+
+        this.semanticHighlights = if (highlights.size > 0) {
+            highlights
+        } else null
     }
 
     private def visitItems(th:TokenHierarchy[TokenId], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {

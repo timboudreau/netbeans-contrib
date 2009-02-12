@@ -184,10 +184,13 @@ generic Expr =
 ;
 
 generic Expr100 =
-  Expr150 void:"=":s Expr100
-/ Expr150 void:"!":s Expr100
+  MatchExpr
+/ SendExpr
 / Expr150
 ;
+
+transient generic MatchExpr = Expr150 void:"=":s Expr100 ;
+transient generic SendExpr  = Expr150 void:"!":s Expr100 ;
 
 transient generic Expr150 = Expr160 ( void:"orelse" :k Expr150 )?  ;
 

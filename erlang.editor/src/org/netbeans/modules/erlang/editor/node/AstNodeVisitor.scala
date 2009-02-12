@@ -205,12 +205,28 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     }
 
     def visitExpr100(that:GNode) :Unit = {
+        val n = that.getGeneric(0)
+        n.getName match {
+            case "MatchExpr" => visitMatchExpr(n)
+            case "SendExpr" => visitSendExpr(n)
+            case "Expr150" => visitExpr150(n)
+        }
+    }
+
+    def visitMatchExpr(that:GNode) :Unit = {
+        val expr150 = that.getGeneric(0)
+        inVarDefs.push(ElementKind.VARIABLE)
+        visitExpr150(expr150)
+        inVarDefs.pop
+        val expr100 = that.getGeneric(1)
+        visitExpr100(expr100)
+    }
+
+    def visitSendExpr(that:GNode) = {
         val expr150 = that.getGeneric(0)
         visitExpr150(expr150)
-        if (that.size == 2) {
-            val expr100 = that.getGeneric(1)
-            visitExpr100(expr100)
-        }
+        val expr100 = that.getGeneric(1)
+        visitExpr100(expr100)
     }
 
     def visitExpr150(that:GNode) :Unit = {
@@ -577,9 +593,9 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitTryExpr(that:GNode) = {
         val exprs = that.getGeneric(0)
         visitExprs(exprs)
-        val crClause = that.getGeneric(1)
-        if (crClause != null) {
-            visitCrClause(crClause)
+        val crClauses = that.getGeneric(1)
+        if (crClauses != null) {
+            visitCrClauses(crClauses)
         }
         val tryCatch = that.getGeneric(2)
         visitTryCatch(tryCatch)
