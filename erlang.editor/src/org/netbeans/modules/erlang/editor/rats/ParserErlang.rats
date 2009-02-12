@@ -321,7 +321,7 @@ generic FunExpr =
 / void:"fun":k FunClauses END_E
 ;
 
-transient generic FunClauses = FunClause ( SEMI_E FunClause )? ;
+transient generic FunClauses = FunClause ( SEMI_E FunClause )* ;
 
 transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
 

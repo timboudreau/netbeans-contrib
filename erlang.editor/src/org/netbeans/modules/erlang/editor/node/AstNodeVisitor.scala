@@ -61,13 +61,14 @@ import xtc.util.Pair
 class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
 
     private val inVarDefs = new Stack[ElementKind]
-    private var inFunctionCallName = false
+    private var inFunctionCallNames = new Stack[Boolean]
+    inFunctionCallNames.push(false)
     private var isFunctionCallName = false
 
     override
     def visit(that:GNode) = {
-        val formNodes :Pair[GNode] = that.getList(0)
-        loopPair(formNodes){n =>
+        val forms :Pair[GNode] = that.getList(0)
+        loopPair(forms){n =>
             visitForm(n)
         }
     }
@@ -133,8 +134,6 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         
         scopes.pop
     }
-
-    def visitAtomId1(that:GNode) = {}
 
     def visitTypeSpec(that:GNode) = {}
 
@@ -293,10 +292,10 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         val exprMax = that.getGeneric(1)
         if (exprMax != null) {
             // * functionCallName is exprMax rather than expr900
-            if (inFunctionCallName) {
-                inFunctionCallName = false
+            if (inFunctionCallNames.top) {
+                inFunctionCallNames.push(false)
                 visitExpr900(expr900)
-                inFunctionCallName = true
+                inFunctionCallNames.pop
             } else {
                 visitExpr900(expr900)
             }
@@ -324,9 +323,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         n.getName match {
             case "VarId" => visitVarId(n)
             case "Atomic" => 
-                if (inFunctionCallName) {isFunctionCallName = true}
+                if (inFunctionCallNames.top) {
+                    isFunctionCallName = true
+                }
                 visitAtomic(n)
-                if (inFunctionCallName) {isFunctionCallName = false}
+                isFunctionCallName = false
             case "List" => visitList(n)
             case "Binary" => visitBinary(n)
             case "ListComprehension" => visitListComprehension(n)
@@ -400,13 +401,37 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitBitsizeExpr(that:GNode) = {}
 
-    def visitListComprehension(that:GNode) = {}
+    def visitListComprehension(that:GNode) = {
+        val expr = that.getGeneric(0)
+        visitExpr(expr)
+        val lcExprs = that.getGeneric(1)
+        visitLcExprs(lcExprs)
+    }
 
     def visitBinaryComprehension(that:GNode) = {}
 
-    def visitLcExprs(that:GNode) = {}
+    def visitLcExprs(that:GNode) = {
+        val lcExpr = that.getGeneric(0)
+        visitLcExpr(lcExpr)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitLcExpr(n)
+        }
+    }
 
-    def visitLcExpr(that:GNode) = {}
+    def visitLcExpr(that:GNode) = {
+        val n = that.getGeneric(0)
+        inVarDefs.push(ElementKind.VARIABLE)
+        n.getName match {
+            case "Binary" => visitBinary(n)
+            case "Expr" => visitExpr(n)
+        }
+        inVarDefs.pop
+        val expr = that.getGeneric(1)
+        if (expr != null) {
+            visitExpr(expr)
+        }
+    }
 
     def visitTuple(that:GNode) = that.size match {
         case 0 =>
@@ -425,9 +450,9 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitFunctionCall(that:GNode) = {
         val expr800 = that.getGeneric(0)
-        inFunctionCallName = true
+        inFunctionCallNames.push(true)
         visitExpr800(expr800)
-        inFunctionCallName = false
+        inFunctionCallNames.pop
         val args = that.getGeneric(1)
         visitArgumentList(args)
     }
@@ -438,8 +463,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     }
 
     def visitIfClauses(that:GNode) = {
-        val n0 = that.getGeneric(0)
-        visitIfClause(n0)
+        val ifClause = that.getGeneric(0)
+        visitIfClause(ifClause)
         val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             visitIfClause(n)
@@ -482,23 +507,136 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         visitClauseBody(clauseBody)
     }
 
-    def visitReceiveExpr(that:GNode) = {}
+    def visitReceiveExpr(that:GNode) = that.size match {
+        case 1 =>
+            val crClauses = that.getGeneric(0)
+            visitCrClauses(crClauses)
+        case 2 =>
+            val expr = that.getGeneric(0)
+            visitExpr(expr)
+            val clauseBody = that.getGeneric(1)
+            visitClauseBody(clauseBody)
+        case 3 =>
+            val crClauses = that.getGeneric(0)
+            visitCrClauses(crClauses)
+            val expr = that.getGeneric(1)
+            visitExpr(expr)
+            val clauseBody = that.getGeneric(2)
+            visitClauseBody(clauseBody)
+    }
 
-    def visitFunExpr(that:GNode) = {}
+    def visitFunExpr(that:GNode) = that.size match {
+        case 1 =>
+            val funClauses = that.getGeneric(0)
+            visitFunClauses(funClauses)
+        case 2 =>
+            val callName = that.getGeneric(0)
+            callName.getName match {
+                case "AtomId1" =>
+                    isFunctionCallName = true
+                    visitAtomId1(callName)
+                    isFunctionCallName = false
+                case "MacroId" =>
+            }
+            val arity = that.getGeneric(1)
+            arity
+        case 3 =>
+            val remoteName = that.getGeneric(0)
+            val callName = that.getGeneric(1)
+            callName.getName match {
+                case "AtomId1" =>
+                    isFunctionCallName = true
+                    visitAtomId1(callName)
+                    isFunctionCallName = false
+                case "MacroId" =>
+            }
+            val arity = that.getGeneric(2)
+            arity
+    }
 
-    def visitFunClauses(that:GNode) = {}
+    def visitFunClauses(that:GNode) = {
+        val funClause = that.getGeneric(0)
+        visitFunClause(funClause)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitFunClause(n)
+        }
+    }
 
-    def visitFunClause(that:GNode) = {}
+    def visitFunClause(that:GNode) = {
+        val args = that.getGeneric(0)
+        visitArgumentList(args)
+        val clauseGuard = that.getGeneric(1)
+        if (clauseGuard != null) {
+            visitClauseGuard(clauseGuard)
+        }
+        val clauseBody = that.getGeneric(2)
+        visitClauseBody(clauseBody)
+    }
 
-    def visitTryExpr(that:GNode) = {}
+    def visitTryExpr(that:GNode) = {
+        val exprs = that.getGeneric(0)
+        visitExprs(exprs)
+        val crClause = that.getGeneric(1)
+        if (crClause != null) {
+            visitCrClause(crClause)
+        }
+        val tryCatch = that.getGeneric(2)
+        visitTryCatch(tryCatch)
+    }
 
-    def visitTryCatch(that:GNode) = {}
+    def visitTryCatch(that:GNode) = that.size match {
+        case 1 =>
+            val exprs = that.getGeneric(0)
+            visitExprs(exprs)
+        case 2 =>
+            val tryClauses = that.getGeneric(0)
+            visitTryClauses(tryClauses)
+            val exprs = that.getGeneric(1)
+            if (exprs != null) {
+                visitExprs(exprs)
+            }
+    }
 
-    def visitTryClauses(that:GNode) = {}
+    def visitTryClauses(that:GNode) = {
+        val tryClause = that.getGeneric(0)
+        visitTryClause(tryClause)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitTryClause(n)
+        }
+    }
 
-    def visitTryClause(that:GNode) = {}
+    def visitTryClause(that:GNode) = that.size match {
+        case 3 =>
+            val expr = that.getGeneric(0)
+            visitExpr(expr)
+            val clauseGuard = that.getGeneric(1)
+            if (clauseGuard != null) {
+                visitClauseGuard(clauseGuard)
+            }
+            val clauseBody = that.getGeneric(2)
+            visitClauseBody(clauseBody)
+        case 4 =>
+            val id = that.getGeneric(0)
+            id.getName match {
+                case "AtomId1" => visitAtomId1(id)
+                case "VarId" => visitVarId(id)
+            }
+            val expr = that.getGeneric(1)
+            visitExpr(expr)
+            val clauseGuard = that.getGeneric(2)
+            if (clauseGuard != null) {
+                visitClauseGuard(clauseGuard)
+            }
+            val clauseBody = that.getGeneric(3)
+            visitClauseBody(clauseBody)
+    }
 
-    def visitQueryExpr(that:GNode) = {}
+    def visitQueryExpr(that:GNode) = {
+        val lc = that.getGeneric(0)
+        visitListComprehension(lc)
+    }
 
     def visitArgumentList(that:GNode) = {
         val exprs = that.getGeneric(0)
@@ -516,15 +654,20 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitGuard(that:GNode) = {}
+    def visitGuard(that:GNode) = {
+        val exprs = that.getGeneric(0)
+        visitExprs(exprs)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitExprs(n)
+        }
+    }
 
     def visitAtomic(that:GNode) = {
         val n = that.getGeneric(0)
-        if (n.getName.equals("AtomId1")) {
-            if (isFunctionCallName) {
-                val ref = new AstRef(that, idToken(idNode(n)), ElementKind.METHOD)
-                scopes.top.addRef(ref)
-            }
+        n.getName match {
+            case "AtomId1" => visitAtomId1(n)
+            case _ =>
         }
     }
 
@@ -537,6 +680,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitRuleClause(that:GNode) = {}
 
     def visitRuleBody(that:GNode) = {}
+
+    def visitAtomId1(that:GNode) = {
+        if (isFunctionCallName) {
+            val ref = new AstRef(that, idToken(idNode(that)), ElementKind.METHOD)
+            scopes.top.addRef(ref)
+        }
+    }
 
     def visitVarId(that:GNode) = {
         val scope = scopes.top
