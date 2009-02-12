@@ -65,4 +65,40 @@ made subject to such option by the copyright holder.
     <fontcolor name="Macro" default="identifier" foreColor="2E92C7"/>
     <fontcolor name="Var" default="field" foreColor="009B00"/>
     <fontcolor name="Rec" default="identifier" foreColor="2E92C7"/>
+
+    <!--"semantic" highlighting:-->
+    <fontcolor name="mod-parameter">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-method" underline="000000"/> <!-- function dfn -->
+    <fontcolor name="mod-unused" waveUnderlined="999999"/>
+    <fontcolor name="mod-abstract" />
+    <fontcolor name="mod-field" foreColor="000000"> <!-- function ref -->
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-local-variable" />
+    <fontcolor name="mod-constructor" >
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-class" underline="000000">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-static" foreColor="2E92C7"/>
+    <fontcolor name="mod-global" foreColor="bc8f8f"> 
+        <font style="italic" />
+    </fontcolor>
+    <fontcolor name="mod-interface" foreColor="009B00"> 
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="mod-annotation-type" />
+    <fontcolor name="mod-enum" />
+    <fontcolor name="mod-deprecated" strikeThrough="404040" />
+
+    <fontcolor name="mod-private" />
+    <fontcolor name="mod-package-private" />
+    <fontcolor name="mod-protected" />
+    <fontcolor name="mod-public" />
+
+    <fontcolor name="mod-regexp" foreColor="9933CC" />
+
 </fontscolors>

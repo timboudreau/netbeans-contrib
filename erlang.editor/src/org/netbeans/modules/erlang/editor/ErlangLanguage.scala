@@ -90,4 +90,7 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getStructureScanner = new ErlangStructureAnalyzer
+
+    override
+    def getSemanticAnalyzer = new ErlangSemanticAnalyzer
 }

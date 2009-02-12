@@ -49,12 +49,12 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstRef(symbol:GNode, idToken:Token[_]) extends AstItem(symbol, idToken) {
+class AstRef(symbol:GNode, idToken:Token[_], kind:ElementKind) extends AstItem(symbol, idToken, kind) {
 
+    def this(symbol:GNode, idToken:Token[_]) = this(symbol, idToken, ElementKind.OTHER)
+    
     override
-    def getKind :ElementKind = {
-        ElementKind.OTHER
-    }
+    def getKind :ElementKind = kind
 
     def isOccurence(ref:AstRef) :Boolean = {
         if (ref.name.equals(name)) {

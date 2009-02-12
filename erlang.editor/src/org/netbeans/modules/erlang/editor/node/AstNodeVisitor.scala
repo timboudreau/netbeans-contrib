@@ -60,7 +60,9 @@ import xtc.util.Pair
  */
 class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
 
-    private val inVarDefs = new Stack[Boolean]
+    private val inVarDefs = new Stack[ElementKind]
+    private var inFunctionCallName = false
+    private var isFunctionCallName = false
 
     override
     def visit(that:GNode) = {
@@ -89,7 +91,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
         that.get(0) match {
             case atomId:GNode =>
-                val attr = new AstDfn(that, idToken(idNode(atomId)), scope, ElementKind.ATTRIBUTE, fo)
+                val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)
         }
 
@@ -115,11 +117,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         scopes.push(scope)
 
         val atomId1 = that.getGeneric(0)
-        val fun = new AstDfn(that, idToken(idNode(atomId1)), scope, ElementKind.METHOD, fo)
+        val fun = new AstDfn(that, idToken(idNode(atomId1)), ElementKind.METHOD, scope, fo)
         rootScope.addDfn(fun)
 
         val clauseArgs = that.getGeneric(1)
-        inVarDefs.push(true)
+        inVarDefs.push(ElementKind.PARAMETER)
         visitClauseArgs(clauseArgs)
         inVarDefs.pop
         val clauseGuard = that.getGeneric(2)
@@ -288,10 +290,20 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitExpr800(that:GNode) = {
         val expr900 = that.getGeneric(0)
-        visitExpr900(expr900)
         val exprMax = that.getGeneric(1)
         if (exprMax != null) {
+            // * functionCallName is exprMax rather than expr900
+            if (inFunctionCallName) {
+                inFunctionCallName = false
+                visitExpr900(expr900)
+                inFunctionCallName = true
+            } else {
+                visitExpr900(expr900)
+            }
+            
             visitExprMax(exprMax)
+        } else {
+            visitExpr900(expr900)
         }
     }
 
@@ -311,21 +323,42 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         val n = that.getGeneric(0)
         n.getName match {
             case "VarId" => visitVarId(n)
-            case "Atomic" => visitAtomic(n)
+            case "Atomic" => 
+                if (inFunctionCallName) {isFunctionCallName = true}
+                visitAtomic(n)
+                if (inFunctionCallName) {isFunctionCallName = false}
             case "List" => visitList(n)
             case "Binary" => visitBinary(n)
             case "ListComprehension" => visitListComprehension(n)
             case "BinaryComprehension" => visitBinaryComprehension(n)
             case "Tuple" => visitTuple(n)
-            case "ParenExpr" => visitExpr(n)
-            case "BeginExpr" => visitExprs(n)
+            case "ParenExpr" => visitParenExpr(n)
+            case "BeginExpr" => visitBeginExpr(n)
             case "IfExpr" => visitIfExpr(n)
             case "CaseExpr" => visitCaseExpr(n)
             case "ReceiveExpr" => visitReceiveExpr(n)
             case "FunExpr" => visitFunExpr(n)
             case "TryExpr" => visitTryExpr(n)
             case "QueryExpr" => visitQueryExpr(n)
-            case "MacroId" => // todo
+            case "MacroExpr" => visitMacroExpr(n)
+        }
+    }
+
+    def visitParenExpr(that:GNode) = {
+        val expr = that.getGeneric(0)
+        visitExpr(expr)
+    }
+
+    def visitBeginExpr(that:GNode) = {
+        val exprs = that.getGeneric(0)
+        visitExprs(exprs)
+    }
+
+    def visitMacroExpr(that:GNode) = {
+        val macroId = that.getGeneric(0)
+        val exprs = that.getGeneric(1)
+        if (exprs != null) {
+            visitExprs(exprs)
         }
     }
 
@@ -392,7 +425,9 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitFunctionCall(that:GNode) = {
         val expr800 = that.getGeneric(0)
+        inFunctionCallName = true
         visitExpr800(expr800)
+        inFunctionCallName = false
         val args = that.getGeneric(1)
         visitArgumentList(args)
     }
@@ -436,7 +471,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitCrClause(that:GNode) = {
         val expr = that.getGeneric(0)
-        inVarDefs.push(true)
+        inVarDefs.push(ElementKind.VARIABLE)
         visitExpr(expr)
         inVarDefs.pop
         val clauseGuard = that.getGeneric(1)
@@ -465,7 +500,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitQueryExpr(that:GNode) = {}
 
-    def visitArgumentList(that:GNode) = {}
+    def visitArgumentList(that:GNode) = {
+        val exprs = that.getGeneric(0)
+        if (exprs != null) {
+            visitExprs(exprs)
+        }
+    }
 
     def visitExprs(that:GNode) = {
         val expr = that.getGeneric(0)
@@ -478,7 +518,15 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitGuard(that:GNode) = {}
 
-    def visitAtomic(that:GNode) = {}
+    def visitAtomic(that:GNode) = {
+        val n = that.getGeneric(0)
+        if (n.getName.equals("AtomId1")) {
+            if (isFunctionCallName) {
+                val ref = new AstRef(that, idToken(idNode(n)), ElementKind.METHOD)
+                scopes.top.addRef(ref)
+            }
+        }
+    }
 
     def visitStrings(that:GNode) = {}
 
@@ -494,7 +542,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         val scope = scopes.top
         val id = idNode(that)
         if (inVarDefs.size > 0) {
-            val dfn = new AstDfn(that, idToken(id), new AstScope(boundsTokens(that)), ElementKind.VARIABLE, fo)
+            val dfn = new AstDfn(that, idToken(id), inVarDefs.top, new AstScope(boundsTokens(that)), fo)
             scope.addDfn(dfn)
         } else {
             val ref = new AstRef(that, idToken(id))

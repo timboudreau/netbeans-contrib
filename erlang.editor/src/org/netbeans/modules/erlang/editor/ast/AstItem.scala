@@ -51,11 +51,11 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(aSymbol:GNode, aIdToken:Token[_]) extends ForElementHandle {
+abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) extends ForElementHandle {
 
-    protected def this(symbol:GNode) = this(symbol, null)
-    protected def this(idToken:Token[_]) = this(null, idToken)
-    protected def this() = this(null, null)
+    def this(symbol:GNode) = this(symbol, null, ElementKind.OTHER)
+    def this(idToken:Token[_]) = this(null, idToken, ElementKind.OTHER)
+    def this() = this(null, null, ElementKind.OTHER)
 
     /**
      * @Note:
@@ -170,7 +170,7 @@ trait ForElementHandle {self:AstItem =>
         //return symbol.enclClass().nameString()
     }
 
-    def getKind :ElementKind = ElementKind.OTHER
+    def getKind :ElementKind = self.kind
 
     def signatureEquals(handle:ElementHandle) = false
 

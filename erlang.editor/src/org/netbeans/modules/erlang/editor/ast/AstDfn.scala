@@ -64,9 +64,9 @@ import xtc.tree.{GNode}
  */
 class AstDfn(aSymbol:GNode,
              pickToken:Token[_],
+             kind:ElementKind,
              private var _bindingScope:AstScope,
-             var kind:ElementKind,
-             var fo:FileObject ) extends AstItem(aSymbol, pickToken) with AstElementHandle {
+             var fo:FileObject ) extends AstItem(aSymbol, pickToken, kind) with AstElementHandle {
 
     if (_bindingScope != null) {
         _bindingScope.bindingDfn = Some(this)

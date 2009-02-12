@@ -8,6 +8,7 @@
 package org.netbeans.modules.erlang.editor.lexer
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.editor.BaseDocument
@@ -92,6 +93,11 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
                 case x => x
             }
         case ts => Some(ts.asInstanceOf[TokenSequence[T]])
+    }
+
+    def rangeOfToken(th:TokenHierarchy[T], token:Token[T]) :OffsetRange = {
+        val offset = token.offset(th)
+        new OffsetRange(offset, offset + token.length)
     }
 
     def findNextNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {

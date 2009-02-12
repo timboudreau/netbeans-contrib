@@ -224,16 +224,20 @@ generic ExprMax =
 / ListComprehension
 / BinaryComprehension
 / Tuple
-/ void:"(":s Expr void:")":s @ParenExpr
-/ void:"begin":k Exprs END_E @BeginExpr
+/ ParenExpr
+/ BeginExpr
 / IfExpr
 / CaseExpr
 / ReceiveExpr
 / FunExpr
 / TryExpr
 / QueryExpr
-/ MacroId ( void:"(":s Exprs? void:")":s )? @MacroExpr
+/ MacroExpr
 ;
+
+transient generic ParenExpr = void:"(":s Expr void:")":s ;
+transient generic BeginExpr = void:"begin":k Exprs END_E ;
+transient generic MacroExpr = MacroId ( void:"(":s Exprs? void:")":s )? ;
 
 generic List =
   void:"[":s void:"]":s
@@ -338,11 +342,7 @@ generic TryClause =
 
 transient generic QueryExpr = void:"query":s ListComprehension END_E ;
 
-
-    generic ArgumentList =
-  void:"(":s       void:")":s
-/ void:"(":s Exprs void:")":s
-;
+generic ArgumentList = void:"(":s Exprs? void:")":s ;
 
 transient generic Exprs = Expr ( COMMA_E_IN_EXPRS Expr )* ;
 
