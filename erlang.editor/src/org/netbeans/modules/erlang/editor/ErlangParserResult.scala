@@ -41,23 +41,21 @@
 package org.netbeans.modules.erlang.editor
 
 import javax.swing.text.Document
-import _root_.java.util.{Collections, ArrayList, List}
+import _root_.java.util.{Collections,ArrayList,List}
 import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.erlang.editor.ast.AstRootScope
-import org.netbeans.modules.erlang.editor.rats.ParserErlang
 import xtc.tree.{GNode}
 
 /**
  *
  * @author Caoyuan Deng
  */
-class ErlangParserResult(parser:ErlangParser,
-                         val snapshot:Snapshot,
-                         val rootNode:GNode,
-                         val rootScope:AstRootScope
+class ErlangParserResult(val snapshot:Snapshot,
+                         val rootNode:Option[GNode],
+                         val rootScope:Option[AstRootScope]
 ) extends ParserResult(snapshot) {
 
     override

@@ -81,41 +81,28 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
         resume
         semanticHighlights = null
 
-        if (pResult == null) {
+        if (pResult == null || isCancelled) {
             return
         }
 
-        if (isCancelled) {
-            return
+        for (rootScope <- pResult.rootScope;
+             th <- LexUtil.tokenHierarchy(pResult);
+             doc = LexUtil.document(pResult, true)
+        ) {
+            var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
+            visitItems(th.asInstanceOf[TokenHierarchy[TokenId]], rootScope, highlights)
+
+            this.semanticHighlights = if (highlights.size > 0) {
+                highlights
+            } else null
         }
-
-        val rootScope = pResult.rootScope
-        if (rootScope == null) {
-            return
-        }
-
-        val th = LexUtil.tokenHierarchy(pResult) match {
-            case None => return
-            case Some(x) => x
-        }
-
-        val doc = LexUtil.document(pResult, true) match {
-            case None => return
-            case Some(x) => x
-        }
-
-        var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-        visitItems(th, rootScope, highlights)
-
-        this.semanticHighlights = if (highlights.size > 0) {
-            highlights
-        } else null
     }
 
     private def visitItems(th:TokenHierarchy[TokenId], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
         import ElementKind._
         for (item <- rootScope.idTokenToItem(th).values;
-             hiToken <- item.idToken) {
+             hiToken <- item.idToken
+        ) {
             
             val hiRange = LexUtil.rangeOfToken(th, hiToken.asInstanceOf[Token[TokenId]])
             item match {

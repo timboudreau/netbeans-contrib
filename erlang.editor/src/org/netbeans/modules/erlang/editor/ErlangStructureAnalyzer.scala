@@ -38,20 +38,16 @@
  */
 package org.netbeans.modules.erlang.editor;
 
-import _root_.java.util.{ArrayList, Collections, HashMap, List, Map, Set, Stack}
+import _root_.java.util.{ArrayList,Collections,HashMap,List,Map,Set,Stack}
 import javax.swing.ImageIcon;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.netbeans.api.lexer.{Token, TokenId}
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Utilities;
-import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, HtmlFormatter, Modifier, OffsetRange, StructureItem, StructureScanner}
+import javax.swing.text.{BadLocationException,Document}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
+import org.netbeans.editor.{BaseDocument,Utilities}
+import org.netbeans.modules.csl.api.{ElementHandle,ElementKind,HtmlFormatter,Modifier,OffsetRange,StructureItem,StructureScanner}
 import org.netbeans.modules.csl.api.StructureScanner._
 import org.netbeans.modules.csl.spi.ParserResult
-import org.netbeans.modules.erlang.editor.ast.{AstDfn, AstRootScope, AstScope}
-import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
+import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstRootScope,AstScope}
+import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
 import org.openide.util.Exceptions
 
 import scala.collection.mutable.ArrayBuffer
@@ -68,13 +64,13 @@ class ErlangStructureAnalyzer extends StructureScanner {
     override
     def scan(result:ParserResult) :List[StructureItem] = result match {
         case null => Collections.emptyList[StructureItem]
-        case pResult:ErlangParserResult => pResult.rootScope match {
-                case null => Collections.emptyList[StructureItem]
-                case rootScope =>
-                    val items = new ArrayList[StructureItem](rootScope.dfns.size)
-                    scanTopForms(rootScope, items, pResult)
-                    items
+        case pResult:ErlangParserResult => 
+            var items = Collections.emptyList[StructureItem]
+            for (rootScope <- pResult.rootScope) {
+                items = new ArrayList[StructureItem](rootScope.dfns.size)
+                scanTopForms(rootScope, items, pResult)
             }
+            items
     }
 
     private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
@@ -91,84 +87,71 @@ class ErlangStructureAnalyzer extends StructureScanner {
     def folds(result:ParserResult) :Map[String, List[OffsetRange]] = result match {
         case null => Collections.emptyMap[String, List[OffsetRange]]
         case pResult:ErlangParserResult =>
-            val rootScope = pResult.rootScope
-            if (rootScope == null) {
-                return Collections.emptyMap[String, List[OffsetRange]]
-            }
+            var folds = Collections.emptyMap[String, List[OffsetRange]]
+            for (rootScope <- pResult.rootScope;
+                 doc <- LexUtil.document(pResult, true);
+                 th <- LexUtil.tokenHierarchy(pResult);
+                 ts <- LexUtil.tokenSequence(th, 1)
+            ) {
+                folds = new HashMap[String, List[OffsetRange]]
+                val codefolds = new ArrayList[OffsetRange]
+                folds.put("codeblocks", codefolds); // NOI18N
 
-            val doc = LexUtil.document(pResult, true) match {
-                case None => return Collections.emptyMap[String, List[OffsetRange]]
-                case Some(x) => x
-            }
+                // * Read-lock due to Token hierarchy use
+                doc.readLock
 
-            val th = LexUtil.tokenHierarchy(pResult) match {
-                case None => return Collections.emptyMap[String, List[OffsetRange]]
-                case Some(x) => x
-            }
+                addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
 
-            val ts = LexUtil.tokenSequence(th, 1) match {
-                case None => return Collections.emptyMap[String, List[OffsetRange]]
-                case Some(x) => x
-            }
+                var lineCommentStart = 0
+                var lineCommentEnd = 0
+                var startLineCommentSet = false
 
-            val folds = new HashMap[String, List[OffsetRange]]
-            val codefolds = new ArrayList[OffsetRange]
-            folds.put("codeblocks", codefolds); // NOI18N
+                val comments = new Stack[Array[Integer]]
+                val blocks = new Stack[Integer]
 
-            // * Read-lock due to Token hierarchy use
-            doc.readLock
+                while (ts.isValid && ts.moveNext) {
+                    val token = ts.token
+                    token.id match {
+                        case ErlangTokenId.LineComment =>
+                            val offset = ts.offset
+                            if (!startLineCommentSet) {
+                                lineCommentStart = offset
+                                startLineCommentSet = true
+                            }
+                            lineCommentEnd = offset
 
-            addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
+                        case ErlangTokenId.Case | ErlangTokenId.If | ErlangTokenId.Try | ErlangTokenId.Receive =>
+                            val blockStart = ts.offset
+                            blocks.push(blockStart)
 
-            var lineCommentStart = 0
-            var lineCommentEnd = 0
-            var startLineCommentSet = false
-
-            val comments = new Stack[Array[Integer]]
-            val blocks = new Stack[Integer]
-
-            while (ts.isValid && ts.moveNext) {
-                val token = ts.token
-                token.id match {
-                    case ErlangTokenId.LineComment =>
-                        val offset = ts.offset
-                        if (!startLineCommentSet) {
-                            lineCommentStart = offset
-                            startLineCommentSet = true
-                        }
-                        lineCommentEnd = offset
-
-                    case ErlangTokenId.Case | ErlangTokenId.If | ErlangTokenId.Try | ErlangTokenId.Receive =>
-                        val blockStart = ts.offset
-                        blocks.push(blockStart)
-
-                        startLineCommentSet = false
+                            startLineCommentSet = false
                         
-                    case ErlangTokenId.End if !blocks.empty =>
-                        val blockStart = blocks.pop.asInstanceOf[Int]
-                        val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
-                        codefolds.add(blockRange)
+                        case ErlangTokenId.End if !blocks.empty =>
+                            val blockStart = blocks.pop.asInstanceOf[Int]
+                            val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
+                            codefolds.add(blockRange)
 
-                        startLineCommentSet = false
-                    case _ =>
-                        startLineCommentSet = false
+                            startLineCommentSet = false
+                        case _ =>
+                            startLineCommentSet = false
+                    }
                 }
-            }
 
-            doc.readUnlock
+                doc.readUnlock
 
-            try {
-                /** @see GsfFoldManager#addTree() for suitable fold names. */
-                lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
+                try {
+                    /** @see GsfFoldManager#addTree() for suitable fold names. */
+                    lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
 
-                if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
-                    val lineCommentsFolds = new ArrayList[OffsetRange];
-                    val range = new OffsetRange(lineCommentStart, lineCommentEnd)
-                    lineCommentsFolds.add(range)
-                    folds.put("comments", lineCommentsFolds) // NOI18N
+                    if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
+                        val lineCommentsFolds = new ArrayList[OffsetRange];
+                        val range = new OffsetRange(lineCommentStart, lineCommentEnd)
+                        lineCommentsFolds.add(range)
+                        folds.put("comments", lineCommentsFolds) // NOI18N
+                    }
+                } catch {
+                    case ex:BadLocationException => Exceptions.printStackTrace(ex)
                 }
-            } catch {
-                case ex:BadLocationException => Exceptions.printStackTrace(ex)
             }
 
             folds
@@ -244,7 +227,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 }
 
                 children
-            } else Collections.emptyList[StructureItem]            
+            } else Collections.emptyList[StructureItem]
         }
 
         override

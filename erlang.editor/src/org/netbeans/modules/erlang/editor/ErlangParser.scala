@@ -189,13 +189,13 @@ class ErlangParser extends Parser {
         val parser = createParser(context)
 
         val ignoreErrors = sanitizedSource
-        var root :GNode = null
+        var root :Option[GNode] = None
         try {
             var error :Option[ParseError] = None
             val r = parser.pS(0)
             if (r.hasValue) {
                 val v = r.asInstanceOf[SemanticValue]
-                root = v.value.asInstanceOf[GNode]
+                root = Some(v.value.asInstanceOf[GNode])
             } else {
                 error = Some(r.parseError)
             }
@@ -233,18 +233,19 @@ class ErlangParser extends Parser {
                             "SYNTAX_ERROR", Array(e))
         }
 
-        if (root != null) {            
-            context.sanitized = sanitizing
-            context.root = root
+        root match {
+            case Some(_) =>
+                context.sanitized = sanitizing
+                context.root = root
 
-            analyze(context)
+                analyze(context)
 
-            val r = createParseResult(context)
-            r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
-            r.source = source
-            r
-        } else {
-            sanitize(context, sanitizing)
+                val r = createParseResult(context)
+                r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
+                r.source = source
+                r
+            case None =>
+                sanitize(context, sanitizing)
         }
     }
 
@@ -252,20 +253,19 @@ class ErlangParser extends Parser {
         val doc = LexUtil.document(context.snapshot, false)
 
         // * we need TokenHierarchy to do anaylzing task
-        LexUtil.tokenHierarchy(context.snapshot) match {
-            case None => println("None tokenHierarchy !!!")
-            case Some(th) =>
-                // * Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
-                for (x <- doc) {x.readLock}
-                try {
-                    val visitor = new AstNodeVisitor(context.root, th, context.fo)
-                    visitor.visit(context.root)
-                    context.rootScope = visitor.rootScope
-                } catch {
-                    case ex:Throwable => ex.printStackTrace
-                } finally {
-                    for (x <- doc) {x.readUnlock}
-                }
+        for (root <- context.root;
+             th <- LexUtil.tokenHierarchy(context.snapshot)) {
+            // * Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
+            for (x <- doc) {x.readLock}
+            try {
+                val visitor = new AstNodeVisitor(root, th, context.fo)
+                visitor.visit(root)
+                context.rootScope = Some(visitor.rootScope)
+            } catch {
+                case ex:Throwable => ex.printStackTrace
+            } finally {
+                for (x <- doc) {x.readUnlock}
+            }
         }
     }
 
@@ -274,13 +274,12 @@ class ErlangParser extends Parser {
         val fileName = if (context.fo != null) context.fo.getNameExt else "<current>"
 
         val parser = new ParserErlang(in, fileName)
-        context.parser = parser
 
         parser
     }
 
     private def createParseResult(context:Context) :ErlangParserResult = {
-        new ErlangParserResult(this, context.snapshot, context.root, context.rootScope)
+        new ErlangParserResult(context.snapshot, context.root, context.rootScope)
     }
 
     /** Parsing context */
@@ -290,9 +289,8 @@ class ErlangParser extends Parser {
         var source :String = ErlangParser.asString(snapshot.getText)
         var caretOffset :Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
 
-        var root :GNode = _
-        var rootScope :AstRootScope = _
-        var parser :ParserErlang = _
+        var root :Option[GNode] = None
+        var rootScope :Option[AstRootScope] = None
         var errorOffset :Int = _
         var sanitizedSource :String = _
         var sanitizedRange :OffsetRange = OffsetRange.NONE
