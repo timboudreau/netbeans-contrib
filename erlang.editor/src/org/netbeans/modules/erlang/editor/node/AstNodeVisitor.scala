@@ -64,7 +64,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     override
     def visit(that:GNode) = {
-        val formNodes = that.getList(0).asInstanceOf[Pair[GNode]]
+        val formNodes :Pair[GNode] = that.getList(0)
         loopPair(formNodes){n =>
             visitForm(n)
         }
@@ -103,7 +103,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitFunctionClauses(that:GNode) = {
         val functionClause = that.getGeneric(0)
         visitFunctionClause(functionClause)
-        val ns = that.getList(1).asInstanceOf[Pair[GNode]]
+        val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             visitFunctionClause(n)
         }
@@ -255,8 +255,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitExpr400(that:GNode) :Unit = {
         val expr500 = that.getGeneric(0)
         visitExpr500(expr500)
-        val expr500s = that.getList(1).asInstanceOf[Pair[GNode]]
-        loopPair(expr500s){n=>
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n=>
             // AddOp
             visitExpr500(n)
         }
@@ -265,8 +265,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitExpr500(that:GNode) :Unit = {
         val expr600 = that.getGeneric(0)
         visitExpr600(expr600)
-        val expr600s = that.getList(1).asInstanceOf[Pair[GNode]]
-        loopPair(expr600s){n=>
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n=>
             // MultOp
             visitExpr600(n)
         }
@@ -301,7 +301,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
             case "AtomId1" => visitAtomId1(n)
             case "ExprMax" => visitExprMax(n)
         }
-        val ns = that.getList(1).asInstanceOf[Pair[GNode]]
+        val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){atomId1=>
             visitAtomId1(atomId1)
         }
@@ -405,7 +405,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitIfClauses(that:GNode) = {
         val n0 = that.getGeneric(0)
         visitIfClause(n0)
-        val ns = that.getList(1).asInstanceOf[Pair[GNode]]
+        val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             visitIfClause(n)
         }
@@ -428,7 +428,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitCrClauses(that:GNode) = {
         val crClause = that.getGeneric(0)
         visitCrClause(crClause)
-        val ns = that.getList(1).asInstanceOf[Pair[GNode]]
+        val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             visitCrClause(n)
         }
@@ -470,7 +470,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitExprs(that:GNode) = {
         val expr = that.getGeneric(0)
         visitExpr(expr)
-        val ns = that.getList(1).asInstanceOf[Pair[GNode]]
+        val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n => 
             visitExpr(n)
         }
@@ -502,11 +502,14 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
+    /* @Note: bug in scala? when p.head return GNode.fixed1 or etc, f(p.head) will throw ClassCastException
+     * You have to explicitly declare the p's type as: Pair[GNode] before pass it to this function, for example:
+     * val p :Pair[GNode] = gnode.getList(1), or val p :Pair[GNode] = gnode.getList(1).asInstanceOf[Pair[GNode]],
+     * a simple val p = that.getList(1) will be inferred as Pair[Nothing]
+     */
     def loopPair[T](p:Pair[T])(f:T => Unit) :Unit = p match {
         case Pair.EMPTY =>
         case _ =>
-            // * Note: bug in scala? when p.head return GNode.fixed1 or etc, f(p.head) will throw ClassCastException
-            // * I have to explicitly asInstanceOf p's type as: Pair[GNode]
             f(p.head)
             loopPair(p.tail){f}
     }
