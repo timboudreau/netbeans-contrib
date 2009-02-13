@@ -38,10 +38,10 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import _root_.java.util.{Collections, Set}
+import _root_.java.util.{Collections,Set}
 import org.netbeans.api.lexer.Token
 import org.netbeans.api.lexer.TokenHierarchy
-import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, OffsetRange}
+import org.netbeans.modules.csl.api.{ElementKind,ElementHandle,Modifier,OffsetRange}
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.netbeans.modules.erlang.editor.ErlangMimeResolver
 import org.openide.filesystems.{FileObject}

@@ -101,4 +101,7 @@ made subject to such option by the copyright holder.
 
     <fontcolor name="mod-regexp" foreColor="9933CC" />
 
+    <!--mark occurrences:-->
+    <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
+
 </fontscolors>

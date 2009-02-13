@@ -93,4 +93,10 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getSemanticAnalyzer = new ErlangSemanticAnalyzer
+
+    override
+    def hasOccurrencesFinder = true
+
+    override
+    def getOccurrencesFinder = new ErlangOccurrencesFinder
 }

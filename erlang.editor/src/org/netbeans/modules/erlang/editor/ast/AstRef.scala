@@ -64,6 +64,6 @@ class AstRef(symbol:GNode, idToken:Token[_], kind:ElementKind) extends AstItem(s
 
     override
     def toString = {
-        "Ref: " + name + " (idToken=" + idToken + ")"
+        "Ref: " + name + " (idToken=" + super.idToken + ")"
     }
 }

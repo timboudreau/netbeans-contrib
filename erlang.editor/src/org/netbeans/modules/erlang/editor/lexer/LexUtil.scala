@@ -7,12 +7,16 @@
 
 package org.netbeans.modules.erlang.editor.lexer
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import javax.swing.text.{BadLocationException,Document}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
+import org.openide.filesystems.FileUtil
+import org.openide.loaders.DataObject
+import org.openide.util.Exceptions
 
 object LexUtil extends BaseLexUtil[TokenId]
 
@@ -73,6 +77,11 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         case _ => tokenHierarchy(pResult.getSnapshot)
     }
 
+    def tokenSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[T]] = {
+        val th = TokenHierarchy.get(doc)
+        tokenSequence(th, offset)
+    }
+
     def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[T]] = th.tokenSequence(language) match {
         case null =>
             // * Possibly an embedding scenario such as an RHTML file
@@ -98,6 +107,82 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     def rangeOfToken(th:TokenHierarchy[T], token:Token[T]) :OffsetRange = {
         val offset = token.offset(th)
         new OffsetRange(offset, offset + token.length)
+    }
+
+    /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
+    def lexerOffset(pResult:ParserResult, astOffset:Int) :Int = {
+        pResult.getSnapshot.getOriginalOffset(astOffset)
+    }
+
+    def lexerOffsets(pResult:ParserResult, astRange:OffsetRange) :OffsetRange = {
+        // * there has been  astRange, we can assume pResult not null
+        val rangeStart = astRange.getStart
+        val start = pResult.getSnapshot.getOriginalOffset(rangeStart)
+        if (start == rangeStart) {
+            astRange
+        } else if (start == -1) {
+            OffsetRange.NONE
+        } else {
+            // Assumes the translated range maintains size
+            new OffsetRange(start, start + astRange.getLength)
+        }
+    }
+
+    def astOffset(pResult:ParserResult, lexOffset:Int) :Int = pResult match {
+        case null => lexOffset
+        case _ => pResult.getSnapshot.getEmbeddedOffset(lexOffset)
+    }
+
+    def astOffsets(pResult:ParserResult, lexRange:OffsetRange) :OffsetRange = pResult match {
+        case null => lexRange
+        case _ =>
+            val rangeStart = lexRange.getStart
+            val start = pResult.getSnapshot.getEmbeddedOffset(rangeStart)
+            if (start == rangeStart) {
+                lexRange
+            } else if (start == -1) {
+                OffsetRange.NONE
+            } else {
+                // Assumes the translated range maintains size
+                new OffsetRange(start, start + lexRange.getLength())
+            }
+    }
+
+    def positionedSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[T]] = {
+        positionedSequence(doc, offset, true)
+    }
+
+    def positionedSequence(doc:BaseDocument, offset:Int, lookBack:Boolean) :Option[TokenSequence[T]] = {
+        for (ts <- tokenSequence(doc, offset)) {
+            try {
+                ts.move(offset)
+            } catch {
+                case e:AssertionError =>
+                    doc.getProperty(Document.StreamDescriptionProperty) match {
+                        case null =>
+                        case dobj:DataObject => Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+                    }
+                    throw e
+            }
+
+            if (!lookBack && !ts.moveNext) {
+                return None
+            } else if (lookBack && !ts.moveNext && !ts.movePrevious) {
+                return None
+            }
+
+            return Some(ts)
+        }
+
+        return None
+    }
+
+    def token(doc:BaseDocument, offset:Int) :Option[Token[T]] = {
+        for (ts <- positionedSequence(doc, offset)) {
+            return Some(ts.token)
+        }
+
+        return None
     }
 
     def findNextNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {

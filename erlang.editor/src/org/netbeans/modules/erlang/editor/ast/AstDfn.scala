@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import _root_.java.util.{Set, HashSet}
+import _root_.java.util.{Collections,Set,HashSet}
 import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.HtmlFormatter
@@ -81,19 +81,15 @@ class AstDfn(aSymbol:GNode,
     def getKind :ElementKind = kind
 
     override
-    def getModifiers :Set[Modifier] = {
-        if (modifiers == null) {
-            modifiers = new HashSet[Modifier]
-        }
-        modifiers
+    def getModifiers :Set[Modifier] = modifiers match {
+        case null => Collections.emptySet[Modifier]
+        case _ => modifiers
     }
 
     override
-    def getOffsetRange(pResult:ParserResult) :OffsetRange = {
-        LexUtil.tokenHierarchy(pResult) match {
-            case None => OffsetRange.NONE
-            case Some(th) => new OffsetRange(boundsOffset(th), boundsEndOffset(th))
-        }        
+    def getOffsetRange(pResult:ParserResult) :OffsetRange = LexUtil.tokenHierarchy(pResult) match {
+        case None => OffsetRange.NONE
+        case Some(th) => new OffsetRange(boundsOffset(th), boundsEndOffset(th))
     }
 
     def tpe :String = {
@@ -114,7 +110,7 @@ class AstDfn(aSymbol:GNode,
     }
 
     def bindingScope :AstScope = {
-        assert(_bindingScope != null, name + ": Each definition should set binding scope!")
+        assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
         _bindingScope
     }
 
