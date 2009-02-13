@@ -99,4 +99,7 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getOccurrencesFinder = new ErlangOccurrencesFinder
+
+    override
+    def getKeystrokeHandler = new ErlangKeystrokeHandler
 }

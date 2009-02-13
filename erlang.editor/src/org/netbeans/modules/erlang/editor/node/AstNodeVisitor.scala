@@ -38,15 +38,15 @@
  */
 package org.netbeans.modules.erlang.editor.node
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
 import org.netbeans.modules.csl.api.ElementKind
 
-import org.netbeans.modules.erlang.editor.ast.{AstDfn, AstItem, AstRef, AstRootScope, AstScope, AstVisitor}
+import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRef,AstRootScope,AstScope,AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
-import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId, LexUtil}
+import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
 import org.openide.filesystems.FileObject
 
-import scala.collection.mutable.{ArrayBuffer, Stack}
+import scala.collection.mutable.{ArrayBuffer,Stack}
 
 import xtc.tree.GNode
 import xtc.tree.Node
@@ -407,6 +407,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitBinElement(that:GNode) = {}
 
     def visitBitExpr(that:GNode) = {}
+
     def visitOptBitsizeExpr(that:GNode) = {}
 
     def visitOptBitTypeList(that:GNode) = {}
@@ -707,12 +708,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitVarId(that:GNode) = {
         val scope = scopes.top
         val id = idNode(that)
-        if (inVarDefs.size > 0) {
-            val dfn = new AstDfn(that, idToken(id), inVarDefs.top, new AstScope(boundsTokens(that)), fo)
-            scope.addDfn(dfn)
-        } else {
+        if (inVarDefs.isEmpty) {
             val ref = new AstRef(that, idToken(id))
             scope.addRef(ref)
+        } else {
+            val dfn = new AstDfn(that, idToken(id), inVarDefs.top, new AstScope(boundsTokens(that)), fo)
+            scope.addDfn(dfn)
         }
     }
 

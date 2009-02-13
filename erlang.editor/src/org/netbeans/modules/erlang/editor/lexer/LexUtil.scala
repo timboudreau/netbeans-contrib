@@ -12,11 +12,12 @@ import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
-import org.netbeans.editor.BaseDocument
+import org.netbeans.editor.{BaseDocument,Utilities}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.openide.filesystems.FileUtil
 import org.openide.loaders.DataObject
 import org.openide.util.Exceptions
+import scala.collection.mutable.Stack
 
 object LexUtil extends BaseLexUtil[TokenId]
 
@@ -27,11 +28,22 @@ trait LanguageLexUtil {
     protected val language = ErlangTokenId.language
 
     protected val WS = Set(ErlangTokenId.Ws,
-                           ErlangTokenId.Nl)
+                           ErlangTokenId.Nl
+    )
 
     protected val WS_COMMENT = Set(ErlangTokenId.Ws,
                                    ErlangTokenId.Nl,
-                                   ErlangTokenId.LineComment)
+                                   ErlangTokenId.LineComment
+    )
+
+    protected val INDENT_TOKENS = Set(ErlangTokenId.Case,
+                                      ErlangTokenId.After,
+                                      ErlangTokenId.If,
+                                      ErlangTokenId.Receive,
+                                      ErlangTokenId.Begin
+    )
+
+    protected val END_PAIRS = Set(ErlangTokenId.Try)
 
     def isWs(id:TokenId) = id == ErlangTokenId.Ws
     def isNl(id:TokenId) = id == ErlangTokenId.Nl
@@ -41,8 +53,33 @@ trait LanguageLexUtil {
         case _ => false
     }
 
+    def isLineComment(id:TokenId) :Boolean = id match {
+        case ErlangTokenId.LineComment => true
+        case _ => false
+    }
+
     protected val LPAREN = ErlangTokenId.LParen
     protected val RPAREN = ErlangTokenId.RParen
+
+    def isBeginToken(id:TokenId) = id match {
+        case ErlangTokenId.Try => true
+        case _ => false
+    }
+
+    def isEndToken(id:TokenId) = id match {
+        case ErlangTokenId.End => true
+        case _ => false
+    }
+
+    def isIndentToken(id:TokenId) = id match {
+        case
+            ErlangTokenId.Case |
+            ErlangTokenId.After |
+            ErlangTokenId.If |
+            ErlangTokenId.Receive |
+            ErlangTokenId.Begin => true
+        case _ => false
+    }
 }
 
 trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
@@ -184,6 +221,17 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
 
         return None
     }
+
+    def tokenChar(doc:BaseDocument, offset:Int) :Char = token(doc, offset) match {
+        case None => 0
+        case Some(x) =>
+            val text = x.text.toString
+            
+            if (text.length > 0) { // Usually true, but I could have gotten EOF right?
+                return text.charAt(0)
+            } else 0
+    }
+    
 
     def findNextNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {
         findNext(ts, WS_COMMENT.asInstanceOf[Set[T]])
@@ -348,6 +396,262 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         false
     }
 
+    /** Search forwards in the token sequence until a token of type <code>down</code> is found */
+    def findFwd(doc:BaseDocument, ts:TokenSequence[T], up:TokenId, down:TokenId) :OffsetRange = {
+        var balance = 0
+        while (ts.moveNext) {
+            val token = ts.token
+            val id = token.id
+
+            if (id == up) {
+                balance += 1
+            } else if (id == down) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
+                }
+                balance -= 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
+    /** Search backwards in the token sequence until a token of type <code>up</code> is found */
+    def  findBwd(doc:BaseDocument, ts:TokenSequence[T], up:TokenId, down:TokenId) :OffsetRange = {
+        var balance = 0
+        while (ts.movePrevious) {
+            val token = ts.token
+            val id = token.id
+
+            if (id == up) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
+                }
+                balance += 1
+            } else if (id == down) {
+                balance -= 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
+    /** Search forwards in the token sequence until a token of type <code>down</code> is found */
+    def  findFwd(doc:BaseDocument, ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+        var balance = 0
+        while (ts.moveNext) {
+            val token = ts.token
+            val id = token.id
+            val text = token.text.toString
+
+            if (text.equals(up)) {
+                balance += 1
+            } else if (text.equals(down)) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
+                }
+                balance -= 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
+    /** Search backwards in the token sequence until a token of type <code>up</code> is found */
+    def findBwd(doc:BaseDocument, ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+        var balance = 0
+        while (ts.movePrevious) {
+            val token = ts.token
+            val id = token.id
+            val text = token.text.toString
+
+            if (text.equals(up)) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset(), ts.offset() + token.length());
+                }
+                balance += 1
+            } else if (text.equals(down)) {
+                balance -= 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
     def isWsComment(id:T) :Boolean = isWs(id) || isNl(id) || isComment(id)
+
+    /**
+     * The same as braceBalance but generalized to any pair of matching
+     * tokens.
+     * @param open the token that increses the count
+     * @param close the token that decreses the count
+     */
+    @throws(classOf[BadLocationException])
+    def tokenBalance(doc:BaseDocument, open:T, close:T, offset:Int) :Int = {
+        val ts = tokenSequence(doc, 0) match {
+            case None => return 0
+            case Some(x) => x
+        }
+
+        // XXX Why 0? Why not offset?
+        ts.moveIndex(0)
+
+        if (!ts.moveNext) {
+            return 0
+        }
+
+        var balance = 0
+        do {
+            val token = ts.token();
+
+            if (token.id == open) {
+                balance += 1
+            } else if (token.id == close) {
+                balance -= 1
+            }
+        } while (ts.moveNext)
+
+        balance
+    }
+
+    /**
+     * The same as braceBalance but generalized to any pair of matching
+     * tokens.
+     * @param open the token that increses the count
+     * @param close the token that decreses the count
+     */
+    @throws(classOf[BadLocationException])
+    def getTokenBalance(doc:BaseDocument, open:String, close:String, offset:int) :Int = {
+        val ts = tokenSequence(doc, 0) match {
+            case None => return 0
+            case Some(x) => x
+        }
+
+        // XXX Why 0? Why not offset?
+        ts.moveIndex(0)
+
+        if (!ts.moveNext) {
+            return 0
+        }
+
+        var balance = 0
+        do {
+            val token = ts.token
+            val text = token.text.toString
+
+            if (text.equals(open)) {
+                balance += 1
+            } else if (text.equals(text)) {
+                balance -= 1
+            }
+        } while (ts.moveNext)
+
+        balance
+    }
+
+
+    /** Compute the balance of begin/end tokens on the line.
+     * @param doc the document
+     * @param offset The offset somewhere on the line
+     * @param upToOffset If true, only compute the line balance up to the given offset (inclusive),
+     *   and if false compute the balance for the whole line
+     */
+    def beginEndLineBalance(doc:BaseDocument, offset:Int, upToOffset:Boolean) :Int = {
+        try {
+            val begin = Utilities.getRowStart(doc, offset)
+            val end = if (upToOffset) offset else Utilities.getRowEnd(doc, offset)
+
+            val ts = tokenSequence(doc, begin) match {
+                case None => return 0
+                case Some(x) => x
+            }
+
+            ts.move(begin)
+
+            if (!ts.moveNext) {
+                return 0
+            }
+
+            var balance = 0
+            do {
+                val token = ts.token
+                val id = token.id
+                if (isBeginToken(id)) {
+                    balance += 1
+                } else if (isEndToken(id)) {
+                    balance -= 1
+                }
+            } while (ts.moveNext && (ts.offset <= end))
+
+            balance
+        } catch {
+            case ex:BadLocationException =>
+                Exceptions.printStackTrace(ex)
+                0
+        }
+    }
+
+    /** Compute the balance of pair tokens on the line */
+    def lineBalance(doc:BaseDocument, offset:Int, up:T, down:T) :Stack[Token[T]] = {
+        val balanceStack = new Stack[Token[T]]
+        try {
+            val begin = Utilities.getRowStart(doc, offset)
+            val end = Utilities.getRowEnd(doc, offset)
+
+            val ts = tokenSequence(doc, begin) match {
+                case None => return balanceStack;
+                case Some(x) => x
+            }
+
+            ts.move(begin)
+
+            if (!ts.moveNext) {
+                return balanceStack
+            }
+
+            var balance = 0
+            do {
+                val token = ts.offsetToken
+                val id = token.id
+                
+                if (id == up) {
+                    balanceStack.push(token)
+                    balance += 1
+                } else if (id == down) {
+                    if (!balanceStack.isEmpty) {
+                        balanceStack.pop
+                    }
+                    balance -= 1
+                }
+            } while (ts.moveNext && (ts.offset <= end))
+
+            balanceStack
+        } catch {
+            case ex:BadLocationException =>
+                Exceptions.printStackTrace(ex)
+                balanceStack
+        }
+    }
+
+    /**
+     * Return true iff the line for the given offset is a JavaScript comment line.
+     * This will return false for lines that contain comments (even when the
+     * offset is within the comment portion) but also contain code.
+     */
+    @throws(classOf[BadLocationException])
+    def isCommentOnlyLine(doc:BaseDocument, offset:Int) :Boolean = {
+        val begin = Utilities.getRowFirstNonWhite(doc, offset)
+        if (begin == -1) {
+            return false // whitespace only
+        }
+
+        for (token <- token(doc, begin)) {
+            return isLineComment(token.id)
+        }
+
+        return false
+    }
+
+
 }
 
