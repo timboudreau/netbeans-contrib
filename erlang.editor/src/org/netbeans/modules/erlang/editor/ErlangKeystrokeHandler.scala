@@ -329,7 +329,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 val indent = GsfUtilities.getLineIndent(doc, offset)
                 val sb = new StringBuilder
                 sb.append(IndentUtils.createIndentString(doc, indent))
-                sb.append("//") // NOI18N
+                sb.append("%%") // NOI18N
                 // Copy existing indentation
                 val afterSlash = begin + 2
                 val line = doc.getText(afterSlash, Utilities.getRowEnd(doc, afterSlash) - afterSlash)

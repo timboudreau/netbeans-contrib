@@ -102,4 +102,10 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getKeystrokeHandler = new ErlangKeystrokeHandler
+
+    override
+    def hasFormatter =  true
+
+    override
+    def getFormatter = new ErlangFormatter
 }

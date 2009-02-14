@@ -524,6 +524,25 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         OffsetRange.NONE
     }
 
+    def lineIndent(doc:BaseDocument, offset:Int) :Int = {
+        try {
+            val start = Utilities.getRowStart(doc, offset)
+            var end = if (Utilities.isRowWhite(doc, start)) {
+                Utilities.getRowEnd(doc, offset)
+            } else {
+                Utilities.getRowFirstNonWhite(doc, start)
+            }
+
+            val indent = Utilities.getVisualColumn(doc, end);
+
+            indent
+        } catch {
+            case ex:BadLocationException =>
+                Exceptions.printStackTrace(ex)
+                0
+        }
+    }
+
     def isWsComment(id:T) :Boolean = isWs(id) || isNl(id) || isComment(id)
 
     /**
