@@ -317,13 +317,14 @@ class ErlangFormatter extends Formatter {
                                                                                                 ErlangTokenId.Semicolon)
     )
 
-    private class Brace {
-        var token:Token[TokenId] = _
-        var offsetOnline = 0 // offset on it's line after indent
-        var ordinalOnline = 0 // ordinal on its line (we only count non-white tokens
-        var isLastOnLine = false // last one on this line?
-        var onProcessingLine = false // on the processing line?
-
+    private case class Brace(var token:Token[TokenId],
+                             var offsetOnline:Int, // offset on it's line after indent
+                             var ordinalOnline:Int, // ordinal on its line (we only count non-white tokens
+                             var isLastOnLine:Boolean, // last one on this line?
+                             var onProcessingLine :Boolean // on the processing line?
+    ) {
+        def this(token:Token[TokenId]) = this(token, 0, 0, false, false)
+        
         override
         def toString = token.text.toString
     }
@@ -447,8 +448,7 @@ class ErlangFormatter extends Formatter {
                                 }
 
                                 if (isBrace) {
-                                    val brace = new Brace
-                                    brace.token = token
+                                    val brace = new Brace(token)
                                     // will add indent of this line later
                                     brace.offsetOnline = offset - lineBegin
                                     brace.ordinalOnline = ordinalNonWhite
@@ -548,7 +548,6 @@ class ErlangFormatter extends Formatter {
                 0
             } else {
                 val offset = lastUnresolved.offsetOnline
-                val text = lastUnresolved.token.text.toString
                 lastUnresolved.token.id match {
                     case ErlangTokenId.RArrow =>
                         var nearestHangableBrace :Brace = null
@@ -563,14 +562,12 @@ class ErlangFormatter extends Formatter {
                         }
                         loop(unresolvedBraces.elements)
 
-                        if (nearestHangableBrace != null) {
-                            // Hang it from this brace
-                            nearestHangableBrace.offsetOnline + depth * indentSize
-                        } else {
-                            newBalance * indentSize
+                        nearestHangableBrace match {
+                            case null => newBalance * indentSize
+                            case _ => nearestHangableBrace.offsetOnline + depth * indentSize
                         }
                     case ErlangTokenId.LParen | ErlangTokenId.LBrace | ErlangTokenId.LBracket | ErlangTokenId.DLt =>
-                        offset + text.length
+                        offset + lastUnresolved.token.text.toString.length
                     case _ =>
                         offset + indentSize
                 }
