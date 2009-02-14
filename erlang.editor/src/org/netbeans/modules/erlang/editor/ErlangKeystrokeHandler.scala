@@ -820,9 +820,9 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
 
                 val begin = id match {
                     case ErlangTokenId.RBrace =>
-                        LexUtil.findBwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
+                        LexUtil.findBwd(ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
                     case ErlangTokenId.RBracket =>
-                        LexUtil.findBwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket);
+                        LexUtil.findBwd(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket);
                     case _ => OffsetRange.NONE
                         //LexUtil.findBegin(doc, ts);
                 }
@@ -838,6 +838,24 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             }
         }
     }
+
+    private val PAIR_FWDS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.LParen   -> Set(ErlangTokenId.RParen),
+                                                            ErlangTokenId.LBrace   -> Set(ErlangTokenId.RBrace),
+                                                            ErlangTokenId.LBracket -> Set(ErlangTokenId.RBracket),
+                                                            ErlangTokenId.If       -> Set(ErlangTokenId.End),
+                                                            ErlangTokenId.Case     -> Set(ErlangTokenId.End),
+                                                            ErlangTokenId.Receive  -> Set(ErlangTokenId.End),
+                                                            ErlangTokenId.Try      -> Set(ErlangTokenId.End)
+    )
+
+    private val PAIR_BWDS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.RParen   -> Set(ErlangTokenId.LParen),
+                                                            ErlangTokenId.RBrace   -> Set(ErlangTokenId.LBrace),
+                                                            ErlangTokenId.RBracket -> Set(ErlangTokenId.LBracket),
+                                                            ErlangTokenId.End      -> Set(ErlangTokenId.If,
+                                                                                          ErlangTokenId.Case,
+                                                                                          ErlangTokenId.Receive,
+                                                                                          ErlangTokenId.Try)
+    )
 
     override
     def findMatching(document:Document, _offset:Int) :OffsetRange = {
@@ -855,7 +873,6 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             }
 
             var id = token.id
-
             if (id == ErlangTokenId.Ws) {
                 // ts.move(offset) gives the token to the left of the caret.
                 // If you have the caret right at the beginning of a token, try
@@ -868,31 +885,18 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                     id = token.id
                 }
             }
-            
-            id match {
-                case ErlangTokenId.LParen =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen)
-                case ErlangTokenId.RParen =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen)
-                case ErlangTokenId.LBrace =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
-                case ErlangTokenId.RBrace =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
-                case ErlangTokenId.LBracket =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
-                    //            } else if (id == ErlangTokenId.DO && !LexUtil.isEndmatchingDo(doc, ts.offset)) {
-                    //                // No matching dot for "do" used in conditionals etc.
-                    //                return OffsetRange.NONE;
-                case ErlangTokenId.RBracket =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
-                    //            } else if (id.primaryCategory.equals("keyword")) {
-                    //                if (LexUtil.isBeginToken(id, doc, ts)) {
-                    //                    return LexUtil.findEnd(doc, ts);
-                    //                } else if ((id == ErlangTokenId.END) || LexUtil.isIndentToken(id)) { // Find matching block
-                    //
-                    //                    return LexUtil.findBegin(doc, ts);
-                    //                }
-                case _ =>
+
+            for (pairs <- PAIR_FWDS.get(id)) {
+                LexUtil.findFwd(ts, id, pairs) match {
+                    case OffsetRange.NONE =>
+                    case x => return x
+                }
+            }
+            for (pairs <- PAIR_BWDS.get(id)) {
+                LexUtil.findBwd(ts, pairs, id) match {
+                    case OffsetRange.NONE =>
+                    case x => return x
+                }
             }
         }
 

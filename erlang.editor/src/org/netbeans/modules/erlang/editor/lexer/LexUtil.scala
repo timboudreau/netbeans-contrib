@@ -397,7 +397,47 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def findFwd(doc:BaseDocument, ts:TokenSequence[T], up:TokenId, down:TokenId) :OffsetRange = {
+    def findFwd(ts:TokenSequence[T], up:T, downs:Set[T]) :OffsetRange = {
+        var balance = 0
+        while (ts.moveNext) {
+            val token = ts.token
+            val id = token.id
+
+            if (id == up) {
+                balance += 1
+            } else if (downs.contains(id)) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
+                }
+                balance -= 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
+    /** Search backwards in the token sequence until a token of type <code>up</code> is found */
+    def  findBwd(ts:TokenSequence[T], ups:Set[T], down:T) :OffsetRange = {
+        var balance = 0
+        while (ts.movePrevious) {
+            val token = ts.token
+            val id = token.id
+
+            if (ups.contains(id)) {
+                if (balance == 0) {
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
+                }
+                balance -= 1
+            } else if (id == down) {
+                balance += 1
+            }
+        }
+
+        OffsetRange.NONE
+    }
+
+    /** Search forwards in the token sequence until a token of type <code>down</code> is found */
+    def findFwd(ts:TokenSequence[T], up:T, down:T) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
@@ -417,7 +457,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-    def  findBwd(doc:BaseDocument, ts:TokenSequence[T], up:TokenId, down:TokenId) :OffsetRange = {
+    def  findBwd(ts:TokenSequence[T], up:T, down:T) :OffsetRange = {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
@@ -437,7 +477,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def  findFwd(doc:BaseDocument, ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+    def  findFwd(ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
@@ -458,7 +498,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-    def findBwd(doc:BaseDocument, ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+    def findBwd(ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
