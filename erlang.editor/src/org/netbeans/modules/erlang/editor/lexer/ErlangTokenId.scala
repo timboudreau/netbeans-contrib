@@ -130,7 +130,7 @@ object ErlangTokenId extends Enumeration {
 
     // --- Symbols
     val LParen = V("LParen", "(", "separator")
-    val RParen = V("RParan", ")", "separator")
+    val RParen = V("RParen", ")", "separator")
     val LBrace = V("LBrace", "{", "separator")
     val RBrace = V("RBrace", "}", "separator")
     val LBracket = V("LBracket", "[", "separator")

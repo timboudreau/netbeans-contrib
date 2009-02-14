@@ -871,20 +871,20 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             
             id match {
                 case ErlangTokenId.LParen =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen);
+                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen)
                 case ErlangTokenId.RParen =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen);
+                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LParen, ErlangTokenId.RParen)
                 case ErlangTokenId.LBrace =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace);
+                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
                 case ErlangTokenId.RBrace =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace);
+                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
                 case ErlangTokenId.LBracket =>
-                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket);
+                    return LexUtil.findFwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
                     //            } else if (id == ErlangTokenId.DO && !LexUtil.isEndmatchingDo(doc, ts.offset)) {
                     //                // No matching dot for "do" used in conditionals etc.
                     //                return OffsetRange.NONE;
                 case ErlangTokenId.RBracket =>
-                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket);
+                    return LexUtil.findBwd(doc, ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
                     //            } else if (id.primaryCategory.equals("keyword")) {
                     //                if (LexUtil.isBeginToken(id, doc, ts)) {
                     //                    return LexUtil.findEnd(doc, ts);
@@ -892,6 +892,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                     //
                     //                    return LexUtil.findBegin(doc, ts);
                     //                }
+                case _ =>
             }
         }
 
