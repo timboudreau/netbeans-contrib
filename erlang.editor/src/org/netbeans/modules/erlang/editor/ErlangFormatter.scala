@@ -338,7 +338,6 @@ class ErlangFormatter extends Formatter {
                           unresolvedBraces:ArrayBuffer[Brace], doc:BaseDocument, lineBegin:Int, lineEnd:Int) :Array[Int] = {
 
         var indent = _indent
-        var continueIndent = _continueIndent
         // Well, a new line begin
         unresolvedBraces.foreach{_.onProcessingLine = false}
 
@@ -485,16 +484,14 @@ class ErlangFormatter extends Formatter {
         }
 
         // Compute indent for next line
-        var nextIndent = 0
-        var newBalance = unresolvedBraces.size
+        val newBalance = unresolvedBraces.size
         val lastUnresolved = if (newBalance > 0) unresolvedBraces(newBalance - 1) else null
         val lastUnresolvedText = if (lastUnresolved != null) lastUnresolved.token.text.toString else null
 
         // decide if next line is new or continued continute line
-        var continueLine = false
-        if (lastNonWhiteToken == null) {
+        val continueLine = if (lastNonWhiteToken == null) {
             // empty line or comment line
-            continueLine = false
+            false
         } else {
             val id = lastNonWhiteToken.id
             val name = id.name
@@ -505,7 +502,7 @@ class ErlangFormatter extends Formatter {
                     ErlangTokenId.Try | ErlangTokenId.Catch | ErlangTokenId.After | ErlangTokenId.Begin | ErlangTokenId.Receive |
                     ErlangTokenId.Fun | ErlangTokenId.End | ErlangTokenId.Semicolon |
                     ErlangTokenId.RParen | ErlangTokenId.RBracket | ErlangTokenId.RBrace | ErlangTokenId.DGt =>
-                    continueLine = false
+                    false
                 case ErlangTokenId.Comma =>
                     //we have special case
                     if (lastUnresolved != null && lastUnresolved.isLastOnLine && (lastUnresolvedText.equals("(") ||
@@ -513,68 +510,69 @@ class ErlangFormatter extends Formatter {
                                                                                   lastUnresolvedText.equals("{") ||
                                                                                   lastUnresolvedText.equals("<<"))) {
 
-                        continueLine = true
+                        true
                     } else {
                         // default
-                        continueLine = false
+                        false
                     }
                 case ErlangTokenId.LParen | ErlangTokenId.LBracket | ErlangTokenId.LBrace | ErlangTokenId.DLt =>
                     // the last unresolved brace is "(", "[", "{" , "<<",
                     // and it's of cource also the last non white token on this line
-                    continueLine = true
+                    true
                 case _ =>
                     // default
-                    continueLine = true
+                    true
             }
         }
 
         // Compute or reset continue indent
-        if (continueLine) {
-            if (continueIndent == -1) {
+        val continueIndent = if (continueLine) {
+            if (_continueIndent == -1) {
                 // new continue indent
-                continueIndent = indent + hangingIndentSize
+                indent + hangingIndentSize
             } else {
                 // keep the same continue indent
-                continueIndent = continueIndent
+                _continueIndent
             }
         } else {
             // Reset continueIndent
-            continueIndent = -1
+            -1
         }
 
-        if (continueLine) {
+        val nextIndent = if (continueLine) {
             // Continue line
-            nextIndent = continueIndent
+            continueIndent
         } else {
             if (lastUnresolved == null) {
                 // All braces resolved
-                nextIndent = 0
+                0
             } else {
                 val offset = lastUnresolved.offsetOnline
                 val text = lastUnresolved.token.text.toString
-                if (text.equals("->")) {
-                    var nearestHangableBrace :Brace = null
-                    var depth = 0
-                    def loop(itr:Iterator[Brace]) :Unit = if (itr.hasNext) {
-                        val brace = itr.next
-                        depth += 1
-                        brace.token.id match {
-                            case ErlangTokenId.RArrow => loop(itr)
-                            case _ => nearestHangableBrace = brace
+                lastUnresolved.token.id match {
+                    case ErlangTokenId.RArrow =>
+                        var nearestHangableBrace :Brace = null
+                        var depth = 0
+                        def loop(itr:Iterator[Brace]) :Unit = if (itr.hasNext) {
+                            val brace = itr.next
+                            depth += 1
+                            brace.token.id match {
+                                case ErlangTokenId.RArrow => loop(itr)
+                                case _ => nearestHangableBrace = brace
+                            }
                         }
-                    }
-                    loop(unresolvedBraces.elements)
+                        loop(unresolvedBraces.elements)
 
-                    if (nearestHangableBrace != null) {
-                        // Hang it from this brace
-                        nextIndent = nearestHangableBrace.offsetOnline + depth * indentSize;
-                    } else {
-                        nextIndent = newBalance * indentSize;
-                    }
-                } else if (text.equals("(") || text.equals("{") || text.equals("[") || text.equals("<<")) {
-                    nextIndent = offset + text.length();
-                } else {
-                    nextIndent = offset + indentSize;
+                        if (nearestHangableBrace != null) {
+                            // Hang it from this brace
+                            nearestHangableBrace.offsetOnline + depth * indentSize
+                        } else {
+                            newBalance * indentSize
+                        }
+                    case ErlangTokenId.LParen | ErlangTokenId.LBrace | ErlangTokenId.LBracket | ErlangTokenId.DLt =>
+                        offset + text.length
+                    case _ =>
+                        offset + indentSize
                 }
             }
         }
