@@ -121,18 +121,17 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         }
 
         ts.move(offset)
-
         if (!ts.moveNext && !ts.movePrevious) {
             return -1
         }
 
-        val token = ts.token.asInstanceOf[Token[TokenId]]
+        val token = ts.token
         var id = token.id
 
         // Insert an end statement? Insert a } marker?
-        val insertEndResult = new Array[boolean](1)
-        val insertRBraceResult = new Array[boolean](1)
-        val indentResult = new Array[Int](1)
+        val insertEndResult = Array(false)
+        val insertRBraceResult = Array(false)
+        val indentResult = Array(0)
         val insert = insertMatching && isEndMissing(doc, offset, false, insertEndResult, insertRBraceResult, null, indentResult)
 
         if (insert) {
@@ -224,16 +223,16 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         if ((id == ErlangTokenId.RBrace || id == ErlangTokenId.RBracket) && (Utilities.getRowLastNonWhite(doc, offset) == offset)) {
             for (prevToken <- LexUtil.token(doc, offset - 1)) {
                 val prevTokenId = prevToken.id
-                if (id == ErlangTokenId.RBrace && prevTokenId == ErlangTokenId.LBrace ||
-                    id == ErlangTokenId.RBracket && prevTokenId == ErlangTokenId.LBracket) {
-                    val indent = GsfUtilities.getLineIndent(doc, offset)
-                    val sb = new StringBuilder
-                    // XXX On Windows, do \r\n?
-                    sb.append("\n"); // NOI18N
-                    sb.append(IndentUtils.createIndentString(doc, indent))
-                    val insertOffset = offset; // offset < length ? offset+1 : offset;
-                    doc.insertString(insertOffset, sb.toString, null)
-                    caret.setDot(insertOffset);
+                (id, prevTokenId) match {
+                    case (ErlangTokenId.RBrace, ErlangTokenId.LBrace) | (ErlangTokenId.RBracket, ErlangTokenId.LBracket) =>
+                        val indent = GsfUtilities.getLineIndent(doc, offset)
+                        val sb = new StringBuilder
+                        // XXX On Windows, do \r\n?
+                        sb.append("\n") // NOI18N
+                        sb.append(IndentUtils.createIndentString(doc, indent))
+                        val insertOffset = offset // offset < length ? offset+1 : offset
+                        doc.insertString(insertOffset, sb.toString, null)
+                        caret.setDot(insertOffset)
                 }
             }
         }
@@ -242,7 +241,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             // Pressing newline in the whitespace before a comment
             // should be identical to pressing newline with the caret
             // at the beginning of the comment
-            val begin = Utilities.getRowFirstNonWhite(doc, offset);
+            val begin = Utilities.getRowFirstNonWhite(doc, offset)
             if (begin != -1 && offset < begin) {
                 ts.move(begin)
                 if (ts.moveNext) {
@@ -257,7 +256,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         val isComment = id match {
             case ErlangTokenId.LineComment => true
             case ErlangTokenId.Nl if ts.movePrevious && ts.token.id == ErlangTokenId.LineComment =>
-                //ts.moveNext;
+                //ts.moveNext
                 true
             case _ => false
         }
@@ -341,9 +340,10 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         sb.append(c)
                         loop(i + 1)
                     case _ =>               
-                }; loop(0)
+                }
+                loop(0)
 
-                var insertOffset = offset // offset < length ? offset+1 : offset;
+                var insertOffset = offset // offset < length ? offset+1 : offset
                 if (offset == begin && insertOffset > 0) {
                     insertOffset = Utilities.getRowStart(doc, offset)
                     val sp = Utilities.getRowStart(doc, offset) + sb.length
@@ -410,8 +410,8 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         val braceBalance = LexUtil.lineBalance(doc, offset, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
 
         /** Do not try to guess the condition when offset is before the unbalanced brace */
-        if ((beginEndBalance == 1 || braceBalance.size == 1) && 
-            (!braceBalance.isEmpty && offset > braceBalance.top.offset(th))) {
+        if (beginEndBalance == 1 ||
+            braceBalance.size == 1 && offset > braceBalance.top.offset(th)) {
             // There is one more opening token on the line than a corresponding
             // closing token.  (If there's is more than one we don't try to help.)
             val indent = GsfUtilities.getLineIndent(doc, offset)
@@ -435,12 +435,12 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 } else if (nextIndent == indent) {
                     if (insertEnd) {
                         if (LexUtil.beginEndLineBalance(doc, next, false) < 0) {
-                            insertEnd = false;
+                            insertEnd = false
                         } else {
                             // See if I have a structure word like "else", "ensure", etc.
                             // (These are indent words that are not also begin words)
                             // and if so refrain from inserting the end
-                            val lineBegin = Utilities.getRowFirstNonWhite(doc, next);
+                            val lineBegin = Utilities.getRowFirstNonWhite(doc, next)
 
                             val token = LexUtil.token(doc, lineBegin)
                             for (token <- LexUtil.token(doc, lineBegin) if LexUtil.isIndentToken(token.id) &&
@@ -487,7 +487,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             return false
         }
 
-        //dumpTokens(doc, caretOffset);
+        //dumpTokens(doc, caretOffset)
 
         if (target.getSelectionStart != -1) {
             var isCodeTemplateEditing = GsfUtilities.isCodeTemplateEditing(doc)
@@ -497,7 +497,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 if (start < end) {
                     target.setSelectionStart(start)
                     target.setSelectionEnd(start)
-                    caretOffset = start;
+                    caretOffset = start
                     caret.setDot(caretOffset)
                     doc.remove(start, end - start)
                 }
@@ -556,58 +556,58 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         // "/" is handled AFTER the character has been inserted since we need the lexer's help
         //        if (ch == '\"' || ch == '\'') {
         //            stringTokens = STRING_TOKENS
-        //            beginTokenId = ErlangTokenId.STRING_BEGIN;
+        //            beginTokenId = ErlangTokenId.STRING_BEGIN
         //        } else if (id == ErlangTokenId.Error) {
-        //            //String text = token.text.toString;
+        //            //String text = token.text.toString
         //
         //            ts.movePrevious
         //
         //            val prevId = ts.token.id
         //
         //            if (prevId == ErlangTokenId.STRING_BEGIN) {
-        //                stringTokens = STRING_TOKENS;
-        //                beginTokenId = prevId;
+        //                stringTokens = STRING_TOKENS
+        //                beginTokenId = prevId
         //            } else if (prevId == ErlangTokenId.REGEXP_BEGIN) {
-        //                stringTokens = REGEXP_TOKENS;
-        //                beginTokenId = ErlangTokenId.REGEXP_BEGIN;
+        //                stringTokens = REGEXP_TOKENS
+        //                beginTokenId = ErlangTokenId.REGEXP_BEGIN
         //            }
         //        } else if ((id == ErlangTokenId.STRING_BEGIN) &&
         //                   (caretOffset == (ts.offset + 1))) {
         //            if (!Character.isLetter(ch)) { // %q, %x, etc. Only %[], %!!, %<space> etc. is allowed
-        //                stringTokens = STRING_TOKENS;
-        //                beginTokenId = id;
+        //                stringTokens = STRING_TOKENS
+        //                beginTokenId = id
         //            }
         //        } else if (((id == ErlangTokenId.STRING_BEGIN) && (caretOffset == (ts.offset + 2))) ||
         //                   (id == ErlangTokenId.STRING_END)) {
-        //            stringTokens = STRING_TOKENS;
-        //            beginTokenId = ErlangTokenId.STRING_BEGIN;
+        //            stringTokens = STRING_TOKENS
+        //            beginTokenId = ErlangTokenId.STRING_BEGIN
         //        } else if (((id == ErlangTokenId.REGEXP_BEGIN) && (caretOffset == (ts.offset + 2))) ||
         //                   (id == ErlangTokenId.REGEXP_END)) {
-        //            stringTokens = REGEXP_TOKENS;
-        //            beginTokenId = ErlangTokenId.REGEXP_BEGIN;
+        //            stringTokens = REGEXP_TOKENS
+        //            beginTokenId = ErlangTokenId.REGEXP_BEGIN
         //        }
         //
         //        if (stringTokens != null) {
-        //            val inserted = completeQuote(doc, caretOffset, caret, ch, stringTokens, beginTokenId);
+        //            val inserted = completeQuote(doc, caretOffset, caret, ch, stringTokens, beginTokenId)
         //
         //            if (inserted) {
-        //                caret.setDot(caretOffset + 1);
+        //                caret.setDot(caretOffset + 1)
         //
-        //                return true;
+        //                return true
         //            } else {
-        //                return false;
+        //                return false
         //            }
         //        }
 
-        return false;
+        return false
     }
 
     // For debugging purposes
     // Probably obsolete - see the tokenspy utility in gsf debugging tools for better help
     //private void dumpTokens(BaseDocument doc, int dot) {
-    //    TokenSequence< ?extends ErlangTokenId> ts = LexUtil.getTokenSequence(doc);
+    //    TokenSequence< ?extends ErlangTokenId> ts = LexUtil.getTokenSequence(doc)
     //
-    //    System.out.println("Dumping tokens for dot=" + dot);
+    //    System.out.println("Dumping tokens for dot=" + dot)
     //    int prevOffset = -1;
     //    if (ts != null) {
     //        ts.moveFirst;
@@ -675,7 +675,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             previousAdjustmentOffset = -1
         }
 
-        //dumpTokens(doc, dotPos);
+        //dumpTokens(doc, dotPos)
         ch match {
             //        case '#': {
             //            // Automatically insert #{^} when typing "#" in a quoted string or regexp
@@ -703,8 +703,8 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 }
                 token.id match {
                     case ErlangTokenId.LBracket | ErlangTokenId.RBracket
-                        |ErlangTokenId.LBrace | ErlangTokenId.RBrace
-                        |ErlangTokenId.LParen | ErlangTokenId.RParen =>
+                        | ErlangTokenId.LBrace | ErlangTokenId.RBrace
+                        | ErlangTokenId.LParen | ErlangTokenId.RParen =>
                         ch match {
                             case ']' =>
                                 skipClosingBracket(doc, caret, ch, ErlangTokenId.RBracket)
@@ -822,9 +822,9 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                     case ErlangTokenId.RBrace =>
                         LexUtil.findBwd(ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
                     case ErlangTokenId.RBracket =>
-                        LexUtil.findBwd(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket);
+                        LexUtil.findBwd(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
                     case _ => OffsetRange.NONE
-                        //LexUtil.findBegin(doc, ts);
+                        //LexUtil.findBegin(doc, ts)
                 }
                 begin match {
                     case OffsetRange.NONE =>
@@ -851,8 +851,9 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
     private val PAIR_BWDS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.RParen   -> Set(ErlangTokenId.LParen),
                                                             ErlangTokenId.RBrace   -> Set(ErlangTokenId.LBrace),
                                                             ErlangTokenId.RBracket -> Set(ErlangTokenId.LBracket),
-                                                            ErlangTokenId.End      -> Set(ErlangTokenId.If,
+                                                            ErlangTokenId.End      -> Set(ErlangTokenId.Begin,
                                                                                           ErlangTokenId.Case,
+                                                                                          ErlangTokenId.If,
                                                                                           ErlangTokenId.Receive,
                                                                                           ErlangTokenId.Try)
     )
@@ -992,7 +993,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             case Some(x) => x
         }
         // XXX BEGIN TOR MODIFICATIONS
-        //ts.move(caretOffset+1);
+        //ts.move(caretOffset+1)
         ts.move(caretOffset)
         if (!ts.moveNext) {
             return false
@@ -1085,7 +1086,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 braceBalance = 0
                 bracketBalance = 1 // simulate one extra left bracket
 
-                //token = lastRBracket.getNext;
+                //token = lastRBracket.getNext
                 val th = TokenHierarchy.get(doc)
 
                 val ofs = lastRBracket.offset(th)
@@ -1097,7 +1098,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 finished = false
                 def loop :Unit = if (!finished && token != null) {
                     token.id match {
-                        //int tokenIntId = token.getTokenID.getNumericID;
+                        //int tokenIntId = token.getTokenID.getNumericID
                         case ErlangTokenId.LParen | ErlangTokenId.LBracket =>
                             if (token.id.ordinal == leftBracketIntId) {
                                 bracketBalance += 1
@@ -1117,7 +1118,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                                         bracketBalance = -1
                                     }
 
-                                    finished = true;
+                                    finished = true
                                 }
                             }
                         case ErlangTokenId.LBrace =>
@@ -1130,7 +1131,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         case _ =>
                     }
 
-                    //token = token.getPrevious; // done regardless of finished flag state
+                    //token = token.getPrevious // done regardless of finished flag state
                     if (!ts.movePrevious) {
                         token = ts.token
                         loop
@@ -1229,7 +1230,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             }
         }
 
-        val completablePosition = isQuoteCompletablePosition(doc, dotPos);
+        val completablePosition = isQuoteCompletablePosition(doc, dotPos)
 
         var insideString = false
         val id = token.id
@@ -1240,16 +1241,16 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         }
 
         if (id == ErlangTokenId.Error && previousToken != null && previousToken.id == beginToken) {
-            insideString = true;
+            insideString = true
         }
 
         if (id == ErlangTokenId.Nl && previousToken != null) {
             if (previousToken.id == beginToken) {
-                insideString = true;
+                insideString = true
             } else if (previousToken.id == ErlangTokenId.Error) {
                 if (ts.movePrevious) {
                     if (ts.token.id == beginToken) {
-                        insideString = true;
+                        insideString = true
                     }
                 }
             }
@@ -1269,13 +1270,13 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
 
         if (insideString) {
             if (eol) {
-                return false; // do not complete
+                return false // do not complete
             } else {
                 //#69524
                 val chr = doc.getChars(dotPos, 1)(0)
                 if (chr == bracket) {
                     if (!isAfter) {
-                        doc.insertString(dotPos, "" + bracket, null); //NOI18N
+                        doc.insertString(dotPos, "" + bracket, null) //NOI18N
                     } else {
                         if (!(dotPos < doc.getLength - 1 && doc.getText(dotPos + 1, 1).charAt(0) == bracket)) {
                             return true
@@ -1321,16 +1322,16 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
     @throws(classOf[BadLocationException])
     private def isQuoteCompletablePosition(doc:BaseDocument, dotPos:Int) :Boolean = {
         if (dotPos == doc.getLength) { // there's no other character to test
-            return true;
+            return true
         } else {
             // test that we are in front of ) , " or ' ... etc.
             val eol = Utilities.getRowEnd(doc, dotPos)
 
             if ((dotPos == eol) || (eol == -1)) {
-                return false;
+                return false
             }
 
-            val firstNonWhiteFwd = Utilities.getFirstNonWhiteFwd(doc, dotPos, eol);
+            val firstNonWhiteFwd = Utilities.getFirstNonWhiteFwd(doc, dotPos, eol)
 
             if (firstNonWhiteFwd == -1) {
                 return false
@@ -1342,7 +1343,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             }
 
             //            if (chr == '%' && RubyUtils.isRhtmlDocument(doc)) {
-            //                return true;
+            //                return true
             //            }
         }
     }
@@ -1457,7 +1458,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         loop2
 
                         if ((lineBegin > begin) || (lineEnd < end)) {
-                            ranges.add(new OffsetRange(begin, end));
+                            ranges.add(new OffsetRange(begin, end))
                         }
                     } else {
                         // It's just a line comment next to some code; select the comment
@@ -1548,7 +1549,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                             }
                             i -= 1
                         }
-                        return ts.offset;
+                        return ts.offset
                     } else {
                         var i = offsetInImage - 1
                         while (i >= 0) {

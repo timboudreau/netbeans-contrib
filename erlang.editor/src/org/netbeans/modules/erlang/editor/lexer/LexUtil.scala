@@ -27,6 +27,9 @@ object LexUtil extends BaseLexUtil[TokenId]
 trait LanguageLexUtil {
     protected val language = ErlangTokenId.language
 
+    protected val LPAREN = ErlangTokenId.LParen
+    protected val RPAREN = ErlangTokenId.RParen
+
     protected val WS = Set(ErlangTokenId.Ws,
                            ErlangTokenId.Nl
     )
@@ -58,10 +61,11 @@ trait LanguageLexUtil {
         case _ => false
     }
 
-    protected val LPAREN = ErlangTokenId.LParen
-    protected val RPAREN = ErlangTokenId.RParen
-
     def isBeginToken(id:TokenId) = id match {
+        case ErlangTokenId.Begin => true
+        case ErlangTokenId.Case => true
+        case ErlangTokenId.If => true
+        case ErlangTokenId.Receive => true
         case ErlangTokenId.Try => true
         case _ => false
     }
@@ -72,12 +76,14 @@ trait LanguageLexUtil {
     }
 
     def isIndentToken(id:TokenId) = id match {
-        case
-            ErlangTokenId.Case |
-            ErlangTokenId.After |
-            ErlangTokenId.If |
-            ErlangTokenId.Receive |
-            ErlangTokenId.Begin => true
+        case ErlangTokenId.After => true
+        case ErlangTokenId.Begin => true
+        case ErlangTokenId.Case => true
+        case ErlangTokenId.Catch => true
+        case ErlangTokenId.If => true
+        case ErlangTokenId.Receive => true
+        case ErlangTokenId.Try => true
+        case ErlangTokenId.RArrow => true
         case _ => false
     }
 }
@@ -507,7 +513,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
 
             if (text.equals(up)) {
                 if (balance == 0) {
-                    return new OffsetRange(ts.offset(), ts.offset() + token.length());
+                    return new OffsetRange(ts.offset, ts.offset + token.length)
                 }
                 balance += 1
             } else if (text.equals(down)) {
@@ -542,8 +548,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
 
         var balance = 0
         do {
-            val token = ts.token();
-
+            val token = ts.token
             if (token.id == open) {
                 balance += 1
             } else if (token.id == close) {
@@ -569,7 +574,6 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
 
         // XXX Why 0? Why not offset?
         ts.moveIndex(0)
-
         if (!ts.moveNext) {
             return 0
         }
@@ -607,7 +611,6 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
             }
 
             ts.move(begin)
-
             if (!ts.moveNext) {
                 return 0
             }
@@ -639,7 +642,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
             val end = Utilities.getRowEnd(doc, offset)
 
             val ts = tokenSequence(doc, begin) match {
-                case None => return balanceStack;
+                case None => return balanceStack
                 case Some(x) => x
             }
 
