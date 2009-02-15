@@ -935,6 +935,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         doc.remove(dotPos, 1)
                     case '}' if LexUtil.tokenBalance(doc, ErlangTokenId.LBrace, ErlangTokenId.RBrace, dotPos) != 0 =>
                         doc.remove(dotPos, 1)
+                    case _ =>
                 }
             case '|' | '\"' | '\'' =>
                 val _match = doc.getChars(dotPos, 1) match {
