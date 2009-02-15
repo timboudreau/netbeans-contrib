@@ -692,7 +692,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
             //            }
             //            break;
             //        }
-            case '}' | '{' | ')' | ']' |'(' | '[' =>
+            case '}' | '{' | ')' | ']' |'(' | '[' | 'd' =>
                 if (!isInsertMatchingEnabled(doc)) {
                     return false
                 }
@@ -716,6 +716,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                                 completeOpeningBracket(doc, dotPos, caret, ch)
                             case _ =>
                         }
+                    case _ =>
                 }
 
                 // Reindent blocks (won't do anything if } is not at the beginning of a line
@@ -724,17 +725,13 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         reindent(doc, dotPos, ErlangTokenId.RBrace, caret)
                     case ']' =>
                         reindent(doc, dotPos, ErlangTokenId.RBracket, caret)
+                    case 'd' =>
+                        // See if it's the end of an "end" or an "...." - if so, reindent
+                        reindent(doc, dotPos, ErlangTokenId.End, caret)
+                        //reindent(doc, dotPos, ErlangTokenId.ENSURE, caret);
+                        //reindent(doc, dotPos, ErlangTokenId.RESCUE, caret);
                     case _ =>
                 }
-                
-
-                //        case 'e':
-                //            // See if it's the end of an "else" or an "ensure" - if so, reindent
-                //            reindent(doc, dotPos, ErlangTokenId.ELSE, caret);
-                //            reindent(doc, dotPos, ErlangTokenId.ENSURE, caret);
-                //            reindent(doc, dotPos, ErlangTokenId.RESCUE, caret);
-                //
-                //            break;
                 //
                 //        case 'f':
                 //            // See if it's the end of an "else" - if so, reindent
@@ -823,6 +820,8 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                         LexUtil.findBwd(ts, ErlangTokenId.LBrace, ErlangTokenId.RBrace)
                     case ErlangTokenId.RBracket =>
                         LexUtil.findBwd(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
+                    case ErlangTokenId.End => 
+                        LexUtil.findBwd(ts, PAIR_BWDS.get(ErlangTokenId.End).get, ErlangTokenId.End)
                     case _ => OffsetRange.NONE
                         //LexUtil.findBegin(doc, ts)
                 }
