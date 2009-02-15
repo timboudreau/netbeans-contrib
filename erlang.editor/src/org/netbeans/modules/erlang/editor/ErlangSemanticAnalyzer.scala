@@ -118,7 +118,7 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
                         case _ =>
                     }
                 case ref:AstRef => ref.getKind match {
-                        case METHOD =>
+                        case CALL =>
                             highlights.put(hiRange, ColoringAttributes.FIELD_SET)
                         case PARAMETER =>
                             highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)

@@ -105,23 +105,38 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         visitFunctionClauses(that.getGeneric(0))
     }
 
-    def visitFunctionClauses(that:GNode) = {
-        val functionClause = that.getGeneric(0)
-        visitFunctionClause(functionClause)
-        val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n=>
-            visitFunctionClause(n)
-        }
-    }
-
-    def visitFunctionClause(that:GNode) = {
+    def visitFunctionClauses(that:GNode) :ArrayBuffer[AstItem] = {
         val scope = new AstScope(boundsTokens(that))
         rootScope.addScope(scope)
         scopes.push(scope)
 
+        val funDfns = new ArrayBuffer[AstItem]
+
+        val functionClause = that.getGeneric(0)
+        val funClauseDfn = visitFunctionClause(functionClause)
+        funDfns += funClauseDfn
+
+        val funDfn = new AstDfn(that, funClauseDfn.idToken.getOrElse(null), ElementKind.METHOD, scope, fo)
+        rootScope.addDfn(funDfn)
+
+        val ns :Pair[GNode] = that.getList(1)
+        funDfns ++= foldPair(ns){n=>
+            visitFunctionClause(n)
+        }
+
+        scopes.pop
+        funDfns
+    }
+
+    def visitFunctionClause(that:GNode) :AstDfn = {
+        val inScope = scopes.top
+        val scope = new AstScope(boundsTokens(that))
+        inScope.addScope(scope)
+        scopes.push(scope)
+
         val atomId1 = that.getGeneric(0)
-        val fun = new AstDfn(that, idToken(idNode(atomId1)), ElementKind.METHOD, scope, fo)
-        rootScope.addDfn(fun)
+        val dfn = new AstDfn(that, idToken(idNode(atomId1)), ElementKind.ATTRIBUTE, scope, fo)
+        inScope.addDfn(dfn)
 
         if (that.size == 4) {
             val clauseArgs = that.getGeneric(1)
@@ -137,6 +152,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
         
         scopes.pop
+        dfn
     }
 
     def visitTypeSpec(that:GNode) = {}
@@ -704,26 +720,27 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitAtomId1(that:GNode) = {
         if (isFunctionCallName) {
-            val ref = new AstRef(that, idToken(idNode(that)), ElementKind.METHOD)
-            scopes.top.addRef(ref)
+            val inScope = scopes.top
+            val ref = new AstRef(that, idToken(idNode(that)), ElementKind.CALL)
+            inScope.addRef(ref)
         }
     }
 
     def visitVarId(that:GNode) = {
-        val scope = scopes.top
+        val inScope = scopes.top
         val id = idNode(that)
         if (inVarDefs.isEmpty) {
             val ref = new AstRef(that, idToken(id))
-            scope.addRef(ref)
+            inScope.addRef(ref)
         } else {
             val dfn = new AstDfn(that, idToken(id), inVarDefs.top, new AstScope(boundsTokens(that)), fo)
-            scope.addDfn(dfn)
+            inScope.addDfn(dfn)
         }
     }
 
     /* @Note: bug in scala? when p.head return GNode.fixed1 or etc, f(p.head) will throw ClassCastException
-     * You have to explicitly declare the p's type as: Pair[GNode] before pass it to this function, for example:
-     * val p :Pair[GNode] = gnode.getList(1), or val p :Pair[GNode] = gnode.getList(1).asInstanceOf[Pair[GNode]],
+     * You have to explicitly declare the p's type as: Pair[_] (Pair[Any]) before pass it to this function, for example:
+     * val p :Pair[_] = gnode.getList(1), or val p = gnode.getList(1).asInstanceOf[Pair[GNode]],
      * a simple val p = that.getList(1) will be inferred as Pair[Nothing]
      */
     def loopPair[T](p:Pair[T])(f:T => Unit) :Unit = p match {
@@ -731,5 +748,17 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         case _ =>
             f(p.head)
             loopPair(p.tail){f}
+    }
+
+    def foldPair[T](p:Pair[T])(f:T => AstItem) :ArrayBuffer[AstItem] = {
+        val acc = new ArrayBuffer[AstItem]
+        foldPair(p, acc){f}
+    }
+
+    def foldPair[T](p:Pair[T], acc:ArrayBuffer[AstItem])(f:T => AstItem) :ArrayBuffer[AstItem] = p match {
+        case Pair.EMPTY => acc
+        case _ =>
+            acc += f(p.head)
+            foldPair(p.tail, acc){f}
     }
 }

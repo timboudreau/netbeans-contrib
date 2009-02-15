@@ -166,14 +166,35 @@ class AstDfn(aSymbol:GNode,
     //    }
 
     def htmlFormat(formatter:HtmlFormatter) :Unit = {
-        formatter.appendText(getName)
-        //htmlFormat(formatter, this, false)
         import ElementKind._
         getKind match {
-            case PACKAGE | CLASS | MODULE =>
+            case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
+            case METHOD =>
+                formatter.appendText(getName)
+                formatter.appendText("/")
+                for (node <- symbol) {
+                    val clause = node.getGeneric(0)
+                    if (clause.size > 2) {
+                        val args = clause.getGeneric(1)
+                        val arity = args.size
+                        formatter.appendText(arity.toString)
+                    }
+                }
+            case ATTRIBUTE =>
+                val isFunClause = for (_enclosingDfn <- enclosingDfn if _enclosingDfn.kind == METHOD;
+                                       node <- symbol) yield {
+                    //* it's FunctionClause of _enclosingDfn
+                    val args = node.getGeneric(1)
+                    formatter.appendText(args.getName)
+                    true
+                }
+                isFunClause match {
+                    case None => formatter.appendText(getName)
+                    case _ =>
+                }
             case _ =>
                 //Type resType = getType().resultType()
-                formatter.appendText(" :")
+                formatter.appendText(getName)
                 val atype = tpe
                 if (atype != null) {
                     //formatter.appendText(ScalaElement.typeToString(type))

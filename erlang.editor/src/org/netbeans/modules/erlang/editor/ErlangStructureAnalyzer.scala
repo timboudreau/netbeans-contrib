@@ -79,7 +79,8 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 case ElementKind.ATTRIBUTE | ElementKind.METHOD => items.add(new ErlangStructureItem(dfn, pResult))
                 case _ =>
             }
-            scanTopForms(dfn.bindingScope, items, pResult)
+            // * for Erlang, only visit the rootScope
+            //scanTopForms(dfn.bindingScope, items, pResult)
         }
     }
 
@@ -208,8 +209,8 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
         override
         def isLeaf :Boolean = dfn.getKind match {
-            case MODULE | CLASS => false
-            case CONSTRUCTOR | METHOD | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+            case MODULE | CLASS | METHOD => false
+            case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
             case _ => true
         }
 
