@@ -107,3 +107,5 @@ transient void SEMI_E =
    / RuleClause
    ) SKIP { error("';' expected", yyStart); }
 ;
+
+transient void SYNTAX_ERROR = SKIP void:( !STOP _ )* { error("Syntax error", yyStart); } ;

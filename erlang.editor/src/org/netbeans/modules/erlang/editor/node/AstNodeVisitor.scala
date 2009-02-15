@@ -94,6 +94,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
             case atomId:GNode =>
                 val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)
+            case s:String =>
+                // "spec", todo
         }
 
         scopes.pop
@@ -121,16 +123,18 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         val fun = new AstDfn(that, idToken(idNode(atomId1)), ElementKind.METHOD, scope, fo)
         rootScope.addDfn(fun)
 
-        val clauseArgs = that.getGeneric(1)
-        inVarDefs.push(ElementKind.PARAMETER)
-        visitClauseArgs(clauseArgs)
-        inVarDefs.pop
-        val clauseGuard = that.getGeneric(2)
-        if (clauseGuard != null) {
-            visitClauseGuard(clauseGuard)
+        if (that.size == 4) {
+            val clauseArgs = that.getGeneric(1)
+            inVarDefs.push(ElementKind.PARAMETER)
+            visitClauseArgs(clauseArgs)
+            inVarDefs.pop
+            val clauseGuard = that.getGeneric(2)
+            if (clauseGuard != null) {
+                visitClauseGuard(clauseGuard)
+            }
+            val clauseBody = that.getGeneric(3)
+            visitClauseBody(clauseBody)
         }
-        val clauseBody = that.getGeneric(3)
-        visitClauseBody(clauseBody)
         
         scopes.pop
     }

@@ -64,10 +64,13 @@ generic Form =
 ;
 
 generic Attribute =
-  void:"-":s AtomId AttrVal
-/ void:"-":s AtomId TypedAttrVal
-/ void:"-":s AtomId void:"(":s TypedAttrVal void:")":s
-/ void:"-":s void:"spec":k TypeSpec
+  void:"-":s AtomId 
+  ( AttrVal
+  / TypedAttrVal
+  / void:"(":s TypedAttrVal void:")":s
+  / SYNTAX_ERROR
+  )
+/ void:"-":s "spec":k ( TypeSpec / SYNTAX_ERROR )
 ;
 
 generic AtomId1 =
@@ -170,7 +173,10 @@ transient generic Function = FunctionClauses ;
 
 transient generic FunctionClauses = FunctionClause ( SEMI_E FunctionClause )* ;
 
-transient generic FunctionClause = AtomId1 ClauseArgs ClauseGuard? ClauseBody ;
+transient generic FunctionClause =
+  AtomId1 ClauseArgs ClauseGuard? ClauseBody 
+/ AtomId1 SYNTAX_ERROR
+;
 
 transient generic ClauseArgs = ArgumentList ;
 
