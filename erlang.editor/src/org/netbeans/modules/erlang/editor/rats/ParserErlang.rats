@@ -367,7 +367,7 @@ transient generic Atomic =
 
 transient generic Strings = String String* ;
 
-void PrefixOp =
+generic PrefixOp =
   "+"   :s
 / "-"   :s
 / "bnot":k

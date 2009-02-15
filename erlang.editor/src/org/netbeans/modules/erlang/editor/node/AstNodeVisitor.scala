@@ -110,7 +110,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         rootScope.addScope(scope)
         scopes.push(scope)
 
-        val funDfns = new ArrayBuffer[AstItem]
+        val funDfns = new ArrayBuffer[Any]
 
         val functionClause = that.getGeneric(0)
         val funClauseDfn = visitFunctionClause(functionClause)
@@ -125,7 +125,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
 
         scopes.pop
-        funDfns
+        funDfns.asInstanceOf[ArrayBuffer[AstItem]]
     }
 
     def visitFunctionClause(that:GNode) :AstDfn = {
@@ -141,7 +141,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         if (that.size == 4) {
             val clauseArgs = that.getGeneric(1)
             inVarDefs.push(ElementKind.PARAMETER)
-            visitClauseArgs(clauseArgs)
+            val tpes = visitClauseArgs(clauseArgs)
+            dfn.property("args", tpes)
             inVarDefs.pop
             val clauseGuard = that.getGeneric(2)
             if (clauseGuard != null) {
@@ -201,7 +202,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitAttrVal(that:GNode) = {}
 
-    def visitClauseArgs(that:GNode) = {
+    def visitClauseArgs(that:GNode) :List[String] = {
         val args = that.getGeneric(0)
         visitArgumentList(args)
     }
@@ -216,7 +217,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         visitExprs(exprs)
     }
 
-    def visitExpr(that:GNode) :Unit = {
+    def visitExpr(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
             case "Expr" => visitExpr(n)
@@ -224,7 +225,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitExpr100(that:GNode) :Unit = {
+    def visitExpr100(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
             case "MatchExpr" => visitMatchExpr(n)
@@ -233,7 +234,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitMatchExpr(that:GNode) :Unit = {
+    def visitMatchExpr(that:GNode) :String = {
         val expr150 = that.getGeneric(0)
         inVarDefs.push(ElementKind.VARIABLE)
         visitExpr150(expr150)
@@ -242,88 +243,117 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         visitExpr100(expr100)
     }
 
-    def visitSendExpr(that:GNode) = {
+    def visitSendExpr(that:GNode) :String = {
         val expr150 = that.getGeneric(0)
         visitExpr150(expr150)
         val expr100 = that.getGeneric(1)
         visitExpr100(expr100)
+        "undefined"
     }
 
-    def visitExpr150(that:GNode) :Unit = {
+    def visitExpr150(that:GNode) :String = {
         val expr160 = that.getGeneric(0)
-        visitExpr160(expr160)
+        var tpe = visitExpr160(expr160)
         val expr150 = that.getGeneric(1)
         if (expr150 != null) {
             // orelse op
             visitExpr150(expr150)
+            tpe = "boolean"
         }
+        tpe
     }
 
-    def visitExpr160(that:GNode) :Unit = {
+    def visitExpr160(that:GNode) :String = {
         val expr200 = that.getGeneric(0)
-        visitExpr200(expr200)
+        var tpe = visitExpr200(expr200)
         val expr160 = that.getGeneric(1)
         if (expr160 != null) {
             // andalso op
             visitExpr160(expr160)
+            tpe = "boolean"
         }
+        tpe
     }
 
-    def visitExpr200(that:GNode) = {
+    def visitExpr200(that:GNode) :String = {
         val expr300 = that.getGeneric(0)
-        visitExpr300(expr300)
+        var tpe = visitExpr300(expr300)
         val expr300_1 = that.getGeneric(1)
         if (expr300_1 != null) {
             // CompOp
             visitExpr300(expr300_1)
+            tpe = "boolean"
         }
+        tpe
     }
 
-    def visitExpr300(that:GNode) :Unit = {
+    def visitExpr300(that:GNode) :String = {
         val expr400 = that.getGeneric(0)
-        visitExpr400(expr400)
+        var tpe = visitExpr400(expr400)
         val expr300 = that.getGeneric(1)
         if (expr300 != null) {
             // ListOp
             visitExpr300(expr300)
+            tpe = "[...]"
         }
+        tpe
     }
 
-    def visitExpr400(that:GNode) :Unit = {
+    def visitExpr400(that:GNode) :String = {
         val expr500 = that.getGeneric(0)
-        visitExpr500(expr500)
+        var tpe = visitExpr500(expr500)
         val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             // AddOp
+            tpe = "number"
             visitExpr500(n)
         }
+        tpe
     }
 
-    def visitExpr500(that:GNode) :Unit = {
+    def visitExpr500(that:GNode) :String = {
         val expr600 = that.getGeneric(0)
-        visitExpr600(expr600)
+        var tpe = visitExpr600(expr600)
         val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n=>
             // MultOp
+            tpe = "number"
             visitExpr600(n)
         }
+        tpe
     }
     
-    def visitExpr600(that:GNode) = {
-        val expr700 = that.getGeneric(0)
-        visitExpr700(expr700)
+    def visitExpr600(that:GNode) :String = {
+        val prefixOp = that.getGeneric(0)
+        val tpe1 = if (prefixOp != null) {
+            prefixOp.getString(0) match {
+                case "+" | "-" => "number"
+                case "bnot" => "int"
+                case "not" => "boolean"
+            }
+        } else ""
+        
+        val expr700 = that.getGeneric(1)
+        val tpe2 = visitExpr700(expr700)
+        
+        if (prefixOp != null) tpe1 else tpe2
     }
 
-    def visitExpr700(that:GNode) = {
+    def visitExpr700(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
-            case "FunctionCall" => visitFunctionCall(n)
-            case "RecordExpr" => visitRecordExpr(n)
-            case "Expr800" => visitExpr800(n)
+            case "FunctionCall" => 
+                visitFunctionCall(n)
+                "..."
+            case "RecordExpr" => 
+                visitRecordExpr(n)
+                "#{...}"
+            case "Expr800" => 
+                visitExpr800(n)
         }
     }
 
-    def visitExpr800(that:GNode) = {
+    def visitExpr800(that:GNode) :String = {
         val expr900 = that.getGeneric(0)
         val exprMax = that.getGeneric(1)
         if (exprMax != null) {
@@ -342,9 +372,9 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitExpr900(that:GNode) = {
+    def visitExpr900(that:GNode) :String = {
         val n = that.getGeneric(0)
-        n.getName match {
+        val tpe = n.getName match {
             case "AtomId1" => visitAtomId1(n)
             case "ExprMax" => visitExprMax(n)
         }
@@ -352,32 +382,53 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         loopPair(ns){atomId1=>
             visitAtomId1(atomId1)
         }
+        tpe
     }
 
-    def visitExprMax(that:GNode) = {
+    def visitExprMax(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
-            case "VarId" => visitVarId(n)
+            case "VarId" => 
+                visitVarId(n)
             case "Atomic" => 
                 if (inFunctionCallNames.top) {
                     isFunctionCallName = true
                 }
-                visitAtomic(n)
+                val tpe = visitAtomic(n)
                 isFunctionCallName = false
-            case "List" => visitList(n)
-            case "Binary" => visitBinary(n)
-            case "ListComprehension" => visitListComprehension(n)
-            case "BinaryComprehension" => visitBinaryComprehension(n)
+                tpe
+            case "List" => 
+                visitList(n)
+                "[...]"
+            case "Binary" => 
+                visitBinary(n)
+                "<<...>>"
+            case "ListComprehension" => 
+                visitListComprehension(n)
+                "[...]"
+            case "BinaryComprehension" => 
+                visitBinaryComprehension(n)
+                "<<...>>"
             case "Tuple" => visitTuple(n)
+                "{...}"
             case "ParenExpr" => visitParenExpr(n)
+                "(...)"
             case "BeginExpr" => visitBeginExpr(n)
+                "..."
             case "IfExpr" => visitIfExpr(n)
+                "..."
             case "CaseExpr" => visitCaseExpr(n)
+                "..."
             case "ReceiveExpr" => visitReceiveExpr(n)
+                "..."
             case "FunExpr" => visitFunExpr(n)
+                "fun"
             case "TryExpr" => visitTryExpr(n)
+                "..."
             case "QueryExpr" => visitQueryExpr(n)
+                "..."
             case "MacroExpr" => visitMacroExpr(n)
+                "..."
         }
     }
 
@@ -675,20 +726,22 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         visitListComprehension(lc)
     }
 
-    def visitArgumentList(that:GNode) = {
+    def visitArgumentList(that:GNode) :List[String] = {
         val exprs = that.getGeneric(0)
         if (exprs != null) {
-            visitExprs(exprs)
-        }
+            visitExprs(exprs).toList
+        } else Nil
     }
 
-    def visitExprs(that:GNode) = {
+    def visitExprs(that:GNode) :ArrayBuffer[String] = {
         val expr = that.getGeneric(0)
-        visitExpr(expr)
+        val tpes = new ArrayBuffer[String]
+        tpes += visitExpr(expr)
         val ns :Pair[GNode] = that.getList(1)
         loopPair(ns){n => 
-            visitExpr(n)
+            tpes += visitExpr(n)
         }
+        tpes
     }
 
     def visitGuard(that:GNode) = {
@@ -700,11 +753,14 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitAtomic(that:GNode) = {
+    def visitAtomic(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
             case "AtomId1" => visitAtomId1(n)
-            case _ =>
+            case "Char" => "char"
+            case "Float" => "float"
+            case "Integer" => "int"
+            case "Strings" => "string"
         }
     }
 
@@ -718,23 +774,27 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitRuleBody(that:GNode) = {}
 
-    def visitAtomId1(that:GNode) = {
+    def visitAtomId1(that:GNode) :String = {
+        val inScope = scopes.top
+        val idTk = idToken(idNode(that))
         if (isFunctionCallName) {
-            val inScope = scopes.top
-            val ref = new AstRef(that, idToken(idNode(that)), ElementKind.CALL)
+            val ref = new AstRef(that, idTk, ElementKind.CALL)
             inScope.addRef(ref)
         }
+        idTk.text.toString
     }
 
-    def visitVarId(that:GNode) = {
+    def visitVarId(that:GNode) :String = {
         val inScope = scopes.top
-        val id = idNode(that)
+        val idTk = idToken(idNode(that))
         if (inVarDefs.isEmpty) {
-            val ref = new AstRef(that, idToken(id))
+            val ref = new AstRef(that, idTk)
             inScope.addRef(ref)
+            idTk.text.toString
         } else {
-            val dfn = new AstDfn(that, idToken(id), inVarDefs.top, new AstScope(boundsTokens(that)), fo)
+            val dfn = new AstDfn(that, idTk, inVarDefs.top, new AstScope(boundsTokens(that)), fo)
             inScope.addDfn(dfn)
+            idTk.text.toString
         }
     }
 
@@ -750,12 +810,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
             loopPair(p.tail){f}
     }
 
-    def foldPair[T](p:Pair[T])(f:T => AstItem) :ArrayBuffer[AstItem] = {
-        val acc = new ArrayBuffer[AstItem]
+    def foldPair[T](p:Pair[T])(f:T => Any) :ArrayBuffer[Any] = {
+        val acc = new ArrayBuffer[Any]
         foldPair(p, acc){f}
     }
 
-    def foldPair[T](p:Pair[T], acc:ArrayBuffer[AstItem])(f:T => AstItem) :ArrayBuffer[AstItem] = p match {
+    def foldPair[T](p:Pair[T], acc:ArrayBuffer[Any])(f:T => Any) :ArrayBuffer[Any] = p match {
         case Pair.EMPTY => acc
         case _ =>
             acc += f(p.head)

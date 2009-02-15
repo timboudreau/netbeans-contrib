@@ -66,7 +66,8 @@ class AstDfn(aSymbol:GNode,
              pickToken:Token[_],
              kind:ElementKind,
              private var _bindingScope:AstScope,
-             var fo:FileObject ) extends AstItem(aSymbol, pickToken, kind) with AstElementHandle {
+             var fo:FileObject
+) extends AstItem(aSymbol, pickToken, kind) with AstElementHandle with LanguageAstDfn {
 
     if (_bindingScope != null) {
         _bindingScope.bindingDfn = Some(this)
@@ -165,44 +166,6 @@ class AstDfn(aSymbol:GNode,
     //        }
     //    }
 
-    def htmlFormat(formatter:HtmlFormatter) :Unit = {
-        import ElementKind._
-        getKind match {
-            case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-            case METHOD =>
-                formatter.appendText(getName)
-                formatter.appendText("/")
-                for (node <- symbol) {
-                    val clause = node.getGeneric(0)
-                    if (clause.size > 2) {
-                        val args = clause.getGeneric(1)
-                        val arity = args.size
-                        formatter.appendText(arity.toString)
-                    }
-                }
-            case ATTRIBUTE =>
-                val isFunClause = for (_enclosingDfn <- enclosingDfn if _enclosingDfn.kind == METHOD;
-                                       node <- symbol) yield {
-                    //* it's FunctionClause of _enclosingDfn
-                    val args = node.getGeneric(1)
-                    formatter.appendText(args.getName)
-                    true
-                }
-                isFunClause match {
-                    case None => formatter.appendText(getName)
-                    case _ =>
-                }
-            case _ =>
-                //Type resType = getType().resultType()
-                formatter.appendText(getName)
-                val atype = tpe
-                if (atype != null) {
-                    //formatter.appendText(ScalaElement.typeToString(type))
-                }
-                //formatter.appendText(resType.toString())
-                //htmlFormat(formatter, resType, true)
-        }
-    }
 
     def packageName :String = {
         null
@@ -223,6 +186,70 @@ class AstDfn(aSymbol:GNode,
 
     def isEmphasize :Boolean = {
         false
+    }
+
+}
+
+/**
+ * Erlang special functions
+ */
+trait LanguageAstDfn {self:AstDfn =>
+    import ElementKind._
+    
+    def htmlFormat(formatter:HtmlFormatter) :Unit = {
+        import ElementKind._
+        getKind match {
+            case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
+            case METHOD =>
+                formatter.appendText(getName)
+                formatter.appendText("/")
+                for (node <- symbol) {
+                    val clause = node.getGeneric(0)
+                    if (clause.size > 2) {
+                        val args = clause.getGeneric(1)
+                        val arity = args.size
+                        formatter.appendText(arity.toString)
+                    }
+                }
+            case ATTRIBUTE =>
+                //* is it FunctionClause of _enclosingDfn ?
+                val isFunctionClause = (for (_enclosingDfn <- enclosingDfn if _enclosingDfn.kind == METHOD) yield true) match {
+                    case None => false
+                    case Some(x) => x
+                }
+                if (isFunctionClause) {
+                    for (node <- symbol) property("args") match {
+                        case Some(args:List[String]) =>
+                            formatter.appendText("(")
+                            val itr = args.elements
+                            while (itr.hasNext) {
+                                formatter.appendText(itr.next)
+                                if (itr.hasNext) {
+                                    formatter.appendText(", ")
+                                }
+                            }
+                            formatter.appendText(")")
+                        case _ => formatter.appendText("()")
+                    }
+                } else formatter.appendText(getName)
+            case _ =>
+                //Type resType = getType().resultType()
+                formatter.appendText(getName)
+                val atype = tpe
+                if (atype != null) {
+                    //formatter.appendText(ScalaElement.typeToString(type))
+                }
+                //formatter.appendText(resType.toString())
+                //htmlFormat(formatter, resType, true)
+        }
+    }
+
+    def isFunctionClause = {
+        var b = self.asInstanceOf[AstItem].kind == ATTRIBUTE
+        for (_enclosingDfn <- self.enclosingDfn if _enclosingDfn.kind == METHOD) {
+            b = true
+        }
+        b
     }
 
 }

@@ -109,10 +109,12 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
                             highlights.put(hiRange, ColoringAttributes.CLASS_SET)
                         case CLASS =>
                             highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                        case ATTRIBUTE =>
-                            highlights.put(hiRange, ColoringAttributes.STATIC_SET)
                         case METHOD =>
                             highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+                        case ATTRIBUTE if dfn.isFunctionClause =>
+                            highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+                        case ATTRIBUTE =>
+                            highlights.put(hiRange, ColoringAttributes.STATIC_SET)
                         case PARAMETER =>
                             highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
                         case _ =>

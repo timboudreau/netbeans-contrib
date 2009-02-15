@@ -47,6 +47,8 @@ import org.netbeans.modules.erlang.editor.ErlangMimeResolver
 import org.openide.filesystems.{FileObject}
 import xtc.tree.{GNode}
 
+import scala.collection.mutable.{HashMap}
+
 /**
  *
  * @author Caoyuan Deng
@@ -69,6 +71,7 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) e
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
+    private var properties :Option[HashMap[String, Any]] = None
 
     idToken = aIdToken
     symbol  = aSymbol
@@ -153,6 +156,22 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) e
     def enclosingScope :Option[AstScope] = {
         assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
         _enclosingScope
+    }
+
+    def property(k:String, v:Any) :Unit = {
+        if (properties == None) {
+            properties = Some(new HashMap)
+        }
+        for (_properties <- properties) {
+            _properties += (k -> v)
+        }
+    }
+
+    def property(k:String) :Option[Any] = {
+        for (_properties <- properties) {
+            return _properties.get(k)
+        }
+        None
     }
 }
 
