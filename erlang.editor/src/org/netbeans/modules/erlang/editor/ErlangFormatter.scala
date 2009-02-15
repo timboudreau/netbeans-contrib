@@ -486,6 +486,7 @@ class ErlangFormatter extends Formatter {
         // Compute indent for next line
         val newBalance = unresolvedBraces.size
         val lastUnresolved = if (newBalance > 0) unresolvedBraces(newBalance - 1) else null
+        val lastUnresolvedId = if (lastUnresolved != null) lastUnresolved.token.id else null
         val lastUnresolvedText = if (lastUnresolved != null) lastUnresolved.token.text.toString else null
 
         // decide if next line is new or continued continute line
@@ -503,17 +504,10 @@ class ErlangFormatter extends Formatter {
                     ErlangTokenId.Fun | ErlangTokenId.End | ErlangTokenId.Semicolon |
                     ErlangTokenId.RParen | ErlangTokenId.RBracket | ErlangTokenId.RBrace | ErlangTokenId.DGt =>
                     false
-                case ErlangTokenId.Comma =>
-                    //we have special case
-                    if (lastUnresolved != null && lastUnresolved.isLastOnLine && (lastUnresolvedText.equals("(") ||
-                                                                                  lastUnresolvedText.equals("[") ||
-                                                                                  lastUnresolvedText.equals("{") ||
-                                                                                  lastUnresolvedText.equals("<<"))) {
-
-                        true
-                    } else {
-                        // default
-                        false
+                    //we have special case:
+                case ErlangTokenId.Comma => lastUnresolvedId match {
+                        case ErlangTokenId.LParen | ErlangTokenId.LBracket | ErlangTokenId.LBrace | ErlangTokenId.DLt if lastUnresolved.isLastOnLine => true
+                        case _ => false // default
                     }
                 case ErlangTokenId.LParen | ErlangTokenId.LBracket | ErlangTokenId.LBrace | ErlangTokenId.DLt =>
                     // the last unresolved brace is "(", "[", "{" , "<<",
