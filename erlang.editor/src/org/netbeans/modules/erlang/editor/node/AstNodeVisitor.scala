@@ -44,12 +44,12 @@ import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRef,AstRootScope,AstScope,AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
+import org.netbeans.modules.erlang.editor.node.ErlangItems._
 import org.openide.filesystems.FileObject
 
 import scala.collection.mutable.{ArrayBuffer,Stack}
 
-import xtc.tree.GNode
-import xtc.tree.Node
+import xtc.tree.{GNode,Node}
 import xtc.util.Pair
 
 
@@ -61,7 +61,8 @@ import xtc.util.Pair
 class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
 
     private val inVarDefs = new Stack[ElementKind]
-    private var inFunctionCallNames = new Stack[Boolean]
+    private val functionCalls = new Stack[FunctionCall]
+    private val inFunctionCallNames = new Stack[Boolean]
     inFunctionCallNames.push(false)
     private var isFunctionCallName = false
 
@@ -361,19 +362,33 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitExpr800(that:GNode) :String = {
         val expr900 = that.getGeneric(0)
         val exprMax = that.getGeneric(1)
-        if (exprMax != null) {
-            // * functionCallName is exprMax rather than expr900
-            if (inFunctionCallNames.top) {
-                inFunctionCallNames.push(false)
+        exprMax match {
+            case null if functionCalls.isEmpty =>
+                // it's a plain expr900
                 visitExpr900(expr900)
+            case null =>
+                // it's a local function call name
+                inFunctionCallNames.push(true)
+                val tpe = visitExpr900(expr900)
                 inFunctionCallNames.pop
-            } else {
+                tpe
+            case _ if functionCalls.isEmpty =>
+                // should not happen? since exprMax is not null, it should be in function call
                 visitExpr900(expr900)
-            }
-            
-            visitExprMax(exprMax)
-        } else {
-            visitExpr900(expr900)
+                visitExprMax(exprMax)
+            case _ =>
+                // in a remote function call
+                val functionCall = functionCalls.top
+                
+                inFunctionCallNames.push(false)
+                val remoteName = visitExpr900(expr900)
+                functionCall.in = Some(remoteName)
+                inFunctionCallNames.pop
+                
+                inFunctionCallNames.push(true)
+                val name = visitExprMax(exprMax)
+                inFunctionCallNames.pop
+                remoteName + ":" + name
         }
     }
 
@@ -553,11 +568,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitFunctionCall(that:GNode) = {
         val expr800 = that.getGeneric(0)
-        inFunctionCallNames.push(true)
+        val functionCall = FunctionCall(None, null, -1)
+        functionCalls.push(functionCall)
         visitExpr800(expr800)
-        inFunctionCallNames.pop
+        functionCalls.pop
         val args = that.getGeneric(1)
-        visitArgumentList(args)
+        val args1 = visitArgumentList(args)
+        functionCall.arity = args1.size
     }
 
     def visitIfExpr(that:GNode) = {
@@ -633,27 +650,39 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
             val funClauses = that.getGeneric(0)
             visitFunClauses(funClauses)
         case 2 =>
-            val callName = that.getGeneric(0)
-            callName.getName match {
+            val arity = that.getGeneric(1)
+            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
+            val call = that.getGeneric(0)
+            functionCalls.push(functionCall)
+            call.getName match {
                 case "AtomId1" =>
                     isFunctionCallName = true
-                    visitAtomId1(callName)
+                    visitAtomId1(call)
                     isFunctionCallName = false
                 case "MacroId" =>
             }
-            val arity = that.getGeneric(1)
+            functionCalls.pop
             arity
         case 3 =>
-            val remoteName = that.getGeneric(0)
-            val callName = that.getGeneric(1)
-            callName.getName match {
+            val arity = that.getGeneric(2)
+            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
+            functionCalls.push(functionCall)
+            val remote = that.getGeneric(0)
+            remote.getName match {
+                case "AtomId1" =>
+                    val remoteName = visitAtomId1(remote)
+                    functionCall.in = Some(remoteName)
+                case "MacroId" =>                    
+            }
+            val call = that.getGeneric(1)
+            call.getName match {
                 case "AtomId1" =>
                     isFunctionCallName = true
-                    visitAtomId1(callName)
+                    visitAtomId1(call)
                     isFunctionCallName = false
                 case "MacroId" =>
             }
-            val arity = that.getGeneric(2)
+            functionCalls.pop
             arity
     }
 
@@ -792,11 +821,15 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitAtomId1(that:GNode) :String = {
         val inScope = scopes.top
         val idTk = idToken(idNode(that))
+        val name = idTk.text.toString
         if (isFunctionCallName) {
             val ref = new AstRef(that, idTk, ElementKind.CALL)
             inScope.addRef(ref)
+            val functionCall = functionCalls.top
+            functionCall.name = name
+            ref.property("call", functionCall)
         }
-        idTk.text.toString
+        name
     }
 
     def visitVarId(that:GNode) :String = {
