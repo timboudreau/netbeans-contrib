@@ -203,35 +203,24 @@ trait LanguageAstDfn {self:AstDfn =>
             case METHOD =>
                 formatter.appendText(getName)
                 formatter.appendText("/")
-                for (node <- symbol) {
-                    val clause = node.getGeneric(0)
-                    if (clause.size > 2) {
-                        val args = clause.getGeneric(1)
-                        val arity = args.size
-                        formatter.appendText(arity.toString)
-                    }
+                for (arity <- property("arity")) {
+                    formatter.appendText(arity.toString)
                 }
-            case ATTRIBUTE =>
-                //* is it FunctionClause of _enclosingDfn ?
-                val isFunctionClause = (for (_enclosingDfn <- enclosingDfn if _enclosingDfn.kind == METHOD) yield true) match {
-                    case None => false
-                    case Some(x) => x
-                }
-                if (isFunctionClause) {
-                    for (node <- symbol) property("args") match {
-                        case Some(args:List[String]) =>
-                            formatter.appendText("(")
-                            val itr = args.elements
-                            while (itr.hasNext) {
-                                formatter.appendText(itr.next)
-                                if (itr.hasNext) {
-                                    formatter.appendText(", ")
-                                }
+            case ATTRIBUTE if isFunctionClause => //* is it FunctionClause of enclosingDfn ?
+                property("args") match {
+                    case Some(args:List[String]) =>
+                        formatter.appendText("(")
+                        val itr = args.elements
+                        while (itr.hasNext) {
+                            formatter.appendText(itr.next)
+                            if (itr.hasNext) {
+                                formatter.appendText(", ")
                             }
-                            formatter.appendText(")")
-                        case _ => formatter.appendText("()")
-                    }
-                } else formatter.appendText(getName)
+                        }
+                        formatter.appendText(")")
+                    case _ => formatter.appendText("()")
+                }
+            case ATTRIBUTE => formatter.appendText(getName)
             case _ =>
                 //Type resType = getType().resultType()
                 formatter.appendText(getName)
@@ -245,8 +234,8 @@ trait LanguageAstDfn {self:AstDfn =>
     }
 
     def isFunctionClause = {
-        var b = self.asInstanceOf[AstItem].kind == ATTRIBUTE
-        for (_enclosingDfn <- self.enclosingDfn if _enclosingDfn.kind == METHOD) {
+        var b = false
+        for (_enclosingDfn <- self.enclosingDfn if _enclosingDfn.kind == METHOD && self.asInstanceOf[AstItem].kind == ATTRIBUTE) {
             b = true
         }
         b

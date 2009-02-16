@@ -118,6 +118,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
         val funDfn = new AstDfn(that, funClauseDfn.idToken.getOrElse(null), ElementKind.METHOD, scope, fo)
         rootScope.addDfn(funDfn)
+        val arity = funClauseDfn.property("args") match {
+            case None => 0
+            case Some(x:List[String]) => x.size
+        }
+        funDfn.property("arity", arity)
 
         val ns :Pair[GNode] = that.getList(1)
         funDfns ++= foldPair(ns){n=>
@@ -397,9 +402,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
                 val tpe = visitAtomic(n)
                 isFunctionCallName = false
                 tpe
-            case "List" => 
-                visitList(n)
-                "[...]"
+            case "List" => visitList(n)
             case "Binary" => 
                 visitBinary(n)
                 "<<...>>"
@@ -410,9 +413,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
                 visitBinaryComprehension(n)
                 "<<...>>"
             case "Tuple" => visitTuple(n)
-                "{...}"
             case "ParenExpr" => visitParenExpr(n)
-                "(...)"
             case "BeginExpr" => visitBeginExpr(n)
                 "..."
             case "IfExpr" => visitIfExpr(n)
@@ -432,7 +433,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitParenExpr(that:GNode) = {
+    def visitParenExpr(that:GNode) :String = {
         val expr = that.getGeneric(0)
         visitExpr(expr)
     }
@@ -450,25 +451,28 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitList(that:GNode) = {
+    def visitList(that:GNode) :String = {
         if (that.size == 2) {
             val expr = that.getGeneric(0)
-            visitExpr(expr)
+            val tpe1 = visitExpr(expr)
             val tail = that.getGeneric(1)
-            visitTail(tail)
-        }
+            val tpe2 = visitTail(tail)
+            "[" + tpe1 + tpe2
+        } else "[]"
     }
 
-    def visitTail(that:GNode) :Unit = that.size match {
-        case 0 =>
+    def visitTail(that:GNode) :String = that.size match {
+        case 0 => "]"
         case 1 =>
             val expr = that.getGeneric(0)
-            visitExpr(expr)
+            val tpe = visitExpr(expr)
+            "|" + tpe + "]"
         case 2 =>    
             val expr = that.getGeneric(0)
-            visitExpr(expr)
+            val tpe1 = visitExpr(expr)
             val tail = that.getGeneric(1)
-            visitTail(tail)
+            val tpe2 = visitTail(tail)
+            "," + tpe1 + tpe2
     }
 
     def visitBinary(that:GNode) = {}
@@ -521,11 +525,22 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
     }
 
-    def visitTuple(that:GNode) = that.size match {
-        case 0 =>
+    def visitTuple(that:GNode) :String = that.size match {
+        case 0 => "{}"
         case 1 => 
             val exprs = that.getGeneric(0)
-            visitExprs(exprs)
+            val tpes = visitExprs(exprs)
+            val sb = new StringBuilder
+            sb.append("{")
+            val itr = tpes.elements
+            while (itr.hasNext) {
+                sb.append(itr.next)
+                if (itr.hasNext) {
+                    sb.append(",")
+                }
+            }
+            sb.append("}")
+            sb.toString
     }
 
     def visitRecordExpr(that:GNode) = {}
