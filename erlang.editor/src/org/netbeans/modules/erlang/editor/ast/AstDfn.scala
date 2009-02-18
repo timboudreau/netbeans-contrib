@@ -211,7 +211,7 @@ trait LanguageAstDfn {self:AstDfn =>
             for (arity <- property("arity")) {
                 formatter.appendText(arity.toString)
             }
-        case ATTRIBUTE if isFunctionClause => //* is it FunctionClause of enclosingDfn ?
+        case ATTRIBUTE if isFunctionClause =>
             property("args") match {
                 case Some(args:List[String]) =>
                     formatter.appendText("(")
@@ -239,11 +239,12 @@ trait LanguageAstDfn {self:AstDfn =>
     
 
     def isFunctionClause = {
-        var b = false
-        for (_enclosingDfn <- self.enclosingDfn if _enclosingDfn.kind == METHOD && self.asInstanceOf[AstItem].kind == ATTRIBUTE) {
-            b = true
+        //* is it FunctionClause of enclosingDfn ?
+        val b = for (aDfn <- self.enclosingDfn if aDfn.kind == METHOD && self.getKind == ATTRIBUTE) yield true
+        b match {
+            case None => false
+            case Some(x) => x
         }
-        b
     }
 
     def functionDfn :Option[AstDfn] = self.getKind match {
