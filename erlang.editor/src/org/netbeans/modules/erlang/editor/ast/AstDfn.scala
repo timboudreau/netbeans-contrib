@@ -187,9 +187,9 @@ trait LanguageAstDfn {self:AstDfn =>
     import ElementKind._
     import org.netbeans.modules.erlang.editor.node.ErlangItems._
 
-    def isReferredBy(ref:AstRef) :Boolean = ref.kind match {
-        case CALL => ref.property("call") match {
-                case Some(FunctionCall(_, name, arity)) if name.equals(getName)=> true
+    def isReferredBy(ref:AstRef) :Boolean = (ref.kind, self.getKind) match {
+        case (CALL, METHOD) => ref.property("call") match {
+                case Some(FunctionCall(_, name, arity)) if name.equals(getName) => true
                 case _ => false
             }
         case _ =>
@@ -203,42 +203,40 @@ trait LanguageAstDfn {self:AstDfn =>
     }
 
     
-    def htmlFormat(formatter:HtmlFormatter) :Unit = {
-        import ElementKind._
-        getKind match {
-            case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-            case METHOD =>
-                formatter.appendText(getName)
-                formatter.appendText("/")
-                for (arity <- property("arity")) {
-                    formatter.appendText(arity.toString)
-                }
-            case ATTRIBUTE if isFunctionClause => //* is it FunctionClause of enclosingDfn ?
-                property("args") match {
-                    case Some(args:List[String]) =>
-                        formatter.appendText("(")
-                        val itr = args.elements
-                        while (itr.hasNext) {
-                            formatter.appendText(itr.next)
-                            if (itr.hasNext) {
-                                formatter.appendText(", ")
-                            }
+    def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
+        case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
+        case METHOD =>
+            formatter.appendText(getName)
+            formatter.appendText("/")
+            for (arity <- property("arity")) {
+                formatter.appendText(arity.toString)
+            }
+        case ATTRIBUTE if isFunctionClause => //* is it FunctionClause of enclosingDfn ?
+            property("args") match {
+                case Some(args:List[String]) =>
+                    formatter.appendText("(")
+                    val itr = args.elements
+                    while (itr.hasNext) {
+                        formatter.appendText(itr.next)
+                        if (itr.hasNext) {
+                            formatter.appendText(", ")
                         }
-                        formatter.appendText(")")
-                    case _ => formatter.appendText("()")
-                }
-            case ATTRIBUTE => formatter.appendText(getName)
-            case _ =>
-                //Type resType = getType().resultType()
-                formatter.appendText(getName)
-                val atype = tpe
-                if (atype != null) {
-                    //formatter.appendText(ScalaElement.typeToString(type))
-                }
-                //formatter.appendText(resType.toString())
-                //htmlFormat(formatter, resType, true)
-        }
+                    }
+                    formatter.appendText(")")
+                case _ => formatter.appendText("()")
+            }
+        case ATTRIBUTE => formatter.appendText(getName)
+        case _ =>
+            //Type resType = getType().resultType()
+            formatter.appendText(getName)
+            val atype = tpe
+            if (atype != null) {
+                //formatter.appendText(ScalaElement.typeToString(type))
+            }
+            //formatter.appendText(resType.toString())
+            //htmlFormat(formatter, resType, true)
     }
+    
 
     def isFunctionClause = {
         var b = false
