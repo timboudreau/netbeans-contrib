@@ -108,4 +108,7 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getFormatter = new ErlangFormatter
+
+    override
+    def getInstantRenamer = new ErlangInstantRenamer
 }
