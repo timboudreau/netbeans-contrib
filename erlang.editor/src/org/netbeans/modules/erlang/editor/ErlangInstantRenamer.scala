@@ -94,7 +94,8 @@ class ErlangInstantRenamer extends InstantRenamer {
             val occurrences = rootScope.findOccurrences(closest)
 
             for (item <- occurrences;
-                 idToken <- item.idToken) {
+                 idToken <- item.idToken
+            ) {
                 // detect special case for function
                 val functionDfn = item match {
                     case aDfn:AstDfn => aDfn.functionDfn

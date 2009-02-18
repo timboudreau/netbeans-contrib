@@ -40,13 +40,7 @@
  */
 package org.netbeans.modules.erlang.editor
 
-import _root_.java.io.File
-import _root_.java.util.Collection
-import _root_.java.util.Collections
-import _root_.java.util.HashMap
-import _root_.java.util.Map
-import _root_.java.util.Set
-import org.netbeans.api.lexer.Language;
+import org.netbeans.api.lexer.Language
 import org.netbeans.modules.csl.api.CodeCompletionHandler
 import org.netbeans.modules.csl.api.DeclarationFinder
 import org.netbeans.modules.csl.api.Formatter
@@ -111,4 +105,8 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getInstantRenamer = new ErlangInstantRenamer
+
+    override
+    def getDeclarationFinder = new ErlangDeclarationFinder
+
 }
