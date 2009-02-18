@@ -49,21 +49,32 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstRef(symbol:GNode, idToken:Token[_], kind:ElementKind) extends AstItem(symbol, idToken, kind) {
+class AstRef(symbol:GNode, idToken:Token[_], kind:ElementKind) extends AstItem(symbol, idToken, kind) with LanguageAstRef {
 
     def this(symbol:GNode, idToken:Token[_]) = this(symbol, idToken, ElementKind.OTHER)
     
     override
     def getKind :ElementKind = kind
 
-    def isOccurence(ref:AstRef) :Boolean = {
-        if (ref.name.equals(name)) {
-            ref.symbol == symbol
-        } else false
-    }
-
     override
     def toString = {
         "Ref: " + name + " (idToken=" + super.idToken + ")"
+    }
+}
+
+trait LanguageAstRef {self:AstRef =>
+    import ElementKind._
+    import org.netbeans.modules.erlang.editor.node.ErlangItems._
+
+    def isOccurence(ref:AstRef) :Boolean = ref.kind match {
+        case CALL if self.asInstanceOf[AstItem].kind == CALL => (self.property("call"), ref.property("call")) match {
+                case (Some(FunctionCall(Some(inX), nameX, arityX)), Some(FunctionCall(Some(inY), nameY, arityY))) 
+                    if inX.equals(inY) && nameX.equals(nameY) && arityX == arityY => true
+                case _ => false
+            }
+        case _ =>
+            if (ref.name.equals(name)) {
+                true
+            } else false
     }
 }

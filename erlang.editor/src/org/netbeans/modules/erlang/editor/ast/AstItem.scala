@@ -134,7 +134,7 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) e
 
     def binaryName = name
 
-    def enclosingDef[T <: AstDfn](clazz:Class[T]) :Option[T] = {
+    def enclosingDfn[T <: AstDfn](clazz:Class[T]) :Option[T] = {
         enclosingScope.get.enclosingDfn(clazz)
     }
 

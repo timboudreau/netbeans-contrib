@@ -127,16 +127,6 @@ class AstDfn(aSymbol:GNode,
         bindingScope.range(th)
     }
 
-    def isReferredBy(ref:AstRef) :Boolean = {
-        if (ref.getName.equals(getName)) {
-            //            if ((getSymbol().isClass() || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
-            //                return true
-            //            }
-
-            ref.symbol == symbol
-        } else false
-    }
-
     def mayEqual(dfn:AstDfn) :Boolean = {
         this == dfn
         //return getName().equals(def.getName())
@@ -195,6 +185,23 @@ class AstDfn(aSymbol:GNode,
  */
 trait LanguageAstDfn {self:AstDfn =>
     import ElementKind._
+    import org.netbeans.modules.erlang.editor.node.ErlangItems._
+
+    def isReferredBy(ref:AstRef) :Boolean = ref.kind match {
+        case CALL => ref.property("call") match {
+                case Some(FunctionCall(_, name, arity)) if name.equals(getName)=> true
+                case _ => false
+            }
+        case _ =>
+            if (ref.getName.equals(getName)) {
+                //            if ((getSymbol().isClass() || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
+                //                return true
+                //            }
+
+                ref.symbol == symbol
+            } else false
+    }
+
     
     def htmlFormat(formatter:HtmlFormatter) :Unit = {
         import ElementKind._
@@ -241,4 +248,19 @@ trait LanguageAstDfn {self:AstDfn =>
         b
     }
 
+    def functionDfn :Option[AstDfn] = self.getKind match {
+        case ElementKind.METHOD => Some(self)
+        case ElementKind.ATTRIBUTE if self.isFunctionClause =>  self.enclosingDfn
+        case _ => None
+    }
+
+    def functionClauses :List[AstDfn] = functionDfn match {
+        case None => Nil
+        case Some(x) =>
+            val clauses = new ArrayBuffer[AstDfn]
+            for (clause <- x.bindingScope.dfns if clause.getKind == ElementKind.ATTRIBUTE) {
+                clauses += clause
+            }
+            clauses.toList
+    }
 }

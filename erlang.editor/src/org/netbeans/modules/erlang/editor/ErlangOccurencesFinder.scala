@@ -41,7 +41,7 @@ package org.netbeans.modules.erlang.editor
 import _root_.java.util.{HashMap,List,Map}
 import javax.swing.text.Document
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
-import _root_.org.netbeans.modules.csl.api.{ColoringAttributes,OccurrencesFinder,OffsetRange}
+import _root_.org.netbeans.modules.csl.api.{ColoringAttributes,OccurrencesFinder,OffsetRange, ElementKind}
 import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.parsing.spi.{Scheduler,SchedulerEvent}
 //import org.netbeans.editor.BaseDocument
@@ -149,9 +149,25 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
             for (_item <- _occurrences;
                  _idToken <- _item.idToken
             ) {
-                highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                    _idToken.asInstanceOf[Token[TokenId]]),
-                               ColoringAttributes.MARK_OCCURRENCES)
+                // detect special case for function
+                val functionDfn = _item match {
+                    case aDfn:AstDfn => aDfn.functionDfn
+                    case _ => None
+                }
+                functionDfn match {
+                    case Some(x) =>
+                        for (clause <- x.functionClauses;
+                             clauseIdToken <- clause.idToken
+                        ) {
+                            highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                                clauseIdToken.asInstanceOf[Token[TokenId]]),
+                                           ColoringAttributes.MARK_OCCURRENCES)
+                        }
+                    case _ =>
+                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                            _idToken.asInstanceOf[Token[TokenId]]),
+                                       ColoringAttributes.MARK_OCCURRENCES)
+                }
             }
 
             if (isCancelled) {
