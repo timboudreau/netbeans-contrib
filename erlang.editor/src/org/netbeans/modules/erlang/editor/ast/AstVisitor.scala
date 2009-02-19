@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
 import xtc.tree.Annotation
 import xtc.tree.GNode
 import xtc.tree.Location
@@ -161,7 +161,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
 
     // --- Token helpers
 
-    protected def boundsTokens(node:Node) :Array[Token[_]] = {
+    protected def boundsTokens(node:Node) :Array[Token[TokenId]] = {
         val loc = node.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
 
@@ -197,7 +197,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
      * following void productions, but nameString has stripped the void productions,
      * so we should adjust nameRange according to name and its length.
      */
-    protected def idToken(idNode:Node) :Option[Token[_]] = {
+    protected def idToken(idNode:Node) :Option[Token[TokenId]] = {
         val loc = idNode.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
         

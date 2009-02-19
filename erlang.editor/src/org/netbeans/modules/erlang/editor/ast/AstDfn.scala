@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Collections,Set,HashSet}
-import org.netbeans.api.lexer.{Token, TokenHierarchy}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.HtmlFormatter
 import org.netbeans.modules.csl.api.Modifier
@@ -63,7 +63,7 @@ import xtc.tree.{GNode}
  * @author Caoyuan Deng
  */
 class AstDfn(_symbol:GNode,
-             _idToken:Option[Token[_]],
+             _idToken:Option[Token[TokenId]],
              _kind:ElementKind,
              private var _bindingScope:AstScope,
              var fo:FileObject

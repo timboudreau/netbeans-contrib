@@ -85,11 +85,11 @@ class ErlangDeclarationFinder extends DeclarationFinder {
         }
     }
 
-    private def getReferenceSpan(ts:TokenSequence[_], th:TokenHierarchy[_], lexOffset:Int) :OffsetRange = {
+    private def getReferenceSpan(ts:TokenSequence[TokenId], th:TokenHierarchy[_], lexOffset:Int) :OffsetRange = {
         val token = ts.token
         token.id match {
             case ErlangTokenId.Atom | ErlangTokenId.Var | ErlangTokenId.Rec | ErlangTokenId.Macro =>
-                LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]], token.asInstanceOf[Token[TokenId]])
+                LexUtil.rangeOfToken(th, token)
             case _ => OffsetRange.NONE
         }
     }

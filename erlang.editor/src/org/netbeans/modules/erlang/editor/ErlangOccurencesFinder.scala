@@ -123,7 +123,7 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
             try {
                 doc.readLock
                 val length = doc.getLength
-                val astRange = LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]], idToken.asInstanceOf[Token[TokenId]])
+                val astRange = LexUtil.rangeOfToken(th, idToken)
                 val lexRange = LexUtil.lexerOffsets(pResult, astRange)
                 var lexStartPos = lexRange.getStart
                 var lexEndPos = lexRange.getEnd
@@ -164,23 +164,17 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
                             for (item1 <- occurrences1;
                                  idToken1 <- item1.idToken
                             ) {
-                                highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                                    idToken1.asInstanceOf[Token[TokenId]]),
-                                               ColoringAttributes.MARK_OCCURRENCES)
+                                highlights.put(LexUtil.rangeOfToken(th, idToken1), ColoringAttributes.MARK_OCCURRENCES)
                             }
                         }
                         
                         for (clause <- x.functionClauses;
                              clauseIdToken <- clause.idToken
                         ) {
-                            highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                                clauseIdToken.asInstanceOf[Token[TokenId]]),
-                                           ColoringAttributes.MARK_OCCURRENCES)
+                            highlights.put(LexUtil.rangeOfToken(th, clauseIdToken), ColoringAttributes.MARK_OCCURRENCES)
                         }
                     case None =>
-                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                            _idToken.asInstanceOf[Token[TokenId]]),
-                                       ColoringAttributes.MARK_OCCURRENCES)
+                        highlights.put(LexUtil.rangeOfToken(th, _idToken), ColoringAttributes.MARK_OCCURRENCES)
                 }
             }
 

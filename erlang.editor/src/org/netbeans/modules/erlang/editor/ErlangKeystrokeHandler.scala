@@ -391,7 +391,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                      insertEndResult:Array[Boolean], insertRBraceResult:Array[Boolean], startOffsetResult:Array[Int],
                      indentResult:Array[Int]) :Boolean = {
 
-        val th = TokenHierarchy.get(doc).asInstanceOf[TokenHierarchy[TokenId]]
+        val th = TokenHierarchy.get(doc)
 
         val length = doc.getLength
 

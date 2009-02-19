@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import org.netbeans.api.lexer.{Token}
+import org.netbeans.api.lexer.{Token,TokenId}
 import org.netbeans.modules.csl.api.ElementKind
 import xtc.tree.{GNode}
 
@@ -49,10 +49,10 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstRef(_symbol:GNode, _idToken:Option[Token[_]], _kind:ElementKind) extends AstItem with LanguageAstRef {
+class AstRef(_symbol:GNode, _idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem with LanguageAstRef {
     make(_symbol, _idToken, _kind)
 
-    def this(symbol:GNode, idToken:Option[Token[_]]) = this(symbol, idToken, ElementKind.OTHER)
+    def this(symbol:GNode, idToken:Option[Token[TokenId]]) = this(symbol, idToken, ElementKind.OTHER)
     
     override
     def getKind :ElementKind = _kind

@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import org.netbeans.api.lexer.{Token, TokenHierarchy}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.erlang.editor.util.Sorter
@@ -52,10 +52,10 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
-class AstScope(var boundsTokens:Array[Token[_]]) {
+class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
-    var boundsToken :Option[Token[_]] = None
-    var boundsEndToken :Option[Token[_]] = None
+    var boundsToken :Option[Token[TokenId]] = None
+    var boundsEndToken :Option[Token[TokenId]] = None
     
     if (boundsTokens != null) {
         assert(boundsTokens.length <= 2)
@@ -237,7 +237,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         None
     }
 
-    def findItemAt(th:TokenHierarchy[_], token:Token[_]) :Option[AstItem] = {
+    def findItemAt(th:TokenHierarchy[_], token:Token[TokenId]) :Option[AstItem] = {
         val offset = token.offset(th)
         // Always seach Ref first, since Ref can be included in Def's range
         for (xs <- _refs) {
@@ -306,7 +306,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         return None
     }
 
-    def findDfnAt[T <: AstDfn](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T] = {
+    def findDfnAt[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
 
         for (xs <- _dfns) {
             if (!dfnsSorted) {
@@ -323,7 +323,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
                 } else if (offset >= middle.idEndOffset(th)) {
                     lo = mid + 1
                 } else {
-                    return if (clazz isInstance middle) Some(middle.asInstanceOf[T]) else None
+                    return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
                 }
             }
         }
@@ -351,7 +351,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         None
     }
     
-    def findRefAt[T <: AstRef](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T] = {
+    def findRefAt[A <: AstRef](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
 
         for (xs <- _refs) {
             if (!refsSorted) {
@@ -368,7 +368,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
                 } else if (offset >= middle.idEndOffset(th)) {
                     lo = mid + 1
                 } else {
-                    return if (clazz isInstance middle) Some(middle.asInstanceOf[T]) else None
+                    return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
                 }
             }
         }
@@ -545,15 +545,15 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         case _ => None
     }
 
-    def  visibleDfns[T <: AstDfn](clazz:Class[T]) :ArrayBuffer[T] = {
-        val result = new ArrayBuffer[T]
+    def  visibleDfns[A <: AstDfn](clazz:Class[A]) :ArrayBuffer[A] = {
+        val result = new ArrayBuffer[A]
         visibleDfnsUpward(clazz, result)
         result
     }
     
-    private final def visibleDfnsUpward[T <: AstDfn](clazz:Class[T], result:ArrayBuffer[T]) :Unit = {
+    private final def visibleDfnsUpward[A <: AstDfn](clazz:Class[A], result:ArrayBuffer[A]) :Unit = {
         for (xs <- _dfns) {
-            result ++= xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[T]]
+            result ++= xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[A]]
         }
     
         for (x <- parent) {
@@ -561,19 +561,19 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
         }
     }
     
-    def enclosinDfn[T <: AstDfn](clazz:Class[T], th:TokenHierarchy[_], offset:Int) :Option[T]= {
+    def enclosinDfn[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A]= {
         closestScope(th, offset) match {
             case None => None
             case Some(x) => x.enclosingDfn(clazz)
         }
     }
     
-    def enclosingDfn[T <: AstDfn](clazz:Class[T]) :Option[T] = bindingDfn match {
+    def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = bindingDfn match {
         case None => parent match {
                 case None => None
                 case Some(x) => x.enclosingDfn(clazz)
             }
-        case Some(x) if clazz.isInstance(x) => bindingDfn.asInstanceOf[Option[T]]
+        case Some(x) if clazz.isInstance(x) => bindingDfn.asInstanceOf[Option[A]]
         case _ => None
     }
 

@@ -38,22 +38,22 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import org.netbeans.api.lexer.{Token, TokenHierarchy}
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 
 /**
  *
  * @author Caoyuan Deng
  */
-class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) {
+class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) {
 
-    private val _idTokenToItem = new HashMap[Token[_], AstItem]
-    private var tokens :List[Token[_]] = Nil
+    private val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
+    private var tokens :List[Token[TokenId]] = Nil
     private var tokensSorted :Boolean = false
 
-    def contains(idToken:Token[_]) :Boolean = _idTokenToItem.contains(idToken)
+    def contains(idToken:Token[TokenId]) :Boolean = _idTokenToItem.contains(idToken)
 
-    def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[_], AstItem] = {
+    def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[TokenId], AstItem] = {
         if (!tokensSorted) {
             tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
             tokensSorted = true
@@ -62,7 +62,7 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
         _idTokenToItem
     }
 
-    private def sortedToken(th:TokenHierarchy[_]) :List[Token[_]] = {
+    private def sortedToken(th:TokenHierarchy[_]) :List[Token[TokenId]] = {
         if (!tokensSorted) {
             tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
             tokensSorted = true
@@ -75,7 +75,7 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
      * To make sure each idToken only corresponds to one AstItem, if more than
      * one AstItem point to the same idToken, only the first one will be stored
      */
-    protected def tryToPut(idToken:Token[_], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
+    protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
         case None =>
             _idTokenToItem.put(idToken, item)
             tokensSorted = false
@@ -111,7 +111,7 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
         None
     }
 
-    def findItemAt(token:Token[_]) :Option[AstItem] = _idTokenToItem.get(token)
+    def findItemAt(token:Token[TokenId]) :Option[AstItem] = _idTokenToItem.get(token)
 
     def findFirstItemWithName(name:String) :Option[AstItem] = {
         _idTokenToItem.find{k => k._1.text.toString.equals(name)} match {
@@ -124,7 +124,7 @@ class AstRootScope(boundsTokens:Array[Token[_]]) extends AstScope(boundsTokens) 
         sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
     }
 
-    def compareToken(th:TokenHierarchy[_], o1:Token[_], o2:Token[_]) :Boolean = {
+    def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
         o1.offset(th) < o2.offset(th)
     }
 }

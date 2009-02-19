@@ -106,10 +106,10 @@ class ErlangInstantRenamer extends InstantRenamer {
                         for (clause <- x.functionClauses;
                              clauseIdToken <- clause.idToken
                         ) {
-                            regions1.add(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]], clauseIdToken.asInstanceOf[Token[TokenId]]))
+                            regions1.add(LexUtil.rangeOfToken(th, clauseIdToken))
                         }
                     case _ =>
-                        regions1.add(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]], idToken.asInstanceOf[Token[TokenId]]))
+                        regions1.add(LexUtil.rangeOfToken(th, idToken))
                 }
             }
 

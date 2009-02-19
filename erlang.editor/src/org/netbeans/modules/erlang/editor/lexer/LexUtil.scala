@@ -19,7 +19,7 @@ import org.openide.loaders.DataObject
 import org.openide.util.Exceptions
 import scala.collection.mutable.Stack
 
-object LexUtil extends BaseLexUtil[TokenId]
+object LexUtil extends BaseLexUtil
 
 /**
  * Special functions for ErlangTokenId
@@ -88,7 +88,7 @@ trait LanguageLexUtil {
     }
 }
 
-trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
+trait BaseLexUtil extends LanguageLexUtil {
 
     def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
         case null => None
@@ -120,15 +120,15 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         case _ => tokenHierarchy(pResult.getSnapshot)
     }
 
-    def tokenSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[T]] = {
+    def tokenSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[TokenId]] = {
         val th = TokenHierarchy.get(doc)
         tokenSequence(th, offset)
     }
 
-    def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[T]] = th.tokenSequence(language) match {
+    def tokenSequence(th:TokenHierarchy[_], offset:Int) :Option[TokenSequence[TokenId]] = th.tokenSequence(language) match {
         case null =>
             // * Possibly an embedding scenario such as an RHTML file
-            def find(itr:_root_.java.util.Iterator[TokenSequence[T]]) :Option[TokenSequence[T]] = itr.hasNext match {
+            def find(itr:_root_.java.util.Iterator[TokenSequence[TokenId]]) :Option[TokenSequence[TokenId]] = itr.hasNext match {
                 case true => itr.next match {
                         case ts if ts.language == language => Some(ts)
                         case _ => find(itr)
@@ -137,17 +137,17 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
             }
          
             // * First try with backward bias true
-            val itr1 = th.embeddedTokenSequences(offset, true).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[T]]]
+            val itr1 = th.embeddedTokenSequences(offset, true).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[TokenId]]]
             find(itr1) match {
                 case None =>
-                    val itr2 = th.embeddedTokenSequences(offset, false).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[T]]]
+                    val itr2 = th.embeddedTokenSequences(offset, false).iterator.asInstanceOf[_root_.java.util.Iterator[TokenSequence[TokenId]]]
                     find(itr2)
                 case x => x
             }
-        case ts => Some(ts.asInstanceOf[TokenSequence[T]])
+        case ts => Some(ts)
     }
 
-    def rangeOfToken(th:TokenHierarchy[T], token:Token[T]) :OffsetRange = {
+    def rangeOfToken(th:TokenHierarchy[_], token:Token[TokenId]) :OffsetRange = {
         val offset = token.offset(th)
         new OffsetRange(offset, offset + token.length)
     }
@@ -191,11 +191,11 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
             }
     }
 
-    def positionedSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[T]] = {
+    def positionedSequence(doc:BaseDocument, offset:Int) :Option[TokenSequence[TokenId]] = {
         positionedSequence(doc, offset, true)
     }
 
-    def positionedSequence(doc:BaseDocument, offset:Int, lookBack:Boolean) :Option[TokenSequence[T]] = {
+    def positionedSequence(doc:BaseDocument, offset:Int, lookBack:Boolean) :Option[TokenSequence[TokenId]] = {
         for (ts <- tokenSequence(doc, offset)) {
             try {
                 ts.move(offset)
@@ -220,7 +220,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         return None
     }
 
-    def token(doc:BaseDocument, offset:Int) :Option[Token[T]] = {
+    def token(doc:BaseDocument, offset:Int) :Option[Token[TokenId]] = {
         for (ts <- positionedSequence(doc, offset)) {
             return Some(ts.token)
         }
@@ -239,77 +239,77 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
     
 
-    def findNextNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {
-        findNext(ts, WS_COMMENT.asInstanceOf[Set[T]])
+    def findNextNonWsNonComment(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+        findNext(ts, WS_COMMENT.asInstanceOf[Set[TokenId]])
     }
 
-    def findPreviousNonWsNonComment(ts:TokenSequence[T]) :Token[T] = {
-        findPrevious(ts, WS_COMMENT.asInstanceOf[Set[T]])
+    def findPreviousNonWsNonComment(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+        findPrevious(ts, WS_COMMENT.asInstanceOf[Set[TokenId]])
     }
 
-    def findNextNonWs(ts:TokenSequence[T]) :Token[T] = {
-        findNext(ts, WS.asInstanceOf[Set[T]])
+    def findNextNonWs(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+        findNext(ts, WS.asInstanceOf[Set[TokenId]])
     }
 
-    def findPreviousNonWs(ts:TokenSequence[T]) :Token[T] = {
-        findPrevious(ts, WS.asInstanceOf[Set[T]])
+    def findPreviousNonWs(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+        findPrevious(ts, WS.asInstanceOf[Set[TokenId]])
     }
 
-    def findNext(ts:TokenSequence[T], ignores:Set[T]) :Token[T] = {
+    def findNext(ts:TokenSequence[TokenId], ignores:Set[TokenId]) :Token[TokenId] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.moveNext && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrevious(ts:TokenSequence[T], ignores:Set[T]) :Token[T] = {
+    def findPrevious(ts:TokenSequence[TokenId], ignores:Set[TokenId]) :Token[TokenId] = {
         if (ignores.contains(ts.token.id)) {
             while (ts.movePrevious && ignores.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findNext(ts:TokenSequence[T], id:T) :Token[T] = {
+    def findNext(ts:TokenSequence[TokenId], id:TokenId) :Token[TokenId] = {
         if (ts.token.id != id) {
             while (ts.moveNext && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIn(ts:TokenSequence[T], includes:Set[T] ) :Token[T] = {
+    def findNextIn(ts:TokenSequence[TokenId], includes:Set[TokenId] ) :Token[TokenId] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.moveNext && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def findPrev(ts:TokenSequence[T], id:T) :Token[T] = {
+    def findPrev(ts:TokenSequence[TokenId], id:TokenId) :Token[TokenId] = {
         if (ts.token.id != id) {
             while (ts.movePrevious && ts.token.id != id) {}
         }
         ts.token
     }
 
-    def findNextIncluding(ts:TokenSequence[T], includes:Set[T] ) :Token[T] = {
+    def findNextIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId] ) :Token[TokenId] = {
         while (ts.moveNext && !includes.contains(ts.token.id)) {}
         ts.token
     }
 
-    def findPrevIncluding(ts:TokenSequence[T], includes:Set[T]) :Token[_] = {
+    def findPrevIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
         if (!includes.contains(ts.token.id)) {
             while (ts.movePrevious && !includes.contains(ts.token.id)) {}
         }
         ts.token
     }
 
-    def skipParenthesis(ts:TokenSequence[T]) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[TokenId]) :Boolean = {
         skipParenthesis(ts, false)
     }
 
     /**
      * Tries to skip parenthesis
      */
-    def skipParenthesis(ts:TokenSequence[T], back:Boolean) :Boolean = {
+    def skipParenthesis(ts:TokenSequence[TokenId], back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
@@ -357,7 +357,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     /**
      * Tries to skip parenthesis
      */
-    def skipPair(ts:TokenSequence[T], left:T, right:T, back:Boolean) :Boolean = {
+    def skipPair(ts:TokenSequence[TokenId], left:TokenId, right:TokenId, back:Boolean) :Boolean = {
         var balance = 0
 
         var token = ts.token
@@ -403,7 +403,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def findFwd(ts:TokenSequence[T], up:T, downs:Set[T]) :OffsetRange = {
+    def findFwd(ts:TokenSequence[TokenId], up:TokenId, downs:Set[TokenId]) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
@@ -423,7 +423,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-    def  findBwd(ts:TokenSequence[T], ups:Set[T], down:T) :OffsetRange = {
+    def  findBwd(ts:TokenSequence[TokenId], ups:Set[TokenId], down:TokenId) :OffsetRange = {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
@@ -443,7 +443,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def findFwd(ts:TokenSequence[T], up:T, down:T) :OffsetRange = {
+    def findFwd(ts:TokenSequence[TokenId], up:TokenId, down:TokenId) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
@@ -463,7 +463,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-    def  findBwd(ts:TokenSequence[T], up:T, down:T) :OffsetRange = {
+    def  findBwd(ts:TokenSequence[TokenId], up:TokenId, down:TokenId) :OffsetRange = {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
@@ -483,7 +483,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def  findFwd(ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+    def  findFwd(ts:TokenSequence[TokenId], up:String, down:String) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
@@ -504,7 +504,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-    def findBwd(ts:TokenSequence[T], up:String, down:String) :OffsetRange = {
+    def findBwd(ts:TokenSequence[TokenId], up:String, down:String) :OffsetRange = {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
@@ -543,7 +543,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
         }
     }
 
-    def isWsComment(id:T) :Boolean = isWs(id) || isNl(id) || isComment(id)
+    def isWsComment(id:TokenId) :Boolean = isWs(id) || isNl(id) || isComment(id)
 
     /**
      * The same as braceBalance but generalized to any pair of matching
@@ -552,7 +552,7 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
      * @param close the token that decreses the count
      */
     @throws(classOf[BadLocationException])
-    def tokenBalance(doc:BaseDocument, open:T, close:T, offset:Int) :Int = {
+    def tokenBalance(doc:BaseDocument, open:TokenId, close:TokenId, offset:Int) :Int = {
         val ts = tokenSequence(doc, 0) match {
             case None => return 0
             case Some(x) => x
@@ -654,8 +654,8 @@ trait BaseLexUtil[T <: TokenId] extends LanguageLexUtil {
     }
 
     /** Compute the balance of pair tokens on the line */
-    def lineBalance(doc:BaseDocument, offset:Int, up:T, down:T) :Stack[Token[T]] = {
-        val balanceStack = new Stack[Token[T]]
+    def lineBalance(doc:BaseDocument, offset:Int, up:TokenId, down:TokenId) :Stack[Token[TokenId]] = {
+        val balanceStack = new Stack[Token[TokenId]]
         try {
             val begin = Utilities.getRowStart(doc, offset)
             val end = Utilities.getRowEnd(doc, offset)

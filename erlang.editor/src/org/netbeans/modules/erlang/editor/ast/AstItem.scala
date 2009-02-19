@@ -39,8 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Collections,Set}
-import org.netbeans.api.lexer.Token
-import org.netbeans.api.lexer.TokenHierarchy
+import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind,ElementHandle,Modifier,OffsetRange}
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.netbeans.modules.erlang.editor.ErlangMimeResolver
@@ -55,7 +54,7 @@ import scala.collection.mutable.{HashMap}
  */
 trait AstItem extends ForElementHandle {
 
-    def make(symbol:GNode, idToken:Option[Token[_]], kind:ElementKind) :Unit = {
+    def make(symbol:GNode, idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
         this.symbol = symbol
         this.idToken = idToken
         this.kind = kind
@@ -72,7 +71,7 @@ trait AstItem extends ForElementHandle {
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private var _idToken :Option[Token[_]] = None
+    private var _idToken :Option[Token[TokenId]] = None
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
@@ -81,13 +80,13 @@ trait AstItem extends ForElementHandle {
 //    idToken = _idToken
 
     def idToken = _idToken
-    def idToken_=(idToken:Option[Token[_]]) = idToken.foreach{x =>
+    def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>
         this._idToken = idToken; name = x.text.toString
     }
 
     def name = _name
     def name_=(name:String) = this._name = name
-    def name_=(idToken:Token[_]) = {
+    def name_=(idToken:Token[TokenId]) = {
         if (idToken == null) {
             _name = "" // should not happen?
         }
@@ -125,7 +124,7 @@ trait AstItem extends ForElementHandle {
 
     def binaryName = name
 
-    def enclosingDfn[T <: AstDfn](clazz:Class[T]) :Option[T] = {
+    def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = {
         enclosingScope.get.enclosingDfn(clazz)
     }
 

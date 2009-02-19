@@ -90,19 +90,19 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
              doc <- LexUtil.document(pResult, true)
         ) {
             var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-            visitItems(th.asInstanceOf[TokenHierarchy[TokenId]], rootScope, highlights)
+            visitItems(th, rootScope, highlights)
 
             this.semanticHighlights = if (highlights.size > 0) highlights else null
         }
     }
 
-    private def visitItems(th:TokenHierarchy[TokenId], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
+    private def visitItems(th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
         import ElementKind._
         for (item <- rootScope.idTokenToItem(th).values;
              hiToken <- item.idToken
         ) {
             
-            val hiRange = LexUtil.rangeOfToken(th, hiToken.asInstanceOf[Token[TokenId]])
+            val hiRange = LexUtil.rangeOfToken(th, hiToken)
             item match {
                 case dfn:AstDfn => dfn.getKind match {
                         case MODULE =>
