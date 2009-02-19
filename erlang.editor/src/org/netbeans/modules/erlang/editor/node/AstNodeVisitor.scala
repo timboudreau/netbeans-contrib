@@ -117,7 +117,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         val funClauseDfn = visitFunctionClause(functionClause)
         funDfns += funClauseDfn
 
-        val funDfn = new AstDfn(that, funClauseDfn.idToken.getOrElse(null), ElementKind.METHOD, scope, fo)
+        val funDfn = new AstDfn(that, funClauseDfn.idToken, ElementKind.METHOD, scope, fo)
         rootScope.addDfn(funDfn)
         val arity = funClauseDfn.property("args") match {
             case None => 0
@@ -821,7 +821,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
     def visitAtomId1(that:GNode) :String = {
         val inScope = scopes.top
         val idTk = idToken(idNode(that))
-        val name = idTk.text.toString
+        val name = idTk.get.text.toString
         if (isFunctionCallName) {
             val ref = new AstRef(that, idTk, ElementKind.CALL)
             inScope.addRef(ref)
@@ -838,11 +838,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         if (inVarDefs.isEmpty) {
             val ref = new AstRef(that, idTk)
             inScope.addRef(ref)
-            idTk.text.toString
+            idTk.get.text.toString
         } else {
             val dfn = new AstDfn(that, idTk, inVarDefs.top, new AstScope(boundsTokens(that)), fo)
             inScope.addDfn(dfn)
-            idTk.text.toString
+            idTk.get.text.toString
         }
     }
 

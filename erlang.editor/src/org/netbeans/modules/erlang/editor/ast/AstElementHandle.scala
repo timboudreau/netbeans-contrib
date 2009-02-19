@@ -48,7 +48,7 @@ import xtc.tree.{GNode}
  */
 trait AstElementHandle extends ElementHandle {
 
-    def symbol :Option[GNode]
+    def symbol :GNode
 
     def tpe :String
     

@@ -62,13 +62,13 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstDfn(aSymbol:GNode,
-             pickToken:Token[_],
+class AstDfn(symbol:GNode,
+             pickToken:Option[Token[_]],
              kind:ElementKind,
              private var _bindingScope:AstScope,
              var fo:FileObject
-) extends AstItem(aSymbol, pickToken, kind) with AstElementHandle with LanguageAstDfn {
-
+) extends AstItem(symbol, pickToken, kind) with AstElementHandle with LanguageAstDfn {
+    // we allow _bindingScope to be set later
     if (_bindingScope != null) {
         _bindingScope.bindingDfn = Some(this)
     }
@@ -198,7 +198,7 @@ trait LanguageAstDfn {self:AstDfn =>
                 //                return true
                 //            }
 
-                ref.symbol == symbol
+                ref.symbol == self.asInstanceOf[AstItem].symbol
             } else false
     }
 

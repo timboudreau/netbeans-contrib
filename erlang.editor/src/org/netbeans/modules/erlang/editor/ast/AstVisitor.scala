@@ -197,7 +197,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
      * following void productions, but nameString has stripped the void productions,
      * so we should adjust nameRange according to name and its length.
      */
-    protected def idToken(idNode:Node) :Token[_] = {
+    protected def idToken(idNode:Node) :Option[Token[_]] = {
         val loc = idNode.getLocation
         val ts = LexUtil.tokenSequence(th, loc.offset).get
         
@@ -213,10 +213,13 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
             case "Var"     => LexUtil.findNext(ts, ErlangTokenId.Var)
         }
 
-        if (token.isFlyweight) {
-            ts.offsetToken
-        } else {
-            token
+        token match {
+            case null => None
+            case x if x.isFlyweight => ts.offsetToken match {
+                    case null => None
+                    case x1 => Some(x1)
+                }
+            case x => Some(x)
         }
     }
     

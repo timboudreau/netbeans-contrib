@@ -53,11 +53,11 @@ import scala.collection.mutable.{HashMap}
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) extends ForElementHandle {
+abstract class AstItem(var symbol:GNode, private var _idToken:Option[Token[_]], var kind:ElementKind) extends ForElementHandle {
 
-    def this(symbol:GNode) = this(symbol, null, ElementKind.OTHER)
-    def this(idToken:Token[_]) = this(null, idToken, ElementKind.OTHER)
-    def this() = this(null, null, ElementKind.OTHER)
+    def this(symbol:GNode) = this(symbol, None, ElementKind.OTHER)
+    def this(idToken:Option[Token[_]]) = this(null, idToken, ElementKind.OTHER)
+    def this() = this(null, None, ElementKind.OTHER)
 
     /**
      * @Note:
@@ -66,46 +66,30 @@ abstract class AstItem(aSymbol:GNode, aIdToken:Token[_], var kind:ElementKind) e
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private var _idToken :Option[Token[_]] = _
-    private var _symbol :Option[GNode] = _
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
     private var properties :Option[HashMap[String, Any]] = None
 
-    idToken = aIdToken
-    symbol  = aSymbol
-    
-    def symbol = _symbol
-    def symbol_=(symbol:GNode) = symbol match {
-        case null => this._symbol = None
-        case _ => this._symbol = Some(symbol)
-    }
+    idToken = _idToken
 
     def idToken = _idToken
-    def idToken_=(idToken:Token[_]) = idToken match {
-        case null => this._idToken = None
-        case _ => this._idToken = Some(idToken); name = idToken.text.toString
+    def idToken_=(idToken:Option[Token[_]]) = idToken.foreach{x =>
+        this._idToken = idToken; name = x.text.toString
     }
 
     def name = _name
-    def name_=(name:String) = _name = name
+    def name_=(name:String) = this._name = name
     def name_=(idToken:Token[_]) = {
         if (idToken == null) {
             _name = "" // should not happen?
         }
         
-        /**
-         * symbol.nameString() is same as idToken's text, for editor, it's always
-         * better to use idToken's text, for example, we'll use this name to
-         * decide occurrences etc.
-         */
-        /** @todo why will throws NPE here? */
         try {
             _name = idToken.text.toString
         } catch {
             case ex:Exception =>
-                val l = idToken.length()
+                val l = idToken.length
                 val sb = new StringBuilder(l)
                 var i = 0
                 while (i < l) {

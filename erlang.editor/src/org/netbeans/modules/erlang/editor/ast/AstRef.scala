@@ -49,9 +49,9 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstRef(symbol:GNode, idToken:Token[_], kind:ElementKind) extends AstItem(symbol, idToken, kind) with LanguageAstRef {
+class AstRef(symbol:GNode, idToken:Option[Token[_]], kind:ElementKind) extends AstItem(symbol, idToken, kind) with LanguageAstRef {
 
-    def this(symbol:GNode, idToken:Token[_]) = this(symbol, idToken, ElementKind.OTHER)
+    def this(symbol:GNode, idToken:Option[Token[_]]) = this(symbol, idToken, ElementKind.OTHER)
     
     override
     def getKind :ElementKind = kind
