@@ -19,8 +19,6 @@ import org.openide.loaders.DataObject
 import org.openide.util.Exceptions
 import scala.collection.mutable.Stack
 
-object LexUtil extends BaseLexUtil
-
 /**
  * Special functions for ErlangTokenId
  */
@@ -48,8 +46,8 @@ trait LanguageLexUtil {
 
     protected val END_PAIRS = Set(ErlangTokenId.Try)
 
-    def isWs(id:TokenId) = id == ErlangTokenId.Ws
-    def isNl(id:TokenId) = id == ErlangTokenId.Nl
+    def isWs(id:TokenId) = {id == ErlangTokenId.Ws}
+    def isNl(id:TokenId) = {id == ErlangTokenId.Nl}
 
     def isComment(id:TokenId) :Boolean = id match {
         case ErlangTokenId.LineComment => true
@@ -88,7 +86,7 @@ trait LanguageLexUtil {
     }
 }
 
-trait BaseLexUtil extends LanguageLexUtil {
+object LexUtil extends LanguageLexUtil {
 
     def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
         case null => None
@@ -160,14 +158,12 @@ trait BaseLexUtil extends LanguageLexUtil {
     def lexerOffsets(pResult:ParserResult, astRange:OffsetRange) :OffsetRange = {
         // * there has been  astRange, we can assume pResult not null
         val rangeStart = astRange.getStart
-        val start = pResult.getSnapshot.getOriginalOffset(rangeStart)
-        if (start == rangeStart) {
-            astRange
-        } else if (start == -1) {
-            OffsetRange.NONE
-        } else {
-            // Assumes the translated range maintains size
-            new OffsetRange(start, start + astRange.getLength)
+        pResult.getSnapshot.getOriginalOffset(rangeStart) match {
+            case -1 => OffsetRange.NONE
+            case `rangeStart` => astRange
+            case start =>
+                // Assumes the translated range maintains size
+                new OffsetRange(start, start + astRange.getLength)
         }
     }
 
@@ -180,14 +176,12 @@ trait BaseLexUtil extends LanguageLexUtil {
         case null => lexRange
         case _ =>
             val rangeStart = lexRange.getStart
-            val start = pResult.getSnapshot.getEmbeddedOffset(rangeStart)
-            if (start == rangeStart) {
-                lexRange
-            } else if (start == -1) {
-                OffsetRange.NONE
-            } else {
-                // Assumes the translated range maintains size
-                new OffsetRange(start, start + lexRange.getLength())
+            pResult.getSnapshot.getEmbeddedOffset(rangeStart) match {
+                case -1 => OffsetRange.NONE
+                case `rangeStart` => lexRange
+                case start =>
+                    // Assumes the translated range maintains size
+                    new OffsetRange(start, start + lexRange.getLength())
             }
     }
 
@@ -234,7 +228,7 @@ trait BaseLexUtil extends LanguageLexUtil {
             val text = x.text.toString
             
             if (text.length > 0) { // Usually true, but I could have gotten EOF right?
-                return text.charAt(0)
+                text.charAt(0)
             } else 0
     }
     
@@ -340,11 +334,7 @@ trait BaseLexUtil extends LanguageLexUtil {
                     case 0 =>
                         return false
                     case 1 =>
-                        if (back) {
-                            ts.movePrevious
-                        } else {
-                            ts.moveNext
-                        }
+                        if (back) ts.movePrevious else ts.moveNext
                         return true
                     case _ => balance -= 1
                 }
@@ -388,11 +378,7 @@ trait BaseLexUtil extends LanguageLexUtil {
                     case 0 =>
                         return false
                     case 1 =>
-                        if (back) {
-                            ts.movePrevious
-                        } else {
-                            ts.moveNext
-                        }
+                        if (back) ts.movePrevious else ts.moveNext
                         return true
                     case _ => balance -= 1
                 }
@@ -408,14 +394,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         while (ts.moveNext) {
             val token = ts.token
             val id = token.id
-
-            if (id == up) {
-                balance += 1
-            } else if (downs.contains(id)) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance -= 1
+            (id, downs.contains(id), balance) match {
+                case (`up`, _, _) => balance += 1
+                case (_, true, 0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (_, true, _) => balance -= 1
+                case _ =>
             }
         }
 
@@ -428,14 +411,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         while (ts.movePrevious) {
             val token = ts.token
             val id = token.id
-
-            if (ups.contains(id)) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance -= 1
-            } else if (id == down) {
-                balance += 1
+            (id, ups.contains(id), balance) match {
+                case (_, true,   0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (_, true,   _) => balance -= 1
+                case (`down`, _, _) => balance += 1
+                case _ =>
             }
         }
 
@@ -447,15 +427,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
-            val id = token.id
-
-            if (id == up) {
-                balance += 1
-            } else if (id == down) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance -= 1
+            (token.id, balance) match {
+                case (`up`,   _) => balance += 1
+                case (`down`, 0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (`down`, _) => balance -= 1
+                case _ =>
             }
         }
 
@@ -467,15 +443,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
-            val id = token.id
-
-            if (id == up) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance += 1
-            } else if (id == down) {
-                balance -= 1
+            (token.id, balance) match {
+                case (`up`,   0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (`up`,   _) => balance += 1
+                case (`down`, _) => balance -= 1
+                case _ =>
             }
         }
 
@@ -487,16 +459,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
-            val id = token.id
-            val text = token.text.toString
-
-            if (text.equals(up)) {
-                balance += 1
-            } else if (text.equals(down)) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance -= 1
+            (token.text.toString, balance) match {
+                case (`up`,   _) => balance += 1
+                case (`down`, 0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (`down`, _) => balance -= 1
+                case _ =>
             }
         }
 
@@ -508,16 +475,11 @@ trait BaseLexUtil extends LanguageLexUtil {
         var balance = 0
         while (ts.movePrevious) {
             val token = ts.token
-            val id = token.id
-            val text = token.text.toString
-
-            if (text.equals(up)) {
-                if (balance == 0) {
-                    return new OffsetRange(ts.offset, ts.offset + token.length)
-                }
-                balance += 1
-            } else if (text.equals(down)) {
-                balance -= 1
+            (token.text.toString, balance) match {
+                case (`up`,   0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (`up`,   _) => balance += 1
+                case (`down`, _) => balance -= 1
+                case _ =>
             }
         }
 
@@ -560,18 +522,16 @@ trait BaseLexUtil extends LanguageLexUtil {
 
         // XXX Why 0? Why not offset?
         ts.moveIndex(0)
-
         if (!ts.moveNext) {
             return 0
         }
 
         var balance = 0
         do {
-            val token = ts.token
-            if (token.id == open) {
-                balance += 1
-            } else if (token.id == close) {
-                balance -= 1
+            ts.token.id match {
+                case `open` => balance += 1
+                case `close` => balance -= 1
+                case _ =>
             }
         } while (ts.moveNext)
 
@@ -585,7 +545,7 @@ trait BaseLexUtil extends LanguageLexUtil {
      * @param close the token that decreses the count
      */
     @throws(classOf[BadLocationException])
-    def getTokenBalance(doc:BaseDocument, open:String, close:String, offset:int) :Int = {
+    def tokenBalance(doc:BaseDocument, open:String, close:String, offset:int) :Int = {
         val ts = tokenSequence(doc, 0) match {
             case None => return 0
             case Some(x) => x
@@ -600,12 +560,9 @@ trait BaseLexUtil extends LanguageLexUtil {
         var balance = 0
         do {
             val token = ts.token
-            val text = token.text.toString
-
-            if (text.equals(open)) {
-                balance += 1
-            } else if (text.equals(text)) {
-                balance -= 1
+            token.text.toString match {
+                case `open` => balance += 1
+                case `close` => balance -= 1
             }
         } while (ts.moveNext)
 
@@ -666,7 +623,6 @@ trait BaseLexUtil extends LanguageLexUtil {
             }
 
             ts.move(begin)
-
             if (!ts.moveNext) {
                 return balanceStack
             }
@@ -674,16 +630,15 @@ trait BaseLexUtil extends LanguageLexUtil {
             var balance = 0
             do {
                 val token = ts.offsetToken
-                val id = token.id
-                
-                if (id == up) {
-                    balanceStack.push(token)
-                    balance += 1
-                } else if (id == down) {
-                    if (!balanceStack.isEmpty) {
-                        balanceStack.pop
-                    }
-                    balance -= 1
+                token.id match {
+                    case `up` =>
+                        balanceStack.push(token)
+                        balance += 1
+                    case `down` =>
+                        if (!balanceStack.isEmpty) {
+                            balanceStack.pop
+                        }
+                        balance -= 1
                 }
             } while (ts.moveNext && (ts.offset <= end))
 
