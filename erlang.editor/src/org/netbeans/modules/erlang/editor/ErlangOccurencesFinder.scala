@@ -149,28 +149,23 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
             for (_item <- _occurrences;
                  _idToken <- _item.idToken
             ) {
+                highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                    _idToken.asInstanceOf[Token[TokenId]]),
+                               ColoringAttributes.MARK_OCCURRENCES)
+
                 // detect special case for function
                 val functionDfn = _item match {
                     case aDfn:AstDfn => aDfn.functionDfn
                     case _ => None
                 }
-                functionDfn match {
-                    case Some(x) =>
-                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                            _idToken.asInstanceOf[Token[TokenId]]),
-                                       ColoringAttributes.MARK_OCCURRENCES)
-
-                        for (clause <- x.functionClauses;
-                             clauseIdToken <- clause.idToken
-                        ) {
-                            highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                                clauseIdToken.asInstanceOf[Token[TokenId]]),
-                                           ColoringAttributes.MARK_OCCURRENCES)
-                        }
-                    case _ =>
-                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                            _idToken.asInstanceOf[Token[TokenId]]),
-                                       ColoringAttributes.MARK_OCCURRENCES)
+                
+                for (x <- functionDfn;
+                     clause <- x.functionClauses;
+                     clauseIdToken <- clause.idToken
+                ) {
+                    highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                        clauseIdToken.asInstanceOf[Token[TokenId]]),
+                                   ColoringAttributes.MARK_OCCURRENCES)
                 }
             }
 
