@@ -513,7 +513,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         public void actionPerformed(ActionEvent e) {
             String t = text.getText();
             int cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
-            if (cut + 1 == t.length()) {
+            if (cut != -1 && cut + 1 == t.length()) {
                 t = t.substring(0, t.length() - 1);
                 cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
             }
