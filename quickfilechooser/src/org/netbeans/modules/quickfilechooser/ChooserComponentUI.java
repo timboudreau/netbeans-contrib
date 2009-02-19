@@ -125,8 +125,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JPanel histPanel = new JPanel();
         histPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         box = new JComboBox(hist);
-    
-        // XXX this is not so good, since moving arrow keys in box changes selection *before* it is closed:
+        box.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); // #126475
         box.addActionListener(new HAL());
         histPanel.setLayout(new BorderLayout());
         JLabel histInstructions = new JLabel(getBundle().getString("LBL_History"));
