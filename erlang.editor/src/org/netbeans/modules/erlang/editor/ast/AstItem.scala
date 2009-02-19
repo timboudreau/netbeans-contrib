@@ -53,12 +53,18 @@ import scala.collection.mutable.{HashMap}
  *
  * @author Caoyuan Deng
  */
-abstract class AstItem(var symbol:GNode, private var _idToken:Option[Token[_]], var kind:ElementKind) extends ForElementHandle {
+trait AstItem extends ForElementHandle {
 
-    def this(symbol:GNode) = this(symbol, None, ElementKind.OTHER)
-    def this(idToken:Option[Token[_]]) = this(null, idToken, ElementKind.OTHER)
-    def this() = this(null, None, ElementKind.OTHER)
+    def make(symbol:GNode, idToken:Option[Token[_]], kind:ElementKind) :Unit = {
+        this.symbol = symbol
+        this.idToken = idToken
+        this.kind = kind
+    }
 
+    def make(symbol:GNode) :Unit = make(symbol, None, ElementKind.OTHER)
+
+    var symbol :GNode = _
+    var kind :ElementKind = ElementKind.OTHER
     /**
      * @Note:
      * 1. Not all AstItem has pickToken, such as Expr etc.
@@ -66,12 +72,13 @@ abstract class AstItem(var symbol:GNode, private var _idToken:Option[Token[_]], 
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
+    private var _idToken :Option[Token[_]] = None
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     var resultType :String = _
     private var properties :Option[HashMap[String, Any]] = None
 
-    idToken = _idToken
+//    idToken = _idToken
 
     def idToken = _idToken
     def idToken_=(idToken:Option[Token[_]]) = idToken.foreach{x =>

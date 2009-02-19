@@ -486,7 +486,7 @@ class AstScope(var boundsTokens:Array[Token[_]]) {
 
     protected def findAllRefsSameAsDownward(ref:AstRef,  result:ArrayBuffer[AstRef]) :Unit = {
         for (xs <- _refs) {
-            result ++= xs.filter{ref.isOccurence(_)}
+            result ++= xs.filter{ref.isOccurrence(_)}
         }
 
         /** search downward */

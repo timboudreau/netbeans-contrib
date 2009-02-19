@@ -62,16 +62,18 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstDfn(symbol:GNode,
-             pickToken:Option[Token[_]],
-             kind:ElementKind,
+class AstDfn(_symbol:GNode,
+             _idToken:Option[Token[_]],
+             _kind:ElementKind,
              private var _bindingScope:AstScope,
              var fo:FileObject
-) extends AstItem(symbol, pickToken, kind) with AstElementHandle with LanguageAstDfn {
+) extends AstItem with AstElementHandle with LanguageAstDfn {
     // we allow _bindingScope to be set later
     if (_bindingScope != null) {
         _bindingScope.bindingDfn = Some(this)
     }
+
+    make(_symbol, _idToken, _kind)
 
     private var modifiers :Set[Modifier] = _
 
@@ -79,7 +81,7 @@ class AstDfn(symbol:GNode,
     def getFileObject :FileObject = fo
 
     override
-    def getKind :ElementKind = kind
+    def getKind :ElementKind = super[AstItem].getKind
 
     override
     def getModifiers :Set[Modifier] = modifiers match {
@@ -107,7 +109,7 @@ class AstDfn(symbol:GNode,
 
     override
     def toString = {
-        "Def: " + name + " (idToken=" + idToken + ", kind=" + kind +  ")"
+        "Def: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
     }
 
     def bindingScope :AstScope = {
@@ -263,3 +265,4 @@ trait LanguageAstDfn {self:AstDfn =>
             clauses.toList
     }
 }
+
