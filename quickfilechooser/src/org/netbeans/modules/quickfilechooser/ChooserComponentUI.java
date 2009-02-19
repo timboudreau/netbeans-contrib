@@ -47,6 +47,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -512,6 +513,10 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         
         public void actionPerformed(ActionEvent e) {
             String t = text.getText();
+            if (text.getCaretPosition() < t.length()) {
+                Toolkit.getDefaultToolkit().beep();
+                return;
+            }
             int cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
             if (cut != -1 && cut + 1 == t.length()) {
                 t = t.substring(0, t.length() - 1);
