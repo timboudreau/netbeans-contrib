@@ -156,6 +156,10 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
                 }
                 functionDfn match {
                     case Some(x) =>
+                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                            _idToken.asInstanceOf[Token[TokenId]]),
+                                       ColoringAttributes.MARK_OCCURRENCES)
+
                         for (clause <- x.functionClauses;
                              clauseIdToken <- clause.idToken
                         ) {
