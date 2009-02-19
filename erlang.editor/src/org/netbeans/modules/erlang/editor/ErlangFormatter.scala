@@ -544,21 +544,21 @@ class ErlangFormatter extends Formatter {
                 val offset = lastUnresolved.offsetOnline
                 lastUnresolved.token.id match {
                     case ErlangTokenId.RArrow =>
-                        var nearestHangableBrace :Brace = null
+                        var nearestHangableBrace :Option[Brace] = None
                         var depth = 0
-                        def loop(itr:Iterator[Brace]) :Unit = if (itr.hasNext) {
-                            val brace = itr.next
+                        var continue = true
+                        for (i <- unresolvedBraces.size - 1 to 0 if continue) {
+                            val brace = unresolvedBraces(i)
                             depth += 1
-                            brace.token.id match {
-                                case ErlangTokenId.RArrow => loop(itr)
-                                case _ => nearestHangableBrace = brace
+                            if (brace.token.id != ErlangTokenId.RArrow) {
+                                nearestHangableBrace = Some(brace)
+                                continue = false
                             }
                         }
-                        loop(unresolvedBraces.elements)
 
                         nearestHangableBrace match {
-                            case null => newBalance * indentSize
-                            case _ => nearestHangableBrace.offsetOnline + depth * indentSize
+                            case None => newBalance * indentSize
+                            case Some(x) => x.offsetOnline + depth * indentSize
                         }
                     case ErlangTokenId.LParen | ErlangTokenId.LBrace | ErlangTokenId.LBracket | ErlangTokenId.DLt =>
                         offset + lastUnresolved.token.text.toString.length

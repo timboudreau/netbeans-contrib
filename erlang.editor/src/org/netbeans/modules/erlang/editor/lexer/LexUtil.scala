@@ -563,6 +563,7 @@ object LexUtil extends LanguageLexUtil {
             token.text.toString match {
                 case `open` => balance += 1
                 case `close` => balance -= 1
+                case _ =>
             }
         } while (ts.moveNext)
 
@@ -639,6 +640,7 @@ object LexUtil extends LanguageLexUtil {
                             balanceStack.pop
                         }
                         balance -= 1
+                    case _ =>
                 }
             } while (ts.moveNext && (ts.offset <= end))
 
