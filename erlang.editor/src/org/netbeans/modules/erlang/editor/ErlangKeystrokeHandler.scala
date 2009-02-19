@@ -821,7 +821,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                     case ErlangTokenId.RBracket =>
                         LexUtil.findBwd(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket)
                     case ErlangTokenId.End => 
-                        LexUtil.findBwd(ts, PAIR_BWDS.get(ErlangTokenId.End).get, ErlangTokenId.End)
+                        LexUtil.findBwd(ts, PAIRS.get(ErlangTokenId.End).get, ErlangTokenId.End)
                     case _ => OffsetRange.NONE
                         //LexUtil.findBegin(doc, ts)
                 }
@@ -838,24 +838,15 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
         }
     }
 
-    private val PAIR_FWDS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.LParen   -> Set(ErlangTokenId.RParen),
-                                                            ErlangTokenId.LBrace   -> Set(ErlangTokenId.RBrace),
-                                                            ErlangTokenId.LBracket -> Set(ErlangTokenId.RBracket),
-                                                            ErlangTokenId.If       -> Set(ErlangTokenId.End),
-                                                            ErlangTokenId.Case     -> Set(ErlangTokenId.End),
-                                                            ErlangTokenId.Receive  -> Set(ErlangTokenId.End),
-                                                            ErlangTokenId.Try      -> Set(ErlangTokenId.End)
-    )
-
-    private val PAIR_BWDS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.RParen   -> Set(ErlangTokenId.LParen),
-                                                            ErlangTokenId.RBrace   -> Set(ErlangTokenId.LBrace),
-                                                            ErlangTokenId.RBracket -> Set(ErlangTokenId.LBracket),
-                                                            ErlangTokenId.End      -> Set(ErlangTokenId.Begin,
-                                                                                          ErlangTokenId.Case,
-                                                                                          ErlangTokenId.If,
-                                                                                          ErlangTokenId.Receive,
-                                                                                          ErlangTokenId.Try)
-    )
+    /** close to opens */
+    private val PAIRS :Map[TokenId, Set[TokenId]] = Map(ErlangTokenId.RParen   -> Set(ErlangTokenId.LParen),
+                                                        ErlangTokenId.RBrace   -> Set(ErlangTokenId.LBrace),
+                                                        ErlangTokenId.RBracket -> Set(ErlangTokenId.LBracket),
+                                                        ErlangTokenId.End      -> Set(ErlangTokenId.Begin,
+                                                                                      ErlangTokenId.Case,
+                                                                                      ErlangTokenId.If,
+                                                                                      ErlangTokenId.Receive,
+                                                                                      ErlangTokenId.Try))
 
     override
     def findMatching(document:Document, _offset:Int) :OffsetRange = {
@@ -886,14 +877,17 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                 }
             }
 
-            for (pairs <- PAIR_FWDS.get(id)) {
-                LexUtil.findFwd(ts, id, pairs) match {
-                    case OffsetRange.NONE =>
-                    case x => return x
-                }
+            for (closeOpens <- PAIRS) closeOpens match {
+                case (close, opens) if opens.contains(id) =>
+                    LexUtil.findFwd(ts, opens, close) match {
+                        case OffsetRange.NONE =>
+                        case x => return x
+                    }
+                case _ =>
             }
-            for (pairs <- PAIR_BWDS.get(id)) {
-                LexUtil.findBwd(ts, pairs, id) match {
+
+            for (opens <- PAIRS.get(id)) {
+                LexUtil.findBwd(ts, opens, id) match {
                     case OffsetRange.NONE =>
                     case x => return x
                 }

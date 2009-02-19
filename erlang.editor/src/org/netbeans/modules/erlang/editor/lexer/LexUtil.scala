@@ -389,15 +389,15 @@ object LexUtil extends LanguageLexUtil {
     }
 
     /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-    def findFwd(ts:TokenSequence[TokenId], up:TokenId, downs:Set[TokenId]) :OffsetRange = {
+    def findFwd(ts:TokenSequence[TokenId], ups:Set[TokenId], down:TokenId) :OffsetRange = {
         var balance = 0
         while (ts.moveNext) {
             val token = ts.token
             val id = token.id
-            (id, downs.contains(id), balance) match {
-                case (`up`, _, _) => balance += 1
-                case (_, true, 0) => return new OffsetRange(ts.offset, ts.offset + token.length)
-                case (_, true, _) => balance -= 1
+            (id, ups.contains(id), balance) match {
+                case (`down`, _, 0) => return new OffsetRange(ts.offset, ts.offset + token.length)
+                case (`down`, _, _) => balance -= 1
+                case (_, true,   _) => balance += 1
                 case _ =>
             }
         }
