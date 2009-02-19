@@ -145,27 +145,42 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
                 doc.readUnlock
             }
 
-            val _occurrences = rootScope.findOccurrences(item)
-            for (_item <- _occurrences;
+            val occurrences = rootScope.findOccurrences(item)
+            for (_item <- occurrences;
                  _idToken <- _item.idToken
             ) {
-                highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                    _idToken.asInstanceOf[Token[TokenId]]),
-                               ColoringAttributes.MARK_OCCURRENCES)
 
                 // detect special case for function
                 val functionDfn = _item match {
                     case aDfn:AstDfn => aDfn.functionDfn
                     case _ => None
                 }
-                
-                for (x <- functionDfn;
-                     clause <- x.functionClauses;
-                     clauseIdToken <- clause.idToken
-                ) {
-                    highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
-                                                        clauseIdToken.asInstanceOf[Token[TokenId]]),
-                                   ColoringAttributes.MARK_OCCURRENCES)
+
+                functionDfn match {
+                    case Some(x) =>
+                        if (x != _item) {
+                            // we should refind occrrunces of functionDfn to get all scope refs
+                            val occurrences1 = rootScope.findOccurrences(x)
+                            for (item1 <- occurrences1;
+                                 idToken1 <- item1.idToken
+                            ) {
+                                highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                                    idToken1.asInstanceOf[Token[TokenId]]),
+                                               ColoringAttributes.MARK_OCCURRENCES)
+                            }
+                        }
+                        
+                        for (clause <- x.functionClauses;
+                             clauseIdToken <- clause.idToken
+                        ) {
+                            highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                                clauseIdToken.asInstanceOf[Token[TokenId]]),
+                                           ColoringAttributes.MARK_OCCURRENCES)
+                        }
+                    case None =>
+                        highlights.put(LexUtil.rangeOfToken(th.asInstanceOf[TokenHierarchy[TokenId]],
+                                                            _idToken.asInstanceOf[Token[TokenId]]),
+                                       ColoringAttributes.MARK_OCCURRENCES)
                 }
             }
 
