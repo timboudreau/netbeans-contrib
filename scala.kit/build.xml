@@ -38,6 +38,16 @@
       <ant dir="../../contrib/scala.debugger" target="nbm"/>
       <ant dir="../../contrib/scala.kit" target="nbm"/>
       <antcall target="netbeans"/>
+      <copy file="../../contrib/xtc/build/*.nbm" todir="build"/>
+      <copy file="../../contrib/languages.execution/*.nbm" todir="build"/>
+      <copy file="../../contrib/libs.scala/*.nbm" todir="build"/>
+      <copy file="../../contrib/scala.editing/*.nbm" todir="build"/>
+      <copy file="../../contrib/scala.platform/*.nbm" todir="build"/>
+      <copy file="../../contrib/scala.stdplatform" todir="build"/>
+      <copy file="../../contrib/scala.project" todir="build"/>
+      <copy file="../../contrib/scala.console/*.nbm" todir="build"/>
+      <copy file="../../contrib/scala.debugger.projects/*.nbm" todir="build"/>
+      <copy file="../../contrib/scala.debugger/*.nbm" todir="build"/>
    </target>
 
    <target name="scala-clean">
