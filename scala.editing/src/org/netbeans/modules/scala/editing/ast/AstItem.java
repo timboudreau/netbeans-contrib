@@ -155,6 +155,8 @@ public abstract class AstItem {
         if (getSymbol().isModule()) {
             /** According to Symbol#kindString, an object template isModule() */
             return getName() + "$";
+        } else if (getSymbol().isTrait()) {
+            return getName() + "$class";
         } else {
             return getName();
         }
