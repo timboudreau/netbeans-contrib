@@ -794,7 +794,7 @@ public class ScalaParser implements Parser {
                         return;
                     }
                 }
-                System.out.println("Error in source: " + pos.source());
+                //System.out.println("Error in source: " + pos.source());
                 int offset = ScalaUtils.getOffset(pos);
                 org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
                 switch (severity.id()) {
