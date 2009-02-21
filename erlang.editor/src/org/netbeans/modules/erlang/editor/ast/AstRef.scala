@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
@@ -57,14 +57,14 @@ class AstRef(_symbol:GNode, _idToken:Option[Token[TokenId]], _kind:ElementKind) 
     override
     def getKind :ElementKind = super.getKind match {
         // if it's a OTHER, we could try to get its kind from its dfn
-        case kind@ElementKind.OTHER => enclosingScope match {
-                case None =>  kind
+        case kindx@ElementKind.OTHER => enclosingScope match {
+                case None =>  kindx
                 case Some(scope) => scope.findDfnOf(this) match {
-                        case None => kind
+                        case None => kindx
                         case Some(dfn) => dfn.getKind
                     }
             }
-        case kind => kind
+        case kindx => kindx
     }
 
     override
@@ -77,8 +77,8 @@ trait LanguageAstRef {self:AstRef =>
     import ElementKind._
     import org.netbeans.modules.erlang.editor.node.ErlangItems._
 
-    def isOccurrence(ref:AstRef) :Boolean = ref.kind match {
-        case CALL if self.asInstanceOf[AstItem].kind == CALL => (self.property("call"), ref.property("call")) match {
+    def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
+        case CALL if self.getKind == CALL => (self.property("call"), ref.property("call")) match {
                 case (Some(FunctionCall(Some(inX), nameX, arityX)), Some(FunctionCall(Some(inY), nameY, arityY))) 
                     if inX.equals(inY) && nameX.equals(nameY) && arityX == arityY => true
                 case _ => false

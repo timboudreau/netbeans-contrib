@@ -34,17 +34,18 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
 import _root_.java.util.{Collections,Set,HashSet}
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
+import org.netbeans.editor.{BaseDocument}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.csl.api.HtmlFormatter
 import org.netbeans.modules.csl.api.Modifier
 import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.spi.ParserResult
+import org.netbeans.modules.csl.spi.{GsfUtilities,ParserResult}
 import org.openide.filesystems.FileObject
 
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
@@ -66,8 +67,9 @@ class AstDfn(_symbol:GNode,
              _idToken:Option[Token[TokenId]],
              _kind:ElementKind,
              private var _bindingScope:AstScope,
-             var fo:FileObject
+             var fo:Option[FileObject]
 ) extends AstItem with AstElementHandle with LanguageAstDfn {
+    
     // we allow _bindingScope to be set later
     if (_bindingScope != null) {
         _bindingScope.bindingDfn = Some(this)
@@ -78,7 +80,7 @@ class AstDfn(_symbol:GNode,
     private var modifiers :Set[Modifier] = _
 
     override
-    def getFileObject :FileObject = fo
+    def getFileObject :FileObject = fo.getOrElse(null)
 
     override
     def getKind :ElementKind = super[AstItem].getKind
@@ -136,32 +138,18 @@ class AstDfn(_symbol:GNode,
 
     def docComment :String = {
         null
-        //        BaseDocument srcDoc = getDoc()
-        //        if (srcDoc == null) {
-        //            return null
-        //        }
-        //
-        //        TokenHierarchy th = TokenHierarchy.get(srcDoc)
-        //        if (th == null) {
-        //            return null
-        //        }
-        //
-        //        return ScalaUtils.getDocComment(srcDoc, getIdOffset(th))
     }
 
-    //    public BaseDocument getDoc() {
-    //        FileObject srcFo = getFileObject()
-    //        if (srcFo != null) {
-    //            return GsfUtilities.getDocument(srcFo, true)
-    //        } else {
-    //            return null
-    //        }
-    //    }
-
+    def doc :Option[BaseDocument] = fo match {
+        case None => None
+        case Some(x) => GsfUtilities.getDocument(x, true) match {
+                case null => None
+                case docx => Some(docx)
+            }
+    }
 
     def packageName :String = {
         null
-        // return ScalaElement.symbolQualifiedName(getSymbol().enclosingPackage())
     }
 
     def qualifiedName :String = {
@@ -189,6 +177,7 @@ trait LanguageAstDfn {self:AstDfn =>
     import ElementKind._
     import org.netbeans.modules.erlang.editor.node.ErlangItems._
 
+    /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref:AstRef) :Boolean = (ref.kind, self.getKind) match {
         case (CALL, METHOD) => ref.property("call") match {
                 case Some(FunctionCall(_, name, arity)) if name.equals(getName) => true
@@ -196,10 +185,6 @@ trait LanguageAstDfn {self:AstDfn =>
             }
         case _ =>
             if (ref.getName.equals(getName)) {
-                //            if ((getSymbol().isClass() || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
-                //                return true
-                //            }
-
                 ref.symbol == self.asInstanceOf[AstItem].symbol
             } else false
     }
@@ -229,20 +214,13 @@ trait LanguageAstDfn {self:AstDfn =>
             }
         case ATTRIBUTE => formatter.appendText(getName)
         case _ =>
-            //Type resType = getType().resultType()
             formatter.appendText(getName)
-            val atype = tpe
-            if (atype != null) {
-                //formatter.appendText(ScalaElement.typeToString(type))
-            }
-            //formatter.appendText(resType.toString())
-            //htmlFormat(formatter, resType, true)
     }
     
 
     def isFunctionClause = {
         //* is it FunctionClause of enclosingDfn ?
-        val b = for (aDfn <- self.enclosingDfn if aDfn.kind == METHOD && self.getKind == ATTRIBUTE) yield true
+        val b = for (aDfn <- self.enclosingDfn if aDfn.getKind == METHOD && self.getKind == ATTRIBUTE) yield true
         b match {
             case None => false
             case Some(x) => x

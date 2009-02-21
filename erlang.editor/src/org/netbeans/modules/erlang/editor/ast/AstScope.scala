@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
@@ -123,17 +123,12 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
 
     /**
-     * @param def to be added
+     * @param dfn to be added
      * @retrun added successfully or not
      */
     def addDfn(dfn:AstDfn) :Boolean = dfn.idToken match {
         case None => false
         case Some(x) =>
-            /** @todo tempary solution */
-            //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
-            //            return false
-            //        }
-
             /** a def will always be added */
             root.tryToPut(x, dfn)
             if (_dfns == None) {
@@ -152,11 +147,6 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     def addRef(ref:AstRef) :Boolean = ref.idToken match {
         case None => false
         case Some(x) =>
-            /** @todo tempary solution */
-            //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
-            //            return false;
-            //        }
-
             /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
             if (root.contains(x)) {
                 return false
@@ -303,7 +293,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        return None
+        None
     }
 
     def findDfnAt[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
@@ -603,7 +593,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        return None
+        None
     }
 
     override

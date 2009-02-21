@@ -58,7 +58,7 @@ import xtc.util.Pair
  *
  * @author Caoyuan Deng
  */
-class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
+class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject]) extends AstVisitor(rootNode, th) {
 
     private val inVarDefs = new Stack[ElementKind]
     private val functionCalls = new Stack[FunctionCall]

@@ -221,7 +221,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
                 val children = new ArrayList[StructureItem](nested.size)
 
                 for (child <- nested) {
-                    child.kind match {
+                    child.getKind match {
                         case PARAMETER | VARIABLE | OTHER =>
                         case _ => children.add(new ErlangStructureItem(child, pResult))
                     }
