@@ -43,9 +43,9 @@ import org.netbeans.modules.csl.api.ElementKind
 import xtc.tree.{GNode}
 
 /**
- * Mirror with AstNode information
+ * Mirror with AstDfn information
  * 
- * Represent usage/reference of an element
+ * Represent usage/reference of an AstDfn
  * 
  * @author Caoyuan Deng
  */

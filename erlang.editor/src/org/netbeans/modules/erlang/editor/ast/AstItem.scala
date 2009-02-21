@@ -153,7 +153,7 @@ trait AstItem extends ForElementHandle {
             properties = Some(new HashMap)
         }
         for (_properties <- properties) {
-            _properties += (k -> v)
+            _properties + (k -> v)
         }
     }
 

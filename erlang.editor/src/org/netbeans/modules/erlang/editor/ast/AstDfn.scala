@@ -258,10 +258,7 @@ trait LanguageAstDfn {self:AstDfn =>
     def functionClauses :List[AstDfn] = functionDfn match {
         case None => Nil
         case Some(x) =>
-            val clauses = new ArrayBuffer[AstDfn]
-            for (clause <- x.bindingScope.dfns if clause.getKind == ElementKind.ATTRIBUTE) {
-                clauses += clause
-            }
+            val clauses = for (clause <- x.bindingScope.dfns if clause.getKind == ElementKind.ATTRIBUTE) yield clause
             clauses.toList
     }
 }

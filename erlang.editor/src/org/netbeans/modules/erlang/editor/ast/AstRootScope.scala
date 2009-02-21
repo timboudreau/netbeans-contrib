@@ -77,13 +77,13 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
      */
     protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
         case None =>
-            _idTokenToItem.put(idToken, item)
+            _idTokenToItem + (idToken -> item)
             tokensSorted = false
             true
         case Some(exsitOne) =>
-            // if existOne is def and with narrow visible than new one, replace it
+            // if existOne is dfn and with narrow visible than new one, replace it
             if (item.isInstanceOf[AstDfn]) {
-                _idTokenToItem.put(idToken, item)
+                _idTokenToItem + (idToken -> item)
                 tokensSorted = false
                 true
             } else false
@@ -92,13 +92,13 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
 
     override
     def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
-        val _tokens = sortedToken(th)
+        val tokens1 = sortedToken(th)
 
         var lo = 0
-        var hi = _tokens.size - 1
+        var hi = tokens1.size - 1
         while (lo <= hi) {
             val mid = (lo + hi) >> 1
-            val middle = _tokens(mid)
+            val middle = tokens1(mid)
             if (offset < middle.offset(th)) {
                 hi = mid - 1
             } else if (offset > middle.offset(th) + middle.length) {
@@ -124,7 +124,7 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
         sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
     }
 
-    def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
+    private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
         o1.offset(th) < o2.offset(th)
     }
 }
