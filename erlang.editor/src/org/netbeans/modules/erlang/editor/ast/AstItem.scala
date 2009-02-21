@@ -174,10 +174,7 @@ trait ForElementHandle {self:AstItem =>
 
     def getName = self.name
 
-    def getIn :String = {
-        ""
-        //return symbol.enclClass().nameString()
-    }
+    def getIn :String = ""
 
     def getKind :ElementKind = self.kind
 

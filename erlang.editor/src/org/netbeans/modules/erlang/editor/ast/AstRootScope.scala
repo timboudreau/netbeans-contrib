@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.collection.mutable.{ArrayBuffer,HashMap}
 
 /**
  *
@@ -89,7 +89,6 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
             } else false
     }
    
-
     override
     def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
         val tokens1 = sortedToken(th)
@@ -120,11 +119,11 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
         }
     }
 
-    protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
-        sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
-    }
-
     private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
         o1.offset(th) < o2.offset(th)
+    }
+
+    protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
+        sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
     }
 }

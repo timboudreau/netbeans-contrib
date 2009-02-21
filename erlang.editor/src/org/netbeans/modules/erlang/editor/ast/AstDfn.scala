@@ -121,7 +121,7 @@ class AstDfn(_symbol:GNode,
         bindingScope.boundsOffset(th)
     }
 
-    def boundsEndOffset(th:TokenHierarchy[_]) :Int ={
+    def boundsEndOffset(th:TokenHierarchy[_]) :Int = {
         bindingScope.boundsEndOffset(th)
     }
 

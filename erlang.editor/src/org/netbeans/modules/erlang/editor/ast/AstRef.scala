@@ -55,7 +55,17 @@ class AstRef(_symbol:GNode, _idToken:Option[Token[TokenId]], _kind:ElementKind) 
     def this(symbol:GNode, idToken:Option[Token[TokenId]]) = this(symbol, idToken, ElementKind.OTHER)
     
     override
-    def getKind :ElementKind = _kind
+    def getKind :ElementKind = super.getKind match {
+        // if it's a OTHER, we could try to get its kind from its dfn
+        case kind@ElementKind.OTHER => enclosingScope match {
+                case None =>  kind
+                case Some(scope) => scope.findDfnOf(this) match {
+                        case None => kind
+                        case Some(dfn) => dfn.getKind
+                    }
+            }
+        case kind => kind
+    }
 
     override
     def toString = {
