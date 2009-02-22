@@ -63,7 +63,7 @@ trait AstItem extends ForElementHandle {
     def make(symbol:GNode) :Unit = make(symbol, None, ElementKind.OTHER)
 
     var symbol :GNode = _
-    var kind :ElementKind = ElementKind.OTHER
+    var resultType :String = _
     /**
      * @Note:
      * 1. Not all AstItem has pickToken, such as Expr etc.
@@ -74,10 +74,8 @@ trait AstItem extends ForElementHandle {
     private var _idToken :Option[Token[TokenId]] = None
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
-    var resultType :String = _
     private var properties :Option[HashMap[String, Any]] = None
-
-//    idToken = _idToken
+    var kind :ElementKind = ElementKind.OTHER
 
     def idToken = _idToken
     def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>
@@ -105,7 +103,6 @@ trait AstItem extends ForElementHandle {
                 _name = sb.toString
                 println("NPE in AstItem#getName:" + idToken.id)
         }
-        this
     }
 
     def idOffset(th:TokenHierarchy[_]) = idToken match {
@@ -153,7 +150,7 @@ trait AstItem extends ForElementHandle {
             properties = Some(new HashMap)
         }
         for (_properties <- properties) {
-            _properties += (k -> v)
+            _properties + (k -> v)
         }
     }
 
@@ -174,10 +171,7 @@ trait ForElementHandle {self:AstItem =>
 
     def getName = self.name
 
-    def getIn :String = {
-        ""
-        //return symbol.enclClass().nameString()
-    }
+    def getIn :String = ""
 
     def getKind :ElementKind = self.kind
 

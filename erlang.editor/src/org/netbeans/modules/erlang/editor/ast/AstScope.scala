@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
@@ -117,29 +117,24 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         if (_subScopes == None) {
             _subScopes = Some(new ArrayBuffer)
         }
-        _subScopes.get += scope
+        _subScopes.get + scope
         scopesSorted = false
         scope.parent = Some(this)
     }
 
     /**
-     * @param def to be added
+     * @param dfn to be added
      * @retrun added successfully or not
      */
     def addDfn(dfn:AstDfn) :Boolean = dfn.idToken match {
         case None => false
         case Some(x) =>
-            /** @todo tempary solution */
-            //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
-            //            return false
-            //        }
-
             /** a def will always be added */
             root.tryToPut(x, dfn)
             if (_dfns == None) {
                 _dfns = Some(new ArrayBuffer)
             }
-            _dfns.get += dfn
+            _dfns.get + dfn
             dfnsSorted = false
             dfn.enclosingScope = this
             true
@@ -152,11 +147,6 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     def addRef(ref:AstRef) :Boolean = ref.idToken match {
         case None => false
         case Some(x) =>
-            /** @todo tempary solution */
-            //        if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
-            //            return false;
-            //        }
-
             /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
             if (root.contains(x)) {
                 return false
@@ -166,7 +156,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
             if (_refs == None) {
                 _refs = Some(new ArrayBuffer)
             }
-            _refs.get += ref
+            _refs.get + ref
             refsSorted = false
             ref.enclosingScope = this
             true
@@ -303,7 +293,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        return None
+        None
     }
 
     def findDfnAt[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
@@ -404,12 +394,13 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
         dfn match {
             case None =>
-                // def maybe remote one, just try to find all same refs
+                // dfn may be a remote one, just try to find all same refs
                 findAllRefsSameAs(item.asInstanceOf[AstRef]).asInstanceOf[ArrayBuffer[AstItem]]
-            case _ =>
+            case Some(x) =>
                 val occurrences = new ArrayBuffer[AstItem]
-                occurrences += dfn.get
-                occurrences ++= findRefsOf(dfn.get)
+                occurrences + x
+                // @todo ArrayBuffer.++ has strange signature: ++[B >: A](that : Iterable[B]) : ArrayBuffer[B] 
+                occurrences ++= findRefsOf(x)
 
                 occurrences
         }
@@ -461,7 +452,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         }
 
         for (xs <- _refs) {
-            result ++= xs.filter{dfn isReferredBy _}
+            result ++ xs.filter{dfn isReferredBy _}
         }
 
         /** search downward */
@@ -478,7 +469,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     private def findAllRefsSameAs(ref:AstRef) :ArrayBuffer[AstRef] = {
         val result = new ArrayBuffer[AstRef]
 
-        result += ref
+        result + ref
         root.findAllRefsSameAsDownward(ref, result)
 
         result
@@ -486,7 +477,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
     protected def findAllRefsSameAsDownward(ref:AstRef,  result:ArrayBuffer[AstRef]) :Unit = {
         for (xs <- _refs) {
-            result ++= xs.filter{ref.isOccurrence(_)}
+            result ++ xs.filter{ref.isOccurrence(_)}
         }
 
         /** search downward */
@@ -521,7 +512,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
     private def visibleDfnsUpward(kind:ElementKind, result:ArrayBuffer[AstDfn]) :Unit = {
         for (xs <- _dfns) {
-            result ++= xs.filter{_.getKind == kind}
+            result ++ xs.filter{_.getKind == kind}
         }
 
         for (x <- parent) {
@@ -529,11 +520,9 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         }
     }
 
-    def enclosinDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = {
-        closestScope(th, offset) match {
-            case None => None
-            case Some(x) => x.enclosingDfn(kind)
-        }
+    def enclosinDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = closestScope(th, offset) match {
+        case None => None
+        case Some(x) => x.enclosingDfn(kind)
     }
 
     def enclosingDfn(kind:ElementKind) :Option[AstDfn] = bindingDfn match {
@@ -553,7 +542,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     
     private final def visibleDfnsUpward[A <: AstDfn](clazz:Class[A], result:ArrayBuffer[A]) :Unit = {
         for (xs <- _dfns) {
-            result ++= xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[A]]
+            result ++ xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[A]]
         }
     
         for (x <- parent) {
@@ -604,7 +593,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
             }
         }
 
-        return None
+        None
     }
 
     override

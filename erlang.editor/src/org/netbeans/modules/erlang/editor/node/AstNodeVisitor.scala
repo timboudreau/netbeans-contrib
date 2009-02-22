@@ -58,7 +58,7 @@ import xtc.util.Pair
  *
  * @author Caoyuan Deng
  */
-class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends AstVisitor(rootNode, th) {
+class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject]) extends AstVisitor(rootNode, th) {
 
     private val inVarDefs = new Stack[ElementKind]
     private val functionCalls = new Stack[FunctionCall]
@@ -92,6 +92,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         scopes.push(scope)
 
         that.get(0) match {
+            case predAttr:GNode if predAttr.getName.equals("PredAttr") =>
+                visitPredAttr(predAttr)
             case atomId:GNode =>
                 val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)
@@ -100,6 +102,61 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
         }
 
         scopes.pop
+    }
+
+    def visitPredAttr(that:GNode) = {
+        val inScope = scopes.top
+        val attr = that.getString(0) match {
+            case "module" =>
+                val atomId1 = that.getGeneric(1)
+                val fstTk = idToken(idNode(atomId1))
+                val ns :Pair[GNode] = that.getList(2)
+                val tks = foldPair(ns){n =>
+                    idToken(idNode(n))
+                }.toList.reverse.asInstanceOf[List[Option[Token[TokenId]]]]
+
+                val (nameTk, pkgPaths) = tks match {
+                    case Nil => (fstTk, Nil)
+                    case x :: xs => (x, fstTk :: (xs.reverse))
+                }
+                val attr1 = new AstDfn(that, nameTk, ElementKind.MODULE, inScope, fo)
+                attr1.property("pkg", pkgPaths)
+                attr1
+            case "export" =>
+                val functionNames = that.getGeneric(1)
+                if (functionNames != null) {
+                    visitFunctionNames(functionNames)
+                }
+                null
+            case _ =>
+                null
+                //new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, inScope, fo)
+        }
+        if (attr != null) rootScope.addDfn(attr)
+    }
+
+    def visitFunctionNames(that:GNode) = {
+        val functionName = that.getGeneric(0)
+        visitFunctionName(functionName)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitFunctionName(n)
+        }
+    }
+
+    def visitFunctionName(that:GNode) :FunctionCall = {
+        val arity = that.getGeneric(1)
+        val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
+        val call = that.getGeneric(0)
+        functionCalls.push(functionCall)
+        call.getName match {
+            case "AtomId1" =>
+                isFunctionCallName = true
+                visitAtomId1(call)
+                isFunctionCallName = false
+            case "MacroId" =>
+        }
+        functionCalls.pop
     }
 
     def visitFunction(that:GNode) = {
@@ -647,43 +704,24 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:FileObject) extends
 
     def visitFunExpr(that:GNode) = that.size match {
         case 1 =>
-            val funClauses = that.getGeneric(0)
-            visitFunClauses(funClauses)
-        case 2 =>
-            val arity = that.getGeneric(1)
-            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
-            val call = that.getGeneric(0)
-            functionCalls.push(functionCall)
-            call.getName match {
-                case "AtomId1" =>
-                    isFunctionCallName = true
-                    visitAtomId1(call)
-                    isFunctionCallName = false
-                case "MacroId" =>
+            val n = that.getGeneric(0)
+            n.getName match {
+                case "FunctionName" =>
+                    visitFunctionName(n)
+                case "FunClauses" =>
+                    visitFunClauses(n)
             }
-            functionCalls.pop
-            arity
-        case 3 =>
-            val arity = that.getGeneric(2)
-            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
-            functionCalls.push(functionCall)
+        case 2 =>
+            val functionName = that.getGeneric(1)
+            val functionCall = visitFunctionName(functionName)
+
             val remote = that.getGeneric(0)
             remote.getName match {
                 case "AtomId1" =>
                     val remoteName = visitAtomId1(remote)
                     functionCall.in = Some(remoteName)
-                case "MacroId" =>                    
-            }
-            val call = that.getGeneric(1)
-            call.getName match {
-                case "AtomId1" =>
-                    isFunctionCallName = true
-                    visitAtomId1(call)
-                    isFunctionCallName = false
                 case "MacroId" =>
             }
-            functionCalls.pop
-            arity
     }
 
     def visitFunClauses(that:GNode) = {

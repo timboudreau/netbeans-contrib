@@ -34,12 +34,12 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.collection.mutable.{ArrayBuffer,HashMap}
 
 /**
  *
@@ -77,28 +77,27 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
      */
     protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
         case None =>
-            _idTokenToItem.put(idToken, item)
+            _idTokenToItem + (idToken -> item)
             tokensSorted = false
             true
         case Some(exsitOne) =>
-            // if existOne is def and with narrow visible than new one, replace it
+            // if existOne is dfn and with narrow visible than new one, replace it
             if (item.isInstanceOf[AstDfn]) {
-                _idTokenToItem.put(idToken, item)
+                _idTokenToItem + (idToken -> item)
                 tokensSorted = false
                 true
             } else false
     }
    
-
     override
     def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
-        val _tokens = sortedToken(th)
+        val tokens1 = sortedToken(th)
 
         var lo = 0
-        var hi = _tokens.size - 1
+        var hi = tokens1.size - 1
         while (lo <= hi) {
             val mid = (lo + hi) >> 1
-            val middle = _tokens(mid)
+            val middle = tokens1(mid)
             if (offset < middle.offset(th)) {
                 hi = mid - 1
             } else if (offset > middle.offset(th) + middle.length) {
@@ -120,11 +119,11 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
         }
     }
 
-    protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
-        sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
+    private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
+        o1.offset(th) < o2.offset(th)
     }
 
-    def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
-        o1.offset(th) < o2.offset(th)
+    protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
+        sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
     }
 }

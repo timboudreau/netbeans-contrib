@@ -149,7 +149,7 @@ class ErlangParser extends Parser {
                               sanitizing:Sanitize, severity:Severity,
                               key:String, params:Object) :Unit = {
 
-        val error = new DefaultError(key, message, null, context.fo, start, end, severity)
+        val error = new DefaultError(key, message, null, context.fo.getOrElse(null), start, end, severity)
 
         params match {
             case null =>
@@ -271,7 +271,10 @@ class ErlangParser extends Parser {
 
     protected def createParser(context:Context) :ParserErlang = {
         val in = new StringReader(context.source)
-        val fileName = if (context.fo != null) context.fo.getNameExt else "<current>"
+        val fileName = context.fo match {
+            case None => "<current>"
+            case Some(x) => x.getNameExt
+        }
 
         val parser = new ParserErlang(in, fileName)
 
@@ -299,7 +302,10 @@ class ErlangParser extends Parser {
 
         def notifyError(error:Error) = errors.add(error)
 
-        def fo = snapshot.getSource.getFileObject
+        def fo :Option[FileObject] = snapshot.getSource.getFileObject match {
+            case null => None
+            case x => Some(x)
+        }
 
         override
         def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
