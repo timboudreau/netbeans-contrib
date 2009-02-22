@@ -110,7 +110,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "module" =>
                 val atomId1 = that.getGeneric(1)
                 val fstTk = idToken(idNode(atomId1))
-                val ns = that.getList(2)
+                val ns :Pair[GNode] = that.getList(2)
                 val tks = foldPair(ns){n =>
                     idToken(idNode(n))
                 }.toList.reverse.asInstanceOf[List[Option[Token[TokenId]]]]
@@ -122,11 +122,41 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                 val attr1 = new AstDfn(that, nameTk, ElementKind.MODULE, inScope, fo)
                 attr1.property("pkg", pkgPaths)
                 attr1
+            case "export" =>
+                val functionNames = that.getGeneric(1)
+                if (functionNames != null) {
+                    visitFunctionNames(functionNames)
+                }
+                null
             case _ =>
                 null
                 //new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, inScope, fo)
         }
         if (attr != null) rootScope.addDfn(attr)
+    }
+
+    def visitFunctionNames(that:GNode) = {
+        val functionName = that.getGeneric(0)
+        visitFunctionName(functionName)
+        val ns :Pair[GNode] = that.getList(1)
+        loopPair(ns){n =>
+            visitFunctionName(n)
+        }
+    }
+
+    def visitFunctionName(that:GNode) = {
+        val arity = that.getGeneric(1)
+        val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
+        val call = that.getGeneric(0)
+        functionCalls.push(functionCall)
+        call.getName match {
+            case "AtomId1" =>
+                isFunctionCallName = true
+                visitAtomId1(call)
+                isFunctionCallName = false
+            case "MacroId" =>
+        }
+        functionCalls.pop
     }
 
     def visitFunction(that:GNode) = {
