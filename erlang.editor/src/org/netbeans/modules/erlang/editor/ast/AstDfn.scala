@@ -221,11 +221,7 @@ trait LanguageAstDfn {self:AstDfn =>
 
     def isFunctionClause = {
         //* is it FunctionClause of enclosingDfn ?
-        val b = for (aDfn <- self.enclosingDfn if aDfn.getKind == METHOD && self.getKind == ATTRIBUTE) yield true
-        b match {
-            case None => false
-            case Some(x) => x
-        }
+        enclosingDfn.filter{_.getKind == METHOD}.isDefined && self.getKind == ATTRIBUTE
     }
 
     def functionDfn :Option[AstDfn] = self.getKind match {
@@ -236,9 +232,7 @@ trait LanguageAstDfn {self:AstDfn =>
 
     def functionClauses :List[AstDfn] = functionDfn match {
         case None => Nil
-        case Some(x) =>
-            val clauses = for (clause <- x.bindingScope.dfns if clause.getKind == ElementKind.ATTRIBUTE) yield clause
-            clauses.toList
+        case Some(x) => x.bindingScope.dfns.filter{_.getKind == ElementKind.ATTRIBUTE}.toList
     }
 }
 

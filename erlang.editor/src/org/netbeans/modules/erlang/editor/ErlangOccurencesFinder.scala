@@ -146,25 +146,25 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
             }
 
             val occurrences = rootScope.findOccurrences(item)
-            for (_item <- occurrences;
-                 _idToken <- _item.idToken
+            for (item1 <- occurrences;
+                 idToken1 <- item1.idToken
             ) {
 
                 // detect special case for function
-                val functionDfn = _item match {
+                val functionDfn = item1 match {
                     case aDfn:AstDfn => aDfn.functionDfn
                     case _ => None
                 }
 
                 functionDfn match {
                     case Some(x) =>
-                        if (x != _item) {
+                        if (x != item1) {
                             // we should refind occrrunces of functionDfn to get all scope refs
                             val occurrences1 = rootScope.findOccurrences(x)
-                            for (item1 <- occurrences1;
-                                 idToken1 <- item1.idToken
+                            for (item2 <- occurrences1;
+                                 idToken2 <- item2.idToken
                             ) {
-                                highlights.put(LexUtil.rangeOfToken(th, idToken1), ColoringAttributes.MARK_OCCURRENCES)
+                                highlights.put(LexUtil.rangeOfToken(th, idToken2), ColoringAttributes.MARK_OCCURRENCES)
                             }
                         }
                         
@@ -174,7 +174,7 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
                             highlights.put(LexUtil.rangeOfToken(th, clauseIdToken), ColoringAttributes.MARK_OCCURRENCES)
                         }
                     case None =>
-                        highlights.put(LexUtil.rangeOfToken(th, _idToken), ColoringAttributes.MARK_OCCURRENCES)
+                        highlights.put(LexUtil.rangeOfToken(th, idToken1), ColoringAttributes.MARK_OCCURRENCES)
                 }
             }
 
