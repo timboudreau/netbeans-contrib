@@ -92,6 +92,10 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         scopes.push(scope)
 
         that.get(0) match {
+            case predAttr:GNode if predAttr.getName.equals("PredAttr") =>
+                val atomId = predAttr.getGeneric(0)
+                val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
+                rootScope.addDfn(attr)
             case atomId:GNode =>
                 val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)

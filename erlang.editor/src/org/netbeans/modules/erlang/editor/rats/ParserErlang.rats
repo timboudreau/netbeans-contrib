@@ -64,7 +64,8 @@ generic Form =
 ;
 
 generic Attribute =
-  void:"-":s AtomId 
+  PredAttr
+/ void:"-":s AtomId
   ( AttrVal
   / TypedAttrVal
   / void:"(":s TypedAttrVal void:")":s
@@ -73,10 +74,42 @@ generic Attribute =
 / void:"-":s "spec":k ( TypeSpec / SYNTAX_ERROR )
 ;
 
+// ----- predefined attributes
+
+generic PredAttr =
+  void:"-":s "define"    :AtomId void:"(":s ( AtomId1 / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
+/ void:"-":s "record"    :AtomId void:"(":s ( AtomId1 / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
+/ void:"-":s "module"    :AtomId void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E ModuleParams )?                          void:")":s
+/ void:"-":s "import"    :AtomId void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
+/ void:"-":s "export"    :AtomId void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
+/ void:"-":s "include"   :AtomId void:"(":s String void:")":s
+/ void:"-":s "includelib":AtomId void:"(":s String void:")":s
+/ void:"-":s "compile"   :AtomId void:"(":s Exprs  void:")":s
+/ void:"-":s "file"      :AtomId void:"(":s String COMMA_E Integer void:")":s
+;
+
+generic ModuleParams =
+  void:"[":s void:"]":s
+/ void:"[":s VarId ( COMMA_E VarId )* void:"]":s
+;
+
+transient generic MacroName = AtomId1 / VarId ;
+transient generic MacroParams = VarId ( COMMA_E VarId )* ;
+
+transient generic FunctionNames = FunctionName ( COMMA_E FunctionName )* ;
+transient generic FunctionName  = AtomId1 void:"/":s Integer ;
+
+transient generic RecordFieldNames = RecordFieldName ( COMMA_E RecordFieldName )* ;
+transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
+
+// ----- AtomId1
+
 generic AtomId1 =
   "spec":k
 / AtomId
 ;
+
+// ----- type and spec 
 
 generic TypeSpec =
   void:"(":s SpecFun TypeSigs void:")":s
