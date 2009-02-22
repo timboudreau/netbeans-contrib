@@ -97,7 +97,7 @@ transient generic MacroName = AtomId1 / VarId ;
 transient generic MacroParams = VarId ( COMMA_E VarId )* ;
 
 transient generic FunctionNames = FunctionName ( COMMA_E FunctionName )* ;
-transient generic FunctionName  = AtomId1 void:"/":s Integer ;
+transient generic FunctionName  = ( AtomId1 / MacroId ) void:"/":s Integer ;
 
 transient generic RecordFieldNames = RecordFieldName ( COMMA_E RecordFieldName )* ;
 transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
@@ -358,8 +358,8 @@ generic ReceiveExpr =
 ;
 
 generic FunExpr =
-  void:"fun":k ( AtomId1 / MacroId ) void:":":s ( AtomId1 / MacroId ) void:"/":s Integer
-/ void:"fun":k                                  ( AtomId1 / MacroId ) void:"/":s Integer
+  void:"fun":k ( AtomId1 / MacroId ) void:":":s FunctionName
+/ void:"fun":k                                  FunctionName
 / void:"fun":k FunClauses END_E
 ;
 

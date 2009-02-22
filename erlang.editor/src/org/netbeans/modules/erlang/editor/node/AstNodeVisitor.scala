@@ -144,7 +144,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         }
     }
 
-    def visitFunctionName(that:GNode) = {
+    def visitFunctionName(that:GNode) :FunctionCall = {
         val arity = that.getGeneric(1)
         val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
         val call = that.getGeneric(0)
@@ -704,43 +704,24 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
     def visitFunExpr(that:GNode) = that.size match {
         case 1 =>
-            val funClauses = that.getGeneric(0)
-            visitFunClauses(funClauses)
-        case 2 =>
-            val arity = that.getGeneric(1)
-            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
-            val call = that.getGeneric(0)
-            functionCalls.push(functionCall)
-            call.getName match {
-                case "AtomId1" =>
-                    isFunctionCallName = true
-                    visitAtomId1(call)
-                    isFunctionCallName = false
-                case "MacroId" =>
+            val n = that.getGeneric(0)
+            n.getName match {
+                case "FunctionName" =>
+                    visitFunctionName(n)
+                case "FunClauses" =>
+                    visitFunClauses(n)
             }
-            functionCalls.pop
-            arity
-        case 3 =>
-            val arity = that.getGeneric(2)
-            val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
-            functionCalls.push(functionCall)
+        case 2 =>
+            val functionName = that.getGeneric(1)
+            val functionCall = visitFunctionName(functionName)
+
             val remote = that.getGeneric(0)
             remote.getName match {
                 case "AtomId1" =>
                     val remoteName = visitAtomId1(remote)
                     functionCall.in = Some(remoteName)
-                case "MacroId" =>                    
-            }
-            val call = that.getGeneric(1)
-            call.getName match {
-                case "AtomId1" =>
-                    isFunctionCallName = true
-                    visitAtomId1(call)
-                    isFunctionCallName = false
                 case "MacroId" =>
             }
-            functionCalls.pop
-            arity
     }
 
     def visitFunClauses(that:GNode) = {
