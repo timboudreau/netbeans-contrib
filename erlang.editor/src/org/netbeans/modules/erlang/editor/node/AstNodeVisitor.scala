@@ -44,7 +44,7 @@ import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRef,AstRootScope,AstScope,AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
-import org.netbeans.modules.erlang.editor.node.ErlangItems._
+import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 import org.openide.filesystems.FileObject
 
 import scala.collection.mutable.{ArrayBuffer,Stack}
@@ -60,16 +60,16 @@ import xtc.util.Pair
  */
 class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject]) extends AstVisitor(rootNode, th) {
 
+    private val erlFunctions = new Stack[ErlFunction]
     private val inVarDefs = new Stack[ElementKind]
-    private val functionCalls = new Stack[FunctionCall]
-    private val inFunctionCallNames = new Stack[Boolean]
-    inFunctionCallNames.push(false)
-    private var isFunctionCallName = false
+    private val inFunctionNames = new Stack[Boolean]
+    inFunctionNames.push(false)
+    private var isFunctionName = false
 
     override
     def visit(that:GNode) = {
         val forms :Pair[GNode] = that.getList(0)
-        loopPair(forms){n =>
+        eachPair(forms){n =>
             visitForm(n)
         }
     }
@@ -113,7 +113,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                 val ns :Pair[GNode] = that.getList(2)
                 val tks = foldPair(ns){n =>
                     idToken(idNode(n))
-                }.toList.reverse.asInstanceOf[List[Option[Token[TokenId]]]]
+                }.toList.reverse
 
                 val (nameTk, pkgPaths) = tks match {
                     case Nil => (fstTk, Nil)
@@ -139,24 +139,24 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val functionName = that.getGeneric(0)
         visitFunctionName(functionName)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n =>
+        eachPair(ns){n =>
             visitFunctionName(n)
         }
     }
 
-    def visitFunctionName(that:GNode) :FunctionCall = {
+    def visitFunctionName(that:GNode) :ErlFunction = {
         val arity = that.getGeneric(1)
-        val functionCall = FunctionCall(None, null, arity.getGeneric(0).getString(0).toInt)
+        val erlFunction = ErlFunction(None, null, arity.getGeneric(0).getString(0).toInt)
         val call = that.getGeneric(0)
-        functionCalls.push(functionCall)
+        erlFunctions.push(erlFunction)
         call.getName match {
             case "AtomId1" =>
-                isFunctionCallName = true
+                isFunctionName = true
                 visitAtomId1(call)
-                isFunctionCallName = false
+                isFunctionName = false
             case "MacroId" =>
         }
-        functionCalls.pop
+        erlFunctions.pop
     }
 
     def visitFunction(that:GNode) = {
@@ -168,27 +168,33 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         rootScope.addScope(scope)
         scopes.push(scope)
 
-        val funDfns = new ArrayBuffer[Any]
+        val funClauseDfns = new ArrayBuffer[AstItem]
 
         val functionClause = that.getGeneric(0)
         val funClauseDfn = visitFunctionClause(functionClause)
-        funDfns += funClauseDfn
+        funClauseDfns += funClauseDfn
 
-        val funDfn = new AstDfn(that, funClauseDfn.idToken, ElementKind.METHOD, scope, fo)
-        rootScope.addDfn(funDfn)
+        val funIdToken = funClauseDfn.idToken
         val arity = funClauseDfn.property("args") match {
             case None => 0
             case Some(x:List[String]) => x.size
         }
-        funDfn.property("arity", arity)
+        val localName = funIdToken match {
+            case None => ""
+            case Some(x) => x.text.toString
+        }
+        val erlFunction = ErlFunction(None, localName, arity)
+        val funDfn = new AstDfn(that, funIdToken, ElementKind.METHOD, scope, fo)
+        funDfn.property("symbol", erlFunction)
+        rootScope.addDfn(funDfn)
 
         val ns :Pair[GNode] = that.getList(1)
-        funDfns ++= foldPair(ns){n=>
+        funClauseDfns ++= foldPair(ns){n=>
             visitFunctionClause(n)
         }
 
         scopes.pop
-        funDfns.asInstanceOf[ArrayBuffer[AstItem]]
+        funClauseDfns
     }
 
     def visitFunctionClause(that:GNode) :AstDfn = {
@@ -366,7 +372,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val expr500 = that.getGeneric(0)
         var tpe = visitExpr500(expr500)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n=>
+        eachPair(ns){n=>
             // AddOp
             tpe = "number"
             visitExpr500(n)
@@ -378,7 +384,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val expr600 = that.getGeneric(0)
         var tpe = visitExpr600(expr600)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n=>
+        eachPair(ns){n=>
             // MultOp
             tpe = "number"
             visitExpr600(n)
@@ -405,7 +411,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
     def visitExpr700(that:GNode) :String = {
         val n = that.getGeneric(0)
         n.getName match {
-            case "FunctionCall" => 
+            case "FunctionCall" =>
                 visitFunctionCall(n)
                 "..."
             case "RecordExpr" => 
@@ -420,31 +426,31 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val expr900 = that.getGeneric(0)
         val exprMax = that.getGeneric(1)
         exprMax match {
-            case null if functionCalls.isEmpty =>
+            case null if erlFunctions.isEmpty =>
                 // it's a plain expr900
                 visitExpr900(expr900)
             case null =>
                 // it's a local function call name
-                inFunctionCallNames.push(true)
+                inFunctionNames.push(true)
                 val tpe = visitExpr900(expr900)
-                inFunctionCallNames.pop
+                inFunctionNames.pop
                 tpe
-            case _ if functionCalls.isEmpty =>
+            case _ if erlFunctions.isEmpty =>
                 // should not happen? since exprMax is not null, it should be in function call
                 visitExpr900(expr900)
                 visitExprMax(exprMax)
             case _ =>
                 // in a remote function call
-                val functionCall = functionCalls.top
+                val erlFunction = erlFunctions.top
                 
-                inFunctionCallNames.push(false)
+                inFunctionNames.push(false)
                 val remoteName = visitExpr900(expr900)
-                functionCall.in = Some(remoteName)
-                inFunctionCallNames.pop
+                erlFunction.in = Some(remoteName)
+                inFunctionNames.pop
                 
-                inFunctionCallNames.push(true)
+                inFunctionNames.push(true)
                 val name = visitExprMax(exprMax)
-                inFunctionCallNames.pop
+                inFunctionNames.pop
                 remoteName + ":" + name
         }
     }
@@ -456,7 +462,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "ExprMax" => visitExprMax(n)
         }
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){atomId1=>
+        eachPair(ns){atomId1=>
             visitAtomId1(atomId1)
         }
         tpe
@@ -468,11 +474,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "VarId" => 
                 visitVarId(n)
             case "Atomic" => 
-                if (inFunctionCallNames.top) {
-                    isFunctionCallName = true
+                if (inFunctionNames.top) {
+                    isFunctionName = true
                 }
                 val tpe = visitAtomic(n)
-                isFunctionCallName = false
+                isFunctionName = false
                 tpe
             case "List" => visitList(n)
             case "Binary" => 
@@ -578,7 +584,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val lcExpr = that.getGeneric(0)
         visitLcExpr(lcExpr)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n =>
+        eachPair(ns){n =>
             visitLcExpr(n)
         }
     }
@@ -625,13 +631,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
     def visitFunctionCall(that:GNode) = {
         val expr800 = that.getGeneric(0)
-        val functionCall = FunctionCall(None, null, -1)
-        functionCalls.push(functionCall)
+        val erlFunction = ErlFunction(None, null, -1)
+        erlFunctions.push(erlFunction)
         visitExpr800(expr800)
-        functionCalls.pop
+        erlFunctions.pop
         val args = that.getGeneric(1)
         val args1 = visitArgumentList(args)
-        functionCall.arity = args1.size
+        erlFunction.arity = args1.size
     }
 
     def visitIfExpr(that:GNode) = {
@@ -643,7 +649,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val ifClause = that.getGeneric(0)
         visitIfClause(ifClause)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n=>
+        eachPair(ns){n=>
             visitIfClause(n)
         }
     }
@@ -666,7 +672,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val crClause = that.getGeneric(0)
         visitCrClause(crClause)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n=>
+        eachPair(ns){n=>
             visitCrClause(n)
         }
     }
@@ -713,13 +719,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             }
         case 2 =>
             val functionName = that.getGeneric(1)
-            val functionCall = visitFunctionName(functionName)
+            val erlFunction = visitFunctionName(functionName)
 
             val remote = that.getGeneric(0)
             remote.getName match {
                 case "AtomId1" =>
                     val remoteName = visitAtomId1(remote)
-                    functionCall.in = Some(remoteName)
+                    erlFunction.in = Some(remoteName)
                 case "MacroId" =>
             }
     }
@@ -728,7 +734,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val funClause = that.getGeneric(0)
         visitFunClause(funClause)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n =>
+        eachPair(ns){n =>
             visitFunClause(n)
         }
     }
@@ -772,7 +778,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val tryClause = that.getGeneric(0)
         visitTryClause(tryClause)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n =>
+        eachPair(ns){n =>
             visitTryClause(n)
         }
     }
@@ -820,7 +826,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val tpes = new ArrayBuffer[String]
         tpes += visitExpr(expr)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n => 
+        eachPair(ns){n =>
             tpes += visitExpr(n)
         }
         tpes
@@ -830,7 +836,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val exprs = that.getGeneric(0)
         visitExprs(exprs)
         val ns :Pair[GNode] = that.getList(1)
-        loopPair(ns){n =>
+        eachPair(ns){n =>
             visitExprs(n)
         }
     }
@@ -860,12 +866,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val inScope = scopes.top
         val idTk = idToken(idNode(that))
         val name = idTk.get.text.toString
-        if (isFunctionCallName) {
+        if (isFunctionName) {
             val ref = new AstRef(that, idTk, ElementKind.CALL)
             inScope.addRef(ref)
-            val functionCall = functionCalls.top
-            functionCall.name = name
-            ref.property("call", functionCall)
+            val erlFunction = erlFunctions.top
+            erlFunction.name = name
+            ref.property("symbol", erlFunction)
         }
         name
     }
@@ -889,19 +895,19 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
      * val p :Pair[_] = gnode.getList(1), or val p = gnode.getList(1).asInstanceOf[Pair[GNode]],
      * a simple val p = that.getList(1) will be inferred as Pair[Nothing]
      */
-    def loopPair[T](p:Pair[T])(f:T => Unit) :Unit = p match {
+    def eachPair[A](p:Pair[A])(f:A => Unit) :Unit = p match {
         case Pair.EMPTY =>
         case _ =>
             f(p.head)
-            loopPair(p.tail){f}
+            eachPair(p.tail){f}
     }
 
-    def foldPair[T](p:Pair[T])(f:T => Any) :ArrayBuffer[Any] = {
-        val acc = new ArrayBuffer[Any]
+    def foldPair[A, B](p:Pair[A])(f:A => B) :ArrayBuffer[B] = {
+        val acc = new ArrayBuffer[B]
         foldPair(p, acc){f}
     }
 
-    def foldPair[T](p:Pair[T], acc:ArrayBuffer[Any])(f:T => Any) :ArrayBuffer[Any] = p match {
+    def foldPair[A, B](p:Pair[A], acc:ArrayBuffer[B])(f:A => B) :ArrayBuffer[B] = p match {
         case Pair.EMPTY => acc
         case _ =>
             acc += f(p.head)

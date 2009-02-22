@@ -75,11 +75,11 @@ class AstRef(_symbol:GNode, _idToken:Option[Token[TokenId]], _kind:ElementKind) 
 
 trait LanguageAstRef {self:AstRef =>
     import ElementKind._
-    import org.netbeans.modules.erlang.editor.node.ErlangItems._
+    import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 
     def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
-        case CALL if self.getKind == CALL => (self.property("call"), ref.property("call")) match {
-                case (Some(FunctionCall(Some(inX), nameX, arityX)), Some(FunctionCall(Some(inY), nameY, arityY))) 
+        case CALL if self.getKind == CALL => (self.property("symbol"), ref.property("symbol")) match {
+                case (Some(ErlFunction(Some(inX), nameX, arityX)), Some(ErlFunction(Some(inY), nameY, arityY)))
                     if inX.equals(inY) && nameX.equals(nameY) && arityX == arityY => true
                 case _ => false
             }

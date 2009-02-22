@@ -175,12 +175,13 @@ class AstDfn(_symbol:GNode,
  */
 trait LanguageAstDfn {self:AstDfn =>
     import ElementKind._
-    import org.netbeans.modules.erlang.editor.node.ErlangItems._
+    import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
-    def isReferredBy(ref:AstRef) :Boolean = (ref.kind, self.getKind) match {
-        case (CALL, METHOD) => ref.property("call") match {
-                case Some(FunctionCall(_, name, arity)) if name.equals(getName) => true
+    def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
+        case (CALL, METHOD) => (ref.property("symbol"), property("symbol")) match {
+                case (Some(ErlFunction(_, nameX, arityX)), Some(ErlFunction(_, nameY, arityY)))
+                    if nameX.equals(nameY) && arityX == arityY => true
                 case _ => false
             }
         case _ =>
@@ -189,17 +190,18 @@ trait LanguageAstDfn {self:AstDfn =>
             } else false
     }
 
-    
     def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
         case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-        case METHOD =>
-            formatter.appendText(getName)
-            formatter.appendText("/")
-            for (arity <- property("arity")) {
-                formatter.appendText(arity.toString)
+        case METHOD => property("symbol") match {
+                case Some(ErlFunction(_, name, arity)) =>
+                    formatter.appendText(name)
+                    formatter.appendText("/")
+                    formatter.appendText(arity.toString)
+                case _ =>
+                    formatter.appendText(getName)
+                    formatter.appendText("/?")
             }
-        case ATTRIBUTE if isFunctionClause =>
-            property("args") match {
+        case ATTRIBUTE if isFunctionClause => property("args") match {
                 case Some(args:List[String]) =>
                     formatter.appendText("(")
                     val itr = args.elements
@@ -213,8 +215,7 @@ trait LanguageAstDfn {self:AstDfn =>
                 case _ => formatter.appendText("()")
             }
         case ATTRIBUTE => formatter.appendText(getName)
-        case _ =>
-            formatter.appendText(getName)
+        case _ => formatter.appendText(getName)
     }
     
 
