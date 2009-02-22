@@ -93,9 +93,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
         that.get(0) match {
             case predAttr:GNode if predAttr.getName.equals("PredAttr") =>
-                val atomId = predAttr.getGeneric(0)
-                val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
-                rootScope.addDfn(attr)
+                visitPredAttr(predAttr)
             case atomId:GNode =>
                 val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)
@@ -104,6 +102,31 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         }
 
         scopes.pop
+    }
+
+    def visitPredAttr(that:GNode) = {
+        val inScope = scopes.top
+        val attr = that.getString(0) match {
+            case "module" =>
+                val atomId1 = that.getGeneric(1)
+                val fstTk = idToken(idNode(atomId1))
+                val ns = that.getList(2)
+                val tks = foldPair(ns){n =>
+                    idToken(idNode(n))
+                }.toList.reverse.asInstanceOf[List[Option[Token[TokenId]]]]
+
+                val (nameTk, pkgPaths) = tks match {
+                    case Nil => (fstTk, Nil)
+                    case x :: xs => (x, fstTk :: (xs.reverse))
+                }
+                val attr1 = new AstDfn(that, nameTk, ElementKind.MODULE, inScope, fo)
+                attr1.property("pkg", pkgPaths)
+                attr1
+            case _ =>
+                null
+                //new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, inScope, fo)
+        }
+        if (attr != null) rootScope.addDfn(attr)
     }
 
     def visitFunction(that:GNode) = {

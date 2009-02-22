@@ -76,7 +76,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
     private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
         for (dfn <- scope.dfns) {
             dfn.getKind match {
-                case ElementKind.ATTRIBUTE | ElementKind.METHOD => items.add(new ErlangStructureItem(dfn, pResult))
+                case ElementKind.ATTRIBUTE | ElementKind.METHOD | ElementKind.MODULE => items.add(new ErlangStructureItem(dfn, pResult))
                 case _ =>
             }
             // * for Erlang, only visit the rootScope
@@ -165,7 +165,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
         for (dfn <- defs) {
             val kind = dfn.getKind
             kind match {
-                case FIELD | METHOD | CONSTRUCTOR | CLASS | MODULE | ATTRIBUTE =>
+                case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE =>
                     var range = dfn.getOffsetRange(pResult)
                     var start = range.getStart
                     // * start the fold at the end of the line behind last non-whitespace, should add 1 to start after "->"
