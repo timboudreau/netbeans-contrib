@@ -41,25 +41,19 @@ package org.netbeans.modules.erlang.editor
 import _root_.java.io.{File,IOException}
 import _root_.java.net.MalformedURLException
 import _root_.java.util.{Collection}
-import javax.swing.text.Document;
+import javax.swing.text.Document
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind,Modifier}
-import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.spi.Parser.Result;
+import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.parsing.spi.Parser.Result
 import org.netbeans.modules.parsing.spi.indexing.{Context,EmbeddingIndexer,EmbeddingIndexerFactory,Indexable}
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexDocument,IndexingSupport}
-//import org.netbeans.modules.erlang.editing.semantic.ErlContext;
-//import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
-//import org.netbeans.modules.erlang.editing.semantic.ErlExport;
-//import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
-//import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
-//import org.netbeans.modules.erlang.editing.semantic.ErlModule;
-//import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
-//import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
+import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.openide.filesystems.{FileObject,FileStateInvalidException,FileUtil}
-import org.openide.util.Exceptions;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
+import org.openide.util.Exceptions
+import org.openide.windows.{IOProvider,InputOutput}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -117,8 +111,6 @@ class ErlangIndexer extends EmbeddingIndexer {
 
     override
     protected def index(indexable:Indexable, parserResult:Result, context:Context) :Unit = {
-        //    public List<IndexDocument> index(ParserResult result, IndexDocumentFactory factory) throws IOException {
-        //ParserFile file = result.getFile();
 	val start = System.currentTimeMillis
         //if (file.isPlatform()) io.getOut().print("Indexing: ");
 
@@ -127,7 +119,7 @@ class ErlangIndexer extends EmbeddingIndexer {
             case x:ErlangParserResult => x
         }
 
-        val root = r.rootScope match {
+        r.rootScope match {
             case None => return
             case Some(x) => x
         }
@@ -135,7 +127,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         val support = try {
             IndexingSupport.getInstance(context)
         } catch {
-            case  ioe:IOException => return
+            case ioe:IOException => return
         }
 
 
@@ -160,7 +152,7 @@ class ErlangIndexer extends EmbeddingIndexer {
     }
 
     class Factory extends EmbeddingIndexerFactory {
-        
+
         val INDEXABLE_FOLDERS = Array("src", "include", "test")
         val NAME = "erlang" // NOI18N
         val VERSION = 9
@@ -174,7 +166,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
         override
         def getIndexerName = NAME
-        
+
         override
         def getIndexVersion = VERSION
 
@@ -192,24 +184,22 @@ class ErlangIndexer extends EmbeddingIndexer {
             val path = fo.getPath
             fo.getExt match {
                 case "erl" | "hrl" =>
-                    for (indexableFolder <- INDEXABLE_FOLDERS) {
-                        if (path.contains(indexableFolder)) {
-                            /**
-                             * @TODO: a bad hacking:
-                             * try to ignore these big files according to max memory size */
-                            val fileSizeInKBs = fo.getSize() / 1024.0;
-                            /**
-                             * 250M:  < 200KB
-                             * 500M:  < 400KB
-                             * 1500M: < 1200KB
-                             */
-                            val factor = (maxMemoryInMBs / 250.0) * 200;
-                            if (fileSizeInKBs > factor) {
-                                //if (file.isPlatform()) io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
-                                return false
-                            }
-                            return true
+                    for (indexableFolder <- INDEXABLE_FOLDERS if path.contains(indexableFolder)) {
+                        /**
+                         * @TODO: a bad hacking:
+                         * try to ignore these big files according to max memory size */
+                        val fileSizeInKBs = fo.getSize() / 1024.0;
+                        /**
+                         * 250M:  < 200KB
+                         * 500M:  < 400KB
+                         * 1500M: < 1200KB
+                         */
+                        val factor = (maxMemoryInMBs / 250.0) * 200;
+                        if (fileSizeInKBs > factor) {
+                            //if (file.isPlatform()) io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
+                            return false
                         }
+                        return true
                     }
                     false
                 case _ => false
@@ -217,7 +207,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         }
 
         override
-        def filesDeleted(deleted:Collection[Indexable] , context:Context) :Unit = {
+        def filesDeleted(deleted:Collection[_ <: Indexable], context:Context) :Unit = {
             try {
                 val support = IndexingSupport.getInstance(context)
                 val itr = deleted.iterator
@@ -230,7 +220,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         }
     }
 
-    /** Travel through parsed result (ErlRoot), and index meta-data */
+    /** Travel through parsed result, and index meta-data */
     class TreeAnalyzer(pResult:ErlangParserResult, support:IndexingSupport, indexable:Indexable) {
         val MODULE = 1
         val HEADER = 2
@@ -254,33 +244,37 @@ class ErlangIndexer extends EmbeddingIndexer {
             case ex:FileStateInvalidException => null
         }
 
+        private val th:TokenHierarchy[_] = LexUtil.tokenHierarchy(pResult) match {
+            case None => null
+            case Some(x) => x
+        }
+
         def getDocuments : List[IndexDocument] = documents.toList
 
         def analyze {
+            if (th == null) return
+
             val rootScope = pResult.rootScope match {
                 case None => return
                 case Some(x) => x
             }
 
-            val fqn = if (tpe == MODULE) {
-                val module = rootScope.getFirstDefinition(classOf[ErlModule])
-                if (module != null) {
-                    module.getName
-                } else null
-            } else {
-                if (fo != null) {
-                    getHeaderFqn(fo)
-                } else null
+            val fqn = tpe match {
+                case MODULE => rootScope.findAllDfnSyms(classOf[ErlModule]) match {
+                        case x :: _ => x.name
+                        case _ => null
+                    }
+                case _ => getHeaderFqn(fo)
             }
             if (fqn == null) {
                 return
             }
-            
+
             /** we will index exported functions and, defined macros etc */
-            val includes = rootScope.getDefinitions(classOf[ErlInclude]);
-            val exports  = rootScope.getDefinitions(classOf[ErlExport]);
-            val records  = rootScope.getDefinitions(classOf[ErlRecord]);
-            val macros   = rootScope.getDefinitions(classOf[ErlMacro]);
+            val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+            val exports  = rootScope.findAllDfnSyms(classOf[ErlExport])
+            val records  = rootScope.findAllDfnSyms(classOf[ErlRecord])
+            val macros   = rootScope.findAllDfnSyms(classOf[ErlMacro])
 
             /** @ReferenceOnly used by sqlIndexEngine
              * if (isSqlIndexAvaialble(index)) {
@@ -292,9 +286,9 @@ class ErlangIndexer extends EmbeddingIndexer {
              * }
              * }
              */
-
+             
             /** The following code is currently for updating the timestamp only */
-            analyzeModule(fqn, includes, exports, records, macros);
+            analyzeModule(fqn, includes, exports, records, macros)
         }
 
         /**
@@ -314,33 +308,21 @@ class ErlangIndexer extends EmbeddingIndexer {
             }
 
             val groups = relativePath.split(File.separator)
-            val packageNameWithVersion = if (groups.length >= 1) groups(0) else relativePath
+            val pkgNameWithVersion = if (groups.length >= 1) groups(0) else relativePath
             // Remove version number:
-            val dashIdx = packageNameWithVersion.lastIndexOf('-');
-            val packageName = if (dashIdx != -1) packageNameWithVersion.substring(0, dashIdx) else packageNameWithVersion
+            val dashIdx = pkgNameWithVersion.lastIndexOf('-')
+            val pkgName = if (dashIdx != -1) pkgNameWithVersion.substring(0, dashIdx) else pkgNameWithVersion
             val sb = new StringBuilder(30);
-            sb.append("lib;").append(packageName)
+            sb.append("lib;").append(pkgName)
             for (i <- 1 until groups.length) {
                 sb.append("/").append(groups(i))
             }
             sb.toString
         }
 
-        case class ErlElement(offset:Int, endOffset:Int)
-        case class ErlModule(offset:Int, endOffset:Int, name:String) extends ErlElement(offset, endOffset)
-        case class ErlFunction(offset:Int, endOffset:Int, arity:Int, args:List[String]) extends ErlElement(offset, endOffset)
-        case class ErlInclude(offset:Int, endOffset:Int, isLib:Boolean, args:List[String]) extends ErlElement(offset, endOffset)
-        case class ErlExport(functions:List[ErlFunction])
-        case class ErlRecord(offset:Int, endOffset:Int, fields:List[String], args:List[String]) extends ErlElement(offset, endOffset)
-        case class ErlMacro(offset:Int, endOffset:Int, params:List[String], body:String) extends ErlElement(offset, endOffset)
-
-        private def analyzeModule(fqn:String,
-                                  includes:List[ErlInclude],
-                                  exports:List[ErlExport],
-                                  records:List[ErlRecord],
-                                  macros:List[ErlMacro]) :Unit = {
+        private def analyzeModule(fqn:String, includes:List[ErlInclude], exports:List[ErlExport], records:List[ErlRecord], macros:List[ErlMacro]) :Unit = {
             /** Add a Lucene document */
-            val document = support.createDocument(indexable) // TODO - measure!
+            val document = support.createDocument(indexable)
             documents + document
 
             val typeAttr = if ( tpe == MODULE) "m" else "h"
@@ -357,14 +339,6 @@ class ErlangIndexer extends EmbeddingIndexer {
 
             document.addPair(FIELD_FQN_NAME, fqn, true, true)
 
-            // TODO:
-            //addIncluded(indexed);
-            //if (requires != null) {
-            //    document.addPair(FIELD_INCLUDES, incudles, false);
-            //}
-            // Indexed so we can locate these documents when deleting/updating
-            //document.addPair(FIELD_FILEURL, url, true);
-
             includes.foreach(indexInclude(_, document))
             /** we only index exported functions */
             exports.foreach(_.functions.foreach{function => indexFunction(function, document)})
@@ -374,7 +348,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
         private def indexFunction(function:ErlFunction, document:IndexDocument) :Unit = {
             val sb = new StringBuilder
-            sb.append(function.getName);
+            sb.append(function.name)
 
             val isDocumented = false; // @TODO isDocumented(childNode);
             if (isDocumented) {
@@ -383,81 +357,81 @@ class ErlangIndexer extends EmbeddingIndexer {
                 sb.append(";").append("")
             }
 
-            sb.append(";").append(String.valueOf(function.arity))
+            sb.append(";").append(function.arity)
 
-            sb.append(";").append(String.valueOf(function.offset))
-            sb.append(";").append(String.valueOf(function.endOffset))
+            sb.append(";").append(function.offset(th))
+            sb.append(";").append(function.endOffset(th))
 
-            function.args.foreach{sb.append(";").append(_)}
+            //function.args.foreach{sb.append(";").append(_)}
 
             document.addPair(FIELD_FUNCTION, sb.toString, true, true)
         }
 
         private def indexInclude(include:ErlInclude, document:IndexDocument) :Unit = {
             val sb = new StringBuilder
-            sb.append(include.getPath())
+            sb.append(include.path)
 
-            val isDocumented = false; // @TODO isDocumented(childNode);
+            val isDocumented = false // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(";").append("d");
+                sb.append(";").append("d")
             } else {
-                sb.append(";").append("");
+                sb.append(";").append("")
             }
 
-            sb.append(";").append(String.valueOf(include.isLib))
+            sb.append(";").append(include.isLib)
 
-            sb.append(";").append(String.valueOf(include.offset))
-            sb.append(";").append(String.valueOf(include.endOffset))
+            sb.append(";").append(include.offset(th))
+            sb.append(";").append(include.endOffset(th))
 
-            document.addPair(FIELD_INCLUDE, sb.toString(), true, true)
+            document.addPair(FIELD_INCLUDE, sb.toString, true, true)
         }
 
         private def indexRecord(record:ErlRecord, document:IndexDocument) :Unit = {
             val sb = new StringBuilder
-            sb.append(record.getName())
+            sb.append(record.name)
 
-            val isDocumented = false; // @TODO isDocumented(childNode);
+            val isDocumented = false // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(";").append("d");
+                sb.append(";").append("d")
             } else {
-                sb.append(";").append("");
+                sb.append(";").append("")
             }
 
-            sb.append(";").append(String.valueOf(record.fields.size))
+            sb.append(";").append(record.fields.size)
 
-            sb.append(";").append(String.valueOf(record.offset))
-            sb.append(";").append(String.valueOf(record.endOffset))
+            sb.append(";").append(record.offset(th))
+            sb.append(";").append(record.endOffset(th))
             record.fields.foreach{sb.append(";").append(_)}
 
-            document.addPair(FIELD_RECORD, sb.toString(), true, true)
+            document.addPair(FIELD_RECORD, sb.toString, true, true)
         }
 
         private def indexMacro(macro:ErlMacro, document:IndexDocument) :Unit = {
             val sb = new StringBuilder
-            sb.append(macro.getName())
+            sb.append(macro.name)
 
-            val isDocumented = false; // @TODO isDocumented(childNode);
+            val isDocumented = false // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(";").append("d");
+                sb.append(";").append("d")
             } else {
-                sb.append(";").append("");
+                sb.append(";").append("")
             }
 
-            sb.append(";").append(String.valueOf(macro.params.size))
+            sb.append(";").append(macro.params.size)
 
-            sb.append(";").append(String.valueOf(macro.offset))
-            sb.append(";").append(String.valueOf(macro.endOffset))
+            sb.append(";").append(macro.offset(th))
+            sb.append(";").append(macro.endOffset(th))
 
             macro.params.foreach{sb.append(";").append(_)}
 
             sb.append(";").append(macro.body)
 
-            document.addPair(FIELD_MACRO, sb.toString(), true, true)
+            document.addPair(FIELD_MACRO, sb.toString, true, true)
         }
     } // end of inner class TreeAnalyzer
 
     def getPreindexedDb :FileObject = {
-        null;
+        null
         //        if (preindexedDb == null) {
         //            File preindexed = InstalledFileLocator.getDefault().locate(
         //                    "preindexed", "org.netbeans.modules.ruby", false); // NOI18N
@@ -477,5 +451,4 @@ object ErlangIndexer {
     def setPreindexedDb(preindexedDb:FileObject) :Unit = {
         ErlangIndexer.preindexedDb = preindexedDb
     }
-
 }

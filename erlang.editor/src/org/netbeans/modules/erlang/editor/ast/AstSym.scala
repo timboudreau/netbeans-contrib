@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.erlang.editor.ast
 
+import org.netbeans.api.lexer.{TokenHierarchy}
+
 /**
  * A wrapper class of language's symbol which may be a GNode(Fortress) or true symbol (Scala)
  *
@@ -45,4 +47,7 @@ package org.netbeans.modules.erlang.editor.ast
  */
 case class AstSym {
     var item:AstItem = _
+    
+    def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
+    def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
 }
