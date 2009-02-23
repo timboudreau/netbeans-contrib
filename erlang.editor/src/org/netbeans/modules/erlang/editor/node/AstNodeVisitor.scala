@@ -95,7 +95,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case predAttr:GNode if predAttr.getName.equals("PredAttr") =>
                 visitPredAttr(predAttr)
             case atomId:GNode =>
-                val attr = new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
+                val attr = new AstDfn(idToken(idNode(atomId)), ElementKind.ATTRIBUTE, scope, fo)
                 rootScope.addDfn(attr)
             case s:String =>
                 // "spec", todo
@@ -119,7 +119,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                     case Nil => (fstTk, Nil)
                     case x :: xs => (x, fstTk :: (xs.reverse))
                 }
-                val attr1 = new AstDfn(that, nameTk, ElementKind.MODULE, inScope, fo)
+                val attr1 = new AstDfn(nameTk, ElementKind.MODULE, inScope, fo)
                 attr1.property("pkg", pkgPaths)
                 attr1
             case "export" =>
@@ -184,8 +184,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case Some(x) => x.text.toString
         }
         val erlFunction = ErlFunction(None, localName, arity)
-        val funDfn = new AstDfn(that, funIdToken, ElementKind.METHOD, scope, fo)
-        funDfn.property("symbol", erlFunction)
+        val funDfn = new AstDfn(funIdToken, ElementKind.METHOD, scope, fo)
+        funDfn.symbol = erlFunction
         rootScope.addDfn(funDfn)
 
         val ns :Pair[GNode] = that.getList(1)
@@ -204,7 +204,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         scopes.push(scope)
 
         val atomId1 = that.getGeneric(0)
-        val dfn = new AstDfn(that, idToken(idNode(atomId1)), ElementKind.ATTRIBUTE, scope, fo)
+        val dfn = new AstDfn(idToken(idNode(atomId1)), ElementKind.ATTRIBUTE, scope, fo)
         inScope.addDfn(dfn)
 
         if (that.size == 4) {
@@ -867,11 +867,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val idTk = idToken(idNode(that))
         val name = idTk.get.text.toString
         if (isFunctionName) {
-            val ref = new AstRef(that, idTk, ElementKind.CALL)
+            val ref = new AstRef(idTk, ElementKind.CALL)
             inScope.addRef(ref)
             val erlFunction = erlFunctions.top
             erlFunction.name = name
-            ref.property("symbol", erlFunction)
+            ref.symbol = erlFunction
         }
         name
     }
@@ -880,11 +880,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val inScope = scopes.top
         val idTk = idToken(idNode(that))
         if (inVarDefs.isEmpty) {
-            val ref = new AstRef(that, idTk)
+            val ref = new AstRef(idTk)
             inScope.addRef(ref)
             idTk.get.text.toString
         } else {
-            val dfn = new AstDfn(that, idTk, inVarDefs.top, new AstScope(boundsTokens(that)), fo)
+            val dfn = new AstDfn(idTk, inVarDefs.top, new AstScope(boundsTokens(that)), fo)
             inScope.addDfn(dfn)
             idTk.get.text.toString
         }

@@ -520,7 +520,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         }
     }
 
-    def enclosinDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = closestScope(th, offset) match {
+    def enclosingDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = closestScope(th, offset) match {
         case None => None
         case Some(x) => x.enclosingDfn(kind)
     }
@@ -550,7 +550,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         }
     }
     
-    def enclosinDfn[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A]= {
+    def enclosingDfn[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A]= {
         closestScope(th, offset) match {
             case None => None
             case Some(x) => x.enclosingDfn(clazz)

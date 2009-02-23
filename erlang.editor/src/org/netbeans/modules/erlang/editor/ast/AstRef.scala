@@ -40,7 +40,6 @@ package org.netbeans.modules.erlang.editor.ast
 
 import org.netbeans.api.lexer.{Token,TokenId}
 import org.netbeans.modules.csl.api.ElementKind
-import xtc.tree.{GNode}
 
 /**
  * Mirror with AstDfn information
@@ -49,10 +48,10 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstRef(_symbol:GNode, _idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem with LanguageAstRef {
-    make(_symbol, _idToken, _kind)
+class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem with LanguageAstRef {
+    make(_idToken, _kind)
 
-    def this(symbol:GNode, idToken:Option[Token[TokenId]]) = this(symbol, idToken, ElementKind.OTHER)
+    def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
     
     override
     def getKind :ElementKind = super.getKind match {
@@ -78,8 +77,8 @@ trait LanguageAstRef {self:AstRef =>
     import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 
     def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
-        case CALL if self.getKind == CALL => (self.property("symbol"), ref.property("symbol")) match {
-                case (Some(ErlFunction(Some(inX), nameX, arityX)), Some(ErlFunction(Some(inY), nameY, arityY)))
+        case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
+                case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
                     if inX.equals(inY) && nameX.equals(nameY) && arityX == arityY => true
                 case _ => false
             }

@@ -52,8 +52,6 @@ import org.netbeans.modules.erlang.editor.lexer.LexUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-import xtc.tree.{GNode}
-
 /**
  * AST Definition
  * 
@@ -63,8 +61,7 @@ import xtc.tree.{GNode}
  * 
  * @author Caoyuan Deng
  */
-class AstDfn(_symbol:GNode,
-             _idToken:Option[Token[TokenId]],
+class AstDfn(_idToken:Option[Token[TokenId]],
              _kind:ElementKind,
              private var _bindingScope:AstScope,
              var fo:Option[FileObject]
@@ -75,7 +72,7 @@ class AstDfn(_symbol:GNode,
         _bindingScope.bindingDfn = Some(this)
     }
 
-    make(_symbol, _idToken, _kind)
+    make(_idToken, _kind)
 
     private var modifiers :Set[Modifier] = _
 
@@ -179,8 +176,8 @@ trait LanguageAstDfn {self:AstDfn =>
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
-        case (CALL, METHOD) => (ref.property("symbol"), property("symbol")) match {
-                case (Some(ErlFunction(_, nameX, arityX)), Some(ErlFunction(_, nameY, arityY)))
+        case (CALL, METHOD) => (ref.symbol, symbol) match {
+                case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
                     if nameX.equals(nameY) && arityX == arityY => true
                 case _ => false
             }
@@ -192,8 +189,8 @@ trait LanguageAstDfn {self:AstDfn =>
 
     def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
         case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-        case METHOD => property("symbol") match {
-                case Some(ErlFunction(_, name, arity)) =>
+        case METHOD => symbol match {
+                case ErlFunction(_, name, arity) =>
                     formatter.appendText(name)
                     formatter.appendText("/")
                     formatter.appendText(arity.toString)

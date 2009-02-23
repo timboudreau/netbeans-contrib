@@ -44,7 +44,6 @@ import org.netbeans.modules.csl.api.{ElementKind,ElementHandle,Modifier,OffsetRa
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.netbeans.modules.erlang.editor.ErlangMimeResolver
 import org.openide.filesystems.{FileObject}
-import xtc.tree.{GNode}
 
 import scala.collection.mutable.{HashMap}
 
@@ -54,15 +53,11 @@ import scala.collection.mutable.{HashMap}
  */
 trait AstItem extends ForElementHandle {
 
-    def make(symbol:GNode, idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
-        this.symbol = symbol
+    def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
         this.idToken = idToken
         this.kind = kind
     }
 
-    def make(symbol:GNode) :Unit = make(symbol, None, ElementKind.OTHER)
-
-    var symbol :GNode = _
     var resultType :String = _
     /**
      * @Note:
@@ -71,11 +66,18 @@ trait AstItem extends ForElementHandle {
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
+    private var _symbol :AstSym = AstSym()
     private var _idToken :Option[Token[TokenId]] = None
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _
     private var properties :Option[HashMap[String, Any]] = None
     var kind :ElementKind = ElementKind.OTHER
+
+    def symbol = _symbol
+    def symbol_=(symbol:AstSym) = {
+        this._symbol = symbol
+        symbol.item = this
+    }
 
     def idToken = _idToken
     def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>

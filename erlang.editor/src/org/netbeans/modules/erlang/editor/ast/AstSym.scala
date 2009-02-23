@@ -34,27 +34,15 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.erlang.editor.ast
 
-import org.netbeans.modules.csl.api.ElementHandle
-
 /**
+ * A wrapper class of language's symbol which may be a GNode(Fortress) or true symbol (Scala)
  *
  * @author Caoyuan Deng
  */
-trait AstElementHandle extends ElementHandle {
-
-    def symbol :AstSym
-
-    def tpe :String
-    
-    def docComment :String
-
-    def isDeprecated :Boolean
-
-    def isInherited :Boolean
-    
-    def isEmphasize :Boolean
+case class AstSym {
+    var item:AstItem = _
 }
