@@ -78,23 +78,6 @@ class ErlangIndexer extends EmbeddingIndexer {
     private val INDEX_UNDOCUMENTED = true
     private val PREINDEXING = true//Boolean.getBoolean("gsf.preindexing");
 
-    /** Fields of Module Document for Lucene */
-    /** Fully Qualified Name */
-    val FIELD_FQN_NAME = "fqn" //NOI18N
-    val FIELD_FILEURL  = "source" // NOI18N
-    val FIELD_EXPORT   = "export" //NOI18N
-    val FIELD_EXPORTS  = "exports" //NOI18N
-    val FIELD_IMPORT   = "import" //NOI18N
-    val FIELD_IMPORTS  = "imports" //NOI18N
-    /** Attributes: "i" -> private, "o" -> protected, ", "s" - static/notinstance, "d" - documented */
-    val FIELD_INCLUDE  = "include" //NOI18N
-    val FIELD_FUNCTION = "function" //NOI18N
-    val FIELD_RECORD   = "record" //NOI18N
-    val FIELD_MACRO    = "macro" //NOI18N
-    /** Attributes: "m" -> module, "d" -> documented, "d(nnn)" documented with n characters */
-    val FIELD_ATTRS    = "attrs" //NOI18N
-
-
     private val io :InputOutput = IOProvider.getDefault.getIO("Info", false)
 
     def getPersistentUrl(file:File) :String = {
@@ -335,9 +318,9 @@ class ErlangIndexer extends EmbeddingIndexer {
             //if (documentSize > 0) {
             //    attributes = attributes + "d(" + documentSize + ")";
             //}
-            document.addPair(FIELD_ATTRS, attrs, false, true)
+            document.addPair(ErlangIndexer.FIELD_ATTRS, attrs, false, true)
 
-            document.addPair(FIELD_FQN_NAME, fqn, true, true)
+            document.addPair(ErlangIndexer.FIELD_FQN_NAME, fqn, true, true)
 
             includes.foreach(indexInclude(_, document))
             /** we only index exported functions */
@@ -364,7 +347,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
             //function.args.foreach{sb.append(";").append(_)}
 
-            document.addPair(FIELD_FUNCTION, sb.toString, true, true)
+            document.addPair(ErlangIndexer.FIELD_FUNCTION, sb.toString, true, true)
         }
 
         private def indexInclude(include:ErlInclude, document:IndexDocument) :Unit = {
@@ -383,7 +366,7 @@ class ErlangIndexer extends EmbeddingIndexer {
             sb.append(";").append(include.offset(th))
             sb.append(";").append(include.endOffset(th))
 
-            document.addPair(FIELD_INCLUDE, sb.toString, true, true)
+            document.addPair(ErlangIndexer.FIELD_INCLUDE, sb.toString, true, true)
         }
 
         private def indexRecord(record:ErlRecord, document:IndexDocument) :Unit = {
@@ -403,7 +386,7 @@ class ErlangIndexer extends EmbeddingIndexer {
             sb.append(";").append(record.endOffset(th))
             record.fields.foreach{sb.append(";").append(_)}
 
-            document.addPair(FIELD_RECORD, sb.toString, true, true)
+            document.addPair(ErlangIndexer.FIELD_RECORD, sb.toString, true, true)
         }
 
         private def indexMacro(macro:ErlMacro, document:IndexDocument) :Unit = {
@@ -426,7 +409,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
             sb.append(";").append(macro.body)
 
-            document.addPair(FIELD_MACRO, sb.toString, true, true)
+            document.addPair(ErlangIndexer.FIELD_MACRO, sb.toString, true, true)
         }
     } // end of inner class TreeAnalyzer
 
@@ -445,6 +428,22 @@ class ErlangIndexer extends EmbeddingIndexer {
 }
 
 object ErlangIndexer {
+    /** Fields of Module Document for Lucene */
+    /** Fully Qualified Name */
+    val FIELD_FQN_NAME = "fqn" //NOI18N
+    val FIELD_FILEURL  = "source" // NOI18N
+    val FIELD_EXPORT   = "export" //NOI18N
+    val FIELD_EXPORTS  = "exports" //NOI18N
+    val FIELD_IMPORT   = "import" //NOI18N
+    val FIELD_IMPORTS  = "imports" //NOI18N
+    /** Attributes: "i" -> private, "o" -> protected, ", "s" - static/notinstance, "d" - documented */
+    val FIELD_INCLUDE  = "include" //NOI18N
+    val FIELD_FUNCTION = "function" //NOI18N
+    val FIELD_RECORD   = "record" //NOI18N
+    val FIELD_MACRO    = "macro" //NOI18N
+    /** Attributes: "m" -> module, "d" -> documented, "d(nnn)" documented with n characters */
+    val FIELD_ATTRS    = "attrs" //NOI18N
+
     private var preindexedDb :FileObject = _
 
     /** For testing only */
