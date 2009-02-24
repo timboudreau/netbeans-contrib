@@ -51,7 +51,6 @@ cvs@visualweb.netbeans.org=visualweb.designer.decoration/*,visualweb.project.imp
 cvs@web.netbeans.org=api.web.dd/*,web.webrest/*
 cvs@websvc.netbeans.org=websvc.axis2/*,websvc.wsitlib/*
 cvs@xml.netbeans.org=o.sample.registry.model/*
-cvs@xtest.netbeans.org=xtest/*
 jesse.glick@sun.com=autoproject.*/*,java.hints.scripting/*
 david.konecny@sun.com=autoproject.*/*
 cvs@installer.netbeans.org=ssinstaller/*
