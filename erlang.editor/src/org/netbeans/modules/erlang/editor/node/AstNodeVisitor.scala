@@ -119,9 +119,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                     case Nil => (fstTk, Nil)
                     case x :: xs => (x, fstTk :: (xs.reverse))
                 }
-                val attr1 = new AstDfn(nameTk, ElementKind.MODULE, inScope, fo)
-                attr1.property("pkg", pkgPaths)
-                attr1
+                val attrDfn = new AstDfn(nameTk, ElementKind.MODULE, inScope, fo)
+                val erlModule = ErlModule(nameTk.get.text.toString)
+                attrDfn.symbol = erlModule
+                attrDfn.property("pkg", pkgPaths)
+                attrDfn
             case "export" =>
                 val functionNames = that.getGeneric(1)
                 if (functionNames != null) {

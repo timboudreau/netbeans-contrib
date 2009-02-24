@@ -109,4 +109,6 @@ class ErlangLanguage extends DefaultLanguageConfig {
     override
     def getDeclarationFinder = new ErlangDeclarationFinder
 
+    override
+    def getIndexerFactory = new ErlangIndexer.Factory
 }

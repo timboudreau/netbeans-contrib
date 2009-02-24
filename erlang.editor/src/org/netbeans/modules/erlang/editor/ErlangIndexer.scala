@@ -82,7 +82,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
     def getPersistentUrl(file:File) :String = {
         try {
-            file.toURI().toURL().toExternalForm()
+            file.toURI.toURL.toExternalForm
             // Make relative URLs for urls in the libraries
             //return RubyIndex.getPreindexUrl(url);
         } catch {
@@ -95,7 +95,8 @@ class ErlangIndexer extends EmbeddingIndexer {
     override
     protected def index(indexable:Indexable, parserResult:Result, context:Context) :Unit = {
 	val start = System.currentTimeMillis
-        //if (file.isPlatform()) io.getOut().print("Indexing: ");
+        //if (file.isPlatform())
+        io.getOut().print("Indexing: ")
 
         val r = parserResult match {
             case null => return
@@ -131,76 +132,8 @@ class ErlangIndexer extends EmbeddingIndexer {
             support.addDocument(doc)
         }
 
-	//if (file.isPlatform()) io.getOut().println((System.currentTimeMillis() - start) + "ms");
-    }
-
-    class Factory extends EmbeddingIndexerFactory {
-
-        val INDEXABLE_FOLDERS = Array("src", "include", "test")
-        val NAME = "erlang" // NOI18N
-        val VERSION = 9
-
-        override
-        def createIndexer(indexable:Indexable, snapshot:Snapshot) :EmbeddingIndexer = {
-            if (isIndexable(indexable, snapshot)) {
-                new ErlangIndexer
-            } else null
-        }
-
-        override
-        def getIndexerName = NAME
-
-        override
-        def getIndexVersion = VERSION
-
-        private def isIndexable(indexable:Indexable, snapshot:Snapshot) :Boolean = {
-            val fo :FileObject = snapshot.getSource.getFileObject
-            if (fo == null) {
-                /**
-                 * Not each kind of MIME files hava FileObject, for instance:
-                 * ParserFile with name as ".LCKxxxxx.erl~" etc will have none FileObject.
-                 */
-                return false;
-            }
-
-            val maxMemoryInMBs = Runtime.getRuntime.maxMemory / (1024.0 * 1024.0)
-            val path = fo.getPath
-            fo.getExt match {
-                case "erl" | "hrl" =>
-                    for (indexableFolder <- INDEXABLE_FOLDERS if path.contains(indexableFolder)) {
-                        /**
-                         * @TODO: a bad hacking:
-                         * try to ignore these big files according to max memory size */
-                        val fileSizeInKBs = fo.getSize() / 1024.0;
-                        /**
-                         * 250M:  < 200KB
-                         * 500M:  < 400KB
-                         * 1500M: < 1200KB
-                         */
-                        val factor = (maxMemoryInMBs / 250.0) * 200;
-                        if (fileSizeInKBs > factor) {
-                            //if (file.isPlatform()) io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
-                            return false
-                        }
-                        return true
-                    }
-                    false
-                case _ => false
-            }
-        }
-
-        override
-        def filesDeleted(deleted:Collection[_ <: Indexable], context:Context) :Unit = {
-            try {
-                val support = IndexingSupport.getInstance(context)
-                val itr = deleted.iterator
-                while (itr.hasNext) {
-                    support.removeDocuments(itr.next)
-                }
-            } catch {
-                case ex:IOException => Exceptions.printStackTrace(ex)
-            }
-        }
+	//if (file.isPlatform())
+        io.getOut().println((System.currentTimeMillis() - start) + "ms");
     }
 
     /** Travel through parsed result, and index meta-data */
@@ -443,6 +376,76 @@ object ErlangIndexer {
     val FIELD_MACRO    = "macro" //NOI18N
     /** Attributes: "m" -> module, "d" -> documented, "d(nnn)" documented with n characters */
     val FIELD_ATTRS    = "attrs" //NOI18N
+    
+    class Factory extends EmbeddingIndexerFactory {
+
+        val INDEXABLE_FOLDERS = Array("src", "include", "test")
+        val NAME = "erlang" // NOI18N
+        val VERSION = 9
+
+        override
+        def createIndexer(indexable:Indexable, snapshot:Snapshot) :EmbeddingIndexer = {
+            if (isIndexable(indexable, snapshot)) {
+                new ErlangIndexer
+            } else null
+        }
+
+        override
+        def getIndexerName = NAME
+
+        override
+        def getIndexVersion = VERSION
+
+        private def isIndexable(indexable:Indexable, snapshot:Snapshot) :Boolean = {
+            val fo :FileObject = snapshot.getSource.getFileObject
+            if (fo == null) {
+                /**
+                 * Not each kind of MIME files hava FileObject, for instance:
+                 * ParserFile with name as ".LCKxxxxx.erl~" etc will have none FileObject.
+                 */
+                return false;
+            }
+
+            val maxMemoryInMBs = Runtime.getRuntime.maxMemory / (1024.0 * 1024.0)
+            val path = fo.getPath
+            fo.getExt match {
+                case "erl" | "hrl" =>
+                    for (indexableFolder <- INDEXABLE_FOLDERS if path.contains(indexableFolder)) {
+                        /**
+                         * @TODO: a bad hacking:
+                         * try to ignore these big files according to max memory size */
+                        val fileSizeInKBs = fo.getSize() / 1024.0;
+                        /**
+                         * 250M:  < 200KB
+                         * 500M:  < 400KB
+                         * 1500M: < 1200KB
+                         */
+                        val factor = (maxMemoryInMBs / 250.0) * 200;
+                        if (fileSizeInKBs > factor) {
+                            //if (file.isPlatform()) io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
+                            return false
+                        }
+                        return true
+                    }
+                    false
+                case _ => false
+            }
+        }
+
+        override
+        def filesDeleted(deleted:Collection[_ <: Indexable], context:Context) :Unit = {
+            try {
+                val support = IndexingSupport.getInstance(context)
+                val itr = deleted.iterator
+                while (itr.hasNext) {
+                    support.removeDocuments(itr.next)
+                }
+            } catch {
+                case ex:IOException => Exceptions.printStackTrace(ex)
+            }
+        }
+    }
+
 
     private var preindexedDb :FileObject = _
 

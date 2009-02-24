@@ -127,7 +127,7 @@ class ErlangIndex(querySupport:QuerySupport) {
         /** search including headfiles */
         for (include <- includes) {
             for (r <- searchFile(include.path, QuerySupport.Kind.EXACT)) {
-                val signatures = r.getValues(ErlangIndexer.FIELD_MACRO);
+                val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
                 if (signatures != null) {
                     val url = r.getUrl
                     for (signature <- signatures) {
@@ -176,7 +176,7 @@ class ErlangIndex(querySupport:QuerySupport) {
     def getIncludes(fqn:String) : List[ErlInclude] = {
         includesBuf.clear
         for (map <- searchFile(fqn, QuerySupport.Kind.EXACT)) {
-            val signatures = map.getValues(ErlangIndexer.FIELD_INCLUDE);
+            val signatures = map.getValues(ErlangIndexer.FIELD_INCLUDE)
             if (signatures != null) {
                 for (signature <- signatures) {
                     val include = createInclude(signature)
@@ -203,7 +203,7 @@ class ErlangIndex(querySupport:QuerySupport) {
         /** search including headfiles */
         for (include <- getIncludes(fqn)) {
             for (map <- searchFile(include.path, QuerySupport.Kind.EXACT)) {
-                val signatures = map.getValues(ErlangIndexer.FIELD_RECORD);
+                val signatures = map.getValues(ErlangIndexer.FIELD_RECORD)
                 if (signatures != null) {
                     val url = map.getUrl
                     for (signature <- signatures) {
@@ -220,7 +220,7 @@ class ErlangIndex(querySupport:QuerySupport) {
         definesBuf.clear
         /** search my module first */
         for (map <- searchFile(fqn, QuerySupport.Kind.EXACT)) {
-            val signatures = map.getValues(ErlangIndexer.FIELD_MACRO);
+            val signatures = map.getValues(ErlangIndexer.FIELD_MACRO)
             if (signatures != null) {
                 val url = map.getUrl
                 for (signature <- signatures) {
