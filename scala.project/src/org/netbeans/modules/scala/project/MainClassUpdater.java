@@ -241,6 +241,9 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                                 return;
                             }
                             ScalaParserResult pResult = (ScalaParserResult) c.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
+                            if (pResult == null) {
+                                return;
+                            }
                             AstRootScope rootScope = pResult.getRootScope();
                             if (rootScope == null) {
                                 return;

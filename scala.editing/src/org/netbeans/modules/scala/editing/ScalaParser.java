@@ -74,11 +74,13 @@ import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
+import scala.Option;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.reporters.Reporter;
 import scala.tools.nsc.util.BatchSourceFile;
 import scala.tools.nsc.util.Position;
+import scala.tools.nsc.util.SourceFile;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -784,6 +786,15 @@ public class ScalaParser implements Parser {
         public void info0(Position pos, String msg, Severity severity, boolean force) {
             boolean ignoreError = context.sanitizedSource != null;
             if (!ignoreError) {
+                // It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
+                Option source = pos.source();
+                if (source.isDefined()) {
+                    SourceFile sf = (SourceFile) source.get();
+                    if (!context.file.getFile().getAbsolutePath().equals(sf.file().path())) {
+                        return;
+                    }
+                }
+                //System.out.println("Error in source: " + pos.source());
                 int offset = ScalaUtils.getOffset(pos);
                 org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
                 switch (severity.id()) {

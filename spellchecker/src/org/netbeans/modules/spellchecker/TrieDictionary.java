@@ -73,7 +73,7 @@ public class TrieDictionary implements Dictionary {
     private ByteBuffer buffer;
 
     /** Creates a new instance of TrieDictionary */
-    private TrieDictionary(byte[] array) {
+    TrieDictionary(byte[] array) {
         this.array = array;
         this.buffer = null;
     }
@@ -96,8 +96,16 @@ public class TrieDictionary implements Dictionary {
         String wordString = word.toString();
         ValidityType type = validateWordImpl(wordString.toLowerCase());
 
-        if (type == ValidityType.INVALID) {
-            type = validateWordImpl(wordString);
+        if (type != ValidityType.VALID) {
+            ValidityType curr = validateWordImpl(wordString);
+
+            if (type == ValidityType.PREFIX_OF_VALID) {
+                if (curr == ValidityType.VALID) {
+                    type = curr;
+                }
+            } else {
+                type = curr;
+            }
         }
 
         return type;

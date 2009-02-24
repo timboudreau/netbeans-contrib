@@ -47,6 +47,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -56,6 +57,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,8 +126,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JPanel histPanel = new JPanel();
         histPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         box = new JComboBox(hist);
-    
-        // XXX this is not so good, since moving arrow keys in box changes selection *before* it is closed:
+        box.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); // #126475
         box.addActionListener(new HAL());
         histPanel.setLayout(new BorderLayout());
         JLabel histInstructions = new JLabel(getBundle().getString("LBL_History"));
@@ -399,7 +400,6 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 } else if (JFileChooser.CONTROL_BUTTONS_ARE_SHOWN_CHANGED_PROPERTY.equals(name)) {
                     buttons.setVisible(getFileChooser().getControlButtonsAreShown());
                 } else if (JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(name)) {
-                    refreshCompletions();
                     updateFilterDisplay();
                 }
             }
@@ -411,10 +411,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         maximalCompletion = null;
         String name = getFileName();
         int slash = name.lastIndexOf(File.separatorChar);
+        Pattern wildcard = null;
         if (slash != -1) {
             String prefix = name.substring(0, slash + 1);
             String suffix = name.substring(slash + 1);
-            int suffixLen = suffix.length();
+            if (suffix.contains("*")) {
+                // #63890: show wildcard matches.
+                wildcard = Pattern.compile(Pattern.quote(suffix).replace("*", "\\E.*\\Q"), Pattern.CASE_INSENSITIVE);
+            }
             File d = new File(prefix);
             if (d.isDirectory()) {
                 String[] kids = d.list();
@@ -428,7 +432,11 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                         if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY && !kid.isDirectory()) {
                             continue;
                         }
-                        if (kids[i].regionMatches(true, 0, suffix, 0, suffixLen)) {
+                        if (wildcard != null) {
+                            if (wildcard.matcher(kids[i]).matches()) {
+                                completionsModel.addElement(kid);
+                            }
+                        } else if (kids[i].regionMatches(true, 0, suffix, 0, suffix.length())) {
                             completionsModel.addElement(kid);
                             if (maximalCompletion == null) {
                                 maximalCompletion = kids[i];
@@ -453,8 +461,18 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             currentDirectoryChanging = true;
             try {
                 File file = new File(getFileName());
-                getFileChooser().setSelectedFiles(new File[] {file});
-                setDirectorySelected(file.exists() && file.isDirectory());
+                if (wildcard != null) {
+                    final Pattern _wildcard = wildcard;
+                    getFileChooser().setSelectedFiles(file.getParentFile().listFiles(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return _wildcard.matcher(name).matches();
+                        }
+                    }));
+                    setDirectorySelected(false);
+                } else {
+                    getFileChooser().setSelectedFiles(new File[] {file});
+                    setDirectorySelected(file.exists() && file.isDirectory());
+                }
             } finally {
                 currentDirectoryChanging = false;
             }
@@ -512,8 +530,12 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         
         public void actionPerformed(ActionEvent e) {
             String t = text.getText();
+            if (text.getCaretPosition() < t.length()) {
+                Toolkit.getDefaultToolkit().beep();
+                return;
+            }
             int cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
-            if (cut + 1 == t.length()) {
+            if (cut != -1 && cut + 1 == t.length()) {
                 t = t.substring(0, t.length() - 1);
                 cut = Math.max(t.lastIndexOf(File.separatorChar), t.lastIndexOf('.') - 1);
             }
@@ -649,7 +671,12 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
         
         public void actionPerformed(ActionEvent e) {
-            delegate.actionPerformed(e);
+            if (filechooser.getSelectedFiles().length > 1) {
+                // BasicFileChooserUI tries to do its own glob handling.
+                filechooser.approveSelection();
+            } else {
+                delegate.actionPerformed(e);
+            }
             updateHistory(filechooser);
         }
         

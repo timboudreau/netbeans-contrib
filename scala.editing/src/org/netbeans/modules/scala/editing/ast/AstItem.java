@@ -78,6 +78,27 @@ public abstract class AstItem {
     }
 
     protected AstItem(Symbol symbol, Token idToken) {
+        System.out.println(symbol.fullNameString());
+        System.out.println("tpe: " + symbol.tpe().toString());
+        scala.List chain = symbol.rawowner().ownerChain();
+        System.out.println(chain);
+        scala.Iterator itr = chain.elements();
+        while (itr.hasNext()) {
+            Symbol sym = (Symbol) itr.next();
+            if (sym.isAnonymousFunction()) {
+                System.out.println(sym + " is anonfun");
+            }
+//            if (sym.isValue()) {
+//                System.out.println(sym + ":" + sym.rawowner().ownerChain());
+//            }
+
+        }
+//        System.out.println("rowner" + symbol.rawowner().ownerChain());
+//        System.out.println("self: " + symbol.ownerChain());
+        System.out.println("encl: " + symbol.enclClass());
+//        System.out.println("");
+        System.out.println("");
+
         this.symbol = symbol;
         this.idToken = idToken;
         setName(idToken);
@@ -87,7 +108,7 @@ public abstract class AstItem {
         if (idToken == null) {
             name = ""; // should not happen?
         }
-        
+
         /**
          * symbol.nameString() is same as idToken's text, for editor, it's always
          * better to use idToken's text, for example, we'll use this name to
@@ -116,7 +137,6 @@ public abstract class AstItem {
         return idToken;
     }
 
-
     public void setResultType(Type tpe) {
         this.resultType = tpe;
     }
@@ -132,7 +152,7 @@ public abstract class AstItem {
     public String getName() {
         return name;
     }
-    
+
     public int getIdOffset(TokenHierarchy th) {
         if (idToken != null) {
             return idToken.offset(th);
@@ -155,6 +175,8 @@ public abstract class AstItem {
         if (getSymbol().isModule()) {
             /** According to Symbol#kindString, an object template isModule() */
             return getName() + "$";
+        } else if (getSymbol().isTrait()) {
+            return getName() + "$class";
         } else {
             return getName();
         }
@@ -194,8 +216,7 @@ public abstract class AstItem {
     }
 
     public boolean isSameNameAsEnclClass() {
-        return
-                symbol.isConstructor() ||
+        return symbol.isConstructor() ||
                 symbol.isClass() ||
                 symbol.isModule() ||
                 symbol.isTrait() ||

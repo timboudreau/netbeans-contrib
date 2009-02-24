@@ -50,9 +50,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,51 +62,28 @@ import javax.swing.text.StyledDocument;
 import javax.swing.JEditorPane;
 
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.Scope;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
-import com.sun.source.util.Trees;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import javax.swing.text.AttributeSet;
-import javax.swing.text.StyleConstants;
-import org.netbeans.api.debugger.jpda.JPDABreakpoint;
-import org.netbeans.api.debugger.jpda.JPDAThread;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 
-import org.netbeans.api.editor.settings.AttributesUtilities;
-import org.netbeans.api.editor.settings.EditorStyleConstants;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.source.ElementUtilities;
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
-import org.netbeans.editor.JumpList;
 
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.text.Annotation;
 import org.openide.text.Line;
 import org.openide.text.NbDocument;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import org.netbeans.spi.debugger.jpda.EditorContext;
-import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.netbeans.spi.debugger.ui.EditorContextDispatcher;
 
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -118,14 +93,14 @@ import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
-import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.openide.filesystems.FileUtil;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  *
@@ -1027,6 +1002,9 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstRootScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
+                    //AstItem item = rootScope.findItemAt(th, offset);
+                    //Symbol symbol = item.getSymbol();
+
                     AstDef tmpl = rootScope.getEnclosinDef(ElementKind.CLASS, th, offset);
                     if (tmpl == null) {
                         tmpl = rootScope.getEnclosinDef(ElementKind.MODULE, th, offset);
@@ -1101,23 +1079,24 @@ public class EditorContextImpl extends EditorContext {
             return null;
         }
 
+        // at the following step, do not return null to avoid another EditorContextImpl to process
+        final Operation ops[][] = new Operation[1][];
         Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
-            return null;
+            return ops[0];
         }
         EditorCookie ec = (EditorCookie) dataObject.getCookie(EditorCookie.class);
         if (ec == null) {
-            return null;
+            return ops[0];
         }
         final StyledDocument doc;
         try {
             doc = ec.openDocument();
         } catch (IOException ex) {
             ErrorManager.getDefault().notify(ex);
-            return null;
+            return ops[0];
         }
         final int offset = findLineOffset(doc, (int) lineNumber);
-        final Operation ops[][] = new Operation[1][];
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
 
@@ -1469,7 +1448,8 @@ public class EditorContextImpl extends EditorContext {
             return null;
         }
         /** @todo*/
-        return null;
+        final R[] retValue = (R[]) new Object[]{null                };
+        return retValue[0];
 //        if (js == null) {
 //            js = getJavaSource(sp);
 //        }

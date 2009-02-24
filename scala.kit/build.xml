@@ -38,6 +38,38 @@
       <ant dir="../../contrib/scala.debugger" target="nbm"/>
       <ant dir="../../contrib/scala.kit" target="nbm"/>
       <antcall target="netbeans"/>
+      <copy todir="build">
+          <fileset dir="../../contrib/xtc/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/languages.execution/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/libs.scala/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.editing/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.platform/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.stdplatform/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.project/build/">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.console/build/">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.debugger.projects/build/">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.debugger/build/">
+              <filename name="*.nbm"/>
+          </fileset>
+      </copy>
    </target>
 
    <target name="scala-clean">

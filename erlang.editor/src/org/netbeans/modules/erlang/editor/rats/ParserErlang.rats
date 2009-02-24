@@ -1,0 +1,453 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ */
+
+/*
+ * Definition of Erlang Grammar.
+ * 
+ * @author Caoyuan Deng
+ */
+module org.netbeans.modules.erlang.editor.rats.ParserErlang;
+
+import org.netbeans.modules.erlang.editor.rats.Character;
+import org.netbeans.modules.erlang.editor.rats.Identifier;
+import org.netbeans.modules.erlang.editor.rats.Keyword;
+import org.netbeans.modules.erlang.editor.rats.Literal;
+import org.netbeans.modules.erlang.editor.rats.Spacing;
+import org.netbeans.modules.erlang.editor.rats.Symbol;
+import org.netbeans.modules.erlang.editor.rats.Error;
+
+option withLocation;
+
+
+public generic S = SKIP Form+ SKIP EOF ;
+
+generic Form =
+  Attribute STOP
+/ Function  STOP
+/ Rule      STOP
+;
+
+generic Attribute =
+  PredAttr
+/ void:"-":s AtomId
+  ( AttrVal
+  / TypedAttrVal
+  / void:"(":s TypedAttrVal void:")":s
+  / SYNTAX_ERROR
+  )
+/ void:"-":s "spec":k ( TypeSpec / SYNTAX_ERROR )
+;
+
+// ----- predefined attributes
+
+generic PredAttr =
+  void:"-":s "define"     void:"(":s ( AtomId1 / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
+/ void:"-":s "record"     void:"(":s ( AtomId1 / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
+/ void:"-":s "module"     void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E ModuleParams )?                          void:")":s
+/ void:"-":s "import"     void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
+/ void:"-":s "export"     void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
+/ void:"-":s "include"    void:"(":s String void:")":s
+/ void:"-":s "includelib" void:"(":s String void:")":s
+/ void:"-":s "compile"    void:"(":s Exprs  void:")":s
+/ void:"-":s "file"       void:"(":s String COMMA_E Integer void:")":s
+;
+
+generic ModuleParams =
+  void:"[":s void:"]":s
+/ void:"[":s VarId ( COMMA_E VarId )* void:"]":s
+;
+
+transient generic MacroName = AtomId1 / VarId ;
+transient generic MacroParams = VarId ( COMMA_E VarId )* ;
+
+transient generic FunctionNames = FunctionName ( COMMA_E FunctionName )* ;
+transient generic FunctionName  = ( AtomId1 / MacroId ) void:"/":s Integer ;
+
+transient generic RecordFieldNames = RecordFieldName ( COMMA_E RecordFieldName )* ;
+transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
+
+// ----- AtomId1
+
+generic AtomId1 =
+  "spec":k
+/ AtomId
+;
+
+// ----- type and spec 
+
+generic TypeSpec =
+  void:"(":s SpecFun TypeSigs void:")":s
+/ SpecFun TypeSigs
+;
+
+generic SpecFun =
+  AtomId1 void:":":s AtomId1 void:"/":s Integer void:"::":s
+/ AtomId1 void:":":s AtomId1
+/ AtomId1 void:"/":s Integer void:"::":s
+/ AtomId1
+;
+
+generic TypedAttrVal =
+  Expr void:"," :s TypedRecordFields
+/ Expr void:"::":s TopType
+;
+
+transient generic TypedRecordFields = void:"{":s TypedExprs void:"}":s ;
+
+generic TypedExprs =
+  Expr      ( COMMA_E ( TypedExpr / Expr ) )*
+/ TypedExpr ( COMMA_E ( TypedExpr / Expr ) )*
+;
+
+transient generic TypedExpr = Expr void:"::":s TopType ;
+
+transient generic TypeSigs = TypeSig ( SEMI_E TypeSig )* ;
+
+transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
+
+transient generic TypeGuards = TypeGuard ( COMMA_E TypeGuard )* ;
+
+transient generic TypeGuard = AtomId1 void:"(":s TopTypes void:")":s ;
+
+transient generic TopTypes = TopType ( COMMA_E TopType )* ;
+
+generic TopType =
+  VarId void:"::":s TopType100
+/ TopType100
+;
+
+transient generic TopType100 = Type ( void:"|":s Type )* ;
+
+generic Type =
+  void:"(":s TopType void:")":s
+/ VarId
+/ AtomId1 void:"(":s TopTypes? void:")":s
+/ AtomId1 void:":":s AtomId1 void:"(":s TopTypes? void:")":s
+/ AtomId1
+/ void:"[":s void:"]":s
+/ void:"[":s TopType ( COMMA SKIP "..." SKIP )? void:"]":s
+/ void:"{":s TopTypes? void:"}":s
+/ RecId void:"{":s FieldTypes? void:"}":s
+/ BinaryType
+/ IntType ( void:".":s void:".":s IntType )?
+/ void:"fun":k void:"(":s FunType100? void:")":s
+;
+
+transient generic IntType = ( void:"-":s )? Integer ;
+
+transient generic FunType100 =
+  void:"(":s SKIP void:"..." SKIP void:")":s void:"->":s TopType
+/ FunType
+;
+
+transient generic FunType =
+  void:"(":s          void:")":s void:"->":s TopType
+/ void:"(":s TopTypes void:")":s void:"->":s TopType
+;
+
+transient generic FieldTypes = FieldType ( COMMA_E FieldType )* ;
+
+transient generic FieldType = AtomId1 void:"::":s TopType ;
+
+generic BinaryType =
+  void:"<<":s                                   void:">>":s
+/ void:"<<":s BinBaseType                       void:">>":s
+/ void:"<<":s                        BinUnitType void:">>":s
+/ void:"<<":s BinBaseType COMMA_E BinUnitType void:">>":s
+/ VarId void:":":s Integer
+;
+
+transient generic BinBaseType = VarId void:":":s Integer ;
+
+transient generic BinUnitType = VarId void:":":s VarId void:"*":s Integer ;
+
+generic AttrVal =
+  void:"(":s Expr ( COMMA_E Expr )* void:")":s
+/ Expr ( COMMA_E Expr )*
+;
+
+transient generic Function = FunctionClauses ;
+
+transient generic FunctionClauses = FunctionClause ( SEMI_E FunctionClause )* ;
+
+transient generic FunctionClause =
+  AtomId1 ClauseArgs ClauseGuard? ClauseBody 
+/ AtomId1 SYNTAX_ERROR
+;
+
+transient generic ClauseArgs = ArgumentList ;
+
+transient generic ClauseGuard = void:"when":k Guard;
+
+transient generic ClauseBody = void:"->":s Exprs ;
+
+generic Expr =
+  void:"catch":k Expr
+/ Expr100
+;
+
+generic Expr100 =
+  MatchExpr
+/ SendExpr
+/ Expr150
+;
+
+transient generic MatchExpr = Expr150 void:"=":s Expr100 ;
+transient generic SendExpr  = Expr150 void:"!":s Expr100 ;
+
+transient generic Expr150 = Expr160 ( void:"orelse" :k Expr150 )?  ;
+
+transient generic Expr160 = Expr200 ( void:"andalso":k Expr160 )?  ;
+
+transient generic Expr200 = Expr300 ( CompOp Expr300 )? ;
+
+transient generic Expr300 = Expr400 ( ListOp Expr300 )? ;
+
+transient generic Expr400 = Expr500 ( AddOp  Expr500 )* ;
+
+transient generic Expr500 = Expr600 ( MultOp Expr600 )* ;
+
+transient generic Expr600 = PrefixOp? Expr700 ;
+
+generic Expr700 =
+  FunctionCall
+/ RecordExpr
+/ Expr800
+;
+
+transient generic Expr800 = Expr900 ( void:":":s ExprMax )? ;
+
+generic Expr900 =
+  void:".":s AtomId1 ( void:".":s AtomId1 )*
+/ ExprMax            ( void:".":s AtomId1 )*
+;
+
+generic ExprMax =
+  VarId
+/ Atomic
+/ List
+/ Binary
+/ ListComprehension
+/ BinaryComprehension
+/ Tuple
+/ ParenExpr
+/ BeginExpr
+/ IfExpr
+/ CaseExpr
+/ ReceiveExpr
+/ FunExpr
+/ TryExpr
+/ QueryExpr
+/ MacroExpr
+;
+
+transient generic ParenExpr = void:"(":s Expr void:")":s ;
+transient generic BeginExpr = void:"begin":k Exprs END_E ;
+transient generic MacroExpr = MacroId ( void:"(":s Exprs? void:")":s )? ;
+
+generic List =
+  void:"[":s void:"]":s
+/ void:"[":s Expr Tail
+;
+
+transient generic Tail =
+  void:"]":s
+/ void:"|":s Expr void:"]":s
+/ COMMA_E Expr Tail
+;
+
+transient generic Binary = void:"<<":s BinElements? void:">>":s ;
+
+transient generic BinElements = BinElement ( COMMA_E BinElement )* ;
+
+transient generic BinElement = BitExpr OptBitsizeExpr OptBitTypeList ;
+
+transient generic BitExpr = PrefixOp? ExprMax ;
+
+transient generic OptBitsizeExpr = ( void:":":s BitsizeExpr )? ;
+
+transient generic OptBitTypeList = ( void:"/":s BitTypeList )? ;
+
+transient generic BitTypeList = BitType ( void:"-":s BitTypeList )? ;
+
+transient generic BitType = AtomId1 ( void:":":s Integer )? ;
+
+transient generic BitsizeExpr = ExprMax ;
+
+transient generic ListComprehension = void:"[":s Expr void:"||":s LcExprs void:"]":s ;
+
+transient generic BinaryComprehension = void:"<<":s Binary void:"||":s LcExprs void:">>":s ;
+
+transient generic LcExprs = LcExpr ( COMMA_E LcExpr )* ;
+
+generic LcExpr =
+  Binary   void:"<=":s Expr
+/ Expr   ( void:"<-":s Expr )?
+;
+
+transient generic Tuple = void:"{":s Exprs? void:"}":s ;
+
+transient generic RecordExpr =
+  RecId ( void:".":s AtomId1 / RecordTuple )
+/ ExprMax RecId ( void:".":s AtomId1 / RecordTuple )
+;
+
+transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
+
+transient generic RecordFields = RecordField ( COMMA_E RecordField )* ;
+
+transient generic RecordField =
+  VarId   void:"=":s Expr
+/ AtomId1 void:"=":s Expr
+;
+
+transient generic FunctionCall = Expr800 ArgumentList ;
+
+transient generic IfExpr = void:"if":k IfClauses END_E;
+
+transient generic IfClauses = IfClause ( SEMI_E IfClause )* ;
+
+transient generic IfClause = Guard ClauseBody ;
+
+transient generic CaseExpr = void:"case":k Expr void:"of":k CrClauses END_E ;
+
+transient generic CrClauses = CrClause ( SEMI_E CrClause )* ;
+
+transient generic CrClause = Expr ClauseGuard? ClauseBody;
+
+generic ReceiveExpr =
+  void:"receive":k CrClauses                                END_E
+/ void:"receive":k           void:"after":k Expr ClauseBody END_E
+/ void:"receive":k CrClauses void:"after":k Expr ClauseBody END_E
+;
+
+generic FunExpr =
+  void:"fun":k ( AtomId1 / MacroId ) void:":":s FunctionName
+/ void:"fun":k                                  FunctionName
+/ void:"fun":k FunClauses END_E
+;
+
+transient generic FunClauses = FunClause ( SEMI_E FunClause )* ;
+
+transient generic FunClause = ArgumentList ClauseGuard? ClauseBody ;
+
+generic TryExpr = void:"try":k Exprs ( void:"of":k CrClauses )? TryCatch ;
+
+generic TryCatch =
+  void:"catch":k TryClauses ( void:"after":k Exprs )? END_E
+/                             void:"after":k Exprs    END_E
+;
+
+transient generic TryClauses = TryClause ( SEMI_E TryClause )* ;
+
+generic TryClause =
+  AtomId1 void:":":s Expr ClauseGuard? ClauseBody
+/ VarId   void:":":s Expr ClauseGuard? ClauseBody
+/                    Expr ClauseGuard? ClauseBody
+;
+
+transient generic QueryExpr = void:"query":s ListComprehension END_E ;
+
+generic ArgumentList = void:"(":s Exprs? void:")":s ;
+
+transient generic Exprs = Expr ( COMMA_E_IN_EXPRS Expr )* ;
+
+transient generic Guard = Exprs ( SEMI_E Exprs )* ;
+
+transient generic Atomic =
+  Char
+/ Float
+/ Integer
+/ AtomId1
+/ Strings
+;
+
+transient generic Strings = String String* ;
+
+generic PrefixOp =
+  "+"   :s
+/ "-"   :s
+/ "bnot":k
+/ "not" :k
+;
+
+void MultOp =
+  "/"   :s
+/ "*"   :s
+/ "div" :k
+/ "rem" :k
+/ "band":k
+/ "and" :k
+;
+
+void AddOp =
+  "+"   :s
+/ "-"   :s
+/ "bor" :k
+/ "bxor":k
+/ "bsl" :k
+/ "bsr" :k
+/ "or"  :k
+/ "xor" :k
+;
+
+void ListOp =
+  "++":s
+/ "--":s
+;
+
+void CompOp =
+  "==" :s
+/ "/=" :s
+/ "=<" :s
+/ "<"  :s
+/ ">=" :s
+/ ">"  :s
+/ "=:=":s
+/ "=/=":s
+;
+
+
+transient generic Rule = RuleClauses ;
+
+transient generic RuleClauses = RuleClause ( SEMI_E RuleClause )* ;
+
+transient generic RuleClause = AtomId1 ClauseArgs ClauseGuard? RuleBody ;
+
+transient generic RuleBody = void:":-":s LcExprs ;

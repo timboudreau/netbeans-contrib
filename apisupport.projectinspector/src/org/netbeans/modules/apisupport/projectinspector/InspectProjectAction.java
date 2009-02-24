@@ -349,8 +349,13 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
             }
         }
         if (eval != null) {
-            for (Map.Entry<String,String> entry : new TreeMap<String,String>(eval.getProperties()).entrySet()) {
-                pw.println("  " + entry.getKey() + "=" + entry.getValue());
+            Map<String, String> props = eval.getProperties();
+            if (props != null) {
+                for (Map.Entry<String,String> entry : new TreeMap<String,String>(props).entrySet()) {
+                    pw.println("  " + entry.getKey() + "=" + entry.getValue());
+                }
+            } else {
+                pw.println("  <unknown>");
             }
         }
         RecommendedTemplates rt = l.lookup(RecommendedTemplates.class);
@@ -367,12 +372,17 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
             pw.println("Recommended templates:");
             for (String template : pt.getPrivilegedTemplates()) {
                 pw.print("  " + template);
-                FileObject fo = FileUtil.getConfigFile(template);
+                final FileObject fo = FileUtil.getConfigFile(template);
                 if (fo != null) {
-                    String displayName = DataObject.find(fo).getNodeDelegate().getDisplayName();
-                    if (!displayName.equals(fo.getName())) {
-                        pw.print(" (\"" + displayName + "\")");
-                    }
+                    final DataObject d = DataObject.find(fo);
+                    EventQueue.invokeAndWait(new Runnable() {
+                        public void run() {
+                            String displayName = d.getNodeDelegate().getDisplayName();
+                            if (!displayName.equals(fo.getName())) {
+                                pw.print(" (\"" + displayName + "\")");
+                            }
+                        }
+                    });
                 }
                 pw.println();
             }

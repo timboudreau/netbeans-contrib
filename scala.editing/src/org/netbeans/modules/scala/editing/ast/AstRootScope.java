@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  *
@@ -85,6 +86,10 @@ public class AstRootScope extends AstScope {
      * one AstItem point to the same idToken, only the first one will be stored
      */
     protected boolean tryToPut(Token idToken, AstItem item) {
+        Symbol symbol = item.getSymbol();
+        if (isJavaLangObject(symbol)) {
+            return false;
+        }
         AstItem existOne = idTokenToItem.get(idToken);
         if (existOne == null) {
             idTokenToItem.put(idToken, item);
@@ -92,7 +97,7 @@ public class AstRootScope extends AstScope {
             return true;
         } else {
             // if existOne is def and with narrow visible than new one, replace it
-            if (item instanceof AstDef && existOne.getSymbol().isPrivateLocal() && item.getSymbol().isPublic()) {
+            if (item instanceof AstDef && existOne.getSymbol().isPrivateLocal() && symbol.isPublic()) {
                 idTokenToItem.put(idToken, item);
                 tokensSorted = false;
                 return true;
@@ -151,6 +156,22 @@ public class AstRootScope extends AstScope {
         for (Token token : getSortedToken(th)) {
             System.out.println("AstItem: " + idTokenToItem.get(token));
         }
+    }
+
+    private boolean isJavaLangObject(Symbol symbol) {
+        if (symbol.nameString().equals("Object")) {
+            scala.List<Symbol> chain = symbol.ownerChain();
+            int size = chain.size();
+            if (size == 4) {
+                if (chain.apply(0).rawname().decode().startsWith("Object") &&
+                        chain.apply(1).rawname().decode().equals("lang") &&
+                        chain.apply(2).rawname().decode().equals("java") &&
+                        chain.apply(3).rawname().decode().equals("<root>")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static class TokenComparator implements Comparator<Token> {

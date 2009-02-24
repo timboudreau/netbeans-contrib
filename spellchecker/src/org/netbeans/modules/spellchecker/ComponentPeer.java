@@ -393,7 +393,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         
         if (d == null) {
             AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(p);
-            project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(ac)));
+            project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(p, ac)));
         }
         
         return d;
@@ -568,7 +568,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 if (currentWSO <= lastCaretPositionCopy[0] && (currentWSO + length) >= lastCaretPositionCopy[0]) {
                     ValidityType validity = d.validateWord(w);
                     
-                    if (validity == ValidityType.BLACKLISTED || validity == ValidityType.INVALID) {
+                    if (validity != ValidityType.VALID) {
                         try {
                             span[0] = doc.createPosition(currentWSO);
                             span[1] = doc.createPosition(currentWSO + length);

@@ -77,7 +77,7 @@ import scala.tools.nsc.util.BatchSourceFile;
  */
 public class ScalaGlobal {
 
-    private static boolean debug;
+    private static boolean debug = false;
     private final static Map<Project, Reference<Global>> ProjectToGlobal =
             new WeakHashMap<Project, Reference<Global>>();
     private final static Map<Project, Reference<Global>> ProjectToGlobalForTest =
