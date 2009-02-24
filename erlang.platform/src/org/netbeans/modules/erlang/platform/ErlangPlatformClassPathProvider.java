@@ -52,8 +52,8 @@ import org.openide.filesystems.FileObject;
 @org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.java.classpath.ClassPathProvider.class)
 public final class ErlangPlatformClassPathProvider implements ClassPathProvider {
 
-    // @Todo, use ErlangLaugnage.BOOT_CP ErlangTokenId.MIME_TYPE
-    public static final String BOOT_CP = "ErlangOtpLibBootClassPath"; //NOI18N
+    // @Todo, use ErlangLaugnage.BOOT ErlangTokenId.MIME_TYPE
+    public static final String BOOT = "erlang/classpath/boot"; //NOI18N
     public static final String MIME_TYPE = "text/x-erlang"; // NOI18N
     private static FileObject otpLibsFO;
     private static ClassPath bootClassPath;
@@ -62,7 +62,7 @@ public final class ErlangPlatformClassPathProvider implements ClassPathProvider 
     }
 
     public ClassPath findClassPath(FileObject file, String type) {
-        if (type.equals(BOOT_CP) && file.getMIMEType().equals(MIME_TYPE)) {
+        if (type.equals(BOOT) && file.getMIMEType().equals(MIME_TYPE)) {
             return getBootClassPath();
         } else {
             return null;

@@ -91,6 +91,12 @@ import org.w3c.dom.NodeList;
  * @author Jesse Glick, et al.
  */
 public final class RubyProject implements Project, RakeProjectListener {
+
+    /** @todo should use ErlangLanguae definitons of these ids: */
+    public static final String BOOT    = "erlang/classpath/boot";
+    public static final String COMPILE = "erlang/classpath/compile";
+    public static final String EXECUTE = "erlang/classpath/execute";
+    public static final String SOURCE  = "erlang/classpath/source";
     
     /**
      * Ruby package root sources type.
@@ -371,20 +377,17 @@ public final class RubyProject implements Project, RakeProjectListener {
         protected void projectOpened() {
             // register project's classpaths to GlobalPathRegistry
             ClassPathProviderImpl cpProvider = lookup.lookup(ClassPathProviderImpl.class);
-//            if (!bootRegistered) {
-//                GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
-//                bootRegistered = true;
-//            }
-            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
-            //GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
+            GlobalPathRegistry.getDefault().register(RubyProject.BOOT, cpProvider.getProjectClassPaths(RubyProject.BOOT));
+            GlobalPathRegistry.getDefault().register(RubyProject.SOURCE, cpProvider.getProjectClassPaths(RubyProject.SOURCE));
+            //GlobalPathRegistry.getDefault().register(RubyProject.COMPILE, cpProvider.getProjectClassPaths(RubyProject.COMPILE));
         }
         
         protected void projectClosed() {
             // unregister project's classpaths to GlobalPathRegistry
             ClassPathProviderImpl cpProvider = lookup.lookup(ClassPathProviderImpl.class);
-            //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
-            GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
-            //GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));            
+            //GlobalPathRegistry.getDefault().unregister(RubyProject.BOOT, cpProvider.getProjectClassPaths(RubyProject.BOOT));
+            GlobalPathRegistry.getDefault().unregister(RubyProject.SOURCE, cpProvider.getProjectClassPaths(RubyProject.SOURCE));
+            //GlobalPathRegistry.getDefault().unregister(RubyProject.COMPILE, cpProvider.getProjectClassPaths(RubyProject.COMPILE));
         }
         
     }

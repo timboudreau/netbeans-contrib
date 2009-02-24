@@ -27,6 +27,7 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
+import org.netbeans.modules.erlang.project.RubyProject;
 import org.netbeans.spi.java.classpath.ClassPathFactory;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.modules.erlang.project.SourceRoots;
@@ -257,11 +258,11 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     public ClassPath findClassPath(FileObject file, String type) {
         /*if (type.equals(ClassPath.EXECUTE)) {
             return getRunTimeClasspath(file);
-        } else */ if (type.equals(ClassPath.SOURCE)) {
+        } else */ if (type.equals(RubyProject.SOURCE)) {
             return getSourcepath(file);
-        } else if (type.equals(ClassPath.BOOT)) {
+        } else if (type.equals(RubyProject.BOOT)) {
             return getBootClassPath();
-        } else if (type.equals(ClassPath.COMPILE)) {
+        } else if (type.equals(RubyProject.COMPILE)) {
             // Bogus
             return getBootClassPath();
         } else {
@@ -274,16 +275,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
      * The result is used for example for GlobalPathRegistry registrations.
      */
     public ClassPath[] getProjectClassPaths(String type) {
-        if (ClassPath.BOOT.equals(type)) {
+        if (RubyProject.BOOT.equals(type)) {
             return new ClassPath[]{getBootClassPath()};
         }
-//        if (ClassPath.COMPILE.equals(type)) {
-//            ClassPath[] l = new ClassPath[2];
-//            l[0] = getCompileTimeClasspath(0);
-//            l[1] = getCompileTimeClasspath(1);
-//            return l;
-//        }
-        if (ClassPath.SOURCE.equals(type)) {
+        if (RubyProject.SOURCE.equals(type)) {
             ClassPath[] l = new ClassPath[2];
             l[0] = getSourcepath(0);
             l[1] = getSourcepath(1);
@@ -298,16 +293,12 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
      * (i.e., excluding tests roots). Valid types are BOOT, SOURCE and COMPILE.
      */
     public ClassPath getProjectSourcesClassPath(String type) {
-        if (ClassPath.BOOT.equals(type)) {
+        if (RubyProject.BOOT.equals(type)) {
              return getBootClassPath();
         }
-        if (ClassPath.SOURCE.equals(type)) {
+        if (RubyProject.SOURCE.equals(type)) {
             return getSourcepath(0);
         }
-//        if (ClassPath.COMPILE.equals(type)) {
-//            return getCompileTimeClasspath(0);
-//        }
-//        assert false;
         return null;
     }
 
@@ -320,10 +311,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         FileObject[] path = getPrimarySrcPath();
         for (int i=0; i<path.length; i++) {
             if (root.equals(path[i])) {
-                if (ClassPath.COMPILE.equals(type)) {
+                if (RubyProject.COMPILE.equals(type)) {
                     return JAVAC_CLASSPATH;
                 }
-                else if (ClassPath.EXECUTE.equals(type)) {
+                else if (RubyProject.EXECUTE.equals(type)) {
                     return RUN_CLASSPATH;
                 }
                 else {
@@ -334,10 +325,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         path = getTestSrcDir();
         for (int i=0; i<path.length; i++) {
             if (root.equals(path[i])) {
-                if (ClassPath.COMPILE.equals(type)) {
+                if (RubyProject.COMPILE.equals(type)) {
                     return JAVAC_TEST_CLASSPATH;
                 }
-                else if (ClassPath.EXECUTE.equals(type)) {
+                else if (RubyProject.EXECUTE.equals(type)) {
                     return RUN_TEST_CLASSPATH;
                 }
                 else {

@@ -113,12 +113,18 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
     override
-    def getLibraryPathIds = Collections.singleton(BOOT_CP)
+    def getLibraryPathIds = Collections.singleton(BOOT)
+
+    override
+    def getSourcePathIds = Collections.singleton(SOURCE)
 
     override
     def getIndexerFactory = new ErlangIndexer.Factory
 }
 
 object ErlangLanguage {
-    val BOOT_CP = "ErlangOtpLibBootClassPath"
+    val BOOT    = "erlang/classpath/boot"
+    val COMPILE = "erlang/classpath/compile"
+    val EXECUTE = "erlang/classpath/execute"
+    val SOURCE  = "erlang/classpath/source"
 }

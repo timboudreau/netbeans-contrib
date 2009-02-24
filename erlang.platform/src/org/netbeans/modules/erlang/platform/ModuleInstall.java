@@ -38,14 +38,14 @@ public class ModuleInstall extends org.openide.modules.ModuleInstall {
      */
     @Override
     public void restored() {
-        GlobalPathRegistry.getDefault().register(ErlangPlatformClassPathProvider.BOOT_CP, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
+        GlobalPathRegistry.getDefault().register(ErlangPlatformClassPathProvider.BOOT, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
         // On install, ensure that the Erlang installation are set
         //RubyInstallation.getInstance().ensureInstallation();
     }
     
     @Override
     public void uninstalled() {
-        GlobalPathRegistry.getDefault().unregister(ErlangPlatformClassPathProvider.BOOT_CP, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
+        GlobalPathRegistry.getDefault().unregister(ErlangPlatformClassPathProvider.BOOT, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
         ErlyBirdNode.stopErlyBirdBackEndNode();
     }
     
