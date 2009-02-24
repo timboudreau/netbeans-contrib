@@ -10,7 +10,8 @@
     </folder>
     <folder name="Templates">
         <folder name="Selenium">
-            <file name="SeleneseTest" url="nbresloc:/org/netbeans/modules/selenium/php/SeleneseTest.php">
+	    <attr name="position" intvalue="1230"/>
+            <file name="SeleneseTest.php" url="nbresloc:/org/netbeans/modules/selenium/php/SeleneseTest.php">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.selenium.php.Bundle"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.selenium.php.SeleneseTestWizardOperator"/>
