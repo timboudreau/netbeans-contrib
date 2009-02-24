@@ -605,10 +605,9 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         }
     }
 
-    def visitTuple(that:GNode) :String = that.size match {
-        case 0 => "{}"
-        case 1 => 
-            val exprs = that.getGeneric(0)
+    def visitTuple(that:GNode) :String = {
+        val exprs = that.getGeneric(0)
+        if (exprs != null) {
             val tpes = visitExprs(exprs)
             val sb = new StringBuilder
             sb.append("{")
@@ -621,6 +620,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             }
             sb.append("}")
             sb.toString
+        } else "{}"
     }
 
     def visitRecordExpr(that:GNode) = {}

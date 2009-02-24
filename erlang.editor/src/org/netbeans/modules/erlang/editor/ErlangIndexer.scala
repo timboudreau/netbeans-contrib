@@ -96,7 +96,7 @@ class ErlangIndexer extends EmbeddingIndexer {
     protected def index(indexable:Indexable, parserResult:Result, context:Context) :Unit = {
 	val start = System.currentTimeMillis
         //if (file.isPlatform())
-        io.getOut().print("Indexing: ")
+        io.getOut().print("Indexing: " + parserResult.getSnapshot.getSource.getFileObject + " ")
 
         val r = parserResult match {
             case null => return
@@ -180,7 +180,8 @@ class ErlangIndexer extends EmbeddingIndexer {
                         case x :: _ => x.name
                         case _ => null
                     }
-                case _ => getHeaderFqn(fo)
+                case _ => null
+                    // @todo getHeaderFqn(fo)
             }
             if (fqn == null) {
                 return
