@@ -48,12 +48,11 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.erlang.platform.Util;
 import org.netbeans.modules.erlang.platform.gems.GemManager;
-import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -668,7 +667,8 @@ public final class RubyPlatform {
         updateIndexRoots();
 
         // Ensure that source cache is wiped and classpaths recomputed for existing files
-        Source.clearSourceCache();
+        // XXX - Parsing API
+//        Source.clearSourceCache();
         
         if (pcs != null) {
             pcs.firePropertyChange("roots", null, null); // NOI18N
@@ -762,7 +762,6 @@ public final class RubyPlatform {
 
         private String kind;
         private String version;
-        private String jversion;
         private String patchlevel;
         private String releaseDate;
         private String executable;
@@ -774,7 +773,6 @@ public final class RubyPlatform {
         Info(final Properties props) {
             this.kind = props.getProperty(RUBY_KIND);
             this.version = props.getProperty(RUBY_VERSION);
-            this.jversion = props.getProperty(JRUBY_VERSION);
             this.patchlevel = props.getProperty(RUBY_PATCHLEVEL);
             this.releaseDate = props.getProperty(RUBY_RELEASE_DATE);
             this.executable = props.getProperty(RUBY_EXECUTABLE);
@@ -791,9 +789,8 @@ public final class RubyPlatform {
         
         static Info forDefaultPlatform(String pathToInterpreter) {
             // NbBundle.getMessage(RubyPlatformManager.class, "CTL_BundledJRubyLabel")
-            Info info = new Info("Erlang under environment path", "1.8.6"); // NOI18N
-            info.jversion = "1.1RC1"; // NOI18N
-            info.patchlevel = "5512"; // NOI18N
+            Info info = new Info("Erlang under environment path", "Default"); // NOI18N
+            info.patchlevel = ""; // NOI18N
             info.releaseDate = "2008-01-12"; // NOI18N
             info.executable = null;
             info.platform = "native"; // NOI18N
@@ -812,7 +809,7 @@ public final class RubyPlatform {
         
         public String getLabel(final boolean isDefault) {
             return (isDefault ? NbBundle.getMessage(RubyPlatform.class, "RubyPlatformManager.CTL_BundledJRubyLabel") : kind)
-                    + " (" + (isJRuby() ? jversion : version) + ')'; // NOI18N
+                    + " (" + version + ')'; // NOI18N
         }
         
         public String getLongDescription() {
@@ -825,7 +822,7 @@ public final class RubyPlatform {
         }
 
         public boolean isJRuby() {
-            return "JRuby".equals(kind); // NOI18N
+            return false;
         }
 
 //        public String getExecutable() {
@@ -868,10 +865,6 @@ public final class RubyPlatform {
             return releaseDate;
         }
 
-        public String getJVersion() {
-            return jversion;
-        }
-        
         public String getVersion() {
             return version;
         }

@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.erlang.editor
 
+import _root_.java.util.{Collections}
 import org.netbeans.api.lexer.Language
 import org.netbeans.modules.csl.api.CodeCompletionHandler
 import org.netbeans.modules.csl.api.DeclarationFinder
@@ -63,6 +64,7 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
  * @author Caoyuan Deng
  */
 class ErlangLanguage extends DefaultLanguageConfig {
+    import ErlangLanguage._
 
     override
     def getLexerLanguage = ErlangTokenId.language
@@ -109,4 +111,14 @@ class ErlangLanguage extends DefaultLanguageConfig {
     override
     def getDeclarationFinder = new ErlangDeclarationFinder
 
+    /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
+    override
+    def getLibraryPathIds = Collections.singleton(BOOT_CP)
+
+    override
+    def getIndexerFactory = new ErlangIndexer.Factory
+}
+
+object ErlangLanguage {
+    val BOOT_CP = "ErlangOtpLibBootClassPath"
 }

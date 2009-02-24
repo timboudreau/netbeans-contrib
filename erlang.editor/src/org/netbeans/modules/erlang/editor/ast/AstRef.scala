@@ -56,14 +56,14 @@ class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem
     override
     def getKind :ElementKind = super.getKind match {
         // if it's a OTHER, we could try to get its kind from its dfn
-        case kindx@ElementKind.OTHER => enclosingScope match {
-                case None =>  kindx
+        case kindX@ElementKind.OTHER => enclosingScope match {
+                case None =>  kindX
                 case Some(scope) => scope.findDfnOf(this) match {
-                        case None => kindx
+                        case None => kindX
                         case Some(dfn) => dfn.getKind
                     }
             }
-        case kindx => kindx
+        case kindX => kindX
     }
 
     override

@@ -159,59 +159,61 @@ class ErlangFormatter extends Formatter {
             // TODO - remove initialbalance etc.
             computeIndents(doc, initialIndent, initialOffset, endOffset, pResult, offsets, indents, indentEmptyLines, includeEnd)
 
-            try {
-                doc.atomicLock
+            val indentTask = new Runnable {
+                override
+                def run = {
+                    // Iterate in reverse order such that offsets are not affected by our edits
+                    assert(indents.size == offsets.size)
+                    val editorFormatter = doc.getFormatter
+                    def loop(i:Int) :Unit = if (i >= 0) {
+                        var indent = indents(i)
+                        val lineBegin = offsets(i)
 
-                // Iterate in reverse order such that offsets are not affected by our edits
-                assert(indents.size == offsets.size)
-                val editorFormatter = doc.getFormatter
-                def loop(i:Int) :Unit = if (i >= 0) {
-                    var indent = indents(i)
-                    val lineBegin = offsets(i)
-
-                    if (lineBegin >= lineStart) {
-                        if (lineBegin == lineStart && i > 0) {
-                            // Look at the previous line, and see how it's indented
-                            // in the buffer.  If it differs from the computed position,
-                            // offset my computed position (thus, I'm only going to adjust
-                            // the new line position relative to the existing editing.
-                            // This avoids the situation where you're inserting a newline
-                            // in the middle of "incorrectly" indented code (e.g. different
-                            // size than the IDE is using) and the newline position ending
-                            // up "out of sync"
-                            val prevOffset = offsets(i - 1)
-                            val prevIndent = indents(i - 1)
-                            val actualPrevIndent = LexUtil.lineIndent(doc, prevOffset);
-                            if (actualPrevIndent != prevIndent) {
-                                // For blank lines, indentation may be 0, so don't adjust in that case
-                                if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
-                                    indent = actualPrevIndent + (indent - prevIndent)
+                        if (lineBegin >= lineStart) {
+                            if (lineBegin == lineStart && i > 0) {
+                                // Look at the previous line, and see how it's indented
+                                // in the buffer.  If it differs from the computed position,
+                                // offset my computed position (thus, I'm only going to adjust
+                                // the new line position relative to the existing editing.
+                                // This avoids the situation where you're inserting a newline
+                                // in the middle of "incorrectly" indented code (e.g. different
+                                // size than the IDE is using) and the newline position ending
+                                // up "out of sync"
+                                val prevOffset = offsets(i - 1)
+                                val prevIndent = indents(i - 1)
+                                val actualPrevIndent = LexUtil.lineIndent(doc, prevOffset);
+                                if (actualPrevIndent != prevIndent) {
+                                    // For blank lines, indentation may be 0, so don't adjust in that case
+                                    if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
+                                        indent = actualPrevIndent + (indent - prevIndent)
+                                    }
                                 }
                             }
-                        }
 
-                        // Adjust the indent at the given line (specified by offset) to the given indent
-                        val currentIndent = LexUtil.lineIndent(doc, lineBegin)
-                        if (currentIndent != indent) {
+                            // Adjust the indent at the given line (specified by offset) to the given indent
+                            val currentIndent = LexUtil.lineIndent(doc, lineBegin)
                             if (currentIndent != indent) {
-                                if (context != null) {
-                                    context.modifyIndent(lineBegin, indent)
-                                } else {
-                                    editorFormatter.changeRowIndent(doc, lineBegin, indent)
+                                if (currentIndent != indent) {
+                                    if (context != null) {
+                                        context.modifyIndent(lineBegin, indent)
+                                    } else {
+                                        editorFormatter.changeRowIndent(doc, lineBegin, indent)
+                                    }
                                 }
                             }
+                            loop(i - 1)
                         }
-                        loop(i - 1)
                     }
-                }
-                loop(indents.size - 1)
+                    loop(indents.size - 1)
 
-                //                if (!indentOnly && codeStyle.reformatComments()) {
-                //                     reformatComments(doc, startOffset, endOffset);
-                //                }
-            } finally {
-                doc.atomicUnlock
+                    //                if (!indentOnly && codeStyle.reformatComments()) {
+                    //                     reformatComments(doc, startOffset, endOffset);
+                    //                }
+                }
             }
+
+            doc.runAtomic(indentTask)
+            
         } catch {case ex:BadLocationException => Exceptions.printStackTrace(ex)}
     }
 

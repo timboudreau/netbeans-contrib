@@ -13,7 +13,7 @@
         <!-- contrib modules -->
         <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang"/>
-        <ant dir="../../contrib/erlang.editing"/>
+        <ant dir="../../contrib/erlang.editor"/>
         <ant dir="../../contrib/erlang.makeproject"/>
         <ant dir="../../contrib/erlang.platform"/>
         <ant dir="../../contrib/erlang.project"/>
@@ -26,7 +26,7 @@
    <target name="erlang-nbm" depends="erlang-build">
         <ant dir="../../contrib/languages.execution" target="nbm"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang" target="nbm"/>
-        <ant dir="../../contrib/erlang.editing" target="nbm"/>
+        <ant dir="../../contrib/erlang.editor" target="nbm"/>
         <ant dir="../../contrib/erlang.makeproject" target="nbm"/>
         <ant dir="../../contrib/erlang.platform" target="nbm"/>
         <ant dir="../../contrib/erlang.project" target="nbm"/>
@@ -42,7 +42,7 @@
         <ant dir="../../contrib/erlang.project" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/erlang.platform" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/erlang.makeproject" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/erlang.editing" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/erlang.editor" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
         <ant target="clean"/>

@@ -43,6 +43,7 @@ import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.erlang.makeproject.api.RakeArtifact;
 import org.netbeans.modules.erlang.makeproject.spi.support.ReferenceHelper;
 import org.netbeans.modules.erlang.project.UpdateHelper;
+import org.openide.util.ImageUtilities;
 
 
 
@@ -55,7 +56,7 @@ import org.netbeans.modules.erlang.project.UpdateHelper;
  */
 class ProjectNode extends AbstractNode {
 
-    private static final String PROJECT_ICON = "org/netbeans/modules/erlang/project/ui/resources/projectDependencies.gif";    //NOI18N
+    private static final Icon PROJECT_ICON = ImageUtilities.loadImageIcon("org/netbeans/modules/erlang/project/ui/resources/projectDependencies.gif", false); // NOI18N
 
     private final RakeArtifact antArtifact;
     private final URI artifactLocation;
@@ -87,10 +88,10 @@ class ProjectNode extends AbstractNode {
             ProjectInformation info = getProjectInformation();
             if (info != null) {
                 Icon icon = info.getIcon();
-                cachedIcon = Utilities.icon2Image(icon);
+                cachedIcon = ImageUtilities.icon2Image(icon);
             }
             else {
-                cachedIcon = Utilities.loadImage(PROJECT_ICON);
+                cachedIcon = ImageUtilities.icon2Image(PROJECT_ICON);
             }
         }
         return cachedIcon;
