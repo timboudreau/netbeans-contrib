@@ -22,37 +22,5 @@
             -->
         </folder>
     </folder>
-
-    <folder name="OptionsDialog">
-        <file name="ErlangOptions.instance">
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.options.ErlangOptionsCategory"/>
-            <attr name="position" intvalue="308"/>
-        </file>     
-    </folder>
-
-    <folder name="org.netbeans.modules.erlang">
-         <folder name="options">
-            <file name="Platform.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.ui.RubyOptionsAdvancedPanel"/>
-                <attr name="position" intvalue="100"/>
-            </file>
-
-            <file name="Formatting.instance">
-                <attr name="position" intvalue="150"/>
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.options.FormatingAdvancedOption"/>
-            </file>
-        </folder>   
-    </folder>
-
-    <folder name="GsfPlugins">
-        <folder name="text">
-            <folder name="x-erlang">
-                <attr name="useCustomEditorKit" boolvalue="true"/>
-                <file name="language.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage"/>
-                </file>
-            </folder>
-        </folder>
-    </folder>
     
 </filesystem>

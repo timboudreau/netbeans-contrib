@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -45,7 +44,6 @@ import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -78,7 +76,6 @@ public class RubyInstallation {
     private static final String KEY_ERL = "erlang.interpreter"; //NOI18N
     private static final RubyInstallation INSTANCE = new RubyInstallation();
     // TODO Allow callers to decide if they want rails+dependencies included or not
-    static ClassPath cp;
     /** Regexp for matching version number in gem packages:  name-x.y.z
      * (we need to pull out x,y,z such that we can do numeric comparisons on them)
      */
@@ -513,7 +510,6 @@ public class RubyInstallation {
      * force a recomputation of the installed classpath roots */
     public void recomputeRoots() {
         this.gemFiles = null;
-        this.cp = null;
 
         // Let RepositoryUpdater and friends know where they can root preindexing
         // This should be done in a cleaner way.

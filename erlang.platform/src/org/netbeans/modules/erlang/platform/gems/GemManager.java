@@ -60,12 +60,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.modules.erlang.platform.DebuggerPreferences;
 import org.netbeans.modules.erlang.platform.Util;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.platform.api.RubyPlatform;
 import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
-import org.netbeans.modules.gsf.Language;
-import org.netbeans.modules.gsf.LanguageRegistry;
-import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -99,8 +95,6 @@ public final class GemManager {
      */
     private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(-\\S+)?"); // NOI18N
     
-    private static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
-
     private static boolean SKIP_INDEX_LIBS = System.getProperty("erlang.index.nolibs") != null; // NOI18N
     /** @Caoyuan commented */
     //private static boolean SKIP_INDEX_GEMS = System.getProperty("erlang.index.nogems") != null; // NOI18N
@@ -1018,7 +1012,7 @@ public final class GemManager {
             // Install gems.
             if (!SKIP_INDEX_GEMS) {
                 initGemList();
-                if (PREINDEXING) {
+                if (RubyPlatformManager.PREINDEXING) {
                     String gemDir = getGemHome();
                     File specDir = new File(gemDir, "gems"); // NOI18N
 
@@ -1076,15 +1070,15 @@ public final class GemManager {
             gemVersions = Collections.unmodifiableMap(gemVersions);
             nonGemUrls = Collections.unmodifiableSet(nonGemUrls);
 
-            // Register boot roots. This is a bit of a hack.
-            // I need to find a better way to distinguish source directories
-            // from boot (library, gems, etc.) directories at the scanning and indexing end.
-            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(RubyInstallation.RUBY_MIME_TYPE);
-            ClassIndexManager mgr = ClassIndexManager.get(language);
-            List<URL> roots = new ArrayList<URL>(gemUrls.size() + nonGemUrls.size());
-            roots.addAll(gemUrls.values());
-            roots.addAll(nonGemUrls);
-            mgr.setBootRoots(roots);
+//            // Register boot roots. This is a bit of a hack.
+//            // I need to find a better way to distinguish source directories
+//            // from boot (library, gems, etc.) directories at the scanning and indexing end.
+//            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(RubyInstallation.RUBY_MIME_TYPE);
+//            ClassIndexManager mgr = ClassIndexManager.get(language);
+//            List<URL> roots = new ArrayList<URL>(gemUrls.size() + nonGemUrls.size());
+//            roots.addAll(gemUrls.values());
+//            roots.addAll(nonGemUrls);
+//            mgr.setBootRoots(roots);
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
@@ -1112,16 +1106,17 @@ public final class GemManager {
     }
 
     static boolean isValidGemHome(final File gemHomeF) {
-        Parameters.notNull("gemHomeF", gemHomeF);
-        boolean valid = gemHomeF.isDirectory();
-        for (int i = 0; valid && i < TOP_LEVEL_REPO_DIRS.length; i++) {
-            String dir = TOP_LEVEL_REPO_DIRS[i];
-            File dirF = new File(gemHomeF, dir);
-            LOGGER.finest("Checking: " + dirF);
-            valid &= dirF.isDirectory();
-            LOGGER.finest("valid: " + valid);
-        }
-        return valid;
+        return true;
+//        Parameters.notNull("gemHomeF", gemHomeF);
+//        boolean valid = gemHomeF.isDirectory();
+//        for (int i = 0; valid && i < TOP_LEVEL_REPO_DIRS.length; i++) {
+//            String dir = TOP_LEVEL_REPO_DIRS[i];
+//            File dirF = new File(gemHomeF, dir);
+//            LOGGER.finest("Checking: " + dirF);
+//            valid &= dirF.isDirectory();
+//            LOGGER.finest("valid: " + valid);
+//        }
+//        return valid;
     }
 
     public static void adjustEnvironment(final RubyPlatform platform, final Map<String, String> env) {

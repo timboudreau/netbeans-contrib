@@ -111,7 +111,7 @@ class ErlangLanguage extends DefaultLanguageConfig {
     override
     def getDeclarationFinder = new ErlangDeclarationFinder
 
-    /** @see org.netbeans.modules.erlang.platform.api.ErlangBootClassPathProvider */
+    /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
     override
     def getLibraryPathIds = Collections.singleton(BOOT_CP)
 

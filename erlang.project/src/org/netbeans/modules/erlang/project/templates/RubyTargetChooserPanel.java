@@ -22,23 +22,19 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.gsfpath.api.queries.SourceForBinaryQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.SpecificationVersion;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -101,6 +97,7 @@ public final class RubyTargetChooserPanel implements WizardDescriptor.Panel, Cha
             setErrorMessage(null);
             return false;
         }
+
         if (type == NewRubyFileWizardIterator.TYPE_PACKAGE) {
             if (!isValidPackageName(gui.getTargetName())) {
                 setErrorMessage("ERR_RubyTargetChooser_InvalidPackage");
@@ -128,50 +125,21 @@ public final class RubyTargetChooserPanel implements WizardDescriptor.Panel, Cha
         }
 
         // check if the file name can be created
-        FileObject template = Templates.getTemplate(wizard);
+        FileObject template = Templates.getTemplate( wizard );
 
-        boolean returnValue = true;
-        FileObject rootFolder = gui.getRootFolder();
-        SpecificationVersion specVersion = null;
-        if (type != NewRubyFileWizardIterator.TYPE_PACKAGE) {
-            SourceForBinaryQuery.Result res;
-            try {
-                res = SourceForBinaryQuery.findSourceRoots(rootFolder.getURL());
-                for (FileObject fo : res.getRoots()) {
-                    specVersion = new SpecificationVersion(fo.getPath());
-                }
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        String errorMessage = canUseFileName(rootFolder, gui.getPackageFileName(), gui.getTargetName(), template.getExt());
-        if (gui != null) {
-            setLocalizedErrorMessage(errorMessage);
-        }
-        if (errorMessage != null) {
-            returnValue = false;
-        }
-
-        if (type != NewRubyFileWizardIterator.TYPE_PACKAGE && returnValue && gui.getPackageName().length() == 0 && specVersion != null && JDK_14.compareTo(specVersion) <= 0) {
-            if (isValidPackageRequired) {
-                setErrorMessage("ERR_RubyTargetChooser_CantUseDefaultPackage");
-                return false;
-            }
-            //Only warning, display it only if everything else is OK.
-            setErrorMessage("ERR_RubyTargetChooser_DefaultPackage");
-        }
-        String templateSrcLev = (String) template.getAttribute("javac.source"); // NOI18N
-        //Only warning, display it only if everything else id OK.
-        if (specVersion != null && templateSrcLev != null && specVersion.compareTo(new SpecificationVersion(templateSrcLev)) < 0) {
-            setErrorMessage("ERR_RubyTargetChooser_WrongPlatform"); // NOI18N
-        }
+        boolean returnValue=true;
+//        String errorMessage = canUseFileName (gui.getTargetFolder(), gui.getTargetName(), template.getExt ());
+//        if (gui != null && errorMessage != null) {
+//            setLocalizedErrorMessage (errorMessage);
+//        }
+//        if (errorMessage!=null) {
+//            returnValue = false;
+//        }
 
         // this enables to display error messages from the bottom panel
-        // Nevertheless, the previous error messages have bigger priorities 
-        if (returnValue && bottomPanel != null) {
-            if (!bottomPanel.isValid()) {
-                return false;
-            }
+        // Nevertheless, the previous error messages have bigger priorities
+        if (returnValue && bottomPanel != null && !bottomPanel.isValid()) {
+            return false;
         }
 
         return returnValue;
@@ -343,42 +311,45 @@ public final class RubyTargetChooserPanel implements WizardDescriptor.Panel, Cha
      * @param extension extension of created file
      * @return localized error message or null if all right
      */
-    final public static String canUseFileName(FileObject targetFolder, String folderName, String newObjectName, String extension) {
+    public static String canUseFileName(String folderName, String newObjectName, String extension) {
         String newObjectNameToDisplay = newObjectName;
         if (newObjectName != null) {
-            newObjectName = newObjectName.replace('.', '/'); // NOI18N
+            newObjectName = newObjectName.replace ('.', '/'); // NOI18N
         }
-        if (extension != null && extension.length() > 0) {
-            StringBuffer sb = new StringBuffer();
-            sb.append(newObjectName);
-            sb.append('.'); // NOI18N
-            sb.append(extension);
-            newObjectName = sb.toString();
-        }
-
-        if (extension != null && extension.length() > 0) {
-            StringBuffer sb = new StringBuffer();
-            sb.append(newObjectNameToDisplay);
-            sb.append('.'); // NOI18N
-            sb.append(extension);
-            newObjectNameToDisplay = sb.toString();
+        if (extension != null && extension.length () > 0) {
+            StringBuffer sb = new StringBuffer ();
+            sb.append (newObjectName);
+            sb.append ('.'); // NOI18N
+            sb.append (extension);
+            newObjectName = sb.toString ();
         }
 
-        String relFileName = folderName + "/" + newObjectName; // NOI18N
+        if (extension != null && extension.length () > 0) {
+            StringBuffer sb = new StringBuffer ();
+            sb.append (newObjectNameToDisplay);
+            sb.append ('.'); // NOI18N
+            sb.append (extension);
+            newObjectNameToDisplay = sb.toString ();
+        }
 
         // test whether the selected folder on selected filesystem already exists
-        if (targetFolder == null) {
-            return NbBundle.getMessage(RubyTargetChooserPanel.class, "MSG_fs_or_folder_does_not_exist"); // NOI18N
+        if (folderName == null) {
+            return NbBundle.getMessage (RubyTargetChooserPanel.class, "MSG_fs_or_folder_does_not_exist"); // NOI18N
         }
 
         // target filesystem should be writable
+        FileObject targetFolder = FileUtil.toFileObject(new File(folderName));
+        if (targetFolder == null) {
+            return NbBundle.getMessage (RubyTargetChooserPanel.class, "MSG_fs_or_folder_does_not_exist"); // NOI18N
+        }
+
         if (!targetFolder.canWrite()) {
-            return NbBundle.getMessage(RubyTargetChooserPanel.class, "MSG_fs_is_readonly"); // NOI18N
+            return NbBundle.getMessage (RubyTargetChooserPanel.class, "MSG_fs_is_readonly"); // NOI18N
         }
 
 
-        if (existFileName(targetFolder, relFileName)) {
-            return NbBundle.getMessage(RubyTargetChooserPanel.class, "MSG_file_already_exist", newObjectNameToDisplay); // NOI18N
+        if (existFileName(targetFolder, "/" + newObjectName)) {
+            return NbBundle.getMessage (RubyTargetChooserPanel.class, "MSG_file_already_exist", newObjectNameToDisplay); // NOI18N
         }
 
         // all ok

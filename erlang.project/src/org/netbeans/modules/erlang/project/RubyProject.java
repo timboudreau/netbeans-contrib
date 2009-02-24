@@ -48,15 +48,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.erlang.makeproject.spi.support.FilterPropertyProvider;
 import org.netbeans.modules.erlang.makeproject.spi.support.GeneratedFilesHelper;
-import org.netbeans.modules.erlang.makeproject.spi.support.ProjectXmlSavedHook;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyProvider;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyUtils;
@@ -77,12 +75,11 @@ import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.netbeans.spi.project.ui.support.UILookupMergerSupport;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -100,9 +97,9 @@ public final class RubyProject implements Project, RakeProjectListener {
      * @see org.netbeans.api.project.Sources
      */
     public static final String SOURCES_TYPE_RUBY = "erlang"; // NOI18N
-    
-    private static final Icon Ruby_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/erlang/project/ui/resources/erlang.png")); // NOI18N
 
+    private static final Icon Ruby_PROJECT_ICON = ImageUtilities.loadImageIcon("org/netbeans/modules/erlang/project/ui/resources/erlang.png", false); // NOI18N
+    
     private final AuxiliaryConfiguration aux;
     private final RakeProjectHelper helper;
     private final PropertyEvaluator eval;
@@ -110,7 +107,6 @@ public final class RubyProject implements Project, RakeProjectListener {
     private final GeneratedFilesHelper genFilesHelper;
     private final Lookup lookup;
     private final UpdateHelper updateHelper;
-//    private MainClassUpdater mainClassUpdater;
     private SourceRoots sourceRoots;
     private SourceRoots includeRoots;
     private SourceRoots testRoots;
@@ -219,7 +215,6 @@ public final class RubyProject implements Project, RakeProjectListener {
             new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(), getIncludeRoots(), getTestSourceRoots()), //Does not use APH to get/put properties/cfgdata
             // new RubyCustomizerProvider(this, this.updateHelper, evaluator(), refHelper),
             new CustomizerProviderImpl(this, this.updateHelper, evaluator(), refHelper, this.genFilesHelper),        
-            new ProjectXmlSavedHookImpl(),
             new ProjectOpenedHookImpl(),
             new RubySources (this.helper, evaluator(), getSourceRoots(), getIncludeRoots() ,getTestSourceRoots()),
             new RubySharabilityQuery (this.helper, evaluator(), getSourceRoots(), getIncludeRoots(), getTestSourceRoots()), //Does not use APH to get/put properties/cfgdata
@@ -366,30 +361,6 @@ public final class RubyProject implements Project, RakeProjectListener {
         }
         
     }
-
-    private final class ProjectXmlSavedHookImpl extends ProjectXmlSavedHook {
-        
-        ProjectXmlSavedHookImpl() {}
-        
-        protected void projectXmlSaved() throws IOException {
-            //May be called by {@link AuxiliaryConfiguration#putConfigurationFragment}
-            //which didn't affect the j2seproject 
-/*
-            if (updateHelper.isCurrent()) {
-                //Refresh build-impl.xml only for j2seproject/2
-                genFilesHelper.refreshBuildScript(
-                    GeneratedFilesHelper.BUILD_IMPL_XML_PATH,
-                    RubyProject.class.getResource("resources/build-impl.xsl"),
-                    false);
-                genFilesHelper.refreshBuildScript(
-                    GeneratedFilesHelper.BUILD_XML_PATH,
-                    RubyProject.class.getResource("resources/build.xsl"),
-                    false);
-            }
-*/
-        }
-        
-    }
     
     static boolean bootRegistered = false;
     
@@ -398,81 +369,22 @@ public final class RubyProject implements Project, RakeProjectListener {
         ProjectOpenedHookImpl() {}
         
         protected void projectOpened() {
-            // Check up on build scripts.
-/*
-            try {
-                if (updateHelper.isCurrent()) {
-                    //Refresh build-impl.xml only for j2seproject/2
-                    genFilesHelper.refreshBuildScript(
-                        GeneratedFilesHelper.BUILD_IMPL_XML_PATH,
-                        RubyProject.class.getResource("resources/build-impl.xsl"),
-                        true);
-                    genFilesHelper.refreshBuildScript(
-                        GeneratedFilesHelper.BUILD_XML_PATH,
-                        RubyProject.class.getResource("resources/build.xsl"),
-                        true);
-                }                
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-            }
-*/
             // register project's classpaths to GlobalPathRegistry
             ClassPathProviderImpl cpProvider = lookup.lookup(ClassPathProviderImpl.class);
-            if (!bootRegistered) {
-                GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
-                bootRegistered = true;
-            }
+//            if (!bootRegistered) {
+//                GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
+//                bootRegistered = true;
+//            }
             GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
             //GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
-
-            
-            //register updater of main.class
-            //the updater is active only on the opened projects
-
-/*
-            // Make it easier to run headless builds on the same machine at least.
-            ProjectManager.mutex().writeAccess(new Mutex.Action<Void>() {
-                public Void run() {
-                    EditableProperties ep = updateHelper.getProperties(RakeProjectHelper.PRIVATE_PROPERTIES_PATH);
-                    File buildProperties = new File(System.getProperty("netbeans.user"), "build.properties"); // NOI18N
-                    ep.setProperty("user.properties.file", buildProperties.getAbsolutePath()); //NOI18N                    
-                    updateHelper.putProperties(RakeProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
-                    try {
-                        ProjectManager.getDefault().saveProject(RubyProject.this);
-                    } catch (IOException e) {
-                        ErrorManager.getDefault().notify(e);
-                    }
-                    return null;
-                }
-            });
-            RubyLogicalViewProvider physicalViewProvider = (RubyLogicalViewProvider)
-                RubyProject.this.getLookup().lookup (RubyLogicalViewProvider.class);
-            if (physicalViewProvider != null &&  physicalViewProvider.hasBrokenLinks()) {   
-                BrokenReferencesSupport.showAlert();
-            }
-*/
         }
         
         protected void projectClosed() {
-            // Probably unnecessary, but just in case:
-            try {
-                ProjectManager.getDefault().saveProject(RubyProject.this);
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
-            }
-            
             // unregister project's classpaths to GlobalPathRegistry
             ClassPathProviderImpl cpProvider = lookup.lookup(ClassPathProviderImpl.class);
             //GlobalPathRegistry.getDefault().unregister(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
             GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
-            //GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
-
-//XXX: to compile workaround            
-//            if (mainClassUpdater != null) {
-//                mainClassUpdater.unregister ();
-//                mainClassUpdater = null;
-//            }
-            
+            //GlobalPathRegistry.getDefault().unregister(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));            
         }
         
     }

@@ -18,6 +18,8 @@
  */
 package org.netbeans.modules.erlang.platform;
 
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.modules.erlang.platform.node.ErlyBirdNode;
 
 
@@ -25,7 +27,6 @@ import org.netbeans.modules.erlang.platform.node.ErlyBirdNode;
  * Module install for Erlang projects.
  * Used to Erlang installation are set and launch back end erlang node.
  *
- * @author Tor Norbye
  * @author Caoyuan Deng
  */
 public class ModuleInstall extends org.openide.modules.ModuleInstall {
@@ -35,15 +36,20 @@ public class ModuleInstall extends org.openide.modules.ModuleInstall {
      * doesn't run this code.
      * See http://www.netbeans.org/issues/show_bug.cgi?id=95965
      */
+    @Override
     public void restored() {
+        GlobalPathRegistry.getDefault().register(ErlangPlatformClassPathProvider.BOOT_CP, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
         // On install, ensure that the Erlang installation are set
         //RubyInstallation.getInstance().ensureInstallation();
     }
     
+    @Override
     public void uninstalled() {
+        GlobalPathRegistry.getDefault().unregister(ErlangPlatformClassPathProvider.BOOT_CP, new ClassPath[] { ErlangPlatformClassPathProvider.getBootClassPath() });
         ErlyBirdNode.stopErlyBirdBackEndNode();
     }
     
+    @Override
     public boolean closing() {
         ErlyBirdNode.stopErlyBirdBackEndNode();
         return super.closing();

@@ -33,9 +33,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.netbeans.api.languages.ASTNode;
-import org.netbeans.api.languages.ParseException;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
@@ -184,8 +181,7 @@ public class ErlyBirdNode {
     private static OtpErlangAtom ok = new OtpErlangAtom("ok");
     private static OtpErlangAtom error = new OtpErlangAtom("error");
     /** @TODO handle include path */
-    public static ASTNode parse(CharSequence cs) throws ParseException {
-        ASTNode rootNode = null;
+    public static void parse(CharSequence cs)  {
         
         OtpErlangString otpStr = new OtpErlangString(cs.toString());
         OtpConnection connection = getConnection();
@@ -216,7 +212,6 @@ public class ErlyBirdNode {
             ex.printStackTrace();
         }
         
-        return rootNode;
     }
     
     /**

@@ -77,6 +77,8 @@ import org.openide.util.Utilities;
  * Represents one Ruby platform, i.e. installation of a Ruby interpreter.
  */
 public final class RubyPlatformManager {
+
+    public static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
     
     private static final String[] RUBY_EXECUTABLE_NAMES = { "erl" }; // NOI18N
     
@@ -402,9 +404,6 @@ public final class RubyPlatformManager {
         String idDot = id + '.';
         props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_KIND, info.getKind());
         props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_VERSION, info.getVersion());
-        if (info.getJVersion() != null) {
-            props.setProperty(PLATFORM_PREFIX + idDot + Info.JRUBY_VERSION, info.getJVersion());
-        }
         if (info.getPatchlevel() != null) {
             props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PATCHLEVEL, info.getPatchlevel());
         }
