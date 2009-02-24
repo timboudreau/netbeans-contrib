@@ -269,16 +269,16 @@ class ErlangParser extends Parser {
         }
     }
 
-    protected def createParser(context:Context) :ParserErlang = {
-        val in = new StringReader(context.source)
-        val fileName = context.fo match {
+    private def fileName(context:Context) :String = {
+        context.fo match {
             case None => "<current>"
             case Some(x) => x.getNameExt
         }
+    }
 
-        val parser = new ParserErlang(in, fileName)
-
-        parser
+    protected def createParser(context:Context) :ParserErlang = {
+        val in = new StringReader(context.source)
+        new ParserErlang(in, fileName(context))
     }
 
     private def createParseResult(context:Context) :ErlangParserResult = {

@@ -11,7 +11,9 @@ import org.netbeans.modules.erlang.editor.ast.{AstRef,AstSym}
 
 object ErlSymbols {
     case class ErlSymbol extends AstSym
-    
+
+    case class ErlTerm(name:String) extends ErlSymbol
+
     case class ErlFunction(var in:Option[String], var name:String, var arity:Int) extends ErlSymbol
     case class ErlModule(name:String) extends ErlSymbol
     case class ErlInclude(isLib:Boolean, path:String) extends ErlSymbol

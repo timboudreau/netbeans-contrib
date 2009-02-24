@@ -247,8 +247,8 @@ class ErlangIndex(querySupport:QuerySupport) {
         definesBuf.toList
     }
 
-    def getModuleCompletionItems(_fqnPrefix:String) :List[CompletionProposal] = {
-        completionItemsBuf.clear
+    def getModuleCompletionItems(_fqnPrefix:String) :List[ErlSymbol] = {
+        completionSymsBuf.clear
         val fqnPrefix =
         if (_fqnPrefix.endsWith("'")) {
             /** remove last "'" of no-complete quoted atom */
@@ -259,54 +259,54 @@ class ErlangIndex(querySupport:QuerySupport) {
             val fqns = map.getValues(ErlangIndexer.FIELD_FQN_NAME)
             if (fqns != null) {
                 for (fqn <- fqns) {
-                    //completionItemsBuf + (CompletionProposal.create(fqn, null, "Module", CompletionItem.Type.CLASS, 3));
+                    completionSymsBuf + ErlModule(fqn)
                 }
             }
         }
-        completionItemsBuf.toList
+        completionSymsBuf.toList
     }
 
-    def getFunctionCompletionItems(fqn:String) :List[CompletionProposal] = {
-        completionItemsBuf.clear
+    def getFunctionCompletionItems(fqn:String) :List[ErlSymbol] = {
+        completionSymsBuf.clear
         for (function <- getFunctions(fqn)) {
             //            val argumentsOpts = function.getArgumentsOpts();
             //            if (argumentsOpts.size() == 0) {
-            //                completionItemsBuf.add(CompletionProposal.create(function.getName() + "()", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
+            //                completionSymsBuf.add(CompletionProposal.create(function.getName() + "()", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
             //            } else {
             //                for (argumentsOpt <- argumentsOpts) {
-            //                    completionItemsBuf.add(CompletionProposal.create(function.getName() + "(" + argumentsOpt + ")", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
+            //                    completionSymsBuf.add(CompletionProposal.create(function.getName() + "(" + argumentsOpt + ")", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
             //                }
             //            }
         }
-        completionItemsBuf.toList
+        completionSymsBuf.toList
     }
 
-    def getRecordCompletionItems(fqn:String) :List[CompletionProposal] = {
-        completionItemsBuf.clear
+    def getRecordCompletionItems(fqn:String) :List[ErlSymbol] = {
+        completionSymsBuf.clear
         for (record <- getRecords(fqn)) {
-            //completionItemsBuf + (CompletionProposal.create(record.getName(), "record", "", CompletionProposal.Type.CONSTANT, 1));
+            completionSymsBuf + record
         }
-        completionItemsBuf.toList
+        completionSymsBuf.toList
     }
 
-    def getMacroCompletionItems(fqn:String) :List[CompletionProposal] = {
-        completionItemsBuf.clear
+    def getMacroCompletionItems(fqn:String) :List[ErlSymbol] = {
+        completionSymsBuf.clear
         for (macro <- getMacros(fqn)) {
-            //completionItemsBuf + (CompletionProposal.create(macro.getName(), macro.getBody(), "", CompletionProposal.Type.CONSTANT, 1));
+            completionSymsBuf + macro
         }
-        completionItemsBuf.toList
+        completionSymsBuf.toList
     }
 
-    def getRecordFieldsCompletionItems(fqn:String, recordName:String) :List[CompletionProposal] = {
-        completionItemsBuf.clear
+    def getRecordFieldsCompletionItems(fqn:String, recordName:String) :List[ErlSymbol] = {
+        completionSymsBuf.clear
         getRecords(fqn).find(_.name.equals(recordName)) match {
             case None => null
             case Some(x) =>
                 for (fieldName <- x.fields) {
-                    //completionItemsBuf + (CompletionProposal.create(fieldName, "", x.getName(), CompletionProposal.Type.CONSTANT, 1));
+                    completionSymsBuf + ErlTerm(fieldName)
                 }
         }
-        completionItemsBuf.toList
+        completionSymsBuf.toList
     }
 
     private def createFuntion(url:URL, signature:String) :ErlFunction = {
@@ -361,7 +361,7 @@ class ErlangIndex(querySupport:QuerySupport) {
 
 object ErlangIndex {
     val moduleToUrlBuf = new HashMap[String, URL]
-    val completionItemsBuf = new ArrayBuffer[CompletionProposal]
+    val completionSymsBuf = new ArrayBuffer[ErlSymbol]
     val definesBuf   = new ArrayBuffer[ErlMacro]
     val functionsBuf = new ArrayBuffer[ErlFunction]
     val includesBuf  = new ArrayBuffer[ErlInclude]
