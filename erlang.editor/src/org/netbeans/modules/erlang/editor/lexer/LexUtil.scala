@@ -60,6 +60,8 @@ trait LanguageLexUtil {
     protected val LPAREN = ErlangTokenId.LParen
     protected val RPAREN = ErlangTokenId.RParen
 
+    protected val Ws = ErlangTokenId.Ws
+
     protected val WS = Set(ErlangTokenId.Ws,
                            ErlangTokenId.Nl
     )
@@ -77,6 +79,11 @@ trait LanguageLexUtil {
     )
 
     protected val END_PAIRS = Set(ErlangTokenId.Try)
+
+    val CALL_IDs = Set(ErlangTokenId.Atom,
+                       ErlangTokenId.Var,
+                       ErlangTokenId.Macro
+    ).asInstanceOf[Set[TokenId]]
 
     def isWs(id:TokenId) = {id == ErlangTokenId.Ws}
     def isNl(id:TokenId) = {id == ErlangTokenId.Nl}
@@ -119,6 +126,14 @@ trait LanguageLexUtil {
 }
 
 object LexUtil extends LanguageLexUtil {
+
+    def fileObject(pResult:ParserResult) :Option[FileObject] = pResult match {
+        case null => None
+        case _ => pResult.getSnapshot.getSource.getFileObject match {
+                case null => None
+                case fo => Some(fo)
+            }
+    }
 
     def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
         case null => None
@@ -342,6 +357,66 @@ object LexUtil extends LanguageLexUtil {
         }
         ts.token
     }
+
+    /**
+     * Back up to the first space character prior to the given offset - as long as
+     * it's on the same line!  If there's only leading whitespace on the line up
+     * to the lex offset, return the offset itself
+     * @todo Rewrite this now that I have a separate newline token, EOL, that I can
+     *   break on - no need to call Utilities.getRowStart.
+     */
+    def findSpaceBegin(doc:BaseDocument, lexOffset:Int) :Int = {
+        val ts = tokenSequence(doc, lexOffset) match {
+            case None => return lexOffset
+            case Some(x) => x
+        }
+        var allowPrevLine = false;
+        var lineStart = 0
+        try {
+            lineStart = Utilities.getRowStart(doc, Math.min(lexOffset, doc.getLength))
+            var prevLast = lineStart - 1;
+            if (lineStart > 0) {
+                prevLast = Utilities.getRowLastNonWhite(doc, lineStart - 1)
+                if (prevLast != -1) {
+                    val c = doc.getText(prevLast, 1).charAt(0)
+                    if (c == ',') {
+                        // Arglist continuation? // TODO : check lexing
+                        allowPrevLine = true
+                    }
+                }
+            }
+            if (!allowPrevLine) {
+                val firstNonWhite = Utilities.getRowFirstNonWhite(doc, lineStart)
+                if (lexOffset <= firstNonWhite || firstNonWhite == -1) {
+                    return lexOffset
+                }
+            } else {
+                // Make lineStart so small that Math.max won't cause any problems
+                val firstNonWhite = Utilities.getRowFirstNonWhite(doc, lineStart)
+                if (prevLast >= 0 && (lexOffset <= firstNonWhite || firstNonWhite == -1)) {
+                    return prevLast + 1
+                }
+                lineStart = 0
+            }
+        } catch {case ble:BadLocationException => Exceptions.printStackTrace(ble); return lexOffset}
+
+        ts.move(lexOffset)
+        if (ts.moveNext) {
+            if (lexOffset > ts.offset) {
+                // We're in the middle of a token
+                return Math.max(if (ts.token.id == Ws) ts.offset else lexOffset, lineStart)
+            }
+            while (ts.movePrevious) {
+                val token = ts.token
+                if (token.id != Ws) {
+                    return Math.max(ts.offset + token.length, lineStart)
+                }
+            }
+        }
+
+        return lexOffset
+    }
+
 
     def skipParenthesis(ts:TokenSequence[TokenId]) :Boolean = {
         skipParenthesis(ts, false)

@@ -120,6 +120,9 @@ class ErlangLanguage extends DefaultLanguageConfig {
 
     override
     def getIndexerFactory = new ErlangIndexer.Factory
+
+    override
+    def getCompletionHandler = new ErlangCodeCompletion
 }
 
 object ErlangLanguage {
