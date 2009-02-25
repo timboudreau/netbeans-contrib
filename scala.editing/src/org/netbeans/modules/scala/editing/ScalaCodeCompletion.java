@@ -407,8 +407,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
 
                     if (call.base.getSymbol() != null) {
-                        completeSymbolMembers(call.base, proposals, request);
-                        return completionResult;
+                        if (completeSymbolMembers(call.base, proposals, request)) {
+                            return completionResult;
+                        }
                     }
                 }
             }

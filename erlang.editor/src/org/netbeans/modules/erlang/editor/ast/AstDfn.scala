@@ -95,7 +95,7 @@ class AstDfn(_idToken:Option[Token[TokenId]],
     }
 
     def tpe :String = {
-        null
+        "NoType"
     }
 
     def enclosedElements :ArrayBuffer[AstDfn] = {
