@@ -4,7 +4,7 @@
     <folder name="Projects">
         <folder name="Actions">
             <file name="org-netbeans-modules-selenium-php-RunSeleniumTestsAction.instance">
-                <attr name="position" intvalue="301"/>
+                <attr name="position" intvalue="311"/>
             </file>
         </folder>
     </folder>
