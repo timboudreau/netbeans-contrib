@@ -113,8 +113,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         </folder>
     </folder>
     <folder name="Templates">
-        <folder name="TestingTools">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
+        <folder name="JUnit">
             <file name="JellyTestCaseTest.java" url="JellyTestCase.java.template">
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
@@ -122,6 +121,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/JUnitLogo.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/JellyTestCase.html" />
                 <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.jemmysupport.JellyTestCaseWizardIterator.singleton"/>
+                <attr name="position" intvalue="2000"/>
             </file>
         </folder>
     </folder>
