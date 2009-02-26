@@ -159,7 +159,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             request.result = pResult
             request.lexOffset = lexOffset
             request.astOffset = astOffset
-            //request.index = ScalaIndex.get(info)
+            request.index = ErlangIndex.get(pResult)
             request.doc = doc
             request.info = pResult
             request.prefix = prefix
@@ -174,7 +174,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 case Some(x) => x
             }
 
-            val id = token.id() match {
+            val id = token.id match {
                 case ErlangTokenId.LineComment =>
                     // TODO - Complete symbols in comments?
                     return completionResult
@@ -207,21 +207,25 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 request.root = root
                 request.node = closest.get
 
-                val call = Call(null, null)
+                val call = Call(null, null, false)
                 findCall(root, ts, th, call, 0)
+                val prefixBak = request.prefix
                 call match {
-                    case Call(null, _) =>
-                    case Call(base, select) =>
+                    case Call(null, _, _) =>
+                    case Call(base, _, false) =>
+                        // it's not a call, but may be candicate for module name, try to get modules and go-on
+                        completeModules(base, proposals, request)
+                    case Call(base, select, true) =>
                         if (select != null) {
-                            request.prefix = call.select.getName
+                            request.prefix = call.select.text.toString
+                        } else {
+                            request.prefix = ""
                         }
-                        if (base.symbol != null) {
-                            if (completeSymbolMembers(call.base, proposals, request)) {
-                                return completionResult
-                            }
-                        }
+                        completeModuleFunctions(call.base, proposals, request)
+                        // Since is after a ":", we won't added other proposals, just return now whatever
+                        return completionResult
                 }
-                
+                request.prefix = prefixBak
                 addLocals(proposals, request)
             }
 
@@ -245,22 +249,14 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         }
         val localVars = closestScope.visibleDfns(ElementKind.VARIABLE)
         localVars ++= closestScope.visibleDfns(ElementKind.PARAMETER)
-        localVars ++= closestScope.visibleDfns(ElementKind.VARIABLE)
-        for (v <- localVars) {
-            if (kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName) ||
-                kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix)) {
-                proposals.add(new PlainProposal(v, request.anchor))
-            }
+        localVars.filter{v => filterKind(kind, prefix, v.name)}.foreach{v =>
+            proposals.add(new PlainProposal(v, request.anchor))
         }
 
         val localFuns = closestScope.visibleDfns(ElementKind.METHOD)
-        for (f <- localFuns) {
-            if (kind == QuerySupport.Kind.EXACT && prefix.equals(f.getName) ||
-                kind != QuerySupport.Kind.EXACT && startsWith(f.getName, prefix)) {
-                proposals.add(new FunctionProposal(f, request.anchor))
-            }
+        localFuns.filter{f => filterKind(kind, prefix, f.name)}.foreach{f =>
+            proposals.add(new FunctionProposal(f, request.anchor))
         }
-
 
         // Add in "arguments" local variable which is available to all functions
         //        String ARGUMENTS = "arguments"; // NOI18N
@@ -299,6 +295,11 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             if (caseSensitive) theString.startsWith(prefix)
             else theString.toLowerCase.startsWith(prefix.toLowerCase)
         }
+    }
+
+    private def filterKind(kind:QuerySupport.Kind, prefix:String, name:String) :Boolean = {
+        kind == QuerySupport.Kind.EXACT && prefix.equals(name) ||
+        kind != QuerySupport.Kind.EXACT && startsWith(name, prefix)
     }
 
     @throws(classOf[BadLocationException])
@@ -1363,7 +1364,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         Collections.emptySet[String]
     }
 
-    def  parameters(info:ParserResult, lexOffset:Int, proposal:CompletionProposal) :ParameterInfo = {
+    def parameters(info:ParserResult, lexOffset:Int, proposal:CompletionProposal) :ParameterInfo = {
         val methodHolder = Array[ErlFunction](null)
         val paramIndexHolder = Array(0)
         val anchorOffsetHolder = Array(0)
@@ -1576,22 +1577,39 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         } else null
     }
 
-    private def completeSymbolMembers(item:AstItem, proposals:List[CompletionProposal], request:CompletionRequest) :Boolean = {
-        val symbol = item.symbol
-        val prefix = request.prefix
-        // todo
+    private def completeModuleFunctions(baseToken:Token[TokenId], proposals:List[CompletionProposal], request:CompletionRequest) :Boolean = {
+        val kind = request.kind
+        (baseToken.text.toString, baseToken.id, request.prefix) match {
+            case (baseName, ErlangTokenId.Atom, prefix) =>
+                val functions = request.index.queryFunctions(baseName)
+                functions.filter{f => filterKind(kind, prefix, f.name)}.foreach{f =>
+                    proposals.add(new PlainProposal(PseudoElement(f.name, ElementKind.METHOD), request.anchor))
+                }
+                !functions.isEmpty
+            case _ => false
+        }
         false
     }
 
-
+    private def completeModules(baseToken:Token[TokenId], proposals:List[CompletionProposal], request:CompletionRequest) :Boolean = {
+        (baseToken.text.toString, baseToken.id) match {
+            case (baseName, ErlangTokenId.Atom) =>
+                val modules = request.index.queryModules(baseName)
+                modules.foreach{module =>
+                    proposals.add(new PlainProposal(PseudoElement(module, ElementKind.MODULE), request.anchor))
+                }
+                !modules.isEmpty
+            case _ => false
+        }
+        false
+    }
 
     private def findCall(rootScope:AstRootScope, ts:TokenSequence[TokenId], th:TokenHierarchy[_], call:Call, times:Int) :Unit = {
         assert(rootScope != null)
 
-        var caretAfterColon = false
         val closest = LexUtil.findPreviousNonWsNonComment(ts)
         val idToken = if (closest.id == ErlangTokenId.Colon) {
-            caretAfterColon = true
+            call.caretAfterColon = true
             // skip RParen if it's the previous
             if (ts.movePrevious) {
                 val prev = LexUtil.findPreviousNonWs(ts)
@@ -1610,11 +1628,9 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         } else null
 
         if (idToken != null) {
-            // idToken may not be same instance now? if so, we can not rely on searching by idToken, instead, use offset
-            val item = rootScope.findItemAt(th, idToken.offset(th)).get
             if (times == 0) {
-                if (caretAfterColon) {
-                    call.base = item
+                if (call.caretAfterColon) {
+                    call.base = idToken
                     return
                 }
 
@@ -1623,14 +1639,15 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 } else null
 
                 if (prev != null && prev.id == ErlangTokenId.Colon) {
-                    call.select = item
+                    call.caretAfterColon = true
+                    call.select = idToken
                     findCall(rootScope, ts, th, call, times + 1)
                 } else {
-                    call.base = item
+                    call.base = idToken
                     return
                 }
             } else {
-                call.base = item
+                call.base = idToken
                 return
             }
         }
@@ -1638,7 +1655,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         return
     }
 
-    case class Call(var base:AstItem, var select:AstItem)
+    case class Call(var base:Token[TokenId], var select:Token[TokenId], var caretAfterColon:Boolean)
 }
 
 object ErlangCodeCompletion {
@@ -1719,32 +1736,31 @@ object ErlangCodeCompletion {
         "\\c", "\\c<i>X</i>: The control character ^<i>X</i>"
     )
 
-    private val DOC_WORDS = Array(
-        "@augments",
-          "@class",
-          "@config",
-          "@constructor",
-          "@deprecated",
-          "@description",
-          "@event",
-          "@example",
-          "@exception",
-          "@fileOverview",
-          "@function",
-          "@ignore",
-          "@inherits",
-          "@memberOf",
-          "@name",
-          "@namespace",
-          "@param",
-          "@param",
-          "@private",
-          "@property",
-          "@return",
-          "@scope",
-          "@scope",
-          "@static",
-          "@type"
+    private val DOC_WORDS = Array("@augments",
+                                  "@class",
+                                  "@config",
+                                  "@constructor",
+                                  "@deprecated",
+                                  "@description",
+                                  "@event",
+                                  "@example",
+                                  "@exception",
+                                  "@fileOverview",
+                                  "@function",
+                                  "@ignore",
+                                  "@inherits",
+                                  "@memberOf",
+                                  "@name",
+                                  "@namespace",
+                                  "@param",
+                                  "@param",
+                                  "@private",
+                                  "@property",
+                                  "@return",
+                                  "@scope",
+                                  "@scope",
+                                  "@static",
+                                  "@type"
     )
 
 

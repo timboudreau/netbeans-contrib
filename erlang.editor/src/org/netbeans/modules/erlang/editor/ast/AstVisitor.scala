@@ -207,11 +207,12 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
         }
 
         val token = idNode.getName match {
-            case "MacroId" => LexUtil.findNext(ts, ErlangTokenId.Macro)
-            case "RecId"   => LexUtil.findNext(ts, ErlangTokenId.Rec)
-            case "Atom"    => LexUtil.findNext(ts, ErlangTokenId.Atom)
-            case "Var"     => LexUtil.findNext(ts, ErlangTokenId.Var)
-            case "AtomId1" => LexUtil.findNext(ts, ErlangTokenId.Spec)
+            case "MacroId"  => LexUtil.findNext(ts, ErlangTokenId.Macro)
+            case "RecId"    => LexUtil.findNext(ts, ErlangTokenId.Rec)
+            case "Atom"     => LexUtil.findNext(ts, ErlangTokenId.Atom)
+            case "Var"      => LexUtil.findNext(ts, ErlangTokenId.Var)
+            case "AtomId1"  => LexUtil.findNext(ts, ErlangTokenId.Spec)
+            case "PredAttr" => LexUtil.findNext(ts, ErlangTokenId.Atom)
         }
 
         token match {

@@ -20,11 +20,9 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.erlang.editing</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
+                    <code-name-base>org.netbeans.modules.erlang.editor</code-name-base>
                     <run-dependency>
-                        <specification-version>0.15.5</specification-version>
+                        <specification-version>0.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

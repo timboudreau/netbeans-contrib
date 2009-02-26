@@ -127,9 +127,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "export" =>
                 val functionNames = that.getGeneric(1)
                 if (functionNames != null) {
-                    visitFunctionNames(functionNames)
-                }
-                null
+                    val attrDfn = new AstDfn(idToken(idNode(that)), ElementKind.ATTRIBUTE, inScope, fo)
+                    val erlFunctions = visitFunctionNames(functionNames)
+                    val erlExport = ErlExport(erlFunctions.toList)
+                    attrDfn.symbol = erlExport
+                    attrDfn
+                } else null
             case _ =>
                 null
                 //new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, inScope, fo)
@@ -137,13 +140,19 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         if (attr != null) rootScope.addDfn(attr)
     }
 
-    def visitFunctionNames(that:GNode) = {
+    def visitFunctionNames(that:GNode) :ArrayBuffer[ErlFunction] = {
         val functionName = that.getGeneric(0)
-        visitFunctionName(functionName)
+
+        val erlFunctions = new ArrayBuffer[ErlFunction]
+
+        val erlFunction = visitFunctionName(functionName)
+        erlFunctions + erlFunction
+
         val ns :Pair[GNode] = that.getList(1)
-        eachPair(ns){n =>
+        erlFunctions ++= foldPair(ns){n =>
             visitFunctionName(n)
         }
+        erlFunctions
     }
 
     def visitFunctionName(that:GNode) :ErlFunction = {
@@ -159,6 +168,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "MacroId" =>
         }
         erlFunctions.pop
+        erlFunction
     }
 
     def visitFunction(that:GNode) = {
