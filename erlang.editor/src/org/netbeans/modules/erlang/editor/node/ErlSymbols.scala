@@ -7,10 +7,10 @@
 
 package org.netbeans.modules.erlang.editor.node
 
-import org.netbeans.modules.erlang.editor.ast.{AstRef,AstSym}
+import org.netbeans.modules.erlang.editor.ast.{AstSym}
 
 object ErlSymbols {
-    case class ErlSymbol extends AstSym
+    case class ErlSymbol() extends AstSym
 
     case class ErlTerm(name:String) extends ErlSymbol
 
@@ -20,5 +20,4 @@ object ErlSymbols {
     case class ErlExport(functions:List[ErlFunction]) extends ErlSymbol
     case class ErlRecord(name:String, fields:List[String]) extends ErlSymbol
     case class ErlMacro(name:String, params:List[String], var body:String) extends ErlSymbol
-
 }

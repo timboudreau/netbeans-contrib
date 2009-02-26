@@ -79,11 +79,11 @@ trait LanguageAstRef {self:AstRef =>
     def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
         case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
                 case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
-                    if inX.equals(inY) && nameX.equals(nameY) && arityX == arityY => true
+                    if inX == inY && nameX == nameY && arityX == arityY => true
                 case _ => false
             }
         case _ =>
-            if (ref.name.equals(name)) {
+            if (ref.name == name) {
                 true
             } else false
     }

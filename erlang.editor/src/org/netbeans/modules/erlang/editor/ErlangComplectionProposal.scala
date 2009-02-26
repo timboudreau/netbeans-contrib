@@ -179,7 +179,6 @@ class FunctionProposal(element:AstDfn, anchor:Int) extends ErlangComplectionProp
                     formatter.appendText(", ") // NOI18N
                 }
             }
-
             formatter.appendHtml(")") // NOI18N
         }
 

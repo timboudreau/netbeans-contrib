@@ -178,11 +178,11 @@ trait LanguageAstDfn {self:AstDfn =>
     def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
         case (CALL, METHOD) => (ref.symbol, symbol) match {
                 case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
-                    if nameX.equals(nameY) && arityX == arityY => true
+                    if nameX == nameY && arityX == arityY => true
                 case _ => false
             }
         case _ =>
-            if (ref.getName.equals(getName)) {
+            if (ref.getName == getName) {
                 ref.symbol == self.asInstanceOf[AstItem].symbol
             } else false
     }

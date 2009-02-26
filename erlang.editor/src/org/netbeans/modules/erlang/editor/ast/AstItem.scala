@@ -66,7 +66,7 @@ trait AstItem extends ForElementHandle {
      *    pickToken's text as name, pickToken may be <null> and pickToken.text()
      *    will return null when an Identifier token modified, seems sync issue
      */
-    private var _symbol :AstSym = AstSym()
+    private var _symbol :AstSym = NoSymbol
     private var _idToken :Option[Token[TokenId]] = None
     private var _name :String = _
     private var _enclosingScope :Option[AstScope] = _

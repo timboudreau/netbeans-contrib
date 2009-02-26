@@ -781,6 +781,7 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                             //                            return inserted;
                             //
                             true
+                        case _ => false
                     }
                 }
             case _ =>
