@@ -78,26 +78,26 @@ public abstract class AstItem {
     }
 
     protected AstItem(Symbol symbol, Token idToken) {
-        System.out.println(symbol.fullNameString());
-        System.out.println("tpe: " + symbol.tpe().toString());
-        scala.List chain = symbol.rawowner().ownerChain();
-        System.out.println(chain);
-        scala.Iterator itr = chain.elements();
-        while (itr.hasNext()) {
-            Symbol sym = (Symbol) itr.next();
-            if (sym.isAnonymousFunction()) {
-                System.out.println(sym + " is anonfun");
-            }
-//            if (sym.isValue()) {
-//                System.out.println(sym + ":" + sym.rawowner().ownerChain());
+//        System.out.println(symbol.fullNameString());
+//        System.out.println("tpe: " + symbol.tpe().toString());
+//        scala.List chain = symbol.rawowner().ownerChain();
+//        System.out.println(chain);
+//        scala.Iterator itr = chain.elements();
+//        while (itr.hasNext()) {
+//            Symbol sym = (Symbol) itr.next();
+//            if (sym.isAnonymousFunction()) {
+//                System.out.println(sym + " is anonfun");
 //            }
-
-        }
-//        System.out.println("rowner" + symbol.rawowner().ownerChain());
-//        System.out.println("self: " + symbol.ownerChain());
-        System.out.println("encl: " + symbol.enclClass());
+////            if (sym.isValue()) {
+////                System.out.println(sym + ":" + sym.rawowner().ownerChain());
+////            }
+//
+//        }
+////        System.out.println("rowner" + symbol.rawowner().ownerChain());
+////        System.out.println("self: " + symbol.ownerChain());
+//        System.out.println("encl: " + symbol.enclClass());
+////        System.out.println("");
 //        System.out.println("");
-        System.out.println("");
 
         this.symbol = symbol;
         this.idToken = idToken;
