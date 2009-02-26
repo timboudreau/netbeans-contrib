@@ -378,11 +378,12 @@ object ErlangIndexer {
     /** Attributes: "m" -> module, "d" -> documented, "d(nnn)" documented with n characters */
     val FIELD_ATTRS    = "attrs" //NOI18N
     
+    val NAME = "erlang" // NOI18N
+    val VERSION = 9
+    
     class Factory extends EmbeddingIndexerFactory {
 
         val INDEXABLE_FOLDERS = Array("src", "include", "test")
-        val NAME = "erlang" // NOI18N
-        val VERSION = 9
 
         override
         def createIndexer(indexable:Indexable, snapshot:Snapshot) :EmbeddingIndexer = {

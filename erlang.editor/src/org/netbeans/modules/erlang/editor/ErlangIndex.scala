@@ -40,10 +40,12 @@ package org.netbeans.modules.erlang.editor
 
 import _root_.java.io.IOException;
 import _root_.java.net.{MalformedURLException,URL}
-import _root_.java.util.Collection
+import _root_.java.util.{Collection,Collections}
 import org.netbeans.modules.csl.api.CompletionProposal
-import org.netbeans.modules.parsing.spi.Parser
+import org.netbeans.modules.csl.spi.{GsfUtilities,ParserResult}
+import org.netbeans.modules.parsing.spi.{Parser}
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexResult,QuerySupport}
+import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions
@@ -366,4 +368,24 @@ object ErlangIndex {
     val functionsBuf = new ArrayBuffer[ErlFunction]
     val includesBuf  = new ArrayBuffer[ErlInclude]
     val recordsBuf   = new ArrayBuffer[ErlRecord]
+    private val EMPTY = new ErlangIndex(null)
+
+    def get(roots:Collection[FileObject]) :ErlangIndex = {
+        try {
+            new ErlangIndex(QuerySupport.forRoots(ErlangIndexer.NAME,
+                                                  ErlangIndexer.VERSION,
+                                                  roots.toArray(new Array[FileObject](roots.size)):_*))
+        } catch {case ioe:IOException => EMPTY}
+    }
+    
+    def get(result:ParserResult) :ErlangIndex = {
+        LexUtil.fileObject(result) match {
+            case None => null
+            case Some(fo) =>
+                get(GsfUtilities.getRoots(fo,
+                                          Collections.singleton(ErlangLanguage.SOURCE),
+                                          Collections.singleton(ErlangLanguage.BOOT),
+                                          Collections.emptySet[String]))
+        }
+    }
 }
