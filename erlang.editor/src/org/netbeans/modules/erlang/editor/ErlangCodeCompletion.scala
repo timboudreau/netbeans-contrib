@@ -423,12 +423,15 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         }
 
         val html = new StringBuilder
-        //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
+            element match {
+                case x:AstDfn => x.htmlFormat(sigFormatter)
+                case _ =>
+            }
             html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound")).append("</i>")
         } else {
             //val formatter = new ScalaCommentFormatter(comment);
-            val name = element.getName;
+            val name = element.getName
             if (name != null && name.length > 0) {
                 //formatter.setSeqName(name)
             }

@@ -108,8 +108,7 @@ class ErlangDeclarationFinder extends DeclarationFinder {
         ) yield rootScope.findDfnOf(closest) match {
             case Some(x) =>
                 // local
-                val offset = x.idOffset(th)
-                new DeclarationLocation(x.getFileObject, offset, x)
+                new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
             case None => closest.symbol match {
                     // search in remote modules
                     case ErlFunction(Some(module), name, arity) =>

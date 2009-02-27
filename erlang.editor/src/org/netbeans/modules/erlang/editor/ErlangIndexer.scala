@@ -96,10 +96,11 @@ class ErlangIndexer extends EmbeddingIndexer {
     protected def index(indexable:Indexable, parserResult:Result, context:Context) :Unit = {
 	val start = System.currentTimeMillis
         //if (file.isPlatform())
-        io.getOut().print("Indexing: " + parserResult.getSnapshot.getSource.getFileObject + " ")
+        
+        val fo = LexUtil.fileObject(parserResult).get
 
         val r = parserResult match {
-            case null => return
+            case null => io.getOut.print("Indexing: " + fo + " no parser result"); return
             case x:ErlangParserResult => x
         }
 
@@ -108,11 +109,11 @@ class ErlangIndexer extends EmbeddingIndexer {
             case Some(x) => x
         }
 
+        io.getOut().print("Indexing: " + fo + " ")
+
         val support = try {
             IndexingSupport.getInstance(context)
-        } catch {
-            case ioe:IOException => return
-        }
+        } catch {case ioe:IOException => return}
 
 
         // I used to suppress indexing files that have had automatic cleanup to
@@ -133,7 +134,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         }
 
 	//if (file.isPlatform())
-        io.getOut().println((System.currentTimeMillis() - start) + "ms");
+        io.getOut.println((System.currentTimeMillis - start) + "ms");
     }
 
     /** Travel through parsed result, and index meta-data */
@@ -144,7 +145,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         private var imports:String = _
         private val documents = new ArrayBuffer[IndexDocument]
 
-        private val fo :FileObject = pResult.getSnapshot.getSource.getFileObject
+        private val fo :FileObject = LexUtil.fileObject(pResult).get
         private val tpe = fo.getExt match {
             case "hrl" => HEADER
             case _ => MODULE
@@ -192,17 +193,6 @@ class ErlangIndexer extends EmbeddingIndexer {
             val exports  = rootScope.findAllDfnSyms(classOf[ErlExport])
             val records  = rootScope.findAllDfnSyms(classOf[ErlRecord])
             val macros   = rootScope.findAllDfnSyms(classOf[ErlMacro])
-
-            /** @ReferenceOnly used by sqlIndexEngine
-             * if (isSqlIndexAvaialble(index)) {
-             * long moduleId = sqlIndexEngine.storeModule(module.getName(), url);
-             * if (moduleId != -1) {
-             * for (ErlExport export : exports) {
-             * sqlIndexEngine.storeFunctions(export.getFunctions(), moduleId);
-             * }
-             * }
-             * }
-             */
              
             /** The following code is currently for updating the timestamp only */
             analyzeModule(fqn, includes, exports, records, macros)

@@ -43,6 +43,7 @@ import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy,TokenSequence}
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.parsing.spi.Parser.Result
 import org.netbeans.editor.{BaseDocument,Utilities}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.openide.filesystems.{FileUtil,FileObject}
@@ -134,6 +135,8 @@ object LexUtil extends LanguageLexUtil {
                 case fo => Some(fo)
             }
     }
+
+    def fileObject(pResult:Result) :Option[FileObject] = fileObject(pResult.asInstanceOf[ParserResult])
 
     def document(pResult:ParserResult, forceOpen:Boolean) :Option[BaseDocument] = pResult match {
         case null => None
