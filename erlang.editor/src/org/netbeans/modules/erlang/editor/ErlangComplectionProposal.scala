@@ -188,7 +188,7 @@ class FunctionProposal(element:AstDfn, anchor:Int) extends ErlangComplectionProp
     def getInsertParams :List[String] =  {
         val length = function.arity
         val params = new ArrayList[String](length)
-        for (i <- 0 until function.arity) {
+        for (i <- 1 to function.arity) {
             params.add("a" + i)
         }
         params
@@ -223,7 +223,7 @@ class FunctionProposal(element:AstDfn, anchor:Int) extends ErlangComplectionProp
             sb.append(id)
             sb.append(" default=\"") // NOI18N
 
-            paramDesc.indexOf(':') match {
+            paramDesc.indexOf("::") match {
                 case tpeIdx if tpeIdx != -1 => sb.append(paramDesc.toArray, 0, tpeIdx)
                 case _ => sb.append(paramDesc)
             }
@@ -239,14 +239,8 @@ class FunctionProposal(element:AstDfn, anchor:Int) extends ErlangComplectionProp
 
         sb.append("${cursor}") // NOI18N
 
-        // Facilitate method parameter completion on this item
-        //        try {
-        //            ScalaCodeCompletion.callLineStart = Utilities.getRowStart(request.doc, request.anchor);
-        //            ScalaCodeCompletion.callMethod = function;
-        //        } catch (BadLocationException ble) {
-        //            Exceptions.printStackTrace(ble);
-        //        }
-
+        ErlangCodeCompletion.setCallConext(function) // Facilitate method parameter completion on this item
+        
         sb.toString
     }
 }

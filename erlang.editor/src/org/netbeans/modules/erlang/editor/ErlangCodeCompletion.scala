@@ -57,62 +57,11 @@ import org.openide.util.{Exceptions,NbBundle}
 
 
 /**
- * Code completion handler for JavaScript
  *
- * @todo Do completion on node id's inside $() calls (prototype.js) and $$() calls for CSS rules.
- *   See http://www.sitepoint.com/article/painless-javascript-prototype
- * @todo Track logical classes and inheritance ("extend")
- * @todo Track global variables (these are vars which aren't local). Somehow cooperate work between
- *    semantic highlighter and structure analyzer. I need to only store a single instance of each
- *    global var in the index. The variable visitor should probably be part of the structure analyzer,
- *    since global variables also need to be tracked there. Another possibility is having the
- *    parser track variables - but that's trickier. Perhaps a second pass over the parse tree
- *    (where I set parent pointers) is where I can do this? I can even change node types to be
- *    more obvious...
- * @todo I should NOT include in queries functions that are known to be methods if you're not doing
- *    "unnown type" completion!
- * @todo Today's feature work:
- *    - this.-completion should do something useful
- *    - I need to model prototype inheritance, and then use it in code completion queries
- *    - Skip no-doc'ed methods
- *    - Improve type analysis:
- *        - known types (node, document, ...)
- *        - variable-name guessing (el, doc, etc ...)
- *        - return value tracking
- *    - Improve indexing:
- *        - store @-private, etc.
- *        - more efficient browser-compat flags
- *    - Fix case-sensitivity on index queries such that open type and other forms of completion
- *      work better!
- *  @todo Distinguish properties and globals and functions? Perhaps with attributes in the flags!
- *  @todo Display more information in parameter tooltips, such as type hints (perhaps do smart
- *    filtering Java-style?), and explanations for each parameter
- *  @todo Need preindexing support for unit tests - and separate files
- *
- * @author Tor Norbye
  * @author Caoyuan Deng
  */
 class ErlangCodeCompletion extends CodeCompletionHandler {
     import ErlangCodeCompletion._
-    protected class CompletionRequest {
-        var completionResult:DefaultCompletionResult = _
-        var th:TokenHierarchy[_] = _
-        var info :ParserResult = _
-        var node :AstItem = _
-        var root :AstRootScope = _
-        var anchor :Int = _
-        var lexOffset :Int = _
-        var astOffset :Int = _
-        var doc :BaseDocument = _
-        var prefix :String = _
-        var index :ErlangIndex = _
-        var kind  :QuerySupport.Kind = _
-        var result :ErlangParserResult = _
-        var queryType :QueryType = _
-        var fileObject :FileObject = _
-        //protected MaybeCall call;
-        var fqn :String = _
-    }
 
     private var caseSensitive:Boolean = false
 
@@ -151,9 +100,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             val th = LexUtil.tokenHierarchy(pResult).get
             val fileObject = LexUtil.fileObject(pResult).get
 
-            // Carry completion context around since this logic is split across lots of methods
-            // and I don't want to pass dozens of parameters from method to method; just pass
-            // a request context with supporting info needed by the various completion helpers i
             val request = new CompletionRequest
             request.completionResult = completionResult
             request.result = pResult
@@ -168,27 +114,34 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             request.queryType = queryType
             request.fileObject = fileObject
             request.anchor = lexOffset - prefix.length
-
+            request.root = root
+            ErlangCodeCompletion.request = request
+            
             val token = LexUtil.token(doc, lexOffset - 1) match {
                 case None => return completionResult
                 case Some(x) => x
             }
 
-            val id = token.id match {
+            token.id match {
                 case ErlangTokenId.LineComment =>
                     // TODO - Complete symbols in comments?
                     return completionResult
                 case ErlangTokenId.StringLiteral =>
-                    //completeStrings(proposals, request);
+                    //completeStrings(proposals, request)
                     return completionResult
                 case _ =>
             }
-            val ts = LexUtil.tokenSequence(th, lexOffset - 1).get
-            ts.move(lexOffset - 1)
-            if (!ts.moveNext && !ts.movePrevious) {
-                return completionResult
+            
+            val ts = LexUtil.tokenSequence(th, lexOffset - 1) match {
+                case None => return completionResult
+                case Some(x) =>
+                    x.move(lexOffset - 1)
+                    if (!x.moveNext && !x.movePrevious) {
+                        return completionResult
+                    }
+                    x
             }
-
+ 
             val closetToken = LexUtil.findPreviousNonWsNonComment(ts)
 
             if (root != null) {
@@ -196,16 +149,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 val offset = if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(astOffset)) {
                     sanitizedRange.getStart
                 } else astOffset
-
-                var closest = root.findItemAt(th, offset - 1)
-                var closestOffset = offset - 1
-                while (closest == None && closestOffset > 0) {
-                    closest = root.findItemAt(th, closestOffset)
-                    closestOffset -= 1
-                }
-
-                request.root = root
-                request.node = closest.get
 
                 val call = Call(null, null, false)
                 findCall(root, ts, th, call, 0)
@@ -226,7 +169,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                         return completionResult
                 }
                 request.prefix = prefixBak
-                addLocals(proposals, request)
+                completeLocals(proposals, request)
             }
 
             completeKeywords(proposals, request)
@@ -237,7 +180,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         completionResult
     }
 
-    private def addLocals(proposals:List[CompletionProposal], request:CompletionRequest) :Unit = {
+    private def completeLocals(proposals:List[CompletionProposal], request:CompletionRequest) :Unit = {
         val prefix = request.prefix
         val kind = request.kind
         val pResult = request.result
@@ -257,27 +200,9 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         localFuns.filter{f => filterKind(kind, prefix, f.name)}.foreach{f =>
             proposals.add(new FunctionProposal(f, request.anchor))
         }
-
-        // Add in "arguments" local variable which is available to all functions
-        //        String ARGUMENTS = "arguments"; // NOI18N
-        //        if (startsWith(ARGUMENTS, prefix)) {
-        //            // Make sure we're in a function before adding the arguments property
-        //            for (Node n = node; n != null; n = n.getParentNode()) {
-        //                if (n.getType() == org.mozilla.javascript.Token.FUNCTION) {
-        //                    KeywordElement node = new KeywordElement(ARGUMENTS, ElementKind.VARIABLE);
-        //                    proposals.add(new PlainItem(node, request));
-        //                    break;
-        //                }
-        //            }
-        //        }
     }
 
     private def completeKeywords(proposals:List[CompletionProposal], request:CompletionRequest) :Unit = {
-        // No keywords possible in the RHS of a call (except for "this"?)
-        //        if (request.call.getLhs() != null) {
-        //            return;
-        //        }
-
         val prefix = request.prefix
         val itr = LexerErlang.ERLANG_KEYWORDS.iterator
         while (itr.hasNext) {
@@ -286,6 +211,16 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 proposals.add(new KeywordProposal(keyword, null, request.anchor))
             }
         }
+    }
+
+    private def findClosestItem(root:AstRootScope, th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
+        var closest = root.findItemAt(th, offset - 1)
+        var closestOffset = offset - 1
+        while (closest == None && closestOffset > 0) {
+            closest = root.findItemAt(th, closestOffset)
+            closestOffset -= 1
+        }
+        closest
     }
 
     private def startsWith(theString:String, prefix:String) :Boolean = {
@@ -302,281 +237,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         kind != QuerySupport.Kind.EXACT && startsWith(name, prefix)
     }
 
-    @throws(classOf[BadLocationException])
-    private def completeComments(proposals:List[CompletionProposal], request:CompletionRequest) :Boolean = {
-        var prefix = request.prefix
-
-        val doc = request.doc
-        val rowStart = Utilities.getRowFirstNonWhite(doc, request.lexOffset)
-        if (rowStart == -1) {
-            return false
-        }
-        val line = doc.getText(rowStart, Utilities.getRowEnd(doc, request.lexOffset) - rowStart)
-        val delta = request.lexOffset - rowStart;
-
-        var i = delta - 1
-        var continue = true
-        while (i >= 0 && continue) {
-            val c = line.charAt(i)
-            if (Character.isWhitespace(c) || (!Character.isLetterOrDigit(c) && c != '@' && c != '.' && c != '_')) {
-                continue = false
-            }
-            i -= 1
-        }
-        i += 1
-        prefix = line.substring(i, delta)
-        request.anchor = rowStart + i
-
-        // Regular expression matching.  {
-        for (j <- 0 until DOC_WORDS.length) {
-            val word = DOC_WORDS(j)
-            if (startsWith(word, prefix)) {
-                proposals.add(new KeywordProposal(word, null, request.anchor))
-            }
-        }
-
-        true
-    }
-
-    //    private boolean completeStrings(List<CompletionProposal> proposals, CompletionRequest request) {
-    //        String prefix = request.prefix;
-    //
-    //        // See if we're in prototype js functions, $() and $F(), and if so,
-    //        // offer to complete the function ids
-    //        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(request.doc, request.lexOffset);
-    //        assert ts != null; // or we wouldn't have been called in the first place
-    //        //Token<? extends ScalaTokenId> stringToken = ts.token();
-    //        int stringOffset = ts.offset();
-    //
-    //    tokenLoop:
-    //        while (ts.movePrevious()) {
-    //            Token<? extends ScalaTokenId> token = ts.token();
-    //            TokenId id = token.id();
-    //            if (id == ScalaTokenId.Identifier) {
-    //                String text = token.text().toString();
-    //
-    //                if (text.startsWith("$") || text.equals("getElementById") ||  // NOI18N
-    //                        text.startsWith("getElementsByTagName") || text.equals("getElementsByName") || // NOI18N
-    //                        "addClass".equals(text) || "toggleClass".equals(text)) { // NOI18N
-    //
-    //                    // Compute a custom prefix
-    //                    int lexOffset = request.lexOffset;
-    //                    if (lexOffset > stringOffset) {
-    //                        try {
-    //                            prefix = request.doc.getText(stringOffset, lexOffset - stringOffset);
-    //                        } catch (BadLocationException ex) {
-    //                            Exceptions.printStackTrace(ex);
-    //                        }
-    //                    } else {
-    //                        prefix = "";
-    //                    }
-    //                    // Update anchor
-    //                    request.anchor = stringOffset;
-    //
-    //                    boolean jQuery = false;
-    //                    if (text.equals("$")) {
-    //                        for (String imp : request.result.getStructure().getImports()) {
-    //                            if (imp.indexOf("jquery") != -1) { // NOI18N
-    //                                jQuery = true;
-    //                            }
-    //                        }
-    //                        if (!jQuery) {
-    //                            jQuery = request.index.getType("jQuery") != null;
-    //                        }
-    //                    }
-    //
-    //                    if ("getElementById".equals(text) || (!jQuery && ("$".equals(text) || "$F".equals(text)))) { // NOI18N
-    //                        addElementIds(proposals, request, prefix);
-    //
-    //                    } else if ("getElementsByName".equals(text)) { // NOI18N
-    //                        addElementClasses(proposals, request, prefix);
-    //                    } else if ("addClass".equals(text) || "toggleClass".equals(text)) { // NOI18N
-    //                        // From jQuery
-    //                        addElementClasses(proposals, request, prefix);
-    //                    } else if (text.startsWith("getElementsByTagName")) { // NOI18N
-    //                        addTagNames(proposals, request, prefix);
-    //                    } else if ("$$".equals(text) || (jQuery && "$".equals(text) && jQuery)) { // NOI18N
-    //                        // Selectors
-    //                        // Determine whether we want to include elements or classes
-    //                        // Classes after [ and .
-    //
-    //                        int showClasses = 1;
-    //                        int showElements = 2;
-    //                        int showIds = 3;
-    //                        int showSpecial = 4;
-    //                        int expect = showElements;
-    //                        int i = prefix.length()-1;
-    //                     findEnd:
-    //                        for (; i >= 0; i--) {
-    //                            char c = prefix.charAt(i);
-    //                            switch (c) {
-    //                            case '.':
-    //                            case '[':
-    //                                expect = showClasses;
-    //                                break findEnd;
-    //                            case '#':
-    //                                expect = showIds;
-    //                                break findEnd;
-    //                            case ':':
-    //                                expect = showSpecial;
-    //                                if (i > 0 && prefix.charAt(i-1) == ':') {
-    //                                    // Handle ::'s
-    //                                    i--;
-    //                                }
-    //                                break findEnd;
-    //                            case ' ':
-    //                            case '/':
-    //                            case '>':
-    //                            case '+':
-    //                            case '~':
-    //                            case ',':
-    //                                expect = showElements;
-    //                                break findEnd;
-    //                            default:
-    //                                if (!Character.isLetter(c)) {
-    //                                    expect = showElements;
-    //                                    break findEnd;
-    //                                }
-    //                            }
-    //                        }
-    //                        if (i >= 0) {
-    //                            prefix = prefix.substring(i+1);
-    //                        }
-    //                        // Update anchor
-    //                        request.anchor = stringOffset+i+1;
-    //
-    //                        if (expect == showElements) {
-    //                            addTagNames(proposals, request, prefix);
-    //                        } else if (expect == showIds) {
-    //                            addElementIds(proposals, request, prefix);
-    //                        } else if (expect == showSpecial) {
-    //                            // Regular expression matching.  {
-    //                            for (int j = 0, n = CSS_WORDS.length; j < n; j += 2) {
-    //                                String word = CSS_WORDS[j];
-    //                                String desc = CSS_WORDS[j + 1];
-    //                                if (word.startsWith(":") && prefix.length() == 0) {
-    //                                    // Filter out the double words
-    //                                    continue;
-    //                                }
-    //                                if (startsWith(word, prefix)) {
-    //                                    if (word.startsWith(":")) { // NOI18N
-    //                                        word = word.substring(1);
-    //                                    }
-    //                                    //KeywordItem item = new KeywordItem(word, desc, request);
-    //                                    TagItem item = new TagItem(word, desc, request, ElementKind.RULE);
-    //                                    proposals.add(item);
-    //                                }
-    //                            }
-    //                        } else {
-    //                            assert expect == showClasses;
-    //                            addElementClasses(proposals, request, prefix);
-    //                        }
-    //                    }
-    //                }
-    //
-    //                return true;
-    //            } else if (id == ScalaTokenId.STRING_BEGIN) {
-    //                stringOffset = ts.offset() + token.length();
-    //            } else if (!(id == ScalaTokenId.Ws ||
-    //                    id == ScalaTokenId.StringLiteral || id == ScalaTokenId.LParen)) {
-    //                break tokenLoop;
-    //            }
-    //        }
-    //
-    //        for (int i = 0, n = STRING_ESCAPES.length; i < n; i += 2) {
-    //            String word = STRING_ESCAPES[i];
-    //            String desc = STRING_ESCAPES[i + 1];
-    //
-    //            if (startsWith(word, prefix)) {
-    //                KeywordItem item = new KeywordItem(word, desc, request);
-    //                proposals.add(item);
-    //            }
-    //        }
-    //
-    //        return true;
-    //    }
-
-    //    private void addElementClasses(List<CompletionProposal> proposals, CompletionRequest request, String prefix) {
-    //        ParserResult result = request.info.getEmbeddedResult(JsUtils.HTML_MIME_TYPE, 0);
-    //        if (result != null) {
-    //            HtmlParserResult htmlResult = (HtmlParserResult)result;
-    //            List<SyntaxElement> elementsList = htmlResult.elementsList();
-    //            Set<String> classes = new HashSet<String>();
-    //            for (SyntaxElement s : elementsList) {
-    //                if (s.type() == SyntaxElement.TYPE_TAG) {
-    //                    String node = s.text();
-    //                    int classIdx = node.indexOf("class=\""); // NOI18N
-    //                    if (classIdx != -1) {
-    //                        int classIdxEnd = node.indexOf('"', classIdx+7);
-    //                        if (classIdxEnd != -1 && classIdxEnd > classIdx+1) {
-    //                            String clz = node.substring(classIdx+7, classIdxEnd);
-    //                            classes.add(clz);
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //
-    //            String filename = request.fileObject.getNameExt();
-    //            for (String tag : classes) {
-    //                if (startsWith(tag, prefix)) {
-    //                    TagItem item = new TagItem(tag, filename, request, ElementKind.TAG);
-    //                    proposals.add(item);
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    private void addTagNames(List<CompletionProposal> proposals, CompletionRequest request, String prefix) {
-    //        ParserResult result = request.info.getEmbeddedResult(JsUtils.HTML_MIME_TYPE, 0);
-    //        if (result != null) {
-    //            HtmlParserResult htmlResult = (HtmlParserResult)result;
-    //            List<SyntaxElement> elementsList = htmlResult.elementsList();
-    //            Set<String> tagNames = new HashSet<String>();
-    //            for (SyntaxElement s : elementsList) {
-    //                if (s.type() == SyntaxElement.TYPE_TAG) {
-    //                    String node = s.text();
-    //                    int start = 1;
-    //                    int end = node.indexOf(' ');
-    //                    if (end == -1) {
-    //                        end = node.length()-1;
-    //                    }
-    //                    String tag = node.substring(start, end);
-    //                    tagNames.add(tag);
-    //                }
-    //            }
-    //
-    //            String filename = request.fileObject.getNameExt();
-    //
-    //            for (String tag : tagNames) {
-    //                if (startsWith(tag, prefix)) {
-    //                    TagItem item = new TagItem(tag, filename, request, ElementKind.TAG);
-    //                    proposals.add(item);
-    //                }
-    //            }
-    //        }
-    //    }
-    //    private void addElementIds(List<CompletionProposal> proposals, CompletionRequest request, String prefix) {
-    //        ParserResult result = request.info.getEmbeddedResult(JsUtils.HTML_MIME_TYPE, 0);
-    //        if (result != null) {
-    //            HtmlParserResult htmlResult = (HtmlParserResult)result;
-    //            Set<SyntaxElement.TagAttribute> elementIds = htmlResult.elementsIds();
-    //            String filename = request.fileObject.getNameExt();
-    //            for (SyntaxElement.TagAttribute tag : elementIds) {
-    //                String elementId = tag.getValue();
-    //                // Strip "'s surrounding value, if any
-    //                if (elementId.length() > 2 && elementId.startsWith("\"") && // NOI18N
-    //                        elementId.endsWith("\"")) { // NOI18N
-    //                    elementId = elementId.substring(1, elementId.length()-1);
-    //                }
-    //
-    //                if (startsWith(elementId, prefix)) {
-    //                    TagItem item = new TagItem(elementId, filename, request, ElementKind.TAG);
-    //                    proposals.add(item);
-    //                }
-    //            }
-    //        }
-    //    }
-    
     /**
      * Compute an appropriate prefix to use for code completion.
      * In Strings, we want to return the -whole- string if you're in a
@@ -585,7 +245,8 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
      * For non-string contexts, just return null to let the default identifier-computation
      * kick in.
      */
-    def  getPrefix(pResult:ParserResult, lexOffset:Int, upToOffset:Boolean) :String = {
+    override
+    def getPrefix(pResult:ParserResult, lexOffset:Int, upToOffset:Boolean) :String = {
         try {
             val doc = LexUtil.document(pResult, true) match {
                 case None => return null
@@ -602,13 +263,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
 
             doc.readLock // Read-lock due to token hierarchy use
             try {
-                //            int requireStart = ScalaLexUtilities.getRequireStringOffset(lexOffset, th);
-                //
-                //            if (requireStart != -1) {
-                //                // XXX todo - do upToOffset
-                //                return doc.getText(requireStart, lexOffset - requireStart);
-                //            }
-
                 ts.move(lexOffset)
                 if (!ts.moveNext && !ts.movePrevious) {
                     return null
@@ -633,134 +287,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                             } else return ""
                         case _ =>
                     }
-                    //
-                    //                // We're within a String that has embedded Js. Drop into the
-                    //                // embedded language and see if we're within a literal string there.
-                    //                if (id == ScalaTokenId.EMBEDDED_RUBY) {
-                    //                    ts = (TokenSequence)ts.embedded();
-                    //                    assert ts != null;
-                    //                    ts.move(lexOffset);
-                    //
-                    //                    if (!ts.moveNext() && !ts.movePrevious()) {
-                    //                        return null;
-                    //                    }
-                    //
-                    //                    token = ts.token();
-                    //                    id = token.id();
-                    //                }
-                    //
-                    //                String tokenText = token.text().toString();
-                    //
-                    //                if ((id == ScalaTokenId.STRING_BEGIN) || (id == ScalaTokenId.QUOTED_STRING_BEGIN) ||
-                    //                        ((id == ScalaTokenId.ERROR) && tokenText.equals("%"))) {
-                    //                    int currOffset = ts.offset();
-                    //
-                    //                    // Percent completion
-                    //                    if ((currOffset == (lexOffset - 1)) && (tokenText.length() > 0) &&
-                    //                            (tokenText.charAt(0) == '%')) {
-                    //                        return "%";
-                    //                    }
-                    //                }
-                    //            }
-                    //
-                    //            int doubleQuotedOffset = ScalaLexUtilities.getDoubleQuotedStringOffset(lexOffset, th);
-                    //
-                    //            if (doubleQuotedOffset != -1) {
-                    //                // Tokenize the string and offer the current token portion as the text
-                    //                if (doubleQuotedOffset == lexOffset) {
-                    //                    return "";
-                    //                } else if (doubleQuotedOffset < lexOffset) {
-                    //                    String text = doc.getText(doubleQuotedOffset, lexOffset - doubleQuotedOffset);
-                    //                    TokenHierarchy hi =
-                    //                        TokenHierarchy.create(text, JsStringTokenId.languageDouble());
-                    //
-                    //                    TokenSequence seq = hi.tokenSequence();
-                    //
-                    //                    seq.move(lexOffset - doubleQuotedOffset);
-                    //
-                    //                    if (!seq.moveNext() && !seq.movePrevious()) {
-                    //                        return "";
-                    //                    }
-                    //
-                    //                    TokenId id = seq.token().id();
-                    //                    String s = seq.token().text().toString();
-                    //
-                    //                    if ((id == JsStringTokenId.STRING_ESCAPE) ||
-                    //                            (id == JsStringTokenId.STRING_INVALID)) {
-                    //                        return s;
-                    //                    } else if (s.startsWith("\\")) {
-                    //                        return s;
-                    //                    } else {
-                    //                        return "";
-                    //                    }
-                    //                } else {
-                    //                    // The String offset is greater than the caret position.
-                    //                    // This means that we're inside the string-begin section,
-                    //                    // for example here: %q|(
-                    //                    // In this case, report no prefix
-                    //                    return "";
-                    //                }
-                    //            }
-                    //
-                    //            int singleQuotedOffset = ScalaLexUtilities.getSingleQuotedStringOffset(lexOffset, th);
-                    //
-                    //            if (singleQuotedOffset != -1) {
-                    //                if (singleQuotedOffset == lexOffset) {
-                    //                    return "";
-                    //                } else if (singleQuotedOffset < lexOffset) {
-                    //                    String text = doc.getText(singleQuotedOffset, lexOffset - singleQuotedOffset);
-                    //                    TokenHierarchy hi =
-                    //                        TokenHierarchy.create(text, JsStringTokenId.languageSingle());
-                    //
-                    //                    TokenSequence seq = hi.tokenSequence();
-                    //
-                    //                    seq.move(lexOffset - singleQuotedOffset);
-                    //
-                    //                    if (!seq.moveNext() && !seq.movePrevious()) {
-                    //                        return "";
-                    //                    }
-                    //
-                    //                    TokenId id = seq.token().id();
-                    //                    String s = seq.token().text().toString();
-                    //
-                    //                    if ((id == JsStringTokenId.STRING_ESCAPE) ||
-                    //                            (id == JsStringTokenId.STRING_INVALID)) {
-                    //                        return s;
-                    //                    } else if (s.startsWith("\\")) {
-                    //                        return s;
-                    //                    } else {
-                    //                        return "";
-                    //                    }
-                    //                } else {
-                    //                    // The String offset is greater than the caret position.
-                    //                    // This means that we're inside the string-begin section,
-                    //                    // for example here: %q|(
-                    //                    // In this case, report no prefix
-                    //                    return "";
-                    //                }
-                    //            }
-                    //
-                    //            // Regular expression
-                    //            int regexpOffset = ScalaLexUtilities.getRegexpOffset(lexOffset, th);
-                    //
-                    //            if ((regexpOffset != -1) && (regexpOffset <= lexOffset)) {
-                    //                // This is not right... I need to actually parse the regexp
-                    //                // (I should use my Regexp lexer tokens which will be embedded here)
-                    //                // such that escaping sequences (/\\\\\/) will work right, or
-                    //                // character classes (/[foo\]). In both cases the \ may not mean escape.
-                    //                String tokenText = token.text().toString();
-                    //                int index = lexOffset - ts.offset();
-                    //
-                    //                if ((index > 0) && (index <= tokenText.length()) &&
-                    //                        (tokenText.charAt(index - 1) == '\\')) {
-                    //                    return "\\";
-                    //                } else {
-                    //                    // No prefix for regexps unless it's \
-                    //                    return "";
-                    //                }
-                    //
-                    //                //return doc.getText(regexpOffset, offset-regexpOffset);
-                    //            }
                 }
 
                 val lineBegin = Utilities.getRowStart(doc, lexOffset)
@@ -796,7 +322,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                             var continue = true
                             while (j < n && continue) {
                                 val d = line.charAt(j)
-                                // Try to accept Foo::Bar as well
                                 if (!Character.isJavaIdentifierPart(d)) {
                                     continue = false
                                 } else {
@@ -809,43 +334,12 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                     }
 
                     if (prefix.length > 0) {
-                        if (prefix.endsWith("::")) {
+                        if (prefix.endsWith("?")) {
                             return ""
                         }
 
                         if (prefix.endsWith(":") && prefix.length > 1) {
                             return null
-                        }
-
-                        // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
-                        val q = prefix.lastIndexOf("::")
-
-                        if (q != -1) {
-                            prefix = prefix.substring(q + 2)
-                        }
-
-                        // The identifier chars identified by JsLanguage are a bit too permissive;
-                        // they include things like "=", "!" and even "&" such that double-clicks will
-                        // pick up the whole "token" the user is after. But "=" is only allowed at the
-                        // end of identifiers for example.
-                        if (prefix.length == 1) {
-                            val c = prefix.charAt(0)
-                            if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$' || c == ':')) {
-                                return null
-                            }
-                        } else {
-                            var i = prefix.length() - 2
-                            var continue = true
-                            while (i >= 0 && continue) { // -2: the last position (-1) can legally be =, ! or ?
-                                val c = prefix.charAt(i)
-                                if (i == 0 && c == ':') {
-                                    // : is okay at the begining of prefixes
-                                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
-                                    prefix = prefix.substring(i + 1)
-                                    continue = false
-                                }
-                                i -= 1
-                            }
                         }
 
                         return prefix
@@ -857,76 +351,56 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             // Else: normal identifier: just return null and let the machinery do the rest
         } catch {case ble:BadLocationException => Exceptions.printStackTrace(ble)}
 
-        // Default behavior
         null
     }
 
+    override
     def getAutoQuery(component:JTextComponent, typedText:String) :QueryType = {
-        val c = typedText.charAt(0)
-
-        // TODO - auto query on ' and " when you're in $() or $F()
-        c match {
+        typedText.charAt(0) match {
             case '\n' | '(' | '[' | '{' | ';' => return QueryType.STOP
-            case _ if c != '.' => return QueryType.NONE
-            case _ =>
+            case ':' => // go on
+            case _ => return QueryType.NONE
         }
 
         val offset = component.getCaretPosition
         val doc = component.getDocument.asInstanceOf[BaseDocument]
 
         if (":".equals(typedText)) { // NOI18N
-            // See if we're in Js context
-
             val ts = LexUtil.tokenSequence(doc, offset) match {
                 case None => return QueryType.NONE
-                case Some(x) => x
+                case Some(x) => 
+                    x.move(offset)
+                    if (!x.moveNext && !x.movePrevious) {
+                        return QueryType.NONE
+                    }
+                    x
             }
-            ts.move(offset)
-            if (!ts.moveNext && !ts.movePrevious) {
-                return QueryType.NONE
-            }
+
             if (ts.offset == offset && !ts.movePrevious) {
                 return QueryType.NONE
             }
             val token = ts.token
             val id = token.id
 
-            //            // ".." is a range, not dot completion
-            //            if (id == ScalaTokenId.RANGE) {
-            //                return QueryType.NONE;
-            //            }
-
-            // TODO - handle embedded JavaScript
+            // TODO - handle embedded Erlang
             id.primaryCategory match {
                 case "comment" | "string" | "regexp" => return QueryType.NONE // NOI18N
                 case _ => return QueryType.COMPLETION
             }
         }
-
-        //        if (":".equals(typedText)) { // NOI18N
-        //            // See if it was "::" and we're in ruby context
-        //            int dot = component.getSelectionStart();
-        //            try {
-        //                if ((dot > 1 && component.getText(dot-2, 1).charAt(0) == ':') && // NOI18N
-        //                        isJsContext(doc, dot-1)) {
-        //                    return QueryType.COMPLETION;
-        //                }
-        //            } catch (BadLocationException ble) {
-        //                Exceptions.printStackTrace(ble);
-        //            }
-        //        }
-        //
+        
         QueryType.NONE
     }
 
-    def isErlangContext(doc:BaseDocument, offset:int) :Boolean = {
+    private def isErlangContext(doc:BaseDocument, offset:int) :Boolean = {
         val ts = LexUtil.tokenSequence(doc, offset) match {
             case None => return false
-            case Some(x) => x
-        }
-        ts.move(offset)
-        if (!ts.moveNext && !ts.movePrevious) {
-            return true
+            case Some(x) =>
+                x.move(offset)
+                if (!x.moveNext && !x.movePrevious) {
+                    return true
+                }
+                x
         }
 
         ts.token.id.primaryCategory match {
@@ -935,10 +409,12 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         }
     }
 
+    override
     def resolveTemplateVariable(variable:String, info:ParserResult, caretOffset:Int, name:String, parameters:Map[_, _]) :String = {
         throw new UnsupportedOperationException("Not supported yet.")
     }
 
+    override
     def document(info:ParserResult, element:ElementHandle) :String = {
         val sigFormatter = new SignatureHtmlFormatter
         val comment = element match {
@@ -947,7 +423,6 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         }
 
         val html = new StringBuilder
-
         //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
             html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound")).append("</i>")
@@ -968,215 +443,36 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
         html.toString
     }
 
+    override
     def getApplicableTemplates(info:ParserResult, selectionBegin:Int, selectionEnd:Int) :Set[String] = {
         Collections.emptySet[String]
     }
 
-    def parameters(info:ParserResult, lexOffset:Int, proposal:CompletionProposal) :ParameterInfo = {
-        val methodHolder = Array[ErlFunction](null)
-        val paramIndexHolder = Array(0)
-        val anchorOffsetHolder = Array(0)
-        val astOffset = LexUtil.astOffset(info, lexOffset)
-        if (!computeMethodCall(info, lexOffset, astOffset,
-                               methodHolder, paramIndexHolder, anchorOffsetHolder, null)) {
-
-            return ParameterInfo.NONE;
-        }
-
-        val method = methodHolder(0)
-        if (method == null) {
-            return ParameterInfo.NONE
-        }
-        val index = paramIndexHolder(0)
-        val anchorOffset = anchorOffsetHolder(0)
-
-
-        // TODO: Make sure the caret offset is inside the arguments portion
-        // (parameter hints shouldn't work on the method call name itself
-        // See if we can find the method corresponding to this call
-        //        if (proposal != null) {
-        //            Element node = proposal.getElement();
-        //            if (node instanceof IndexedFunction) {
-        //                method = ((IndexedFunction)node);
-        //            }
-        //        }
-        val arity = method.arity
-        val paramsInStr = if (arity == 0) {
-            Collections.emptyList[String]
-        } else {
-            val ps = new ArrayList[String]
-            for (i <- 0 until arity) {
-                ps.add("a" + arity)
-            }
-            ps
-        }
-
-        if (paramsInStr.size > 0) {
-            return new ParameterInfo(paramsInStr, index, anchorOffset)
-        }
-
-        return ParameterInfo.NONE
-    }
-
-    /** Compute the current method call at the given offset. Returns false if we're not in a method call.
-     * The argument index is returned in parameterIndexHolder[0] and the method being
-     * called in methodHolder[0].
+    /** Todo
+     * Compute parameter info for the given offset - parameters surrounding the given
+     * offset, which particular parameter in that list we're currently on, and so on.
+     * @param info The compilation info to pick an AST from
+     * @param caretOffset The caret offset for the completion request
+     * @param proposal May be null, but if not, provide the specific completion proposal
+     *   that the parameter list is requested for
+     * @return A ParameterInfo object, or ParameterInfo.NONE if parameter completion is not supported.
      */
-    def computeMethodCall(info:ParserResult, lexOffset:Int, _astOffset:Int,
-                          methodHolder: Array[ErlFunction], parameterIndexHolder:Array[Int], anchorOffsetHolder:Array[Int],
-                          alternativesHolder:Array[Set[ErlFunction]]) :Boolean = {
-        try {
-            var astOffset = _astOffset
-            val pResult = info match {
-                case x:ErlangParserResult => x
-                case _ => return false
-            }
-            for (root <- pResult.rootScope;
-                 doc <- LexUtil.document(pResult, true);
-                 th <- LexUtil.tokenHierarchy(pResult);
-                 ts <- LexUtil.tokenSequence(th, lexOffset)
-            ) {
-                var targetMethod :ErlFunction = null
-                var index = -1
-
-                // Account for input sanitation
-                // TODO - also back up over whitespace, and if I hit the method
-                // I'm parameter number 0
-                val originalAstOffset = astOffset
-
-                // Adjust offset to the left
-                val newLexOffset = LexUtil.findSpaceBegin(doc, lexOffset)
-                if (newLexOffset < lexOffset) {
-                    astOffset -= (lexOffset - newLexOffset);
-                }
-
-                val range = pResult.sanitizedRange
-                if (range != OffsetRange.NONE && range.containsInclusive(astOffset)) {
-                    if (astOffset != range.getStart) {
-                        astOffset = range.getStart - 1
-                        if (astOffset < 0) {
-                            astOffset = 0
-                        }
-                    }
-                }
-
-                ts.move(lexOffset);
-                if (!ts.moveNext() && !ts.movePrevious()) {
-                    return false
-                }
-
-                var closest = root.findItemAt(th, astOffset)
-                var closestOffset = astOffset - 1
-                while (closest == None && closestOffset > 0) {
-                    closest = root.findItemAt(th, closestOffset)
-                    closestOffset -= 1
-                }
-
-                //val call = findCallSymbol(visitor, ts, th, request, true)
-                val call = closest.get
-
-                val currentLineStart = Utilities.getRowStart(doc, lexOffset)
-                if (callLineStart != -1 && currentLineStart == callLineStart) {
-                    // We know the method call
-                    targetMethod = callMethod;
-                    if (targetMethod != null) {
-                        // Somehow figure out the argument index
-                        // Perhaps I can keep the node tree around and look in it
-                        // (This is all trying to deal with temporarily broken
-                        // or ambiguous calls.
-                    }
-                }
-                // Compute the argument index
-
-                var anchorOffset = -1;
-
-                //            if (targetMethod != null) {
-                //                Iterator<Node> it = path.leafToRoot();
-                //                String name = targetMethod.getName();
-                //                while (it.hasNext()) {
-                //                    Node node = it.next();
-                //                }
-                //            }
-                val haveSanitizedComma = false
-                //            val haveSanitizedComma = pResult.sanitized == Sanitize.EDITED_DOT || pResult.getSanitized() == Sanitize.ERROR_DOT;
-                //            if (haveSanitizedComma) {
-                //                // We only care about removed commas since that
-                //                // affects the parameter count
-                //                if (pResult.getSanitizedContents().indexOf(',') == -1) {
-                //                    haveSanitizedComma = false;
-                //                }
-                //            }
-
-                if (call == null) {
-                    // Find the call in around the caret. Beware of
-                    // input sanitization which could have completely
-                    // removed the current parameter (e.g. with just
-                    // a comma, or something like ", @" or ", :")
-                    // where we accidentally end up in the previous
-                    // parameter.
-                    //                ListIterator<Node> it = path.leafToRoot();
-                    //             nodesearch:
-                    //                while (it.hasNext()) {
-                    //                    Node node = it.next();
-                    //
-                    //                    if (node.getType() == org.mozilla.javascript.Token.CALL) {
-                    //                        call = node;
-                    //                        index = AstUtilities.findArgumentIndex(call, astOffset, path);
-                    //                        break;
-                    //                    }
-                    //
-                    //                }
-                }
-
-                if (index != -1 && haveSanitizedComma && call != null) {
-                    //                if (call.nodeId == NodeTypes.FCALLNODE) {
-                    //                    an = ((FCallNode)call).getArgsNode();
-                    //                } else if (call.nodeId == NodeTypes.CALLNODE) {
-                    //                    an = ((CallNode)call).getArgsNode();
-                    //                }
-                    //                if (an != null && index < an.childNodes().size() &&
-                    //                        ((Node)an.childNodes().get(index)).nodeId == NodeTypes.HASHNODE) {
-                    //                    // We should stay within the hashnode, so counteract the
-                    //                    // index++ which follows this if-block
-                    //                    index--;
-                    //                }
-
-                    // Adjust the index to account for our removed
-                    // comma
-                    index += 1
-                }
-
-                if (call == null || index == -1) {
-                    callLineStart = -1
-                    callMethod = null
-                    return false
-                } else if (targetMethod == null) {
-                    // Look up the
-                    // See if we can find the method corresponding to this call
-
-                    //targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
-                    if (targetMethod == null) {
-                        return false
-                    }
-                }
-
-                callLineStart = currentLineStart
-                callMethod = targetMethod
-
-                methodHolder(0) = callMethod
-                parameterIndexHolder(0) = index
-
-                if (anchorOffset == -1) {
-                    anchorOffset = call.idOffset(th) // TODO - compute
-
-                }
-                anchorOffsetHolder(0) = anchorOffset
-            }
-        } catch {case ble:BadLocationException => Exceptions.printStackTrace(ble); return false}
-
-        true
+    override
+    def parameters(info:ParserResult, lexOffset:Int, proposal:CompletionProposal) :ParameterInfo = {
+        ParameterInfo.NONE
     }
 
+    /**
+     * Resolve a link that was written into the HTML returned by {@link #document}.
+     *
+     * @param link The link, which can be in any format chosen by the {@link #document} method.
+     *   However, links starting with www or standard URL format (http://, etc.)
+     *   will automatically be handled by the browser, so avoid this format.
+     * @param originalHandle The handle to the documentation item where the link was generated.
+     * @return An ElementHandle that will be passed in to {@link #document} to
+     *   compute the new documentation to be warped to.
+     */
+    override
     def resolveLink(_link:String, elementHandle:ElementHandle) :ElementHandle = {
         var link = _link
         if (link.indexOf(':') != -1) {
@@ -1214,162 +510,75 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
 
     private def findCall(rootScope:AstRootScope, ts:TokenSequence[TokenId], th:TokenHierarchy[_], call:Call, times:Int) :Unit = {
         assert(rootScope != null)
-
         val closest = LexUtil.findPreviousNonWsNonComment(ts)
-        val idToken = if (closest.id == ErlangTokenId.Colon) {
-            call.caretAfterColon = true
-            // skip RParen if it's the previous
-            if (ts.movePrevious) {
-                val prev = LexUtil.findPreviousNonWs(ts)
-                if (prev != null) {
-                    prev.id match {
-                        case ErlangTokenId.RParen   => LexUtil.skipPair(ts, ErlangTokenId.LParen,   ErlangTokenId.RParen,   true)
-                        case ErlangTokenId.RBrace   => LexUtil.skipPair(ts, ErlangTokenId.LBrace,   ErlangTokenId.RBrace,   true)
-                        case ErlangTokenId.RBracket => LexUtil.skipPair(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket, true)
-                        case _ =>
+        val idToken = closest.id match {
+            case ErlangTokenId.Colon =>
+                call.caretAfterColon = true
+                // skip RParen if it's the previous
+                if (ts.movePrevious) {
+                    val prev = LexUtil.findPreviousNonWs(ts)
+                    if (prev != null) {
+                        prev.id match {
+                            case ErlangTokenId.RParen   => LexUtil.skipPair(ts, ErlangTokenId.LParen,   ErlangTokenId.RParen,   true)
+                            case ErlangTokenId.RBrace   => LexUtil.skipPair(ts, ErlangTokenId.LBrace,   ErlangTokenId.RBrace,   true)
+                            case ErlangTokenId.RBracket => LexUtil.skipPair(ts, ErlangTokenId.LBracket, ErlangTokenId.RBracket, true)
+                            case _ =>
+                        }
                     }
                 }
-            }
-            LexUtil.findPrevIncluding(ts, LexUtil.CALL_IDs)
-        } else if (LexUtil.CALL_IDs.contains(closest.id)) {
-            closest
-        } else null
-
-        if (idToken != null) {
-            if (times == 0) {
-                if (call.caretAfterColon) {
-                    call.base = idToken
-                    return
-                }
-
-                val prev = if (ts.movePrevious) {
-                    LexUtil.findPreviousNonWsNonComment(ts)
-                } else null
-
-                if (prev != null && prev.id == ErlangTokenId.Colon) {
-                    call.caretAfterColon = true
-                    call.select = idToken
-                    findCall(rootScope, ts, th, call, times + 1)
-                } else {
-                    call.base = idToken
-                    return
-                }
-            } else {
-                call.base = idToken
-                return
-            }
+                LexUtil.findPrevIncluding(ts, LexUtil.CALL_IDs)
+            case id if LexUtil.CALL_IDs.contains(id) => closest
+            case _ => null
         }
 
-        return
+        if (idToken != null) {
+            times match {
+                case 0 if call.caretAfterColon => call.base = idToken
+                case 0 if ts.movePrevious => LexUtil.findPreviousNonWsNonComment(ts) match {
+                        case null => call.base = idToken
+                        case prev if prev.id == ErlangTokenId.Colon =>
+                            call.caretAfterColon = true
+                            call.select = idToken
+                            findCall(rootScope, ts, th, call, times + 1)
+                        case _ => call.base = idToken
+                    }
+                case _ => call.base = idToken
+            }
+        }
     }
 
     case class Call(var base:Token[TokenId], var select:Token[TokenId], var caretAfterColon:Boolean)
 }
 
 object ErlangCodeCompletion {
+    class CompletionRequest {
+        var completionResult:DefaultCompletionResult = _
+        var th:TokenHierarchy[_] = _
+        var info :ParserResult = _
+        var root :AstRootScope = _
+        var anchor :Int = _
+        var lexOffset :Int = _
+        var astOffset :Int = _
+        var doc :BaseDocument = _
+        var prefix :String = _
+        var index :ErlangIndex = _
+        var kind  :QuerySupport.Kind = _
+        var result :ErlangParserResult = _
+        var queryType :QueryType = _
+        var fileObject :FileObject = _
+        var fqn :String = _
+    }
+
+    var request:CompletionRequest = _
     var callLineStart = -1
     var callMethod :ErlFunction = _
 
-    private val REGEXP_WORDS = Array(
-        // Dbl-space lines to keep formatter from collapsing pairs into a block
-
-        // Literals
-
-        "\\0", "The NUL character (\\u0000)",
-          "\\t", "Tab (\\u0009)",
-          "\\n", "Newline (\\u000A)",
-          "\\v", "Vertical tab (\\u000B)",
-          "\\f", "Form feed (\\u000C)",
-          "\\r", "Carriage return (\\u000D)",
-          "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
-          "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
-          "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
-          // Character classes
-        "[]", "Any one character between the brackets",
-          "[^]", "Any one character not between the brackets",
-          "\\w", "Any ASCII word character; same as [0-9A-Za-z_]",
-          "\\W", "Not a word character; same as [^0-9A-Za-z_]",
-          "\\s", "Unicode space character",
-          "\\S", "Non-space character",
-          "\\d", "Digit character; same as [0-9]",
-          "\\D", "Non-digit character; same as [^0-9]",
-          "[\\b]", "Literal backspace",
-          // Match positions
-        "^", "Start of line",
-          "$", "End of line",
-          "\\b", "Word boundary (if not in a range specification)",
-          "\\B", "Non-word boundary",
-          // According to JavaScript The Definitive Guide, the following are not supported
-        // in JavaScript:
-        // \\a, \\e, \\l, \\u, \\L, \\U, \\E, \\Q, \\A, \\Z, \\z, and \\G
-        //
-        //"\\A", "Beginning of string",
-        //"\\z", "End of string",
-        //"\\Z", "End of string (except \\n)",
-
-        "*", "Zero or more repetitions of the preceding",
-          "+", "One or more repetitions of the preceding",
-          "{m,n}", "At least m and at most n repetitions of the preceding",
-          "?", "At most one repetition of the preceding; same as {0,1}",
-          "|", "Either preceding or next expression may match",
-          "()", "Grouping", //"[:alnum:]", "Alphanumeric character class",
-          //"[:alpha:]", "Uppercase or lowercase letter",
-        //"[:blank:]", "Blank and tab",
-        //"[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)",
-        //"[:digit:]", "Digit",
-        //"[:graph:]", "Printable character excluding space",
-        //"[:lower:]", "Lowecase letter",
-        //"[:print:]", "Any printable letter (including space)",
-        //"[:punct:]", "Printable character excluding space and alphanumeric",
-        //"[:space:]", "Whitespace (same as \\s)",
-        //"[:upper:]", "Uppercase letter",
-        //"[:xdigit:]", "Hex digit (0-9, a-f, A-F)",
-    )    // Strings section 7.8
-
-    private val STRING_ESCAPES = Array(
-        "\\0", "The NUL character (\\u0000)",
-          "\\b", "Backspace (0x08)",
-          "\\t", "Tab (\\u0009)",
-          "\\n", "Newline (\\u000A)",
-          "\\v", "Vertical tab (\\u000B)",
-          "\\f", "Form feed (\\u000C)",
-          "\\r", "Carriage return (\\u000D)",
-          "\\\"", "Double Quote (\\u0022)",
-          "\\'", "Single Quote (\\u0027)",
-          "\\\\", "Backslash (\\u005C)",
-          "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
-          "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
-          "\\", "\\<i>ooo</i>: The latin character in octal <i>ooo</i>",
-          // PENDING: Is this supported?
-        "\\c", "\\c<i>X</i>: The control character ^<i>X</i>"
-    )
-
-    private val DOC_WORDS = Array("@augments",
-                                  "@class",
-                                  "@config",
-                                  "@constructor",
-                                  "@deprecated",
-                                  "@description",
-                                  "@event",
-                                  "@example",
-                                  "@exception",
-                                  "@fileOverview",
-                                  "@function",
-                                  "@ignore",
-                                  "@inherits",
-                                  "@memberOf",
-                                  "@name",
-                                  "@namespace",
-                                  "@param",
-                                  "@param",
-                                  "@private",
-                                  "@property",
-                                  "@return",
-                                  "@scope",
-                                  "@scope",
-                                  "@static",
-                                  "@type"
-    )
-
-
+    def setCallConext(callMethod:ErlFunction) = {
+        if (request != null) {
+            try {
+                callLineStart = Utilities.getRowStart(request.doc, request.anchor)
+            } catch {case ble:BadLocationException => Exceptions.printStackTrace(ble)}
+            this.callMethod = callMethod
+        }
+    }
 }
