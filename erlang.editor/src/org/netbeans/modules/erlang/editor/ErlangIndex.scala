@@ -197,19 +197,21 @@ class ErlangIndex(querySupport:QuerySupport) {
         definesBuf.toArray
     }
 
-    def queryFunction(fqn:String, functionName:String, arity:Int) :ErlFunction = {
+    def queryFunction(fqn:String, functionName:String, arity:Int) :Option[AstDfn] = {
         for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_FUNCTION)) {
             val signatures = r.getValues(ErlangIndexer.FIELD_FUNCTION)
             if (signatures != null) {
+                val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
                 for (signature <- signatures) {
-                    val function = createFuntion(signature)
-                    if (function.name.equals(functionName) && function.arity == arity) {
-                        return function
+                    createFuntion(signature) match {
+                        case symbol@ErlFunction(_, `functionName`, `arity`) =>
+                            return ErlangUtil.resolveDfn(fo, symbol)
+                        case _ =>
                     }
                 }
             }
         }
-        null
+        None
     }
 
     def queryMacro(includes:List[ErlInclude], macroName:String) :ErlMacro = {
