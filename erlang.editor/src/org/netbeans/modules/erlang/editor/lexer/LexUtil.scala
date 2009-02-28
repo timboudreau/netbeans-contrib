@@ -60,6 +60,7 @@ trait LanguageLexUtil {
 
     protected val LPAREN = ErlangTokenId.LParen
     protected val RPAREN = ErlangTokenId.RParen
+    protected val LINE_COMMENT = ErlangTokenId.LineComment
 
     protected val Ws = ErlangTokenId.Ws
 
@@ -69,7 +70,9 @@ trait LanguageLexUtil {
 
     protected val WS_COMMENT = Set(ErlangTokenId.Ws,
                                    ErlangTokenId.Nl,
-                                   ErlangTokenId.LineComment
+                                   ErlangTokenId.LineComment,
+                                   ErlangTokenId.CommentData,
+                                   ErlangTokenId.CommentTag
     )
 
     protected val INDENT_TOKENS = Set(ErlangTokenId.Case,
@@ -91,6 +94,8 @@ trait LanguageLexUtil {
 
     def isComment(id:TokenId) :Boolean = id match {
         case ErlangTokenId.LineComment => true
+        case ErlangTokenId.CommentData => true
+        case ErlangTokenId.CommentTag  => true
         case _ => false
     }
 
@@ -151,18 +156,6 @@ object LexUtil extends LanguageLexUtil {
             }
     }
 
-    def tokenHierarchy(snapshot:Snapshot) :Option[TokenHierarchy[_]] = document(snapshot, false) match {
-        // * try get th from BaseDocument first, if it has been opened, th should has been there
-        case doc:BaseDocument => TokenHierarchy.get(doc) match {
-                case null => None
-                case th => Some(th)
-            }
-        case _ => TokenHierarchy.create(snapshot.getText, language) match {
-                case null => None
-                case th => Some(th)
-            }
-    }
-
     def document(fo:FileObject, forceOpen:Boolean) :Option[BaseDocument] = {
         try {
             DataObject.find(fo) match {
@@ -176,6 +169,18 @@ object LexUtil extends LanguageLexUtil {
                     }
             }
         } catch {case ex:Exception => None}
+    }
+
+    def tokenHierarchy(snapshot:Snapshot) :Option[TokenHierarchy[_]] = document(snapshot, false) match {
+        // * try get th from BaseDocument first, if it has been opened, th should has been there
+        case doc:BaseDocument => TokenHierarchy.get(doc) match {
+                case null => None
+                case th => Some(th)
+            }
+        case _ => TokenHierarchy.create(snapshot.getText, language) match {
+                case null => None
+                case th => Some(th)
+            }
     }
 
     def tokenHierarchy(pResult:ParserResult) :Option[TokenHierarchy[_]] = pResult match {
@@ -796,6 +801,35 @@ object LexUtil extends LanguageLexUtil {
         return false
     }
 
+    def docCommentRangeBefore(th:TokenHierarchy[_], lexOffset:Int) :OffsetRange = {
+        val ts = tokenSequence(th, lexOffset) match {
+            case None => return OffsetRange.NONE
+            case Some(x) => x
+        }
+        ts.move(lexOffset)
 
+        var startLineCommentSet = false
+        var offset = -1
+        var endOffset = -1
+        var done = false
+        while (ts.movePrevious && !done) {
+            val token = ts.token
+            token.id match {
+                case id if isWsComment(id) =>
+                    offset = ts.offset
+                    if (!startLineCommentSet) {
+                        endOffset = offset + token.length
+                        startLineCommentSet = true
+                    }
+                case _ => done = true
+            }
+        }
+
+        if (offset >= 0 && endOffset >= offset) {
+            new OffsetRange(offset, endOffset)
+        } else {
+            OffsetRange.NONE
+        }
+    }
 }
 

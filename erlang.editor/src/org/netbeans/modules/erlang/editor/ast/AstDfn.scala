@@ -133,10 +133,6 @@ class AstDfn(_idToken:Option[Token[TokenId]],
         //return getName().equals(def.getName())
     }
 
-    def docComment :String = {
-        null
-    }
-
     def doc :Option[BaseDocument] = fo match {
         case None => None
         case Some(x) => GsfUtilities.getDocument(x, true) match {
@@ -173,6 +169,7 @@ class AstDfn(_idToken:Option[Token[TokenId]],
 trait LanguageAstDfn {self:AstDfn =>
     import ElementKind._
     import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+    import org.netbeans.modules.erlang.editor.util.ErlangUtil
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
@@ -186,6 +183,21 @@ trait LanguageAstDfn {self:AstDfn =>
                 ref.symbol == self.asInstanceOf[AstItem].symbol
             } else false
     }
+
+    def docComment :String = {
+        val srcDoc = doc match {
+            case None => return null
+            case Some(x) => x
+        }
+
+        val th = TokenHierarchy.get(srcDoc)
+        if (th == null) {
+            return null
+        }
+
+        ErlangUtil.docComment(srcDoc, idOffset(th))
+    }
+
 
     def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
         case PACKAGE | CLASS | MODULE => formatter.appendText(getName)

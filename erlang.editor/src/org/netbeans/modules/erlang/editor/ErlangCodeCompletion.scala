@@ -416,12 +416,12 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
 
     override
     def document(info:ParserResult, element:ElementHandle) :String = {
-        val sigFormatter = new SignatureHtmlFormatter
         val comment = element match {
             case x:AstDfn => x.docComment
             case _ => null
         }
 
+        val sigFormatter = new SignatureHtmlFormatter
         val html = new StringBuilder
         if (comment == null) {
             element match {
@@ -430,10 +430,10 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
             }
             html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound")).append("</i>")
         } else {
-            //val formatter = new ScalaCommentFormatter(comment);
+            val formatter = new ErlangCommentFormatter(comment)
             val name = element.getName
             if (name != null && name.length > 0) {
-                //formatter.setSeqName(name)
+                formatter.setSeqName(name)
             }
 
             val fo = element.getFileObject
@@ -441,7 +441,7 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
                 html.append("<b>").append(fo.getNameExt).append("</b><br>")
             }
 
-            html.append(sigFormatter).append("\n<hr>\n")//.append(formatter.toHtml)
+            html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml)
         }
         html.toString
     }
