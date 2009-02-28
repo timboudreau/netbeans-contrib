@@ -321,8 +321,8 @@ generic LcExpr =
 transient generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 transient generic RecordExpr =
-  RecId ( void:".":s AtomId / RecordTuple )
-/ ExprMax RecId ( void:".":s AtomId / RecordTuple )
+  ( RecId / void:"#":s MacroId ) ( void:".":s ( AtomId / MacroId ) / RecordTuple )
+/ ExprMax ( RecId / void:"#":s MacroId ) ( void:".":s ( AtomId / MacroId ) / RecordTuple )
 ;
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
@@ -331,7 +331,8 @@ transient generic RecordFields = RecordField ( COMMA_E RecordField )* ;
 
 transient generic RecordField =
   VarId   void:"=":s Expr
-/ AtomId void:"=":s Expr
+/ AtomId  void:"=":s Expr
+/ MacroId void:"=":s Expr
 ;
 
 transient generic FunctionCall = Expr800 ArgumentList ;
