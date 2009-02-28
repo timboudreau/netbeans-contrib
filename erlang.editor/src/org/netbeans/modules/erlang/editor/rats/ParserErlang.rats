@@ -211,7 +211,7 @@ transient generic FunctionClause =
 
 transient generic ClauseArgs = ArgumentList ;
 
-transient generic ClauseGuard = void:"when":k Guard;
+transient generic ClauseGuard = void:"when":k Guard ;
 
 transient generic ClauseBody = void:"->":s Exprs ;
 
@@ -249,7 +249,12 @@ generic Expr700 =
 / Expr800
 ;
 
-transient generic Expr800 = Expr900 ( void:":":s ExprMax )? ;
+/* Here try to avoid "a: b:call()" is parsed as "a:b" + ":call()" thus all followed fail */
+generic Expr800 = 
+  Expr900 void:":":s ExprMax !( void:":":s )
+/ Expr900 void:":":s { error("function name expected.", yyStart); }
+/ Expr900
+;
 
 generic Expr900 =
   void:".":s AtomId1 ( void:".":s AtomId1 )*
