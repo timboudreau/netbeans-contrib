@@ -75,16 +75,16 @@ class ErlangIndex(querySupport:QuerySupport) {
         import QuerySupport.Kind._
 
         val field = ErlangIndexer.FIELD_FQN_NAME
-        val kind1 = kind match {
-            case EXACT | PREFIX | CAMEL_CASE | REGEXP | CASE_INSENSITIVE_PREFIX | CASE_INSENSITIVE_REGEXP =>
-                // I can't do exact searches on methods because the method
-                // entries include signatures etc. So turn this into a prefix
-                // search and then compare chopped off signatures with the name
-                PREFIX
-            case _ => throw new UnsupportedOperationException(kind.toString)
-        }
+//        val kind1 = kind match {
+//            case EXACT | PREFIX | CAMEL_CASE | REGEXP | CASE_INSENSITIVE_PREFIX | CASE_INSENSITIVE_REGEXP =>
+//                // I can't do exact searches on methods because the method
+//                // entries include signatures etc. So turn this into a prefix
+//                // search and then compare chopped off signatures with the name
+//                PREFIX
+//            case _ => throw new UnsupportedOperationException(kind.toString)
+//        }
 
-        query(field, name, kind1, fieldsToLoad:_*)
+        query(field, name, kind, fieldsToLoad:_*)
     }
 
     def queryPersistentUrl(fqn:String) :URL = {
@@ -100,7 +100,7 @@ class ErlangIndex(querySupport:QuerySupport) {
     }
 
     def queryModules(fqn:String) :Array[String] = {
-        for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_FQN_NAME)) yield {
+        for (r <- queryFiles(fqn, QuerySupport.Kind.PREFIX, ErlangIndexer.FIELD_FQN_NAME)) yield {
             r.getValue(ErlangIndexer.FIELD_FQN_NAME)
         }
     }

@@ -80,8 +80,7 @@ class ErlangCommentFormatter(comment:String) {
 
     process
 
-    def setSeqName(name:String) :Unit = {
-    }
+    def setSeqName(name:String) :Unit = {}
 
     def toHtml :String = {
         val sb = new StringBuilder
@@ -116,7 +115,7 @@ class ErlangCommentFormatter(comment:String) {
             sb.append("</blockquote>") //NOI18N
         }
 
-        if (params.size > 0) {
+        if (!params.isEmpty) {
             sb.append("<b>")
             sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "Parameters"))
             sb.append("</b><blockquote>") //NOI18N
@@ -149,9 +148,9 @@ class ErlangCommentFormatter(comment:String) {
             sb.append("</blockquote>") //NOI18N
         }
 
-        if (exceptions.size > 0) {
+        if (!exceptions.isEmpty) {
             sb.append("<b>")
-            sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "Throws"));
+            sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "Throws"))
             sb.append("</b><blockquote>") //NOI18N
             for (tag <- exceptions) {
                 sb.append(tag)
@@ -161,14 +160,14 @@ class ErlangCommentFormatter(comment:String) {
         }
 
         if (example != null) {
-            sb.append("<b>");
+            sb.append("<b>")
             sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "CodeExample"))
             sb.append("</b><blockquote>") //NOI18N
             sb.append("<pre>").append(example).append("</pre></blockquote>") //NOI18N
         }
 
         if (spec != null) {
-            sb.append("<b>");
+            sb.append("<b>")
             sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "Spec"))
             sb.append("</b><blockquote>") //NOI18N
             sb.append("<pre>").append(spec).append("</pre></blockquote>") //NOI18N

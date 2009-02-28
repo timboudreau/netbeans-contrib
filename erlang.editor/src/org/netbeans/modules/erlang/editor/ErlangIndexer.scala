@@ -99,17 +99,17 @@ class ErlangIndexer extends EmbeddingIndexer {
         
         val fo = LexUtil.fileObject(parserResult).get
 
+        io.getOut().print("Indexing: " + fo + ": ")
+
         val r = parserResult match {
-            case null => io.getOut.print("Indexing: " + fo + " no parser result"); return
+            case null => io.getOut.println("no parser result !"); return
             case x:ErlangParserResult => x
         }
 
         r.rootScope match {
-            case None => return
+            case None => io.getOut.println("no root scope !"); return
             case Some(x) => x
         }
-
-        io.getOut().print("Indexing: " + fo + " ")
 
         val support = try {
             IndexingSupport.getInstance(context)
@@ -134,7 +134,7 @@ class ErlangIndexer extends EmbeddingIndexer {
         }
 
 	//if (file.isPlatform())
-        io.getOut.println((System.currentTimeMillis - start) + "ms");
+        io.getOut.println((System.currentTimeMillis - start) + "ms")
     }
 
     /** Travel through parsed result, and index meta-data */
