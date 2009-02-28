@@ -51,9 +51,9 @@ import org.netbeans.modules.erlang.editor.rats.Spacing;
 import org.netbeans.modules.erlang.editor.rats.Symbol;
 
 transient generic MacroId = SKIP &'?' void:( Separator ( Ws / Nl )* ) ( atomIdentifier / varIdentifier ) ;
-transient generic AtomId  = SKIP Atom ;
-transient generic VarId   = SKIP Var ;
-transient generic RecId   = SKIP !digit &'#' void:( Separator ( Ws / Nl )* ) ( atomIdentifier / "spec":keyword ) ;
+transient generic AtomId  = SKIP atomIdentifier ;
+transient generic VarId   = SKIP varIdentifier ;
+transient generic RecId   = SKIP !digit &'#' void:( Separator ( Ws / Nl )* ) atomIdentifier ;
 
 // ----- Token
 
@@ -68,7 +68,7 @@ transient generic Identifier =
 transient generic Macro = &'?' Separator ( Ws / Nl )* ( atomIdentifier / varIdentifier ) ;
 transient generic Atom  = atomIdentifier ;
 transient generic Var   = varIdentifier ;
-transient generic Rec   = !digit &'#' Separator ( Ws / Nl )* ( atomIdentifier / "spec":keyword ) ;
+transient generic Rec   = !digit &'#' Separator ( Ws / Nl )* atomIdentifier ;
 
 transient String atomIdentifier = plainAtomIdentifier / quoteAtomIdentifier ;
 

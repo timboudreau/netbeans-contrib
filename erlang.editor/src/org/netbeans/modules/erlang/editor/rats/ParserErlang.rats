@@ -66,22 +66,22 @@ generic Form =
 /* AttrVal should be after TypedAttrVal */
 generic Attribute =
   PredAttr
+/ void:"-":s "spec" ( TypeSpec / SYNTAX_ERROR )
 / void:"-":s AtomId
   ( TypedAttrVal
   / void:"(":s TypedAttrVal void:")":s
   / AttrVal
   / SYNTAX_ERROR
   )
-/ void:"-":s "spec":k ( TypeSpec / SYNTAX_ERROR )
 ;
 
 // ----- predefined attributes
 
 generic PredAttr =
-  void:"-":s "define"     void:"(":s ( AtomId1 / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
-/ void:"-":s "record"     void:"(":s ( AtomId1 / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
-/ void:"-":s "module"     void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E ModuleParams )?                          void:")":s
-/ void:"-":s "import"     void:"(":s AtomId1 ( void:".":s AtomId1 )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
+  void:"-":s "define"     void:"(":s ( AtomId / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
+/ void:"-":s "record"     void:"(":s ( AtomId / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
+/ void:"-":s "module"     void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E ModuleParams )?                          void:")":s
+/ void:"-":s "import"     void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
 / void:"-":s "export"     void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
 / void:"-":s "include"    void:"(":s String void:")":s
 / void:"-":s "includelib" void:"(":s String void:")":s
@@ -94,21 +94,14 @@ generic ModuleParams =
 / void:"[":s VarId ( COMMA_E VarId )* void:"]":s
 ;
 
-transient generic MacroName = AtomId1 / VarId ;
+transient generic MacroName = AtomId / VarId ;
 transient generic MacroParams = VarId ( COMMA_E VarId )* ;
 
 transient generic FunctionNames = FunctionName ( COMMA_E FunctionName )* ;
-transient generic FunctionName  = ( AtomId1 / MacroId ) void:"/":s Integer ;
+transient generic FunctionName  = ( AtomId / MacroId ) void:"/":s Integer ;
 
 transient generic RecordFieldNames = RecordFieldName ( COMMA_E RecordFieldName )* ;
 transient generic RecordFieldName  = AtomId ( void:"=":s Expr )? ( void:"::":s TopType )? ;
-
-// ----- AtomId1
-
-generic AtomId1 =
-  "spec":k
-/ AtomId
-;
 
 // ----- type and spec 
 
@@ -118,9 +111,9 @@ generic TypeSpec =
 ;
 
 generic SpecFun =
-  AtomId1 void:":":s AtomId1 (void:"/":s Integer void:"::":s)?
-/ AtomId1 void:"/":s Integer void:"::":s
-/ AtomId1
+  AtomId void:":":s AtomId (void:"/":s Integer void:"::":s)?
+/ AtomId void:"/":s Integer void:"::":s
+/ AtomId
 ;
 
 generic TypedAttrVal =
@@ -143,7 +136,7 @@ transient generic TypeSig = FunType ( void:"when":k TypeGuards )? ;
 
 transient generic TypeGuards = TypeGuard ( COMMA_E TypeGuard )* ;
 
-transient generic TypeGuard = AtomId1 void:"(":s TopTypes void:")":s ;
+transient generic TypeGuard = AtomId void:"(":s TopTypes void:")":s ;
 
 transient generic TopTypes = TopType ( COMMA_E TopType )* ;
 
@@ -155,21 +148,22 @@ generic TopType =
 transient generic TopType100 = Type ( void:"|":s Type )* ;
 
 generic Type =
-  void:"(":s TopType void:")":s
-/ VarId
-/ AtomId1 void:"(":s TopTypes? void:")":s
-/ AtomId1 void:":":s AtomId1 void:"(":s TopTypes? void:")":s
-/ AtomId1
-/ void:"[":s void:"]":s
-/ void:"[":s TopType ( COMMA SKIP "..." SKIP )? void:"]":s
-/ void:"{":s TopTypes? void:"}":s
-/ RecId void:"{":s FieldTypes? void:"}":s
-/ BinaryType
-/ IntType ( void:".":s void:".":s IntType )?
-/ void:"fun":k void:"(":s FunType100? void:")":s
+  void:"(":s TopType void:")":s                             @ParenTopType
+/ VarId                                                     @VarType
+/ AtomId void:"(":s TopTypes? void:")":s                    @FunCallType
+/ AtomId void:":":s AtomId void:"(":s TopTypes? void:")":s  @RemoteFunCallType
+/ AtomId                                                    @AtomType
+/ void:"[":s void:"]":s                                     @NilType
+/ void:"[":s TopType ( COMMA SKIP "..." SKIP )? void:"]":s  @ListType
+/ void:"{":s TopTypes? void:"}":s                           @TupleType
+/ RecId void:"{":s FieldTypes? void:"}":s                   @RecordType
+/ BinaryType                                                @BinaryType1
+/ IntType ( void:".":s void:".":s IntType )                 @IntRangeType
+/ IntType                                                   @IntType1
+/ void:"fun":k void:"(":s FunType100? void:")":s            @FunRefType
 ;
 
-transient generic IntType = ( void:"-":s )? Integer ;
+transient generic IntType = ( SKIP "-" SKIP )? Integer ;
 
 transient generic FunType100 =
   void:"(":s SKIP void:"..." SKIP void:")":s void:"->":s TopType
@@ -182,7 +176,7 @@ transient generic FunType =
 
 transient generic FieldTypes = FieldType ( COMMA_E FieldType )* ;
 
-transient generic FieldType = AtomId1 void:"::":s TopType ;
+transient generic FieldType = AtomId void:"::":s TopType ;
 
 generic BinaryType =
   void:"<<":s BinBaseType? void:">>":s
@@ -205,8 +199,8 @@ transient generic Function = FunctionClauses ;
 transient generic FunctionClauses = FunctionClause ( SEMI_E FunctionClause )* ;
 
 transient generic FunctionClause =
-  AtomId1 ClauseArgs ClauseGuard? ClauseBody 
-/ AtomId1 SYNTAX_ERROR
+  AtomId ClauseArgs ClauseGuard? ClauseBody
+/ AtomId SYNTAX_ERROR
 ;
 
 transient generic ClauseArgs = ArgumentList ;
@@ -257,8 +251,8 @@ generic Expr800 =
 ;
 
 generic Expr900 =
-  void:".":s AtomId1 ( void:".":s AtomId1 )*
-/ ExprMax            ( void:".":s AtomId1 )*
+  void:".":s AtomId ( void:".":s AtomId )*
+/ ExprMax            ( void:".":s AtomId )*
 ;
 
 generic ExprMax =
@@ -309,7 +303,7 @@ transient generic OptBitTypeList = ( void:"/":s BitTypeList )? ;
 
 transient generic BitTypeList = BitType ( void:"-":s BitTypeList )? ;
 
-transient generic BitType = AtomId1 ( void:":":s Integer )? ;
+transient generic BitType = AtomId ( void:":":s Integer )? ;
 
 transient generic BitsizeExpr = ExprMax ;
 
@@ -327,8 +321,8 @@ generic LcExpr =
 transient generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 transient generic RecordExpr =
-  RecId ( void:".":s AtomId1 / RecordTuple )
-/ ExprMax RecId ( void:".":s AtomId1 / RecordTuple )
+  RecId ( void:".":s AtomId / RecordTuple )
+/ ExprMax RecId ( void:".":s AtomId / RecordTuple )
 ;
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
@@ -337,7 +331,7 @@ transient generic RecordFields = RecordField ( COMMA_E RecordField )* ;
 
 transient generic RecordField =
   VarId   void:"=":s Expr
-/ AtomId1 void:"=":s Expr
+/ AtomId void:"=":s Expr
 ;
 
 transient generic FunctionCall = Expr800 ArgumentList ;
@@ -361,7 +355,7 @@ generic ReceiveExpr =
 ;
 
 generic FunExpr =
-  void:"fun":k ( AtomId1 / MacroId ) void:":":s FunctionName
+  void:"fun":k ( AtomId / MacroId ) void:":":s FunctionName
 / void:"fun":k                                  FunctionName
 / void:"fun":k FunClauses END_E
 ;
@@ -380,7 +374,7 @@ generic TryCatch =
 transient generic TryClauses = TryClause ( SEMI_E TryClause )* ;
 
 generic TryClause =
-  AtomId1 void:":":s Expr ClauseGuard? ClauseBody
+  AtomId void:":":s Expr ClauseGuard? ClauseBody
 / VarId   void:":":s Expr ClauseGuard? ClauseBody
 /                    Expr ClauseGuard? ClauseBody
 ;
@@ -397,7 +391,7 @@ transient generic Atomic =
   Char
 / Float
 / Integer
-/ AtomId1
+/ AtomId
 / Strings
 ;
 
@@ -451,6 +445,6 @@ transient generic Rule = RuleClauses ;
 
 transient generic RuleClauses = RuleClause ( SEMI_E RuleClause )* ;
 
-transient generic RuleClause = AtomId1 ClauseArgs ClauseGuard? RuleBody ;
+transient generic RuleClause = AtomId ClauseArgs ClauseGuard? RuleBody ;
 
 transient generic RuleBody = void:":-":s LcExprs ;
