@@ -62,7 +62,7 @@ transient String decimalNumeral = '0' / nonZeroDigit digit* ;
 transient String hexNumeral     = '0' [xX] hexDigit+ ;
 transient String octalNumeral   = '0' octalDigit+ ;
 
-transient String characterChar = escapeSequence / !['\\] printableChar ;
+transient String characterChar = escapeSequence / ![\\] printableChar ;
 transient String stringChar    = escapeSequence / !["\\] _ ;
 
 transient String escapeSequence =

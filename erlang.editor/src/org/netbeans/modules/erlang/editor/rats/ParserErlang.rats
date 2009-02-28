@@ -63,12 +63,13 @@ generic Form =
 / Rule      STOP
 ;
 
+/* AttrVal should be after TypedAttrVal */
 generic Attribute =
   PredAttr
 / void:"-":s AtomId
-  ( AttrVal
-  / TypedAttrVal
+  ( TypedAttrVal
   / void:"(":s TypedAttrVal void:")":s
+  / AttrVal
   / SYNTAX_ERROR
   )
 / void:"-":s "spec":k ( TypeSpec / SYNTAX_ERROR )
@@ -117,8 +118,7 @@ generic TypeSpec =
 ;
 
 generic SpecFun =
-  AtomId1 void:":":s AtomId1 void:"/":s Integer void:"::":s
-/ AtomId1 void:":":s AtomId1
+  AtomId1 void:":":s AtomId1 (void:"/":s Integer void:"::":s)?
 / AtomId1 void:"/":s Integer void:"::":s
 / AtomId1
 ;
@@ -177,8 +177,7 @@ transient generic FunType100 =
 ;
 
 transient generic FunType =
-  void:"(":s          void:")":s void:"->":s TopType
-/ void:"(":s TopTypes void:")":s void:"->":s TopType
+  void:"(":s TopTypes? void:")":s void:"->":s TopType
 ;
 
 transient generic FieldTypes = FieldType ( COMMA_E FieldType )* ;
@@ -186,9 +185,8 @@ transient generic FieldTypes = FieldType ( COMMA_E FieldType )* ;
 transient generic FieldType = AtomId1 void:"::":s TopType ;
 
 generic BinaryType =
-  void:"<<":s                                   void:">>":s
-/ void:"<<":s BinBaseType                       void:">>":s
-/ void:"<<":s                        BinUnitType void:">>":s
+  void:"<<":s BinBaseType? void:">>":s
+/ void:"<<":s BinUnitType? void:">>":s
 / void:"<<":s BinBaseType COMMA_E BinUnitType void:">>":s
 / VarId void:":":s Integer
 ;
