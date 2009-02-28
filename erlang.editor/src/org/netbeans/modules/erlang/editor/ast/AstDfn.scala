@@ -91,7 +91,12 @@ class AstDfn(_idToken:Option[Token[TokenId]],
     override
     def getOffsetRange(pResult:ParserResult) :OffsetRange = LexUtil.tokenHierarchy(pResult) match {
         case None => OffsetRange.NONE
-        case Some(th) => new OffsetRange(boundsOffset(th), boundsEndOffset(th))
+        case Some(th) =>
+            val offset = boundsOffset(th)
+            val endOffset = boundsEndOffset(th)
+            if (offset >= 0 && endOffset >= offset) {
+                new OffsetRange(boundsOffset(th), boundsEndOffset(th))
+            } else OffsetRange.NONE
     }
 
     def tpe :String = {

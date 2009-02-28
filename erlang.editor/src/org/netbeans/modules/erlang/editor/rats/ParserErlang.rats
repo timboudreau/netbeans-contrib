@@ -61,6 +61,7 @@ generic Form =
   Attribute STOP
 / Function  STOP
 / Rule      STOP
+/ SYNTAX_ERROR STOP
 ;
 
 /* AttrVal should be after TypedAttrVal */

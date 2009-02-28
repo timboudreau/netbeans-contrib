@@ -108,4 +108,4 @@ transient void SEMI_E =
    ) SKIP { error("';' expected", yyStart); }
 ;
 
-transient void SYNTAX_ERROR = SKIP void:( !STOP _ )* { error("Syntax error", yyStart); } ;
+transient void SYNTAX_ERROR = SKIP void:( !STOP _ )+ { error("Syntax error", yyStart); } SKIP ;

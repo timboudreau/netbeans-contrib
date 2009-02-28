@@ -62,14 +62,13 @@ transient String decimalNumeral = '0' / nonZeroDigit digit* ;
 transient String hexNumeral     = '0' [xX] hexDigit+ ;
 transient String octalNumeral   = '0' octalDigit+ ;
 
-transient String characterChar = escapeSequence / ![\\] printableChar ;
-transient String stringChar    = escapeSequenceInString / !["\\] _ ;
+transient String characterChar = escapeSequenceInErlang / ![\\] printableChar ;
+transient String stringChar    = escapeSequenceInErlang / !["\\] _ ;
 
-transient String escapeSequenceInString = '\\' _ ;
+transient String escapeSequenceInErlang = escapeSequence / '\\' _ ;
 
 transient String escapeSequence =
   '\\' [bdefnrstv\\"']
-/ '\\' ' '
 / octalEscape
 / controlEscape
 ;

@@ -76,11 +76,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
     def visitForm(that:GNode) = {
         enter(that)
-        val n = that.getGeneric(0)
-        n.getName match {
-            case "Attribute" => visitAttribute(n)
-            case "Function" => visitFunction(n)
-            case "Rule" => visitRule(n)
+        if (that.size > 0) {
+            val n = that.getGeneric(0)
+            n.getName match {
+                case "Attribute" => visitAttribute(n)
+                case "Function" => visitFunction(n)
+                case "Rule" => visitRule(n)
+            }
         }
         exit(that)
     }

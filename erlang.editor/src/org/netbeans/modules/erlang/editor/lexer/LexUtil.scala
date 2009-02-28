@@ -217,7 +217,10 @@ object LexUtil extends LanguageLexUtil {
 
     def rangeOfToken(th:TokenHierarchy[_], token:Token[TokenId]) :OffsetRange = {
         val offset = token.offset(th)
-        new OffsetRange(offset, offset + token.length)
+        val endOffset = offset + token.length
+        if (offset >= 0 && endOffset >= offset) {
+            new OffsetRange(offset, offset + token.length)
+        } else OffsetRange.NONE
     }
 
     /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
