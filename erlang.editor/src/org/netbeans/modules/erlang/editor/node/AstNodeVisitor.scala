@@ -436,30 +436,31 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
     def visitExpr800(that:GNode) :String = {
         val expr900 = that.getGeneric(0)
-        val exprMax = that.getGeneric(1)
-        exprMax match {
-            case null if erlFunctions.isEmpty =>
+        that.size match {
+            case 1 if erlFunctions.isEmpty =>
                 // it's a plain expr900
                 visitExpr900(expr900)
-            case null =>
+            case 1 =>
                 // it's a local function call name
                 inFunctionNames.push(true)
                 val tpe = visitExpr900(expr900)
                 inFunctionNames.pop
                 tpe
-            case _ if erlFunctions.isEmpty =>
+            case 2 if erlFunctions.isEmpty =>
+                val exprMax = that.getGeneric(1)
                 // should not happen? since exprMax is not null, it should be in function call
                 visitExpr900(expr900)
                 visitExprMax(exprMax)
-            case _ =>
+            case 2 =>
+                val exprMax = that.getGeneric(1)
                 // in a remote function call
                 val erlFunction = erlFunctions.top
-                
+
                 inFunctionNames.push(false)
                 val remoteName = visitExpr900(expr900)
                 erlFunction.in = Some(remoteName)
                 inFunctionNames.pop
-                
+
                 inFunctionNames.push(true)
                 val name = visitExprMax(exprMax)
                 inFunctionNames.pop
