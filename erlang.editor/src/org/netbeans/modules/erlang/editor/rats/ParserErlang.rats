@@ -163,7 +163,7 @@ generic Type =
 / void:"fun":k void:"(":s FunType100? void:")":s            @FunRefType
 ;
 
-transient generic IntType = ( SKIP "-" SKIP )? Integer ;
+transient generic IntType = ( "-":s )? Integer ;
 
 transient generic FunType100 =
   void:"(":s SKIP void:"..." SKIP void:")":s void:"->":s TopType

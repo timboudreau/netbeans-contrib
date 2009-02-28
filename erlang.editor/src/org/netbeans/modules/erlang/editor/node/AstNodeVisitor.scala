@@ -417,20 +417,20 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "RecordType" =>
                 val atomId = that.getGeneric(0)
                 "#" + visitAtomId(atomId)
-            case "BinaryType1" => visitBinaryType(that)
+            case "BinaryType1" => visitBinaryType(that.getGeneric(0))
             case "IntRangeType" =>
                 val begInt = that.getGeneric(0)
                 val endInt = that.getGeneric(1)
                 visitIntType(begInt) + ".." + visitIntType(endInt)
-            case "IntType1" => visitIntType(that).toString
+            case "IntType1" => visitIntType(that.getGeneric(0)).toString
             case "FunRefType" => "fun(...)"
         }
     }
 
     def visitIntType(that:GNode) :Int = {
+        val minus = that.getString(0)
         val int = visitInteger(that.getGeneric(1))
-        val neg = that.getString(0)
-        if (neg != null) -int else int
+        if (minus != null) -int else int
     }
 
     def visitFunType100(that:GNode) = {}
