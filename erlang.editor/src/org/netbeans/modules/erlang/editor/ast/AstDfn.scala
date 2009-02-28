@@ -178,6 +178,7 @@ trait LanguageAstDfn {self:AstDfn =>
                     if nameX == nameY && arityX == arityY => true
                 case _ => false
             }
+        case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
         case _ =>
             if (ref.getName == getName) {
                 ref.symbol == self.asInstanceOf[AstItem].symbol
@@ -201,7 +202,7 @@ trait LanguageAstDfn {self:AstDfn =>
 
     def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
         case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-        case METHOD => symbol match {
+        case METHOD | RULE => symbol match {
                 case ErlFunction(_, name, arity) =>
                     formatter.appendText(name)
                     formatter.appendText("/")
@@ -242,6 +243,15 @@ trait LanguageAstDfn {self:AstDfn =>
     def functionClauses :List[AstDfn] = functionDfn match {
         case None => Nil
         case Some(x) => x.bindingScope.dfns.filter{_.getKind == ElementKind.ATTRIBUTE}.toList
+    }
+
+    def spec :Option[ErlFunction] = self.symbol match {
+        case f@ErlFunction(_, name, arity) =>
+            rootScope.dfns.find{dfn => dfn.getKind == ElementKind.RULE && dfn.symbol == f} match {
+                case None => None
+                case Some(x) => Some(x.symbol.asInstanceOf[ErlFunction])
+            }
+        case _ => None
     }
 }
 

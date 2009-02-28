@@ -94,6 +94,13 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         that.get(0) match {
             case predAttr:GNode if predAttr.getName.equals("PredAttr") =>
                 visitPredAttr(predAttr)
+            case "spec" if that.size == 2 =>
+                val typeSpec = that.getGeneric(1)
+                val erlFunction = visitTypeSpec(typeSpec)
+                val dfn = new AstDfn(idToken(idNode(that)), ElementKind.RULE, scope, fo)
+                dfn.symbol = erlFunction
+                rootScope.addDfn(dfn)
+            case "spec" => // Followed by a "SYNTAX_ERROR"
             case atomId:GNode =>
                 val attrNameTk = idToken(idNode(atomId))
                 val attrName = attrNameTk match {
@@ -102,26 +109,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                 }
                 val attr = attrName match {
                     case null => null
-                    case "spec" =>
-                        // -spec
-                        val typeSpec = that.getGeneric(1)
-                        val erlFunction = visitTypeSpec(typeSpec)
-                        val dfn = new AstDfn(idToken(idNode(that)), ElementKind.RULE, scope, fo)
-                        dfn.symbol = erlFunction
-                        dfn
                     case "type" => new AstDfn(attrNameTk, ElementKind.TAG, scope, fo)
                     case _ => new AstDfn(attrNameTk, ElementKind.ATTRIBUTE, scope, fo)
                 }
                 if (attr != null) {
                     rootScope.addDfn(attr)
                 }
-            case s:String if that.size == 2 =>
-                // -spec
-                val typeSpec = that.getGeneric(1)
-                val erlFunction = visitTypeSpec(typeSpec)
-                val dfn = new AstDfn(idToken(idNode(that)), ElementKind.RULE, scope, fo)
-                dfn.symbol = erlFunction
-                rootScope.addDfn(dfn)
         }
 
         scopes.pop
@@ -264,10 +257,14 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         val specFun = that.getGeneric(0)
         val typeSigs = that.getGeneric(1)
         val erlFunction = visitSpecFun(specFun)
-        val (args, returnType) = visitTypeSigs(typeSigs)
+        
+        val (argTypes, returnType) = visitTypeSigs(typeSigs)
         if (erlFunction.arity == -1) {
-            erlFunction.arity = args.size
+            erlFunction.arity = argTypes.size
         }
+        erlFunction.argTypes = argTypes
+        erlFunction.returnType = returnType
+        
         erlFunction
     }
 
@@ -358,8 +355,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
     def visitType(that:GNode) :String = {
         that.getName match {
-            case "ParenTopType" => "(" + visitTopType(that.getGeneric(0)) + ")"
-            case "VarType" => "term"
+            case "ParenTopType" =>
+                "(" + visitTopType(that.getGeneric(0)) + ")"
+            case "VarType" =>
+                val varId = that.getGeneric(0)
+                idToken(idNode(varId)).get.text.toString
             case "FunCallType" =>
                 val atomId = that.getGeneric(0)
                 val callName = visitAtomId(atomId)
@@ -396,9 +396,12 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                     }
                 }
                 sb.append(')').toString
-            case "AtomType" => visitAtomId(that.getGeneric(0))
-            case "NilType" => "[]"
-            case "ListType" => "[" + visitTopType(that.getGeneric(0)) + "]"
+            case "AtomType" =>
+                visitAtomId(that.getGeneric(0))
+            case "NilType" =>
+                "[]"
+            case "ListType" =>
+                "[" + visitTopType(that.getGeneric(0)) + "]"
             case "TupleType" =>
                 val topTypes = that.getGeneric(0)
                 val sb = new StringBuilder
@@ -417,13 +420,33 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
             case "RecordType" =>
                 val atomId = that.getGeneric(0)
                 "#" + visitAtomId(atomId)
-            case "BinaryType1" => visitBinaryType(that.getGeneric(0))
+            case "BinaryType1" =>
+                visitBinaryType(that.getGeneric(0))
             case "IntRangeType" =>
                 val begInt = that.getGeneric(0)
                 val endInt = that.getGeneric(1)
                 visitIntType(begInt) + ".." + visitIntType(endInt)
-            case "IntType1" => visitIntType(that.getGeneric(0)).toString
-            case "FunRefType" => "fun(...)"
+            case "IntType1" =>
+                visitIntType(that.getGeneric(0)).toString
+            case "FunRefType" =>
+                val sb = new StringBuilder
+                sb.append("fun(")
+                val funType100 = that.getGeneric(0)
+                if (funType100 != null) {
+                    val (argTypes, returnType) = visitFunType100(funType100)
+                    val itr = argTypes.elements
+                    while (itr.hasNext) {
+                        sb.append(itr.next)
+                        if (itr.hasNext) {
+                            sb.append(", ")
+                        }
+                    }
+                    sb.append(')').append(" -> ").append(returnType)
+                } else {
+                    sb.append(')')
+                }
+
+                sb.toString
         }
     }
 
@@ -433,9 +456,19 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
         if (minus != null) -int else int
     }
 
-    def visitFunType100(that:GNode) = {}
+    def visitFunType100(that:GNode) :(List[String], String) = {
+        val n = that.getGeneric(0)
+        n.getName match {
+            case "TopType" =>
+                val argTypes = List("...")
+                val returnType = visitTopType(n)
+                (argTypes, returnType)
+            case "FunType" =>
+                visitFunType(n)
+        }
+    }
 
-    def visitFunType(that:GNode) : (List[String], String) = {
+    def visitFunType(that:GNode) :(List[String], String) = {
         val topTypes = that.getGeneric(0)
         val argTypes = if (topTypes != null) {
             visitTopTypes(topTypes)

@@ -67,7 +67,7 @@ generic Form =
 generic Attribute =
   PredAttr
 / void:"-":s "spec" ( TypeSpec / SYNTAX_ERROR )
-/ void:"-":s AtomId
+/ void:"-":s !"spec" AtomId
   ( TypedAttrVal
   / void:"(":s TypedAttrVal void:")":s
   / AttrVal

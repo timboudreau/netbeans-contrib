@@ -416,36 +416,71 @@ class ErlangCodeCompletion extends CodeCompletionHandler {
 
     override
     def document(info:ParserResult, element:ElementHandle) :String = {
-        val comment = element match {
-            case x:AstDfn => x.docComment
-            case _ => null
+        val sb = new StringBuilder
+        val fo = element.getFileObject
+        if (fo != null) {
+            sb.append("<i>").append(fo.getPath).append("</i><br>")
         }
 
         val sigFormatter = new SignatureHtmlFormatter
-        val html = new StringBuilder
-        if (comment == null) {
-            element match {
-                case x:AstDfn => x.htmlFormat(sigFormatter)
-                case _ =>
-            }
-            html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound")).append("</i>")
-        } else {
-            val formatter = new ErlangCommentFormatter(comment)
-            val name = element.getName
-            if (name != null && name.length > 0) {
-                formatter.setSeqName(name)
-            }
+        element match {
+            case x:AstDfn =>
+                x.htmlFormat(sigFormatter)
+                sb.append("<b>").append(sigFormatter).append("</b>").append("\n<hr>\n")
+                x.spec match {
+                    case None =>
+                    case Some(x) =>
+                        val argTypes = x.argTypes
+                        if (!argTypes.isEmpty) {
+                            sb.append("<b>")
+                            sb.append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "Parameters"))
+                            sb.append("</b><blockquote>") //NOI18N
+                            val itr = argTypes.elements
+                            while (itr.hasNext) {
+                                sb.append(itr.next)
+                                if (itr.hasNext) {
+                                    sb.append(", ")
+                                }
+                            }
+                            sb.append("</blockquote>") // NOI18N
+                        }
+                        val returnType = x.returnType
+                        if (returnType != NO_TYPE) {
+                            sb.append("<b>") // NOI18N
+                            sb.append(NbBundle.getMessage(classOf[ErlangCommentFormatter], "Returns"))
+                            sb.append("</b><blockquote>") //NOI18N
+                            sb.append("<i>") // NOI18N
+                            sb.append(returnType)
+                            sb.append("</i>") // NOI18N
+                            sb.append("</blockquote>") //NOI18N
+                        }
+                }
 
-            val fo = element.getFileObject
-            if (fo != null) {
-                html.append("<b>").append(fo.getNameExt).append("</b><br>")
-            }
+                x.docComment match {
+                    case null =>
+                        sb.append("\n<hr>\n<i>")
+                        sb.append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound"))
+                        sb.append("</i>")
+                    case comment =>
+                        val formatter = new ErlangCommentFormatter(comment)
+                        sb.append("\n<hr>\n")
+                        sb.append(formatter.toHtml)
+                }                
+            case _ =>
+                val name = element.getName
+                if (name != null && name.length > 0) {
+                    sigFormatter.appendText(name)
+                    sb.append("<b>").append(sigFormatter).append("</b>").append("\n<hr>\n")
+                }
 
-            html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml)
+                sb.append("\n<hr>\n<i>")
+                sb.append(NbBundle.getMessage(classOf[ErlangCodeCompletion], "NoCommentFound"))
+                sb.append("</i>")                
         }
-        html.toString
+        
+        sb.toString
     }
-
+    
     override
     def getApplicableTemplates(info:ParserResult, selectionBegin:Int, selectionEnd:Int) :Set[String] = {
         Collections.emptySet[String]

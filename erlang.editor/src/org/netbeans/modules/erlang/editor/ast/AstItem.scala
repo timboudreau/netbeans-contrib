@@ -147,6 +147,8 @@ trait AstItem extends ForElementHandle {
         _enclosingScope
     }
 
+    def rootScope :AstRootScope = enclosingScope.get.root
+
     def property(k:String, v:Any) :Unit = {
         if (properties == None) {
             properties = Some(new HashMap)
