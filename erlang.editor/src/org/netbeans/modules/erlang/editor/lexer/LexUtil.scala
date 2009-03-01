@@ -171,16 +171,9 @@ object LexUtil extends LanguageLexUtil {
         } catch {case ex:Exception => None}
     }
 
-    def tokenHierarchy(snapshot:Snapshot) :Option[TokenHierarchy[_]] = document(snapshot, false) match {
-        // * try get th from BaseDocument first, if it has been opened, th should has been there
-        case doc:BaseDocument => TokenHierarchy.get(doc) match {
-                case null => None
-                case th => Some(th)
-            }
-        case _ => TokenHierarchy.create(snapshot.getText, language) match {
-                case null => None
-                case th => Some(th)
-            }
+    def tokenHierarchy(snapshot:Snapshot) :Option[TokenHierarchy[_]] = snapshot.getTokenHierarchy match {
+        case null => None
+        case th => Some(th)
     }
 
     def tokenHierarchy(pResult:ParserResult) :Option[TokenHierarchy[_]] = pResult match {
