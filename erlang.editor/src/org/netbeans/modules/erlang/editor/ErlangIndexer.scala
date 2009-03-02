@@ -41,6 +41,7 @@ package org.netbeans.modules.erlang.editor
 import _root_.java.io.{File,IOException}
 import _root_.java.net.MalformedURLException
 import _root_.java.util.{Collection}
+import _root_.java.util.logging.{Logger,Level}
 import javax.swing.text.Document
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.api.lexer.{TokenHierarchy}
@@ -370,6 +371,9 @@ object ErlangIndexer {
     
     val NAME = "erlang" // NOI18N
     val VERSION = 9
+
+    val LOG = Logger.getLogger(classOf[ErlangIndexer].getName)
+
     
     class Factory extends EmbeddingIndexerFactory {
 
@@ -427,15 +431,25 @@ object ErlangIndexer {
         override
         def filesDeleted(deleted:Collection[_ <: Indexable], context:Context) :Unit = {
             try {
-                val support = IndexingSupport.getInstance(context)
+                val is = IndexingSupport.getInstance(context)
                 val itr = deleted.iterator
                 while (itr.hasNext) {
-                    support.removeDocuments(itr.next)
+                    is.removeDocuments(itr.next)
                 }
-            } catch {
-                case ex:IOException => Exceptions.printStackTrace(ex)
-            }
+            } catch {case ioe:IOException => LOG.log(Level.WARNING, null, ioe)}
         }
+
+        override
+        def filesDirty(dirty:Collection[_ <: Indexable], context:Context) :Unit = {
+            try {
+                val is = IndexingSupport.getInstance(context)
+                val itr = dirty.iterator
+                while (itr.hasNext) {
+                    is.markDirtyDocuments(itr.next)
+                }
+            } catch {case ioe:IOException => LOG.log(Level.WARNING, null, ioe)}
+        }
+
     }
 
 
