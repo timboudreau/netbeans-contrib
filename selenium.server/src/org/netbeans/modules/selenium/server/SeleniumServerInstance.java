@@ -59,7 +59,7 @@ class SeleniumServerInstance implements ServerInstanceImplementation{
     }
 
     public Node getFullNode() {
-        return new SeleniumServerNode();
+        return SeleniumServerNode.getInstance();
     }
 
     public Node getBasicNode() {
