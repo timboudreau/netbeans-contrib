@@ -74,7 +74,6 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     private transient WizardDescriptor.Panel panel;
     private transient WizardDescriptor wiz;
 
-
     public static WizardDescriptor.InstantiatingIterator create(){
         return new SeleneseTestWizardOperator();
     }
@@ -121,9 +120,14 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
         Project proj = Templates.getProject(wiz);
-        assert(SeleniumSupport.getSelenimDir(proj) != null);
-        panel = createPanel(wiz);
-        panel.getComponent();
+        if (isAntProject(proj)){
+            assert (SeleniumSupport.getSelenimDir(proj) != null);
+            panel = createPanel(wiz);
+            panel.getComponent();
+        } else {
+            wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(SeleneseTestWizardOperator.class, "NON_ANT_PROJECT"));
+            panel = Templates.createSimpleTargetChooser(proj, new SourceGroup[0]);
+        }
     }
 
     public void uninitialize(WizardDescriptor wiz) {
@@ -182,5 +186,9 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
 
     public void removeChangeListener(ChangeListener l) {
         changeSupport.removeChangeListener(l);
+    }
+
+    private boolean isAntProject(Project proj) {
+        return proj.getProjectDirectory().getFileObject("nbproject/project.xml") != null;
     }
 }

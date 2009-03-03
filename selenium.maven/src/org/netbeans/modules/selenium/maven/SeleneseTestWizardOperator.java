@@ -43,8 +43,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
@@ -105,8 +103,13 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
         Project project = Templates.getProject(wiz);
-        panel = createPanel(wiz);
-        panel.getComponent();
+        if (SeleniumMavenSupport.isMavenProject(project)){
+            panel = createPanel(wiz);
+            panel.getComponent();
+        } else {
+            wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(SeleneseTestWizardOperator.class, "NON_MAVEN_PROJECT"));
+            panel = Templates.createSimpleTargetChooser(project, new SourceGroup[0]);
+        }
     }
 
     public void uninitialize(WizardDescriptor wiz) {
