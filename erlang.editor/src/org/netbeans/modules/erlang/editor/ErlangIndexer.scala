@@ -399,7 +399,7 @@ object ErlangIndexer {
                  * Not each kind of MIME files hava FileObject, for instance:
                  * ParserFile with name as ".LCKxxxxx.erl~" etc will have none FileObject.
                  */
-                return false;
+                return false
             }
 
             val maxMemoryInMBs = Runtime.getRuntime.maxMemory / (1024.0 * 1024.0)

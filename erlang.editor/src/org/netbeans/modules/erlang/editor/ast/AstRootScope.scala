@@ -39,15 +39,16 @@
 package org.netbeans.modules.erlang.editor.ast
 
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
+import org.netbeans.modules.csl.api.{ElementKind}
 import scala.collection.mutable.{ArrayBuffer,HashMap}
 
 /**
  *
  * @author Caoyuan Deng
  */
-class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) {
+class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) with LanguageAstRootScope {
 
-    private val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
+    protected val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
     private var tokens :List[Token[TokenId]] = Nil
     private var tokensSorted :Boolean = false
 
@@ -118,12 +119,6 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
         }.map(_.symbol).toList.asInstanceOf[List[A]]
     }
 
-    def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
-        _idTokenToItem.values.find{item =>
-            item.isInstanceOf[AstDfn] && item.symbol == symbol
-        }.asInstanceOf[Option[AstDfn]]
-    }
-
     def findFirstItemWithName(name:String) :Option[AstItem] = {
         _idTokenToItem.find{k => k._1.text.toString == name} match {
             case None => None
@@ -138,4 +133,15 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
     protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
         sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
     }
+}
+
+trait LanguageAstRootScope {self:AstRootScope =>
+    
+    def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
+        self._idTokenToItem.values.find{item =>
+            // ElementKind.Rule is "-spec", we won't let it as
+            item.isInstanceOf[AstDfn] && item.symbol == symbol && item.getKind != ElementKind.RULE
+        }.asInstanceOf[Option[AstDfn]]
+    }
+
 }
