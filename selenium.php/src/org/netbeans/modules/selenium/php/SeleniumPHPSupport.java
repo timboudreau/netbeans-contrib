@@ -59,6 +59,9 @@ final class SeleniumPHPSupport {
 
     static boolean isActive(Project project) {
         PhpSeleniumProvider provider = getSeleniumProvider(project);
+        if (provider == null){
+            return false;
+        }
         return provider.getTestDirectory(false) != null;
     }
 
