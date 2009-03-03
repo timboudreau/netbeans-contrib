@@ -59,6 +59,7 @@ import java.util.logging.Logger;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.swing.UIManager;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
@@ -244,6 +245,20 @@ class Debug {
         java.appendChild(jvmarg);
         jvmarg.setAttribute("value", "-ea"); // NOI18N
          */
+        jvmarg = doc.createElement("jvmarg");
+        java.appendChild(jvmarg);
+        // #159469: try to match LAF & size that of the NB JVM.
+        int customFontSize = UIManager.getInt("customFontSize"); // NOI18N
+        if (customFontSize == 0) {
+            customFontSize = 12; // magic value?
+        }
+        jvmarg.setAttribute("value", "-DFONT_SIZE=" + customFontSize); // NOI18N
+        String laf = UIManager.getLookAndFeel().getClass().getName();
+        if (!laf.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")) { // NOI18N
+            jvmarg = doc.createElement("jvmarg");
+            java.appendChild(jvmarg);
+            jvmarg.setAttribute("value", "-Dswing.defaultlaf=" + laf); // NOI18N
+        } // else ODB throws NPE on GTK LAF
         Element classpath = doc.createElement("classpath"); // NOI18N
         java.appendChild(classpath);
         Element pathelement = doc.createElement("pathelement"); // NOI18N
