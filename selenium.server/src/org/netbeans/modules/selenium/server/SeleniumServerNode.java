@@ -64,8 +64,16 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
             = "org/netbeans/modules/glassfish/common/resources/running.png"; // NOI18N
     private static final String IMAGE_PATH = "org/netbeans/modules/selenium/resources/logo16.png";  //NOI18N
     private static final Image IMG = ImageUtilities.loadImage(IMAGE_PATH);
+    private static SeleniumServerNode instance;
     
-    public SeleniumServerNode() {
+    static synchronized SeleniumServerNode getInstance() {
+        if (instance == null){
+            instance = new SeleniumServerNode();
+        }
+        return instance;
+    }
+
+    SeleniumServerNode() {
         super(Children.LEAF);
         setDisplayName(NbBundle.getMessage(SeleniumServerInstance.class, "DisplayName"));
         setIconBaseWithExtension("org/netbeans/modules/selenium/resources/logo16.png");
