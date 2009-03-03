@@ -177,7 +177,7 @@ object LexUtil extends LanguageLexUtil {
     }
 
     def tokenHierarchy(pResult:ParserResult) :Option[TokenHierarchy[_]] = pResult match {
-        case null => null
+        case null => None
         case _ => tokenHierarchy(pResult.getSnapshot)
     }
 
