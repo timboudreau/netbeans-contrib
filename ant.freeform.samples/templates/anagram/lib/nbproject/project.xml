@@ -92,7 +92,7 @@
                         </arity>
                     </context>
                 </action>
-                <action name="run.single">
+                <action name="test.single">
                     <script>nbproject/file-targets.xml</script>
                     <target>run-selected-tests</target>
                     <context>
@@ -105,7 +105,7 @@
                         </arity>
                     </context>
                 </action>
-                <action name="debug.single">
+                <action name="debug.test.single">
                     <script>nbproject/netbeans-targets.xml</script>
                     <target>debug-test</target>
                     <context>

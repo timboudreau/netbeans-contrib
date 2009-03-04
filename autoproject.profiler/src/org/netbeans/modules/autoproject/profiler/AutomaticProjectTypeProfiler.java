@@ -103,6 +103,7 @@ public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
     public void configurePropertiesForProfiling(Properties props, Project project, FileObject profiledClassFile) {
         ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE);
         String classname = sourcepath.getResourceName(profiledClassFile, '.', false);
+        // XXX #159643: AntActions.doProfileProject is not smart enough yet...
         if (isTest(profiledClassFile, sourcepath)) {
             props.setProperty("classname", "junit.textui.TestRunner");
             props.setProperty("args", classname);
@@ -113,7 +114,6 @@ public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
         props.setProperty("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL));
     }
 
-    // XXX copied from ActionProviderImpl, should be moved into helper method
     private static boolean isTest(final FileObject fo, final ClassPath sourcepath) {
         final AtomicBoolean isActuallyTest = new AtomicBoolean();
         try {

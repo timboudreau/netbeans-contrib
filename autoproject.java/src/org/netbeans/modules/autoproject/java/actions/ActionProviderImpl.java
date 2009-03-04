@@ -50,19 +50,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.project.runner.JavaRunner;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -74,7 +68,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
@@ -121,7 +114,7 @@ public class ActionProviderImpl implements ActionProvider {
         if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
                 command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
                 command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
-            return runSetup(context, command, false) != null;
+            return runSetup(context, command) != null;
         } else {
             return true;
         }
@@ -133,7 +126,7 @@ public class ActionProviderImpl implements ActionProvider {
                 command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    RunSetup setup = runSetup(context, command, true);
+                    RunSetup setup = runSetup(context, command);
                     if (setup != null) {
                         try {
                             JavaRunner.execute(setup.command, setup.props);
@@ -228,7 +221,7 @@ public class ActionProviderImpl implements ActionProvider {
             this.props = props;
         }
     }
-    private RunSetup/*|null*/ runSetup(Lookup context, String command, boolean block) {
+    private RunSetup/*|null*/ runSetup(Lookup context, String command) {
         String methodname;
         final FileObject fo;
         Collection<? extends SingleMethod> methods = context.lookupAll(SingleMethod.class);
@@ -258,63 +251,40 @@ public class ActionProviderImpl implements ActionProvider {
         if (sourcepath == null) {
             return null;
         }
-        boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) ||
-                command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
-                command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD);
-        boolean test = command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE);
+        Map<String, Object> properties = new HashMap<String, Object>();
         FileObject toRun = fo;
-        if (test) {
-            // Try to find the matching unit test.
-            toRun = null;
+        boolean test;
+        if (command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
+            test = true;
+            if (methodname == null) {
+                return null;
+            }
+            properties.put("methodname", methodname); // NOI18N
+        } else if (command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
+            test = true;
+            // Check for a matching unit test.
             FileObject root = sourcepath.findOwnerRoot(fo);
             assert root != null : fo;
             String testResource = sourcepath.getResourceName(fo, '/', false) + "Test.java";
             for (URL u : UnitTestForSourceQuery.findUnitTests(root)) {
                 try {
-                    toRun = URLMapper.findFileObject(new URL(u, testResource));
-                    if (toRun != null) {
+                    FileObject _toRun = URLMapper.findFileObject(new URL(u, testResource));
+                    if (_toRun != null) {
+                        toRun = _toRun;
                         break;
                     }
                 } catch (MalformedURLException x) {
                     assert false : x;
                 }
             }
-            if (toRun == null) {
-                return null;
-            }
-        } else if (block) {
-            // We can block waiting for parse, and figure out whether to run as a test.
-            try {
-                final AtomicBoolean isActuallyTest = new AtomicBoolean();
-                JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
-                    public void run(CompilationController cc) throws Exception {
-                        String name = sourcepath.getResourceName(fo, '.', false);
-                        assert name != null : fo;
-                        TypeElement runType = cc.getElements().getTypeElement(name);
-                        assert runType != null : name;
-                        TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
-                        if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
-                            isActuallyTest.set(true);
-                        }
-                        // XXX also classes with a "public static junit.framework.Test suite()" method
-                        // XXX also classes containing public methods annotated with @org.junit.Test
-                        // XXX can also check for public static void main(String[]) and return null if not found
-                    }
-                }, true).get();
-                test = isActuallyTest.get();
-            } catch (Exception x) {
-                Exceptions.printStackTrace(x);
-            }
-        }
-        Map<String, Object> properties = new HashMap<String, Object>();
-        if (command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
-            if (methodname == null) {
-                return null;
-            }
-            test = true;
-            properties.put("methodname", methodname); // NOI18N
+        } else {
+            assert command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) : command;
+            test = false;
         }
         properties.put(JavaRunner.PROP_EXECUTE_FILE, toRun);
+        boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) ||
+                command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
+                command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD);
         return new RunSetup(debug ?
             (test ? JavaRunner.QUICK_TEST_DEBUG : JavaRunner.QUICK_DEBUG) :
             (test ? JavaRunner.QUICK_TEST : JavaRunner.QUICK_RUN),
