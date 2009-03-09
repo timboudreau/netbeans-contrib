@@ -130,7 +130,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             isRunning = (!action.equals(Action.STOP));
             action = null;
         } catch (BindException bi){
-            Logger.getLogger(SeleniumServerRunner.class.getName()).log(Level.WARNING,
+            Logger.getLogger(SeleniumServerRunner.class.getName()).log(Level.INFO,
                     "Port already in use - the server is probably already running.", bi);
         } catch (Exception exc) {
             Exceptions.printStackTrace(exc);
