@@ -167,7 +167,7 @@ final class SeleniumMavenSupport {
         }
     }
 
-    private static boolean isProjectReady(Project project) {
+    public static boolean isProjectReady(Project project) {
         POMModel model = getPOMModel(project);
         return ModelUtils.hasModelDependency(model, "org.openqa.selenium.client-drivers", "selenium-java-client-driver");
     }

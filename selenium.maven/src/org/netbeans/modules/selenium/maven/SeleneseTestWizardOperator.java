@@ -68,6 +68,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     private static final String DEFAULT_SERVER_PORT = "80";         // NOI18N
     private transient WizardDescriptor.Panel panel;
     private transient WizardDescriptor wiz;
+    private PomConfigurationPanel pcp = null;
 
 
     public static WizardDescriptor.InstantiatingIterator create(){
@@ -94,7 +95,9 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         createdFile = dobj.getPrimaryFile();
 
         Project project = Templates.getProject(wiz);
-        SeleniumMavenSupport.prepareProject(project);
+        if ((pcp != null) && (pcp.modifyPom())){
+            SeleniumMavenSupport.prepareProject(project);
+        }
 
         return Collections.singleton(createdFile);
     }
@@ -147,17 +150,20 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         Sources sources = ProjectUtils.getSources(project);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         assert groups != null : "Cannot return null from Sources.getSourceGroups: " + sources;
+        if (!SeleniumMavenSupport.isProjectReady(project)){
+            pcp = new PomConfigurationPanel();
+        }
         if (groups.length == 0) {
             groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
-            return Templates.createSimpleTargetChooser(project, groups);
+            return Templates.createSimpleTargetChooser(project, groups, pcp);
         } else {
             FileObject testDir = SeleniumMavenSupport.getTestRoot(project);
             for (SourceGroup selGroup : groups) {
                 if (selGroup.getRootFolder().equals(testDir)){
-                    return JavaTemplates.createPackageChooser(project, new SourceGroup[]{selGroup});
+                    return JavaTemplates.createPackageChooser(project, new SourceGroup[]{selGroup}, pcp);
                 }
             }
-            return JavaTemplates.createPackageChooser(project, groups);
+            return JavaTemplates.createPackageChooser(project, groups, pcp);
         }
 
     }
