@@ -94,33 +94,33 @@ public class ScriptLibrary implements Runnable {
         userHomeDir = System.getProperty("user.home");
         if (userHomeDir.length() != 0) {
             preDefScriptDir.append(userHomeDir);
-            preDefScriptDir.append("/");
-            preDefScriptDir.append("DTraceScripts");
+            preDefScriptDir.append("/");  //NOI18N
+            preDefScriptDir.append("DTraceScripts");  //NOI18N
         }
         
         userCurDir = System.getProperty("user.dir");
         if (userCurDir.length() != 0) {
             usrDefScriptDir.append(userCurDir);
-            usrDefScriptDir.append("/");
-            usrDefScriptDir.append("DTraceScripts");
+            usrDefScriptDir.append("/");  //NOI18N
+            usrDefScriptDir.append("DTraceScripts");  //NOI18N
         } 
         
-        chimeHome = preDefScriptDir.toString() + "/chime";
-        System.setProperty("CHIME_HOME", chimeHome);
+        chimeHome = preDefScriptDir.toString() + "/chime";  //NOI18N
+        System.setProperty("CHIME_HOME", chimeHome);  //NOI18N
         // System.setProperty("JAVA_CONVERSION_API_DEBUG", "1");
         // System.getProperties().list(System.out);
         String arch = System.getProperty("os.arch");
-        File libraryFile = InstalledFileLocator.getDefault().locate("modules/lib",
-                "org.netbeans.modules.dtrace",
+        File libraryFile = InstalledFileLocator.getDefault().locate("modules/lib", //NOI18N
+                "org.netbeans.modules.dtrace",  //NOI18N
                 false);
   
         if (libraryFile != null  && libraryFile.exists()) {
             String path = libraryFile.toString();
             File netbeansLib = new File(path, arch);
             String libraryPath = System.getProperty("java.library.path");
-            libraryPath += ":";
+            libraryPath += ":";   //NOI18N
             libraryPath += netbeansLib.getAbsolutePath();
-            System.setProperty("java.library.path", libraryPath);
+            System.setProperty("java.library.path", libraryPath);  //NOI18N
         }
     /*   
         String classPath = System.getProperty("java.class.path");
@@ -176,14 +176,14 @@ public class ScriptLibrary implements Runnable {
                 int dot = name.lastIndexOf('.');
                 if (dot != -1) {
                     String extension = name.substring(dot + 1);
-                    if (extension.compareToIgnoreCase("xml") == 0) {
+                    if (extension.compareToIgnoreCase("xml") == 0) {  //NOI18N
                         acceptFile = false;
                     }
                 }
                 
                 if (file.isDirectory()) {
                     acceptFile = false;
-                } else if (name.compareToIgnoreCase("Readme") == 0) {
+                } else if (name.compareToIgnoreCase("Readme") == 0) {  //NOI18N
                     acceptFile = false;
                 }
                 
@@ -199,27 +199,27 @@ public class ScriptLibrary implements Runnable {
                 
                 if (file.isDirectory()) {
                     acceptDir = true;
-                    if (name.compareToIgnoreCase("Docs") == 0) {
+                    if (name.compareToIgnoreCase("Docs") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Extra") == 0) {
+                    } else if (name.compareToIgnoreCase("Extra") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Bin") == 0) {
+                    } else if (name.compareToIgnoreCase("Bin") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Man") == 0) {
+                    } else if (name.compareToIgnoreCase("Man") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("zzz") == 0) {
+                    } else if (name.compareToIgnoreCase("zzz") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Examples") == 0) {
+                    } else if (name.compareToIgnoreCase("Examples") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Code") == 0) {
+                    } else if (name.compareToIgnoreCase("Code") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Include") == 0) {
+                    } else if (name.compareToIgnoreCase("Include") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Notes") == 0) {
+                    } else if (name.compareToIgnoreCase("Notes") == 0) {  //NOI18N
                         acceptDir = false;                       
-                    } else if (name.compareToIgnoreCase("chime") == 0) {
+                    } else if (name.compareToIgnoreCase("chime") == 0) {  //NOI18N
                         acceptDir = false;
-                    } else if (name.compareToIgnoreCase("Legal") == 0) {
+                    } else if (name.compareToIgnoreCase("Legal") == 0) {  //NOI18N
                         acceptDir = false;   
                     } 
                     
@@ -246,7 +246,7 @@ public class ScriptLibrary implements Runnable {
         }
        
         synchronized (this) { 
-            String procName = "Install DTraceScripts";
+            String procName = "Install DTraceScripts";  //NOI18N
             InputOutput io = IOProvider.getDefault().getIO(procName, true);
             io.select();            
             ExecutorTask task = ExecutionEngine.getDefault().execute(procName, this, io);
@@ -343,8 +343,8 @@ public class ScriptLibrary implements Runnable {
         Enumeration entries;
         ZipFile zipFile;
         
-        File scriptFile = InstalledFileLocator.getDefault().locate("modules/ext/DTraceScripts.zip",
-                "org.netbeans.modules.dtrace",
+        File scriptFile = InstalledFileLocator.getDefault().locate("modules/ext/DTraceScripts.zip",  //NOI18N
+                "org.netbeans.modules.dtrace",  //NOI18N
                 false);
   
         if (scriptFile != null  && !scriptFile.exists()) {
@@ -352,7 +352,7 @@ public class ScriptLibrary implements Runnable {
         } 
               
         StringBuffer path = new StringBuffer(scriptFile.toString());
-        String zipPath = userHomeDir + File.separator + "DTraceScripts.zip";
+        String zipPath = userHomeDir + File.separator + "DTraceScripts.zip";  //NOI18N
         File zipSource = new File(path.toString());
         File zipDest = new File(zipPath);
         copyFile(zipSource, zipDest);
@@ -379,7 +379,7 @@ public class ScriptLibrary implements Runnable {
             return;
         }  
 
-        String command = "/bin/chmod -R 755 DTraceScripts";
+        String command = "/bin/chmod -R 755 DTraceScripts";  //NOI18N
         try {
             File userHomeDirFile = new File(userHomeDir);
             p = Runtime.getRuntime().exec(command, null, userHomeDirFile);

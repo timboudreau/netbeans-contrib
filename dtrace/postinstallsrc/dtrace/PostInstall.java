@@ -65,12 +65,12 @@ import java.util.zip.ZipFile;
 public class PostInstall {
     public static void main(String[] args) {
         try {
-            File dtraceJar = new File(File.separator + "usr" + File.separator +
-                "share" + File.separator + "lib" +
-                File.separator + "java" + File.separator +
-                "dtrace.jar");
+            File dtraceJar = new File(File.separator + "usr" + File.separator + //NOI18N
+                "share" + File.separator + "lib" + //NOI18N
+                File.separator + "java" + File.separator + //NOI18N
+                "dtrace.jar"); //NOI18N
 
-            URL url = PostInstall.class.getResource("PostInstall.class");
+            URL url = PostInstall.class.getResource("PostInstall.class"); //NOI18N
             URI uri = url.toURI();
             File currentDir = new File(uri);
             File dtracePackageDir = currentDir.getParentFile();
@@ -78,18 +78,18 @@ public class PostInstall {
             File updateDir = mainDir.getParentFile();
             File clusterDir = updateDir.getParentFile(); 
             File modulesExt = new File (clusterDir.toString() + File.separator +
-                "modules" + File.separator + "ext" + File.separator +
-                "dtrace.jar");
+                "modules" + File.separator + "ext" + File.separator + //NOI18N
+                "dtrace.jar"); //NOI18N
 
             copyFile(dtraceJar, modulesExt);
 
             File sourceZip = new File (clusterDir.toString() +
-                File.separator + "modules" + File.separator + "ext" +
-                File.separator + "DTraceScripts.zip");
+                File.separator + "modules" + File.separator + "ext" + //NOI18N
+                File.separator + "DTraceScripts.zip"); //NOI18N
 
-            String userHome = System.getProperty("user.home");
+            String userHome = System.getProperty("user.home"); //NOI18N
             File destZip = new File (userHome + File.separator +
-                "DTraceScripts.zip");
+                "DTraceScripts.zip"); //NOI18N
 
             copyFile(sourceZip, destZip);
 
@@ -114,9 +114,9 @@ public class PostInstall {
         }
        
         Process p = null;
-        String command = "/bin/chmod -R 755 DTraceScripts";
+        String command = "/bin/chmod -R 755 DTraceScripts"; //NOI18N
         try {
-            File userHomeDirFile = new File(System.getProperty("user.home"));
+            File userHomeDirFile = new File(System.getProperty("user.home")); //NOI18N
             p = Runtime.getRuntime().exec(command, null, userHomeDirFile);
         } catch(IOException ex) {
             ex.printStackTrace();

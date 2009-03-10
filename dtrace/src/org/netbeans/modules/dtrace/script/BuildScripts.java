@@ -84,7 +84,7 @@ public class BuildScripts {
     }
     
     public Vector getScripts(String dir) {
-        String dirPath = scrLib.getPreDefScriptDir() + "/" + dir;
+        String dirPath = scrLib.getPreDefScriptDir() + "/" + dir;  //NOI18N
         File[] files = scrLib.getFiles(dirPath);
         Vector vec = new Vector();
         if (files != null) {

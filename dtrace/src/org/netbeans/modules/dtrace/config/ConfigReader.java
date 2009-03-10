@@ -75,7 +75,7 @@ public class ConfigReader extends DefaultHandler {
     public void startElement(String uri, String localName, 
             String qName, Attributes attributes) throws SAXException {
 
-	if (qName.equalsIgnoreCase("Script")) {       
+	if (qName.equalsIgnoreCase("Script")) {     //NOI18N
             configData = new ConfigData();
 	}
     }
@@ -87,19 +87,19 @@ public class ConfigReader extends DefaultHandler {
     public void endElement(String uri, String localName, 
             String qName) throws SAXException {
 
-	if (qName.equalsIgnoreCase("Script")) {
+	if (qName.equalsIgnoreCase("Script")) {  //NOI18N
             return;
-	} else if (qName.equalsIgnoreCase("ProcessId")) {
+	} else if (qName.equalsIgnoreCase("ProcessId")) {  //NOI18N
 	    configData.setProcessId(tempVal);
-	} else if (qName.equalsIgnoreCase("ExecPath")) {
+	} else if (qName.equalsIgnoreCase("ExecPath")) {  //NOI18N
             configData.setExecPath(tempVal);
-	} else if (qName.equalsIgnoreCase("ExecArgs")) {
+	} else if (qName.equalsIgnoreCase("ExecArgs")) {  //NOI18N
             configData.setExecArgs(tempVal);
-	} else if (qName.equalsIgnoreCase("ScriptName")) {
+	} else if (qName.equalsIgnoreCase("ScriptName")) {  //NOI18N
             configData.setScriptName(tempVal);
-        } else if (qName.equalsIgnoreCase("ScripPath")) {
+        } else if (qName.equalsIgnoreCase("ScripPath")) {  //NOI18N
             configData.setScriptPath(tempVal);
-        } else if (qName.equalsIgnoreCase("ScriptArgs")) {
+        } else if (qName.equalsIgnoreCase("ScriptArgs")) {  //NOI18N
             configData.setScriptArgs(tempVal);    
         } else {
             return;

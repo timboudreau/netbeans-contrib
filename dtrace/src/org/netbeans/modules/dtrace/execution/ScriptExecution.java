@@ -140,7 +140,7 @@ public class ScriptExecution {
     }
     
     public int getPid() throws Exception {
-        Field pidFld = proc.getClass().getDeclaredField("pid");
+        Field pidFld = proc.getClass().getDeclaredField("pid");  //NOI18N
         pidFld.setAccessible(true);
         return pidFld.getInt(proc);
     } 
@@ -177,7 +177,7 @@ public class ScriptExecution {
             this.in = in;
             this.reader = new InputStreamReader(in);
             this.out = out;
-            setName("OutputReaderThread"); 
+            setName("OutputReaderThread"); //NOI18N
         }
         
         public void run() {

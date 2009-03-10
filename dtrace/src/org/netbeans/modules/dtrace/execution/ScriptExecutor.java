@@ -115,7 +115,7 @@ public class ScriptExecutor implements Runnable {
         final ExecutorTask execTask;
         synchronized (this) { 
             this.script = script;
-            String displayName = "DTrace - " + script.getName();
+            String displayName = "DTrace - " + script.getName();  //NOI18N
             
             Iterator i = taskTabs.iterator();
             while (i.hasNext()) {
@@ -187,7 +187,7 @@ public class ScriptExecutor implements Runnable {
         //params.add(String.valueOf(pid));
         //new ProcessBuilder(params).start();
         
-        String cmd = "kill -15 ";
+        String cmd = "kill -15 ";  //NOI18N
         cmd += String.valueOf(pid);
         Process proc = Runtime.getRuntime().exec(cmd);
         try {
@@ -326,9 +326,9 @@ public class ScriptExecutor implements Runnable {
         @Override
         public Object getValue(String key) {
             if (key.equals(Action.SMALL_ICON)) {
-                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/stop.png"));
+                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/stop.png"));  //NOI18N
             } else if (key.equals(Action.SHORT_DESCRIPTION)) {
-                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.StopAction.stop");
+                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.StopAction.stop");  //NOI18N
             } else {
                 return super.getValue(key);
             }
@@ -364,9 +364,9 @@ public class ScriptExecutor implements Runnable {
         @Override
         public Object getValue(String key) {
             if (key.equals(Action.SMALL_ICON)) {
-                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/rerun.png"));
+                return new ImageIcon(ScriptExecutor.class.getResource("/org/netbeans/modules/dtrace/resources/rerun.png"));  //NOI18N
             } else if (key.equals(Action.SHORT_DESCRIPTION)) {
-                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.RerunAction.rerun");
+                return NbBundle.getMessage(ScriptExecutor.class, "ScriptExecutor.RerunAction.rerun");  //NOI18N
             } else {
                 return super.getValue(key);
             }

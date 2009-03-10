@@ -53,7 +53,7 @@ import org.openide.nodes.Sheet;
 
 public class DScriptDataNode extends DataNode {
     
-    private static final String IMAGE_ICON_BASE = "SET/PATH/TO/ICON/HERE";
+    private static final String IMAGE_ICON_BASE = "SET/PATH/TO/ICON/HERE";  //NOI18N
     
     private Script script = null;
     
@@ -74,9 +74,9 @@ public class DScriptDataNode extends DataNode {
         //}
         s.remove(Sheet.PROPERTIES);
         Sheet.Set ps = new Sheet.Set();
-        ps.setName("DTrace config");
-        ps.setDisplayName("DTrace config");
-        ps.setShortDescription("Dtrace config");
+        ps.setName(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "DTrace_Config"));
+        ps.setDisplayName(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "DTrace_Config"));
+        ps.setShortDescription(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "DTrace_Config"));
         s.put(ps);
         
         ps.put(new PidProperty());
@@ -98,7 +98,10 @@ public class DScriptDataNode extends DataNode {
    
     private final class PidProperty extends PropertySupport.ReadWrite {
         public PidProperty() {
-            super("Pid", String.class, "Pid", "Pid");
+            super(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "PID"),
+                  String.class,
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "PID"),
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "PID"));
         }
         
         public Object getValue() {
@@ -113,9 +116,11 @@ public class DScriptDataNode extends DataNode {
     
     private final class ExecNameProperty extends PropertySupport.ReadWrite {
         public ExecNameProperty() {
-            super("Executable", String.class, "Executable", "Executable name");
+            super(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Name"),
+                  String.class,
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Name"),
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Name"));
         }
-        
         public Object getValue() {
             return getScript().getExecPath();
         }
@@ -128,7 +133,10 @@ public class DScriptDataNode extends DataNode {
     
     private final class ExecArgsProperty extends PropertySupport.ReadWrite {
         public ExecArgsProperty() {
-            super("Executable Args", String.class, "Executable Args", "Executable Arguments");
+            super(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Args"),
+                  String.class,
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Args"),
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Executable_Args"));
         }
         
         public Object getValue() {
@@ -143,7 +151,10 @@ public class DScriptDataNode extends DataNode {
     
     private final class ScriptArgsProperty extends PropertySupport.ReadWrite {
         public ScriptArgsProperty() {
-            super("Script Args", String.class, "Script Args", "Script Arguments");
+            super(org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Script_Args"),
+                  String.class,
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Script_Args"),
+                  org.openide.util.NbBundle.getMessage(DScriptDataNode.class, "Script_Args"));
         }
         
         public Object getValue() {

@@ -84,8 +84,8 @@ final class DTraceTopComponent extends TopComponent {
     
     private static DTraceTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/modules/dtrace/resources/run.gif";
-    private static final String PREFERRED_ID = "DTraceTopComponent";
+    static final String ICON_PATH = "org/netbeans/modules/dtrace/resources/run.gif"; //NOI18N
+    private static final String PREFERRED_ID = "DTraceTopComponent";  //NOI18N
     private ScriptExecutor scriptExecutor;
     private final PropertySheet propertySheet = new PropertySheet();
     static Configuration configuration;
@@ -134,7 +134,7 @@ final class DTraceTopComponent extends TopComponent {
           launcher.addChimeListener(new ChimeListener() {
 	          public void programDisplayed(ProgramDisplayEvent e) {
                   //System.out.println(e.getProgramText());
-                  String tmpPath = File.separator + "tmp" + File.separator + "chime.d";
+                  String tmpPath = File.separator + "tmp" + File.separator + "chime.d";  //NOI18N
                   try {
                       PrintWriter out = new PrintWriter(new FileWriter(tmpPath));
                       out.write(e.getProgramText());
@@ -172,6 +172,7 @@ final class DTraceTopComponent extends TopComponent {
         scriptPopupMenu1 = new javax.swing.JPopupMenu();
         editMenuItem1 = new javax.swing.JMenuItem();
         runMenuItem1 = new javax.swing.JMenuItem();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -185,36 +186,38 @@ final class DTraceTopComponent extends TopComponent {
         newScriptButton1 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
 
-        org.openide.awt.Mnemonics.setLocalizedText(editMenuItem1, "View/Edit");
+        org.openide.awt.Mnemonics.setLocalizedText(editMenuItem1, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "VIEW&EDIT")); // NOI18N
         editMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editMenuItem1ActionPerformed(evt);
             }
         });
         scriptPopupMenu1.add(editMenuItem1);
+        editMenuItem1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "VIEW&EDIT")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(runMenuItem1, "Run");
+        org.openide.awt.Mnemonics.setLocalizedText(runMenuItem1, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "RUN")); // NOI18N
         runMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 runMenuItem1ActionPerformed(evt);
             }
         });
         scriptPopupMenu1.add(runMenuItem1);
+        runMenuItem1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "RUN")); // NOI18N
 
         setAutoscrolls(true);
         setLayout(new java.awt.BorderLayout());
 
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        jTabbedPane1.setToolTipText(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "CHIME")); // NOI18N
         jTabbedPane1.setMinimumSize(new java.awt.Dimension(22, 22));
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(3, 3));
 
         jPanel1.setMinimumSize(new java.awt.Dimension(22, 22));
 
-        configLabel.setFont(new java.awt.Font("Arial", 0, 14));
-        org.openide.awt.Mnemonics.setLocalizedText(configLabel, "Configuration");
+        org.openide.awt.Mnemonics.setLocalizedText(configLabel, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "CONFIGURATION")); // NOI18N
 
         runButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/dtrace/resources/start.gif"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(runButton, "Run");
+        org.openide.awt.Mnemonics.setLocalizedText(runButton, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "RUN")); // NOI18N
         runButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 runButtonActionPerformed(evt);
@@ -222,20 +225,19 @@ final class DTraceTopComponent extends TopComponent {
         });
 
         scriptsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        scriptsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                scriptsListValueChanged(evt);
-            }
-        });
         scriptsList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 scriptsListMouseClicked(evt);
             }
         });
+        scriptsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                scriptsListValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(scriptsList);
 
-        scriptsLabel.setFont(new java.awt.Font("Arial", 0, 14));
-        org.openide.awt.Mnemonics.setLocalizedText(scriptsLabel, "Scripts");
+        org.openide.awt.Mnemonics.setLocalizedText(scriptsLabel, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "SCRIPTS")); // NOI18N
 
         categoryComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -243,10 +245,9 @@ final class DTraceTopComponent extends TopComponent {
             }
         });
 
-        categoryLabel.setFont(new java.awt.Font("Arial", 0, 14));
-        org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, "Category");
+        org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "CATEGORY")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(newScriptButton1, "New Script");
+        org.openide.awt.Mnemonics.setLocalizedText(newScriptButton1, org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "New_Script")); // NOI18N
         newScriptButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newScriptButton1ActionPerformed(evt);
@@ -264,7 +265,7 @@ final class DTraceTopComponent extends TopComponent {
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, 0, 0, Short.MAX_VALUE)
                             .add(scriptsLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, categoryComboBox, 0, 232, Short.MAX_VALUE))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, categoryComboBox, 0, 229, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(newScriptButton1)
@@ -289,19 +290,20 @@ final class DTraceTopComponent extends TopComponent {
                     .add(configLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(runButton)
-                .add(13, 13, 13))
+                .add(17, 17, 17))
         );
 
-        jTabbedPane1.addTab("Toolkit", jPanel1);
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "TOOLKIT"), jPanel1); // NOI18N
 
         jPanel3.setLayout(new java.awt.BorderLayout());
-        jTabbedPane1.addTab("Chime", jPanel3);
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "CHIME_NAME"), jPanel3); // NOI18N
 
         add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+        jTabbedPane1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(DTraceTopComponent.class, "TOOLKIT")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void newScriptButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newScriptButton1ActionPerformed
@@ -310,7 +312,7 @@ final class DTraceTopComponent extends TopComponent {
             return;
         }
         String catName = (String)categoryComboBox.getSelectedItem();
-        String fullPath = new ScriptLibrary().getPreDefScriptDir() + "/" + catName;
+        String fullPath = new ScriptLibrary().getPreDefScriptDir() + "/" + catName; //NOI18N
         FileObject fileObject = FileUtil.toFileObject(new File(fullPath));
         try {
             CreateDialog createDialog = new CreateDialog(null, true);
@@ -318,7 +320,7 @@ final class DTraceTopComponent extends TopComponent {
             String name = createDialog.showDialog(catName);
             //fileObject.createData(name,"d");
             fileObject.createData(name);
-            fullPath += "/";
+            fullPath += "/";  //NOI18N
             fullPath += name;
             categoryChanged();
         } catch (Exception e) {
@@ -465,6 +467,7 @@ private void runMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JMenuItem editMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -494,13 +497,13 @@ private void runMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     public static synchronized DTraceTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find DTrace component. It will not be located properly in the window system.");
+            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find DTrace component. It will not be located properly in the window system.");  //NOI18N
             return getDefault();
         }
         if (win instanceof DTraceTopComponent) {
             return (DTraceTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");  //NOI18N
         return getDefault();
     }
     
@@ -533,7 +536,7 @@ private void runMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 
     public void open() {
-        Mode m = WindowManager.getDefault().findMode ("explorer");
+        Mode m = WindowManager.getDefault().findMode ("explorer"); //NOI18N
         if (m != null) {
             m.dockInto(this);
         }

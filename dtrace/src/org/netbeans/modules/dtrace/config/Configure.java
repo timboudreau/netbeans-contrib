@@ -149,7 +149,7 @@ public class Configure {
         try {
             FileOutputStream fos = getWriter();
             if (fos == null) {
-                ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot save the config file");
+                ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot save the config file"); //NOI18N
                 return;
             } 
             

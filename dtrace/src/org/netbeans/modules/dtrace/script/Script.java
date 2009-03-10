@@ -107,15 +107,15 @@ public class Script {
             dScript = false;
         } 
         
-        if (name.startsWith("graphics")) {
+        if (name.startsWith("graphics")) { //NOI18N
             graphics = true;
         }
         
-        xmlName = xmlName + ".xml";
+        xmlName = xmlName + ".xml";  //NOI18N
         dot = xmlPath.lastIndexOf('/');
         if (dot != -1) {
             xmlPath = xmlPath.substring(0, dot);
-            xmlPath = xmlPath + "/" + xmlName;
+            xmlPath = xmlPath + "/" + xmlName;  //NOI18N
         }
         config = new Configure(xmlPath);
         readConfig();
@@ -266,28 +266,28 @@ public class Script {
         
         readConfig();
         if (dScript) {
-            cmd.append("/usr/sbin/dtrace -Z -C -s ");
+            cmd.append("/usr/sbin/dtrace -Z -C -s ");  //NOI18N
         }
         cmd.append(path);
                 
         if (dScript && execPath.length() > 0) {                
-            cmd .append(" -c ");
+            cmd .append(" -c ");  //NOI18N
             cmd.append('\"');
             cmd.append(execPath);
             
             if (execArgs.length() > 0 && execArgs.charAt(0) != '\n') {
-                cmd.append(" ");
+                cmd.append(" ");  //NOI18N
                 cmd.append(execArgs);
             }
             cmd.append('\"');                     
         }
         if (pid.length() > 0 && pid.charAt(0) != '\n') {
-            cmd.append(" -p ");
+            cmd.append(" -p ");  //NOI18N
             cmd.append(pid);
         }
         
         if (args.length() > 0 && args.charAt(0) != '\n') {
-            cmd.append(" ");
+            cmd.append(" ");  //NOI18N
             cmd.append(args);
         }  
               

@@ -75,24 +75,24 @@ public class CreateDialog extends javax.swing.JDialog {
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("New Script");
+        setTitle(org.openide.util.NbBundle.getMessage(CreateDialog.class, "NewScriptTitle")); // NOI18N
         setModal(true);
 
-        jLabel1.setText("Creating a new script in the category:");
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(CreateDialog.class, "NewScriptCategory")); // NOI18N
 
         jTextField1.setEditable(false);
         jTextField1.setBorder(null);
 
-        jLabel2.setText("Enter the new script name:");
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(CreateDialog.class, "NewScriptName")); // NOI18N
 
-        jButton1.setText("Cancel");
+        jButton1.setText(org.openide.util.NbBundle.getMessage(CreateDialog.class, "Cancel")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("OK");
+        jButton2.setText(org.openide.util.NbBundle.getMessage(CreateDialog.class, "OK")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);

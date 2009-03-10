@@ -85,12 +85,12 @@ public class ConfigWriter {
     }
     
     public void createDOMTree(){
-	Element scriptEle = dom.createElement("Script");
+	Element scriptEle = dom.createElement("Script");  //NOI18N
 	dom.appendChild(scriptEle);
         
         if (configData.getProcessId().length() > 0 &&
                 configData.getProcessId().charAt(0) != '\n') {
-            Element pidEle = dom.createElement("ProcessId");
+            Element pidEle = dom.createElement("ProcessId");  //NOI18N
             Text pidText = dom.createTextNode(configData.getProcessId());
             pidEle.appendChild(pidText);
             scriptEle.appendChild(pidEle);
@@ -98,7 +98,7 @@ public class ConfigWriter {
         
         if (configData.getExecPath().length() > 0 && 
                 configData.getExecPath().charAt(0) != '\n') {
-            Element execPathEle = dom.createElement("ExecPath");
+            Element execPathEle = dom.createElement("ExecPath");  //NOI18N
             Text execPathText = dom.createTextNode(configData.getExecPath());
             execPathEle.appendChild(execPathText);
             scriptEle.appendChild(execPathEle);
@@ -106,7 +106,7 @@ public class ConfigWriter {
         
         if (configData.getExecArgs().length() > 0 &&
                 configData.getExecArgs().charAt(0) != '\n') {
-            Element execArgsEle = dom.createElement("ExecArgs");
+            Element execArgsEle = dom.createElement("ExecArgs"); //NOI18N
             Text execArgsText = dom.createTextNode(configData.getExecArgs());
             execArgsEle.appendChild(execArgsText);
             scriptEle.appendChild(execArgsEle);
@@ -114,7 +114,7 @@ public class ConfigWriter {
         
         if (configData.getScriptName().length() > 0 &&
                 configData.getScriptName().charAt(0) != '\n') {
-            Element scriptNameEle = dom.createElement("ScriptName");
+            Element scriptNameEle = dom.createElement("ScriptName");  //NOI18N
             Text scriptNameText = dom.createTextNode(configData.getScriptName());
             scriptNameEle.appendChild(scriptNameText);
             scriptEle.appendChild(scriptNameEle);   
@@ -122,7 +122,7 @@ public class ConfigWriter {
         
         if (configData.getScriptPath().length() > 0 &&
                 configData.getScriptPath().charAt(0) != '\n') {
-            Element scriptPathEle = dom.createElement("ScriptPath");
+            Element scriptPathEle = dom.createElement("ScriptPath");  //NOI18N
             Text scriptPathText = dom.createTextNode(configData.getScriptPath());
             scriptPathEle.appendChild(scriptPathText);
             scriptEle.appendChild(scriptPathEle); 
@@ -130,7 +130,7 @@ public class ConfigWriter {
         
         if (configData.getScriptArgs().length() > 0 &&
                 configData.getScriptArgs().charAt(0) != '\n') {
-            Element scriptArgsEle = dom.createElement("ScriptArgs");
+            Element scriptArgsEle = dom.createElement("ScriptArgs");  //NOI18N
             Text scriptArgsText = dom.createTextNode(configData.getScriptArgs());
             scriptArgsEle.appendChild(scriptArgsText);
             scriptEle.appendChild(scriptArgsEle); 

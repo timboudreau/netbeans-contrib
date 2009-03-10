@@ -51,12 +51,12 @@ import org.openide.util.NbBundle;
 
 public class DScriptDataLoader extends UniFileLoader {
     
-    public static final String REQUIRED_MIME = "text/x-dtrace-script";
+    public static final String REQUIRED_MIME = "text/x-dtrace-script";  //NOI18N
     
     private static final long serialVersionUID = 1L;
     
     public DScriptDataLoader() {
-        super("org.netbeans.modules.dtrace.data.DScriptDataObject");
+        super("org.netbeans.modules.dtrace.data.DScriptDataObject");  //NOI18N
     }
     
     protected String defaultDisplayName() {
@@ -73,7 +73,7 @@ public class DScriptDataLoader extends UniFileLoader {
     }
     
     protected String actionsContext() {
-        return "Loaders/" + REQUIRED_MIME + "/Actions";
+        return "Loaders/" + REQUIRED_MIME + "/Actions";  //NOI18N
     }
     
 }
