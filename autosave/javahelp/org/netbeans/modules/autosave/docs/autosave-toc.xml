@@ -36,8 +36,9 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="org.netbeans.modules.autosave" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.autosave.</description>
-    <import file="build-i18n.xml"/>
-</project>
-
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="Save Automatically">
+    <tocitem text="About AutoSave Module" target="org.netbeans.modules.autosave.about"/>
+    </tocitem>
+</toc>

@@ -36,8 +36,46 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="org.netbeans.modules.autosave" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.autosave.</description>
-    <import file="build-i18n.xml"/>
+<project name="net.java.dev.nbmodules.copypastehistory" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project net.java.dev.nbmodules.copypastehistory.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <property file="i18n.properties"/>
+    
+    <target name="-i18n-init">
+        <mkdir dir="${translatedfiles.basedir}/src"/>
+        <mkdir dir="${translatedfiles.basedir}/javahelp"/>
+    </target>
+    
+    <target name="-pre-javahelp" depends="-i18n-init">
+        <copy todir="${basedir}/build/javahelp" preservelastmodified="true" verbose="true">
+            <fileset dir="${translatedfiles.basedir}/javahelp">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="javahelp" depends="-pre-javahelp,harness.javahelp"/>
+    
+    <target name="-pre-jar-prep" depends="-i18n-init">
+        <copy todir="${build.classes.dir}" preservelastmodified="true" verbose="true">
+            <fileset dir="${translatedfiles.basedir}/src">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="jar-prep" depends="-pre-jar-prep,projectized-common.jar-prep"/>
+    
+    <target name="update-omegat-source" description="Update i18n OmegaT source">
+        <copy todir="${i18n.basedir}/${i18n.default.name}/source" preservelastmodified="false" verbose="true" overwrite="true">
+            <fileset dir=".">
+                <include name="src/**/*.properties"/>
+                <include name="src/**/*.htm*"/>
+                
+                <include name="javahelp/**/*.properties"/>
+                <include name="javahelp/**/*.htm*"/>
+                <include name="javahelp/**/*toc.xml"/>
+            </fileset>
+        </copy>
+    </target>
 </project>
-

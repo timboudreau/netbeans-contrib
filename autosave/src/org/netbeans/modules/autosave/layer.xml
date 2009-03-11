@@ -36,8 +36,30 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="org.netbeans.modules.autosave" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.autosave.</description>
-    <import file="build-i18n.xml"/>
-</project>
-
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Editing">
+            <file name="org-netbeans-modules-autosave-ToggleAutoSaveAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <attr name="Separator2.instance/org-netbeans-modules-autosave-AutoSave.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-autosave-AutoSave.shadow">
+                <attr name="originalFile" stringvalue="Actions/Editing/org-netbeans-modules-autosave-ToggleAutoSaveAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-autosave-AutoSave.shadow/org-openide-actions-SaveAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-autosave-AutoSaveAdvancedOption.instance"/>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="autosave-helpset.xml" url="autosave-helpset.xml"/>
+        </folder>
+    </folder>
+</filesystem>

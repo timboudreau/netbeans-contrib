@@ -36,8 +36,5 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="org.netbeans.modules.autosave" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.autosave.</description>
-    <import file="build-i18n.xml"/>
-</project>
-
+<!DOCTYPE helpsetref PUBLIC "-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN" "http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
+<helpsetref url="nbdocs:/org/netbeans/modules/autosave/docs/autosave-hs.xml"/>
