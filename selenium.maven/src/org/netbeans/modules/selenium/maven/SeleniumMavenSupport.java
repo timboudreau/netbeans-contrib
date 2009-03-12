@@ -50,13 +50,9 @@ import org.netbeans.modules.maven.api.ModelUtils;
 import org.netbeans.modules.maven.api.NbMavenProject;
 import org.netbeans.modules.maven.model.ModelOperation;
 import org.netbeans.modules.maven.model.Utilities;
-import org.netbeans.modules.maven.model.pom.Build;
-import org.netbeans.modules.maven.model.pom.Configuration;
 import org.netbeans.modules.maven.model.pom.Dependency;
 import org.netbeans.modules.maven.model.pom.POMModel;
 import org.netbeans.modules.maven.model.pom.POMModelFactory;
-import org.netbeans.modules.maven.model.pom.Plugin;
-import org.netbeans.modules.maven.model.pom.PluginExecution;
 import org.netbeans.modules.maven.model.pom.Repository;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.openide.filesystems.FileObject;
@@ -119,51 +115,6 @@ final class SeleniumMavenSupport {
                     "org.openqa.selenium.client-drivers", "selenium-java-client-driver", true);
             dep.setScope("test");
             dep.setVersion("1.0-beta-1");
-            Build build = model.getProject().getBuild();
-            if (build == null){
-                build = model.getFactory().createBuild();
-                model.getProject().setBuild(build);
-            }
-            build.addPlugin(createSeleniumPlugin(model));
-            build.addPlugin(createSureFirePlugin(model));
-        }
-
-        private Plugin createSeleniumPlugin(POMModel model) {
-            Plugin plugin = model.getFactory().createPlugin();
-            plugin.setGroupId("org.codehaus.mojo");
-            plugin.setArtifactId("selenium-maven-plugin");
-            PluginExecution startServer = model.getFactory().createExecution();
-            startServer.setId("start");
-            startServer.addGoal("start-server");
-            startServer.setPhase("pre-integration-test");
-            Configuration serverConf = model.getFactory().createConfiguration();
-            serverConf.setSimpleParameter("background", "true");
-            startServer.setConfiguration(serverConf);
-            plugin.addExecution(startServer);
-            
-            PluginExecution stopServer = model.getFactory().createExecution();
-            stopServer.setId("stop");
-            stopServer.addGoal("stop-server");
-            stopServer.setPhase("post-integration-test");
-            plugin.addExecution(stopServer);
-            return plugin;
-        }
-
-        private Plugin createSureFirePlugin(POMModel model) {
-            Plugin plugin = model.getFactory().createPlugin();
-            plugin.setGroupId("org.apache.maven.plugins");
-            plugin.setArtifactId("maven-surefire-plugin");
-            Configuration conf = model.getFactory().createConfiguration();
-            conf.setSimpleParameter("skip", "true");
-            plugin.setConfiguration(conf);
-            PluginExecution execution = model.getFactory().createExecution();
-            Configuration execConf = model.getFactory().createConfiguration();
-            execConf.setSimpleParameter("skip", "false");
-            execution.addGoal("test");
-            execution.setPhase("integration-test");
-            execution.setConfiguration(execConf);
-            plugin.addExecution(execution);
-            return plugin;
         }
     }
 
