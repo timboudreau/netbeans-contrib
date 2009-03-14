@@ -26,7 +26,6 @@
                 <include name="ide*"/>
                 <exclude name="identity*"/>
                 <include name="java*"/>
-                <include name="gsf*"/>
                 <include name="websvccommon*"/>
                 <include name="enterprise*"/>
                 <include name="profiler*"/>
