@@ -556,7 +556,7 @@ public final class RubyPlatform {
         if (stubsFO == null) {
             // Core classes: Stubs generated for the "builtin" Ruby libraries.
             File clusterFile = InstalledFileLocator.getDefault().locate(
-                    "modules/org-netbeans-modules-ruby-project.jar", null, false); // NOI18N
+                    "modules/org-netbeans-modules-erlang-platform.jar", null, false); // NOI18N
 
             if (clusterFile != null) {
                 File rubyStubs =
@@ -621,7 +621,7 @@ public final class RubyPlatform {
     public FileObject getSystemRoot(FileObject file) {
         // See if the file is under the Ruby libraries
         FileObject rubyLibFo = getLibFO();
-        FileObject rubyStubs = getRubyStubs();
+        //FileObject rubyStubs = getRubyStubs();
         FileObject gemHome = gemManager != null ? gemManager.getGemHomeFO() : null;
 
         //        FileObject jar = FileUtil.getArchiveFile(file);
@@ -630,7 +630,7 @@ public final class RubyPlatform {
         //        }
 
         while (file != null) {
-            if (file == rubyLibFo || file == rubyStubs || file == gemHome) {
+            if (file == rubyLibFo /*|| file == rubyStubs*/ || file == gemHome) {
                 return file;
             }
 
