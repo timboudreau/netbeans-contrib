@@ -76,15 +76,19 @@ public class LineEndingsPanel extends javax.swing.JPanel {
         buttonGroup1.add(jRadioButton1);
         jRadioButton1.setSelected(true);
         jRadioButton1.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton1.text")); // NOI18N
+        jRadioButton1.setEnabled(false);
 
         buttonGroup1.add(jRadioButton2);
         jRadioButton2.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton2.text")); // NOI18N
+        jRadioButton2.setEnabled(false);
 
         buttonGroup1.add(jRadioButton3);
         jRadioButton3.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton3.text")); // NOI18N
+        jRadioButton3.setEnabled(false);
 
         buttonGroup1.add(jRadioButton4);
         jRadioButton4.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton4.text")); // NOI18N
+        jRadioButton4.setEnabled(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
