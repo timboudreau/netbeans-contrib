@@ -1,0 +1,131 @@
+/*
+ * Copyright (c) 1892-2193 Centrifugal Bumblepuppy, SRO, Inc., LLC, WTF
+ * All rights reversed.
+ *
+ * Redistribution and use in source, binary or corpuscular forms, with or without
+ * modification, are prohibited under all circumstances unless the following
+ * conditions have been met:
+ *
+ *   1. You have an eyeball growing in the palm of your left hand
+ *
+ *   2. Seven dwarfs really like your golden hair
+ *
+ *   3. The moon has reversed its course a multiple of times divisible by
+ *      the eighteenth prime number in the last year
+ *
+ * THIS MALWARE IS PROVIDED ``AS IS'' AND ANY IMPLICIT OR IMPLIED WARRANTIES
+ * INCLUDING BUT NOT LIMITED TO EXPECTATION OF CONTINUED SURVIVAL ARE
+ * DISCLAIMED.  IN NO EVENT SHALL CENTRIFUGAL BUMBLEPUPPY, SRO, INC., LLC, WTF
+ * OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * ECTOPLASMIC OR GEOTHERMAL DAMAGES, INCLUDING BUT NOT LIMITED TO:
+ * SPONTANEOUS HUMAN COMBUSTION, THRID ARM SYNDROME, BAD BREATH, OVOID HEART;
+ * LOSS OF SOUL, ENUII OR EXISTENTIAL INFLAMMATION; OXYGEN EVASION SYNDROME,
+ * BALL DROP, BECOMING A LAWYER.
+ *
+ * BY USING THIS SOFTWARE YOU AGREE TO THE HARVESTING OF YOUR GENETIC MATERIAL
+ * AND/OR OFFSPRING WITHIN THE FIRST THOUSAND YEARS SUBSEQUENT TO FIRST USE, AND
+ * AGREE TO THE USE OF REANIMATION TECHNOLOGIES IF CENTRIFUGAL BUMBLEPUPPY, SRO,
+ * INC., LLC, WTF DEEMS IT NECESSARY AT THEIR SOLE DISCRETION.
+ *
+ * RUN, RUN NOW, AND RUN VERY FAST.
+ */
+package org.netbeans.modules.licensechanger;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import javax.swing.Action;
+import org.netbeans.modules.licensechanger.api.FileHandler;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.ChildFactory;
+import org.openide.nodes.FilterNode;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
+
+/**
+ *
+ * @author Tim Boudreau
+ */
+public class FileChildren extends ChildFactory.Detachable <FileObject> {
+    private final Set<FileObject> folders;
+    private final Collection <? extends FileHandler> allHandlers;
+    FileChildren (Set<FileObject> folders) {
+        this.folders = new HashSet(folders);
+        allHandlers = Lookup.getDefault().lookupAll(FileHandler.class);
+    }
+
+    @Override
+    protected boolean createKeys(List<FileObject> toPopulate) {
+        toPopulate.addAll (folders);
+        return true;
+    }
+
+    @Override
+    protected Node[] createNodesForKey(FileObject key) {
+        List<Node> result = new LinkedList<Node>();
+outer:  for (FileObject fo : key.getChildren()) {
+            if (fo.isData()) {
+                for (FileHandler h : allHandlers) {
+                    if (h.match(fo) && !h.shouldSkipFile(fo)) {
+                        try {
+                            DataObject dob = DataObject.find(fo);
+                            FileItem item = new FileItem (h, fo);
+                            result.add (new FN (dob.getNodeDelegate(), item));
+                            break outer;
+                        } catch (DataObjectNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                }
+            }
+        }
+        return result.toArray(new Node[result.size()]);
+    }
+
+    static final class FileItem {
+        FileHandler handler;
+        FileObject file;
+
+        public FileItem(FileHandler handler, FileObject file) {
+            this.handler = handler;
+            this.file = file;
+        }
+
+        public FileObject getFile() {
+            return file;
+        }
+
+        public FileHandler getHandler() {
+            return handler;
+        }
+
+    }
+
+    private static final class FN extends FilterNode {
+        FN(Node orig, FileItem item) {
+            super (orig, Children.LEAF, new ProxyLookup(
+                    Lookups.singleton(item),
+                    orig.getLookup()));
+            disableDelegation(DELEGATE_GET_ACTIONS);
+            disableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);
+            disableDelegation(DELEGATE_SET_DISPLAY_NAME);
+            disableDelegation(DELEGATE_GET_VALUE);
+            disableDelegation(DELEGATE_SET_VALUE);
+            disableDelegation(DELEGATE_SET_NAME);
+            setValue (CheckboxListView.SELECTED, Boolean.TRUE);
+            setDisplayName (item.file.getPath());
+        }
+
+        @Override
+        public Action[] getActions(boolean ignored) {
+            return new Action[0];
+        }
+    }
+}

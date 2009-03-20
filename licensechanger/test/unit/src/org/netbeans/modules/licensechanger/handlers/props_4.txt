@@ -1,0 +1,24 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NAME_JAVA_FILES=Java Files
+NAME_PROPERTIES_FILES=Properties Files
+NAME_XML_FILES=XML Files
+

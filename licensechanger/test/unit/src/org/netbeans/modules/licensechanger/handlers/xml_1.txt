@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Navigator">
+        <folder name="Panels">
+            <folder name="text">
+                <folder name="html">
+                    <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                </folder>
+                <folder name="plain">
+                    <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.shadow">
+                        <attr name="originalFile" stringvalue="/Navigator/Panels/text/html/org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="content">
+                <folder name="unknown">
+                    <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.shadow">
+                        <attr name="originalFile" stringvalue="/Navigator/Panels/text/html/org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="GenericNavigator">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+        <folder name="text">
+            <folder name="html">
+
+                <file name="Headers.patternItem" url="headers_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+
+                <file name="Hyperlinks.patternItem" url="links_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+
+                <file name="ListItems.patternItem" url="listitem_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+
+                <file name="Images.patternItem" url="images_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+
+            </folder>
+            <folder name="plain">
+                <file name="Paragraphs.patternItem" url="paragraphs_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="Sentences.patternItem" url="sentences_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="Quotations.patternItem" url="quotations_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="HyphenBullets.patternItem" url="hyphen_bullets_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="content">
+            <folder name="unknown">
+                <file name="Paragraphs.patternItem" url="paragraphs_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="Sentences.patternItem" url="sentences_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="Quotations.patternItem" url="quotations_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="HyphenBullets.patternItem" url="hyphen_bullets_pattern.txt">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org/netbeans/modules/genericnavigator/Bundle"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-genericnavigator-GenericNavigatorOptionsAdvancedOption.instance"/>
+        </folder>
+    </folder>
+</filesystem>
