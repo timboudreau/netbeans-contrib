@@ -58,6 +58,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -113,6 +114,8 @@ class WizardPP extends WizardPanelProvider {
                     try {
                         String content = PreviewPanel.loadFile(item.file);
                         String nue = item.handler.transform(content, licenseText);
+                        nue = convertLineEndings (content, nue);
+
                         enc = FileEncodingQuery.getEncoding(item.file);
                         BufferedOutputStream out = new BufferedOutputStream (item.file.getOutputStream());
                         byte[] bytes;
@@ -137,6 +140,30 @@ class WizardPP extends WizardPanelProvider {
                 handle.finished(null);
             }
         };
+    }
+
+    private static String convertLineEndings (String old, String nue) {
+        LineEndingPreference pref = LineEndingsPanel.getLineEndingPrefs();
+        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
+        switch (pref) {
+            case FORCE_CRLF :
+                return Utilities.replaceString(nue, "\n", "\r\n"); //NOI18N
+            case FORCE_NEWLINE :
+                //We already converted everything to newline only on load
+                return nue;
+            case NO_CHANGE :
+                return oldHasCrlf ? Utilities.replaceString(nue, "\n", "\r\n") : //NOI18N
+                    nue;
+            case SYSTEM_DEFAULT :
+                String sep = System.getProperty( "line.separator" ); //NOI18N
+                if ("\n".equals(sep)) {
+                    return nue;
+                } else {
+                    return Utilities.replaceString (nue, "\n", sep); //NOI18N
+                }
+            default :
+                throw new AssertionError();
+        }
     }
 
     @Override

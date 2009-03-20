@@ -94,8 +94,9 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
     }
 
     private boolean shouldSkipFolder (FileObject folder) {
-        String n = folder.getNameExt();
-        return ".svn".equals(n) || ".cvs".equals(n) || ".hg".equals(n);
+        String path = folder.getPath();
+        return path.contains(".svn") || path.contains(".cvs") || path.contains(".hg") ||
+                path.endsWith(".svn") || path.endsWith(".cvs") || path.endsWith(".hg");
     }
 
     @Override
@@ -103,6 +104,9 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
         for (FileObject f : roots) {
             for (FileObject fo : NbCollections.iterable(f.getChildren(true))) {
                 if (fo.isFolder()) {
+                    if (shouldSkipFolder(fo)) {
+                        continue;
+                    }
                     String relPath = FileUtil.getRelativePath(f, fo);
                     toPopulate.add(new FolderItem(fo, relPath, f.getPath()));
                     keyCount++;
@@ -164,7 +168,10 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
             disableDelegation(DELEGATE_SET_VALUE);
             disableDelegation(DELEGATE_SET_NAME);
             disableDelegation(DELEGATE_GET_NAME);
-            if (!item.relativePath.endsWith("nbproject") && !item.relativePath.endsWith("nbproject/private")) {
+            if (!item.relativePath.endsWith("nbproject") && 
+                !item.relativePath.endsWith("nbproject/private") &&
+                !item.relativePath.contains("/tmp") &&
+                !item.relativePath.contains("META-INF")) { //NOI18N
                 setValue (CheckboxListView.SELECTED, Boolean.TRUE);
             }
             setName (item.relativePath);

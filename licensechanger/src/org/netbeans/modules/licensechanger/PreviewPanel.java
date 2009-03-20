@@ -62,6 +62,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -291,7 +292,14 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         try {
             FileUtil.copy(in, out);
             try {
-                return new String(out.toByteArray(), encoding.name());
+                String result = new String(out.toByteArray(), encoding.name());
+                String sep = System.getProperty ("line.separator");
+                //Convert everything internally to use \n
+                if (!"\n".equals(sep) && sep != null) {
+                    return Utilities.replaceString(result, sep, "\n");
+                } else {
+                    return result;
+                }
             } catch (UnsupportedEncodingException q) {
                 return new String(out.toByteArray(), FileEncodingQuery.getDefaultEncoding().name());
             }

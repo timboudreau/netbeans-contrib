@@ -45,15 +45,24 @@
 
 package org.netbeans.modules.licensechanger;
 
+import javax.swing.JRadioButton;
+import org.openide.util.NbPreferences;
+
 /**
  *
  * @author Administrator
  */
 public class LineEndingsPanel extends javax.swing.JPanel {
-
+    private static final String PROP_ENDING = "ending";
+    public static final String PREFS_KEY_ENDING = "line_terminator";
+    
     /** Creates new form LineEndingsPanel */
     public LineEndingsPanel() {
         initComponents();
+        forceCrlf.putClientProperty(PROP_ENDING, LineEndingPreference.FORCE_CRLF);
+        noChangeButton.putClientProperty(PROP_ENDING, LineEndingPreference.NO_CHANGE);
+        newlineButton.putClientProperty(PROP_ENDING, LineEndingPreference.FORCE_NEWLINE);
+        systemDefaultButton.putClientProperty (PROP_ENDING, LineEndingPreference.SYSTEM_DEFAULT);
     }
 
     /** This method is called from within the constructor to
@@ -66,29 +75,45 @@ public class LineEndingsPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
+        noChangeButton = new javax.swing.JRadioButton();
+        systemDefaultButton = new javax.swing.JRadioButton();
+        newlineButton = new javax.swing.JRadioButton();
+        forceCrlf = new javax.swing.JRadioButton();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.border.title"))); // NOI18N
 
-        buttonGroup1.add(jRadioButton1);
-        jRadioButton1.setSelected(true);
-        jRadioButton1.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton1.text")); // NOI18N
-        jRadioButton1.setEnabled(false);
+        buttonGroup1.add(noChangeButton);
+        noChangeButton.setSelected(true);
+        noChangeButton.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.noChangeButton.text")); // NOI18N
+        noChangeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineEndingPreferenceChanged(evt);
+            }
+        });
 
-        buttonGroup1.add(jRadioButton2);
-        jRadioButton2.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton2.text")); // NOI18N
-        jRadioButton2.setEnabled(false);
+        buttonGroup1.add(systemDefaultButton);
+        systemDefaultButton.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.systemDefaultButton.text")); // NOI18N
+        systemDefaultButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineEndingPreferenceChanged(evt);
+            }
+        });
 
-        buttonGroup1.add(jRadioButton3);
-        jRadioButton3.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton3.text")); // NOI18N
-        jRadioButton3.setEnabled(false);
+        buttonGroup1.add(newlineButton);
+        newlineButton.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.newlineButton.text")); // NOI18N
+        newlineButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineEndingPreferenceChanged(evt);
+            }
+        });
 
-        buttonGroup1.add(jRadioButton4);
-        jRadioButton4.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.jRadioButton4.text")); // NOI18N
-        jRadioButton4.setEnabled(false);
+        buttonGroup1.add(forceCrlf);
+        forceCrlf.setText(org.openide.util.NbBundle.getMessage(LineEndingsPanel.class, "LineEndingsPanel.forceCrlf.text")); // NOI18N
+        forceCrlf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineEndingPreferenceChanged(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -97,33 +122,50 @@ public class LineEndingsPanel extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jRadioButton1)
-                    .add(jRadioButton2)
-                    .add(jRadioButton3)
-                    .add(jRadioButton4))
+                    .add(noChangeButton)
+                    .add(systemDefaultButton)
+                    .add(newlineButton)
+                    .add(forceCrlf))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jRadioButton1)
+                .add(noChangeButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jRadioButton2)
+                .add(systemDefaultButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jRadioButton3)
+                .add(newlineButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jRadioButton4)
+                .add(forceCrlf)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void lineEndingPreferenceChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineEndingPreferenceChanged
+        for (JRadioButton b : new JRadioButton[] { forceCrlf, newlineButton, noChangeButton, systemDefaultButton }) {
+            if (b.isSelected()) {
+                LineEndingPreference x = (LineEndingPreference) b.getClientProperty(PROP_ENDING);
+                if (x != null) {
+                    NbPreferences.forModule(LineEndingsPanel.class).put(PROP_ENDING, x.name());
+                }
+                break;
+            }
+        }
+    }//GEN-LAST:event_lineEndingPreferenceChanged
+
+    public static LineEndingPreference getLineEndingPrefs() {
+        String ending = NbPreferences.forModule(LineEndingsPanel.class).get(PROP_ENDING, LineEndingPreference.NO_CHANGE.name());
+        return LineEndingPreference.valueOf(ending);
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JRadioButton jRadioButton4;
+    private javax.swing.JRadioButton forceCrlf;
+    private javax.swing.JRadioButton newlineButton;
+    private javax.swing.JRadioButton noChangeButton;
+    private javax.swing.JRadioButton systemDefaultButton;
     // End of variables declaration//GEN-END:variables
 
 }
