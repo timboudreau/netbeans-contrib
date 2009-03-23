@@ -193,7 +193,12 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
             String s = new String(out.toByteArray());
             StringTokenizer tok = new StringTokenizer(s);
             while (tok.hasMoreTokens()) {
-                mdl.addElement(tok.nextToken());
+                String curr = tok.nextToken();
+                int ix = curr.lastIndexOf("/");
+                if (ix >= 0 && ix < curr.length() - 1) {
+                    curr = curr.substring(ix + 1);
+                }
+                mdl.addElement(curr);
             }
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);

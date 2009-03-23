@@ -37,23 +37,35 @@
         <copy todir="${licenses-dest-dir}">
             <fileset dir="${basedir}/../../nbbuild/licenses">
                 <include name="*"/>
+                <exclude name="BSD-jsch-variant"/>
+                <exclude name="Northwoods"/>
+                <exclude name="freemarker"/>
+                <exclude name="Apache-1.1-xmlunit_variant"/>
+                <exclude name="Apache-2.0-Vera-Perseus"/>
+                <exclude name="Apache-JDOM"/>
+                <exclude name="HttpUnit"/>
+                <exclude name="prefuse-BSD"/>
+                <exclude name="GPL-with-Proguard-exception"/>
             </fileset>
         </copy>
     </target>
 
-    <target name="create-license-list" depends="create-license-list-unix,create-license-list-windows" description="Create a list of license files"/>
-
-    <target name="create-license-list-unix" if="isUnix">
-        <fail>Not implemented</fail>
+    <target name="create-license-list" description="Create a list of license files">
+        <fileset dir="${licenses-dir}" id="license.files">
+            <include name="*"/>
+            <exclude name="BSD-jsch-variant"/>
+            <exclude name="Northwoods"/>
+            <exclude name="freemarker"/>
+            <exclude name="Apache-1.1-xmlunit_variant"/>
+            <exclude name="Apache-2.0-Vera-Perseus"/>
+            <exclude name="Apache-JDOM"/>
+            <exclude name="HttpUnit"/>
+            <exclude name="prefuse-BSD"/>
+            <exclude name="GPL-with-Proguard-exception"/>
+        </fileset>
+        <pathconvert dirsep="/" property="license-files" pathsep="&#13;" refid="license.files">
+            <map from="${licenses-dir}" to=""/>
+        </pathconvert>
+        <echo file="${licenses-list-file}" message="${license-files}"/>
     </target>
-
-    <target name="create-license-list-windows" if="isWindows">
-        <exec executable="cmd" dir="${licenses-dir}" output="${licenses-list-file}">
-            <arg value="/c"/>
-            <arg value="dir"/>
-            <arg value="/b"/>
-        </exec>
-    </target>
-
-
 </project>
