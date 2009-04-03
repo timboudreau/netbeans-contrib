@@ -28,7 +28,7 @@
 package org.netbeans.modules.spellchecker.bindings.htmlxml;
 
 import javax.swing.text.BadLocationException;
-import org.netbeans.api.html.lexer.HTMLTokenId;
+import org.netbeans.api.html.lexer.HtmlTokenId;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
@@ -56,7 +56,7 @@ public class HtmlTokenList extends AbstractTokenList {
         while (ts.moveNext()) {
             TokenId id = ts.token().id();
 
-            if (id == HTMLTokenId.SGML_COMMENT || id == HTMLTokenId.BLOCK_COMMENT || id == HTMLTokenId.TEXT) {
+            if (id == HtmlTokenId.SGML_COMMENT || id == HtmlTokenId.BLOCK_COMMENT || id == HtmlTokenId.TEXT) {
                 return new int[]{ts.offset(), ts.offset() + ts.token().length()};
             }
         }
