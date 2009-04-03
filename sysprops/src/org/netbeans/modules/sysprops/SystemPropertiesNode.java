@@ -48,8 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import javax.swing.Action;
+import org.netbeans.api.core.ide.ServicesTabNodeRegistration;
 import org.openide.actions.NewAction;
-import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
 import org.openide.nodes.Node;
@@ -62,6 +62,8 @@ import org.openide.util.NbBundle;
  *
  * @author Michael Ruflin, Jesse Glick
  */
+@ServicesTabNodeRegistration(name="sysprops", displayName="#LBL_AllPropsNode", shortDescription="#HINT_AllPropsNode",
+    iconResource="org/netbeans/modules/sysprops/resources/propertiesRoot.gif", position=2020)
 public class SystemPropertiesNode extends PropertyNode {
     
     /**

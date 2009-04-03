@@ -36,13 +36,13 @@ import java.awt.event.ActionEvent;
 import java.util.logging.LogManager;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.api.core.ide.ServicesTabNodeRegistration;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -56,14 +56,11 @@ public class RootLoggerNode extends AbstractNode {
     RootLoggerNode(Logger logger) {
         super(Children.create(new LoggerFactory(logger), true)); 
         this.logger = logger;
-        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
-            public void run() {
-                refresh();
-            }
-        });
+        refresh();
     }
 
+    @ServicesTabNodeRegistration(name="logmanagement", displayName="#Log",
+        iconResource="org/netbeans/modules/logmanagement/resources/logs.gif", position=350)
     public static synchronized RootLoggerNode getRootLoggerNode() {
         if (node == null) {
             node = new RootLoggerNode(LoggerManager.getInstance().getRoot());

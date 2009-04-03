@@ -41,10 +41,8 @@
 
 package org.netbeans.modules.apisupport.beanbrowser;
 
-import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,20 +52,21 @@ import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import org.netbeans.api.core.ide.ServicesTabNodeRegistration;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
  * @author Radek Matous
  */
+@ServicesTabNodeRegistration(name="preferences", displayName="Preferences",
+    iconResource="org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif", position=2010)
 public class PreferencesNode extends AbstractNode {
     private static final int NB_USER = 0;
     private static final int DEFAULT_USER = 1;

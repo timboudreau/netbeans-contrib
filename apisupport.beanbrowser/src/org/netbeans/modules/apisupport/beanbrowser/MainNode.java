@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.Action;
+import org.netbeans.api.core.ide.ServicesTabNodeRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
@@ -62,6 +63,8 @@ import org.openide.util.HelpCtx;
 import org.openide.windows.TopComponent;
 
 /** Node to browse various important stuff. */
+@ServicesTabNodeRegistration(name="BeanBrowserMainNode", displayName="NetBeans Runtime",
+    iconResource="org/netbeans/modules/apisupport/beanbrowser/BeanBrowserIcon.gif", position=2000)
 public class MainNode extends AbstractNode {
     
     public MainNode() {
