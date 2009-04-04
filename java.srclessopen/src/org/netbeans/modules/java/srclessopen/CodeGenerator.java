@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -23,7 +23,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007-2009 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.java.srclessopen;
@@ -41,11 +41,18 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.AnnotationValueVisitor;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -57,7 +64,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.AbstractElementVisitor6;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ClasspathInfo;
@@ -99,7 +105,6 @@ public class CodeGenerator {
                 public void run(WorkingCopy wc) throws Exception {
                     wc.toPhase(Phase.PARSED);
                     
-                    TreeMaker make = wc.getTreeMaker();
                     Element toOpen = toOpenHandle.resolve(wc);
                     TypeElement te = toOpen != null ? wc.getElementUtilities().outermostTypeElement(toOpen) : null;
 
@@ -139,9 +144,7 @@ public class CodeGenerator {
                     }
                     
                     result[0] = FileUtil.createData(sourceRootFO, path);
-                    
-                    Tree clazz = new TreeBuilder(make, wc).visit(te);
-                    CompilationUnitTree cut = make.CompilationUnit(make.Identifier(((PackageElement) te.getEnclosingElement()).getQualifiedName()), Collections.<ImportTree>emptyList(), Collections.singletonList(clazz), wc.getCompilationUnit().getSourceFile());
+                    CompilationUnitTree cut = generateCode(wc, te);
 
                     wc.rewrite(wc.getCompilationUnit(), cut);
                     
@@ -166,6 +169,17 @@ public class CodeGenerator {
         }
     }
     
+    static CompilationUnitTree generateCode(WorkingCopy wc, TypeElement te) {
+        TreeMaker make = wc.getTreeMaker();
+        Tree clazz = new TreeBuilder(make, wc).visit(te);
+        CompilationUnitTree cut = make.CompilationUnit(make.Identifier(((PackageElement) te.getEnclosingElement()).getQualifiedName()),
+                Collections.<ImportTree>emptyList(),
+                Collections.singletonList(clazz),
+                wc.getCompilationUnit().getSourceFile());
+        
+        return cut;
+    }
+
     private static final class TreeBuilder extends AbstractElementVisitor6<Tree, Void> {
 
         private TreeMaker make;
@@ -189,10 +203,8 @@ public class CodeGenerator {
                 if (member != null)
                     members.add(member);
             }
-            
-            ModifiersTree mods = computeMods(e.getAnnotationMirrors(),e.getModifiers());
-            
-            System.err.println("e.getKind()=" + e.getKind());
+
+            ModifiersTree mods = computeMods(e);
             
             switch (e.getKind()) {
                 case CLASS:
@@ -208,13 +220,47 @@ public class CodeGenerator {
             }
         }
 
-        private ModifiersTree computeMods(List<? extends AnnotationMirror> mirror, Set<Modifier> mods) {
-            return make.Modifiers(mods); //XXX: annotations
+        private ModifiersTree computeMods(Element e) {
+            Set<Modifier> implicitModifiers = IMPLICIT_MODIFIERS.get(Arrays.asList(e.getKind()));
+
+            if (implicitModifiers == null) {
+                implicitModifiers = IMPLICIT_MODIFIERS.get(Arrays.asList(e.getKind(), e.getEnclosingElement().getKind()));
+            }
+
+            Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
+
+            modifiers.addAll(e.getModifiers());
+
+            if (implicitModifiers != null) {
+                modifiers.removeAll(implicitModifiers);
+            }
+
+            List<AnnotationTree> annotations = new LinkedList<AnnotationTree>();
+
+            for (AnnotationMirror m : e.getAnnotationMirrors()) {
+                annotations.add(computeAnnotationTree(m));
+            }
+            
+            return make.Modifiers(modifiers, annotations);
+        }
+
+        private AnnotationTree computeAnnotationTree(AnnotationMirror am) {
+            List<ExpressionTree> params = new LinkedList<ExpressionTree>();
+
+            for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
+                ExpressionTree vt = make.Assignment(make.Identifier(entry.getKey().getSimpleName()), createTreeForAnnotationValue(make, entry.getValue()));
+
+                params.add(vt);
+            }
+
+            return make.Annotation(make.Type(am.getAnnotationType()), params);
         }
         
         private Tree computeSuper(TypeMirror superClass) {
             if (superClass == null) return null;
             if (superClass.getKind() == TypeKind.NONE) return null; //for j.l.Object
+            TypeElement jlObject = wc.getElements().getTypeElement("java.lang.Object");
+            if (wc.getTypes().isSameType(superClass, jlObject.asType())) return null; //for extends j.l.Object
             
             return make.Type(superClass);
         }
@@ -252,7 +298,7 @@ public class CodeGenerator {
                                      null);
             }
             
-            ModifiersTree mods = computeMods(e.getAnnotationMirrors(),e.getModifiers());
+            ModifiersTree mods = computeMods(e);
             LiteralTree init = e.getConstantValue() != null ? make.Literal(e.getConstantValue()) : null;
             
             return make.Variable(mods, e.getSimpleName(), make.Type(e.asType()), init);
@@ -282,7 +328,7 @@ public class CodeGenerator {
                 }
             }
             
-            ModifiersTree mods = computeMods(e.getAnnotationMirrors(),e.getModifiers());
+            ModifiersTree mods = computeMods(e);
             Tree returnValue = e.getReturnType() != null ? make.Type(e.getReturnType()) : null;
             List<VariableTree> parameters = new LinkedList<VariableTree>();
             
@@ -297,7 +343,7 @@ public class CodeGenerator {
             }
             
             if (e.getModifiers().contains(Modifier.ABSTRACT) || e.getModifiers().contains(Modifier.NATIVE)) {
-                LiteralTree def = e.getDefaultValue() != null ? make.Literal(e.getDefaultValue()) : null;
+                ExpressionTree def = createTreeForAnnotationValue(make, e.getDefaultValue());
                 return make.Method(mods, e.getSimpleName(), returnValue, constructTypeParams(e.getTypeParameters()), parameters, throwsList, (BlockTree) null, def);
             } else {
                 return make.Method(mods, e.getSimpleName(), returnValue, constructTypeParams(e.getTypeParameters()), parameters, throwsList, "{//compiled code\nthrow new RuntimeException(\"Compiled Code\");}", null);
@@ -314,6 +360,92 @@ public class CodeGenerator {
             return make.TypeParameter(e.getSimpleName(), bounds);
         }
 
+        private static ExpressionTree createTreeForAnnotationValue(final TreeMaker make, AnnotationValue def) {
+            if (def == null) {
+                return null;
+            }
+            return def.accept(new AnnotationValueVisitor<ExpressionTree, Void>() {
+                public ExpressionTree visit(AnnotationValue av, Void p) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+                public ExpressionTree visit(AnnotationValue av) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+                public ExpressionTree visitBoolean(boolean b, Void p) {
+                    return make.Literal(b);
+                }
+
+                public ExpressionTree visitByte(byte b, Void p) {
+                    return make.Literal(b);
+                }
+
+                public ExpressionTree visitChar(char c, Void p) {
+                    return make.Literal(c);
+                }
+
+                public ExpressionTree visitDouble(double d, Void p) {
+                    return make.Literal(d);
+                }
+
+                public ExpressionTree visitFloat(float f, Void p) {
+                    return make.Literal(f);
+                }
+
+                public ExpressionTree visitInt(int i, Void p) {
+                    return make.Literal(i);
+                }
+
+                public ExpressionTree visitLong(long i, Void p) {
+                    return make.Literal(i);
+                }
+
+                public ExpressionTree visitShort(short s, Void p) {
+                    return make.Literal(s);
+                }
+
+                public ExpressionTree visitString(String s, Void p) {
+                    return make.Literal(s);
+                }
+
+                public ExpressionTree visitType(TypeMirror t, Void p) {
+                    return make.MemberSelect((ExpressionTree) make.Type(t), "class");
+                }
+
+                public ExpressionTree visitEnumConstant(VariableElement c, Void p) {
+                    return make.QualIdent(c);
+                }
+
+                public ExpressionTree visitAnnotation(AnnotationMirror a, Void p) {
+                    return null;//XXX: annotations!
+                }
+
+                public ExpressionTree visitArray(List<? extends AnnotationValue> vals, Void p) {
+                    List<ExpressionTree> values = new LinkedList<ExpressionTree>();
+                    
+                    for (AnnotationValue v : vals) {
+                        values.add(createTreeForAnnotationValue(make, v));
+                    }
+                    
+                    return make.NewArray(null, Collections.<ExpressionTree>emptyList(), values);
+                }
+
+                public ExpressionTree visitUnknown(AnnotationValue av, Void p) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+            }, null);
+        }
+
+    }
+
+    private static final Map<List<ElementKind>, Set<Modifier>> IMPLICIT_MODIFIERS;
+
+    static {
+        IMPLICIT_MODIFIERS = new HashMap<List<ElementKind>, Set<Modifier>>();
+
+        IMPLICIT_MODIFIERS.put(Arrays.asList(ElementKind.ENUM), EnumSet.of(Modifier.STATIC, Modifier.ABSTRACT, Modifier.FINAL));
+        IMPLICIT_MODIFIERS.put(Arrays.asList(ElementKind.ANNOTATION_TYPE), EnumSet.of(Modifier.STATIC, Modifier.ABSTRACT));
+        IMPLICIT_MODIFIERS.put(Arrays.asList(ElementKind.METHOD, ElementKind.ANNOTATION_TYPE), EnumSet.of(Modifier.ABSTRACT));
+        IMPLICIT_MODIFIERS.put(Arrays.asList(ElementKind.METHOD, ElementKind.INTERFACE), EnumSet.of(Modifier.ABSTRACT));
     }
 
     private CodeGenerator() {
