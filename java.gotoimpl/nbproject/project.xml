@@ -63,7 +63,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <implementation-version/>
+                        <specification-version>0.43</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -73,6 +73,14 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.6</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.parsing.api</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
