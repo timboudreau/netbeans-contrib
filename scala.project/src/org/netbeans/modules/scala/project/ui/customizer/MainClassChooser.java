@@ -166,8 +166,8 @@ public class MainClassChooser extends JPanel {
     }
     
     private void initClassesModel (final Collection<AstDef> mainClasses) {
-        final TypeElement[] arr = mainClasses.toArray(new TypeElement[mainClasses.size()]);
-        Arrays.sort (arr, new MainClassComparator());
+        final AstDef[] arr = mainClasses.toArray(new AstDef[mainClasses.size()]);
+        //Arrays.sort (arr, new MainClassComparator());
         possibleMainClasses = mainClasses;
         jMainClassList.setListData (arr);
         jMainClassList.setSelectedIndex (0);
@@ -194,6 +194,9 @@ public class MainClassChooser extends JPanel {
         ElementHandle te = null;
         if (isValidMainClassName (jMainClassList.getSelectedValue ())) {
             te = (ElementHandle)jMainClassList.getSelectedValue();
+        }
+        if (te instanceof AstDef) {
+            return ((AstDef) te).getSymbol().fullNameString();
         }
         return te == null ? null : te.getName();
     }
@@ -281,6 +284,8 @@ public class MainClassChooser extends JPanel {
                 displayName = (String) value;
             } if (value instanceof TypeElement) {
                 displayName = ((TypeElement)value).getQualifiedName().toString();
+            } else if (value instanceof AstDef) {
+                displayName = ((AstDef)value).getSymbol().fullNameString();
             } else {
                 displayName = value.toString ();
             }
