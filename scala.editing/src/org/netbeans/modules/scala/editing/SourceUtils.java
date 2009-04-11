@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -49,6 +50,7 @@ import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -78,7 +80,7 @@ public class SourceUtils {
             throw new IllegalArgumentException();
         }
         try {
-            final List<AstDef> result = new LinkedList<AstDef>();
+            final List<AstDef> result = new ArrayList<AstDef>();
             js.runUserActionTask(new CancellableTask<CompilationController>() {
 
                 public void cancel() {
@@ -91,28 +93,44 @@ public class SourceUtils {
                         if (rootScope == null) {
                             return;
                         }
-
-                        List<AstDef> objs = null;
-                        for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
-                            objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
-                            break;
-                        }
-                        if (objs == null) {
-                            objs = rootScope.getVisibleDefs(ElementKind.CLASS);
-                        }
-
-                        for (AstDef obj : objs) {
-                            Symbol symbol = obj.getSymbol();
-                            if (symbol.isClass()) {
-                                List<AstDef> methods = obj.getBindingScope().getVisibleDefs(ElementKind.METHOD);
-                                for (AstDef method : methods) {
-                                    if (isMainMethod(method.getSymbol())) {
-                                        result.add(obj);
-                                        break;
-                                    }
+                        // Get all defs will return all visible packages from the root and down
+                        final List<AstDef> visibleDefs = getAllDefs(rootScope, ElementKind.PACKAGE);
+                        for (AstDef packaging : visibleDefs) {
+                            // Only go through the defs for each package scope.
+                            // Sub-packages are handled by the fact that
+                            // getAllDefs will find them.
+                            List<AstDef> objs = packaging.getBindingScope().getDefs();
+                            for (AstDef obj : objs) {
+                                if (isMainMethodPresent(obj)) {
+                                    result.add(obj);
                                 }
                             }
                         }
+                        for (AstDef obj : rootScope.getVisibleDefs(ElementKind.MODULE)) {
+                            if (isMainMethodPresent(obj)) {
+                                result.add(obj);
+                            }
+                        }
+
+
+                    }
+                }
+
+                public List<AstDef> getAllDefs(AstScope rootScope, ElementKind kind) {
+                    List<AstDef> result = new ArrayList<AstDef>();
+                    getAllDefs(rootScope, kind, result);
+
+                    return result;
+                }
+
+                private final void getAllDefs(AstScope astScope, ElementKind kind, List<AstDef> result) {
+                    for (AstDef def : astScope.getDefs()) {
+                        if (def.getKind() == kind) {
+                            result.add(def);
+                        }
+                    }
+                    for (AstScope childScope : astScope.getSubScopes()) {
+                        getAllDefs(childScope, kind, result);
                     }
                 }
             }, true);
@@ -123,61 +141,15 @@ public class SourceUtils {
         }
     }
 
-    /**
-     * Returns true when the class contains main method.
-     * @param qualifiedName the fully qualified name of class
-     * @param cpInfo the classpath used to resolve the class
-     * @return true when the class contains a main method
-     */
-    public static boolean isMainClass(final String qualifiedName, ClasspathInfo cpInfo) {
-        if (qualifiedName == null || cpInfo == null) {
-            throw new IllegalArgumentException();
+    public static boolean isMainMethodPresent(AstDef obj) {
+        final scala.List<Symbol> members = obj.getType().members();
+        for (int j = 0; j < members.length(); j++) {
+            Symbol methodCandidate = members.apply(j);
+            if (methodCandidate.isMethod() && isMainMethod(methodCandidate)) {
+                return true;
+            }
         }
-        final boolean[] result = new boolean[]{false};
-        Source js = Source.create(cpInfo);
-        try {
-            js.runUserActionTask(new CancellableTask<CompilationController>() {
-
-                public void cancel() {
-                }
-
-                public void run(CompilationController control) throws Exception {
-                    if (control.toPhase(Phase.ELEMENTS_RESOLVED).compareTo(Phase.ELEMENTS_RESOLVED) >= 0) {
-                        ScalaParserResult pResult = (ScalaParserResult) control.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-                        AstRootScope rootScope = pResult.getRootScope();
-                        if (rootScope == null) {
-                            return;
-                        }
-
-                        List<AstDef> objs = null;
-                        for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
-                            objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
-                            break;
-                        }
-                        if (objs == null) {
-                            objs = rootScope.getVisibleDefs(ElementKind.CLASS);
-                        }
-
-                        for (AstDef obj : objs) {
-                            Symbol symbol = obj.getSymbol();
-                            if (symbol.isClass()) {
-                                List<AstDef> methods = obj.getBindingScope().getVisibleDefs(ElementKind.METHOD);
-                                for (AstDef method : methods) {
-                                    if (isMainMethod(method.getSymbol())) {
-                                        result[0] = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }, true);
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
-        }
-        return result[0];
+        return false;
     }
 
     /**
@@ -187,7 +159,6 @@ public class SourceUtils {
      */
     public static boolean isMainMethod(final Symbol method) {
         if (!method.nameString().equals("main")) {                //NOI18N
-
             return false;
         }
         method.tpe().paramTypes();
@@ -207,6 +178,7 @@ public class SourceUtils {
     public static Collection<AstDef> getMainClasses(final FileObject[] sourceRoots) {
         final List<AstDef> result = new LinkedList<AstDef>();
         for (FileObject root : sourceRoots) {
+            result.addAll(getMainClasses(root));
             try {
                 ClassPath bootPath = ClassPath.getClassPath(root, ClassPath.BOOT);
                 ClassPath compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE);

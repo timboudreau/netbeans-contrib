@@ -541,8 +541,9 @@ class J2SEActionProvider implements ActionProvider {
                 } else {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
-                            //Just one main class
-                            clazz = mainClasses.iterator().next().getName().toString();
+                            final AstDef next = mainClasses.iterator().next();
+                            //Just one main class, resolve from the symbol
+                            clazz = next.getSymbol().fullNameString();
                         }
                         else {
                             //Several main classes, let the user choose
