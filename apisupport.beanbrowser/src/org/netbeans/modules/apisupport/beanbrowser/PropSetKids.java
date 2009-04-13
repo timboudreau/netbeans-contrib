@@ -49,7 +49,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.AbstractNode;
@@ -62,7 +61,7 @@ import org.openide.util.Utilities;
 /** A list of all properties in a property set.
  * The keys are of type Node.Property.
  */
-public class PropSetKids extends Children.Keys {
+public class PropSetKids extends Children.Keys<Node.Property> {
     
     private Node original;
     private Node.PropertySet ps;
@@ -77,10 +76,9 @@ public class PropSetKids extends Children.Keys {
      * Looks for all properties which are readable, and not primitive or String or Class.
      */
     private void updateKeys() {
-        Collection newKeys = new ArrayList();
+        Collection<Node.Property> newKeys = new ArrayList<Node.Property>();
         Node.Property[] props = ps.getProperties();
-        for (int j = 0; j < props.length; j++) {
-            Node.Property prop = props[j];
+        for (Node.Property prop : props) {
             if (prop.canRead()) {
                 Class type = prop.getValueType();
                 if (! (type.isPrimitive() || type == String.class || type == Class.class)) {
@@ -96,16 +94,16 @@ public class PropSetKids extends Children.Keys {
      * properties (node properties, not meta-properties of the node itself)
      * changes, the children can be recalculated.
      */
+    @Override
     protected void addNotify() {
         updateKeys();
         if (pcListener == null) {
             pcListener = new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent ev) {
-                    String prop = ev.getPropertyName();
-                    Node.Property[] props = ps.getProperties();
-                    for (int j = 0; j < props.length; j++) {
-                        if (props[j].getName().equals(prop)) {
-                            refreshKey(props[j]);
+                    String name = ev.getPropertyName();
+                    for (Node.Property prop : ps.getProperties()) {
+                        if (prop.getName().equals(name)) {
+                            refreshKey(prop);
                             break;
                         }
                     }
@@ -115,20 +113,21 @@ public class PropSetKids extends Children.Keys {
         }
     }
     
+    @Override
     protected void removeNotify() {
         if (pcListener != null) {
             original.removePropertyChangeListener(pcListener);
             pcListener = null;
         }
-        setKeys(Collections.EMPTY_SET);
+        setKeys(Collections.<Node.Property>emptySet());
     }
     
     /** Create the node for this property.
      * @param key the property
      * @return the (one) node to represent it
      */
-    protected Node[] createNodes(Object key) {
-        return new Node[] { makePropertyNode((Node.Property) key) };
+    protected Node[] createNodes(Node.Property key) {
+        return new Node[] {makePropertyNode(key)};
     }
     
     /** Make a node for a property and its value.
@@ -169,7 +168,7 @@ public class PropSetKids extends Children.Keys {
         } else if (val instanceof Enumeration) {
             return makeCollectionNode((Enumeration) val);
         } else if (val instanceof Collection) {
-            return makeCollectionNode(Collections.enumeration((Collection) val));
+            return makeCollectionNode(Collections.enumeration((Collection<?>) val));
         } else if (val instanceof String) {
             return makePlainNode("\"" + (String) val + "\"");
         } else if (val instanceof Class) {
@@ -203,6 +202,7 @@ public class PropSetKids extends Children.Keys {
      */
     static Node makePlainNode(String name) {
         AbstractNode toret = new AbstractNode(Children.LEAF) {
+            @Override
             public HelpCtx getHelpCtx() {
                 return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser");
             }
@@ -231,6 +231,7 @@ public class PropSetKids extends Children.Keys {
         final Node[] _base = new Node[] { null };
         final String defaultName = "<list of objects>";
         Children kids = new Children.Array() {
+            @Override
             protected void addNotify() {
                 new Thread(new Runnable() {
                     public void run() {
@@ -260,6 +261,7 @@ public class PropSetKids extends Children.Keys {
             }
         };
         AbstractNode base = new AbstractNode(kids) {
+            @Override
             public HelpCtx getHelpCtx() {
                 return new HelpCtx("org.netbeans.modules.apisupport.beanbrowser");
             }
