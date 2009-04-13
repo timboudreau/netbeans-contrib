@@ -56,6 +56,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 
 /** A list of all properties in a property set.
@@ -101,9 +102,13 @@ public class PropSetKids extends Children.Keys<Node.Property> {
             pcListener = new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent ev) {
                     String name = ev.getPropertyName();
-                    for (Node.Property prop : ps.getProperties()) {
+                    for (final Node.Property prop : ps.getProperties()) {
                         if (prop.getName().equals(name)) {
-                            refreshKey(prop);
+                            RequestProcessor.getDefault().post(new Runnable() {
+                                public void run() {
+                                    refreshKey(prop);
+                                }
+                            });
                             break;
                         }
                     }
