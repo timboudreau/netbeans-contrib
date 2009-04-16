@@ -82,7 +82,7 @@ import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.PopupUtil;
-import org.netbeans.modules.parsing.impl.indexing.RepositoryUpdater;
+import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
@@ -257,7 +257,7 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
 
     private static Map<URL, Set<ElementHandle<TypeElement>>> computeUsers(Set<URL> sourceRootsSet, ElementHandle<TypeElement> base, long[] classIndexCumulative) {
-        Map<URL, List<URL>> deps = RepositoryUpdater.getDefault().getDependencies();
+        Map<URL, List<URL>> deps = IndexingController.getDefault().getRootDependencies();
         List<URL> sourceRoots;
         try {
             sourceRoots = new LinkedList<URL>(Utilities.topologicalSort(deps.keySet(), deps));
