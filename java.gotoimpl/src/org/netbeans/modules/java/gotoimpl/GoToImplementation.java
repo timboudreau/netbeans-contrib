@@ -48,6 +48,8 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,14 +84,16 @@ import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.editor.overridden.PopupUtil;
-import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
 import org.openide.util.TopologicalSortException;
@@ -257,7 +261,15 @@ public final class GoToImplementation extends AbstractAction implements Property
     }
 
     private static Map<URL, Set<ElementHandle<TypeElement>>> computeUsers(Set<URL> sourceRootsSet, ElementHandle<TypeElement> base, long[] classIndexCumulative) {
-        Map<URL, List<URL>> deps = IndexingController.getDefault().getRootDependencies();
+        Map<URL, List<URL>> deps = getDependencies();
+
+        if (deps == null) {
+            NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(GoToImplementation.class, "ERR_NoDependencies"), NotifyDescriptor.ERROR_MESSAGE);
+            
+            DialogDisplayer.getDefault().notifyLater(nd);
+            return null;
+        }
+        
         List<URL> sourceRoots;
         try {
             sourceRoots = new LinkedList<URL>(Utilities.topologicalSort(deps.keySet(), deps));
@@ -417,6 +429,57 @@ public final class GoToImplementation extends AbstractAction implements Property
         }
         
         return (ExecutableElement) el;
+    }
+
+    private static Map<URL, List<URL>> getDependencies() {
+        ClassLoader l = Lookup.getDefault().lookup(ClassLoader.class);
+
+        if (l == null) {
+            return null;
+        }
+
+        Class clazz = null;
+        String method = null;
+        
+        try {
+            clazz = l.loadClass("org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController");
+            method = "getRootDependencies";
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            try {
+                clazz = l.loadClass("org.netbeans.modules.parsing.impl.indexing.RepositoryUpdater");
+                method = "getDependencies";
+            } catch (ClassNotFoundException inner) {
+                Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, inner);
+                return null;
+            }
+        }
+
+        try {
+            Method getDefault = clazz.getDeclaredMethod("getDefault");
+            Object instance = getDefault.invoke(null);
+            Method dependenciesMethod = clazz.getDeclaredMethod(method);
+
+            return (Map<URL, List<URL>>) dependenciesMethod.invoke(instance);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        } catch (SecurityException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        } catch (ClassCastException ex) {
+            Logger.getLogger(GoToImplementation.class.getName()).log(Level.FINE, null, ex);
+            return null;
+        }
     }
 
 }
