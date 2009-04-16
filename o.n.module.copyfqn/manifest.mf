@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.module.copyfqn/2
 OpenIDE-Module-Layer: org/netbeans/module/copyfqn/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/module/copyfqn/Bundle.properties
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
-OpenIDE-Module-Specification-Version: 2.1
+OpenIDE-Module-Specification-Version: 2.2
 
