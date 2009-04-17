@@ -187,21 +187,27 @@ public class HighlightBoxingUnboxingVarargsTask implements CancellableTask<Compi
                 Short.class.getName())));
         
         private static boolean isBoxing(CompilationInfo compilationInfo, TypeMirror lhsTypeMirror, TypeMirror rhsTypeMirror) {
-            // Is this an unboxed type
-            if (unboxed.contains(rhsTypeMirror.getKind())) {
-                if (boxed.contains(lhsTypeMirror.toString())) {
-                    return (compilationInfo.getTypeUtilities().isCastable(rhsTypeMirror, lhsTypeMirror));
-                }                
+            // Prevent NPE
+            if (lhsTypeMirror != null && rhsTypeMirror != null) {
+                // Is this an unboxed type
+                if (unboxed.contains(rhsTypeMirror.getKind())) {
+                    if (boxed.contains(lhsTypeMirror.toString())) {
+                        return (compilationInfo.getTypeUtilities().isCastable(rhsTypeMirror, lhsTypeMirror));
+                    }
+                }
             }
             return false;
         }
         
         private static boolean isUnboxing(CompilationInfo compilationInfo, TypeMirror lhsTypeMirror, TypeMirror rhsTypeMirror) {
-            // Is this an unboxed typecompilationInfo
-            if (boxed.contains(rhsTypeMirror.toString())) {
-                if (unboxed.contains(lhsTypeMirror.getKind())) {
-                    return (compilationInfo.getTypeUtilities().isCastable(rhsTypeMirror, lhsTypeMirror));
-                }                
+            // Prevent NPE
+            if (lhsTypeMirror != null && rhsTypeMirror != null) {
+                // Is this an unboxed typecompilationInfo
+                if (boxed.contains(rhsTypeMirror.toString())) {
+                    if (unboxed.contains(lhsTypeMirror.getKind())) {
+                        return (compilationInfo.getTypeUtilities().isCastable(rhsTypeMirror, lhsTypeMirror));
+                    }
+                }
             }
             return false;
         }
