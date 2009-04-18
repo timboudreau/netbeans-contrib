@@ -12,7 +12,7 @@ object __NAME__ {
   /**
    * @param args the command line arguments
    */
-  def main(args: Array[String]) = {
+  def main(args: Array[String]) :Unit = {
     println("Hello, world!")
   }
 

@@ -15,15 +15,15 @@ import org.junit.Assert._
 class __NAME__ {
 
     @Before
-    def setUp(): Unit = {
+    def setUp: Unit = {
     }
 
     @After
-    def tearDown(): Unit = {
+    def tearDown: Unit = {
     }
 
     @Test
-    def example() = {
+    def example = {
     }
 
 }
