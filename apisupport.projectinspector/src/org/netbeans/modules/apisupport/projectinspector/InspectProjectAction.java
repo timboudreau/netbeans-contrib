@@ -266,9 +266,10 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                     cp = ClassPath.getClassPath(r, kind);
                     if (cp != null) {
                         pw.println("    " + kind + ":");
-                        for (FileObject r2 : cp.getRoots()) {
-                            pw.println("      " + FileUtil.getFileDisplayName(r2));
-                            URL u = r2.getURL();
+                        for (ClassPath.Entry entry : cp.entries()) {
+                            URL u = entry.getURL();
+                            FileObject r2 = entry.getRoot();
+                            pw.println("      " + (r2 != null ? FileUtil.getFileDisplayName(r2) : u.toString()));
                             FileObject[] source = SourceForBinaryQuery.findSourceRoots(u).getRoots();
                             if (source.length > 0) {
                                 pw.print("        sources:");
