@@ -41,7 +41,6 @@ package org.netbeans.modules.scanondemand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 
@@ -53,6 +52,6 @@ public final class RefreshAction implements ActionListener, Runnable {
 
     public void run() {
         FileUtil.refreshAll();
-        IndexingManager.getDefault().refreshAllIndices((FileObject[]) null);
+        IndexingManager.getDefault().refreshAllIndices();
     }
 }
