@@ -53,6 +53,6 @@ public final class RefreshAction implements ActionListener, Runnable {
 
     public void run() {
         FileUtil.refreshAll();
-        IndexingManager.getDefault().refreshAllIndicies((FileObject[]) null);
+        IndexingManager.getDefault().refreshAllIndices((FileObject[]) null);
     }
 }
