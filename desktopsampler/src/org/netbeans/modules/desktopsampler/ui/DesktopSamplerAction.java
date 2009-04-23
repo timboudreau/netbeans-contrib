@@ -52,11 +52,7 @@ import org.openide.util.actions.CallableSystemAction;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class DesktopSamplerAction extends CallableSystemAction {
-
-    private DesktopSampler desktopSampler;
-
     public DesktopSamplerAction() {
-        desktopSampler = new DesktopSampler();
     }
 
     public void performAction() {
@@ -81,6 +77,6 @@ public class DesktopSamplerAction extends CallableSystemAction {
     }
     
     public Component getToolbarPresenter() {
-        return desktopSampler;
+        return new DesktopSampler();
     }
 }
