@@ -684,7 +684,7 @@ class J2SEActionProvider implements ActionProvider {
         FileObject root = getRoot(testSrcPath, files[0]);
         String path = FileUtil.getRelativePath(root, files[0]);
         // Convert foo/FooTest.java -> foo.FooTest
-        p.setProperty("test.class", path.substring(0, path.length() - 5).replace('/', '.')); // NOI18N
+        p.setProperty("test.class", path.substring(0, path.length() - 6).replace('/', '.')); // NOI18N
         p.setProperty("javac.includes", ActionUtils.antIncludesList(files, root)); // NOI18N
         return new String[] {"debug-test"}; // NOI18N
     }
