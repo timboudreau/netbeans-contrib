@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor default="comment" name="line_comment"/>
+    <fontcolor default="operator" name="rule_operator"/>
+    <fontcolor default="field" name="macro">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor default="operator" name="special_target">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor default="keyword" name="keyword"/>
+    <fontcolor default="whitespace" name="whitespace"/>
+    <fontcolor default="whitespace" name="tab"/>
+    <fontcolor default="operator" name="macro_operator"/>
+    <fontcolor default="string" name="string_literal"/>
+    <fontcolor default="identifier" name="identifier"/>
+</fontscolors>

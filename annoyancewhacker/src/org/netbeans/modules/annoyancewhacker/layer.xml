@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filesystem>
+    <folder name="Preferences">
+        <folder name="org">
+            <folder name="netbeans">
+                <file name="core.properties"><![CDATA[usageStatisticsEnabled=false
+]]>
+                </file>
+                <folder name="modules">
+                    <file name="welcome.properties"><![CDATA[startCounter=1
+showOnStartup=false
+]]>
+                    </file>
+                    <folder name="autoupdate">
+                        <file name="ui.properties" url="autoupdate.properties"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <file name="Standard.xml" url="toolbars.xml"/>
+        <file name="Debugging.xml" url="toolbars_debugging.xml"/>
+    </folder>
+</filesystem>

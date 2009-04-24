@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="black" name="jsp-whitespace">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="blue" name="tag-directive">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="black" name="symbol">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="pink" default="default" foreColor="black" name="error">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="ff99006b" name="attribute-value"/>
+    <fontcolor bgColor="fffdf2c4" default="default" foreColor="black" name="scriptlet-delimiter">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="ff007c00" name="attribute-name"/>
+    <fontcolor default="default" foreColor="gray" name="comment">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="fffdf2c4" default="default" foreColor="black" name="expression-language">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffeff0eb" default="default" foreColor="blue" name="endtag">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="fffdf2c4" default="default" name="scriptlet"/>
+</fontscolors>

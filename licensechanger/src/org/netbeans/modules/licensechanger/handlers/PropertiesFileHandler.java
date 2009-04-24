@@ -66,7 +66,8 @@ public class PropertiesFileHandler extends FileHandler {
         String n = file.getNameExt();
         return "project.properties".equals(n) || "private.properties".equals(n) || //NOI18N
                 "platform-private.properties".equals(n) || "genfiles.properties".equals(n)
-                || "config.properties".equals(n); //NOI18N
+                || "config.properties".equals(n) || "nblibraries-private.properties".equals(n) ||
+                "nblibraries.properties".equals(n); //NOI18N
     }
 
     @Override

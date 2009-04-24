@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor bgColor="ffe3f2e1" default="default" foreColor="black" name="gtag">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffe3f2e1" default="default" name="groovy"/>
+    <fontcolor bgColor="ffe3f2e1" default="comment" name="GROOVYCOMMENT"/>
+    <fontcolor bgColor="ffe3f2e1" default="default" foreColor="black" name="groovy-delimiter">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor default="default" name="html"/>
+</fontscolors>

@@ -3,9 +3,22 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.editorthemes.export</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     <target name="compile" depends="beans2nbm,projectized-common.compile"/>
+    <target name="clean" depends="clean-beans2nbm,projectized-common.clean"/>
 
+    <target name="-release.files" depends="copy-wizard-lib, projectized.-release.files"/>
+
+    <target name="copy-wizard-lib" description="copy-wizard-library">
+        <mkdir dir="${basedir}/release/modules/ext"/>
+        <copy file="${basedir}/../other/BeansToNbm/beans2nbm/dist/beans2nbm.jar"
+            todir="${basedir}/release/modules/ext"/>
+    </target>
+    
     <target name="beans2nbm">
         <echo message="Building beans2nbm"/>
         <ant antfile="../../contrib/other/BeansToNbm/beans2nbm/build.xml" inheritall="false" inheritrefs="false"/>
+    </target>
+
+    <target name="clean-beans2nbm">
+        <delete dir="${basedir}/release"/>
     </target>
 </project>

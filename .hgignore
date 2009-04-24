@@ -242,3 +242,7 @@
 \.orig\..*$
 \.chg\..*$
 \.conflict\~$
+^editorthemes.export/release/modules/ext/beans2nbm\.jar$
+^licensechanger/release/modules/ext/wizard\.jar$
+^licensechanger/src/org/netbeans/modules/licensechanger/licenses\.txt$
+^licensechanger/src/org/netbeans/modules/licensechanger/licenses/*$

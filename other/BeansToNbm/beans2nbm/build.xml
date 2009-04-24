@@ -6,10 +6,11 @@
     <description>Builds, tests, and runs the project beans2nbm.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <property file="build.properties"/>
+    <property name="wizard-jar-loc" value="../../../o.yourorghere.wizard2/release/modules/ext/wizard.jar"/>
+    <available file="${wizard-jar-loc}" property="wizard-found"/>
     
     <target name="-pre-jar">
-        <fail unless="wizard-jar-loc" message="Create a build.properties file beside build.xml that defines 'wizard-jar-loc' as a pointer to a fresh build of wizard.jar on your disk.  Build it from http://wizard.dev.java.net - it will be merged into the result jar "/>
+        <fail unless="wizard-found" message="${wizard-jar-loc} not found.  Create a build.properties file beside build.xml that defines 'wizard-jar-loc' as a pointer to a fresh build of wizard.jar on your disk.  Build it from http://wizard.dev.java.net - it will be merged into the result jar "/> 
         <echo message="Merging wizard.jar"/>
         <unjar src="${wizard-jar-loc}" dest="build/classes" overwrite="true"/>
     </target>
@@ -23,66 +24,4 @@
     <target name="run-libgen" depends="build-libgen" description="Run the library generator">
         <java jar="dist/jar2nbm.jar" fork="true"/>
     </target>
-    
-    <!--
-
-    There exist several targets which are by default empty and which can be 
-    used for execution of your tasks. These targets are usually executed 
-    before and after some main targets. They are: 
-
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
-
-    (Targets beginning with '-' are not intended to be called on their own.)
-
-    Example of inserting an obfuscator after compilation could look like this:
-
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-        </target>
-
-    For list of available properties check the imported 
-    nbproject/build-impl.xml file. 
-
-
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are: 
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar-with-manifest:    JAR building (if you are using a manifest)
-      -do-jar-without-manifest: JAR building (if you are not using a manifest)
-      run:                      execution of project 
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="beans2nbm-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-        </target>
-
-    Notice that the overridden target depends on the jar target and not only on 
-    the compile target as the regular run target does. Again, for a list of available 
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file. 
-
-    -->
 </project>

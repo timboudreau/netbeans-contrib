@@ -3,32 +3,14 @@
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
-            <code-name-base>org.netbeans.modules.editorthemes.export</code-name-base>
+            <code-name-base>org.netbeans.modules.tanui</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.jdesktop.layout</code-name-base>
+                    <code-name-base>org.netbeans.swing.plaf</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.4</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.api.progress</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
                         <specification-version>1.9</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.openide.dialogs</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>7.5</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -36,7 +18,15 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.19</specification-version>
+                        <specification-version>7.21</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.modules</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>7.10</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -44,15 +34,11 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.9</specification-version>
+                        <specification-version>7.22</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
             <public-packages/>
-            <class-path-extension>
-                <runtime-relative-path>ext/beans2nbm.jar</runtime-relative-path>
-                <binary-origin>../other/BeansToNbm/beans2nbm/dist/beans2nbm.jar</binary-origin>
-            </class-path-extension>
         </data>
     </configuration>
 </project>

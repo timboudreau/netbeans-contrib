@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor foreColor="ff006f00" name="char"/>
+    <fontcolor foreColor="yellow" name="markup-element"/>
+    <fontcolor name="private"/>
+    <fontcolor name="protected"/>
+    <fontcolor default="string" name="markup-attribute-value"/>
+    <fontcolor foreColor="white" name="unused"/>
+    <fontcolor name="constructor">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="abstract"/>
+    <fontcolor name="deprecated" strikeThrough="darkGray"/>
+    <fontcolor name="static">
+        <font style="italic"/>
+    </fontcolor>
+    <fontcolor bgColor="pink" foreColor="black" name="error"/>
+    <fontcolor foreColor="ffa06001" name="method-parameter"/>
+    <fontcolor foreColor="ff000099" name="keyword">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor foreColor="black" name="whitespace"/>
+    <fontcolor name="class"/>
+    <fontcolor foreColor="ff780000" name="number"/>
+    <fontcolor foreColor="black" name="enum"/>
+    <fontcolor name="interface"/>
+    <fontcolor name="operator"/>
+    <fontcolor foreColor="ff098618" name="field">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor bgColor="ffc7c5b5" foreColor="black" name="default">
+        <font name="Monospaced" size="12" style="plain"/>
+    </fontcolor>
+    <fontcolor foreColor="ff99006b" name="string"/>
+    <fontcolor foreColor="ffb20000" name="entity-reference"/>
+    <fontcolor name="method">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor foreColor="white" name="comment"/>
+    <fontcolor foreColor="ff2765c2" name="local-variable"/>
+    <fontcolor name="public"/>
+    <fontcolor name="identifier"/>
+    <fontcolor name="separator"/>
+    <fontcolor foreColor="ff007c00" name="markup-attribute"/>
+</fontscolors>
