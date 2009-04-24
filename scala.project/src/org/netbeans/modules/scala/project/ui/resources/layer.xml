@@ -42,7 +42,32 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-
+    
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-scala">
+                <folder name="Actions">
+                    <file name="scala-project-separator-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="530"/>
+                    </file>
+                    <file name="RunFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.run"/>
+                        <attr name="position" intvalue="550"/>
+                    </file>
+                    <file name="DebugFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.debug"/>
+                        <attr name="position" intvalue="560"/>
+                    </file>
+                    <file name="DebugTestFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.debugTest"/>
+                        <attr name="position" intvalue="570"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
     <folder name="Templates">
         <folder name="Project">
 
