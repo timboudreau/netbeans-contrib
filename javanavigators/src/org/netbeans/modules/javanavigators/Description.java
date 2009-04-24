@@ -105,7 +105,26 @@ public class Description {
     public boolean isInner() {
         return inner || (parent != null && parent.inner);
     }
-    
+
+    public String toContent() {
+        boolean inTag = false;
+        char[] chars = toString().toCharArray();
+        StringBuilder sb = new StringBuilder(chars.length);
+        for (char c : chars) {
+            boolean was = inTag;
+            if (!inTag) {
+                inTag = c == '<';
+            } else {
+                inTag = c != '>';
+            }
+            if (inTag || (was != inTag) && !inTag) {
+                continue;
+            }
+            sb.append (c);
+        }
+        return toString();
+    }
+
     private String txt;
     @Override
     public String toString() {
@@ -203,7 +222,7 @@ public class Description {
                 if (i1 != i2) {
                     return i1 && !i2 ? -1 : 1;
                 } else {
-                    int result = d1.name.compareTo(d2.name);
+                    int result = d1.toContent().compareTo(d2.toContent());
                     return result;
                 }
             }
