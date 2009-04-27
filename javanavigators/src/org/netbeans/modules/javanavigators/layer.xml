@@ -6,8 +6,7 @@
             <folder name="text">
                 <folder name="x-java">
                     <file name="org-netbeans-modules-javanavigators-JavaMembersNavigator.instance"/>
-                    <attr name="org-netbeans-modules-javanavigators-JavaMembersNavigator.instance/org-netbeans-modules-java-navigation-ClassMemberPanel.instance" 
-                        boolvalue="true"/>
+                    <attr name="position" intvalue="-1000"/>
                 </folder>
             </folder>
         </folder>

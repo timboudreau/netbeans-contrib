@@ -8,6 +8,7 @@
                 stringvalue="org.netbeans.modules.editorthemes.export.ExportAction"/>
             <attr name="instanceCreate" 
                 methodvalue="org.netbeans.modules.editorthemes.export.ExportAction.createExportColorThemesAction"/>
+                <attr name="position" intvalue="207"/>
         </file>
 <!--        <file name="ExportKeybindingsAction.instance">
             <attr name="instanceOf" 
