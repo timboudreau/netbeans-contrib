@@ -39,19 +39,28 @@
 
 package org.netbeans.modules.scanondemand;
 
+import java.util.logging.Logger;
 import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingActivityInterceptor;
 import org.openide.filesystems.FileEvent;
 
 /**
+ * Used to intercept indexing when event is not expected.
  *
- * @author pflaska
+ * @author Pavel Flaska
  */
 @org.openide.util.lookup.ServiceProvider(service=IndexingActivityInterceptor.class)
 public class NoIndexingActivity implements IndexingActivityInterceptor {
     
+    public static final Logger LOG = Logger.getLogger(NoIndexingActivity.class.getName());
+
     @Override
     public Authorization authorizeFileSystemEvent(FileEvent event) {
-        return Authorization.IGNORE;
+        if (event.isExpected()) {
+            LOG.finest("Process file event " + event.getFile().getName());
+            return Authorization.PROCESS;
+        } else {
+            LOG.finest("Ignore file event " + event.getFile().getName());
+            return Authorization.IGNORE;
+        }
     }
-
 }
