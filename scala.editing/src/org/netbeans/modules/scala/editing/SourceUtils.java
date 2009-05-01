@@ -38,23 +38,23 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.netbeans.modules.gsf.api.CancellableTask;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.parsing.api.ParserManager;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
-import org.netbeans.napi.gsfret.source.ClasspathInfo;
-import org.netbeans.napi.gsfret.source.CompilationController;
-import org.netbeans.napi.gsfret.source.Phase;
-import org.netbeans.napi.gsfret.source.Source;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import scala.tools.nsc.symtab.Symbols.Symbol;
@@ -75,44 +75,38 @@ public class SourceUtils {
         if (fo == null || !fo.isValid() || fo.isVirtual()) {
             throw new IllegalArgumentException();
         }
-        final Source js = Source.forFileObject(fo);
-        if (js == null) {
+        final Source source = Source.create(fo);
+        if (source == null) {
             throw new IllegalArgumentException();
         }
         try {
             final List<AstDef> result = new ArrayList<AstDef>();
-            js.runUserActionTask(new CancellableTask<CompilationController>() {
+            ParserManager.parse(Collections.singleton(source), new UserTask() {
 
-                public void cancel() {
-                }
-
-                public void run(final CompilationController control) throws Exception {
-                    if (control.toPhase(Phase.ELEMENTS_RESOLVED).compareTo(Phase.ELEMENTS_RESOLVED) >= 0) {
-                        ScalaParserResult pResult = (ScalaParserResult) control.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-                        AstRootScope rootScope = pResult.getRootScope();
-                        if (rootScope == null) {
-                            return;
-                        }
-                        // Get all defs will return all visible packages from the root and down
-                        final List<AstDef> visibleDefs = getAllDefs(rootScope, ElementKind.PACKAGE);
-                        for (AstDef packaging : visibleDefs) {
-                            // Only go through the defs for each package scope.
-                            // Sub-packages are handled by the fact that
-                            // getAllDefs will find them.
-                            List<AstDef> objs = packaging.getBindingScope().getDefs();
-                            for (AstDef obj : objs) {
-                                if (isMainMethodPresent(obj)) {
-                                    result.add(obj);
-                                }
-                            }
-                        }
-                        for (AstDef obj : rootScope.getVisibleDefs(ElementKind.MODULE)) {
+                @Override
+                public void run(ResultIterator resultIterator) throws Exception {
+                    ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult();
+                    AstRootScope rootScope = pResult.rootScope();
+                    if (rootScope == null) {
+                        return;
+                    }
+                    // Get all defs will return all visible packages from the root and down
+                    final List<AstDef> visibleDefs = getAllDefs(rootScope, ElementKind.PACKAGE);
+                    for (AstDef packaging : visibleDefs) {
+                        // Only go through the defs for each package scope.
+                        // Sub-packages are handled by the fact that
+                        // getAllDefs will find them.
+                        List<AstDef> objs = packaging.getBindingScope().getDefs();
+                        for (AstDef obj : objs) {
                             if (isMainMethodPresent(obj)) {
                                 result.add(obj);
                             }
                         }
-
-
+                    }
+                    for (AstDef obj : rootScope.getVisibleDefs(ElementKind.MODULE)) {
+                        if (isMainMethodPresent(obj)) {
+                            result.add(obj);
+                        }
                     }
                 }
 
@@ -133,10 +127,11 @@ public class SourceUtils {
                         getAllDefs(childScope, kind, result);
                     }
                 }
-            }, true);
+            });
+            
             return result;
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
+        } catch (ParseException ex) {
+            Exceptions.printStackTrace(ex);
             return Collections.<AstDef>emptySet();
         }
     }

@@ -48,7 +48,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstMirror;
 import org.netbeans.modules.scala.editing.nodes.BasicName;

@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing.ast;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.Type;

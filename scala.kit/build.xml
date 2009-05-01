@@ -6,9 +6,6 @@
    <!-- The building dependency is based on "ant -Dcluster.config=java" -->
    <target name="scala-build">
       <!-- stable modules -->
-      <ant dir="../../gsfpath.api"/>
-      <ant dir="../../gsf.api"/>
-      <ant dir="../../gsf"/>
       <ant dir="../../extexecution"/>
       <!-- contrib modules -->
       <ant dir="../../contrib/xtc"/>

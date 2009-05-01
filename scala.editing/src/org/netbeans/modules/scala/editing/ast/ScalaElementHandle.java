@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
-import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementHandle;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.Type;
 

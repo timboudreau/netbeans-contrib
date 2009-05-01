@@ -43,18 +43,19 @@ package org.netbeans.modules.scala.editing;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
-import org.netbeans.modules.gsf.api.DeclarationFinder;
-import org.netbeans.modules.gsf.api.Formatter;
-import org.netbeans.modules.gsf.api.Indexer;
-import org.netbeans.modules.gsf.api.InstantRenamer;
-import org.netbeans.modules.gsf.api.KeystrokeHandler;
-import org.netbeans.modules.gsf.api.OccurrencesFinder;
-import org.netbeans.modules.gsf.api.Parser;
-import org.netbeans.modules.gsf.api.SemanticAnalyzer;
-import org.netbeans.modules.gsf.api.StructureScanner;
-import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.Formatter;
+import org.netbeans.modules.csl.api.InstantRenamer;
+import org.netbeans.modules.csl.api.KeystrokeHandler;
+import org.netbeans.modules.csl.api.OccurrencesFinder;
+import org.netbeans.modules.csl.api.SemanticAnalyzer;
+import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -62,6 +63,10 @@ import org.openide.modules.InstalledFileLocator;
 
 public class ScalaLanguage extends DefaultLanguageConfig {
 
+    public static String BOOT = "scala/classpath/boot";
+    public static String COMPILE = "scala/classpath/compile";
+    public static String EXECUTE = "scala/classpath/execute";
+    public static String SOURCE = "scala/classpath/source";
     private static FileObject scalaStubsFo;
 
     public ScalaLanguage() {
@@ -85,7 +90,22 @@ public class ScalaLanguage extends DefaultLanguageConfig {
         return ScalaTokenId.language();
     }
 
+    /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
     @Override
+    public Set<String> getLibraryPathIds() {
+        return Collections.singleton(BOOT);
+    }
+
+    @Override
+    public Set<String> getSourcePathIds() {
+        return Collections.singleton(SOURCE);
+    }
+
+    @Override
+    public EmbeddingIndexerFactory getIndexerFactory() {
+        return new ScalaIndexer.Factory();
+    }
+
     public Collection<FileObject> getCoreLibraries() {
         return Collections.singletonList(getScalaStubFo());
     }
@@ -135,7 +155,6 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     }
 
     // Service Registrations
-    
     @Override
     public KeystrokeHandler getKeystrokeHandler() {
         return new ScalaBracketCompleter();
@@ -169,11 +188,6 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     @Override
     public StructureScanner getStructureScanner() {
         return new ScalaStructureAnalyzer();
-    }
-
-    @Override
-    public Indexer getIndexer() {
-        return new ScalaIndexer();
     }
 
     @Override

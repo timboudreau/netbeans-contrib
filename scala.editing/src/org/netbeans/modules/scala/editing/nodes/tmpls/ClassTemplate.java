@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing.nodes.tmpls;
 
 import java.util.Iterator;
 import javax.lang.model.element.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 import org.netbeans.modules.scala.editing.nodes.types.TypeParam;

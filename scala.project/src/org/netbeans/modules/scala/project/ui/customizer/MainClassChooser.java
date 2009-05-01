@@ -57,7 +57,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.scala.editing.SourceUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
@@ -278,6 +278,7 @@ public class MainClassChooser extends JPanel {
 
 
     private static final class MainClassRenderer extends DefaultListCellRenderer {
+        @Override
         public Component getListCellRendererComponent (JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             String displayName;
             if (value instanceof String) {

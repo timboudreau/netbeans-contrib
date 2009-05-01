@@ -42,7 +42,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.HtmlFormatter;
 
 /**
  *

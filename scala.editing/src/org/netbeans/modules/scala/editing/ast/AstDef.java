@@ -45,11 +45,12 @@ import java.util.Set;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.filesystems.FileObject;
@@ -119,8 +120,14 @@ public class AstDef extends AstItem implements ScalaElementHandle {
         this.kind = kind;
     }
 
+    @Override
     public ElementKind getKind() {
         return kind;
+    }
+
+    @Override
+    public OffsetRange getOffsetRange(ParserResult result) {
+        return getBindingScope().getRange(result.getSnapshot().getTokenHierarchy());
     }
 
     @Override
@@ -205,6 +212,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
         }
     }
 
+    @Override
     public Set<Modifier> getModifiers() {
         if (modifiers != null) {
             return modifiers;
@@ -235,6 +243,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
         return modifiers;
     }
 
+    @Override
     public FileObject getFileObject() {
         return fo;
     }

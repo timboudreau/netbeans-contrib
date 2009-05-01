@@ -123,7 +123,7 @@
         </folder>
     </folder>
     
-    <folder name="GsfPlugins">
+    <folder name="CslPlugins">
         <folder name="text">
             <folder name="x-scala">
                 <file name="language.instance">

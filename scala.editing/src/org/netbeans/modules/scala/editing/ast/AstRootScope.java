@@ -107,6 +107,14 @@ public class AstRootScope extends AstScope {
         return false;
     }
 
+    /**
+     * @Deprecated This method requires the token is extractly under the same th as th when parsing source file
+     */
+    @Deprecated
+    public AstItem findItemAt(Token token) {
+        return idTokenToItem.get(token);
+    }
+
     @Override
     public AstItem findItemAt(TokenHierarchy th, int offset) {
         List<Token> _tokens = getSortedToken(th);
@@ -136,10 +144,6 @@ public class AstRootScope extends AstScope {
         }
 
         return tokens == null ? Collections.<Token>emptyList() : tokens;
-    }
-
-    public AstItem findItemAt(Token token) {
-        return idTokenToItem.get(token);
     }
 
     public AstItem findFirstItemWithName(String name) {

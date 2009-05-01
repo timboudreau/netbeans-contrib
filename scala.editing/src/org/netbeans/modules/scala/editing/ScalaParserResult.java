@@ -40,12 +40,12 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import javax.swing.text.Document;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.api.ParserResult;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.modules.csl.api.Error;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 
 /**
@@ -60,56 +60,60 @@ public class ScalaParserResult extends ParserResult {
         Parsed,
         GLOBAL_RESOLVED
     }
-    private AstTreeNode ast;
+    private List<Error> errors = new ArrayList<Error>();
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
     private String sanitizedContents;
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
     private AstRootScope rootScope;
-    private TokenHierarchy<Document> tokenHierarchy;
     private Phase phase;
+    private ScalaParser parser;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file,
-            AstRootScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
-        super(parser, file, ScalaMimeResolver.MIME_TYPE);
+    public ScalaParserResult(ScalaParser parser, Snapshot snapshot, AstRootScope rootScope) {
+        super(snapshot);
+        this.parser = parser;
         this.rootScope = rootScope;
-        this.ast = ast;
-        this.tokenHierarchy = th;
         this.phase = Phase.Parsed;
     }
 
-    public ParserResult.AstTreeNode getAst() {
-        return ast;
+    @Override
+    protected void invalidate() {
+        // XXX: what exactly should we do here?
     }
 
-    public void setAst(AstTreeNode ast) {
-        this.ast = ast;
+    @Override
+    public List<? extends Error> getDiagnostics() {
+        return errors;
     }
 
-    public AstRootScope getRootScope() {
+    public void setErrors(List<? extends Error> errors) {
+        this.errors = new ArrayList<Error>(errors);
+    }
+
+    public ScalaParser parser() {
+        return parser;
+    }
+
+    public AstRootScope rootScope() {
         return rootScope;
-    }
-
-    public String getSource() {
-        return source;
     }
 
     public void setSource(String source) {
         this.source = source;
     }
-
+    
     /**
      * Return whether the source code for the parse result was "cleaned"
      * or "sanitized" (modified to reduce chance of parser errors) or not.
      * This method returns OffsetRange.NONE if the source was not sanitized,
      * otherwise returns the actual sanitized range.
      */
-    public OffsetRange getSanitizedRange() {
+    public OffsetRange sanitizedRange() {
         return sanitizedRange;
     }
 
-    public String getSanitizedContents() {
+    public String sanitizedContents() {
         return sanitizedContents;
     }
 
@@ -134,15 +138,11 @@ public class ScalaParserResult extends ParserResult {
         this.commentsAdded = commentsAdded;
     }
 
-    public TokenHierarchy<Document> getTokenHierarchy() {
-        return tokenHierarchy;
-    }
-
-    public Phase getPhase() {
+    public Phase phase() {
         return phase == null ? Phase.Modified : phase;
     }
 
-    public void toGlobalPhase(CompilationInfo info) {
+    public void toGlobalPhase(ParserResult info) {
         if (rootScope == null) {
             return;
         }
@@ -167,6 +167,6 @@ public class ScalaParserResult extends ParserResult {
 
     @Override
     public String toString() {
-        return "ParserResult(file=" + getFile() + ",rootScope=" + rootScope + ",phase=" + phase + ")";
+        return "ParserResult(file=" + getSnapshot().getSource().getFileObject() + ",rootScope=" + rootScope + ",phase=" + phase + ")";
     }
 }

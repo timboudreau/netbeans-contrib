@@ -44,13 +44,12 @@ package org.netbeans.modules.scala.editing.lexer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.annotations.NonNull;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.util.Exceptions;
 
@@ -150,7 +149,6 @@ public class MaybeCall {
      * call, it will return the relevant classnames (e.g. for [1,2].x| it returns "Array").
      */
     @SuppressWarnings("unchecked")
-    @NonNull
     public static MaybeCall getCallType(BaseDocument doc, TokenHierarchy<Document> th, int offset) {
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
 

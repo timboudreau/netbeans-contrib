@@ -45,9 +45,9 @@ import java.util.Set;
 
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.InstantRenamer;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.csl.api.InstantRenamer;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
@@ -64,9 +64,10 @@ public class ScalaInstantRenamer implements InstantRenamer {
     public ScalaInstantRenamer() {
     }
 
-    public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
+    @Override
+    public boolean isRenameAllowed(ParserResult info, int caretOffset, String[] explanationRetValue) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        AstRootScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.rootScope();
 
         if (rootScope == null) {
             explanationRetValue[0] = NbBundle.getMessage(ScalaInstantRenamer.class, "NoRenameWithErrors");
@@ -74,12 +75,12 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return false;
         }
 
-        final Document document = info.getDocument();
+        final Document document = info.getSnapshot().getSource().getDocument(true);
         if (document == null) {
             return false;
         }
 
-        final TokenHierarchy th = TokenHierarchy.get(document);
+        final TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
 
         int astOffset = AstUtilities.getAstOffset(info, caretOffset);
         if (astOffset == -1) {
@@ -96,13 +97,13 @@ public class ScalaInstantRenamer implements InstantRenamer {
         if (def == null) {
             return false;
         }
-        
+
         if (def != null) {
             String name = def.getName();
             if (name.equals("this") || name.equals("super")) {
                 return false;
             }
-            
+
             switch (def.getKind()) {
                 case FIELD:
                 case PARAMETER:
@@ -112,30 +113,31 @@ public class ScalaInstantRenamer implements InstantRenamer {
                 // TODO - block renaming of GLOBALS! I should already know
                 // what's local and global based on JsSemantic...
             }
-        }                 
+        }
 
         return false;
     }
 
-    public Set<OffsetRange> getRenameRegions(CompilationInfo info, int caretOffset) {
+    @Override
+    public Set<OffsetRange> getRenameRegions(ParserResult info, int caretOffset) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         if (pResult == null) {
             return Collections.emptySet();
         }
 
-        final Document document = info.getDocument();
+        final Document document = info.getSnapshot().getSource().getDocument(true);
         if (document == null) {
             return Collections.emptySet();
         }
 
-        final TokenHierarchy th = TokenHierarchy.get(document);
+        final TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
 
         int astOffset = AstUtilities.getAstOffset(info, caretOffset);
         if (astOffset == -1) {
             return Collections.emptySet();
         }
 
-        AstRootScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.rootScope();
 
         AstItem closest = rootScope.findItemAt(th, caretOffset);
         List<? extends AstItem> occurrences = rootScope.findOccurrences(closest);
@@ -146,17 +148,15 @@ public class ScalaInstantRenamer implements InstantRenamer {
         }
 
         if (regions.size() > 0) {
-            if (pResult.getTranslatedSource() != null) {
-                Set<OffsetRange> translated = new HashSet<OffsetRange>(2 * regions.size());
-                for (OffsetRange astRange : regions) {
-                    OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
-                    if (lexRange != OffsetRange.NONE) {
-                        translated.add(lexRange);
-                    }
+            Set<OffsetRange> translated = new HashSet<OffsetRange>(2 * regions.size());
+            for (OffsetRange astRange : regions) {
+                OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
+                if (lexRange != OffsetRange.NONE) {
+                    translated.add(lexRange);
                 }
-
-                regions = translated;
             }
+
+            regions = translated;
         }
 
         return regions;

@@ -46,10 +46,12 @@ import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
-import org.netbeans.modules.gsf.api.ColoringAttributes;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.SemanticAnalyzer;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.spi.Scheduler;
+import org.netbeans.modules.parsing.spi.SchedulerEvent;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRef;
@@ -63,13 +65,23 @@ import scala.tools.nsc.symtab.Types.Type;
  *  
  * @author Caoyuan Deng
  */
-public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
+public class ScalaSemanticAnalyzer extends SemanticAnalyzer {
 
     private boolean cancelled;
     private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
 
     public Map<OffsetRange, Set<ColoringAttributes>> getHighlights() {
         return semanticHighlights;
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
+    @Override
+    public Class<? extends Scheduler> getSchedulerClass() {
+        return Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER;
     }
 
     protected final synchronized boolean isCancelled() {
@@ -84,7 +96,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         cancelled = true;
     }
 
-    public void run(CompilationInfo info) throws Exception {
+    public void run(Parser.Result info, SchedulerEvent event) {
         resume();
 
         if (isCancelled()) {
@@ -100,13 +112,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        AstRootScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.rootScope();
         if (rootScope == null) {
             return;
         }
 
-        final TokenHierarchy th = pResult.getTokenHierarchy();
-        final Document doc = info.getDocument();
+        final TokenHierarchy th = pResult.getSnapshot().getTokenHierarchy();
+        final Document doc = info.getSnapshot().getSource().getDocument(true);
         if (doc == null) {
             return;
         }

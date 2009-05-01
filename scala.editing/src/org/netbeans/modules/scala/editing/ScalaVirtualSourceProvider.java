@@ -53,18 +53,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Parser;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.api.SourceFileReader;
-import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.gsf.spi.DefaultParseListener;
-import org.netbeans.modules.gsf.spi.DefaultParserFile;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider;
 import org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider;
+import org.netbeans.modules.parsing.api.ParserManager;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
@@ -130,7 +126,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
 
     public boolean index() {
         return false;
-    /** @Todo */
+        /** @Todo */
     }
 
     public void translate(Iterable<File> files, File sourceRoot, Result result) {
@@ -153,8 +149,8 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
                     }
                     String name = fo.getName();
                     sb.append("public class ").append(name).append(" implements scala.ScalaObject {public int $tag() throws java.rmi.RemoteException {return 0;}}"); // NOI18N
-                //@Todo diable result add till we get everything ok
-                //result.add(file, pkg, file.getName(), sb.toString());
+                    //@Todo diable result add till we get everything ok
+                    //result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
                 FileObject fo = FileUtil.toFileObject(file);
@@ -185,54 +181,33 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
 
     @SuppressWarnings("unchecked")
     private static List<AstDef> getTemplates(File file) {
-        List<AstDef> resultList = new ArrayList<AstDef>();
+        final List<AstDef> resultList = new ArrayList<AstDef>();
 
         final FileObject fo = FileUtil.toFileObject(file);
-        ParserFile parserFile = new DefaultParserFile(fo, null, false);
-        if (parserFile != null) {
-            /** @Note: do not use CompilationInfo to parse it? which may cause "refershing workspace" */
-            List<ParserFile> files = Collections.singletonList(parserFile);
-            SourceFileReader reader =
-                    new SourceFileReader() {
+        if (fo != null) {
+            try {
+                Source source = Source.create(fo);
+                /** @Note: do not use UserTask to parse it? which may cause "refershing workspace" */
+                // FIXME can we move this out of task (?)
+                ParserManager.parse(Collections.singleton(source), new UserTask() {
 
-                        public CharSequence read(ParserFile file) throws IOException {
-                            Document doc = GsfUtilities.getDocument(fo, true);
+                    @Override
+                    public void run(ResultIterator resultIterator) throws Exception {
+                        ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult();
 
-                            if (doc == null) {
-                                return "";
-                            }
+                        AstRootScope rootScope = pResult.rootScope();
+                        if (rootScope != null) {
+                            List<AstDef> tmpls = new ArrayList<AstDef>();
+                            scan(rootScope, tmpls);
 
-                            try {
-                                return doc.getText(0, doc.getLength());
-                            } catch (BadLocationException ble) {
-                                IOException ioe = new IOException();
-                                ioe.initCause(ble);
-                                throw ioe;
-                            }
+                            resultList.addAll(tmpls);
+                        } else {
+                            assert false : "Parse result is null : " + fo.getName();
                         }
-
-                        public int getCaretOffset(ParserFile fileObject) {
-                            return -1;
-                        }
-                    };
-
-            DefaultParseListener listener = new DefaultParseListener();
-
-            TranslatedSource translatedSource = null; // TODO - determine this here?
-            Parser.Job job = new Parser.Job(files, listener, reader, translatedSource);
-            new ScalaParser().parseFiles(job);
-
-            ScalaParserResult pResult = (ScalaParserResult) listener.getParserResult();
-            if (pResult != null) {
-                AstRootScope rootScope = pResult.getRootScope();
-                if (rootScope != null) {
-                    List<AstDef> tmpls = new ArrayList<AstDef>();
-                    scan(rootScope, tmpls);
-
-                    resultList.addAll(tmpls);
-                }
-            } else {
-                assert false : "Parse result is null : " + fo.getName();
+                    }
+                });
+            } catch (ParseException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
 
@@ -465,7 +440,6 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
         }
     }
     private static Map<String, String> TypeToReturn = new HashMap<String, String>();
-
 
     {
         TypeToReturn.put("void", "");

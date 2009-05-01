@@ -50,18 +50,18 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.EditorOptions;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.csl.api.EditorOptions;
+import org.netbeans.modules.csl.api.KeystrokeHandler;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.editor.indent.api.IndentUtils;
-import org.netbeans.modules.gsf.api.KeystrokeHandler;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
@@ -138,6 +138,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         return true;
     }
 
+    @Override
     public int beforeBreak(Document document, int offset, JTextComponent target)
             throws BadLocationException {
         isAfter = false;
@@ -580,6 +581,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         return false;
     }
 
+    @Override
     public boolean beforeCharInserted(Document document, int caretOffset, JTextComponent target, char ch)
             throws BadLocationException {
         isAfter = false;
@@ -744,6 +746,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
      * @return Whether the insert was handled
      * @throws BadLocationException if dotPos is not correct
      */
+    @Override
     public boolean afterCharInserted(Document document, int dotPos, JTextComponent target, char ch)
             throws BadLocationException {
         isAfter = true;
@@ -967,6 +970,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         }
     }
 
+    @Override
     public OffsetRange findMatching(Document document, int offset /*, boolean simpleSearch*/) {
         BaseDocument doc = (BaseDocument) document;
 
@@ -1047,6 +1051,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
      * @param ch the character that was deleted
      */
     @SuppressWarnings("fallthrough")
+    @Override
     public boolean charBackspaced(Document document, int dotPos, JTextComponent target, char ch)
             throws BadLocationException {
         BaseDocument doc = (BaseDocument) document;
@@ -1558,7 +1563,9 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         }
     }
 
-    public List<OffsetRange> findLogicalRanges(CompilationInfo info, int caretOffset) {
+
+    @Override
+    public List<OffsetRange> findLogicalRanges(ParserResult info, int caretOffset) {
         AstScope root = AstUtilities.getRoot(info);
 
         if (root == null) {
@@ -1583,7 +1590,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         // Check if the caret is within a comment, and if so insert a new
         // leaf "node" which contains the comment line and then comment block
         try {
-            BaseDocument doc = (BaseDocument) info.getDocument();
+            BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
             if (doc == null) {
                 return ranges;
             }
@@ -1710,6 +1717,7 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
     }
 
     // UGH - this method has gotten really ugly after successive refinements based on unit tests - consider cleaning up
+    @Override
     public int getNextWordOffset(Document document, int offset, boolean reverse) {
         BaseDocument doc = (BaseDocument) document;
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);

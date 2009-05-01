@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -225,7 +224,7 @@ public class JavaIndex {
             String searchUrl = null;
             if (context != null) {
                 try {
-                    searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+                    searchUrl = context.getSnapshot().getSource().getFileObject().getURL().toExternalForm();
                 } catch (FileStateInvalidException ex) {
                     Exceptions.printStackTrace(ex);
                 }
@@ -263,7 +262,7 @@ public class JavaIndex {
     }
 
     public Set<GsfElement> getMembers(String memberName, String typeQName, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context,
+            Set<SearchScope> scope, ScalaParserResult pResult,
             boolean onlyConstructors, boolean includeMethods, boolean includeFields, boolean includeDuplicates) {
 
         final Set<GsfElement> gsfElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
@@ -283,9 +282,9 @@ public class JavaIndex {
         }
 
         String searchUrl = null;
-        if (context != null) {
+        if (pResult != null) {
             try {
-                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+                searchUrl = pResult.getSnapshot().getSource().getFileObject().getURL().toExternalForm();
             } catch (FileStateInvalidException ex) {
                 Exceptions.printStackTrace(ex);
             }

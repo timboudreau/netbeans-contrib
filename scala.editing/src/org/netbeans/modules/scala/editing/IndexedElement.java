@@ -38,9 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +58,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.BasicName;
@@ -139,7 +137,6 @@ public class IndexedElement extends AstElement {
     protected String name;
     protected String in;
     protected ScalaIndex index;
-    protected String fileUrl;
     protected Document document;
     protected FileObject fileObject;
     protected int flags;
@@ -152,39 +149,39 @@ public class IndexedElement extends AstElement {
     private org.netbeans.api.java.source.CompilationInfo javaInfo;
     private Set<Modifier> modifiers;
 
-    IndexedElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
+    IndexedElement(String qName, String sName, String in, String attributes, int flags, FileObject fo, ScalaIndex index, ElementKind kind) {
         super(sName, null, null, kind);
         this.qualifiedName = new BasicName(qName);
         this.fqn = qName;
         this.name = sName;
         this.in = in;
         this.index = index;
-        this.fileUrl = fileUrl;
+        this.fileObject = fo;
         this.attributes = attributes;
         this.flags = flags;
         this.kind = kind;
     }
 
-    static IndexedElement create(String qName, String sName, String in, String attributes, String fileUrl, ScalaIndex index, boolean createPackage) {
+    static IndexedElement create(String qName, String sName, String in, String attributes, FileObject fo, ScalaIndex index, boolean createPackage) {
         int flags = IndexedElement.decodeFlags(attributes, 0, 0);
 
         if (createPackage) {
-            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.PACKAGE);
+            return new IndexedElement(qName, sName, in, attributes, flags, fo, index, ElementKind.PACKAGE);
         }
 
         if ((flags & FUNCTION) != 0) {
             ElementKind kind = (flags & CONSTRUCTOR) != 0 ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
-            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, kind);
+            return new IndexedElement(qName, sName, in, attributes, flags, fo, index, kind);
         } else if ((flags & CLASS) != 0) {
-            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fo, index, ElementKind.CLASS);
         } else if ((flags & OBJECT) != 0) {
-            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.CLASS);
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fo, index, ElementKind.CLASS);
         } else if ((flags & TRAIT) != 0) {
-            return new IndexedTypeElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.INTERFACE);
+            return new IndexedTypeElement(qName, sName, in, attributes, flags, fo, index, ElementKind.INTERFACE);
         } else if ((flags & PACKAGE) != 0) {
-            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.PACKAGE);
+            return new IndexedElement(qName, sName, in, attributes, flags, fo, index, ElementKind.PACKAGE);
         } else {
-            return new IndexedElement(qName, sName, in, attributes, flags, fileUrl, index, ElementKind.OTHER);
+            return new IndexedElement(qName, sName, in, attributes, flags, fo, index, ElementKind.OTHER);
         }
     }
 
@@ -210,7 +207,7 @@ public class IndexedElement extends AstElement {
 
     @Override
     public String toString() {
-        return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
+        return getSignature() + ":" + getFileObject().getPath() + ";" + decodeFlags(flags);
     }
 
     public ScalaIndex getIndex() {
@@ -296,10 +293,6 @@ public class IndexedElement extends AstElement {
         return modifiers;
     }
 
-    public String getFilenameUrl() {
-        return fileUrl;
-    }
-
     public Document getDocument() throws IOException {
         if (document == null) {
             FileObject fo = getFileObject();
@@ -314,12 +307,6 @@ public class IndexedElement extends AstElement {
         return document;
     }
 
-    public ParserFile getFile() {
-        boolean platform = false; // XXX FIND OUT WHAT IT IS!
-
-        return new DefaultParserFile(getFileObject(), null, platform);
-    }
-
     public FileObject getFileObject() {
         if (fileObject != null) {
             return fileObject;
@@ -327,21 +314,6 @@ public class IndexedElement extends AstElement {
 
         if (isJava()) {
             fileObject = JavaUtilities.getOriginFileObject(javaInfo, javaElement);
-        } else if (fileUrl != null && fileUrl.length() > 0) {
-            fileObject = ScalaIndex.getFileObject(fileUrl);
-            if (fileObject == null) {
-                // Don't try again
-                fileUrl = null;
-            }
-//
-//            // Prefer sdoc files for doc-only items
-//            if (isDocOnly() && !fileUrl.endsWith(".sdoc")) { // NOI18N
-//                // This is probably a builtin library reference; correct the URL
-//                FileObject fo = JsIndexer.findScriptDocFor(fileUrl, fileObject);
-//                if (fo != null) {
-//                    fileObject = fo;
-//                }
-//            }
         }
 
         return fileObject;
@@ -1093,26 +1065,26 @@ public class IndexedElement extends AstElement {
     }
 
     public String getOrigin() {
-        String filename = getFilenameUrl();
-        if (filename != null) {
-            int lastSlash = filename.lastIndexOf('/');
+        String filePath = getFileObject().getPath();
+        if (filePath != null) {
+            int lastSlash = filePath.lastIndexOf('/');
             if (lastSlash == -1) {
                 return null;
             }
             lastSlash++;
-            if (filename.startsWith("stub_core", lastSlash)) { // NOI18N
+            if (filePath.startsWith("stub_core", lastSlash)) { // NOI18N
 
                 return "Core JS";
-            } else if (filename.startsWith("stub_", lastSlash)) { // NOI18N
+            } else if (filePath.startsWith("stub_", lastSlash)) { // NOI18N
 
                 return "DOM";
-            } else if (filename.startsWith("jquery", lastSlash)) { // NOI18N
+            } else if (filePath.startsWith("jquery", lastSlash)) { // NOI18N
 
                 return "jQuery";
-            } else if (filename.startsWith("dojo", lastSlash)) { // NOI18N
+            } else if (filePath.startsWith("dojo", lastSlash)) { // NOI18N
 
                 return "dojo";
-            } else if (filename.startsWith("yui", lastSlash)) { // NOI18N
+            } else if (filePath.startsWith("yui", lastSlash)) { // NOI18N
 
                 return "YUI";
             }
@@ -1142,11 +1114,11 @@ public class IndexedElement extends AstElement {
                 sb.append("</i>"); // NOI18N
 
                 if (indexedElement != null) {
-                    String url = indexedElement.getFilenameUrl();
-                    if (url != null) {
-                        if (url.indexOf("jsstubs/stub_core_") != -1) { // NOI18N
+                    String path = indexedElement.getFileObject().getPath();
+                    if (path != null) {
+                        if (path.indexOf("jsstubs/stub_core_") != -1) { // NOI18N
                             sb.append(" (Core JavaScript)");
-                        } else if (url.indexOf("jsstubs/stub_") != -1) { // NOI18N
+                        } else if (path.indexOf("jsstubs/stub_") != -1) { // NOI18N
                             sb.append(" (DOM)");
                         }
                     }
@@ -1215,15 +1187,15 @@ public class IndexedElement extends AstElement {
         sb.append("</td>\n"); // NOI18N
         sb.append("</tr></table>"); // NOI18N
 
-        if (indexedElement != null && indexedElement.getFilenameUrl() != null && indexedElement.getFilenameUrl().indexOf("jsstubs") == -1) {
+        if (indexedElement != null && indexedElement.getFileObject() != null && indexedElement.getFileObject().getPath().indexOf("jsstubs") == -1) {
             sb.append(NbBundle.getMessage(ScalaCodeCompletion.class, "FileLabel"));
             sb.append(" <tt>"); // NOI18N
-            String file = indexedElement.getFilenameUrl();
-            int baseIndex = file.lastIndexOf('/');
+            String path = indexedElement.getFileObject().getPath();
+            int baseIndex = path.lastIndexOf('/');
             if (baseIndex != -1) {
-                file = file.substring(baseIndex + 1);
+                path = path.substring(baseIndex + 1);
             }
-            sb.append(file);
+            sb.append(path);
             sb.append("</tt><br>"); // NOI18N
         }
 

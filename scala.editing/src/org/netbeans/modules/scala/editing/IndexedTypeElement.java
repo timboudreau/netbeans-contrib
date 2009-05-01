@@ -46,6 +46,7 @@ import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
+import org.openide.filesystems.FileObject;
 
 
 /**
@@ -54,8 +55,8 @@ import javax.lang.model.type.TypeMirror;
  */
 public class IndexedTypeElement extends IndexedElement implements TypeElement {
     
-    IndexedTypeElement(String qName, String sName, String in, String attributes, int flags, String fileUrl, ScalaIndex index, ElementKind kind) {
-        super(qName, sName, in, attributes, flags, fileUrl, index, kind);
+    IndexedTypeElement(String qName, String sName, String in, String attributes, int flags, FileObject fo, ScalaIndex index, ElementKind kind) {
+        super(qName, sName, in, attributes, flags, fo, index, kind);
     }
 
     public Name getQualifiedName() {

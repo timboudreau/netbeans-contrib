@@ -39,8 +39,9 @@
 
 package org.netbeans.modules.scala.editing;
 
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+
 
 /**
  *
@@ -68,6 +69,7 @@ public class SignatureHtmlFormatter extends HtmlFormatter {
         // Not sure what to do about maxLength here... but presumably
     }
 
+    @Override
     public void appendText(String text, int fromInclusive, int toExclusive) {
         for (int i = fromInclusive; i < toExclusive; i++) {
             if (textLength >= maxLength) {
@@ -106,6 +108,7 @@ public class SignatureHtmlFormatter extends HtmlFormatter {
         }
     }
 
+    @Override
     public void name(ElementKind kind, boolean start) {
         assert start != isName;
         isName = start;
@@ -155,6 +158,7 @@ public class SignatureHtmlFormatter extends HtmlFormatter {
         }
     }
 
+    @Override
     public String getText() {
         assert !isParameter && !isDeprecated && !isName && !isType;
 

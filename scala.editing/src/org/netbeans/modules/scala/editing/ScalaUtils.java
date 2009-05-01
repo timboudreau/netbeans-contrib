@@ -32,31 +32,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.classfile.ClassFile;
-import org.netbeans.modules.gsf.api.CancellableTask;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.parsing.api.ParserManager;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.rats.LexerScala;
-import org.netbeans.napi.gsfret.source.ClasspathInfo;
-import org.netbeans.napi.gsfret.source.CompilationController;
-import org.netbeans.napi.gsfret.source.Phase;
-import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -291,7 +290,7 @@ public class ScalaUtils {
                 return false;
             }
 
-        // TODO - make this more accurate, like the method validifier
+            // TODO - make this more accurate, like the method validifier
         }
 
         return true;
@@ -324,7 +323,6 @@ public class ScalaUtils {
         return unicoded != null ? unicoded : typeName;
     }
     public static final Map<String, String> STD_LIB_TYPE_UNICODE = new HashMap<String, String>();
-
 
     static {
         STD_LIB_TYPE_UNICODE.put("ZZ8", "\u21248");
@@ -628,35 +626,30 @@ public class ScalaUtils {
     }
     private static Map<FileObject, Reference<Source>> scalaFileToSource =
             new WeakHashMap<FileObject, Reference<Source>>();
-    private static Map<FileObject, Reference<CompilationInfo>> scalaFileToCompilationInfo =
-            new WeakHashMap<FileObject, Reference<CompilationInfo>>();
+    private static Map<FileObject, Reference<Parser.Result>> scalaFileToCompilationInfo =
+            new WeakHashMap<FileObject, Reference<Parser.Result>>();
 
-    public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
-        Reference<CompilationInfo> infoRef = scalaFileToCompilationInfo.get(fo);
-        CompilationInfo info = infoRef != null ? infoRef.get() : null;
+    public static Parser.Result getCompilationInfoForScalaFile(FileObject fo) {
+        Reference<Parser.Result> infoRef = scalaFileToCompilationInfo.get(fo);
+        Parser.Result info = infoRef != null ? infoRef.get() : null;
 
         if (info == null) {
-            final CompilationInfo[] controllers = new CompilationInfo[1];
-
+            final Parser.Result[] pResults = new Parser.Result[1];
             Source source = getSourceForScalaFile(fo);
             try {
-                source.runUserActionTask(new CancellableTask<CompilationController>() {
+                ParserManager.parse(Collections.singleton(source), new UserTask() {
 
-                    public void cancel() {
-                        throw new UnsupportedOperationException("Not supported yet.");
+                    @Override
+                    public void run(ResultIterator resultIterator) throws Exception {
+                        pResults[0] = resultIterator.getParserResult();
                     }
-
-                    public void run(CompilationController controller) throws Exception {
-                        controller.toPhase(Phase.ELEMENTS_RESOLVED);
-                        controllers[0] = controller;
-                    }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                });
+            } catch (ParseException e) {
+                Exceptions.printStackTrace(e);
             }
 
-            info = controllers[0];
-            scalaFileToCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
+            info = pResults[0];
+            scalaFileToCompilationInfo.put(fo, new WeakReference<Parser.Result>(info));
         }
 
         return info;
@@ -672,15 +665,12 @@ public class ScalaUtils {
         Source source = sourceRef != null ? sourceRef.get() : null;
 
         if (source == null) {
-            ClasspathInfo cpInfo = ClasspathInfo.create(fo);
-            source = Source.create(cpInfo, fo);
+            source = Source.create(fo);
             scalaFileToSource.put(fo, new WeakReference<Source>(source));
-
         }
 
         return source;
     }
-
 
     private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
         for (AstElement element : scope.getElements()) {
@@ -696,18 +686,17 @@ public class ScalaUtils {
 
     }
 
-    public static String getDocComment(CompilationInfo info, AstElement element) {
-        ScalaParserResult pResult = getParserResult(info);
-        if (pResult == null) {
+    public static String getDocComment(Parser.Result info, AstElement element) {
+        if (info == null) {
             return null;
         }
 
-        BaseDocument doc = GsfUtilities.getDocument(info.getFileObject(), true);
+        BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
         if (doc == null) {
             return null;
         }
 
-        TokenHierarchy<Document> th = pResult.getTokenHierarchy();
+        TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
 
         doc.readLock(); // Read-lock due to token hierarchy use
         OffsetRange range = ScalaLexUtilities.getDocumentationRange(element, th);
@@ -745,37 +734,26 @@ public class ScalaUtils {
         return null;
     }
 
-    public static int getOffset(CompilationInfo info, AstElement element) {
-        ScalaParserResult pResult = getParserResult(info);
-        if (pResult == null) {
+    public static int getOffset(Parser.Result info, AstElement element) {
+        if (info == null) {
             return -1;
         }
 
-        TokenHierarchy<Document> th = pResult.getTokenHierarchy();
+        TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
         return element.getPickOffset(th);
     }
 
-    public static ScalaParserResult getParserResult(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-
-        if (result == null) {
-            return null;
-        } else {
-            return (ScalaParserResult) result;
-        }
-    }
-
-    public static FileObject getFileObject(CompilationInfo info, Symbol symbol) {
+    public static FileObject getFileObject(Parser.Result info, Symbol symbol) {
         String qName = null;
         try {
-             qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
+            qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
         } catch (java.lang.Error e) {
             // java.lang.Error: no-symbol does not have owner
             //        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
             //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1156)
             //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1166)            
         }
-        
+
         if (qName == null) {
             return null;
         }
@@ -789,7 +767,7 @@ public class ScalaUtils {
         String clzName = qName + ".class";
 
         try {
-            org.netbeans.api.java.source.CompilationInfo javaInfo = JavaUtilities.getCompilationInfoForScalaFile(info.getFileObject());
+            org.netbeans.api.java.source.CompilationInfo javaInfo = JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject());
             org.netbeans.api.java.source.ClasspathInfo cpInfo = javaInfo.getClasspathInfo();
             ClassPath cp = ClassPathSupport.createProxyClassPath(
                     new ClassPath[]{

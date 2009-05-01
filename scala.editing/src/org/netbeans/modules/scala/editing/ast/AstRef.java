@@ -39,7 +39,7 @@
 package org.netbeans.modules.scala.editing.ast;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.csl.api.ElementKind;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**

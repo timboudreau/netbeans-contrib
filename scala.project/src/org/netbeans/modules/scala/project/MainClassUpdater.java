@@ -45,26 +45,25 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.SourceUtils;
-import org.netbeans.napi.gsfret.source.ClasspathInfo;
-import org.netbeans.napi.gsfret.source.CompilationController;
-import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.modules.gsf.api.CancellableTask;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.parsing.api.ParserManager;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
-import org.netbeans.modules.scala.project.classpath.GsfClassPathProviderImpl;
-import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -85,7 +84,6 @@ import org.openide.util.WeakListeners;
 public class MainClassUpdater extends FileChangeAdapter implements PropertyChangeListener {
 
     private static final RequestProcessor RP = new RequestProcessor("main-class-updater", 1);       //NOI18N
-
     private final Project project;
     private final PropertyEvaluator eval;
     private final UpdateHelper helper;
@@ -199,11 +197,6 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
             try {
                 FileObject[] roots = sourcePath.getRoots();
                 if (roots.length > 0) {
-                    ClassPath bootCp = ClassPath.getClassPath(roots[0], ClassPath.BOOT);
-                    ClassPath compileCp = ClassPath.getClassPath(roots[0], ClassPath.COMPILE);
-
-                    final ClasspathInfo cpInfo = GsfClassPathProviderImpl.createGsfClassPathInfo(bootCp, compileCp, sourcePath);
-                    
                     /** 
                      * @TODO ugly hacking to find mainClass's fo, this hacking 
                      * requirs main class name is in the same name .scala file 
@@ -218,7 +211,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                     }
                     sb.append(".scala");
                     String mainClassFoPath = sb.toString();
-                    
+
                     FileObject mainClassFo = null;
                     for (FileObject root : roots) {
                         mainClassFo = root.getFileObject(mainClassFoPath);
@@ -229,26 +222,21 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                     if (mainClassFo == null) {
                         return;
                     }
-                    
-                    Source js = Source.create(cpInfo, mainClassFo);
-                    js.runUserActionTask(new CancellableTask<CompilationController>() {
+                    Source source = Source.create(mainClassFo);
+                    final FileObject sourceFo = mainClassFo;
+                    ParserManager.parse(Collections.singleton(source), new UserTask() {
 
-                        public void cancel() {
-                        }
-
-                        public void run(CompilationController c) throws Exception {
-                            if (c.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
-                                return;
-                            }
-                            ScalaParserResult pResult = (ScalaParserResult) c.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
+                        @Override
+                        public void run(ResultIterator resultIterator) throws Exception {
+                            ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult();
                             if (pResult == null) {
                                 return;
                             }
-                            AstRootScope rootScope = pResult.getRootScope();
+                            AstRootScope rootScope = pResult.rootScope();
                             if (rootScope == null) {
                                 return;
                             }
-                            
+
                             List<AstDef> objs = null;
                             for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
                                 objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
@@ -266,7 +254,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             }
                             if (mainClass != null) {
                                 synchronized (MainClassUpdater.this) {
-                                    current = c.getFileObject();
+                                    current = sourceFo;
                                     listener = WeakListeners.create(FileChangeListener.class, MainClassUpdater.this, current);
                                     if (current != null && sourcePath.contains(current)) {
                                         current.addFileChangeListener(listener);
@@ -274,9 +262,9 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                                 }
                             }
                         }
-                    }, true);
+                    });
                 }
-            } catch (IOException ioe) {
+            } catch (ParseException ex) {
             }
         }
     }

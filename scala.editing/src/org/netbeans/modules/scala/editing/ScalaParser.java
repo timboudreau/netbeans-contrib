@@ -41,12 +41,13 @@
 package org.netbeans.modules.scala.editing;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
@@ -55,17 +56,17 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParseEvent;
-import org.netbeans.modules.gsf.api.ParseListener;
-import org.netbeans.modules.gsf.api.Parser;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.PositionManager;
-import org.netbeans.modules.gsf.api.Severity;
-import org.netbeans.modules.gsf.api.SourceFileReader;
-import org.netbeans.modules.gsf.spi.DefaultError;
-import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.csl.api.Error;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.Severity;
+import org.netbeans.modules.csl.spi.DefaultError;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.api.Task;
+import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.spi.ParserFactory;
+import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstTreeVisitor;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -73,6 +74,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import scala.Option;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
@@ -89,14 +91,11 @@ import scala.tools.nsc.util.SourceFile;
  * @author Caoyuan Deng
  * @author Tor Norbye
  */
-public class ScalaParser implements Parser {
+public class ScalaParser extends Parser {
 
+    private ScalaParserResult lastResult;
     private static float[] profile = new float[]{0.0f, 0.0f};
-    private final PositionManager positions = createPositionManager();
     private Global global;
-
-    public ScalaParser() {
-    }
 
     private static String asString(CharSequence sequence) {
         if (sequence instanceof String) {
@@ -106,49 +105,86 @@ public class ScalaParser implements Parser {
         }
     }
 
+    public ScalaParser() {
+    }
+
+    @Override
+    public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
+        Context context = new Context(snapshot, event);
+        lastResult = parseBuffer(context, Sanitize.NONE);
+        lastResult.setErrors(context.errors());
+    }
+
+    public 
+    @Override
+    Result getResult(Task task) throws ParseException {
+        assert lastResult != null : "getResult() called prior parse()"; //NOI18N
+        return lastResult;
+    }
+
+    public 
+    @Override
+    void cancel() {
+    }
+
+    public 
+    @Override
+    void addChangeListener(ChangeListener changeListener) {
+        // no-op, we don't support state changes
+    }
+
+    public 
+    @Override
+    void removeChangeListener(ChangeListener changeListener) {
+        // no-op, we don't support state changes
+    }
+
     /** Parse the given set of files, and notify the parse listener for each transition
      * (compilation results are attached to the events )
      */
-    public void parseFiles(Parser.Job job) {
-        ParseListener listener = job.listener;
-        SourceFileReader reader = job.reader;
+//    public void parseFiles(Parser.Job job) {
+//        ParseListener listener = job.listener;
+//        SourceFileReader reader = job.reader;
+//
+//        for (ParserFile file : job.files) {
+//            long start = System.currentTimeMillis();
+//
+//            ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
+//            listener.started(beginEvent);
+//
+//            ParserResult pResult = null;
+//
+//            try {
+//                CharSequence buffer = reader.read(file);
+//                String source = asString(buffer);
+//                int caretOffset = reader.getCaretOffset(file);
+//                if (caretOffset != -1 && job.translatedSource != null) {
+//                    caretOffset = job.translatedSource.getAstOffset(caretOffset);
+//                }
+//                Context context = new Context(file, listener, source, caretOffset, job.translatedSource);
+//                pResult = parseBuffer(context, Sanitize.NONE);
+//            } catch (IOException ioe) {
+//                listener.exception(ioe);
+//                pResult = createParserResult(file, null, null, TokenHierarchy.create("", ScalaTokenId.language()), Collections.<DefaultError>emptyList());
+//            }
+//
+//            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
+//            listener.finished(doneEvent);
+//
+//            long time = System.currentTimeMillis() - start;
+//            profile[0] += time / 1000.0f;
+//            profile[1] += 1.0f;
+//        //System.out.println("Parsing time: " + time / 1000.0f + "s");
+//        //System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
+//        }
+//    }
+    private static final class Factory extends ParserFactory {
 
-        for (ParserFile file : job.files) {
-            long start = System.currentTimeMillis();
-
-            ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
-            listener.started(beginEvent);
-
-            ParserResult pResult = null;
-
-            try {
-                CharSequence buffer = reader.read(file);
-                String source = asString(buffer);
-                int caretOffset = reader.getCaretOffset(file);
-                if (caretOffset != -1 && job.translatedSource != null) {
-                    caretOffset = job.translatedSource.getAstOffset(caretOffset);
-                }
-                Context context = new Context(file, listener, source, caretOffset, job.translatedSource);
-                pResult = parseBuffer(context, Sanitize.NONE);
-            } catch (IOException ioe) {
-                listener.exception(ioe);
-                pResult = createParserResult(file, null, null, TokenHierarchy.create("", ScalaTokenId.language()), Collections.<DefaultError>emptyList());
-            }
-
-            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
-            listener.finished(doneEvent);
-
-            long time = System.currentTimeMillis() - start;
-            profile[0] += time / 1000.0f;
-            profile[1] += 1.0f;
-        //System.out.println("Parsing time: " + time / 1000.0f + "s");
-        //System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
+        @Override
+        public Parser createParser(Collection<Snapshot> snapshots) {
+            return new ScalaParser();
         }
-    }
-
-    protected PositionManager createPositionManager() {
-        return new ScalaPositionManager();
-    }
+    } // End of Factory class
 
     /**
      * Try cleaning up the source buffer around the current offset to increase
@@ -314,7 +350,7 @@ public class ScalaParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParserResult(context.file, null, null, context.th, Collections.<DefaultError>emptyList());
+                return createParserResult(context);
 
             case NONE:
 
@@ -364,7 +400,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParserResult(context.file, null, null, context.th, Collections.<DefaultError>emptyList());
+                return createParserResult(context);
         }
     }
 
@@ -513,7 +549,7 @@ public class ScalaParser implements Parser {
             doc = (BaseDocument) target.getDocument();
             if (doc != null) {
                 FileObject fo = NbEditorUtilities.getFileObject(doc);
-                if (fo == context.file.getFileObject()) {
+                if (fo == context.fo()) {
                     th = TokenHierarchy.get(doc);
                 }
             }
@@ -527,7 +563,7 @@ public class ScalaParser implements Parser {
 
         final boolean ignoreErrors = sanitizedSource;
 
-        File ioFile = context.file != null ? context.file.getFile() : null;
+        File ioFile = context.fo() != null ? FileUtil.toFile(context.fo()) : null;
         // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
         String filePath = ioFile != null ? ioFile.getAbsolutePath() : "<current>";
 
@@ -535,7 +571,7 @@ public class ScalaParser implements Parser {
 
         // Scala global parser
         Reporter reporter = new ErrorReporter(context, sanitizing);
-        global = ScalaGlobal.getGlobal(context.file.getFileObject());
+        global = ScalaGlobal.getGlobal(context.fo());
         global.reporter_$eq(reporter);
 
         context.parser = global;
@@ -559,7 +595,7 @@ public class ScalaParser implements Parser {
                     0, 0, sanitizing, Severity.ERROR, new Object[]{ex});
         } catch (Exception ex) {
             ex.printStackTrace();
-        // Scala's global throws too many exceptions
+            // Scala's global throws too many exceptions
         } finally {
             if (doc != null) {
                 doc.readUnlock();
@@ -567,27 +603,24 @@ public class ScalaParser implements Parser {
         }
 
         if (rootScope != null) {
+            context.setRootScope(rootScope);
             context.sanitized = sanitizing;
-            ScalaParserResult pResult = createParserResult(context.file, rootScope, null, context.th, context.getErrors());
+            ScalaParserResult pResult = createParserResult(context);
             pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
-            pResult.setSource(source);
             return pResult;
         } else {
             // Don't do sanitize trying:
             //return sanitize(context, sanitizing);
-            ScalaParserResult pResult = createParserResult(context.file, rootScope, null, context.th, context.getErrors());
+            ScalaParserResult pResult = createParserResult(context);
             pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
-            pResult.setSource(source);
             return pResult;
         }
     }
     private static long version;
 
-    private ScalaParserResult createParserResult(ParserFile file,
-            AstRootScope rootScope, ParserResult.AstTreeNode ast, TokenHierarchy th, List<DefaultError> errors) {
-
-        if (!errors.isEmpty()) {
-            FileObject fo = file.getFileObject();
+    private ScalaParserResult createParserResult(Context context) {
+        if (!context.errors().isEmpty()) {
+            FileObject fo = context.fo();
             if (fo != null) {
                 try {
                     Set<URL> inError = Collections.singleton(fo.getURL());
@@ -601,18 +634,16 @@ public class ScalaParser implements Parser {
             }
         }
 
-
-
-        return new ScalaParserResult(this, file, rootScope, ast, th);
+        return new ScalaParserResult(this, context.snapshot(), context.rootScope());
     }
 
     private Sanitize processObjectSymbolError(Context context, AstRootScope root) {
-        List<DefaultError> errors = context.getErrors();
+        List<Error> errors = context.errors();
         if (errors.isEmpty() || context.th == null) {
             return Sanitize.NONE;
         }
 
-        for (DefaultError error : errors) {
+        for (Error error : errors) {
             String msg = error.getDescription();
             if (msg.startsWith("identifier expected but")) {
                 int start = error.getStartPosition();
@@ -661,7 +692,7 @@ public class ScalaParser implements Parser {
     protected void notifyError(Context context, String key, String msg,
             int start, int end, Sanitize sanitizing, Severity severity, Object params) {
 
-        DefaultError error = new DefaultError(key, msg, msg, context.file.getFileObject(), start, end, severity);
+        DefaultError error = new DefaultError(key, msg, msg, context.fo(), start, end, severity);
         if (params != null) {
             if (params instanceof Object[]) {
                 error.setParameters((Object[]) params);
@@ -670,19 +701,14 @@ public class ScalaParser implements Parser {
             }
         }
 
-        context.listener.error(error);
-        context.addError(error);
+        context.notifyError(error);
 
         if (sanitizing == Sanitize.NONE) {
             context.errorOffset = end;
         }
     }
 
-    public PositionManager getPositionManager() {
-        return positions;
-    }
-
-    public Global getGlobal() {
+    public Global global() {
         return global;
     }
 
@@ -710,8 +736,7 @@ public class ScalaParser implements Parser {
     public static class Context {
 
         private Global parser;
-        private final ParserFile file;
-        private final ParseListener listener;
+        private FileObject fo;
         private int errorOffset;
         private String source;
         private String sanitizedSource;
@@ -719,22 +744,37 @@ public class ScalaParser implements Parser {
         private String sanitizedContents;
         private int caretOffset;
         private Sanitize sanitized = Sanitize.NONE;
-        private TranslatedSource translatedSource;
         private TokenHierarchy th;
-        private List<DefaultError> errors;
+        private List<Error> errors;
+        private Snapshot snapshot;
+        private AstRootScope rootScope;
 
-        public Context(ParserFile parserFile, ParseListener listener, String source,
-                int caretOffset, TranslatedSource translatedSource) {
-            this.file = parserFile;
-            this.listener = listener;
-            this.source = source;
-            this.caretOffset = caretOffset;
-            this.translatedSource = translatedSource;
+        public Context(Snapshot snapshot, SourceModificationEvent event) {
+            this.snapshot = snapshot;
+            this.source = ScalaParser.asString(snapshot.getText());
+            this.fo = snapshot.getSource().getFileObject();
+            this.caretOffset = GsfUtilities.getLastKnownCaretOffset(snapshot, event);
+        }
+
+        public Snapshot snapshot() {
+            return snapshot;
+        }
+
+        public void setRootScope(AstRootScope rootScope) {
+            this.rootScope = rootScope;
+        }
+
+        public AstRootScope rootScope() {
+            return rootScope;
+        }
+
+        public FileObject fo() {
+            return fo;
         }
 
         @Override
         public String toString() {
-            return "ScalaParser.Context(" + file.toString() + ")"; // NOI18N
+            return "ScalaParser.Context(" + fo.toString() + ")"; // NOI18N
 
         }
 
@@ -754,21 +794,21 @@ public class ScalaParser implements Parser {
             return errorOffset;
         }
 
-        public void addError(DefaultError error) {
+        protected void notifyError(Error error) {
             if (errors == null) {
-                errors = new ArrayList<DefaultError>();
+                errors = new ArrayList<Error>();
             }
             errors.add(error);
         }
-
+        
         public void cleanErrors() {
             if (errors != null) {
                 errors.clear();
             }
         }
 
-        public List<DefaultError> getErrors() {
-            return errors == null ? Collections.<DefaultError>emptyList() : errors;
+        public List<Error> errors() {
+            return errors == null ? Collections.<Error>emptyList() : errors;
         }
     }
 
@@ -790,21 +830,21 @@ public class ScalaParser implements Parser {
                 Option source = pos.source();
                 if (source.isDefined()) {
                     SourceFile sf = (SourceFile) source.get();
-                    if (!context.file.getFile().getAbsolutePath().equals(sf.file().path())) {
+                    if (!context.fo().getPath().equals(sf.file().path())) {
                         return;
                     }
                 }
                 //System.out.println("Error in source: " + pos.source());
                 int offset = ScalaUtils.getOffset(pos);
-                org.netbeans.modules.gsf.api.Severity sev = org.netbeans.modules.gsf.api.Severity.ERROR;
+                org.netbeans.modules.csl.api.Severity sev = org.netbeans.modules.csl.api.Severity.ERROR;
                 switch (severity.id()) {
                     case 0:
                         return;
                     case 1:
-                        sev = org.netbeans.modules.gsf.api.Severity.WARNING;
+                        sev = org.netbeans.modules.csl.api.Severity.WARNING;
                         break;
                     case 2:
-                        sev = org.netbeans.modules.gsf.api.Severity.ERROR;
+                        sev = org.netbeans.modules.csl.api.Severity.ERROR;
                         break;
                     default:
                         return;

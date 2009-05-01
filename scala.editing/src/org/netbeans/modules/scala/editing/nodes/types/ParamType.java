@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.HtmlFormatter;
 
 /**
  * Type of parameters

@@ -55,9 +55,10 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.csl.api.Formatter;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.editor.indent.spi.Context;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileUtil;
@@ -70,7 +71,7 @@ import org.openide.util.Exceptions;
  *
  * @author Caoyuan Deng
  */
-public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
+public class ScalaFormatter implements Formatter {
 
     private CodeStyle codeStyle;
     private int rightMarginOverride = -1;
@@ -136,11 +137,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return false;
     }
 
+    @Override
     public void reindent(Context context) {
         reindent(context, context.document(), context.startOffset(), context.endOffset(), null, true);
     }
 
-    public void reformat(Context context, CompilationInfo info) {
+    @Override
+    public void reformat(Context context, ParserResult info) {
         reindent(context, context.document(), context.startOffset(), context.endOffset(), info, false);
     }
 
@@ -218,7 +221,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return null;
     }
 
-    public void reindent(final Context context, Document document, int startOffset, int endOffset, CompilationInfo info, final boolean indentOnly) {
+    public void reindent(final Context context, Document document, int startOffset, int endOffset, ParserResult info, final boolean indentOnly) {
 
 
         try {
@@ -327,7 +330,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         }
     }
 
-    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, CompilationInfo info, List<Integer> offsets, List<Integer> indents, boolean indentEmptyLines, boolean includeEnd) {
+    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, ParserResult info, List<Integer> offsets, List<Integer> indents, boolean indentEmptyLines, boolean includeEnd) {
         // PENDING:
         // The reformatting APIs in NetBeans should be lexer based. They are still
         // based on the old TokenID apis. Once we get a lexer version, convert this over.

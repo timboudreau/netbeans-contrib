@@ -45,10 +45,12 @@ import javax.lang.model.element.Element;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.openide.filesystems.FileObject;
 
@@ -149,8 +151,9 @@ public class GsfElement implements ElementHandle {
         return scalaFromClass;
     }
 
+    @Override
     public FileObject getFileObject() {
-        if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
+        if (info instanceof org.netbeans.modules.csl.spi.ParserResult) {
             return fileObject;
         } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
             return JavaUtilities.getOriginFileObject((org.netbeans.api.java.source.CompilationInfo) info, element);
@@ -160,6 +163,7 @@ public class GsfElement implements ElementHandle {
         }
     }
 
+    @Override
     public String getIn() {
         if (isScala()) {
             return ((AstElement) element).getIn();
@@ -173,6 +177,7 @@ public class GsfElement implements ElementHandle {
         }
     }
 
+    @Override
     public ElementKind getKind() {
         if (kind == null) {
             kind = getGsfKind(element);
@@ -180,10 +185,12 @@ public class GsfElement implements ElementHandle {
         return kind;
     }
 
+    @Override
     public String getMimeType() {
         return isScala() ? ((AstElement) element).getMimeType() : "text/x-scala";
     }
 
+    @Override
     public Set<Modifier> getModifiers() {
         if (modifiers == null) {
             modifiers = getGsfModifiers(element);
@@ -192,6 +199,7 @@ public class GsfElement implements ElementHandle {
         return modifiers;
     }
 
+    @Override
     public String getName() {
         String name = element.getSimpleName().toString();
         if (isScalaFromClass() && element.getKind() == javax.lang.model.element.ElementKind.METHOD) {
@@ -201,6 +209,7 @@ public class GsfElement implements ElementHandle {
         }
     }
 
+    @Override
     public boolean signatureEquals(ElementHandle handle) {
         return false;
     }
@@ -211,8 +220,8 @@ public class GsfElement implements ElementHandle {
 
     public String getDocComment() {
         String docComment = null;
-        if (info instanceof org.netbeans.modules.gsf.api.CompilationInfo) {
-            docComment = ScalaUtils.getDocComment((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstElement) element);
+        if (info instanceof org.netbeans.modules.csl.spi.ParserResult) {
+            docComment = ScalaUtils.getDocComment((org.netbeans.modules.csl.spi.ParserResult) info, (AstElement) element);
         } else if (info instanceof org.netbeans.api.java.source.CompilationInfo) {
             try {
                 docComment = JavaUtilities.getDocComment((org.netbeans.api.java.source.CompilationInfo) info, element);
@@ -226,7 +235,13 @@ public class GsfElement implements ElementHandle {
 
         return docComment;
     }
+
+    @Override
+    public OffsetRange getOffsetRange(ParserResult result) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
+
     public int getOffset() {
         int offset = 0;
         if (isScala()) {
@@ -234,7 +249,7 @@ public class GsfElement implements ElementHandle {
             if (element instanceof IndexedElement) {
                 return ((IndexedElement) element).getOffset();
             }
-            return ScalaUtils.getOffset((org.netbeans.modules.gsf.api.CompilationInfo) info, (AstElement) element);
+            return ScalaUtils.getOffset((org.netbeans.modules.csl.spi.ParserResult) info, (AstElement) element);
         } else {
             try {
                 offset = JavaUtilities.getOffset((org.netbeans.api.java.source.CompilationInfo) info, element);

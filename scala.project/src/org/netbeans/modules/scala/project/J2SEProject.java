@@ -74,7 +74,6 @@ import org.netbeans.modules.scala.project.api.J2SEPropertyEvaluator;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathExtender;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathModifier;
-import org.netbeans.modules.scala.project.classpath.GsfClassPathProviderImpl;
 import org.netbeans.modules.scala.project.queries.BinaryForSourceQueryImpl;
 import org.netbeans.modules.scala.project.ui.J2SELogicalViewProvider;
 import org.netbeans.modules.scala.project.ui.customizer.CustomizerProviderImpl;
@@ -143,7 +142,6 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
-    private final GsfClassPathProviderImpl gsfCpProvider;
     private final J2SEProjectClassPathModifier cpMod;
     private AntBuildExtender buildExtender;
 
@@ -165,7 +163,6 @@ public final class J2SEProject implements Project, AntProjectListener {
         this.updateHelper = new UpdateHelper(updateProject, helper);
 
         this.cpProvider = new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(), getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
-        this.gsfCpProvider = new GsfClassPathProviderImpl(evaluator(), cpProvider); 
         this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         final J2SEActionProvider actionProvider = new J2SEActionProvider(this, this.updateHelper);
         lookup = createLookup(aux, actionProvider);
@@ -271,7 +268,6 @@ public final class J2SEProject implements Project, AntProjectListener {
                     // new J2SECustomizerProvider(this, this.updateHelper, evaluator(), refHelper),
                     new CustomizerProviderImpl(this, this.updateHelper, evaluator(), refHelper, this.genFilesHelper),
                     LookupMergerSupport.createClassPathProviderMerger(cpProvider),
-                    gsfCpProvider,
                     QuerySupport.createCompiledSourceForBinaryQuery(helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
                     QuerySupport.createJavadocForBinaryQuery(helper, evaluator()),
                     new AntArtifactProviderImpl(),

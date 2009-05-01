@@ -53,23 +53,10 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.NameKind;
-import org.netbeans.modules.scala.editing.nodes.AstNode;
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstExpression;
-import org.netbeans.modules.scala.editing.nodes.AstMirror;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.FieldCall;
-import org.netbeans.modules.scala.editing.nodes.FunctionCall;
-import org.netbeans.modules.scala.editing.nodes.AstId;
-import org.netbeans.modules.scala.editing.nodes.IdCall;
-import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.nodes.Packaging;
-import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
-import org.netbeans.modules.scala.editing.nodes.BasicType;
 import org.netbeans.modules.scala.editing.nodes.types.PredefinedTypes;
 
 /**
@@ -273,7 +260,7 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        Set<GsfElement> gsfElements = index.getMembers(callName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        Set<GsfElement> gsfElements = index.getMembers(callName, baseTypeQName, QuerySupport.Kind.PREFIX, null, false);
         for (GsfElement gsfElement : gsfElements) {
             if (!gsfElement.getElement().getSimpleName().toString().equals(callName)) {
                 continue;
@@ -395,7 +382,7 @@ public class ScalaTypeInferencer {
         AstId field = fieldCall.getField();
         String fieldName = field.getSimpleName().toString();
 
-        Set<GsfElement> gsfElements = index.getMembers(fieldName, baseTypeQName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        Set<GsfElement> gsfElements = index.getMembers(fieldName, baseTypeQName, QuerySupport.Kind.PREFIX, null, false);
         for (GsfElement gsfElement : gsfElements) {
             if (!gsfElement.getElement().getSimpleName().toString().equals(fieldName)) {
                 continue;
@@ -590,7 +577,7 @@ public class ScalaTypeInferencer {
             if (element instanceof IndexedTypeElement) {
                 if (element.getSimpleName().toString().equals(sName)) {
                     return (IndexedTypeElement) element;
-                //return "java.lang." + sName;
+                    //return "java.lang." + sName;
                 }
             }
         }
@@ -662,7 +649,6 @@ public class ScalaTypeInferencer {
         return te;
     }
 
-
     /**
      * @Note: need to be updated when class is modified   
      */
@@ -673,7 +659,7 @@ public class ScalaTypeInferencer {
 
         Set<String> importPkgs = classToImportPkgsCache.get(classQName);
         if (importPkgs == null) {
-            importPkgs = index.getImports(classQName, ScalaIndex.ALL_SCOPE);
+            importPkgs = index.getImports(classQName);
 
             classToImportPkgsCache.put(classQName, importPkgs);
         }
@@ -689,7 +675,7 @@ public class ScalaTypeInferencer {
 
     private static Set<GsfElement> getJavaLangPackageTypes(ScalaIndex index) {
         if (javaLangPackageTypes == null) {
-            javaLangPackageTypes = index.getPackageContent("java.lang.", NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            javaLangPackageTypes = index.getPackageContent("java.lang.", QuerySupport.Kind.PREFIX);
         }
 
         return javaLangPackageTypes;
@@ -697,7 +683,7 @@ public class ScalaTypeInferencer {
 
     private static Set<GsfElement> getScalaPackageTypes(ScalaIndex index) {
         if (scalaPackageTypes == null) {
-            scalaPackageTypes = index.getPackageContent("scala.", NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            scalaPackageTypes = index.getPackageContent("scala.", QuerySupport.Kind.PREFIX);
         }
 
         return scalaPackageTypes;
@@ -710,7 +696,7 @@ public class ScalaTypeInferencer {
 
         Set<GsfElement> gsfElements = scalaPrecedingPackageTypes.get(pkgName);
         if (gsfElements == null) {
-            gsfElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            gsfElements = index.getPackageContent(pkgName, QuerySupport.Kind.PREFIX);
 
             scalaPrecedingPackageTypes.put(pkgName, gsfElements);
         }
@@ -725,7 +711,7 @@ public class ScalaTypeInferencer {
 
         Set<GsfElement> idxElements = importedTypesCache.get(pkgName);
         if (idxElements == null) {
-            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            idxElements = index.getPackageContent(pkgName, QuerySupport.Kind.PREFIX);
 
             importedTypesCache.put(pkgName, idxElements);
         }
@@ -740,7 +726,7 @@ public class ScalaTypeInferencer {
 
         Set<GsfElement> idxElements = packageTypesCache.get(pkgName);
         if (idxElements == null) {
-            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            idxElements = index.getPackageContent(pkgName, QuerySupport.Kind.PREFIX);
 
             packageTypesCache.put(pkgName, idxElements);
         }

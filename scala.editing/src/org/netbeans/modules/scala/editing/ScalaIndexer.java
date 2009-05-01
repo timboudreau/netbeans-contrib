@@ -42,15 +42,22 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.lang.model.element.Modifier;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Indexer;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.IndexDocument;
-import org.netbeans.modules.gsf.api.IndexDocumentFactory;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.spi.Parser.Result;
+import org.netbeans.modules.parsing.spi.indexing.Context;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexer;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
+import org.netbeans.modules.parsing.spi.indexing.Indexable;
+import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
+import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
@@ -62,7 +69,7 @@ import org.openide.util.Exceptions;
  * 
  * @author Caoyuan Deng
  */
-public class ScalaIndexer implements Indexer {
+public class ScalaIndexer extends EmbeddingIndexer {
 
     static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
     // I need to be able to search several things:
@@ -73,7 +80,6 @@ public class ScalaIndexer implements Indexer {
     // (3) constructors
     // (4) global variables, preferably in the same way
     // (5) extends so I can do inheritance inclusion!
-
     // Solution: Store the following:
     // class:name for each class
     // extend:old:new for each inheritance? Or perhaps do this in the class entry
@@ -94,52 +100,6 @@ public class ScalaIndexer implements Indexer {
     static final String FIELD_IMPORT = "import"; //NOI18N
     private FileObject cachedFo;
     private boolean cachedIndexable;
-
-    public String getIndexVersion() {
-        return "6.119"; // NOI18N
-
-    }
-
-    public String getIndexerName() {
-        return "scala"; // NOI18N
-
-    }
-
-    public boolean isIndexable(ParserFile file) {
-        FileObject fo = file.getFileObject();
-        if (fo == null) {
-            /**
-             * Not each kind of MIME files hava FileObject, for instance:
-             * ParserFile with name as ".LCKxxxxx.erl~" etc will have none FileObject.
-             */
-            return false;
-        }
-
-        String extension = file.getExtension();
-
-        double maxMemoryInMBs = Runtime.getRuntime().maxMemory() / (1024.0 * 1024.0);
-        if (extension.equals("scala")) {
-            /**
-             * @TODO: a bad hacking:
-             * try to ignore these big files according to max memory size */
-            double fileSizeInKBs = fo.getSize() / 1024.0;
-            /**
-             * 250M:  < 200KB
-             * 500M:  < 400KB
-             * 1500M: < 1200KB
-             */
-            double factor = (maxMemoryInMBs / 250.0) * 200;
-            if (fileSizeInKBs > factor) {
-                if (file.isPlatform()) {
-                    //io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
-                }
-                return false;
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public boolean acceptQueryPath(String url) {
         return url.indexOf("/ruby2/") == -1 && url.indexOf("/gems/") == -1 && url.indexOf("lib/ruby/") == -1; // NOI18N
@@ -195,37 +155,40 @@ public class ScalaIndexer implements Indexer {
         return preindexedDb;
     }
 
-    public List<IndexDocument> index(ParserResult result, IndexDocumentFactory factory) throws IOException {
-        ParserFile file = result.getFile();
-        if (file.isPlatform()) {
-            System.out.println("Platform file" + file.getNameExt());
-        }
+    @Override
+    protected void index(Indexable indexable, Result result, Context context) {
+//        if (file.isPlatform()) {
+//            System.out.println("Platform file" + file.getNameExt());
+//        }
 
         ScalaParserResult pResult = (ScalaParserResult) result;
-        AstRootScope root = pResult.getRootScope();
+        AstRootScope root = pResult.rootScope();
         if (root == null) { // NOI18N
-
-            return null;
+            return;
+        }
+        try {
+            IndexingSupport support = IndexingSupport.getInstance(context);
+            TreeAnalyzer analyzer = new TreeAnalyzer(pResult, support, indexable);
+            analyzer.analyze();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
 
-        TreeAnalyzer analyzer = new TreeAnalyzer(pResult, factory);
-        analyzer.analyze();
-
-        return analyzer.getDocuments();
+        return;
     }
 
     private static class TreeAnalyzer {
 
-        private final ParserFile file;
         private String url;
         private final ScalaParserResult pResult;
-        private IndexDocumentFactory factory;
+        private final IndexingSupport support;
+        private final Indexable indexable;
         private List<IndexDocument> documents = new ArrayList<IndexDocument>();
 
-        private TreeAnalyzer(ScalaParserResult pResult, IndexDocumentFactory factory) {
+        private TreeAnalyzer(ScalaParserResult pResult, IndexingSupport support, Indexable indexable) {
             this.pResult = pResult;
-            this.file = pResult.getFile();
-            this.factory = factory;
+            this.support = support;
+            this.indexable = indexable;
         }
 
         List<IndexDocument> getDocuments() {
@@ -233,8 +196,7 @@ public class ScalaIndexer implements Indexer {
         }
 
         public void analyze() throws IOException {
-            FileObject fo = file.getFileObject();
-            if (pResult.getInfo() != null) {
+            if (pResult != null) {
             } else {
                 // openide.loaders/src/org/openide/text/DataEditorSupport.java
                 // has an Env#inputStream method which posts a warning to the user
@@ -243,23 +205,25 @@ public class ScalaIndexer implements Indexer {
                 //  Opening the file could cause OutOfMemoryError, which would make the IDE unusable. Do you really want to open it?
                 // I don't want to try indexing these files... (you get an interactive
                 // warning during indexing
+                FileObject fo = pResult.getSnapshot().getSource().getFileObject();
                 if (fo.getSize() > 1024 * 1024) {
                     return;
                 }
 
             }
 
+            FileObject fo = pResult.getSnapshot().getSource().getFileObject();
             try {
                 url = fo.getURL().toExternalForm();
 
-            // Make relative URLs for urls in the libraries
-            //url = JsIndex.getPreindexUrl(url);
+                // Make relative URLs for urls in the libraries
+                //url = JsIndex.getPreindexUrl(url);
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
             }
 
 
-            AstRootScope root = pResult.getRootScope();
+            AstRootScope root = pResult.rootScope();
             if (root == null) {
                 return;
             }
@@ -268,9 +232,9 @@ public class ScalaIndexer implements Indexer {
             scan(root, templates);
             analyze(templates);
 
-        //IndexDocument document = factory.createDocument(40); // TODO - measure!
+            //IndexDocument document = support.createDocument(40); // TODO - measure!
 
-        //documents.add(document);
+            //documents.add(document);
 
         }
 
@@ -288,7 +252,7 @@ public class ScalaIndexer implements Indexer {
 
         private void analyze(List<AstDef> templates) {
             for (AstDef template : templates) {
-                    analyzeTemplate(template);
+                analyzeTemplate(template);
             }
         }
 
@@ -382,7 +346,6 @@ public class ScalaIndexer implements Indexer {
 ////                if (documentSize > 0) {
 ////                    flags |= IndexedElement.DOCUMENTED;
 ////                }
-
 //                StringBuilder attributes = new StringBuilder();
 //                attributes.append(IndexedElement.flagToFirstChar(flags));
 //                attributes.append(IndexedElement.flagToSecondChar(flags));
@@ -392,9 +355,9 @@ public class ScalaIndexer implements Indexer {
 //                }
 //                document.addPair(FIELD_CLASS_ATTRS, attributes.toString(), false);
 
-                /* Don't prune modules without documentation because
-                 * this may be an existing module that we're defining
-                 * new (documented) classes for*/
+            /* Don't prune modules without documentation because
+             * this may be an existing module that we're defining
+             * new (documented) classes for*/
 //                if (file.isPlatform() && (template.getKind() == ElementKind.CLASS) &&
 //                        !INDEX_UNDOCUMENTED && !isDocumented) {
 //                    // XXX No, I might still want to recurse into the children -
@@ -402,7 +365,6 @@ public class ScalaIndexer implements Indexer {
 //                    // module!!
 //                    return;
 //                }
-
 //                document.addPair(FIELD_QUALIFIED_NAME, qName, true);
 //                document.addPair(FIELD_QUALIFIED_NAME_CASE_INSENSITIVE, qName.toLowerCase(), true);
 //                document.addPair(FIELD_SIMPLE_NAME, sName, true);
@@ -434,6 +396,94 @@ public class ScalaIndexer implements Indexer {
 //            } finally {
 //                //docMode = previousDocMode;
 //            }
+        }
+    }
+
+    static class Factory extends EmbeddingIndexerFactory {
+
+        public final static String NAME = "scala"; // NOI18N
+        public final static int VERSION = 9;
+        private Logger LOG = Logger.getLogger(ScalaIndexer.class.getName());
+
+        @Override
+        public EmbeddingIndexer createIndexer(Indexable indexable, Snapshot snapshot) {
+            if (isIndexable(indexable, snapshot)) {
+                return new ScalaIndexer();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public String getIndexerName() {
+            return NAME;
+        }
+
+        @Override
+        public int getIndexVersion() {
+            return VERSION;
+        }
+
+        public boolean isIndexable(Indexable indexable, Snapshot snapshot) {
+            FileObject fo = snapshot.getSource().getFileObject();
+            if (fo == null) {
+                /**
+                 * Not each kind of MIME files hava FileObject, for instance:
+                 * ParserFile with name as ".LCKxxxxx.erl~" etc will have none FileObject.
+                 */
+                return false;
+            }
+
+            String extension = fo.getExt();
+
+            double maxMemoryInMBs = Runtime.getRuntime().maxMemory() / (1024.0 * 1024.0);
+            if (extension.equals("scala")) {
+                /**
+                 * @TODO: a bad hacking:
+                 * try to ignore these big files according to max memory size */
+                double fileSizeInKBs = fo.getSize() / 1024.0;
+                /**
+                 * 250M:  < 200KB
+                 * 500M:  < 400KB
+                 * 1500M: < 1200KB
+                 */
+                double factor = (maxMemoryInMBs / 250.0) * 200;
+                if (fileSizeInKBs > factor) {
+//                if (file.isPlatform()) {
+//                    //io.getErr().println("Indexing: " + fo.getPath() + " (skipped due to too big!)");
+//                }
+                    return false;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void filesDeleted(Collection<? extends Indexable> deleted, Context context) {
+            try {
+                IndexingSupport is = IndexingSupport.getInstance(context);
+                Iterator itr = deleted.iterator();
+                while (itr.hasNext()) {
+                    is.removeDocuments((Indexable) itr.next());
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.WARNING, null, ex);
+            }
+        }
+
+        @Override
+        public void filesDirty(Collection<? extends Indexable> dirty, Context context) {
+            try {
+                IndexingSupport is = IndexingSupport.getInstance(context);
+                Iterator itr = dirty.iterator();
+                while (itr.hasNext()) {
+                    is.markDirtyDocuments((Indexable) itr.next());
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.WARNING, null, ex);
+            }
         }
     }
 }   

@@ -44,6 +44,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
@@ -91,7 +92,7 @@ public class ErrorRecoverGlobal {
 
         doc.readLock();
 
-        TokenSequence ts = ScalaLexUtilities.getTokenSequence(pResult.getTokenHierarchy(), 1);
+        TokenSequence ts = ScalaLexUtilities.getTokenSequence(pResult.getSnapshot().getTokenHierarchy(), 1);
 
         int importStart = 0;
         int importEnd = 0;
@@ -116,7 +117,7 @@ public class ErrorRecoverGlobal {
 
             StringBuilder sb = new StringBuilder();
 
-            AstDef pkgDef = item.getEnclosingScope().getEnclosingDef(org.netbeans.modules.gsf.api.ElementKind.PACKAGE);
+            AstDef pkgDef = item.getEnclosingScope().getEnclosingDef(ElementKind.PACKAGE);
             if (pkgDef != null) {
                 Symbol packaging = pkgDef.getSymbol();
                 String pkgName = packaging.fullNameString();

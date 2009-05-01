@@ -39,12 +39,15 @@
 package org.netbeans.modules.scala.editing;
 
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.TranslatedSource;
+//import org.netbeans.modules.gsf.api.ParserResult;
+//import org.netbeans.modules.gsf.api.OffsetRange;
+//import org.netbeans.modules.gsf.api.ParserResult;
+//import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 
@@ -56,66 +59,48 @@ public class AstUtilities {
 
     public static final String DOT_PROTOTYPE = ".prototype"; // NOI18N
 
-
-    public static int getAstOffset(CompilationInfo info, int lexOffset) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                return ts.getAstOffset(lexOffset);
-            }
+    public static int getAstOffset(ParserResult pResult, int lexOffset) {
+        if (pResult != null) {
+            return pResult.getSnapshot().getEmbeddedOffset(lexOffset);
         }
-
         return lexOffset;
     }
 
-    public static OffsetRange getAstOffsets(CompilationInfo info, OffsetRange lexicalRange) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                int rangeStart = lexicalRange.getStart();
-                int start = ts.getAstOffset(rangeStart);
-                if (start == rangeStart) {
-                    return lexicalRange;
-                } else if (start == -1) {
-                    return OffsetRange.NONE;
-                } else {
-                    // Assumes the translated range maintains size
-                    return new OffsetRange(start, start + lexicalRange.getLength());
-                }
+    public static OffsetRange getAstOffsets(ParserResult pResult, OffsetRange lexicalRange) {
+        if (pResult != null) {
+            int rangeStart = lexicalRange.getStart();
+            int start = pResult.getSnapshot().getEmbeddedOffset(rangeStart);
+            if (start == rangeStart) {
+                return lexicalRange;
+            } else if (start == -1) {
+                return OffsetRange.NONE;
+            } else {
+                // Assumes the translated range maintains size
+                return new OffsetRange(start, start + lexicalRange.getLength());
             }
         }
         return lexicalRange;
     }
 
-    public static AstRootScope getRoot(CompilationInfo info) {
-        return getRoot(info, ScalaMimeResolver.MIME_TYPE);
+    public static AstRootScope getRoot(ParserResult pResult) {
+        return getParserResult(pResult).rootScope();
     }
 
-    public static ScalaParserResult getParserResult(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-
-        if (result == null) {
+    public static ScalaParserResult getParserResult(Parser.Result pResult) {
+        if (pResult == null) {
             return null;
         } else {
-            return (ScalaParserResult) result;
+            assert pResult instanceof ScalaParserResult;
+            return (ScalaParserResult) pResult;
         }
     }
 
-    public static AstRootScope getRoot(CompilationInfo info, String mimeType) {
-        ParserResult pResult = info.getEmbeddedResult(mimeType, 0);
-
+    public static AstRootScope getRoot(ParserResult pResult, String mimeType) {
         if (pResult == null) {
             return null;
         }
 
         return getRoot(pResult);
-    }
-
-    public static AstRootScope getRoot(ParserResult pResult) {
-        assert pResult instanceof ScalaParserResult;
-        return ((ScalaParserResult) pResult).getRootScope();
     }
 
     /**
@@ -130,7 +115,7 @@ public class AstUtilities {
         if (endOffset > offset) {
             range = new OffsetRange(offset, endOffset);
         }
-        
+
         return range;
     }
 
@@ -145,6 +130,4 @@ public class AstUtilities {
         offset += (columnNumber - 1);
         return offset;
     }
-
-
 }

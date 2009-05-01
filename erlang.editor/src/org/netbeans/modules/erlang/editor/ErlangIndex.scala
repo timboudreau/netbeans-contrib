@@ -294,10 +294,10 @@ object ErlangIndex {
         LexUtil.fileObject(result) match {
             case None => null
             case Some(fo) =>
-                get(GsfUtilities.getRoots(fo,
-                                          Collections.singleton(ErlangLanguage.SOURCE),
-                                          Collections.singleton(ErlangLanguage.BOOT),
-                                          Collections.emptySet[String]))
+                get(QuerySupport.findRoots(fo,
+                                           Collections.singleton(ErlangLanguage.SOURCE),
+                                           Collections.singleton(ErlangLanguage.BOOT),
+                                           Collections.emptySet[String]))
         }
     }
 }

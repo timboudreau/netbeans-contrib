@@ -43,11 +43,12 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ColoringAttributes;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OccurrencesFinder;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.OccurrencesFinder;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.parsing.spi.Scheduler;
+import org.netbeans.modules.parsing.spi.SchedulerEvent;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRef;
@@ -60,7 +61,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Caoyuan Deng
  */
-public class ScalaOccurrencesFinder implements OccurrencesFinder {
+public class ScalaOccurrencesFinder extends OccurrencesFinder<ScalaParserResult> {
 
     private boolean cancelled;
     private int caretPosition;
@@ -68,6 +69,16 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
     private FileObject file;
 
     public ScalaOccurrencesFinder() {
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
+    @Override
+    public Class<? extends Scheduler> getSchedulerClass() {
+        return Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER;
     }
 
     public Map<OffsetRange, ColoringAttributes> getOccurrences() {
@@ -90,14 +101,14 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         this.caretPosition = position;
     }
 
-    public void run(CompilationInfo info) {
+    public void run(ScalaParserResult info, SchedulerEvent event) {
         resume();
 
         if (isCancelled()) {
             return;
         }
 
-        FileObject currentFile = info.getFileObject();
+        FileObject currentFile = info.getSnapshot().getSource().getFileObject();
         if (currentFile != file) {
             // Ensure that we don't reuse results from a different file
             occurrences = null;
@@ -113,19 +124,19 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
             return;
         }
 
-        AstRootScope rootScope = result.getRootScope();
+        AstRootScope rootScope = result.rootScope();
         if (rootScope == null) {
             return;
         }
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
 
-        final Document document = info.getDocument();
+        final Document document = info.getSnapshot().getSource().getDocument(true);
         if (document == null) {
             return;
         }
 
-        final TokenHierarchy th = TokenHierarchy.get(document);
+        final TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
 
         // we'll find item by offset of item's idToken, so, use caretPosition directly
         AstItem item = rootScope.findItemAt(th, caretPosition);
@@ -140,7 +151,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         // When we sanitize the line around the caret, occurrences
         // highlighting can get really ugly
-        OffsetRange blankRange = result.getSanitizedRange();
+        OffsetRange blankRange = result.sanitizedRange();
 
         if (blankRange.containsInclusive(astOffset)) {
             item = null;
@@ -155,7 +166,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         // . to the end of Scanf as a CallNode, which is a weird highlight.
         // We don't want occurrences highlights that span lines.
         if (item != null && (item instanceof AstDef || item instanceof AstRef)) {
-            BaseDocument doc = (BaseDocument) info.getDocument();
+            BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
             if (doc == null) {
                 // Document was just closed
                 return;
@@ -182,12 +193,12 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
                 // lines. This should trigger if you put the caret on the method definition
                 // line, unless it's in a comment there.
                 org.netbeans.api.lexer.Token<? extends ScalaTokenId> token = ScalaLexUtilities.getToken(doc, caretPosition);
-            //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
-            //boolean isMethodName = closest.getKind() == ElementKind.METHOD;
-            //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
+                //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
+                //boolean isMethodName = closest.getKind() == ElementKind.METHOD;
+                //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
 
 //                    if (isMethodName) {
-            // Highlight exit points
+                // Highlight exit points
 //                        Node func = closest;
 //                        if (isFunctionKeyword) {
 //                            // Look inside the method - the offsets for function doesn't include the "function" keyword yet
@@ -210,7 +221,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 //                            }
 //                        }
 //                        highlightExits(func, highlights, info);
-            // Fall through and set closest to null such that I don't do other highlighting
+                // Fall through and set closest to null such that I don't do other highlighting
 //                        closest = null;
 //                    } else if (closest.getType() == Token.CALL && 
 //                            lexStartPos != -1 && lexEndPos != -1 && 
@@ -244,24 +255,21 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         if (highlights.size() > 0) {
-            if (result.getTranslatedSource() != null) {
-                Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
-                for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
-                    OffsetRange range = ScalaLexUtilities.getLexerOffsets(info, entry.getKey());
-                    if (range != OffsetRange.NONE) {
-                        translated.put(range, entry.getValue());
-                    }
+            Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
+            for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
+                OffsetRange range = ScalaLexUtilities.getLexerOffsets(info, entry.getKey());
+                if (range != OffsetRange.NONE) {
+                    translated.put(range, entry.getValue());
                 }
-
-                highlights = translated;
             }
+
+            highlights = translated;
 
             this.occurrences = highlights;
         } else {
             this.occurrences = null;
         }
     }
-
 //    @SuppressWarnings("unchecked")
 //    private void highlightExits(Node node,
 //        Map<OffsetRange, ColoringAttributes> highlights, CompilationInfo info) {
@@ -273,7 +281,6 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 //                highlightExitPoints(child, highlights, info);
 //            }
 //        }
-
     // TODO: Find the last statement, and highlight it.
     // Be careful not to highlight the entire statement (which could be a giant if
     // statement spanning the whole screen); just pick the first line.

@@ -45,16 +45,17 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.DeclarationFinder;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.DeclarationFinder.DeclarationLocation;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstItem;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
@@ -76,6 +77,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
     private static final boolean CHOOSE_ONE_DECLARATION = Boolean.getBoolean("scala.choose_one_decl");
 
+    @Override
     public OffsetRange getReferenceSpan(Document document, int lexOffset) {
         TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
@@ -127,19 +129,20 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return OffsetRange.NONE;
     }
 
-    public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
+    @Override
+    public DeclarationLocation findDeclaration(ParserResult info, int lexOffset) {
 
-        final BaseDocument doc = (BaseDocument) info.getDocument();
+        final BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
         if (doc == null) {
             return DeclarationLocation.NONE;
         }
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        Global global = ((ScalaParser) pResult.getParser()).getGlobal();
+        Global global = ((ScalaParser) pResult.parser()).global();
 
         doc.readLock();
         try {
-            AstRootScope root = pResult.getRootScope();
+            AstRootScope root = pResult.rootScope();
             if (root == null) {
                 return DeclarationLocation.NONE;
             }
@@ -159,7 +162,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             if (def != null) {
                 // is local
                 int offset = def.getIdOffset(th);
-                return new DeclarationLocation(info.getFileObject(), offset, def);
+                return new DeclarationLocation(info.getSnapshot().getSource().getFileObject(), offset, def);
             } else {
                 TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
                 ts.move(lexOffset);
@@ -168,7 +171,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 }
                 Token token = ts.token();
                 if (token.id() == ScalaTokenId.Identifier) {
-                    AstItem item = root.findItemAt(token);
+                    AstItem item = root.findItemAt(th, token.offset(th));
                     if (item != null) {
                         foundElement = new ScalaElement(item.getSymbol(), info, global);
                     }
@@ -202,9 +205,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     /** Locate the method declaration for the given method call */
-    GsfElement findMethodDeclaration(CompilationInfo info, FunctionCall funRef, Set<GsfElement>[] alternativesHolder) {
+    GsfElement findMethodDeclaration(ParserResult info, FunctionCall funRef, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        ScalaIndex index = ScalaIndex.get(info);
+        ScalaIndex index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
 
         GsfElement candidate = null;
 
@@ -218,7 +221,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<GsfElement> gsfElements = index.getMembers(callName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
+                Set<GsfElement> gsfElements = index.getMembers(callName, in, QuerySupport.Kind.PREFIX, pResult, false);
                 for (GsfElement gsfElement : gsfElements) {
                     if (gsfElement.getElement() instanceof ExecutableElement) {
                         if (AstElement.isMirroredBy(gsfElement.getElement(), funRef)) {
@@ -234,9 +237,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    GsfElement findFieldDeclaration(CompilationInfo info, FieldCall field, Set<GsfElement>[] alternativesHolder) {
+    GsfElement findFieldDeclaration(ParserResult info, FieldCall field, Set<GsfElement>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        ScalaIndex index = ScalaIndex.get(info);
+        ScalaIndex index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
 
         GsfElement candidate = null;
 
@@ -250,7 +253,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<GsfElement> gsfElements = index.getMembers(fieldSName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
+                Set<GsfElement> gsfElements = index.getMembers(fieldSName, in, QuerySupport.Kind.PREFIX, pResult, false);
                 for (GsfElement gsfElement : gsfElements) {
                     Element element = gsfElement.getElement();
                     if (!element.getSimpleName().toString().equals(fieldSName)) {
@@ -274,9 +277,9 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return candidate;
     }
 
-    GsfElement findTypeDeclaration(CompilationInfo info, Type type) {
+    GsfElement findTypeDeclaration(ParserResult info, Type type) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        ScalaIndex index = ScalaIndex.get(info);
+        ScalaIndex index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
 
         GsfElement candidate = null;
 
@@ -287,7 +290,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             // should include "." to narrow the search result?
             String pkgName = qName.substring(0, lastDot + 1);
             String sName = qName.substring(lastDot + 1, qName.length());
-            Set<GsfElement> gsfTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            Set<GsfElement> gsfTypes = index.getPackageContent(pkgName, QuerySupport.Kind.PREFIX);
             for (GsfElement gsfType : gsfTypes) {
                 IndexedElement idxType = (IndexedElement) gsfType.getElement();
                 if (idxType instanceof IndexedTypeElement) {

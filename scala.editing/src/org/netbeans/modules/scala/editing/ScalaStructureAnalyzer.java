@@ -53,14 +53,15 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.StructureItem;
-import org.netbeans.modules.gsf.api.StructureScanner;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.StructureItem;
+import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
@@ -77,13 +78,14 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     public static final String NETBEANS_IMPORT_FILE = "__netbeans_import__"; // NOI18N
     private static final String DOT_CALL = ".call"; // NOI18N
 
-    public List<? extends StructureItem> scan(CompilationInfo info) {
+    @Override
+    public List<? extends StructureItem> scan(ParserResult info) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         if (pResult == null) {
             return Collections.emptyList();
         }
 
-        AstRootScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.rootScope();
         if (rootScope == null) {
             return Collections.emptyList();
         }
@@ -94,7 +96,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         return items;
     }
 
-    private void scanTopTmpls(AstScope scope, List<StructureItem> items, CompilationInfo info) {
+    private void scanTopTmpls(AstScope scope, List<StructureItem> items, Parser.Result info) {
         for (AstDef def : scope.getDefs()) {
             ElementKind kind = def.getKind();
             if (kind == ElementKind.CLASS || kind == ElementKind.MODULE) {
@@ -107,13 +109,14 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
     }
 
-    public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
+    @Override
+    public Map<String, List<OffsetRange>> folds(ParserResult info) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         if (pResult == null) {
             return Collections.emptyMap();
         }
 
-        AstRootScope rootScope = pResult.getRootScope();
+        AstRootScope rootScope = pResult.rootScope();
         if (rootScope == null) {
             return Collections.emptyMap();
         }
@@ -122,7 +125,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         List<OffsetRange> codefolds = new ArrayList<OffsetRange>();
         folds.put("codeblocks", codefolds); // NOI18N
 
-        BaseDocument doc = (BaseDocument) info.getDocument();
+        BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
         if (doc == null) {
             return Collections.emptyMap();
         }
@@ -260,6 +263,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
     }
 
+    @Override
     public Configuration getConfiguration() {
         return null;
     }
@@ -267,40 +271,46 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     private class ScalaStructureItem implements StructureItem {
 
         private AstDef def;
-        private CompilationInfo info;
+        private Parser.Result info;
         private Document doc;
 
-        private ScalaStructureItem(AstDef def, CompilationInfo info) {
+        private ScalaStructureItem(AstDef def, Parser.Result info) {
             this.def = def;
             this.info = info;
-            this.doc = info.getDocument();
+            this.doc = info.getSnapshot().getSource().getDocument(true);
 
             if (doc == null) {
-                ScalaLexUtilities.getDocument(info.getFileObject(), true);
+                ScalaLexUtilities.getDocument(info.getSnapshot().getSource().getFileObject(), true);
             }
         }
 
+        @Override
         public String getName() {
             return def.getName();
         }
 
+        @Override
         public String getSortText() {
             return getName();
         }
 
+        @Override
         public String getHtml(HtmlFormatter formatter) {
             def.htmlFormat(formatter);
             return formatter.getText();
         }
 
+        @Override
         public ElementHandle getElementHandle() {
             return def;
         }
 
+        @Override
         public ElementKind getKind() {
             return def.getKind();
         }
 
+        @Override
         public Set<Modifier> getModifiers() {
             return def.getModifiers();
         }
@@ -325,6 +335,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             }
         }
 
+        @Override
         public List<? extends StructureItem> getNestedItems() {
             List<AstDef> nested = def.getBindingScope().getDefs();
 
@@ -405,6 +416,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return getName();
         }
 
+        @Override
         public ImageIcon getCustomIcon() {
             return null;
         }

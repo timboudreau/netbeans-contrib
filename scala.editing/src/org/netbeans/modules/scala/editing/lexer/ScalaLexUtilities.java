@@ -52,18 +52,16 @@ import java.util.Set;
 import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.CompilationInfo;
 
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.nodes.AstNode;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -95,7 +93,6 @@ public class ScalaLexUtilities {
      */
     private static final Set<ScalaTokenId> INDENT_WORDS = new HashSet<ScalaTokenId>();
 
-
     static {
         INDENT_WORDS.add(ScalaTokenId.Class);
         INDENT_WORDS.add(ScalaTokenId.Object);
@@ -108,12 +105,12 @@ public class ScalaLexUtilities {
         INDENT_WORDS.add(ScalaTokenId.Else);
 
         INDENT_WORDS.addAll(END_PAIRS);
-    // Add words that are not matched themselves with an "end",
-    // but which also provide block structure to indented content
-    // (usually part of a multi-keyword structure such as if-then-elsif-else-end
-    // where only the "if" is considered an end-pair.)
+        // Add words that are not matched themselves with an "end",
+        // but which also provide block structure to indented content
+        // (usually part of a multi-keyword structure such as if-then-elsif-else-end
+        // where only the "if" is considered an end-pair.)
 
-    // XXX What about BEGIN{} and END{} ?
+        // XXX What about BEGIN{} and END{} ?
     }
 
     private ScalaLexUtilities() {
@@ -141,33 +138,25 @@ public class ScalaLexUtilities {
 //        return null;
 //    }
     /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
-    public static int getLexerOffset(CompilationInfo info, int astOffset) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                return ts.getLexicalOffset(astOffset);
-            }
+    public static int getLexerOffset(Parser.Result info, int astOffset) {
+        if (info != null) {
+            return info.getSnapshot().getOriginalOffset(astOffset);
         }
 
         return astOffset;
     }
 
-    public static OffsetRange getLexerOffsets(CompilationInfo info, OffsetRange astRange) {
-        ParserResult result = info.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                int rangeStart = astRange.getStart();
-                int start = ts.getLexicalOffset(rangeStart);
-                if (start == rangeStart) {
-                    return astRange;
-                } else if (start == -1) {
-                    return OffsetRange.NONE;
-                } else {
-                    // Assumes the translated range maintains size
-                    return new OffsetRange(start, start + astRange.getLength());
-                }
+    public static OffsetRange getLexerOffsets(Parser.Result info, OffsetRange astRange) {
+        if (info != null) {
+            int rangeStart = astRange.getStart();
+            int start = info.getSnapshot().getOriginalOffset(rangeStart);
+            if (start == rangeStart) {
+                return astRange;
+            } else if (start == -1) {
+                return OffsetRange.NONE;
+            } else {
+                // Assumes the translated range maintains size
+                return new OffsetRange(start, start + astRange.getLength());
             }
         }
 
@@ -1364,10 +1353,10 @@ public class ScalaLexUtilities {
      * Get the documentation associated with the given node in the given document.
      * TODO: handle proper block comments
      */
-    public static List<String> gatherDocumentation(CompilationInfo info, BaseDocument baseDoc, int nodeOffset) {
+    public static List<String> gatherDocumentation(Parser.Result info, BaseDocument baseDoc, int nodeOffset) {
         LinkedList<String> comments = new LinkedList<String>();
         int elementBegin = nodeOffset;
-        if (info != null && info.getDocument() == baseDoc) {
+        if (info != null && info.getSnapshot().getSource().getDocument(true) == baseDoc) {
             elementBegin = ScalaLexUtilities.getLexerOffset(info, elementBegin);
             if (elementBegin == -1) {
                 return null;

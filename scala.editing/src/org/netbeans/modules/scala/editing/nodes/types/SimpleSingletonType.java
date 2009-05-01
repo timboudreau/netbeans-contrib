@@ -45,7 +45,7 @@ import java.util.List;
 import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstId;
 
 /**

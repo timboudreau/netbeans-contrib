@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -50,17 +51,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.Index;
-import org.netbeans.modules.gsf.api.Index.SearchResult;
-import org.netbeans.modules.gsf.api.Index.SearchScope;
-import org.netbeans.modules.gsf.api.NameKind;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
-import org.netbeans.napi.gsfret.source.ClasspathInfo;
+import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.URLMapper;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -77,47 +70,39 @@ public class ScalaIndex {
     private static final boolean ALL_REACHABLE = !Boolean.getBoolean("javascript.checkincludes");
     private static String clusterUrl = null;
     private static final String CLUSTER_URL = "cluster:"; // NOI18N
-    public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
-    public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     /** @NOTE: TERMS is not used at all in current GSF's LuceneIndex */
-    public static final Set<String> TERMS_NAME = add(new HashSet<String>(), new String[]{
-                ScalaIndexer.FIELD_QUALIFIED_NAME,
-                ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE,
-                ScalaIndexer.FIELD_SIMPLE_NAME,
-                ScalaIndexer.FIELD_SIMPLE_NAME_CASE_INSENSITIVE,
-                ScalaIndexer.FIELD_PACKAGE_NAME,
-                ScalaIndexer.FIELD_ATTRIBUTES
-            });
-    public static final Set<String> TERMS_ATTRIBUTES = Collections.singleton(ScalaIndexer.FIELD_ATTRIBUTES);
-    public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
-    public static final Set<String> TERMS_IMPORT = Collections.singleton(ScalaIndexer.FIELD_IMPORT);
-    private CompilationInfo info;
-    private final Index index;
+    public static final String[] TERMS_NAME = new String[]{
+        ScalaIndexer.FIELD_QUALIFIED_NAME,
+        ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE,
+        ScalaIndexer.FIELD_SIMPLE_NAME,
+        ScalaIndexer.FIELD_SIMPLE_NAME_CASE_INSENSITIVE,
+        ScalaIndexer.FIELD_PACKAGE_NAME,
+        ScalaIndexer.FIELD_ATTRIBUTES
+    };
+    public static final String[] TERMS_ATTRIBUTES = new String[]{ScalaIndexer.FIELD_ATTRIBUTES};
+    public static final String[] TERMS_EXTEND = new String[]{ScalaIndexer.FIELD_EXTENDS_NAME};
+    public static final String[] TERMS_IMPORT = new String[]{ScalaIndexer.FIELD_IMPORT};
+    //private ParserResult info;
+    private final QuerySupport index;
     private JavaIndex javaIndex;
-
-    private static final <T> Set<T> add(Set<T> set, T[] values) {
-        for (T v : values) {
-            set.add(v);
-        }
-        return set;
-    }
-
-    public static ScalaIndex get(CompilationInfo info) {
-        Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
-        ScalaIndex scalaIndex = new ScalaIndex(index, null, info);
-
-        JavaIndex javaIndex = JavaIndex.get(info.getFileObject(), scalaIndex);
-
-        scalaIndex.setJavaIndex(javaIndex);
-
-        return scalaIndex;
-    }
+    public static final IndexResult[] EMPTY_INDEX_RESULT = new IndexResult[0];
+    private static final ScalaIndex EMPTY_INDEX = new ScalaIndex(null, null);
 
     public static ScalaIndex get(FileObject fo) {
-        ClasspathInfo cpInfo = ClasspathInfo.create(fo);
-        Index index = cpInfo.getClassIndex(ScalaMimeResolver.MIME_TYPE);
+        Collection<FileObject> roots = QuerySupport.findRoots(
+                fo,
+                Collections.singleton(ScalaLanguage.SOURCE),
+                Collections.singleton(ScalaLanguage.BOOT),
+                Collections.<String>emptySet());
 
-        ScalaIndex scalaIndex = new ScalaIndex(index, null, null);
+        ScalaIndex scalaIndex = null;
+        try {
+            QuerySupport index = QuerySupport.forRoots(ScalaIndexer.Factory.NAME, ScalaIndexer.Factory.VERSION, roots.toArray(new FileObject[roots.size()]));
+            scalaIndex = new ScalaIndex(index, null);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+            scalaIndex = EMPTY_INDEX;
+        }
 
         JavaIndex javaIndex = JavaIndex.get(fo, scalaIndex);
 
@@ -127,8 +112,7 @@ public class ScalaIndex {
     }
 
     /** Creates a new instance of ScalaIndex */
-    private ScalaIndex(Index index, JavaIndex javaIndex, CompilationInfo info) {
-        this.info = info;
+    private ScalaIndex(QuerySupport index, JavaIndex javaIndex) {
         this.index = index;
         this.javaIndex = javaIndex;
     }
@@ -137,10 +121,9 @@ public class ScalaIndex {
         this.javaIndex = javaIndex;
     }
 
-    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
-            Set<SearchScope> scope, Set<String> terms) {
+    private boolean search(String key, String name, QuerySupport.Kind kind, Set<IndexResult> result, String... terms) {
         try {
-            index.search(key, name, kind, scope, result, terms);
+            result.addAll(index.query(key, name, kind, terms));
 
             return true;
         } catch (IOException ioe) {
@@ -182,8 +165,7 @@ public class ScalaIndex {
 
     static String getClusterUrl() {
         if (clusterUrl == null) {
-            File f =
-                    InstalledFileLocator.getDefault().locate("modules/org-netbeans-modules-javascript-editing.jar", null, false); // NOI18N
+            File f = InstalledFileLocator.getDefault().locate("modules/org-netbeans-modules-scala-editing.jar", null, false); // NOI18N
 
             if (f == null) {
                 throw new RuntimeException("Can't find cluster");
@@ -203,17 +185,16 @@ public class ScalaIndex {
     }
 
     @SuppressWarnings("unchecked")
-    public Set<IndexedElement> getConstructors(final String name, NameKind kind,
-            Set<SearchScope> scope) {
+    public Set<IndexedElement> getConstructors(final String name, QuerySupport.Kind kind) {
         // TODO - search by Type
         return null;
     }
 
     public Map<String, String> getAllExtends() {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTENDS_NAME, "", NameKind.CASE_INSENSITIVE_PREFIX, result, ScalaIndex.ALL_SCOPE, TERMS_EXTEND);
+        final Set<IndexResult> result = new HashSet<IndexResult>();
+        search(ScalaIndexer.FIELD_EXTENDS_NAME, "", QuerySupport.Kind.CASE_INSENSITIVE_PREFIX, result, TERMS_EXTEND);
         Map<String, String> classes = new HashMap<String, String>();
-        for (SearchResult map : result) {
+        for (IndexResult map : result) {
             String[] exts = map.getValues(ScalaIndexer.FIELD_EXTENDS_NAME);
 
             if (exts != null) {
@@ -231,11 +212,11 @@ public class ScalaIndex {
         return classes;
     }
 
-    private String getExtends(String className, Set<Index.SearchScope> scope) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTENDS_NAME, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
+    private String getExtends(String className) {
+        final Set<IndexResult> result = new HashSet<IndexResult>();
+        search(ScalaIndexer.FIELD_EXTENDS_NAME, className.toLowerCase(), QuerySupport.Kind.CASE_INSENSITIVE_PREFIX, result, TERMS_EXTEND);
         String target = className.toLowerCase() + ";";
-        for (SearchResult map : result) {
+        for (IndexResult map : result) {
             String[] exts = map.getValues(ScalaIndexer.FIELD_EXTENDS_NAME);
 
             if (exts != null) {
@@ -255,11 +236,11 @@ public class ScalaIndex {
         return null;
     }
 
-    public Set<String> getImports(String className, Set<Index.SearchScope> scope) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_IMPORT, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_IMPORT);
+    public Set<String> getImports(String className) {
+        final Set<IndexResult> result = new HashSet<IndexResult>();
+        search(ScalaIndexer.FIELD_IMPORT, className.toLowerCase(), QuerySupport.Kind.CASE_INSENSITIVE_PREFIX, result, TERMS_IMPORT);
         String target = className.toLowerCase() + ";";
-        for (SearchResult map : result) {
+        for (IndexResult map : result) {
             String[] importAttrs = map.getValues(ScalaIndexer.FIELD_IMPORT);
 
             if (importAttrs != null) {
@@ -286,17 +267,15 @@ public class ScalaIndex {
         return Collections.<String>emptySet();
     }
 
-    public Set<GsfElement> getDeclaredTypes(String type, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context) {
-        Set<GsfElement> gsfElements = javaIndex.getDeclaredTypes(type, toJavaNameKind(kind), toJavaSearchScope(scope), context);
+    public Set<GsfElement> getDeclaredTypes(String type, QuerySupport.Kind kind, ScalaParserResult context) {
+        Set<GsfElement> gsfElements = javaIndex.getDeclaredTypes(type, toJavaNameKind(kind), toJavaSearchScope(), context);
         return gsfElements;
     }
 
     /** Return both functions and properties matching the given prefix, of the
      * given (possibly null) type
      */
-    public Set<GsfElement> getMembers(String prefix, String type,
-            NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context,
+    public Set<GsfElement> getMembers(String prefix, String type, QuerySupport.Kind kind, ScalaParserResult context,
             boolean onlyConstructors) {
 
 //        boolean ofScala = false;
@@ -311,26 +290,26 @@ public class ScalaIndex {
 
         /** @TODO we need a better way to check if it's of scala */
 //        if (!ofScala) {
-        Set<GsfElement> gsfElements = javaIndex.getMembers(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
+        Set<GsfElement> gsfElements = javaIndex.getMembers(prefix, type, toJavaNameKind(kind), toJavaSearchScope(), context, onlyConstructors, true, true, false);
 //        }
 
         if (gsfElements.size() == 0) {
-            gsfElements = javaIndex.getMembers(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), context, onlyConstructors, true, true, false);
+            gsfElements = javaIndex.getMembers(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(), context, onlyConstructors, true, true, false);
         }
 
         return gsfElements;
     }
 
-    public Set<GsfElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+    public Set<GsfElement> getPackageContent(String fqnPrefix, QuerySupport.Kind kind) {
 
-        Set<GsfElement> gsfElements = getTypesByQualifiedName(fqnPrefix, kind, scope, null, false, false, true);
+        Set<GsfElement> gsfElements = getTypesByQualifiedName(fqnPrefix, kind, null, false, false, true);
 
         gsfElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
         return gsfElements;
     }
 
-    public Set<GsfElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+    public Set<GsfElement> getPackagesAndContent(String fqnPrefix, QuerySupport.Kind kind) {
 
         //Set<IndexedElement> idxElements = getTypesByQualifiedName(fqnPrefix, kind, scope, null, false, false, false);
         Set<GsfElement> gsfElements = javaIndex.getPackages(fqnPrefix);
@@ -497,44 +476,37 @@ public class ScalaIndex {
 //
 //        return gsfElements;
 //    }
-
-    private Set<GsfElement> getTypesByQualifiedName(String fqnPrefix, NameKind kind,
-            Set<SearchScope> scope, ScalaParserResult context,
+    private Set<GsfElement> getTypesByQualifiedName(String fqnPrefix, QuerySupport.Kind kind, ScalaParserResult context,
             boolean onlyConstructors, boolean includeDuplicates, boolean onlyContent) {
 
-        final Set<SearchResult> result = new HashSet<SearchResult>();
+        final Set<IndexResult> result = new HashSet<IndexResult>();
 
         String field = ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE;
         String valueField = ScalaIndexer.FIELD_SIGNATURE;
-        Set<String> terms = TERMS_NAME;
-        NameKind originalKind = kind;
-        if (kind == NameKind.EXACT_NAME) {
+        QuerySupport.Kind originalKind = kind;
+        if (kind == QuerySupport.Kind.EXACT) {
             // I can't do exact searches on methods because the method
             // entries include signatures etc. So turn this into a prefix
             // search and then compare chopped off signatures with the name
-            kind = NameKind.PREFIX;
+            kind = QuerySupport.Kind.PREFIX;
         }
 
-        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+        if (kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX || kind == QuerySupport.Kind.CASE_INSENSITIVE_REGEXP) {
             // TODO - can I do anything about this????
             //field = ScalaIndexer.FIELD_BASE_LOWER;
             //terms = FQN_BASE_LOWER;
         }
 
         final Set<GsfElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<GsfElement>();
-        String searchUrl = null;
+        FileObject searchUrl = null;
         if (context != null) {
-            try {
-                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+            searchUrl = context.getSnapshot().getSource().getFileObject();
         }
 
         String lcfqn = fqnPrefix.toLowerCase();
-        search(field, lcfqn, kind, result, scope, terms);
+        search(field, lcfqn, kind, result, TERMS_NAME);
 
-        for (SearchResult map : result) {
+        for (IndexResult map : result) {
             String qName = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME);
             String qName_ci = map.getValue(ScalaIndexer.FIELD_QUALIFIED_NAME_CASE_INSENSITIVE);
             String sName = map.getValue(ScalaIndexer.FIELD_SIMPLE_NAME);
@@ -543,22 +515,22 @@ public class ScalaIndex {
             if (qName != null) {
                 // Check if this file even applies
                 if (context != null) {
-                    String fileUrl = map.getPersistentUrl();
-                    if (searchUrl == null || !searchUrl.equals(fileUrl)) {
-                        boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
+                    FileObject fo = map.getFile();
+                    if (searchUrl == null || !searchUrl.equals(fo)) {
+                        boolean isLibrary = fo.getPath().indexOf("jsstubs") != -1; // TODO - better algorithm
 
-                        if (!isLibrary && !isReachable(context, fileUrl)) {
+                        if (!isLibrary && !isReachable(context, fo.getExt())) {
                             continue;
                         }
                     }
                 }
 
                 // Lucene returns some inexact matches, TODO investigate why this is necessary
-                if ((kind == NameKind.PREFIX) && !qName_ci.startsWith(lcfqn)) {
+                if ((kind == QuerySupport.Kind.PREFIX) && !qName_ci.startsWith(lcfqn)) {
                     continue;
-                } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !qName_ci.startsWith(lcfqn)) {
+                } else if (kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX && !qName_ci.startsWith(lcfqn)) {
                     continue;
-                } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+                } else if (kind == QuerySupport.Kind.CASE_INSENSITIVE_REGEXP) {
                     try {
                         if (!qName_ci.matches(lcfqn)) {
                             continue;
@@ -566,7 +538,7 @@ public class ScalaIndex {
                     } catch (Exception e) {
                         // Silently ignore regexp failures in the search expression
                     }
-                } else if (originalKind == NameKind.EXACT_NAME) {
+                } else if (originalKind == QuerySupport.Kind.EXACT) {
                     // Make sure the name matches exactly
                     // We know that the prefix is correct from the first part of
                     // this if clause, by the signature may have more
@@ -582,22 +554,21 @@ public class ScalaIndex {
                 if (!IndexedElement.isTemplate(flags)) {
                     continue;
                 }
-                
-                String fileUrl = map.getPersistentUrl();
 
-                FileObject fo = ScalaIndex.getFileObject(fileUrl);
+
+                FileObject fo = map.getFile();
 
                 IndexedElement element = null;
 
                 int lastDot = qName.lastIndexOf('.');
                 if (lastDot == -1) {
                     // should be class, under empty package
-                    element = IndexedElement.create(qName, sName, "", attrs, map.getPersistentUrl(), this, false);
+                    element = IndexedElement.create(qName, sName, "", attrs, map.getFile(), this, false);
                 } else {
                     String pkgName = qName.substring(0, lastDot);
                     if ((pkgName + ".").equals(fqnPrefix)) { // "java", we should return a class
                         String simpleName = qName.substring(lastDot + 1, qName.length());
-                        element = IndexedElement.create(qName, simpleName, "", attrs, map.getPersistentUrl(), this, false);
+                        element = IndexedElement.create(qName, simpleName, "", attrs, map.getFile(), this, false);
                     } else {
                         if (onlyContent) {
                             continue;
@@ -605,15 +576,14 @@ public class ScalaIndex {
                         // we should return a package
                         int dotAfterFqnPrefix = pkgName.indexOf('.', fqnPrefix.length());
                         if (dotAfterFqnPrefix == -1) {
-                            element = new IndexedElement(pkgName, pkgName, "", attrs, flags, map.getPersistentUrl(), this, ElementKind.PACKAGE);
+                            element = new IndexedElement(pkgName, pkgName, "", attrs, flags, map.getFile(), this, ElementKind.PACKAGE);
                         } else { // "java.lang", it's sub folder of wanted, we should fetch "java" only                                
                             pkgName = pkgName.substring(0, dotAfterFqnPrefix);
-                            element = new IndexedElement(pkgName, pkgName, "", attrs, flags, map.getPersistentUrl(), this, ElementKind.PACKAGE);
+                            element = new IndexedElement(pkgName, pkgName, "", attrs, flags, map.getFile(), this, ElementKind.PACKAGE);
                         }
                     }
                 }
 
-                map.getPersistentUrl();
                 if (element != null) {
                     GsfElement gsfElement = new GsfElement(element, fo, null);
                     elements.add(gsfElement);
@@ -650,7 +620,7 @@ public class ScalaIndex {
             // TODO - do some heuristics to deal with relative paths here,
             // e.g.   <script src="../../foo.js"></script>
 
-            for (int i = 0,   n = imports.size(); i <
+            for (int i = 0, n = imports.size(); i <
                     n; i++) {
                 String imp = imports.get(i);
                 if (imp.indexOf("../") != -1) {
@@ -672,17 +642,13 @@ public class ScalaIndex {
         return false;
     }
 
-    private Set<org.netbeans.api.java.source.ClassIndex.SearchScope> toJavaSearchScope(Set<SearchScope> scope) {
-        Set<org.netbeans.api.java.source.ClassIndex.SearchScope> javaScope = new HashSet<org.netbeans.api.java.source.ClassIndex.SearchScope>();
-
-        for (SearchScope _scope : scope) {
-            javaScope.add(org.netbeans.api.java.source.ClassIndex.SearchScope.valueOf(_scope.name()));
-        }
-
-        return javaScope;
+    private Set<org.netbeans.api.java.source.ClassIndex.SearchScope> toJavaSearchScope() {
+        return ALL_JAVA_SERACHSCOPE;
     }
+    private final Set<org.netbeans.api.java.source.ClassIndex.SearchScope> ALL_JAVA_SERACHSCOPE =
+            EnumSet.allOf(org.netbeans.api.java.source.ClassIndex.SearchScope.class);
 
-    private org.netbeans.api.java.source.ClassIndex.NameKind toJavaNameKind(NameKind kind) {
+    private org.netbeans.api.java.source.ClassIndex.NameKind toJavaNameKind(QuerySupport.Kind kind) {
         switch (kind) {
             case CAMEL_CASE:
                 return org.netbeans.api.java.source.ClassIndex.NameKind.CAMEL_CASE;
@@ -690,7 +656,7 @@ public class ScalaIndex {
                 return org.netbeans.api.java.source.ClassIndex.NameKind.CASE_INSENSITIVE_PREFIX;
             case CASE_INSENSITIVE_REGEXP:
                 return org.netbeans.api.java.source.ClassIndex.NameKind.CASE_INSENSITIVE_REGEXP;
-            case EXACT_NAME:
+            case EXACT:
                 return org.netbeans.api.java.source.ClassIndex.NameKind.SIMPLE_NAME;
             case PREFIX:
                 return org.netbeans.api.java.source.ClassIndex.NameKind.PREFIX;
