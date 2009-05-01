@@ -53,7 +53,6 @@ import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;

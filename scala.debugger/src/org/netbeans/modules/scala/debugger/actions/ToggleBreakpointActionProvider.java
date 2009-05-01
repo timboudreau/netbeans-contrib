@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.debugger.actions;
 
 import java.beans.PropertyChangeEvent;
@@ -63,69 +62,69 @@ import org.openide.filesystems.URLMapper;
 
 import org.openide.util.NbBundle;
 
-
 /** 
  *
  * @author   Jan Jancura
  */
-public class ToggleBreakpointActionProvider extends ActionsProviderSupport 
-implements PropertyChangeListener {
-    
+public class ToggleBreakpointActionProvider extends ActionsProviderSupport
+        implements PropertyChangeListener {
+
     private JPDADebugger debugger;
 
-    
-    public ToggleBreakpointActionProvider () {
-        EditorContextBridge.getContext().addPropertyChangeListener (this);
+    public ToggleBreakpointActionProvider() {
+        EditorContextBridge.getContext().addPropertyChangeListener(this);
     }
-    
-    public ToggleBreakpointActionProvider (ContextProvider lookupProvider) {
+
+    public ToggleBreakpointActionProvider(ContextProvider lookupProvider) {
         debugger = lookupProvider.lookupFirst(null, JPDADebugger.class);
-        debugger.addPropertyChangeListener (JPDADebugger.PROP_STATE, this);
-        EditorContextBridge.getContext().addPropertyChangeListener (this);
+        debugger.addPropertyChangeListener(JPDADebugger.PROP_STATE, this);
+        EditorContextBridge.getContext().addPropertyChangeListener(this);
     }
-    
-    private void destroy () {
-        debugger.removePropertyChangeListener (JPDADebugger.PROP_STATE, this);
-        EditorContextBridge.getContext().removePropertyChangeListener (this);
+
+    private void destroy() {
+        debugger.removePropertyChangeListener(JPDADebugger.PROP_STATE, this);
+        EditorContextBridge.getContext().removePropertyChangeListener(this);
     }
-    
-    public void propertyChange (PropertyChangeEvent evt) {
+
+    public void propertyChange(PropertyChangeEvent evt) {
         String url = EditorContextBridge.getContext().getCurrentURL();
         FileObject fo;
         try {
             fo = URLMapper.findFileObject(new URL(url));
         } catch (MalformedURLException muex) {
             fo = null;
-        }        
-        setEnabled (
-            ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE,
-            (EditorContextBridge.getContext().getCurrentLineNumber () >= 0) && 
-            // "text/x-scala" MIMEType will be resolved by scala.editing module, thus this module should run-dependency on scala.editing
-            (fo != null && ScalaMimeResolver.MIME_TYPE.equals(fo.getMIMEType()))  // NOI18N
-            //(fo != null && (url.endsWith (".scala")))  // NOI18N
-        );
-        if ( debugger != null && 
-             debugger.getState () == JPDADebugger.STATE_DISCONNECTED
-        ) 
-            destroy ();
+        }
+        setEnabled(
+                ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE,
+                (EditorContextBridge.getContext().getCurrentLineNumber() >= 0) &&
+                // "text/x-scala" MIMEType will be resolved by scala.editing module, thus this module should run-dependency on scala.editing
+                (fo != null && ScalaMimeResolver.MIME_TYPE.equals(fo.getMIMEType())) // NOI18N
+                //(fo != null && (url.endsWith (".scala")))  // NOI18N
+                );
+        if (debugger != null &&
+                debugger.getState() == JPDADebugger.STATE_DISCONNECTED) {
+            destroy();
+        }
     }
-    
-    public Set getActions () {
-        return Collections.singleton (ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE);
+
+    public Set getActions() {
+        return Collections.singleton(ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE);
     }
-    
-    public void doAction (Object action) {
-        DebuggerManager d = DebuggerManager.getDebuggerManager ();
-        
+
+    public void doAction(Object action) {
+        DebuggerManager d = DebuggerManager.getDebuggerManager();
+
         // 1) get source name & line number
-        int ln = EditorContextBridge.getContext().getCurrentLineNumber ();
-        String url = EditorContextBridge.getContext().getCurrentURL ();
-        if ("".equals (url.trim ())) return;
-        
+        int ln = EditorContextBridge.getContext().getCurrentLineNumber();
+        String url = EditorContextBridge.getContext().getCurrentURL();
+        if ("".equals(url.trim())) {
+            return;
+        }
+
         // 2) find and remove existing line breakpoint
         LineBreakpoint lb = findBreakpoint(url, ln);
         if (lb != null) {
-            d.removeBreakpoint (lb);
+            d.removeBreakpoint(lb);
             return;
         }
 //        Breakpoint[] bs = d.getBreakpoints ();
@@ -138,32 +137,27 @@ implements PropertyChangeListener {
 //            d.removeBreakpoint (lb);
 //            return;
 //        }
-        
+
         // 3) create a new line breakpoint
-        lb = LineBreakpoint.create (
-            url,
-            ln
-        );
-        lb.setPrintText (
-            NbBundle.getBundle (ToggleBreakpointActionProvider.class).getString 
-                ("CTL_Line_Breakpoint_Print_Text")
-        );
-        d.addBreakpoint (lb);
+        lb = LineBreakpoint.create(url, ln);
+        lb.setPrintText(NbBundle.getBundle(ToggleBreakpointActionProvider.class).getString("CTL_Line_Breakpoint_Print_Text"));
+        d.addBreakpoint(lb);
     }
-    
-    static LineBreakpoint findBreakpoint (String url, int lineNumber) {
+
+    static LineBreakpoint findBreakpoint(String url, int lineNumber) {
         Breakpoint[] breakpoints = DebuggerManager.getDebuggerManager().getBreakpoints();
         for (int i = 0; i < breakpoints.length; i++) {
             if (!(breakpoints[i] instanceof LineBreakpoint)) {
                 continue;
             }
             LineBreakpoint lb = (LineBreakpoint) breakpoints[i];
-            if (!lb.getURL ().equals (url)) continue;
+            if (!lb.getURL().equals(url)) {
+                continue;
+            }
             if (lb.getLineNumber() == lineNumber) {
                 return lb;
             }
         }
         return null;
     }
-    
 }

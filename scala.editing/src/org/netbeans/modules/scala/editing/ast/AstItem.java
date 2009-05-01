@@ -172,7 +172,7 @@ public abstract class AstItem {
     }
 
     public String getBinaryName() {
-        if (getSymbol().isModule()) {
+        if (getSymbol().isModuleClass()) {
             /** According to Symbol#kindString, an object template isModule() */
             return getName() + "$";
         } else if (getSymbol().isTrait()) {
