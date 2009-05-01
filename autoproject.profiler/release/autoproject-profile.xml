@@ -11,7 +11,7 @@
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
             <jvmarg line="${profiler.info.jvmargs}"/>
             <env key="LD_LIBRARY_PATH" path="${profiler.info.agentpath}:${env.LD_LIBRARY_PATH}"/>
-            <env key="Path" path="${profiler.info.agentpath};${Path}"/>
+            <env key="Path" path="${profiler.info.agentpath};${env.Path}"/>
             <arg line="${args}"/>
         </java>
     </target>

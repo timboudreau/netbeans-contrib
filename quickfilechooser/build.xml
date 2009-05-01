@@ -13,8 +13,6 @@
         <java fork="true" classpath="${cluster}/${module.jar}" classname="org.netbeans.modules.quickfilechooser.Demo">
             <sysproperty key="contrib" file=".."/>
             <jvmarg value="-Xdebug"/>
-            <jvmarg value="-Xnoagent"/>
-            <jvmarg value="-Djava.compiler=none"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
         </java>
     </target>
