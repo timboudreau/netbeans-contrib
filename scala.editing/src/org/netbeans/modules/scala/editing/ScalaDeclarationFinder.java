@@ -151,7 +151,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             if (astOffset == -1) {
                 return DeclarationLocation.NONE;
             }
-
+            info.getSnapshot().getTokenHierarchy();
             final TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
 
             ElementHandle foundElement = null;

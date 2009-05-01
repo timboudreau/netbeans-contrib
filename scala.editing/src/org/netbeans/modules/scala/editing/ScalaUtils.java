@@ -45,6 +45,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
@@ -743,7 +744,7 @@ public class ScalaUtils {
         return element.getPickOffset(th);
     }
 
-    public static FileObject getFileObject(Parser.Result info, Symbol symbol) {
+    public static FileObject getFileObject(ParserResult info, Symbol symbol) {
         String qName = null;
         try {
             qName = symbol.enclClass().fullNameString().replace('.', File.separatorChar);
@@ -767,23 +768,23 @@ public class ScalaUtils {
         String clzName = qName + ".class";
 
         try {
-            org.netbeans.api.java.source.CompilationInfo javaInfo = JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject());
-            org.netbeans.api.java.source.ClasspathInfo cpInfo = javaInfo.getClasspathInfo();
+            FileObject srcFo = info.getSnapshot().getSource().getFileObject();
+            ClasspathInfo cpInfo = ClasspathInfo.create(srcFo);
             ClassPath cp = ClassPathSupport.createProxyClassPath(
                     new ClassPath[]{
-                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.SOURCE),
-                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.BOOT),
-                        cpInfo.getClassPath(org.netbeans.api.java.source.ClasspathInfo.PathKind.COMPILE)
+                        cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
+                        cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
+                        cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)
                     });
 
-            String srcName = null;
+            String srcPath = null;
             FileObject clzFo = cp.findResource(clzName);
             if (clzFo != null) {
                 InputStream in = clzFo.getInputStream();
                 try {
-                    ClassFile cFile = new ClassFile(in, false);
-                    if (cFile != null) {
-                        srcName = cFile.getSourceFileName();
+                    ClassFile clzFile = new ClassFile(in, false);
+                    if (clzFile != null) {
+                        srcPath = clzFile.getSourceFileName();
                     }
                 } finally {
                     if (in != null) {
@@ -792,9 +793,9 @@ public class ScalaUtils {
                 }
             }
 
-            if (srcName != null) {
+            if (srcPath != null) {
                 if (pkgName != null) {
-                    srcName = pkgName + File.separatorChar + srcName;
+                    srcPath = pkgName + File.separatorChar + srcPath;
                 }
 
                 FileObject root = cp.findOwnerRoot(clzFo);
@@ -804,7 +805,7 @@ public class ScalaUtils {
                 FileObject[] srcRoots = result.getRoots();
                 ClassPath srcCp = ClassPathSupport.createClassPath(srcRoots);
 
-                return srcCp.findResource(srcName);
+                return srcCp.findResource(srcPath);
             }
         } catch (IOException ex) {
             ex.printStackTrace();

@@ -56,7 +56,6 @@ import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.JavaUtilities;
 import org.netbeans.modules.scala.editing.ScalaGlobal;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
@@ -80,7 +79,7 @@ public class ScalaElement implements ScalaElementHandle {
 
     private Symbol symbol;
     private final Global global;
-    private Parser.Result info;
+    private ParserResult info;
     private ElementKind kind;
     private Set<Modifier> modifiers;
     private boolean inherited;
@@ -96,7 +95,7 @@ public class ScalaElement implements ScalaElementHandle {
      * @param element, that to be wrapped
      * @param info, CompilationInfo
      */
-    public ScalaElement(Symbol symbol, Parser.Result info, Global global) {
+    public ScalaElement(Symbol symbol, ParserResult info, Global global) {
         this.symbol = symbol;
         this.info = info;
         this.global = global;
