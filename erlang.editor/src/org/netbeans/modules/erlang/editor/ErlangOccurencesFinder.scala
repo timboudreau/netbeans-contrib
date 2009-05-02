@@ -55,150 +55,150 @@ import org.openide.filesystems.FileObject
  */
 class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
 
-    protected var cancelled = false
-    private var caretPosition = 0
-    private var occurrences :Map[OffsetRange, ColoringAttributes] = _
-    private var file :FileObject = _
+   protected var cancelled = false
+   private var caretPosition = 0
+   private var occurrences :Map[OffsetRange, ColoringAttributes] = _
+   private var file :FileObject = _
 
-    protected def isCancelled = synchronized {cancelled}
+   protected def isCancelled = synchronized {cancelled}
 
-    protected def resume :Unit = synchronized {cancelled = false}
+   protected def resume :Unit = synchronized {cancelled = false}
 
-    override
-    def getPriority = 0
+   override
+   def getPriority = 0
 
-    override
-    def getSchedulerClass = Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER
+   override
+   def getSchedulerClass = Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER
 
-    override
-    def getOccurrences :Map[OffsetRange, ColoringAttributes] = occurrences
+   override
+   def getOccurrences :Map[OffsetRange, ColoringAttributes] = occurrences
 
-    override
-    def cancel :Unit = synchronized {cancelled = true}
+   override
+   def cancel :Unit = synchronized {cancelled = true}
 
-    override
-    def setCaretPosition(position:Int) :Unit = {this.caretPosition = position}
+   override
+   def setCaretPosition(position:Int) :Unit = {this.caretPosition = position}
 
-    def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
-        resume
-        if (pResult == null || isCancelled) {
+   def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
+      resume
+      if (pResult == null || isCancelled) {
+         return
+      }
+
+      val currentFile = pResult.getSnapshot.getSource.getFileObject
+      if (currentFile != file) {
+         // Ensure that we don't reuse results from a different file
+         occurrences = null
+         file = currentFile
+      }
+
+      for (rootScope <- pResult.rootScope;
+           th <- LexUtil.tokenHierarchy(pResult);
+           doc <- LexUtil.document(pResult, true);
+           // * we'll find item by offset of item's idToken, so, use caretPosition directly
+           item <- rootScope.findItemAt(th, caretPosition);
+           idToken <- item.idToken
+      ) {
+         var highlights = new HashMap[OffsetRange, ColoringAttributes](100)
+
+         val astOffset = LexUtil.astOffset(pResult, caretPosition)
+         if (astOffset == -1) {
             return
-        }
+         }
 
-        val currentFile = pResult.getSnapshot.getSource.getFileObject
-        if (currentFile != file) {
-            // Ensure that we don't reuse results from a different file
-            occurrences = null
-            file = currentFile
-        }
+         // * When we sanitize the line around the caret, occurrences
+         // * highlighting can get really ugly
+         val blankRange = pResult.sanitizedRange
 
-        for (rootScope <- pResult.rootScope;
-             th <- LexUtil.tokenHierarchy(pResult);
-             doc <- LexUtil.document(pResult, true);
-             // * we'll find item by offset of item's idToken, so, use caretPosition directly
-             item <- rootScope.findItemAt(th, caretPosition);
-             idToken <- item.idToken
-        ) {
-            var highlights = new HashMap[OffsetRange, ColoringAttributes](100)
+         if (blankRange.containsInclusive(astOffset)) {
+            return
+         }
 
-            val astOffset = LexUtil.astOffset(pResult, caretPosition)
-            if (astOffset == -1) {
-                return
+         // * test if document was just closed?
+         LexUtil.document(pResult, true) match {
+            case None => return
+            case _ =>
+         }
+
+         try {
+            doc.readLock
+            val length = doc.getLength
+            val astRange = LexUtil.rangeOfToken(th, idToken)
+            val lexRange = LexUtil.lexerOffsets(pResult, astRange)
+            var lexStartPos = lexRange.getStart
+            var lexEndPos = lexRange.getEnd
+
+            // If the buffer was just modified where a lot of text was deleted,
+            // the parse tree positions could be pointing outside the valid range
+            if (lexStartPos > length) {
+               lexStartPos = length
+            }
+            if (lexEndPos > length) {
+               lexEndPos = length
             }
 
-            // * When we sanitize the line around the caret, occurrences
-            // * highlighting can get really ugly
-            val blankRange = pResult.sanitizedRange
+            LexUtil.token(doc, caretPosition) match {
+               case None => return
+               case token => // valid token, go on
+            }
+         } finally {
+            doc.readUnlock
+         }
 
-            if (blankRange.containsInclusive(astOffset)) {
-                return
+         val occurrences = rootScope.findOccurrences(item)
+         for (item1 <- occurrences;
+              idToken1 <- item1.idToken
+         ) {
+
+            // detect special case for function
+            val functionDfn = item1 match {
+               case aDfn:AstDfn => aDfn.functionDfn
+               case _ => None
             }
 
-            // * test if document was just closed?
-            LexUtil.document(pResult, true) match {
-                case None => return
-                case _ =>
-            }
-
-            try {
-                doc.readLock
-                val length = doc.getLength
-                val astRange = LexUtil.rangeOfToken(th, idToken)
-                val lexRange = LexUtil.lexerOffsets(pResult, astRange)
-                var lexStartPos = lexRange.getStart
-                var lexEndPos = lexRange.getEnd
-
-                // If the buffer was just modified where a lot of text was deleted,
-                // the parse tree positions could be pointing outside the valid range
-                if (lexStartPos > length) {
-                    lexStartPos = length
-                }
-                if (lexEndPos > length) {
-                    lexEndPos = length
-                }
-
-                LexUtil.token(doc, caretPosition) match {
-                    case None => return
-                    case token => // valid token, go on
-                }
-            } finally {
-                doc.readUnlock
-            }
-
-            val occurrences = rootScope.findOccurrences(item)
-            for (item1 <- occurrences;
-                 idToken1 <- item1.idToken
-            ) {
-
-                // detect special case for function
-                val functionDfn = item1 match {
-                    case aDfn:AstDfn => aDfn.functionDfn
-                    case _ => None
-                }
-
-                functionDfn match {
-                    case Some(x) =>
-                        if (x != item1) {
-                            // we should refind occrrunces of functionDfn to get all scope refs
-                            val occurrences1 = rootScope.findOccurrences(x)
-                            for (item2 <- occurrences1;
-                                 idToken2 <- item2.idToken
-                            ) {
-                                highlights.put(LexUtil.rangeOfToken(th, idToken2), ColoringAttributes.MARK_OCCURRENCES)
-                            }
-                        }
+            functionDfn match {
+               case Some(x) =>
+                  if (x != item1) {
+                     // we should refind occrrunces of functionDfn to get all scope refs
+                     val occurrences1 = rootScope.findOccurrences(x)
+                     for (item2 <- occurrences1;
+                          idToken2 <- item2.idToken
+                     ) {
+                        highlights.put(LexUtil.rangeOfToken(th, idToken2), ColoringAttributes.MARK_OCCURRENCES)
+                     }
+                  }
                         
-                        for (clause <- x.functionClauses;
-                             clauseIdToken <- clause.idToken
-                        ) {
-                            highlights.put(LexUtil.rangeOfToken(th, clauseIdToken), ColoringAttributes.MARK_OCCURRENCES)
-                        }
-                    case None =>
-                        highlights.put(LexUtil.rangeOfToken(th, idToken1), ColoringAttributes.MARK_OCCURRENCES)
-                }
+                  for (clause <- x.functionClauses;
+                       clauseIdToken <- clause.idToken
+                  ) {
+                     highlights.put(LexUtil.rangeOfToken(th, clauseIdToken), ColoringAttributes.MARK_OCCURRENCES)
+                  }
+               case None =>
+                  highlights.put(LexUtil.rangeOfToken(th, idToken1), ColoringAttributes.MARK_OCCURRENCES)
+            }
+         }
+
+         if (isCancelled) {
+            return
+         }
+
+         if (highlights.size > 0) {
+            val translated = new HashMap[OffsetRange, ColoringAttributes](2 * highlights.size)
+            val entries = highlights.entrySet.iterator
+            while (entries.hasNext) {
+               val entry = entries.next
+               LexUtil.lexerOffsets(pResult, entry.getKey) match {
+                  case OffsetRange.NONE =>
+                  case range => translated.put(range, entry.getValue)
+               }
             }
 
-            if (isCancelled) {
-                return
-            }
+            highlights = translated
 
-            if (highlights.size > 0) {
-                val translated = new HashMap[OffsetRange, ColoringAttributes](2 * highlights.size)
-                val entries = highlights.entrySet.iterator
-                while (entries.hasNext) {
-                    val entry = entries.next
-                    LexUtil.lexerOffsets(pResult, entry.getKey) match {
-                        case OffsetRange.NONE =>
-                        case range => translated.put(range, entry.getValue)
-                    }
-                }
-
-                highlights = translated
-
-                this.occurrences = highlights
-            } else {
-                this.occurrences = null
-            }
-        }
-    }
+            this.occurrences = highlights
+         } else {
+            this.occurrences = null
+         }
+      }
+   }
 }

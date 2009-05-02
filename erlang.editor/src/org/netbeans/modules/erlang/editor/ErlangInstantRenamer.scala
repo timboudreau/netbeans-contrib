@@ -54,81 +54,81 @@ import org.openide.util.NbBundle;
  * @author Caoyuan Deng
  */
 class ErlangInstantRenamer extends InstantRenamer {
-    import ElementKind._
-    def isRenameAllowed(result:ParserResult, caretOffset:Int, explanationRetValue:Array[String]) :Boolean = {
-        val pResult = result match {
-            case null => return false
-            case x:ErlangParserResult => x
-        }
+   import ElementKind._
+   def isRenameAllowed(result:ParserResult, caretOffset:Int, explanationRetValue:Array[String]) :Boolean = {
+      val pResult = result match {
+         case null => return false
+         case x:ErlangParserResult => x
+      }
 
-        val bool = for (rootScope <- pResult.rootScope;
-                        th <- LexUtil.tokenHierarchy(pResult);
-                        doc <- LexUtil.document(pResult, true);
-                        closest <- rootScope.findItemAt(th, caretOffset)
-        ) yield rootScope.findDfnOf(closest) match {
-            case None => false
-            case Some(x) => x.getKind match {
-                    case FIELD | PARAMETER | VARIABLE | METHOD | CALL => true
-                    case _ => false
-                }
-        }
-        
-        bool match {
-            case None => false
-            case Some(x) => x
-        }
-    }
-
-    def getRenameRegions(result:ParserResult, caretOffset:Int) :Set[OffsetRange] = {
-        val pResult = result match {
-            case null => return Collections.emptySet[OffsetRange]
-            case x:ErlangParserResult => x
-        }
-
-        val regions = for (rootScope <- pResult.rootScope;
-                           th <- LexUtil.tokenHierarchy(pResult);
-                           doc <- LexUtil.document(pResult, true);
-                           closest <- rootScope.findItemAt(th, caretOffset)
-        ) yield {
-            var regions1 = new HashSet[OffsetRange]
-            val occurrences = rootScope.findOccurrences(closest)
-
-            for (item <- occurrences;
-                 idToken <- item.idToken
-            ) {
-                // detect special case for function
-                val functionDfn = item match {
-                    case aDfn:AstDfn => aDfn.functionDfn
-                    case _ => None
-                }
-                functionDfn match {
-                    case Some(x) =>
-                        for (clause <- x.functionClauses;
-                             clauseIdToken <- clause.idToken
-                        ) {
-                            regions1.add(LexUtil.rangeOfToken(th, clauseIdToken))
-                        }
-                    case _ =>
-                        regions1.add(LexUtil.rangeOfToken(th, idToken))
-                }
+      val bool = for (rootScope <- pResult.rootScope;
+                      th <- LexUtil.tokenHierarchy(pResult);
+                      doc <- LexUtil.document(pResult, true);
+                      closest <- rootScope.findItemAt(th, caretOffset)
+      ) yield rootScope.findDfnOf(closest) match {
+         case None => false
+         case Some(x) => x.getKind match {
+               case FIELD | PARAMETER | VARIABLE | METHOD | CALL => true
+               case _ => false
             }
-
-            if (regions1.size > 0) {
-                val translated = new HashSet[OffsetRange](2 * regions1.size)
-                val entries = regions1.iterator
-                while (entries.hasNext) {
-                    LexUtil.lexerOffsets(pResult, entries.next) match {
-                        case OffsetRange.NONE =>
-                        case lexRange => translated.add(lexRange)
-                    }
-                }
-                translated
-            } else regions1
-        }
+      }
         
-        regions match {
-            case None => Collections.emptySet[OffsetRange]
-            case Some(x) => x
-        }
-    }
+      bool match {
+         case None => false
+         case Some(x) => x
+      }
+   }
+
+   def getRenameRegions(result:ParserResult, caretOffset:Int) :Set[OffsetRange] = {
+      val pResult = result match {
+         case null => return Collections.emptySet[OffsetRange]
+         case x:ErlangParserResult => x
+      }
+
+      val regions = for (rootScope <- pResult.rootScope;
+                         th <- LexUtil.tokenHierarchy(pResult);
+                         doc <- LexUtil.document(pResult, true);
+                         closest <- rootScope.findItemAt(th, caretOffset)
+      ) yield {
+         var regions1 = new HashSet[OffsetRange]
+         val occurrences = rootScope.findOccurrences(closest)
+
+         for (item <- occurrences;
+              idToken <- item.idToken
+         ) {
+            // detect special case for function
+            val functionDfn = item match {
+               case aDfn:AstDfn => aDfn.functionDfn
+               case _ => None
+            }
+            functionDfn match {
+               case Some(x) =>
+                  for (clause <- x.functionClauses;
+                       clauseIdToken <- clause.idToken
+                  ) {
+                     regions1.add(LexUtil.rangeOfToken(th, clauseIdToken))
+                  }
+               case _ =>
+                  regions1.add(LexUtil.rangeOfToken(th, idToken))
+            }
+         }
+
+         if (regions1.size > 0) {
+            val translated = new HashSet[OffsetRange](2 * regions1.size)
+            val entries = regions1.iterator
+            while (entries.hasNext) {
+               LexUtil.lexerOffsets(pResult, entries.next) match {
+                  case OffsetRange.NONE =>
+                  case lexRange => translated.add(lexRange)
+               }
+            }
+            translated
+         } else regions1
+      }
+        
+      regions match {
+         case None => Collections.emptySet[OffsetRange]
+         case Some(x) => x
+      }
+   }
 }

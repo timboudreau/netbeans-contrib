@@ -62,141 +62,141 @@ import org.netbeans.spi.lexer.LexerRestartInfo
  * @author Caoyuan Deng
  */
 object ErlangTokenId extends Enumeration {
-    // Let type of enum's value the same as enum itself
-    type ErlangTokenId = V
+   // Let type of enum's value the same as enum itself
+   type ErlangTokenId = V
 
-    // Extends Enumeration.Val to get custom enumeration value
-    class V(val name:String, val fixedText:String, val primaryCategory:String) extends Val(name) with TokenId {
-        override
-        def ordinal = id
-    }
-    object V {
-        def apply(name:String, fixedText:String, primaryCategory:String) = new V(name, fixedText, primaryCategory)
-    }
+   // Extends Enumeration.Val to get custom enumeration value
+   class V(val name:String, val fixedText:String, val primaryCategory:String) extends Val(name) with TokenId {
+      override
+      def ordinal = id
+   }
+   object V {
+      def apply(name:String, fixedText:String, primaryCategory:String) = new V(name, fixedText, primaryCategory)
+   }
   
-    val IGNORED = V("IGNORED", null, "ingore")
-    val Error = V("Error", null, "error")
+   val IGNORED = V("IGNORED", null, "ingore")
+   val Error = V("Error", null, "error")
 
-    // --- Spaces and comments
-    val Ws = V("Ws", null, "whitespace")
-    val Nl = V("Nl", null, "whitespace")
-    val LineComment = V("LineComment", null, "comment")
-    val CommentTag = V("CommentTag", null, "comment")
-    val CommentData = V("CommentData", null, "comment")
+   // --- Spaces and comments
+   val Ws = V("Ws", null, "whitespace")
+   val Nl = V("Nl", null, "whitespace")
+   val LineComment = V("LineComment", null, "comment")
+   val CommentTag = V("CommentTag", null, "comment")
+   val CommentData = V("CommentData", null, "comment")
 
-    // --- Literals
-    val IntegerLiteral = V("IntegerLiteral", null, "number")
-    val FloatingPointLiteral = V("FloatingPointLiteral", null, "number")
-    val CharacterLiteral = V("CharacterLiteral", null, "char")
-    val StringLiteral = V("StringLiteral", null, "string")
+   // --- Literals
+   val IntegerLiteral = V("IntegerLiteral", null, "number")
+   val FloatingPointLiteral = V("FloatingPointLiteral", null, "number")
+   val CharacterLiteral = V("CharacterLiteral", null, "char")
+   val StringLiteral = V("StringLiteral", null, "string")
 
-    // --- Keywords
-    val Andalso = V("Andalso", "andalso", "keyword")
-    val After = V("After", "after", "keyword")
-    val And = V("And", "and", "keyword")
-    val Band = V("Band", "band", "keyword")
-    val Begin = V("Begin", "begin", "keyword")
-    val Bnot = V("Bnot", "bnot", "keyword")
-    val Bor = V("Bor", "bor", "keyword")
-    val Bsr = V("Bsr", "bsr", "keyword")
-    val Bxor = V("Bxor", "bxor", "keyword")
-    val Case = V("Case", "case", "keyword")
-    val Catch = V("Catch", "catch", "keyword")
-    val Cond = V("Cond", "cond", "keyword")
-    val Div = V("Div", "div", "keyword")
-    val End = V("End", "end", "keyword")
-    val Fun = V("Fun", "fun", "keyword")
-    val If = V("If", "if", "keyword")
-    val Not = V("Not", "not", "keyword")
-    val Of = V("Of", "of", "keyword")
-    val Orelse = V("Orelse", "orelse", "keyword")
-    val Or = V("Or", "or", "keyword")
-    val Query = V("Query", "query", "keyword")
-    val Receive = V("Receive", "receive", "keyword")
-    val Rem = V("Rem", "rem", "keyword")
-    val Try = V("Try", "try", "keyword")
-    val When = V("When", "when", "keyword")
-    val Xor = V("Xor", "xor", "keyword")
+   // --- Keywords
+   val Andalso = V("Andalso", "andalso", "keyword")
+   val After = V("After", "after", "keyword")
+   val And = V("And", "and", "keyword")
+   val Band = V("Band", "band", "keyword")
+   val Begin = V("Begin", "begin", "keyword")
+   val Bnot = V("Bnot", "bnot", "keyword")
+   val Bor = V("Bor", "bor", "keyword")
+   val Bsr = V("Bsr", "bsr", "keyword")
+   val Bxor = V("Bxor", "bxor", "keyword")
+   val Case = V("Case", "case", "keyword")
+   val Catch = V("Catch", "catch", "keyword")
+   val Cond = V("Cond", "cond", "keyword")
+   val Div = V("Div", "div", "keyword")
+   val End = V("End", "end", "keyword")
+   val Fun = V("Fun", "fun", "keyword")
+   val If = V("If", "if", "keyword")
+   val Not = V("Not", "not", "keyword")
+   val Of = V("Of", "of", "keyword")
+   val Orelse = V("Orelse", "orelse", "keyword")
+   val Or = V("Or", "or", "keyword")
+   val Query = V("Query", "query", "keyword")
+   val Receive = V("Receive", "receive", "keyword")
+   val Rem = V("Rem", "rem", "keyword")
+   val Try = V("Try", "try", "keyword")
+   val When = V("When", "when", "keyword")
+   val Xor = V("Xor", "xor", "keyword")
 
-    // --- Identifiers
-    val Macro = V("Macro", null, "identifier")
-    val Atom = V("Atom", null, "identifier")
-    val Var = V("Var", null, "identifier")
-    val Rec = V("Rec", null, "identifier")
+   // --- Identifiers
+   val Macro = V("Macro", null, "identifier")
+   val Atom = V("Atom", null, "identifier")
+   val Var = V("Var", null, "identifier")
+   val Rec = V("Rec", null, "identifier")
 
-    // --- Stop
-    val Stop = V("Stop", ".", "separator")
+   // --- Stop
+   val Stop = V("Stop", ".", "separator")
 
-    // --- Symbols
-    val LParen = V("LParen", "(", "separator")
-    val RParen = V("RParen", ")", "separator")
-    val LBrace = V("LBrace", "{", "separator")
-    val RBrace = V("RBrace", "}", "separator")
-    val LBracket = V("LBracket", "[", "separator")
-    val RBracket = V("RBracket", "]", "separator")
-    val Comma = V("Comma", ",", "separator")
-    val Dot = V("Dot", ".", "separator")
-    val Semicolon = V("Semicolon", ";", "separator")
-    val DBar = V("DBar", "||", "separator")
-    val Bar = V("Bar", "|",  "separator")
-    val Question = V("Question", "?","separator")
-    val DLt = V("DLt", "<<", "separator")
-    val LArrow = V("LArrow", "<-", "separator")
-    val Lt = V("Lt", "<", "separator")
-    val DGt = V("DGt", ">>", "separator")
-    val Ge = V("Ge", ">=", "separator")
-    val Gt = V("Gt", ">", "separator")
-    val ColonMinus = V("ColonMinus", ":-", "separator")
-    val DColon = V("DColon", "::", "separator")
-    val Colon = V("Colon", ":", "separator")
-    val Hash = V("Hash", "#", "separator")
-    val DPlus = V("DPlus", "++", "separator")
-    val Plus = V("Plus", "+", "separator")
-    val DMinus = V("DMinus", "--", "separator")
-    val RArrow = V("RArrow", "->", "separator")
-    val Minus = V("Minus", "-", "separator")
-    val Star = V("Star", "*", "separator")
-    val Ne = V("Ne", "/=", "separator")
-    val Slash = V("Slash", "/", "separator")
-    val EEq = V("EEq", "=:=", "separator")
-    val ENe = V("ENe", "=/=", "separator")
-    val DEq = V("DEq", "==", "separator")
-    val Le = V("le", "=<", "separator")
-    val Eq = V("Eq", "=", "separator")
-    val Exclamation = V("Exclamation", "!", "separator")
+   // --- Symbols
+   val LParen = V("LParen", "(", "separator")
+   val RParen = V("RParen", ")", "separator")
+   val LBrace = V("LBrace", "{", "separator")
+   val RBrace = V("RBrace", "}", "separator")
+   val LBracket = V("LBracket", "[", "separator")
+   val RBracket = V("RBracket", "]", "separator")
+   val Comma = V("Comma", ",", "separator")
+   val Dot = V("Dot", ".", "separator")
+   val Semicolon = V("Semicolon", ";", "separator")
+   val DBar = V("DBar", "||", "separator")
+   val Bar = V("Bar", "|",  "separator")
+   val Question = V("Question", "?","separator")
+   val DLt = V("DLt", "<<", "separator")
+   val LArrow = V("LArrow", "<-", "separator")
+   val Lt = V("Lt", "<", "separator")
+   val DGt = V("DGt", ">>", "separator")
+   val Ge = V("Ge", ">=", "separator")
+   val Gt = V("Gt", ">", "separator")
+   val ColonMinus = V("ColonMinus", ":-", "separator")
+   val DColon = V("DColon", "::", "separator")
+   val Colon = V("Colon", ":", "separator")
+   val Hash = V("Hash", "#", "separator")
+   val DPlus = V("DPlus", "++", "separator")
+   val Plus = V("Plus", "+", "separator")
+   val DMinus = V("DMinus", "--", "separator")
+   val RArrow = V("RArrow", "->", "separator")
+   val Minus = V("Minus", "-", "separator")
+   val Star = V("Star", "*", "separator")
+   val Ne = V("Ne", "/=", "separator")
+   val Slash = V("Slash", "/", "separator")
+   val EEq = V("EEq", "=:=", "separator")
+   val ENe = V("ENe", "=/=", "separator")
+   val DEq = V("DEq", "==", "separator")
+   val Le = V("le", "=<", "separator")
+   val Eq = V("Eq", "=", "separator")
+   val Exclamation = V("Exclamation", "!", "separator")
 
   
-    /**
-     * MIME type for Erlang. Don't change this without also consulting the various XML files
-     * that cannot reference this value directly.
-     */
-    val ERLANG_MIME_TYPE = "text/x-erlang"; // NOI18N
+   /**
+    * MIME type for Erlang. Don't change this without also consulting the various XML files
+    * that cannot reference this value directly.
+    */
+   val ERLANG_MIME_TYPE = "text/x-erlang"; // NOI18N
 
-    // * should use "val" instead of "def" here to get a singleton language val, which  
-    // * will be used to identity the token's language by "==" comparasion by other classes.
-    // * Be aware of the init order! to get createTokenIds gathers all TokenIds, should
-    // * be put after all token id val definition
-    val language = new LanguageHierarchy[TokenId] {
-        protected def mimeType = ERLANG_MIME_TYPE
+   // * should use "val" instead of "def" here to get a singleton language val, which
+   // * will be used to identity the token's language by "==" comparasion by other classes.
+   // * Be aware of the init order! to get createTokenIds gathers all TokenIds, should
+   // * be put after all token id val definition
+   val language = new LanguageHierarchy[TokenId] {
+      protected def mimeType = ERLANG_MIME_TYPE
 
-        protected def createTokenIds :Collection[TokenId] = {
-            val ids = new HashSet[TokenId]
-            elements.foreach{ids add _.asInstanceOf[TokenId]}
-            ids
-        }
+      protected def createTokenIds :Collection[TokenId] = {
+         val ids = new HashSet[TokenId]
+         elements.foreach{ids add _.asInstanceOf[TokenId]}
+         ids
+      }
     
-        protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ErlangLexer.create(info)
+      protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ErlangLexer.create(info)
 
-        override
-        protected def createTokenCategories :Map[String, Collection[TokenId]] = {
-            val cats = new HashMap[String, Collection[TokenId]]
-            cats
-        }
+      override
+      protected def createTokenCategories :Map[String, Collection[TokenId]] = {
+         val cats = new HashMap[String, Collection[TokenId]]
+         cats
+      }
 
-        override
-        protected def embedding(token:Token[TokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
-            null // No embedding
-        }
-    }.language
+      override
+      protected def embedding(token:Token[TokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
+         null // No embedding
+      }
+   }.language
 
 }

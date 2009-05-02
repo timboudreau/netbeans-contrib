@@ -59,76 +59,74 @@ import scala.collection.mutable.HashMap
  *  @author Caoyuan Deng
  */
 object ErlangUtil {
-    val FoToRootScope = new HashMap[FileObject, AstRootScope]
+   val FoToRootScope = new HashMap[FileObject, AstRootScope]
 
-    private class FoChangeAdapter extends FileChangeAdapter {
-        override
-        def fileChanged(fe:FileEvent) :Unit = reset(fe.getFile)
+   private class FoChangeAdapter extends FileChangeAdapter {
+      override
+      def fileChanged(fe:FileEvent) :Unit = reset(fe.getFile)
 
-        override
-        def fileDeleted(fe:FileEvent) :Unit = reset(fe.getFile)
+      override
+      def fileDeleted(fe:FileEvent) :Unit = reset(fe.getFile)
 
-        override
-        def fileRenamed(fe:FileRenameEvent) :Unit = reset(fe.getFile)
+      override
+      def fileRenamed(fe:FileRenameEvent) :Unit = reset(fe.getFile)
 
-        private def reset(fo:FileObject) :Unit = {
-            fo.removeFileChangeListener(this)
-            FoToRootScope.removeKey(fo)
-        }
-    }
+      private def reset(fo:FileObject) :Unit = {
+         fo.removeFileChangeListener(this)
+         FoToRootScope.removeKey(fo)
+      }
+   }
 
-    def resolveRootScope(fo:FileObject) :Option[AstRootScope] = {
-        FoToRootScope.get(fo) match {
-            case None =>
-                val source = Source.create(fo)
-                try {
-                    ParserManager.parse(Collections.singleton(source), new UserTask {
-                            @throws(classOf[Exception])
-                            override
-                            def run(resultIterator:ResultIterator) :Unit = {
-                                resultIterator.getParserResult match {
-                                    case r:ErlangParserResult =>
-                                        r.rootScope.foreach{x =>
-                                            fo.addFileChangeListener(new FoChangeAdapter)
-                                            FoToRootScope + (fo -> x)
-                                        }
-                                    case _ =>
-                                }
-                            }
-                        })
-                } catch {case e:ParseException =>}
-                
-                FoToRootScope.get(fo)
-            case some => some
-        }
-    }
-
-    def resolveDfn(fo:FileObject, symbol:ErlSymbol) :Option[AstDfn] = {
-        resolveRootScope(fo) match {
-            case None => None
-            case Some(rootScope) => rootScope.findDfnOfSym(symbol)
-        }
-    }
-
-    def docComment(doc:BaseDocument, itemOffset:int) :String = {
-        val th = TokenHierarchy.get(doc)
-        if (th == null) {
-            return null
-        }
-
-        doc.readLock // Read-lock due to token hierarchy use
-        val range = LexUtil.docCommentRangeBefore(th, itemOffset)
-        doc.readUnlock
-
-        if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
+   def resolveRootScope(fo:FileObject) :Option[AstRootScope] = {
+      FoToRootScope.get(fo) match {
+         case None =>
+            val source = Source.create(fo)
             try {
-                return doc.getText(range.getStart, range.getLength)
-            } catch {case ex:BadLocationException =>}
-        }
+               ParserManager.parse(Collections.singleton(source), new UserTask {
+                     @throws(classOf[Exception])
+                     override
+                     def run(resultIterator:ResultIterator) :Unit = {
+                        resultIterator.getParserResult match {
+                           case r:ErlangParserResult =>
+                              r.rootScope.foreach{x =>
+                                 fo.addFileChangeListener(new FoChangeAdapter)
+                                 FoToRootScope + (fo -> x)
+                              }
+                           case _ =>
+                        }
+                     }
+                  })
+            } catch {case e:ParseException =>}
+                
+            FoToRootScope.get(fo)
+         case some => some
+      }
+   }
 
-        null
-    }
+   def resolveDfn(fo:FileObject, symbol:ErlSymbol) :Option[AstDfn] = {
+      resolveRootScope(fo) match {
+         case None => None
+         case Some(rootScope) => rootScope.findDfnOfSym(symbol)
+      }
+   }
 
+   def docComment(doc:BaseDocument, itemOffset:int) :String = {
+      val th = TokenHierarchy.get(doc)
+      if (th == null) {
+         return null
+      }
 
+      doc.readLock // Read-lock due to token hierarchy use
+      val range = LexUtil.docCommentRangeBefore(th, itemOffset)
+      doc.readUnlock
+
+      if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
+         try {
+            return doc.getText(range.getStart, range.getLength)
+         } catch {case ex:BadLocationException =>}
+      }
+
+      null
+   }
 
 }

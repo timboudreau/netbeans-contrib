@@ -56,77 +56,77 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
  */
 class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
 
-    private var cancelled = false
-    private var semanticHighlights :Map[OffsetRange, Set[ColoringAttributes]] = _
+   private var cancelled = false
+   private var semanticHighlights :Map[OffsetRange, Set[ColoringAttributes]] = _
 
-    protected def isCancelled :Boolean = synchronized {cancelled}
+   protected def isCancelled :Boolean = synchronized {cancelled}
 
-    protected def resume :Unit = synchronized {cancelled = false}
+   protected def resume :Unit = synchronized {cancelled = false}
 
-    override
-    def getHighlights :Map[OffsetRange, Set[ColoringAttributes]] = semanticHighlights
+   override
+   def getHighlights :Map[OffsetRange, Set[ColoringAttributes]] = semanticHighlights
 
-    override
-    def getPriority = 0
+   override
+   def getPriority = 0
 
-    override
-    def getSchedulerClass = Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER
+   override
+   def getSchedulerClass = Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER
     
-    override
-    def cancel :Unit = {cancelled = true}
+   override
+   def cancel :Unit = {cancelled = true}
 
-    @throws(classOf[Exception])
-    override
-    def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
-        resume
-        semanticHighlights = null
+   @throws(classOf[Exception])
+   override
+   def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
+      resume
+      semanticHighlights = null
 
-        if (pResult == null || isCancelled) {
-            return
-        }
+      if (pResult == null || isCancelled) {
+         return
+      }
 
-        for (rootScope <- pResult.rootScope;
-             th <- LexUtil.tokenHierarchy(pResult);
-             doc <- LexUtil.document(pResult, true)
-        ) {
-            var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-            visitItems(th, rootScope, highlights)
+      for (rootScope <- pResult.rootScope;
+           th <- LexUtil.tokenHierarchy(pResult);
+           doc <- LexUtil.document(pResult, true)
+      ) {
+         var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
+         visitItems(th, rootScope, highlights)
 
-            this.semanticHighlights = if (highlights.size > 0) highlights else null
-        }
-    }
+         this.semanticHighlights = if (highlights.size > 0) highlights else null
+      }
+   }
 
-    private def visitItems(th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
-        import ElementKind._
-        for (item <- rootScope.idTokenToItem(th).values;
-             hiToken <- item.idToken
-        ) {
+   private def visitItems(th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
+      import ElementKind._
+      for (item <- rootScope.idTokenToItem(th).values;
+           hiToken <- item.idToken
+      ) {
             
-            val hiRange = LexUtil.rangeOfToken(th, hiToken)
-            item match {
-                case dfn:AstDfn => dfn.getKind match {
-                        case MODULE =>
-                            highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                        case CLASS =>
-                            highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                        case METHOD =>
-                            highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                        case ATTRIBUTE if dfn.isFunctionClause =>
-                            highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                        case ATTRIBUTE =>
-                            highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                        case PARAMETER =>
-                            highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
-                        case _ =>
-                    }
-                case ref:AstRef => ref.getKind match {
-                        case CALL =>
-                            highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                        case PARAMETER =>
-                            highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
-                        case _ =>
-                    }
-            }
-        }
-    }
+         val hiRange = LexUtil.rangeOfToken(th, hiToken)
+         item match {
+            case dfn:AstDfn => dfn.getKind match {
+                  case MODULE =>
+                     highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+                  case CLASS =>
+                     highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+                  case METHOD =>
+                     highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+                  case ATTRIBUTE if dfn.isFunctionClause =>
+                     highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+                  case ATTRIBUTE =>
+                     highlights.put(hiRange, ColoringAttributes.STATIC_SET)
+                  case PARAMETER =>
+                     highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
+                  case _ =>
+               }
+            case ref:AstRef => ref.getKind match {
+                  case CALL =>
+                     highlights.put(hiRange, ColoringAttributes.FIELD_SET)
+                  case PARAMETER =>
+                     highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
+                  case _ =>
+               }
+         }
+      }
+   }
 }

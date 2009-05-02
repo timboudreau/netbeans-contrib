@@ -46,115 +46,115 @@ import org.netbeans.modules.csl.api.{ElementKind,HtmlFormatter}
  * @author Caoyuan Deng
  */
 class SignatureHtmlFormatter extends HtmlFormatter {
-    protected var isDeprecated :Boolean = _
-    protected var isParameter :Boolean = _
-    protected var isType :Boolean = _
-    protected var isName :Boolean = _
-    protected var isEmphasis :Boolean = _
+   protected var isDeprecated :Boolean = _
+   protected var isParameter :Boolean = _
+   protected var isType :Boolean = _
+   protected var isName :Boolean = _
+   protected var isEmphasis :Boolean = _
 
-    protected val sb = new StringBuilder
+   protected val sb = new StringBuilder
 
-    def reset {
-        textLength = 0
-        sb.setLength(0)
-    }
+   def reset {
+      textLength = 0
+      sb.setLength(0)
+   }
 
-    def appendHtml(html:String) {
-        sb.append(html)
-        // Not sure what to do about maxLength here... but presumably
-    }
+   def appendHtml(html:String) {
+      sb.append(html)
+      // Not sure what to do about maxLength here... but presumably
+   }
 
-    def appendText(text:String, fromInclusive:int, toExclusive:int) {
-        var i = fromInclusive
-        var continue = true
-        while (i < toExclusive && continue) {
-            //for (int i = fromInclusive; i < toExclusive; i++) {
-            if (textLength >= maxLength) {
-                if (textLength == maxLength) {
-                    sb.append("...")
-                    textLength += 3;
-                }
-                continue = false
+   def appendText(text:String, fromInclusive:int, toExclusive:int) {
+      var i = fromInclusive
+      var continue = true
+      while (i < toExclusive && continue) {
+         //for (int i = fromInclusive; i < toExclusive; i++) {
+         if (textLength >= maxLength) {
+            if (textLength == maxLength) {
+               sb.append("...")
+               textLength += 3;
             }
+            continue = false
+         }
 
-            text.charAt(i) match {
-                case '<' =>
-                    sb.append("&lt;") // NOI18N
-                case '>' if i > 1 && text.charAt(i - 2) == ']' && text.charAt(i - 1) == ']' => // Only ]]> is dangerous
-                    sb.append("&gt;") // NOI18N
-                case '>' =>
-                    sb.append('>')
-                case '&' =>
-                    sb.append("&amp;") // NOI18N
-                case c =>
-                    sb.append(c)
-            }
+         text.charAt(i) match {
+            case '<' =>
+               sb.append("&lt;") // NOI18N
+            case '>' if i > 1 && text.charAt(i - 2) == ']' && text.charAt(i - 1) == ']' => // Only ]]> is dangerous
+               sb.append("&gt;") // NOI18N
+            case '>' =>
+               sb.append('>')
+            case '&' =>
+               sb.append("&amp;") // NOI18N
+            case c =>
+               sb.append(c)
+         }
 
-            textLength += 1
-            i += 1
-        }
-    }
+         textLength += 1
+         i += 1
+      }
+   }
 
-    def name(kind:ElementKind, start:Boolean) {
-        assert(start != isName)
-        isName = start
-        if (isName) {
-            sb.append("<b>")
-        } else {
-            sb.append("</b>")
-        }
-    }
+   def name(kind:ElementKind, start:Boolean) {
+      assert(start != isName)
+      isName = start
+      if (isName) {
+         sb.append("<b>")
+      } else {
+         sb.append("</b>")
+      }
+   }
 
-    def parameters(start:Boolean) {
-        assert(start != isParameter)
-        isParameter = start
-        if (isParameter) {
-            sb.append("<font color=\"#808080\">")
-        } else {
-            sb.append("</font>")
-        }
-    }
+   def parameters(start:Boolean) {
+      assert(start != isParameter)
+      isParameter = start
+      if (isParameter) {
+         sb.append("<font color=\"#808080\">")
+      } else {
+         sb.append("</font>")
+      }
+   }
 
-    def emphasis(start:Boolean) {
-        assert(start != isEmphasis)
-        isEmphasis = start
-        if (isEmphasis) {
-            sb.append("<b>")
-        } else {
-            sb.append("</b>")
-        }
-    }
+   def emphasis(start:Boolean) {
+      assert(start != isEmphasis)
+      isEmphasis = start
+      if (isEmphasis) {
+         sb.append("<b>")
+      } else {
+         sb.append("</b>")
+      }
+   }
 
-    @Override
-    def active(start:Boolean) {
-        emphasis(start)
-    }
+   @Override
+   def active(start:Boolean) {
+      emphasis(start)
+   }
 
-    def `type`(start:Boolean) {
-        assert(start != isType)
-        isType = start
-        if (isType) {
-            sb.append("<font color=\"#808080\">")
-        } else {
-            sb.append("</font>")
-        }
-    }
+   def `type`(start:Boolean) {
+      assert(start != isType)
+      isType = start
+      if (isType) {
+         sb.append("<font color=\"#808080\">")
+      } else {
+         sb.append("</font>")
+      }
+   }
 
-    def deprecated(start:Boolean) {
-        assert(start != isDeprecated)
-        isDeprecated = start
-        if (isDeprecated) {
-            sb.append("<s>")
-        } else {
-            sb.append("</s>")
-        }
-    }
+   def deprecated(start:Boolean) {
+      assert(start != isDeprecated)
+      isDeprecated = start
+      if (isDeprecated) {
+         sb.append("<s>")
+      } else {
+         sb.append("</s>")
+      }
+   }
 
-    def getText :String = {
-        assert(!isParameter && !isDeprecated && !isName && !isType)
-        sb.toString
-    }
+   def getText :String = {
+      assert(!isParameter && !isDeprecated && !isName && !isType)
+      sb.toString
+   }
 
-    override
-    def toString = getText
+   override
+   def toString = getText
 }

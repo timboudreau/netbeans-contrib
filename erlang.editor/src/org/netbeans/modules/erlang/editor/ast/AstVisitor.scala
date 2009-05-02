@@ -60,206 +60,206 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
  */
 abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
 
-    val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode))
+   val rootScope :AstRootScope = new AstRootScope(boundsTokens(rootNode))
 
-    private var indentLevel :Int = 0
-    protected val astPath = new Stack[GNode]
-    protected val scopes = new Stack[AstScope]
+   private var indentLevel :Int = 0
+   protected val astPath = new Stack[GNode]
+   protected val scopes = new Stack[AstScope]
 
-    scopes += rootScope
+   scopes += rootScope
 
-    def visit(node:GNode) {
-        enter(node)
-        visitChildren(node)
-        exit(node)
-    }
+   def visit(node:GNode) {
+      enter(node)
+      visitChildren(node)
+      exit(node)
+   }
 
-    protected def enter(node:GNode) {
-        indentLevel += 1
-        astPath.push(node)
-    }
+   protected def enter(node:GNode) {
+      indentLevel += 1
+      astPath.push(node)
+   }
 
-    protected def exit(node:GNode) {
-        indentLevel -= 1
-        astPath.pop
-    }
+   protected def exit(node:GNode) {
+      indentLevel -= 1
+      astPath.pop
+   }
 
-    protected def visitNodeOnly(node:GNode) {
-        enter(node)
-        dispatch(node)
-        exit(node)
-    }
+   protected def visitNodeOnly(node:GNode) {
+      enter(node)
+      dispatch(node)
+      exit(node)
+   }
 
 
-    protected def visitChildren(node:GNode) {
-        val itr = node.iterator
-        while (itr.hasNext) {
-            itr.next match {
-                case x:GNode => dispatch(x)
-                case x:Pair[_] => visitPair(x)
-                case _ => 
-            }
-        }
-    }
+   protected def visitChildren(node:GNode) {
+      val itr = node.iterator
+      while (itr.hasNext) {
+         itr.next match {
+            case x:GNode => dispatch(x)
+            case x:Pair[_] => visitPair(x)
+            case _ =>
+         }
+      }
+   }
 
-    private def visitPair(pair:Pair[_]) {
-        //println(indent + "[")
-        indentLevel += 1
-        val itr = pair.iterator
-        while (itr.hasNext) {
-            itr.next match {
-                case x:GNode => dispatch(x)
-                case x:Pair[_] => visitPair(x)
-                case _ =>
-            }
-        }
-        indentLevel -= 1
-        //println(indent + "]")
-    }
+   private def visitPair(pair:Pair[_]) {
+      //println(indent + "[")
+      indentLevel += 1
+      val itr = pair.iterator
+      while (itr.hasNext) {
+         itr.next match {
+            case x:GNode => dispatch(x)
+            case x:Pair[_] => visitPair(x)
+            case _ =>
+         }
+      }
+      indentLevel -= 1
+      //println(indent + "]")
+   }
 
-    override
-    def visit(a:Annotation) : Object = {
-        println(indent + "@" + a.toString)
-        null
-    }
+   override
+   def visit(a:Annotation) : Object = {
+      println(indent + "@" + a.toString)
+      null
+   }
 
-    // --- Simple visit functons, which won't do dispatch visit
+   // --- Simple visit functons, which won't do dispatch visit
     
-    def simpleVisit(node:GNode) {
-        enter(node)
-        simpleVisitChildren(node)
-        exit(node)
-    }
+   def simpleVisit(node:GNode) {
+      enter(node)
+      simpleVisitChildren(node)
+      exit(node)
+   }
 
 
-    protected def simpleVisitChildren(node:GNode) {
-        val itr = node.iterator
-        while (itr.hasNext) {
-            itr.next match {
-                case x:GNode => simpleVisit(x)
-                case x:Pair[_] => simpleVisitPair(x)
-                case _ =>
-            }
-        }
-    }
+   protected def simpleVisitChildren(node:GNode) {
+      val itr = node.iterator
+      while (itr.hasNext) {
+         itr.next match {
+            case x:GNode => simpleVisit(x)
+            case x:Pair[_] => simpleVisitPair(x)
+            case _ =>
+         }
+      }
+   }
 
-    private def simpleVisitPair(pair:Pair[_]) {
-        //println(indent + "[")
-        indentLevel += 1
-        val itr = pair.iterator
-        while (itr.hasNext) {
-            itr.next match {
-                case x:GNode => simpleVisit(x)
-                case x:Pair[_] => simpleVisitPair(x)
-                case _ =>
-            }
-        }
-        indentLevel -= 1
-        //println(indent + "]")
-    }
+   private def simpleVisitPair(pair:Pair[_]) {
+      //println(indent + "[")
+      indentLevel += 1
+      val itr = pair.iterator
+      while (itr.hasNext) {
+         itr.next match {
+            case x:GNode => simpleVisit(x)
+            case x:Pair[_] => simpleVisitPair(x)
+            case _ =>
+         }
+      }
+      indentLevel -= 1
+      //println(indent + "]")
+   }
 
 
-    // --- Token helpers
+   // --- Token helpers
 
-    protected def boundsTokens(node:Node) :Array[Token[TokenId]] = {
-        val loc = node.getLocation
-        val ts = LexUtil.tokenSequence(th, loc.offset).get
+   protected def boundsTokens(node:Node) :Array[Token[TokenId]] = {
+      val loc = node.getLocation
+      val ts = LexUtil.tokenSequence(th, loc.offset).get
 
-        ts.move(loc.offset)
-        if (!ts.moveNext && !ts.movePrevious) {
-            assert(false, "Should not happen!")
-        }
+      ts.move(loc.offset)
+      if (!ts.moveNext && !ts.movePrevious) {
+         assert(false, "Should not happen!")
+      }
 
-        var startToken = LexUtil.findNextNonWs(ts)
-        if (startToken.isFlyweight) {
-            startToken = ts.offsetToken
-        }
+      var startToken = LexUtil.findNextNonWs(ts)
+      if (startToken.isFlyweight) {
+         startToken = ts.offsetToken
+      }
 
-        ts.move(loc.endOffset)
-        if (!ts.movePrevious && !ts.moveNext) {
-            assert(false, "Should not happen!")
-        }
-        var endToken = LexUtil.findPreviousNonWs(ts)
-        if (endToken.isFlyweight) {
-            endToken = ts.offsetToken
-        }
+      ts.move(loc.endOffset)
+      if (!ts.movePrevious && !ts.moveNext) {
+         assert(false, "Should not happen!")
+      }
+      var endToken = LexUtil.findPreviousNonWs(ts)
+      if (endToken.isFlyweight) {
+         endToken = ts.offsetToken
+      }
 
-        Array(startToken, endToken)
-    }
+      Array(startToken, endToken)
+   }
 
-    protected def idNode(that:Node) :Node = that.get(0) match {
-        case _:String => that
-        case node:Node => idNode(node)
-    }
+   protected def idNode(that:Node) :Node = that.get(0) match {
+      case _:String => that
+      case node:Node => idNode(node)
+   }
 
-    /**
-     * @Note: nameNode may contains preceding void productions, and may also contains
-     * following void productions, but nameString has stripped the void productions,
-     * so we should adjust nameRange according to name and its length.
-     */
-    protected def idToken(idNode:Node) :Option[Token[TokenId]] = {
-        val loc = idNode.getLocation
-        val ts = LexUtil.tokenSequence(th, loc.offset).get
+   /**
+    * @Note: nameNode may contains preceding void productions, and may also contains
+    * following void productions, but nameString has stripped the void productions,
+    * so we should adjust nameRange according to name and its length.
+    */
+   protected def idToken(idNode:Node) :Option[Token[TokenId]] = {
+      val loc = idNode.getLocation
+      val ts = LexUtil.tokenSequence(th, loc.offset).get
         
-        ts.move(loc.offset)
-        if (!ts.moveNext && !ts.movePrevious) {
-            assert(false, "Should not happen!")
-        }
+      ts.move(loc.offset)
+      if (!ts.moveNext && !ts.movePrevious) {
+         assert(false, "Should not happen!")
+      }
 
-        val token = idNode.getName match {
-            case "VarId"     => LexUtil.findNext(ts, ErlangTokenId.Var)
-            case "RecId"     => LexUtil.findNext(ts, ErlangTokenId.Rec)
-            case "AtomId"    => LexUtil.findNext(ts, ErlangTokenId.Atom)
-            case "MacroId"   => LexUtil.findNext(ts, ErlangTokenId.Macro)
-            case "PredAttr"  => LexUtil.findNext(ts, ErlangTokenId.Atom)
-            case "Attribute" => LexUtil.findNext(ts, ErlangTokenId.Atom)
-        }
+      val token = idNode.getName match {
+         case "VarId"     => LexUtil.findNext(ts, ErlangTokenId.Var)
+         case "RecId"     => LexUtil.findNext(ts, ErlangTokenId.Rec)
+         case "AtomId"    => LexUtil.findNext(ts, ErlangTokenId.Atom)
+         case "MacroId"   => LexUtil.findNext(ts, ErlangTokenId.Macro)
+         case "PredAttr"  => LexUtil.findNext(ts, ErlangTokenId.Atom)
+         case "Attribute" => LexUtil.findNext(ts, ErlangTokenId.Atom)
+      }
 
-        token match {
-            case null => None
-            case x if x.isFlyweight => ts.offsetToken match {
-                    case null => None
-                    case x1 => Some(x1)
-                }
-            case x => Some(x)
-        }
-    }
+      token match {
+         case null => None
+         case x if x.isFlyweight => ts.offsetToken match {
+               case null => None
+               case x1 => Some(x1)
+            }
+         case x => Some(x)
+      }
+   }
     
-    protected def astPathString :String = {
-        val sb = new StringBuilder
+   protected def astPathString :String = {
+      val sb = new StringBuilder
 
-        val itr = astPath.elements
-        while (itr.hasNext) {
-            sb.append(itr.next.getName)
-            if (itr.hasNext) {
-                sb.append(".")
-            }
-        }
+      val itr = astPath.elements
+      while (itr.hasNext) {
+         sb.append(itr.next.getName)
+         if (itr.hasNext) {
+            sb.append(".")
+         }
+      }
 
-        sb.toString
-    }
+      sb.toString
+   }
 
-    protected def findNearsetNode(name:String) :GNode = {
-        var result:GNode = null
+   protected def findNearsetNode(name:String) :GNode = {
+      var result:GNode = null
 
-        val itr = astPath.elements
-        while (itr.hasNext) {
-            val node = itr.next
-            if (node.getName.equals(name)) {
-                result = node
-            }
-        }
+      val itr = astPath.elements
+      while (itr.hasNext) {
+         val node = itr.next
+         if (node.getName.equals(name)) {
+            result = node
+         }
+      }
 
-        result
-    }
+      result
+   }
 
-    private def indent :String = {
-        val sb = new StringBuilder(indentLevel)
-        var i = 0
-        while (i < indentLevel) {
-            sb.append("  ")
-            i += 1
-        }
-        sb.toString
-    }
+   private def indent :String = {
+      val sb = new StringBuilder(indentLevel)
+      var i = 0
+      while (i < indentLevel) {
+         sb.append("  ")
+         i += 1
+      }
+      sb.toString
+   }
 }

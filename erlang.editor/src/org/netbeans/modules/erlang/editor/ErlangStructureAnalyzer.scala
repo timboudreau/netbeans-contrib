@@ -58,218 +58,218 @@ import scala.collection.mutable.ArrayBuffer
  */
 class ErlangStructureAnalyzer extends StructureScanner {
 
-    override
-    def getConfiguration :Configuration = null
+   override
+   def getConfiguration :Configuration = null
 
-    override
-    def scan(result:ParserResult) :List[StructureItem] = result match {
-        case null => Collections.emptyList[StructureItem]
-        case pResult:ErlangParserResult => 
-            var items = Collections.emptyList[StructureItem]
-            for (rootScope <- pResult.rootScope) {
-                items = new ArrayList[StructureItem](rootScope.dfns.size)
-                scanTopForms(rootScope, items, pResult)
-            }
-            items
-    }
+   override
+   def scan(result:ParserResult) :List[StructureItem] = result match {
+      case null => Collections.emptyList[StructureItem]
+      case pResult:ErlangParserResult =>
+         var items = Collections.emptyList[StructureItem]
+         for (rootScope <- pResult.rootScope) {
+            items = new ArrayList[StructureItem](rootScope.dfns.size)
+            scanTopForms(rootScope, items, pResult)
+         }
+         items
+   }
 
-    private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
-        for (dfn <- scope.dfns) {
-            dfn.getKind match {
-                case ElementKind.ATTRIBUTE | ElementKind.METHOD | ElementKind.MODULE => items.add(new ErlangStructureItem(dfn, pResult))
-                case _ =>
-            }
-            // * for Erlang, only visit the rootScope
-            //scanTopForms(dfn.bindingScope, items, pResult)
-        }
-    }
+   private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
+      for (dfn <- scope.dfns) {
+         dfn.getKind match {
+            case ElementKind.ATTRIBUTE | ElementKind.METHOD | ElementKind.MODULE => items.add(new ErlangStructureItem(dfn, pResult))
+            case _ =>
+         }
+         // * for Erlang, only visit the rootScope
+         //scanTopForms(dfn.bindingScope, items, pResult)
+      }
+   }
 
-    override
-    def folds(result:ParserResult) :Map[String, List[OffsetRange]] = result match {
-        case null => Collections.emptyMap[String, List[OffsetRange]]
-        case pResult:ErlangParserResult =>
-            var folds = Collections.emptyMap[String, List[OffsetRange]]
-            for (rootScope <- pResult.rootScope;
-                 doc <- LexUtil.document(pResult, true);
-                 th <- LexUtil.tokenHierarchy(pResult);
-                 ts <- LexUtil.tokenSequence(th, 1)
-            ) {
-                folds = new HashMap[String, List[OffsetRange]]
-                val codefolds = new ArrayList[OffsetRange]
-                folds.put("codeblocks", codefolds); // NOI18N
+   override
+   def folds(result:ParserResult) :Map[String, List[OffsetRange]] = result match {
+      case null => Collections.emptyMap[String, List[OffsetRange]]
+      case pResult:ErlangParserResult =>
+         var folds = Collections.emptyMap[String, List[OffsetRange]]
+         for (rootScope <- pResult.rootScope;
+              doc <- LexUtil.document(pResult, true);
+              th <- LexUtil.tokenHierarchy(pResult);
+              ts <- LexUtil.tokenSequence(th, 1)
+         ) {
+            folds = new HashMap[String, List[OffsetRange]]
+            val codefolds = new ArrayList[OffsetRange]
+            folds.put("codeblocks", codefolds); // NOI18N
 
-                // * Read-lock due to Token hierarchy use
-                doc.readLock
+            // * Read-lock due to Token hierarchy use
+            doc.readLock
 
-                addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
+            addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
 
-                var lineCommentStart = 0
-                var lineCommentEnd = 0
-                var startLineCommentSet = false
+            var lineCommentStart = 0
+            var lineCommentEnd = 0
+            var startLineCommentSet = false
 
-                val comments = new Stack[Array[Integer]]
-                val blocks = new Stack[Integer]
+            val comments = new Stack[Array[Integer]]
+            val blocks = new Stack[Integer]
 
-                while (ts.isValid && ts.moveNext) {
-                    val token = ts.token
-                    token.id match {
-                        case ErlangTokenId.LineComment =>
-                            val offset = ts.offset
-                            if (!startLineCommentSet) {
-                                lineCommentStart = offset
-                                startLineCommentSet = true
-                            }
-                            lineCommentEnd = offset
+            while (ts.isValid && ts.moveNext) {
+               val token = ts.token
+               token.id match {
+                  case ErlangTokenId.LineComment =>
+                     val offset = ts.offset
+                     if (!startLineCommentSet) {
+                        lineCommentStart = offset
+                        startLineCommentSet = true
+                     }
+                     lineCommentEnd = offset
 
-                        case ErlangTokenId.Case | ErlangTokenId.If | ErlangTokenId.Try | ErlangTokenId.Receive =>
-                            val blockStart = ts.offset
-                            blocks.push(blockStart)
+                  case ErlangTokenId.Case | ErlangTokenId.If | ErlangTokenId.Try | ErlangTokenId.Receive =>
+                     val blockStart = ts.offset
+                     blocks.push(blockStart)
 
-                            startLineCommentSet = false
+                     startLineCommentSet = false
                         
-                        case ErlangTokenId.End if !blocks.empty =>
-                            val blockStart = blocks.pop.asInstanceOf[Int]
-                            val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
-                            codefolds.add(blockRange)
+                  case ErlangTokenId.End if !blocks.empty =>
+                     val blockStart = blocks.pop.asInstanceOf[Int]
+                     val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
+                     codefolds.add(blockRange)
 
-                            startLineCommentSet = false
-                        case _ =>
-                            startLineCommentSet = false
-                    }
-                }
-
-                doc.readUnlock
-
-                try {
-                    /** @see GsfFoldManager#addTree() for suitable fold names. */
-                    lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
-
-                    if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
-                        val lineCommentsFolds = new ArrayList[OffsetRange];
-                        val range = new OffsetRange(lineCommentStart, lineCommentEnd)
-                        lineCommentsFolds.add(range)
-                        folds.put("comments", lineCommentsFolds) // NOI18N
-                    }
-                } catch {
-                    case ex:BadLocationException => Exceptions.printStackTrace(ex)
-                }
+                     startLineCommentSet = false
+                  case _ =>
+                     startLineCommentSet = false
+               }
             }
 
-            folds
-    }
+            doc.readUnlock
 
-    @throws(classOf[BadLocationException])
-    private def addCodeFolds(pResult:ErlangParserResult, doc:BaseDocument, defs:ArrayBuffer[AstDfn], codeblocks:List[OffsetRange]) :Unit = {
-        import ElementKind._
+            try {
+               /** @see GsfFoldManager#addTree() for suitable fold names. */
+               lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
+
+               if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
+                  val lineCommentsFolds = new ArrayList[OffsetRange];
+                  val range = new OffsetRange(lineCommentStart, lineCommentEnd)
+                  lineCommentsFolds.add(range)
+                  folds.put("comments", lineCommentsFolds) // NOI18N
+               }
+            } catch {
+               case ex:BadLocationException => Exceptions.printStackTrace(ex)
+            }
+         }
+
+         folds
+   }
+
+   @throws(classOf[BadLocationException])
+   private def addCodeFolds(pResult:ErlangParserResult, doc:BaseDocument, defs:ArrayBuffer[AstDfn], codeblocks:List[OffsetRange]) :Unit = {
+      import ElementKind._
        
-        for (dfn <- defs) {
-            val kind = dfn.getKind
-            kind match {
-                case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE =>
-                    var range = dfn.getOffsetRange(pResult)
-                    var start = range.getStart
-                    // * start the fold at the end of the line behind last non-whitespace, should add 1 to start after "->"
-                    start = Utilities.getRowLastNonWhite(doc, start) + 1
-                    val end = range.getEnd
-                    if (start != -1 && end != -1 && start < end && end <= doc.getLength) {
-                        range = new OffsetRange(start, end)
-                        codeblocks.add(range)
-                    }
-                case _ =>
-            }
+      for (dfn <- defs) {
+         val kind = dfn.getKind
+         kind match {
+            case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE =>
+               var range = dfn.getOffsetRange(pResult)
+               var start = range.getStart
+               // * start the fold at the end of the line behind last non-whitespace, should add 1 to start after "->"
+               start = Utilities.getRowLastNonWhite(doc, start) + 1
+               val end = range.getEnd
+               if (start != -1 && end != -1 && start < end && end <= doc.getLength) {
+                  range = new OffsetRange(start, end)
+                  codeblocks.add(range)
+               }
+            case _ =>
+         }
     
-            val children = dfn.bindingScope.dfns
-            addCodeFolds(pResult, doc, children, codeblocks)
-        }
-    }
+         val children = dfn.bindingScope.dfns
+         addCodeFolds(pResult, doc, children, codeblocks)
+      }
+   }
 
-    private class ErlangStructureItem(val dfn:AstDfn, pResult:ParserResult) extends StructureItem {
-        import ElementKind._
+   private class ErlangStructureItem(val dfn:AstDfn, pResult:ParserResult) extends StructureItem {
+      import ElementKind._
 
-        override
-        def getName :String = dfn.getName
+      override
+      def getName :String = dfn.getName
 
-        override
-        def getSortText :String = getName
+      override
+      def getSortText :String = getName
 
-        override
-        def getHtml(formatter:HtmlFormatter) :String = {
-            dfn.htmlFormat(formatter)
-            formatter.getText
-        }
+      override
+      def getHtml(formatter:HtmlFormatter) :String = {
+         dfn.htmlFormat(formatter)
+         formatter.getText
+      }
 
-        override
-        def getElementHandle :ElementHandle = dfn
+      override
+      def getElementHandle :ElementHandle = dfn
 
-        override
-        def getKind :ElementKind = dfn.getKind
+      override
+      def getKind :ElementKind = dfn.getKind
         
-        override
-        def getModifiers :Set[Modifier] = dfn.getModifiers
+      override
+      def getModifiers :Set[Modifier] = dfn.getModifiers
 
-        override
-        def isLeaf :Boolean = dfn.getKind match {
-            case MODULE | CLASS | METHOD => false
-            case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
-            case _ => true
-        }
+      override
+      def isLeaf :Boolean = dfn.getKind match {
+         case MODULE | CLASS | METHOD => false
+         case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+         case _ => true
+      }
 
-        override
-        def getNestedItems : List[StructureItem] = {
-            val nested = dfn.bindingScope.dfns
-            if (nested.size > 0) {
-                val children = new ArrayList[StructureItem](nested.size)
+      override
+      def getNestedItems : List[StructureItem] = {
+         val nested = dfn.bindingScope.dfns
+         if (nested.size > 0) {
+            val children = new ArrayList[StructureItem](nested.size)
 
-                for (child <- nested) {
-                    child.getKind match {
-                        case PARAMETER | VARIABLE | OTHER =>
-                        case _ => children.add(new ErlangStructureItem(child, pResult))
-                    }
-                }
+            for (child <- nested) {
+               child.getKind match {
+                  case PARAMETER | VARIABLE | OTHER =>
+                  case _ => children.add(new ErlangStructureItem(child, pResult))
+               }
+            }
 
-                children
-            } else Collections.emptyList[StructureItem]
-        }
+            children
+         } else Collections.emptyList[StructureItem]
+      }
 
-        override
-        def getPosition :Long = {
-            try {
-                LexUtil.tokenHierarchy(pResult) match {
-                    case None => 0
-                    case Some(th) => dfn.boundsOffset(th)
-                }
-            } catch {case ex:Exception => 0}
-        }
+      override
+      def getPosition :Long = {
+         try {
+            LexUtil.tokenHierarchy(pResult) match {
+               case None => 0
+               case Some(th) => dfn.boundsOffset(th)
+            }
+         } catch {case ex:Exception => 0}
+      }
 
-        override
-        def getEndPosition :Long = {
-            try {
-                LexUtil.tokenHierarchy(pResult) match {
-                    case None => 0
-                    case Some(th) => dfn.boundsEndOffset(th)
-                }
-            } catch {case ex:Exception => 0}
-        }
+      override
+      def getEndPosition :Long = {
+         try {
+            LexUtil.tokenHierarchy(pResult) match {
+               case None => 0
+               case Some(th) => dfn.boundsEndOffset(th)
+            }
+         } catch {case ex:Exception => 0}
+      }
 
-        override
-        def equals(o:Any) :Boolean = o match {
-            case null => false
-            case x:ErlangStructureItem if dfn.getKind == x.dfn.getKind && getName.equals(x.getName) => true
-            case _ => false
-        }
+      override
+      def equals(o:Any) :Boolean = o match {
+         case null => false
+         case x:ErlangStructureItem if dfn.getKind == x.dfn.getKind && getName.equals(x.getName) => true
+         case _ => false
+      }
 
-        override
-        def hashCode :Int = {
-            var hash = 7
-            hash = (29 * hash) + (if (getName != null) getName.hashCode else 0)
-            hash = (29 * hash) + (if (dfn.getKind != null) dfn.getKind.hashCode else 0)
-            hash
-        }
+      override
+      def hashCode :Int = {
+         var hash = 7
+         hash = (29 * hash) + (if (getName != null) getName.hashCode else 0)
+         hash = (29 * hash) + (if (dfn.getKind != null) dfn.getKind.hashCode else 0)
+         hash
+      }
 
-        override
-        def toString = getName
+      override
+      def toString = getName
 
-        override
-        def getCustomIcon :ImageIcon = null
-    }
+      override
+      def getCustomIcon :ImageIcon = null
+   }
 }

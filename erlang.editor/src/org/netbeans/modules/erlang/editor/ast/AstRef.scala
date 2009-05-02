@@ -49,42 +49,42 @@ import org.netbeans.modules.csl.api.ElementKind
  * @author Caoyuan Deng
  */
 class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem with LanguageAstRef {
-    make(_idToken, _kind)
+   make(_idToken, _kind)
 
-    def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
+   def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
     
-    override
-    def getKind :ElementKind = super.getKind match {
-        // if it's a OTHER, we could try to get its kind from its dfn
-        case kindX@ElementKind.OTHER => enclosingScope match {
-                case None =>  kindX
-                case Some(scope) => scope.findDfnOf(this) match {
-                        case None => kindX
-                        case Some(dfn) => dfn.getKind
-                    }
-            }
-        case kindX => kindX
-    }
+   override
+   def getKind :ElementKind = super.getKind match {
+      // if it's a OTHER, we could try to get its kind from its dfn
+      case kindX@ElementKind.OTHER => enclosingScope match {
+            case None =>  kindX
+            case Some(scope) => scope.findDfnOf(this) match {
+                  case None => kindX
+                  case Some(dfn) => dfn.getKind
+               }
+         }
+      case kindX => kindX
+   }
 
-    override
-    def toString = {
-        "Ref: " + name + " (idToken=" + super.idToken + ")"
-    }
+   override
+   def toString = {
+      "Ref: " + name + " (idToken=" + super.idToken + ")"
+   }
 }
 
 trait LanguageAstRef {self:AstRef =>
-    import ElementKind._
-    import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+   import ElementKind._
+   import org.netbeans.modules.erlang.editor.node.ErlSymbols._
 
-    def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
-        case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
-                case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
-                    if inX == inY && nameX == nameY && arityX == arityY => true
-                case _ => false
-            }
-        case _ =>
-            if (ref.name == name) {
-                true
-            } else false
-    }
+   def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
+      case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
+            case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
+               if inX == inY && nameX == nameY && arityX == arityY => true
+            case _ => false
+         }
+      case _ =>
+         if (ref.name == name) {
+            true
+         } else false
+   }
 }

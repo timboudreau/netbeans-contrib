@@ -46,15 +46,15 @@ import org.netbeans.modules.csl.api.ElementHandle
  */
 trait AstElementHandle extends ElementHandle {
 
-    def symbol :AstSym
+   def symbol :AstSym
 
-    def tpe :String
+   def tpe :String
     
-    def docComment :String
+   def docComment :String
 
-    def isDeprecated :Boolean
+   def isDeprecated :Boolean
 
-    def isInherited :Boolean
+   def isInherited :Boolean
     
-    def isEmphasize :Boolean
+   def isEmphasize :Boolean
 }
