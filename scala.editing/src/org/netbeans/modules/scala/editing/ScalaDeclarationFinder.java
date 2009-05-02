@@ -81,8 +81,6 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     public OffsetRange getReferenceSpan(Document document, int lexOffset) {
         TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
-        //BaseDocument doc = (BaseDocument)document;
-
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         if (ts == null) {
@@ -111,8 +109,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return range;
     }
 
-    private OffsetRange getReferenceSpan(TokenSequence<?> ts,
-            TokenHierarchy<Document> th, int lexOffset) {
+    private OffsetRange getReferenceSpan(TokenSequence<?> ts, TokenHierarchy<Document> th, int lexOffset) {
         Token<?> token = ts.token();
         TokenId id = token.id();
 
@@ -131,77 +128,66 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
     @Override
     public DeclarationLocation findDeclaration(ParserResult info, int lexOffset) {
-
-        final BaseDocument doc = (BaseDocument) info.getSnapshot().getSource().getDocument(true);
-        if (doc == null) {
-            return DeclarationLocation.NONE;
-        }
-
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         Global global = ((ScalaParser) pResult.parser()).global();
 
-        doc.readLock();
-        try {
-            AstRootScope root = pResult.rootScope();
-            if (root == null) {
-                return DeclarationLocation.NONE;
-            }
-
-            final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
-            if (astOffset == -1) {
-                return DeclarationLocation.NONE;
-            }
-            info.getSnapshot().getTokenHierarchy();
-            final TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-
-            ElementHandle foundElement = null;
-            boolean isLocal = false;
-
-            AstItem closest = root.findItemAt(th, astOffset);
-            AstDef def = root.findDefOf(closest);
-            if (def != null) {
-                // is local
-                int offset = def.getIdOffset(th);
-                return new DeclarationLocation(info.getSnapshot().getSource().getFileObject(), offset, def);
-            } else {
-                TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
-                ts.move(lexOffset);
-                if (!ts.moveNext() && !ts.movePrevious()) {
-                    return DeclarationLocation.NONE;
-                }
-                Token token = ts.token();
-                if (token.id() == ScalaTokenId.Identifier) {
-                    AstItem item = root.findItemAt(th, token.offset(th));
-                    if (item != null) {
-                        foundElement = new ScalaElement(item.getSymbol(), info, global);
-                    }
-                }
-            }
-
-            if (foundElement != null) {
-                int offset = 0;
-                if (isLocal) {
-                    offset = ((AstNode) ((GsfElement) foundElement).getElement()).getPickOffset(th);
-                } else {
-                    if (foundElement instanceof ScalaElement) {
-                        offset = ((ScalaElement) foundElement).getOffset();
-                    }
-                }
-
-                FileObject fo = foundElement.getFileObject();
-                DeclarationLocation location = new DeclarationLocation(fo, offset, foundElement);
-                if (fo == null) {
-                    location.setInvalidMessage("No source file found!"); 
-                }
-                
-                return location;
-            }
-
+        AstRootScope root = pResult.rootScope();
+        if (root == null) {
             return DeclarationLocation.NONE;
-
-        } finally {
-            doc.readUnlock();
         }
+
+        final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
+        if (astOffset == -1) {
+            return DeclarationLocation.NONE;
+        }
+
+        TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
+
+        ElementHandle foundElement = null;
+        boolean isLocal = false;
+
+        AstItem closest = root.findItemAt(th, astOffset);
+        AstDef def = root.findDefOf(closest);
+        if (def != null) {
+            // is local
+            int offset = def.getIdOffset(th);
+            return new DeclarationLocation(info.getSnapshot().getSource().getFileObject(), offset, def);
+        } else {
+            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+            ts.move(lexOffset);
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return DeclarationLocation.NONE;
+            }
+            Token token = ts.token();
+            if (token.id() == ScalaTokenId.Identifier) {
+                AstItem item = root.findItemAt(th, token.offset(th));
+                if (item != null) {
+                    foundElement = new ScalaElement(item.getSymbol(), info, global);
+                }
+            }
+        }
+
+        if (foundElement != null) {
+            int offset = 0;
+            if (isLocal) {
+                offset = ((AstNode) ((GsfElement) foundElement).getElement()).getPickOffset(th);
+            } else {
+                if (foundElement instanceof ScalaElement) {
+                    offset = ((ScalaElement) foundElement).getOffset();
+                }
+            }
+
+            FileObject fo = foundElement.getFileObject();
+            DeclarationLocation location = new DeclarationLocation(fo, offset, foundElement);
+            if (fo == null) {
+                location.setInvalidMessage("No source file found!");
+            }
+
+            return location;
+        }
+
+        return DeclarationLocation.NONE;
+
     }
 
     /** Locate the method declaration for the given method call */
