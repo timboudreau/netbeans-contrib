@@ -889,10 +889,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 return null;
             }
 
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-            doc.readLock(); // Read-lock due to token hierarchy use
+            TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
 
-            try {
 //            int requireStart = ScalaLexUtilities.getRequireStringOffset(lexOffset, th);
 //
 //            if (requireStart != -1) {
@@ -900,41 +898,41 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                return doc.getText(requireStart, lexOffset - requireStart);
 //            }
 
-                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+            TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
-                if (ts == null) {
-                    return null;
-                }
+            if (ts == null) {
+                return null;
+            }
 
-                ts.move(lexOffset);
+            ts.move(lexOffset);
 
-                if (!ts.moveNext() && !ts.movePrevious()) {
-                    return null;
-                }
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return null;
+            }
 
-                if (ts.offset() == lexOffset) {
-                    // We're looking at the offset to the RIGHT of the caret
-                    // and here I care about what's on the left
-                    ts.movePrevious();
-                }
+            if (ts.offset() == lexOffset) {
+                // We're looking at the offset to the RIGHT of the caret
+                // and here I care about what's on the left
+                ts.movePrevious();
+            }
 
-                Token<? extends ScalaTokenId> token = ts.token();
+            Token<? extends ScalaTokenId> token = ts.token();
 
-                if (token != null) {
-                    TokenId id = token.id();
+            if (token != null) {
+                TokenId id = token.id();
 
 
-                    if (id == ScalaTokenId.STRING_BEGIN || id == ScalaTokenId.STRING_END ||
-                            id == ScalaTokenId.StringLiteral || id == ScalaTokenId.REGEXP_LITERAL ||
-                            id == ScalaTokenId.REGEXP_BEGIN || id == ScalaTokenId.REGEXP_END) {
-                        if (lexOffset > 0) {
-                            char prevChar = doc.getText(lexOffset - 1, 1).charAt(0);
-                            if (prevChar == '\\') {
-                                return "\\";
-                            }
-                            return "";
+                if (id == ScalaTokenId.STRING_BEGIN || id == ScalaTokenId.STRING_END ||
+                        id == ScalaTokenId.StringLiteral || id == ScalaTokenId.REGEXP_LITERAL ||
+                        id == ScalaTokenId.REGEXP_BEGIN || id == ScalaTokenId.REGEXP_END) {
+                    if (lexOffset > 0) {
+                        char prevChar = doc.getText(lexOffset - 1, 1).charAt(0);
+                        if (prevChar == '\\') {
+                            return "\\";
                         }
+                        return "";
                     }
+                }
 //                        
 //                // We're within a String that has embedded Js. Drop into the
 //                // embedded language and see if we're within a literal string there.
@@ -1065,89 +1063,87 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //            }
                 }
 
-                int lineBegin = Utilities.getRowStart(doc, lexOffset);
-                if (lineBegin != -1) {
-                    int lineEnd = Utilities.getRowEnd(doc, lexOffset);
-                    String line = doc.getText(lineBegin, lineEnd - lineBegin);
-                    int lineOffset = lexOffset - lineBegin;
-                    int start = lineOffset;
-                    if (lineOffset > 0) {
-                        for (int i = lineOffset - 1; i >= 0; i--) {
-                            char c = line.charAt(i);
-                            if (!ScalaUtils.isIdentifierChar(c)) {
-                                break;
-                            } else {
-                                start = i;
-                            }
-                        }
-                    }
-
-                    // Find identifier end
-                    String prefix;
-                    if (upToOffset) {
-                        prefix = line.substring(start, lineOffset);
-                    } else {
-                        if (lineOffset == line.length()) {
-                            prefix = line.substring(start);
+            int lineBegin = Utilities.getRowStart(doc, lexOffset);
+            if (lineBegin != -1) {
+                int lineEnd = Utilities.getRowEnd(doc, lexOffset);
+                String line = doc.getText(lineBegin, lineEnd - lineBegin);
+                int lineOffset = lexOffset - lineBegin;
+                int start = lineOffset;
+                if (lineOffset > 0) {
+                    for (int i = lineOffset - 1; i >= 0; i--) {
+                        char c = line.charAt(i);
+                        if (!ScalaUtils.isIdentifierChar(c)) {
+                            break;
                         } else {
-                            int n = line.length();
-                            int end = lineOffset;
-                            for (int j = lineOffset; j < n; j++) {
-                                char d = line.charAt(j);
-                                // Try to accept Foo::Bar as well
-                                if (!ScalaUtils.isStrictIdentifierChar(d)) {
-                                    break;
-                                } else {
-                                    end = j + 1;
-                                }
-                            }
-                            prefix = line.substring(start, end);
+                            start = i;
                         }
-                    }
-
-                    if (prefix.length() > 0) {
-                        if (prefix.endsWith("::")) {
-                            return "";
-                        }
-
-                        if (prefix.endsWith(":") && prefix.length() > 1) {
-                            return null;
-                        }
-
-                        // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
-                        int q = prefix.lastIndexOf("::");
-
-                        if (q != -1) {
-                            prefix = prefix.substring(q + 2);
-                        }
-
-                        // The identifier chars identified by JsLanguage are a bit too permissive;
-                        // they include things like "=", "!" and even "&" such that double-clicks will
-                        // pick up the whole "token" the user is after. But "=" is only allowed at the
-                        // end of identifiers for example.
-                        if (prefix.length() == 1) {
-                            char c = prefix.charAt(0);
-                            if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$' || c == ':')) {
-                                return null;
-                            }
-                        } else {
-                            for (int i = prefix.length() - 2; i >= 0; i--) { // -2: the last position (-1) can legally be =, ! or ?
-
-                                char c = prefix.charAt(i);
-                                if (i == 0 && c == ':') {
-                                    // : is okay at the begining of prefixes
-                                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
-                                    prefix = prefix.substring(i + 1);
-                                    break;
-                                }
-                            }
-                        }
-
-                        return prefix;
                     }
                 }
-            } finally {
-                doc.readUnlock();
+
+                // Find identifier end
+                String prefix;
+                if (upToOffset) {
+                    prefix = line.substring(start, lineOffset);
+                } else {
+                    if (lineOffset == line.length()) {
+                        prefix = line.substring(start);
+                    } else {
+                        int n = line.length();
+                        int end = lineOffset;
+                        for (int j = lineOffset; j < n; j++) {
+                            char d = line.charAt(j);
+                            // Try to accept Foo::Bar as well
+                            if (!ScalaUtils.isStrictIdentifierChar(d)) {
+                                break;
+                            } else {
+                                end = j + 1;
+                            }
+                        }
+                        prefix = line.substring(start, end);
+                    }
+                }
+
+                if (prefix.length() > 0) {
+                    if (prefix.endsWith("::")) {
+                        return "";
+                    }
+
+                    if (prefix.endsWith(":") && prefix.length() > 1) {
+                        return null;
+                    }
+
+                    // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
+                    int q = prefix.lastIndexOf("::");
+
+                    if (q != -1) {
+                        prefix = prefix.substring(q + 2);
+                    }
+
+                    // The identifier chars identified by JsLanguage are a bit too permissive;
+                    // they include things like "=", "!" and even "&" such that double-clicks will
+                    // pick up the whole "token" the user is after. But "=" is only allowed at the
+                    // end of identifiers for example.
+                    if (prefix.length() == 1) {
+                        char c = prefix.charAt(0);
+                        if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$' || c == ':')) {
+                            return null;
+                        }
+                    } else {
+                        for (int i = prefix.length() - 2; i >= 0; i--) { // -2: the last position (-1) can legally be =, ! or ?
+
+                            char c = prefix.charAt(i);
+                            if (i == 0 && c == ':') {
+                                // : is okay at the begining of prefixes
+                                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
+                                prefix = prefix.substring(i + 1);
+                                break;
+                            }
+                        }
+                    }
+
+                    return prefix;
+
+                }
             }
             // Else: normal identifier: just return null and let the machinery do the rest
         } catch (BadLocationException ble) {
@@ -1858,7 +1854,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             if (doc == null) {
                 return false;
             }
-            TokenHierarchy th = TokenHierarchy.get(doc);
+            
+            TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
             int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
             if (newLexOffset < lexOffset) {
                 astOffset -= (lexOffset - newLexOffset);

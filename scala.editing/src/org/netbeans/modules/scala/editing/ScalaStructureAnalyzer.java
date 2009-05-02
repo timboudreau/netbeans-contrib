@@ -47,7 +47,6 @@ import java.util.Set;
 import java.util.Stack;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -61,7 +60,6 @@ import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
@@ -96,7 +94,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         return items;
     }
 
-    private void scanTopTmpls(AstScope scope, List<StructureItem> items, Parser.Result info) {
+    private void scanTopTmpls(AstScope scope, List<StructureItem> items, ParserResult info) {
         for (AstDef def : scope.getDefs()) {
             ElementKind kind = def.getKind();
             if (kind == ElementKind.CLASS || kind == ElementKind.MODULE) {
@@ -130,13 +128,10 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyMap();
         }
 
-        TokenHierarchy th = TokenHierarchy.get(doc);
+        TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
         if (th == null) {
             return Collections.emptyMap();
         }
-
-        // Read-lock due to Token hierarchy use
-        doc.readLock();
 
         List<OffsetRange> commentfolds = new ArrayList<OffsetRange>();
         TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, 1);
@@ -184,8 +179,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 }
             }
         }
-
-        doc.readUnlock();
 
         try {
             /** @see GsfFoldManager#addTree() for suitable fold names. */
@@ -270,18 +263,14 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
     private class ScalaStructureItem implements StructureItem {
 
-        private AstDef def;
-        private Parser.Result info;
-        private Document doc;
+        private final AstDef def;
+        private final ParserResult info;
+        private final TokenHierarchy th;
 
-        private ScalaStructureItem(AstDef def, Parser.Result info) {
+        private ScalaStructureItem(AstDef def, ParserResult info) {
             this.def = def;
             this.info = info;
-            this.doc = info.getSnapshot().getSource().getDocument(true);
-
-            if (doc == null) {
-                ScalaLexUtilities.getDocument(info.getSnapshot().getSource().getFileObject(), true);
-            }
+            this.th = info.getSnapshot().getTokenHierarchy();
         }
 
         @Override
@@ -355,13 +344,12 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig
+            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't know why, need further dig
              * NOTE - CompilationInfo.getDocument() can return null - this generally happens when documents
              * are closed or deleted while (a slower) parse tree related task such as navigation/folding
              * is performed. Therefore, you need to make sure doc != null. (TN)
              */
             try {
-                TokenHierarchy th = TokenHierarchy.get(doc);
                 return def.getBoundsOffset(th);
             } catch (Exception ex) {
                 return 0;
@@ -369,9 +357,8 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public long getEndPosition() {
-            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig */
+            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't know why, need further dig */
             try {
-                TokenHierarchy th = TokenHierarchy.get(doc);
                 return def.getBoundsEndOffset(th);
             } catch (Exception ex) {
                 return 0;

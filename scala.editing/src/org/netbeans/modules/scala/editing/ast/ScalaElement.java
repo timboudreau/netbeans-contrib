@@ -266,7 +266,7 @@ public class ScalaElement implements ScalaElementHandle {
                 try {
                     char[] text = srcDoc.getChars(0, srcDoc.getLength());
                     BatchSourceFile srcFile = new BatchSourceFile(path, text);
-                    TokenHierarchy th = TokenHierarchy.get(doc);
+                    TokenHierarchy th = TokenHierarchy.get(srcDoc);
                     if (th == null) {
                         return;
                     }

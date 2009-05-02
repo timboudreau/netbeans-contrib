@@ -49,13 +49,9 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
@@ -429,8 +425,8 @@ public class ScalaParser extends Parser {
 //        if (target != null) {
 //            doc = (BaseDocument) target.getDocument();
 //            if (doc != null) {
-//                FileObject fo = NbEditorUtilities.getFileObject(doc);
-//                if (fo == context.file.getFileObject()) {
+//                FileObject fileObject = NbEditorUtilities.getFileObject(doc);
+//                if (fileObject == context.file.getFileObject()) {
 //                    th = TokenHierarchy.get(doc);
 //                }
 //            }
@@ -541,46 +537,22 @@ public class ScalaParser extends Parser {
             context.errorOffset = -1;
         }
 
-        TokenHierarchy th = null;
-        BaseDocument doc = null;
-        /** If this file is under editing, always get th from incrementally lexed th via opened document */
-        JTextComponent target = EditorRegistry.lastFocusedComponent();
-        if (target != null) {
-            doc = (BaseDocument) target.getDocument();
-            if (doc != null) {
-                FileObject fo = NbEditorUtilities.getFileObject(doc);
-                if (fo == context.fo()) {
-                    th = TokenHierarchy.get(doc);
-                }
-            }
-        }
-
-        if (th == null) {
-            th = TokenHierarchy.create(source, ScalaTokenId.language());
-        }
-
-        context.th = th;
+        TokenHierarchy th = context.snapshot().getTokenHierarchy();
 
         final boolean ignoreErrors = sanitizedSource;
 
-        File ioFile = context.fo() != null ? FileUtil.toFile(context.fo()) : null;
+        File file = context.fileObject() != null ? FileUtil.toFile(context.fileObject()) : null;
         // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
-        String filePath = ioFile != null ? ioFile.getAbsolutePath() : "<current>";
+        String filePath = file != null ? file.getAbsolutePath() : "<current>";
 
         AstRootScope rootScope = null;
 
         // Scala global parser
         Reporter reporter = new ErrorReporter(context, sanitizing);
-        global = ScalaGlobal.getGlobal(context.fo());
+        global = ScalaGlobal.getGlobal(context.fileObject());
         global.reporter_$eq(reporter);
 
-        context.parser = global;
-
         BatchSourceFile srcFile = new BatchSourceFile(filePath, source.toCharArray());
-        if (doc != null) {
-            // Read-lock due to Token hierarchy use
-            doc.readLock();
-        }
         try {
             CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
             rootScope = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
@@ -596,12 +568,8 @@ public class ScalaParser extends Parser {
         } catch (Exception ex) {
             ex.printStackTrace();
             // Scala's global throws too many exceptions
-        } finally {
-            if (doc != null) {
-                doc.readUnlock();
-            }
         }
-
+        
         if (rootScope != null) {
             context.setRootScope(rootScope);
             context.sanitized = sanitizing;
@@ -620,7 +588,7 @@ public class ScalaParser extends Parser {
 
     private ScalaParserResult createParserResult(Context context) {
         if (!context.errors().isEmpty()) {
-            FileObject fo = context.fo();
+            FileObject fo = context.fileObject();
             if (fo != null) {
                 try {
                     Set<URL> inError = Collections.singleton(fo.getURL());
@@ -639,7 +607,8 @@ public class ScalaParser extends Parser {
 
     private Sanitize processObjectSymbolError(Context context, AstRootScope root) {
         List<Error> errors = context.errors();
-        if (errors.isEmpty() || context.th == null) {
+        TokenHierarchy th = context.snapshot().getTokenHierarchy();
+        if (errors.isEmpty() || th == null) {
             return Sanitize.NONE;
         }
 
@@ -648,7 +617,7 @@ public class ScalaParser extends Parser {
             if (msg.startsWith("identifier expected but")) {
                 int start = error.getStartPosition();
 
-                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(context.th, start - 1);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, start - 1);
                 ts.move(start - 1);
                 if (!ts.moveNext() && !ts.movePrevious()) {
                     continue;
@@ -656,7 +625,7 @@ public class ScalaParser extends Parser {
 
                 Token token = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
                 if (token != null && token.id() == ScalaTokenId.Dot) {
-                    if (context.caretOffset == token.offset(context.th) + 1) {
+                    if (context.caretOffset == token.offset(th) + 1) {
                         if (ts.movePrevious()) {
                             token = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
                             if (token != null && token.id() == ScalaTokenId.Identifier) {
@@ -692,7 +661,7 @@ public class ScalaParser extends Parser {
     protected void notifyError(Context context, String key, String msg,
             int start, int end, Sanitize sanitizing, Severity severity, Object params) {
 
-        DefaultError error = new DefaultError(key, msg, msg, context.fo(), start, end, severity);
+        DefaultError error = new DefaultError(key, msg, msg, context.fileObject(), start, end, severity);
         if (params != null) {
             if (params instanceof Object[]) {
                 error.setParameters((Object[]) params);
@@ -735,8 +704,7 @@ public class ScalaParser extends Parser {
     /** Parsing context */
     public static class Context {
 
-        private Global parser;
-        private FileObject fo;
+        private FileObject fileObject;
         private int errorOffset;
         private String source;
         private String sanitizedSource;
@@ -744,7 +712,6 @@ public class ScalaParser extends Parser {
         private String sanitizedContents;
         private int caretOffset;
         private Sanitize sanitized = Sanitize.NONE;
-        private TokenHierarchy th;
         private List<Error> errors;
         private Snapshot snapshot;
         private AstRootScope rootScope;
@@ -752,7 +719,7 @@ public class ScalaParser extends Parser {
         public Context(Snapshot snapshot, SourceModificationEvent event) {
             this.snapshot = snapshot;
             this.source = ScalaParser.asString(snapshot.getText());
-            this.fo = snapshot.getSource().getFileObject();
+            this.fileObject = snapshot.getSource().getFileObject();
             this.caretOffset = GsfUtilities.getLastKnownCaretOffset(snapshot, event);
         }
 
@@ -768,13 +735,13 @@ public class ScalaParser extends Parser {
             return rootScope;
         }
 
-        public FileObject fo() {
-            return fo;
+        public FileObject fileObject() {
+            return fileObject;
         }
 
         @Override
         public String toString() {
-            return "ScalaParser.Context(" + fo.toString() + ")"; // NOI18N
+            return "ScalaParser.Context(" + fileObject.toString() + ")"; // NOI18N
 
         }
 
@@ -830,7 +797,7 @@ public class ScalaParser extends Parser {
                 Option source = pos.source();
                 if (source.isDefined()) {
                     SourceFile sf = (SourceFile) source.get();
-                    if (!context.fo().getPath().equals(sf.file().path())) {
+                    if (!context.fileObject().getPath().equals(sf.file().path())) {
                         return;
                     }
                 }
