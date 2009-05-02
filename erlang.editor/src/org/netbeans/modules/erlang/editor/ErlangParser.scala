@@ -71,6 +71,7 @@ import org.openide.util.Exceptions
 import org.netbeans.api.editor.EditorRegistry
 import org.netbeans.api.lexer.{TokenHierarchy, TokenId}
 import org.netbeans.editor.BaseDocument
+import org.netbeans.editor.Utilities
 import org.netbeans.modules.editor.NbEditorUtilities
 
 import xtc.parser.{ParseError, SemanticValue}
@@ -145,11 +146,11 @@ class ErlangParser extends Parser {
     }
 
     protected def notifyError(context:Context, message:String, sourceName:String,
-                              start:Int, lineSource:String, end:Int,
+                              start:Int, end:Int, lineSource:String, isLineError:Boolean,
                               sanitizing:Sanitize, severity:Severity,
                               key:String, params:Object) :Unit = {
 
-        val error = new DefaultError(key, message, null, context.fo.getOrElse(null), start, end, severity)
+        val error = DefaultError.createDefaultError(key, message, null, context.fo.getOrElse(null), start, end, isLineError, severity).asInstanceOf[DefaultError]
 
         params match {
             case null =>
@@ -167,6 +168,7 @@ class ErlangParser extends Parser {
     protected def parseBuffer(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
         var sanitizedSource = false
         var source = context.source
+        val doc = context.snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
 
         sanitizing match {
             case NONE | NEVER =>
@@ -204,10 +206,22 @@ class ErlangParser extends Parser {
                 def syntaxError(err:ParseError) = {
                     val start = err.index match {
                         case -1 => 0
-                        case i  => i
+                        case x  => x
                     }
+
+                    var end = -1
+                    try {
+                        // * @Note row should plus 1 to equal NetBeans' doc offset
+                        end = Utilities.getRowLastNonWhite(doc, start) + 1
+                    } catch {case ex:BadLocationException =>}
+
+                    if (end != -1 && end <= start) {
+                        end += 1
+                    }
+
+                    val isLineError = end == -1
                     notifyError(context, err.msg, "Syntax error",
-                                start, "", start,
+                                start, end, "", isLineError,
                                 sanitizing, Severity.ERROR,
                                 "SYNTAX_ERROR", Array(err))
                 }
@@ -228,7 +242,7 @@ class ErlangParser extends Parser {
             case e:IllegalArgumentException =>
                 // An internal exception thrown by parser, just catch it and notify
                 notifyError(context, e.getMessage, "",
-                            0, "", 0,
+                            0, 0, "", true,
                             sanitizing, Severity.ERROR,
                             "SYNTAX_ERROR", Array(e))
         }

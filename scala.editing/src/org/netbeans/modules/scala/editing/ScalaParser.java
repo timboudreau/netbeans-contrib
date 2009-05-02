@@ -52,6 +52,8 @@ import javax.swing.text.BadLocationException;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
@@ -111,25 +113,25 @@ public class ScalaParser extends Parser {
         lastResult.setErrors(context.errors());
     }
 
-    public 
+    public
     @Override
     Result getResult(Task task) throws ParseException {
         assert lastResult != null : "getResult() called prior parse()"; //NOI18N
         return lastResult;
     }
 
-    public 
+    public
     @Override
     void cancel() {
     }
 
-    public 
+    public
     @Override
     void addChangeListener(ChangeListener changeListener) {
         // no-op, we don't support state changes
     }
 
-    public 
+    public
     @Override
     void removeChangeListener(ChangeListener changeListener) {
         // no-op, we don't support state changes
@@ -537,6 +539,8 @@ public class ScalaParser extends Parser {
             context.errorOffset = -1;
         }
 
+        BaseDocument doc = (BaseDocument) context.snapshot().getSource().getDocument(true);
+
         TokenHierarchy th = context.snapshot().getTokenHierarchy();
 
         final boolean ignoreErrors = sanitizedSource;
@@ -548,7 +552,7 @@ public class ScalaParser extends Parser {
         AstRootScope rootScope = null;
 
         // Scala global parser
-        Reporter reporter = new ErrorReporter(context, sanitizing);
+        Reporter reporter = new ErrorReporter(context, doc, sanitizing);
         global = ScalaGlobal.getGlobal(context.fileObject());
         global.reporter_$eq(reporter);
 
@@ -564,12 +568,12 @@ public class ScalaParser extends Parser {
         } catch (IllegalArgumentException ex) {
             // An internal exception thrown by ParserScala, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", ex.getMessage(),
-                    0, 0, sanitizing, Severity.ERROR, new Object[]{ex});
+                    0, 0, true, sanitizing, Severity.ERROR, new Object[]{ex});
         } catch (Exception ex) {
             ex.printStackTrace();
             // Scala's global throws too many exceptions
         }
-        
+
         if (rootScope != null) {
             context.setRootScope(rootScope);
             context.sanitized = sanitizing;
@@ -659,9 +663,9 @@ public class ScalaParser extends Parser {
     }
 
     protected void notifyError(Context context, String key, String msg,
-            int start, int end, Sanitize sanitizing, Severity severity, Object params) {
+            int start, int end, boolean isLineError, Sanitize sanitizing, Severity severity, Object params) {
 
-        DefaultError error = new DefaultError(key, msg, msg, context.fileObject(), start, end, severity);
+        DefaultError error = (DefaultError) DefaultError.createDefaultError(key, msg, msg, context.fileObject(), start, end, isLineError, severity);
         if (params != null) {
             if (params instanceof Object[]) {
                 error.setParameters((Object[]) params);
@@ -767,7 +771,7 @@ public class ScalaParser extends Parser {
             }
             errors.add(error);
         }
-        
+
         public void cleanErrors() {
             if (errors != null) {
                 errors.clear();
@@ -782,26 +786,29 @@ public class ScalaParser extends Parser {
     private class ErrorReporter extends Reporter {
 
         private Context context;
+        private BaseDocument doc;
         private Sanitize sanitizing;
 
-        public ErrorReporter(Context context, Sanitize sanitizing) {
+        public ErrorReporter(Context context, BaseDocument doc, Sanitize sanitizing) {
             this.context = context;
             this.sanitizing = sanitizing;
+            this.doc = doc;
         }
 
         @Override
         public void info0(Position pos, String msg, Severity severity, boolean force) {
             boolean ignoreError = context.sanitizedSource != null;
             if (!ignoreError) {
-                // It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
+                // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
                 Option source = pos.source();
+                //System.out.println("Error in source: " + pos.source());
                 if (source.isDefined()) {
                     SourceFile sf = (SourceFile) source.get();
                     if (!context.fileObject().getPath().equals(sf.file().path())) {
                         return;
                     }
                 }
-                //System.out.println("Error in source: " + pos.source());
+
                 int offset = ScalaUtils.getOffset(pos);
                 org.netbeans.modules.csl.api.Severity sev = org.netbeans.modules.csl.api.Severity.ERROR;
                 switch (severity.id()) {
@@ -817,8 +824,20 @@ public class ScalaParser extends Parser {
                         return;
                 }
 
+                int end = -1;
+                try {
+                    // * @Note row should plus 1 to equal NetBeans' doc offset
+                    end = Utilities.getRowLastNonWhite(doc, offset) + 1;
+                } catch (BadLocationException ex) {
+                }
+
+                if (end != -1 && end <= offset) {
+                    end += 1;
+                }
+
+                boolean isLineError = end == -1;
                 notifyError(context, "SYNTAX_ERROR", msg,
-                        offset, -1, sanitizing, sev, new Object[]{offset, msg});
+                        offset, end, isLineError, sanitizing, sev, new Object[]{offset, msg});
             }
         }
     }
