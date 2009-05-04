@@ -1261,7 +1261,11 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-        Source source = Source.create(dataObject.getPrimaryFile());
+        FileObject fo = dataObject.getPrimaryFile();
+        if (fo == null) {
+            return null;
+        }
+        Source source = Source.create(fo);
         if (source == null) {
             return null;
         }
@@ -1299,7 +1303,11 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-        Source source = Source.create(dataObject.getPrimaryFile());
+        FileObject fo = dataObject.getPrimaryFile();
+        if (fo == null) {
+            return null;
+        }
+        Source source = Source.create(fo);
         if (source == null) {
             return null;
         }
@@ -1355,7 +1363,11 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return new String[0];
         }
-        Source source = Source.create(dataObject.getPrimaryFile());
+        FileObject fo = dataObject.getPrimaryFile();
+        if (fo == null) {
+            return new String[0];
+        }
+        Source source = Source.create(fo);
         if (source == null) {
             return new String[0];
         }
@@ -1415,13 +1427,13 @@ public class EditorContextImpl extends EditorContext {
     public <R, D> R parseExpression(final String expression, String url, final int line,
             final TreePathScanner<R, D> visitor, final D context,
             final SourcePathProvider sp) {
-//        JavaSource js = null;
-        FileObject fo = null;
-        try {
-            fo = URLMapper.findFileObject(new URL(url));
-            //js = JavaSource.forFileObject(fo);
-        } catch (MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return null;
+        }
+        FileObject fo = dataObject.getPrimaryFile();
+        if (fo == null) {
+            return null;
         }
         if (!"text/x-scala".equals(fo.getMIMEType())) {
             return null;
