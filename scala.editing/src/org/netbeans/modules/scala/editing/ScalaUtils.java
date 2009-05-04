@@ -63,7 +63,6 @@ import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
@@ -815,29 +814,26 @@ public class ScalaUtils {
         TokenHierarchy th = pResult.getSnapshot().getTokenHierarchy();
         AstRootScope rootScope = pResult.rootScope();
         String clzName = "";
-        int anonFunCount = 0;
 
         AstDef enclDfn = rootScope.getEnclosingDef(TMPL_KINDS, th, offset);
         if (enclDfn != null) {
-            if (enclDfn.getName().equals(ANONFUN)) {
-                AstDef enclDfn1 = enclDfn.getEnclosingDef(ElementKind.METHOD);
-                if (enclDfn1 != null && enclDfn1.getKind() == ElementKind.METHOD) {
-                    anonFunCount += 1;
-                    clzName = enclDfn.getName() + "$" + enclDfn1.getName() + "$" + anonFunCount;
-                }
-            }
-            
-            // * getTopLevelClassName
+
             Symbol sym = enclDfn.getSymbol();
             if (sym != null) {
-                Symbol sym1 = sym.enclClass();
-                String topClzName = sym1.fullNameString('.');
-                if (sym1.isModuleClass()) {
-                    topClzName = topClzName + "$";
-                } else if (sym1.isTrait()) {
-                    topClzName = topClzName + "$class";
+                // "scalarun.Dog.$talk$1"
+                StringBuilder fqn = new StringBuilder(sym.fullNameString('.'));
+
+                // * getTopLevelClassName "scalarun.Dog"
+                String topClzName = sym.toplevelClass().fullNameString('.');
+
+                // "scalarun.Dog$$talk$1"
+                for (int i = topClzName.length(); i < fqn.length(); i++) {
+                    if (fqn.charAt(i) == '.') {
+                        fqn.setCharAt(i, '$');
+                    }
                 }
-                clzName = topClzName + "$" + clzName;
+
+                clzName = fqn.toString();
             }
         }
 
@@ -1010,5 +1006,4 @@ public class ScalaUtils {
         }
         return result;
     }
-
 }

@@ -67,6 +67,7 @@ public class AstScope implements Iterable<AstScope> {
     private boolean defsSorted;
     private boolean refsSorted;
     private Token[] boundsTokens;
+    private AstRootScope root;
 
     public AstScope(Token... boundsTokens) {
         if (boundsTokens != null) {
@@ -550,7 +551,10 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public final AstRootScope getRoot() {
-        return parent == null ? (AstRootScope) this : parent.getRoot();
+        if (root == null) {
+            root = parent == null ? (AstRootScope) this : parent.getRoot();
+        }
+        return root;
     }
 
     private List<AstRef> findAllRefsSameAs(AstRef ref) {
@@ -586,6 +590,16 @@ public class AstScope implements Iterable<AstScope> {
 
     public AstScope getClosestScope(TokenHierarchy th, int offset) {
         AstScope result = null;
+
+        // * try to find neastItem's scope, which is more precise than by scope range
+        AstRootScope rootScope = getRoot();
+        AstItem item = rootScope.findNeastItemAt(th, offset);
+        if (item != null) {
+            AstScope scope = item.getEnclosingScope();
+            if (scope.contains(th, offset)) {
+                return scope;
+            }
+        }
 
         if (subScopes != null) {
             /** search children first */

@@ -178,8 +178,8 @@ public abstract class AstItem {
     }
 
     public String getBinaryName() {
+        // * According to Symbol#kindString, an object template isModuleClass()
         if (getSymbol().isModuleClass()) {
-            /** According to Symbol#kindString, an object template isModule() */
             return getName() + "$";
         } else if (getSymbol().isTrait()) {
             return getName() + "$class";

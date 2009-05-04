@@ -199,12 +199,14 @@ public class ScalaGlobal {
                 sb.append(File.pathSeparator).append(dirs.outDir);
             }
             settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-classpath", sb.toString()));
+            // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcude "constructorss"
+            settings.stop().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-Ystop:constructors", "")); 
 
             global = new Global(settings) {
 
                 @Override
                 public boolean onlyPresentation() {
-                    return true;
+                    return false;
                 }
 
                 @Override

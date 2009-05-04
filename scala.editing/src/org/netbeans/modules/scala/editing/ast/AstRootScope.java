@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
@@ -155,8 +154,12 @@ public class AstRootScope extends AstScope {
         }
 
         // * found null, return AstItem at lo, lo is always increasing during above procedure
-        Token neastToken = _tokens.get(lo);
-        return idTokenToItem.get(neastToken);
+        if (lo < _tokens.size()) {
+            Token neastToken = _tokens.get(lo);
+            return idTokenToItem.get(neastToken);
+        } else {
+            return null;
+        }
     }
 
     private List<Token> getSortedToken(TokenHierarchy th) {
