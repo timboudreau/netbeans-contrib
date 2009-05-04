@@ -52,7 +52,7 @@ import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.scala.editing.SourceUtils;
+import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
 import org.openide.filesystems.FileObject;
@@ -108,7 +108,7 @@ public class J2SEProjectUtil {
         if (fo == null || MainClassChooser.unitTestingSupport_hasMainMethodResult != null) {
             return Collections.<AstDef>emptySet();
         }
-        return SourceUtils.getMainClasses(fo);
+        return ScalaUtils.getMainClasses(fo);
     }
 
         

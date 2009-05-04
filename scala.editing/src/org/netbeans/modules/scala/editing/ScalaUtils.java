@@ -32,9 +32,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,9 +60,9 @@ import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.editing.ast.AstScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -680,20 +683,6 @@ public class ScalaUtils {
         return source;
     }
 
-    private static void collectTemplatesByName(AstScope scope, String qName, List<Template> templates) {
-        for (AstElement element : scope.getElements()) {
-            if (element instanceof Template && ((Template) element).getQualifiedName().toString().equals(qName)) {
-                templates.add((Template) element);
-            }
-
-        }
-
-        for (AstScope _scope : scope.getScopes()) {
-            collectTemplatesByName(_scope, qName, templates);
-        }
-
-    }
-
     public static String getDocComment(Parser.Result info, AstElement element) {
         if (info == null) {
             return null;
@@ -875,4 +864,151 @@ public class ScalaUtils {
 //        }
         return clzName;
     }
+
+    /**
+     * Returns classes declared in the given source file which have the main method.
+     * @param fo source file
+     * @return the classes containing main method
+     * @throws IllegalArgumentException when file does not exist or is not a java source file.
+     */
+    public static Collection<AstDef> getMainClasses(final FileObject fo) {
+        if (fo == null || !fo.isValid() || fo.isVirtual()) {
+            throw new IllegalArgumentException();
+        }
+        final Source source = Source.create(fo);
+        if (source == null) {
+            throw new IllegalArgumentException();
+        }
+        try {
+            final List<AstDef> result = new ArrayList<AstDef>();
+            ParserManager.parse(Collections.singleton(source), new UserTask() {
+
+                @Override
+                public void run(ResultIterator resultIterator) throws Exception {
+                    ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult();
+                    AstRootScope rootScope = pResult.rootScope();
+                    if (rootScope == null) {
+                        return;
+                    }
+                    // Get all defs will return all visible packages from the root and down
+                    final List<AstDef> visibleDefs = getAllDefs(rootScope, ElementKind.PACKAGE);
+                    for (AstDef packaging : visibleDefs) {
+                        // Only go through the defs for each package scope.
+                        // Sub-packages are handled by the fact that
+                        // getAllDefs will find them.
+                        List<AstDef> objs = packaging.getBindingScope().getDefs();
+                        for (AstDef obj : objs) {
+                            if (isMainMethodPresent(obj)) {
+                                result.add(obj);
+                            }
+                        }
+                    }
+                    for (AstDef obj : rootScope.getVisibleDefs(ElementKind.MODULE)) {
+                        if (isMainMethodPresent(obj)) {
+                            result.add(obj);
+                        }
+                    }
+                }
+
+                public List<AstDef> getAllDefs(AstScope rootScope, ElementKind kind) {
+                    List<AstDef> result = new ArrayList<AstDef>();
+                    getAllDefs(rootScope, kind, result);
+
+                    return result;
+                }
+
+                private final void getAllDefs(AstScope astScope, ElementKind kind, List<AstDef> result) {
+                    for (AstDef def : astScope.getDefs()) {
+                        if (def.getKind() == kind) {
+                            result.add(def);
+                        }
+                    }
+                    for (AstScope childScope : astScope.getSubScopes()) {
+                        getAllDefs(childScope, kind, result);
+                    }
+                }
+            });
+
+            return result;
+        } catch (ParseException ex) {
+            Exceptions.printStackTrace(ex);
+            return Collections.<AstDef>emptySet();
+        }
+    }
+
+    public static boolean isMainMethodPresent(AstDef obj) {
+        final scala.List<Symbol> members = obj.getType().members();
+        for (int j = 0; j < members.length(); j++) {
+            Symbol methodCandidate = members.apply(j);
+            if (methodCandidate.isMethod() && isMainMethod(methodCandidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the method is a main method
+     * @param method to be checked
+     * @return true when the method is a main method
+     */
+    public static boolean isMainMethod(final Symbol method) {
+        if (!method.nameString().equals("main")) {                //NOI18N
+            return false;
+        }
+        method.tpe().paramTypes();
+        scala.List params = method.tpe().paramTypes();
+        if (params != null && params.size() != 1) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns classes declared under the given source roots which have the main method.
+     * @param sourceRoots the source roots
+     * @return the classes containing the main methods
+     * Currently this method is not optimized and may be slow
+     */
+    public static Collection<AstDef> getMainClasses(final FileObject[] sourceRoots) {
+        final List<AstDef> result = new LinkedList<AstDef>();
+        for (FileObject root : sourceRoots) {
+            result.addAll(getMainClasses(root));
+            try {
+                ClassPath bootPath = ClassPath.getClassPath(root, ClassPath.BOOT);
+                ClassPath compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE);
+                ClassPath srcPath = ClassPathSupport.createClassPath(new FileObject[]{root});
+                ClasspathInfo cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath);
+//                final Set<AstElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
+//                Source js = Source.create(cpInfo);
+//                js.runUserActionTask(new CancellableTask<CompilationController>() {
+//
+//                    public void cancel() {
+//                    }
+//
+//                    public void run(CompilationController control) throws Exception {
+//                        for (AstElement cls : classes) {
+//                            TypeElement te = cls.resolve(control);
+//                            if (te != null) {
+//                                Iterable<? extends ExecutableElement> methods = ElementFilter.methodsIn(te.getEnclosedElements());
+//                                for (ExecutableElement method : methods) {
+//                                    if (isMainMethod(method)) {
+//                                        if (isIncluded(cls, control.getClasspathInfo())) {
+//                                            result.add(cls);
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }, false);
+            } catch (Exception ioe) {
+                Exceptions.printStackTrace(ioe);
+                return Collections.<AstDef>emptySet();
+            }
+        }
+        return result;
+    }
+
 }
