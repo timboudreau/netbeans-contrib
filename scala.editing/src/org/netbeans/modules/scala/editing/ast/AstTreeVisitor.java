@@ -44,6 +44,7 @@ import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -108,6 +109,7 @@ public class AstTreeVisitor extends AstVisitor {
 
     private final FileObject fo;
     private Type maybeType;
+    private boolean inAnonFun;
 
     public AstTreeVisitor(Global global, CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(global, unit, th, sourceFile);
@@ -373,8 +375,29 @@ public class AstTreeVisitor extends AstVisitor {
 
     @Override
     public void visitFunction(Function tree) {
+        Symbol symbol = tree.symbol();
+        if (tree.hasSymbol()) {
+            if (symbol.isValue() && symbol.nameString().equals(ScalaUtils.ANONFUN)) {
+                AstScope scope = new AstScope(getBoundsToken(offset(tree)));
+                scopes.peek().addScope(scope);
+
+                AstDef def = new AstDef(symbol, getIdToken(tree), scope, ElementKind.CLASS, fo);
+                def.setName(ScalaUtils.ANONFUN);
+                if (scopes.peek().addDef(def)) {
+                    info("\tAdded: ", def);
+                }
+
+                scopes.push(scope);
+                inAnonFun = true;
+            }
+        } else if (tree.isDef()) {
+        }
         visit(tree.vparams());
         visit(tree.body());
+        if (inAnonFun) {
+            scopes.pop();
+            inAnonFun = false;
+        }
     }
 
     @Override

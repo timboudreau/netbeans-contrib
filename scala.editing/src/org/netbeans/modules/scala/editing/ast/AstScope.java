@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -179,7 +180,7 @@ public class AstScope implements Iterable<AstScope> {
         if (idToken == null) {
             return false;
         }
-        
+
         /** @todo tempary solution */
         if (!ScalaLexUtilities.isProperIdToken(idToken.id())) {
             return false;
@@ -631,7 +632,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public AstDef getEnclosinDef(ElementKind kind, TokenHierarchy th, int offset) {
+    public AstDef getEnclosingDef(ElementKind kind, TokenHierarchy th, int offset) {
         AstScope scope = getClosestScope(th, offset);
         return scope.getEnclosingDef(kind);
     }
@@ -642,6 +643,23 @@ public class AstScope implements Iterable<AstScope> {
         } else {
             if (parent != null) {
                 return parent.getEnclosingDef(kind);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public AstDef getEnclosingDef(Set<ElementKind> kinds, TokenHierarchy th, int offset) {
+        AstScope scope = getClosestScope(th, offset);
+        return scope.getEnclosingDef(kinds);
+    }
+
+    public AstDef getEnclosingDef(Set<ElementKind> kinds) {
+        if (bindinDef != null && kinds.contains(bindinDef.getKind())) {
+            return bindinDef;
+        } else {
+            if (parent != null) {
+                return parent.getEnclosingDef(kinds);
             } else {
                 return null;
             }
@@ -670,7 +688,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public <T extends AstDef> T getEnclosinDef(Class<T> clazz, TokenHierarchy th, int offset) {
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz, TokenHierarchy th, int offset) {
         AstScope scope = getClosestScope(th, offset);
         return scope.getEnclosingDef(clazz);
     }
@@ -681,6 +699,23 @@ public class AstScope implements Iterable<AstScope> {
         } else {
             if (parent != null) {
                 return parent.getEnclosingDef(clazz);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public AstDef getEnclosingDef(TokenHierarchy th, int offset) {
+        AstScope scope = getClosestScope(th, offset);
+        return scope.getEnclosingDef();
+    }
+
+    public AstDef getEnclosingDef() {
+        if (bindinDef != null) {
+            return bindinDef;
+        } else {
+            if (parent != null) {
+                return parent.getEnclosingDef();
             } else {
                 return null;
             }

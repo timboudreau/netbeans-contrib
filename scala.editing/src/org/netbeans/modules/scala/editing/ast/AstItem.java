@@ -38,9 +38,11 @@
  */
 package org.netbeans.modules.scala.editing.ast;
 
+import java.util.Set;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.Type;
@@ -102,6 +104,10 @@ public abstract class AstItem {
         this.symbol = symbol;
         this.idToken = idToken;
         setName(idToken);
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     private void setName(Token idToken) {
@@ -184,6 +190,18 @@ public abstract class AstItem {
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
         return getEnclosingScope().getEnclosingDef(clazz);
+    }
+
+    public AstDef getEnclosingDef(ElementKind kind) {
+        return getEnclosingScope().getEnclosingDef(kind);
+    }
+
+    public AstDef getEnclosingDef(Set<ElementKind> kinds) {
+        return getEnclosingScope().getEnclosingDef(kinds);
+    }
+
+    public AstDef getEnclosingDef() {
+        return getEnclosingScope().getBindingElement();
     }
 
     /**

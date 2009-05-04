@@ -88,7 +88,6 @@ import org.openide.util.WeakListeners;
 
 import org.netbeans.spi.debugger.ui.EditorContextDispatcher;
 
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.JumpList;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.parsing.api.ParserManager;
@@ -96,12 +95,9 @@ import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstItem;
-import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
-import scala.tools.nsc.symtab.Symbols.Symbol;
 
 /**
  *
@@ -1010,30 +1006,15 @@ public class EditorContextImpl extends EditorContext {
                 @Override
                 public void run(ResultIterator resultIterator) throws Exception {
                     ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult(offset);
-                    TokenHierarchy th = pResult.getSnapshot().getTokenHierarchy();
-                    AstRootScope rootScope = pResult.rootScope();
-                    String clzName = null;
+                    String clzFqn = ScalaUtils.getClassName(pResult, offset);
 
-                    AstDef enclDfn = rootScope.getEnclosinDef(AstDef.class, th, offset);
-                    if (enclDfn != null) {
-                        Symbol sym = enclDfn.getSymbol();
-                        if (sym != null) {
-                            Symbol sym1 = sym.enclClass();
-                            clzName = sym1.fullNameString('.');
-                            if (sym1.isModuleClass()) {
-                                clzName = clzName + "$";
-                            } else if (sym1.isTrait()) {
-                                clzName = clzName + "$class";
-                            }
-                            result[0] = clzName;
-                        }
-                    }
-
-                    if (clzName == null) {
+                    if (clzFqn == null) {
                         ErrorManager.getDefault().log(
                                 ErrorManager.WARNING,
                                 "No enclosing class for " + pResult.getSnapshot().getSource().getFileObject() + ", offset = " + offset);
                         result[0] = "";
+                    } else {
+                        result[0] = clzFqn;
                     }
 
 //                    AstDef tmpl = rootScope.getEnclosinDef(ElementKind.CLASS, th, offset);

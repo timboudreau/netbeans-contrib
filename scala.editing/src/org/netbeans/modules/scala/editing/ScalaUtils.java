@@ -33,9 +33,11 @@ import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import javax.swing.text.BadLocationException;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -44,6 +46,7 @@ import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.classfile.ClassFile;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.ParserManager;
@@ -52,6 +55,8 @@ import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -68,6 +73,8 @@ import scala.tools.nsc.symtab.Symbols.Symbol;
  * @author Caoyuan Deng
  */
 public class ScalaUtils {
+
+    public final static String ANONFUN = "$anonfun";
 
     private ScalaUtils() {
     }
@@ -812,5 +819,60 @@ public class ScalaUtils {
         }
 
         return null;
+    }
+    private static final Set<ElementKind> TMPL_KINDS = EnumSet.of(ElementKind.CLASS, ElementKind.MODULE);
+
+    public static String getClassName(ScalaParserResult pResult, int offset) {
+        TokenHierarchy th = pResult.getSnapshot().getTokenHierarchy();
+        AstRootScope rootScope = pResult.rootScope();
+        String clzName = "";
+        int anonFunCount = 0;
+
+        AstDef enclDfn = rootScope.getEnclosingDef(TMPL_KINDS, th, offset);
+        if (enclDfn != null) {
+            if (enclDfn.getName().equals(ANONFUN)) {
+                AstDef enclDfn1 = enclDfn.getEnclosingDef(ElementKind.METHOD);
+                if (enclDfn1 != null && enclDfn1.getKind() == ElementKind.METHOD) {
+                    anonFunCount += 1;
+                    clzName = enclDfn.getName() + "$" + enclDfn1.getName() + "$" + anonFunCount;
+                }
+            }
+            
+            // * getTopLevelClassName
+            Symbol sym = enclDfn.getSymbol();
+            if (sym != null) {
+                Symbol sym1 = sym.enclClass();
+                String topClzName = sym1.fullNameString('.');
+                if (sym1.isModuleClass()) {
+                    topClzName = topClzName + "$";
+                } else if (sym1.isTrait()) {
+                    topClzName = topClzName + "$class";
+                }
+                clzName = topClzName + "$" + clzName;
+            }
+        }
+
+        if (clzName.length() == 0) {
+            clzName = null;
+        }
+
+//        AstDef tmpl = rootScope.getEnclosinDef(ElementKind.CLASS, th, offset);
+//        if (tmpl == null) {
+//            tmpl = rootScope.getEnclosinDef(ElementKind.MODULE, th, offset);
+//        }
+//        if (tmpl == null) {
+//            ErrorManager.getDefault().log(ErrorManager.WARNING,
+//                    "No enclosing class for " + pResult.getSnapshot().getSource().getFileObject() + ", offset = " + offset);
+//        }
+//
+//        String className = tmpl.getBinaryName();
+//
+//        String enclosingPackage = tmpl.getPackageName();
+//        if (enclosingPackage == null || enclosingPackage != null && enclosingPackage.length() == 0) {
+//            result[0] = className;
+//        } else {
+//            result[0] = enclosingPackage + "." + className;
+//        }
+        return clzName;
     }
 }

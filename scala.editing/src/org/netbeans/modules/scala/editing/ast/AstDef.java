@@ -112,10 +112,6 @@ public class AstDef extends AstItem implements ScalaElementHandle {
         }
     }
 
-    public AstDef getEnclosingDef() {
-        return getEnclosingScope().getBindingElement();
-    }
-
     public void setKind(ElementKind kind) {
         this.kind = kind;
     }
