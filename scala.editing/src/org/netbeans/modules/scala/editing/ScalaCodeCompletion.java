@@ -288,6 +288,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     public ScalaCodeCompletion() {
     }
 
+    @Override
     public String resolveTemplateVariable(String variable, ParserResult info, int caretOffset, String name, Map parameters) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -299,7 +300,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         String prefix = context.getPrefix();
         QueryType queryType = context.getQueryType();
         this.caseSensitive = context.isCaseSensitive();
-        QuerySupport.Kind kind = QuerySupport.Kind.EXACT;
+        QuerySupport.Kind kind = QuerySupport.Kind.PREFIX;
         if (kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX) {
             kind = QuerySupport.Kind.PREFIX;
         }
