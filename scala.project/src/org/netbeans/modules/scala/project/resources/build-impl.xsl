@@ -151,9 +151,7 @@ Scala installation directory.
             </xsl:if>
 
             <target name="-init-user">
-                <xsl:attribute name="depends">-pre-init,-init-private
-                    <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>
-                </xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if></xsl:attribute>
                 <property file="${{user.properties.file}}"/>
                 <xsl:comment> The two properties below are usually overridden </xsl:comment>
                 <xsl:comment> by the active platform. Just a fallback. </xsl:comment>
@@ -162,17 +160,13 @@ Scala installation directory.
             </target>
             
             <target name="-init-project">
-                <xsl:attribute name="depends">-pre-init,-init-private
-                    <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user
-                </xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user</xsl:attribute>
                 <property file="nbproject/configs/${{config}}.properties"/>
                 <property file="nbproject/project.properties"/>
             </target>
             
             <target name="-do-init">
-                <xsl:attribute name="depends">-pre-init,-init-private
-                    <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-init-macrodef-property
-                </xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-init-macrodef-property</xsl:attribute>
                 <xsl:if test="/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform">
                     <scalaProject1:property name="platform.home" value="platforms.${{platform.active}}.home"/>
                     <scalaProject1:property name="platform.bootcp" value="platforms.${{platform.active}}.bootclasspath"/>
@@ -289,9 +283,7 @@ Scala installation directory.
             </target>
             
             <target name="-init-check">
-                <xsl:attribute name="depends">-pre-init,-init-private
-                    <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init
-                </xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init</xsl:attribute>
                 <!-- XXX XSLT 2.0 would make it possible to use a for-each here -->
                 <!-- Note that if the properties were defined in project.xml that would be easy -->
                 <!-- But required props should be defined by the AntBasedProjectType, not stored in each project -->
@@ -490,10 +482,6 @@ Scala installation directory.
                         <xsl:attribute name="default">${excludes}</xsl:attribute>
                     </attribute>
                     <attribute>
-                        <xsl:attribute name="name">debug</xsl:attribute>
-                        <xsl:attribute name="default">jvm-${javac.debug}</xsl:attribute>
-                    </attribute>
-                    <attribute>
                         <xsl:attribute name="name">addparams</xsl:attribute>
                         <xsl:attribute name="default">${javac.compilerargs}</xsl:attribute>
                     </attribute>
@@ -510,8 +498,7 @@ Scala installation directory.
                             <xsl:attribute name="srcdir">@{srcdir}</xsl:attribute>
                             <xsl:attribute name="sourcepath">@{sourcepath}</xsl:attribute>
                             <xsl:attribute name="destdir">@{destdir}</xsl:attribute>
-                            <!--<xsl:attribute name="debug">@{debug}</xsl:attribute>-->
-                            <!--<xsl:attribute name="deprecation">${javac.deprecation}</xsl:attribute>-->
+                            <!--xsl:attribute name="deprecation">${javac.deprecation}</xsl:attribute-->
                             <xsl:attribute name="encoding">${source.encoding}</xsl:attribute>
                             <xsl:if test ="not(/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform/@explicit-source-supported ='false')">
                                 <!--<xsl:attribute name="source">${javac.source}</xsl:attribute>-->
@@ -519,11 +506,6 @@ Scala installation directory.
                             </xsl:if>
                             <xsl:attribute name="includes">@{includes}</xsl:attribute>
                             <xsl:attribute name="excludes">@{excludes}</xsl:attribute>
-                            <xsl:if test="/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform">
-                                <xsl:attribute name="fork">yes</xsl:attribute>
-                                <xsl:attribute name="executable">${platform.javac}</xsl:attribute>
-                                <xsl:attribute name="tempdir">${java.io.tmpdir}</xsl:attribute> <!-- XXX cf. #51482, Ant #29391 -->
-                            </xsl:if>
                             <xsl:attribute name="addparams">@{addparams}</xsl:attribute>
                             <!--<xsl:attribute name="includeantruntime">false</xsl:attribute>-->
                             <classpath>
@@ -806,9 +788,7 @@ Scala installation directory.
             </target>
             
             <target name="init">
-                <xsl:attribute name="depends">-pre-init,-init-private
-                    <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-scalac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar
-                </xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-scalac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar</xsl:attribute>
             </target>
             
             <xsl:comment>
@@ -919,9 +899,7 @@ Scala installation directory.
             </xsl:if>
             
             <target name="-pre-pre-compile">
-                <xsl:attribute name="depends">init,deps-jar
-                    <xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-generate</xsl:if>
-                </xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-generate</xsl:if></xsl:attribute>
                 <mkdir dir="${{build.classes.dir}}"/>
             </target>
             
@@ -934,9 +912,7 @@ Scala installation directory.
                 <scalaProject1:depend/>
             </target>
             <target name="-do-compile">
-                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile
-                    <xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if>,-compile-depend
-                </xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if>,-compile-depend</xsl:attribute>
                 <xsl:attribute name="if">have.sources</xsl:attribute>
                 <scalaProject1:scalac/>
                 <scalaProject1:javac/>
@@ -965,9 +941,7 @@ Scala installation directory.
             </target>
             
             <target name="-do-compile-single">
-                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile
-                    <xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if>
-                </xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if></xsl:attribute>
                 <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
                 <scalaProject1:force-recompile/>
                 <xsl:element name="scalaProject1:scalac">

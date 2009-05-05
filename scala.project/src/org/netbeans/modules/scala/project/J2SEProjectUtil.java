@@ -46,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map.Entry;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
@@ -56,7 +57,9 @@ import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.netbeans.modules.scala.editing.ast.AstDef;
+import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
+import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -197,5 +200,37 @@ public class J2SEProjectUtil {
             return null;
         }
     }
+
+    public static String getBuildXmlName (final J2SEProject project) {
+        assert project != null;
+        String buildScriptPath = project.evaluator().getProperty(J2SEProjectProperties.BUILD_SCRIPT);
+        if (buildScriptPath == null) {
+            buildScriptPath = GeneratedFilesHelper.BUILD_XML_PATH;
+        }
+        return buildScriptPath;
+    }
+
+    public static FileObject getBuildXml (final J2SEProject project) {
+        return project.getProjectDirectory().getFileObject (getBuildXmlName(project));
+    }
+
+    public static boolean isCompileOnSaveSupported(final J2SEProject project) {
+        for (Entry<String, String> e :project.evaluator().getProperties().entrySet()) {
+            if (e.getKey().startsWith(J2SEProjectProperties.COMPILE_ON_SAVE_UNSUPPORTED_PREFIX)) {
+                if (e.getValue() != null && Boolean.valueOf(e.getValue())) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean isCompileOnSaveEnabled(final J2SEProject project) {
+        String compileOnSaveProperty = project.evaluator().getProperty(J2SEProjectProperties.COMPILE_ON_SAVE);
+
+        return (compileOnSaveProperty != null && Boolean.valueOf(compileOnSaveProperty)) && J2SEProjectUtil.isCompileOnSaveSupported(project);
+    }
+
 
 }

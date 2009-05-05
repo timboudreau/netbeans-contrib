@@ -53,10 +53,10 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.netbeans.modules.java.api.common.SourceRoots;
+import org.netbeans.modules.java.api.common.project.ProjectProperties;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.spi.java.classpath.FilteringPathResourceImplementation;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PathMatcher;
@@ -170,8 +170,8 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
                         public boolean includes(URL root, String resource) {
                             if (matcher == null) {
                                 matcher = new PathMatcher(
-                                        evaluator.getProperty(J2SEProjectProperties.INCLUDES),
-                                        evaluator.getProperty(J2SEProjectProperties.EXCLUDES),
+                                        evaluator.getProperty(ProjectProperties.INCLUDES),
+                                        evaluator.getProperty(ProjectProperties.EXCLUDES),
                                         new File(URI.create(root.toExternalForm())));
                             }
                             return matcher.matches(resource, true);
@@ -191,7 +191,7 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
 
                         public void propertyChange(PropertyChangeEvent ev) {
                             String prop = ev.getPropertyName();
-                            if (prop == null || prop.equals(J2SEProjectProperties.INCLUDES) || prop.equals(J2SEProjectProperties.EXCLUDES)) {
+                            if (prop == null || prop.equals(ProjectProperties.INCLUDES) || prop.equals(ProjectProperties.EXCLUDES)) {
                                 matcher = null;
                                 PropertyChangeEvent ev2 = new PropertyChangeEvent(this, FilteringPathResourceImplementation.PROP_INCLUDES, null, null);
                                 ev2.setPropagationId(ev);

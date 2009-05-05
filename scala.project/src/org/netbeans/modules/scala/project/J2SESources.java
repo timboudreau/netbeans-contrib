@@ -46,14 +46,16 @@ import java.beans.PropertyChangeEvent;
 import java.io.File;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.openide.util.Mutex;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
+import org.netbeans.modules.java.api.common.project.ProjectProperties;
 import org.netbeans.spi.project.support.GenericSources;
 import org.netbeans.spi.project.support.ant.SourcesHelper;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
@@ -71,20 +73,18 @@ public class J2SESources implements Sources, PropertyChangeListener, ChangeListe
     private static final String BUILD_DIR_PROP = "${" + J2SEProjectProperties.BUILD_DIR + "}";    //NOI18N
     private static final String DIST_DIR_PROP = "${" + J2SEProjectProperties.DIST_DIR + "}";    //NOI18N
 
+    private final Project project;
     private final AntProjectHelper helper;
     private final PropertyEvaluator evaluator;
     private final SourceRoots sourceRoots;
     private final SourceRoots testRoots;
     private SourcesHelper sourcesHelper;
     private Sources delegate;
-    /**
-     * Flag to forbid multiple invocation of {@link SourcesHelper#registerExternalRoots} 
-     **/
-    private boolean externalRootsRegistered;    
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
-    J2SESources(AntProjectHelper helper, PropertyEvaluator evaluator,
+    J2SESources(Project project, AntProjectHelper helper, PropertyEvaluator evaluator,
                 SourceRoots sourceRoots, SourceRoots testRoots) {
+        this.project = project;
         this.helper = helper;
         this.evaluator = evaluator;
         this.sourceRoots = sourceRoots;
@@ -151,20 +151,12 @@ public class J2SESources implements Sources, PropertyChangeListener, ChangeListe
     }
     
     private Sources initSources() {
-        this.sourcesHelper = new SourcesHelper(helper, evaluator);   //Safe to pass APH        
+        this.sourcesHelper = new SourcesHelper(project, helper, evaluator);   //Safe to pass APH        
         register(sourceRoots);
         register(testRoots);
         this.sourcesHelper.addNonSourceRoot(BUILD_DIR_PROP);
         this.sourcesHelper.addNonSourceRoot(DIST_DIR_PROP);
-        externalRootsRegistered = false;
-        ProjectManager.mutex().postWriteRequest(new Runnable() {
-            public void run() {                
-                if (!externalRootsRegistered) {
-                    sourcesHelper.registerExternalRoots(FileOwnerQuery.EXTERNAL_ALGORITHM_TRANSIENT);
-                    externalRootsRegistered = true;
-                }
-            }
-        });
+        sourcesHelper.registerExternalRoots(FileOwnerQuery.EXTERNAL_ALGORITHM_TRANSIENT, false);
         return this.sourcesHelper.createSources();
     }
 
@@ -175,8 +167,8 @@ public class J2SESources implements Sources, PropertyChangeListener, ChangeListe
             String prop = propNames[i];
             String displayName = roots.getRootDisplayName(rootNames[i], prop);
             String loc = "${" + prop + "}"; // NOI18N
-            String includes = "${" + J2SEProjectProperties.INCLUDES + "}"; // NOI18N
-            String excludes = "${" + J2SEProjectProperties.EXCLUDES + "}"; // NOI18N
+            String includes = "${" + ProjectProperties.INCLUDES + "}"; // NOI18N
+            String excludes = "${" + ProjectProperties.EXCLUDES + "}"; // NOI18N
             sourcesHelper.addPrincipalSourceRoot(loc, includes, excludes, displayName, null, null); // NOI18N
             sourcesHelper.addTypedSourceRoot(loc, includes, excludes, JavaProjectConstants.SOURCES_TYPE_JAVA, displayName, null, null); // NOI18N
         }

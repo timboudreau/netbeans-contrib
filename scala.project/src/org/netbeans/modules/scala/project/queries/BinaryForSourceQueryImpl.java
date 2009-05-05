@@ -52,7 +52,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.queries.BinaryForSourceQuery;
 import org.netbeans.api.java.queries.BinaryForSourceQuery.Result;
 import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
+import org.netbeans.modules.java.api.common.project.ProjectProperties;
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -90,14 +90,14 @@ public class BinaryForSourceQueryImpl implements BinaryForSourceQueryImplementat
         if (result == null) {
             for (URL root : this.src.getRootURLs()) {
                 if (root.equals(sourceRoot)) {
-                    result = new R (J2SEProjectProperties.BUILD_CLASSES_DIR);
+                    result = new R (ProjectProperties.BUILD_CLASSES_DIR);
                     cache.put (sourceRoot,result);
                     break;
                 }
             }
             for (URL root : this.test.getRootURLs()) {
                 if (root.equals(sourceRoot)) {
-                    result = new R (J2SEProjectProperties.BUILD_TEST_CLASSES_DIR);
+                    result = new R (ProjectProperties.BUILD_TEST_CLASSES_DIR);
                     cache.put (sourceRoot,result);
                     break;
                 }
