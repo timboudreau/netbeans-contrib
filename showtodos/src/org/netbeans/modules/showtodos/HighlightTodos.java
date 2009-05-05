@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -40,33 +40,25 @@
  */
 package org.netbeans.modules.showtodos;
 
-import java.util.LinkedList;
+import static org.netbeans.modules.showtodos.TodoSourceParsing.parse;
 import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.settings.FontColorSettings;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.FinderFactory;
-import org.netbeans.editor.Utilities;
-import org.netbeans.modules.tasklist.todo.settings.Settings;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeListener;
 import org.netbeans.spi.editor.highlighting.HighlightsContainer;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.HighlightsSequence;
 import org.netbeans.spi.editor.highlighting.ZOrder;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 
@@ -81,7 +73,7 @@ import org.openide.util.Lookup;
 public class HighlightTodos implements HighlightsContainer {
 
     private static final Logger LOG = Logger.getLogger(HighlightTodos.class.getName());
-    
+
     private BaseDocument doc;
     private Lookup lookup;
 
@@ -89,74 +81,20 @@ public class HighlightTodos implements HighlightsContainer {
         this.doc = doc;
         this.lookup = lookup;
     }
-    
+
     public HighlightsSequence getHighlights(int startOffset, int endOffset) {
         FontColorSettings fcs = lookup.lookup(FontColorSettings.class);
-        
+
         if (fcs == null) {
             return HighlightsSequence.EMPTY;
         }
-        
+
         AttributeSet coloring = fcs.getTokenFontColors("todo-tasks"); // NOI18N
-        
         if (coloring == null) {
             return HighlightsSequence.EMPTY;
         }
-        
-        List<int[]> highlights = new LinkedList<int[]>();
 
-        TokenHierarchy th = TokenHierarchy.get(doc);
-        TokenSequence ts = null;
-
-        if (th != null) {
-            ts = th.tokenSequence();
-        }
-
-        try {
-            startOffset = Utilities.getRowStart(doc, startOffset);
-            endOffset = Math.min(doc.getLength(), endOffset);
-        
-            for (String word : Settings.getDefault().getPatterns()) {
-                int pos = startOffset;
-
-                // Search from pos to endPos for TODO markers.
-                while (pos < endOffset) {
-                    FinderFactory.WholeWordsFwdFinder finder =
-                            new FinderFactory.WholeWordsFwdFinder(doc, word, true);
-                    int next = doc.find(finder, pos, endOffset);
-
-                    if ((next >= startOffset) && (next < endOffset)) {
-                        // See if it looks like a token we care about (comments)
-                        if (ts != null) {
-                            ts.move(next);
-
-                            if (ts.moveNext()) {
-                                Token token = ts.token();
-                                pos = Math.min(Utilities.getRowEnd(doc, next), ts.offset() + token.length());
-
-                                if (token != null) {
-                                    String category = token.id().primaryCategory();
-
-                                    if ("comment".equals(category)) { // NOI18N
-                                        highlights.add(new int[]{next, pos});
-                                    }
-                                }
-                            } else {
-                                pos = next + word.length();
-                            }
-                        } else {
-                            pos = next + word.length();
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
-        } catch (BadLocationException e) {
-            Exceptions.printStackTrace(e);
-        }
-        
-        return new SeqImpl(highlights, coloring);
+        return new SeqImpl(parse(doc, startOffset, endOffset), coloring);
     }
 
     public void addHighlightsChangeListener(HighlightsChangeListener listener) {
@@ -164,9 +102,9 @@ public class HighlightTodos implements HighlightsContainer {
 
     public void removeHighlightsChangeListener(HighlightsChangeListener listener) {
     }
-    
+
     private static final class SeqImpl implements HighlightsSequence {
-        
+
         private int[] current;
         private List<int[]> highlights;
         private AttributeSet as;
@@ -174,7 +112,7 @@ public class HighlightTodos implements HighlightsContainer {
         public SeqImpl(List<int[]> highlights, AttributeSet as) {
             this.highlights = highlights;
             this.as = as;
-            
+
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("SeqImpl:"); // NOI18N
                 for (int[] span : highlights) {
@@ -184,11 +122,12 @@ public class HighlightTodos implements HighlightsContainer {
         }
 
         public boolean moveNext() {
-            if (highlights.isEmpty())
-                return false;
-            
+            if (highlights.isEmpty()) {
+              return false;
+           }
+
             current = highlights.remove(0);
-            
+
             return true;
         }
 
@@ -204,19 +143,19 @@ public class HighlightTodos implements HighlightsContainer {
             return as;
         }
     }
-    
+
     public static final class FactoryImpl implements HighlightsLayerFactory {
 
         public HighlightsLayer[] createLayers(Context context) {
             Document doc = context.getDocument();
-            
+
             if (!(doc instanceof BaseDocument)) {
                 return new HighlightsLayer[0];
             }
-            
+
             String mimeType;
             Object docMT = doc.getProperty("mimeType"); // NOI18N
-            
+
             if (docMT instanceof String) {
                 mimeType = (String) docMT;
             } else {
@@ -228,13 +167,13 @@ public class HighlightTodos implements HighlightsContainer {
                     mimeType = "text/base"; // NOI18N
                 }
             }
-            
+
             HighlightsContainer c = new HighlightTodos((BaseDocument) doc, MimeLookup.getLookup(mimeType));
-            
+
             return new HighlightsLayer[] {
                 HighlightsLayer.create(HighlightsLayer.class.getName(), ZOrder.SYNTAX_RACK.forPosition(5000), false, c),
             };
         }
-        
+
     }
 }
