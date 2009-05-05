@@ -369,7 +369,7 @@ class J2SEActionProvider implements ActionProvider {
     /*private*/ String[] getTargetNames(String command, Lookup context, Properties p) throws IllegalArgumentException {
         if (Arrays.asList(platformSensitiveActions).contains(command)) {
             final String activePlatformId = this.project.evaluator().getProperty("platform.active");  //NOI18N
-            if (J2SEProjectUtil.getActivePlatform (activePlatformId) == null) {
+            if (J2SEProjectUtil.getJavaActivePlatform (activePlatformId) == null) {
                 showPlatformWarning ();
                 return null;
             }

@@ -47,6 +47,8 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.ScalaPlatformManager;
@@ -170,4 +172,30 @@ public class J2SEProjectUtil {
             return null;
         }
     }
+
+    /**
+     * Returns the active platform used by the project or null if the active
+     * project platform is broken.
+     * @param activePlatformId the name of platform used by Ant script or null
+     * for default platform.
+     * @return active {@link JavaPlatform} or null if the project's platform
+     * is broken
+     */
+    public static JavaPlatform getJavaActivePlatform (final String activePlatformId) {
+        final JavaPlatformManager pm = JavaPlatformManager.getDefault();
+        if (activePlatformId == null) {
+            return pm.getDefaultPlatform();
+        }
+        else {
+            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new org.netbeans.api.java.platform.Specification ("j2se",null));   //NOI18N
+            for (JavaPlatform p : installedPlatforms) {
+                String antName = p.getProperties().get("platform.ant.name"); // NOI18N
+                if (antName != null && antName.equals(activePlatformId)) {
+                    return p;
+                }
+            }
+            return null;
+        }
+    }
+
 }
