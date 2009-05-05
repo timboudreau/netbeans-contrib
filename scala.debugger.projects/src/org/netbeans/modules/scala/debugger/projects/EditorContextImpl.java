@@ -967,9 +967,7 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return binary class name for given url and line number or null
      */
-    public String getClassName(
-            String url,
-            int lineNumber) {
+    public String getClassName(String url, int lineNumber) {
         DataObject dataObject = getDataObject(url);
         if (dataObject == null) {
             return null;
@@ -1001,12 +999,13 @@ public class EditorContextImpl extends EditorContext {
         try {
             final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
             final String[] result = new String[]{""};
+
             ParserManager.parse(Collections.singleton(source), new UserTask() {
 
                 @Override
                 public void run(ResultIterator resultIterator) throws Exception {
                     ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult(offset);
-                    String clzFqn = ScalaUtils.getClassName(pResult, offset);
+                    String clzFqn = ScalaUtils.getBinaryClassName(pResult, offset);
 
                     if (clzFqn == null) {
                         ErrorManager.getDefault().log(
@@ -1016,25 +1015,6 @@ public class EditorContextImpl extends EditorContext {
                     } else {
                         result[0] = clzFqn;
                     }
-
-//                    AstDef tmpl = rootScope.getEnclosinDef(ElementKind.CLASS, th, offset);
-//                    if (tmpl == null) {
-//                        tmpl = rootScope.getEnclosinDef(ElementKind.MODULE, th, offset);
-//                    }
-//                    if (tmpl == null) {
-//                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-//                                "No enclosing class for " + pResult.getSnapshot().getSource().getFileObject() + ", offset = " + offset);
-//                    }
-//
-//                    String className = tmpl.getBinaryName();
-//
-//                    String enclosingPackage = tmpl.getPackageName();
-//                    if (enclosingPackage == null || enclosingPackage != null && enclosingPackage.length() == 0) {
-//                        result[0] = className;
-//                    } else {
-//                        result[0] = enclosingPackage + "." + className;
-//                    }
-
                 }
             });
             return result[0];

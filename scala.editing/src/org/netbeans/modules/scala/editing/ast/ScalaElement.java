@@ -278,7 +278,7 @@ public class ScalaElement implements ScalaElementHandle {
                      * position via the AST Tree, or use a tree visitor to update
                      * all symbols Position
                      */
-                    CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+                    CompilationUnit unit = ScalaGlobal.compileSourceForPresentation(global, srcFile);
                     if (unit != null) {
                         AstRootScope root = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
                         AstDef def = root.findDefMatched(symbol);

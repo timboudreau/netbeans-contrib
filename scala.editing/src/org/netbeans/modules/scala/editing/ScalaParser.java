@@ -113,27 +113,23 @@ public class ScalaParser extends Parser {
         lastResult.setErrors(context.errors());
     }
 
-    public
     @Override
-    Result getResult(Task task) throws ParseException {
+    public Result getResult(Task task) throws ParseException {
         assert lastResult != null : "getResult() called prior parse()"; //NOI18N
         return lastResult;
     }
 
-    public
     @Override
-    void cancel() {
+    public void cancel() {
     }
 
-    public
     @Override
-    void addChangeListener(ChangeListener changeListener) {
+    public void addChangeListener(ChangeListener changeListener) {
         // no-op, we don't support state changes
     }
 
-    public
     @Override
-    void removeChangeListener(ChangeListener changeListener) {
+    public void removeChangeListener(ChangeListener changeListener) {
         // no-op, we don't support state changes
     }
 
@@ -558,7 +554,7 @@ public class ScalaParser extends Parser {
 
         BatchSourceFile srcFile = new BatchSourceFile(filePath, source.toCharArray());
         try {
-            CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+            CompilationUnit unit = ScalaGlobal.compileSourceForPresentation(global, srcFile);
             rootScope = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
         } catch (AssertionError ex) {
             // avoid scala nsc's assert error
@@ -570,8 +566,8 @@ public class ScalaParser extends Parser {
             notifyError(context, "SYNTAX_ERROR", ex.getMessage(),
                     0, 0, true, sanitizing, Severity.ERROR, new Object[]{ex});
         } catch (Exception ex) {
-            ex.printStackTrace();
             // Scala's global throws too many exceptions
+            //ex.printStackTrace();
         }
 
         if (rootScope != null) {

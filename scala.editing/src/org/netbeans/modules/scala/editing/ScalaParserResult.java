@@ -40,13 +40,21 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.scala.editing.ast.AstRootScope;
+import org.netbeans.modules.scala.editing.ast.AstTreeVisitor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import scala.tools.nsc.CompilationUnits.CompilationUnit;
+import scala.tools.nsc.Global;
+import scala.tools.nsc.util.BatchSourceFile;
 
 /**
  *
@@ -67,6 +75,7 @@ public class ScalaParserResult extends ParserResult {
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
     private AstRootScope rootScope;
+    private AstRootScope rootScopeForDebugger;
     private Phase phase;
     private ScalaParser parser;
 
@@ -99,10 +108,39 @@ public class ScalaParserResult extends ParserResult {
         return rootScope;
     }
 
+    public AstRootScope rootScopeForDebugger() {
+        if (rootScopeForDebugger == null) {
+            FileObject fo = getSnapshot().getSource().getFileObject();
+            File file = fo != null ? FileUtil.toFile(fo) : null;
+            // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
+            String filePath = file != null ? file.getAbsolutePath() : "<current>";
+            TokenHierarchy th = getSnapshot().getTokenHierarchy();
+
+            Global global = parser.global();
+            BatchSourceFile srcFile = new BatchSourceFile(filePath, getSnapshot().getText().toString().toCharArray());
+            try {
+                CompilationUnit unit = ScalaGlobal.compileSourceForDebugger(parser.global(), srcFile);
+                rootScopeForDebugger = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
+            } catch (AssertionError ex) {
+                // avoid scala nsc's assert error
+                ScalaGlobal.reset();
+            } catch (java.lang.Error ex) {
+                // avoid scala nsc's exceptions
+            } catch (IllegalArgumentException ex) {
+                // An internal exception thrown by ParserScala, just catch it and notify
+            } catch (Exception ex) {
+                // Scala's global throws too many exceptions
+                //ex.printStackTrace();
+            }
+        }
+
+        return rootScopeForDebugger;
+    }
+
     public void setSource(String source) {
         this.source = source;
     }
-    
+
     /**
      * Return whether the source code for the parse result was "cleaned"
      * or "sanitized" (modified to reduce chance of parser errors) or not.

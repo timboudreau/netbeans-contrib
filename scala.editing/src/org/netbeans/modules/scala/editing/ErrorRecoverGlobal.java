@@ -145,7 +145,7 @@ public class ErrorRecoverGlobal {
                 String filePath = "<NetBeansErrorRecover>";
                 BatchSourceFile srcFile = new BatchSourceFile(filePath, sb.toString().toCharArray());
 
-                CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+                CompilationUnit unit = ScalaGlobal.compileSourceForPresentation(global, srcFile);
                 if (unit != null) {
                     AstRootScope root = new AstTreeVisitor(null, unit, th, srcFile).getRootScope();
                     AstItem found = root.findFirstItemWithName(itemName);
@@ -177,7 +177,7 @@ public class ErrorRecoverGlobal {
             String filePath = "<NetBeansErrorRecover>";
             BatchSourceFile srcFile = new BatchSourceFile(filePath, sb.toString().toCharArray());
 
-            CompilationUnit unit = ScalaGlobal.compileSource(global, srcFile);
+            CompilationUnit unit = ScalaGlobal.compileSourceForPresentation(global, srcFile);
             if (unit != null) {
                 AstRootScope root = new AstTreeVisitor(null, unit, th, srcFile).getRootScope();
 

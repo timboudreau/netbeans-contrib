@@ -168,8 +168,8 @@ public class ScalaGlobal {
                 settings.verbose().value_$eq(false);
             }
 
-            settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-sourcepath", srcPath));
-            settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-d", outPath));
+            settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-sourcepath", srcPath}));
+            settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
 
             // add boot, compile classpath
             ClassPath bootCp = null;
@@ -191,16 +191,14 @@ public class ScalaGlobal {
 
             StringBuilder sb = new StringBuilder();
             computeClassPath(project, sb, bootCp);
-            settings.bootclasspath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-bootclasspath", sb.toString()));
+            settings.bootclasspath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-bootclasspath", sb.toString()}));
 
             sb.delete(0, sb.length());
             computeClassPath(project, sb, compCp);
             if (forTest && !inStdLib && dirs.outDir != null) {
                 sb.append(File.pathSeparator).append(dirs.outDir);
             }
-            settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-classpath", sb.toString()));
-            // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcude "constructorss"
-            settings.stop().tryToSet(scala.netbeans.Wrapper$.MODULE$.scalaStringList("-Ystop:constructors", "")); 
+            settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-classpath", sb.toString()}));
 
             global = new Global(settings) {
 
@@ -436,12 +434,28 @@ public class ScalaGlobal {
         }
     }
 
-    public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile) {
+    public static CompilationUnit compileSourceForPresentation(final Global global, BatchSourceFile srcFile) {
+        return compileSource(global, srcFile, Phase.superaccessors);
+    }
+
+    // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcudes 'stopPhase'
+    public static CompilationUnit compileSourceForDebugger(final Global global, BatchSourceFile srcFile) {
+        return compileSource(global, srcFile, Phase.constructors);
+    }
+
+    public static CompilationUnit compileSource(final Global global, BatchSourceFile srcFile, Phase stopPhase) {
         synchronized (global) {
+            if (stopPhase == null) {
+                stopPhase = ScalaGlobal.Phase.superaccessors;
+            }
+            //scala.List a = scala.Nil$;
+
+            global.settings().stop().value_$eq(scala.netbeans.Wrapper$.MODULE$.stringNil());
+            global.settings().stop().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-Ystop:" + stopPhase.name()}));
             Global.Run run = global.new Run();
             global.resetSelectTypeErrors();
 
-            scala.List srcFiles = scala.netbeans.Wrapper$.MODULE$.scalaSrcFileList(srcFile);
+            scala.List srcFiles = scala.netbeans.Wrapper$.MODULE$.srcFileList(new BatchSourceFile[]{srcFile});
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
@@ -481,5 +495,31 @@ public class ScalaGlobal {
 
             return null;
         }
+    }
+
+    public enum Phase {
+
+        parser,
+        namer,
+        typer,
+        superaccessors,
+        pickler,
+        refchecks,
+        liftcode,
+        uncurry,
+        tailcalls,
+        explicitouter,
+        erasure,
+        lazyvals,
+        lambdalift,
+        constructors,
+        flatten,
+        mixin,
+        cleanup,
+        icode,
+        inliner,
+        closelim,
+        dce,
+        jvm
     }
 }

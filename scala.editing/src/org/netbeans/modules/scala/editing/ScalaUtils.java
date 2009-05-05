@@ -810,9 +810,9 @@ public class ScalaUtils {
     }
     private static final Set<ElementKind> TMPL_KINDS = EnumSet.of(ElementKind.CLASS, ElementKind.MODULE);
 
-    public static String getClassName(ScalaParserResult pResult, int offset) {
+    public static String getBinaryClassName(ScalaParserResult pResult, int offset) {
         TokenHierarchy th = pResult.getSnapshot().getTokenHierarchy();
-        AstRootScope rootScope = pResult.rootScope();
+        AstRootScope rootScope = pResult.rootScopeForDebugger();
         String clzName = "";
 
         AstDef enclDfn = rootScope.getEnclosingDef(TMPL_KINDS, th, offset);
