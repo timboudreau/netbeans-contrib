@@ -56,7 +56,7 @@ import org.netbeans.modules.java.api.common.classpath.ClassPathSupport;
 import org.netbeans.modules.java.api.common.project.ui.ClassPathUiSupport;
 import org.netbeans.modules.java.api.common.project.ui.customizer.EditMediator;
 import org.netbeans.modules.java.api.common.ui.PlatformUiSupport;
-import org.netbeans.modules.java.j2seproject.ui.J2SELogicalViewProvider;
+import org.netbeans.modules.scala.project.ui.J2SELogicalViewProvider;
 import org.netbeans.spi.java.project.support.ui.SharableLibrariesUtils;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.awt.Mnemonics;
