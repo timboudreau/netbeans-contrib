@@ -1469,7 +1469,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                      * 1. get Type name
                      * 2. get constructors of this type when use pressed enter
                      */
-                    Set<GsfElement> gsdElements = index.getDeclaredTypes(prefix, kind, request.result);
+                    Set<GsfElement> cslElements = index.getDeclaredTypes(prefix, kind, request.result);
                     String lhs = request.call == null ? null : request.call.getLhs();
                     /**
                     if (lhs != null && lhs.length() > 0) {
@@ -1497,9 +1497,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                     }
                     }
                     } */
-                    for (GsfElement gsfElement : gsdElements) {
+                    for (GsfElement cslElement : cslElements) {
                         // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-                        if (!gsfElement.getName().startsWith(prefix)) {
+                        if (!cslElement.getName().startsWith(prefix)) {
                             continue;
                         }
 
@@ -1518,7 +1518,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 //                        } else {
 //                            item = new PlainItem(request, gsfElement);
 //                        }
-                        ScalaCompletionItem item = new PlainItem(gsfElement, request);
+                        ScalaCompletionItem item = new PlainItem(cslElement, request);
                         // Exact matches
 //                        item.setSmart(method.isSmart());
                         proposals.add(item);

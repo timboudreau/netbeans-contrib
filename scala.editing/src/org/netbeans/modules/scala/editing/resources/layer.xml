@@ -39,6 +39,7 @@
         <folder name="text">
             <folder name="x-scala">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editing.lexer.ScalaTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
@@ -97,7 +98,20 @@
                     </file>
                 </folder>
                 -->
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-scala-editing-actions-FixImportsAction.instance">
+                        <attr name="position" intvalue="801"/>
+                    </file>
+                </folder>
             </folder>
+        </folder>
+    </folder>
+
+    <folder name="Actions">
+        <folder name="Scala">
+            <file name="org-netbeans-modules-scala-editing-actions-FixImportsAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.actions.FixImportsAction"/>
+            </file>
         </folder>
     </folder>
 
@@ -135,6 +149,7 @@
             </folder>
         </folder>
     </folder>
+
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-scala">
@@ -209,6 +224,7 @@
             </folder>
         </folder>
     </folder>
+
     <!--
     <folder name="Actions">
         <folder name="Edit">

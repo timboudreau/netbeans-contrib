@@ -42,6 +42,7 @@ package org.netbeans.modules.scala.editing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.csl.api.Error;
@@ -68,7 +69,7 @@ public class ScalaParserResult extends ParserResult {
         Parsed,
         GLOBAL_RESOLVED
     }
-    private List<Error> errors = new ArrayList<Error>();
+    private List<Error> errors;
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
     private String sanitizedContents;
@@ -79,11 +80,12 @@ public class ScalaParserResult extends ParserResult {
     private Phase phase;
     private ScalaParser parser;
 
-    public ScalaParserResult(ScalaParser parser, Snapshot snapshot, AstRootScope rootScope) {
+    public ScalaParserResult(ScalaParser parser, Snapshot snapshot, AstRootScope rootScope, List<Error> errors) {
         super(snapshot);
         this.parser = parser;
         this.rootScope = rootScope;
         this.phase = Phase.Parsed;
+        this.errors = errors;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class ScalaParserResult extends ParserResult {
 
     @Override
     public List<? extends Error> getDiagnostics() {
-        return errors;
+        return errors == null ? Collections.<Error>emptyList() : errors;
     }
 
     public void setErrors(List<? extends Error> errors) {

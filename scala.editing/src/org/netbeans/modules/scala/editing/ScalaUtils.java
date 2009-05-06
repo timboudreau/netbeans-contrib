@@ -1012,4 +1012,17 @@ public class ScalaUtils {
         }
         return result;
     }
+
+    public static ClasspathInfo getClasspathInfoForFileObject(FileObject fo) {
+
+        ClassPath bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT);
+        ClassPath compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+        ClassPath srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+
+        if (bootPath == null || compilePath == null || srcPath == null) {
+            return null;
+        }
+
+        return ClasspathInfo.create(bootPath, compilePath, srcPath);
+    }
 }

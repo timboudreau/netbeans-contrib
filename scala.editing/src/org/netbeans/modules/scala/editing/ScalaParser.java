@@ -602,7 +602,7 @@ public class ScalaParser extends Parser {
             }
         }
 
-        return new ScalaParserResult(this, context.snapshot(), context.rootScope());
+        return new ScalaParserResult(this, context.snapshot(), context.rootScope(), context.errors());
     }
 
     private Sanitize processObjectSymbolError(Context context, AstRootScope root) {
