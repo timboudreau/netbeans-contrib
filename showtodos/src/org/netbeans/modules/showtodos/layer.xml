@@ -2,18 +2,20 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     
-    <folder name="Editors">
-        <folder name="FontsColors">
-            <folder name="NetBeans">
-                <folder name="Defaults">
-                    <file name="org-netbeans-modules-showtodos-todo-colorings.xml" url="fontsColors.xml">
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.showtodos.Bundle"/>
-                    </file>
-                </folder>
+   <folder name="Editors">
+      <file name="org-netbeans-modules-showtodos-HighlightTodos$FactoryImpl.instance" />
+      <folder name="FontsColors">
+         <folder name="NetBeans">
+            <folder name="Defaults">
+               <file name="org-netbeans-modules-showtodos-todo-colorings.xml" url="fontsColors.xml">
+                  <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.showtodos.Bundle"/>
+               </file>
             </folder>
-        </folder>
-        
-        <file name="org-netbeans-modules-showtodos-HighlightTodos$FactoryImpl.instance" />
-    </folder>
+         </folder>
+      </folder>
+      <folder name="AnnotationTypes">
+         <file name="org-netbeans-modules-showtodos-parser_annotation_showtodos.xml" url="parser_annotation_showtodos.xml"/>
+      </folder>
+   </folder>
     
 </filesystem>

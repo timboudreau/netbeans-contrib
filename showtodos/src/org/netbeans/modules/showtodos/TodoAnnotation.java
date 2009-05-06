@@ -52,7 +52,7 @@ public final class TodoAnnotation extends Annotation {
 
    @Override
    public String getAnnotationType() {
-      return "org-netbeans-spi-editor-hints-parser_annotation_todo";
+      return "org-netbeans-modules-showtodos-parser_annotation_showtodos";
    }
 
    @Override
