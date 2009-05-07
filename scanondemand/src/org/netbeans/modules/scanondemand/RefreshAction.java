@@ -40,18 +40,36 @@ package org.netbeans.modules.scanondemand;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 
 public final class RefreshAction implements ActionListener, Runnable {
 
+    private static Logger TIMER = Logger.getLogger("TIMER.RefreshAction");
+
     public void actionPerformed(ActionEvent e) {
         RequestProcessor.getDefault().post(this);
     }
 
     public void run() {
+        long start = System.currentTimeMillis();
         FileUtil.refreshAll();
+        for (Project p : OpenProjects.getDefault().getOpenProjects()) {
+            Runnable r = (Runnable) p.getProjectDirectory().getAttribute("ProvidedExtensions.Refresh");
+            if (r != null) r.run();
+        }
         IndexingManager.getDefault().refreshAllIndices();
+        if (TIMER.isLoggable(Level.FINE)) {
+            long delta = System.currentTimeMillis() - start;
+            LogRecord rec = new LogRecord(Level.FINE, "RefreshAction");
+            rec.setParameters(new Object[]{RefreshAction.class.getName(), delta});
+            TIMER.log(rec);
+        }
     }
 }
