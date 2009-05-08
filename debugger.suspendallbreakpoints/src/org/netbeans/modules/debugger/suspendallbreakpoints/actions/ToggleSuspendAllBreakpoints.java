@@ -24,9 +24,9 @@ made subject to such option by the copyright holder.
 
 package org.netbeans.modules.debugger.suspendallbreakpoints.actions;
 
+import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import org.netbeans.api.debugger.DebuggerManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
@@ -52,15 +52,17 @@ public final class ToggleSuspendAllBreakpoints extends BooleanStateAction implem
         putValue(NAME, getName());
         putValue(SMALL_ICON, null);
         putValue(SMALL_ICON, getIcon());
-        
-        TopComponent view = WindowManager.getDefault().findTopComponent("breakpointsView");       
-        if (view != null) {
-            String breakpointsViewTitle = view.getName();
-            if (breakpointsViewTitle != null) {
-                if (getBooleanState()) {
-                    view.setDisplayName(breakpointsViewTitle + NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended"));
-                } else {
-                    view.setDisplayName(breakpointsViewTitle);
+
+        if (EventQueue.isDispatchThread()) {
+            TopComponent view = WindowManager.getDefault().findTopComponent("breakpointsView");
+            if (view != null) {
+                String breakpointsViewTitle = view.getName();
+                if (breakpointsViewTitle != null) {
+                    if (getBooleanState()) {
+                        view.setDisplayName(breakpointsViewTitle + NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended"));
+                    } else {
+                        view.setDisplayName(breakpointsViewTitle);
+                    }
                 }
             }
         }
