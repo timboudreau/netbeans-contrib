@@ -261,9 +261,12 @@ public class GsfElement implements ElementHandle {
     }
 
     public void htmlFormat(HtmlFormatter formatter) {
-        if (isScala()) {
-            ((AstElement) element).htmlFormat(formatter);
-        }
+        formatter.appendText(getIn());
+        formatter.appendText(".");
+        formatter.appendText(getName());
+//        if (isScala()) {
+//            ((AstElement) element).htmlFormat(formatter);
+//        }
     }
 
     public void setDeprecated(boolean deprecated) {

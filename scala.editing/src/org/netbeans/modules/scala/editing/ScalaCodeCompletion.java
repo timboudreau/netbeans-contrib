@@ -1677,6 +1677,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         } else if (element instanceof ScalaElementHandle) {
             ScalaElementHandle element1 = (ScalaElementHandle) element;
             try {
+                sigFormatter.appendHtml("<i>");
+                sigFormatter.appendText(element1.getSymbol().enclClass().fullNameString());
+                sigFormatter.appendHtml("</i><p>");
                 sigFormatter.appendText(element1.getSymbol().defString());
             } catch (AssertionError ex) {
                 ScalaGlobal.reset();
@@ -1696,7 +1699,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             return html.toString();
         }
 
-        ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);
+        ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);        
         String name = element.getName();
         if (name != null && name.length() > 0) {
             formatter.setSeqName(name);
@@ -1704,7 +1707,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
         FileObject fo = element.getFileObject();
         if (fo != null) {
-            html.append("<b>").append(fo.getNameExt()).append("</b><br>");
+            html.append("<b>").append(fo.getPath()).append("</b><br>");
         }
 
         html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml());
