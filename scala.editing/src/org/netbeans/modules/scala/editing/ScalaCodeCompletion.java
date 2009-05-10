@@ -1433,7 +1433,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 // See if we're in the identifier - "foo" in "def foo"
                 // I could also be a keyword in case the prefix happens to currently
                 // match a keyword, such as "next"
-                if ((id == ScalaTokenId.Identifier) || (id == ScalaTokenId.CONSTANT) || id.primaryCategory().equals("keyword")) {
+                if (id == ScalaTokenId.Identifier || id == ScalaTokenId.CONSTANT || id.primaryCategory().equals("keyword")) {
                     if (!ts.movePrevious()) {
                         return false;
                     }
@@ -1443,22 +1443,23 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 }
 
                 // If we're not in the identifier we need to be in the whitespace after "def"
-                if (id != ScalaTokenId.Ws && id != ScalaTokenId.Nl) {
+                if (id != ScalaTokenId.Ws && id != ScalaTokenId.Nl & id != ScalaTokenId.Colon) {
                     // Do something about http://www.netbeans.org/issues/show_bug.cgi?id=100452 here
                     // In addition to checking for whitespace I should look for "Foo." here
                     return false;
                 }
 
                 // There may be more than one whitespace; skip them
-                while (ts.movePrevious()) {
-                    token = ts.token();
-
-                    if (token.id() != ScalaTokenId.Ws) {
-                        break;
+                if (id == ScalaTokenId.Ws || id == ScalaTokenId.Nl) {
+                    while (ts.movePrevious()) {
+                        token = ts.token();
+                        if (token.id() != ScalaTokenId.Ws) {
+                            break;
+                        }
                     }
                 }
 
-                if (token.id() == ScalaTokenId.New) {
+                if (token.id() == ScalaTokenId.New || token.id() == ScalaTokenId.Colon) {
                     if (prefix.length() < 2) {
                         /** @todo return imported types */
                         return false;
@@ -1855,7 +1856,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             if (doc == null) {
                 return false;
             }
-            
+
             TokenHierarchy th = info.getSnapshot().getTokenHierarchy();
             int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
             if (newLexOffset < lexOffset) {
