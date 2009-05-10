@@ -596,9 +596,11 @@ public class AstScope implements Iterable<AstScope> {
         AstItem item = rootScope.findNeastItemAt(th, offset);
         if (item != null) {
             AstScope scope = item.getEnclosingScope();
-            if (scope.contains(th, offset)) {
-                return scope;
-            }
+            // @todo when this is a scope passed to phase lambdalift, the boundsEndToken isn't correct:
+//            if (scope.contains(th, offset)) {
+//                return scope;
+//            }
+            return scope;
         }
 
         if (subScopes != null) {

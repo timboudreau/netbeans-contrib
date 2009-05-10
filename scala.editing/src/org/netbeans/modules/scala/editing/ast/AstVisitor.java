@@ -486,7 +486,7 @@ public abstract class AstVisitor {
 
         /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
         //String name = symbol.idString();
-        String name = symbol.rawname().decode();
+        String name = symbol.rawname().decode().trim();
         int offset = offset(tree);
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
         ts.move(offset);
@@ -495,6 +495,7 @@ public abstract class AstVisitor {
         }
 
         Token token;
+        Token altToken = null;
         if (tree instanceof This || name.equals("this")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
         } else if (tree instanceof Super || name.equals("super")) {
@@ -512,6 +513,12 @@ public abstract class AstVisitor {
             }
         } else if (name.equals("_")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
+        } else if (name.equals("foreach")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
+            altToken = token;
+            if (token != null && !token.text().toString().equals("foreach")) {
+                token = ScalaLexUtilities.findNext(ts, ScalaTokenId.LArrow);
+            }
         } else {
             token = ScalaLexUtilities.findNextIn(ts, ScalaLexUtilities.PotentialIdTokens);
         }
