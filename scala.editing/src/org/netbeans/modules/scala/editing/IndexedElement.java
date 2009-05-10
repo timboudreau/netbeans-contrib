@@ -1065,6 +1065,10 @@ public class IndexedElement extends AstElement {
     }
 
     public String getOrigin() {
+        FileObject fo = getFileObject();
+        if (fo == null) {
+            return null;
+        }
         String filePath = getFileObject().getPath();
         if (filePath != null) {
             int lastSlash = filePath.lastIndexOf('/');

@@ -161,7 +161,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
     @Override
     public String getRhsHtml(HtmlFormatter formatter) {
-        if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
+        if (element.getKind() == ElementKind.PACKAGE) {
+            return null;
+        }
+
+        if (element.getKind() == ElementKind.CLASS) {
             if (element.getElement() instanceof IndexedElement) {
                 String origin = ((IndexedElement) element.getElement()).getOrigin();
                 if (origin != null) {
@@ -169,8 +173,6 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                     return formatter.getText();
                 }
             }
-
-            return null;
         }
 
         String in = element.getIn();

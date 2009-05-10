@@ -42,9 +42,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.lang.model.element.Element;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
@@ -168,11 +167,13 @@ public class GsfElement implements ElementHandle {
         if (isScala()) {
             return ((AstElement) element).getIn();
         } else {
-            TypeMirror tm = element.getEnclosingElement().asType();
-            if (tm.getKind() == TypeKind.DECLARED) {
-                return ((DeclaredType) tm).asElement().getSimpleName().toString();
+            Element enclElement = element.getEnclosingElement();
+            if (enclElement instanceof PackageElement) {
+                return ((PackageElement) enclElement).getQualifiedName().toString();
+            } else if (enclElement instanceof TypeElement) {
+                return ((TypeElement) enclElement).getQualifiedName().toString();
             } else {
-                return tm.getKind().name();
+                return enclElement.toString();
             }
         }
     }
@@ -240,7 +241,6 @@ public class GsfElement implements ElementHandle {
     public OffsetRange getOffsetRange(ParserResult result) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 
     public int getOffset() {
         int offset = 0;
@@ -256,14 +256,17 @@ public class GsfElement implements ElementHandle {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        } 
+        }
         return offset;
     }
-    
+
     public void htmlFormat(HtmlFormatter formatter) {
-        if (isScala()) {
-            ((AstElement) element).htmlFormat(formatter);
-        }
+        formatter.appendText(getIn());
+        formatter.appendText(".");
+        formatter.appendText(getName());
+//        if (isScala()) {
+//            ((AstElement) element).htmlFormat(formatter);
+//        }
     }
 
     public void setDeprecated(boolean deprecated) {
@@ -293,6 +296,5 @@ public class GsfElement implements ElementHandle {
     @Override
     public String toString() {
         return element.toString();
-    }    
-    
+    }
 }
