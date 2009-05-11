@@ -65,59 +65,57 @@ final class TodoSourceParsing {
    static List<int[]> parse(final BaseDocument doc, int startOffset,
          int endOffset) {
       List<int[]> pairsPosition = new LinkedList<int[]>();
-      TokenHierarchy th = TokenHierarchy.get(doc);
-      TokenSequence ts = null;
+      final TokenHierarchy th = TokenHierarchy.get(doc);
 
-      if (th != null) {
-         ts = th.tokenSequence();
-      }
+      if (th != null && th.isActive()) {
+         TokenSequence ts = th.tokenSequence();
+         try {
+            startOffset = Utilities.getRowStart(doc, startOffset);
+            endOffset = Math.min(doc.getLength(), endOffset);
 
-      try {
-         startOffset = Utilities.getRowStart(doc, startOffset);
-         endOffset = Math.min(doc.getLength(), endOffset);
+            for (String word : Settings.getDefault().getPatterns()) {
+               int pos = startOffset;
 
-         for (String word : Settings.getDefault().getPatterns()) {
-            int pos = startOffset;
+               // Search from pos to endPos for TODO markers.
+               while (pos < endOffset) {
+                  FinderFactory.WholeWordsFwdFinder finder =
+                        new FinderFactory.WholeWordsFwdFinder(doc, word, true);
+                  int next = doc.find(finder, pos, endOffset);
 
-            // Search from pos to endPos for TODO markers.
-            while (pos < endOffset) {
-               FinderFactory.WholeWordsFwdFinder finder =
-                     new FinderFactory.WholeWordsFwdFinder(doc, word, true);
-               int next = doc.find(finder, pos, endOffset);
+                  if ((next >= startOffset) && (next < endOffset)) {
+                     // See if it looks like a token we care about (comments)
+                     if (ts != null && ts.isValid()) {
+                        ts.move(next);
 
-               if ((next >= startOffset) && (next < endOffset)) {
-                  // See if it looks like a token we care about (comments)
-                  if (ts != null) {
-                     ts.move(next);
+                        if (ts.moveNext()) {
+                           Token token = ts.token();
+                           pos = Math.min(Utilities.getRowEnd(doc, next),
+                                 ts.offset() + token.length());
 
-                     if (ts.moveNext()) {
-                        Token token = ts.token();
-                        pos = Math.min(Utilities.getRowEnd(doc, next),
-                              ts.offset() + token.length());
-
-                        if (token != null) {
-                           String category = token.id().primaryCategory();
-                           final boolean commentsOnly = Settings.getDefault().
-                                 isScanCommentsOnly();
-                           final boolean valid = !commentsOnly || ("comment".
-                                 equals(category) && commentsOnly); // NOI18N
-                           if (valid) {
-                              pairsPosition.add(new int[] {next, pos});
+                           if (token != null) {
+                              String category = token.id().primaryCategory();
+                              final boolean commentsOnly = Settings.getDefault().
+                                    isScanCommentsOnly();
+                              final boolean valid = !commentsOnly || ("comment".
+                                    equals(category) && commentsOnly); // NOI18N
+                              if (valid) {
+                                 pairsPosition.add(new int[] {next, pos});
+                              }
                            }
+                        } else {
+                           pos = next + word.length();
                         }
                      } else {
                         pos = next + word.length();
                      }
                   } else {
-                     pos = next + word.length();
+                     break;
                   }
-               } else {
-                  break;
                }
             }
+         } catch (BadLocationException e) {
+            Exceptions.printStackTrace(e);
          }
-      } catch (BadLocationException e) {
-         Exceptions.printStackTrace(e);
       }
       return pairsPosition;
    }
