@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.netbeans.libs.cobertura</code-name-base>
+            <module-dependencies/>
+            <public-packages>
+                <package>net.sourceforge.cobertura.ant</package>
+                <package>net.sourceforge.cobertura.check</package>
+                <package>net.sourceforge.cobertura.coveragedata</package>
+                <package>net.sourceforge.cobertura.instrument</package>
+                <package>net.sourceforge.cobertura.javancss</package>
+                <package>net.sourceforge.cobertura.merge</package>
+                <package>net.sourceforge.cobertura.reporting</package>
+                <package>net.sourceforge.cobertura.reporting.html</package>
+                <package>net.sourceforge.cobertura.reporting.html.files</package>
+                <package>net.sourceforge.cobertura.reporting.xml</package>
+                <package>net.sourceforge.cobertura.util</package>
+                <package>net.sourceforge.cobertura.webapp</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/cobertura/cobertura-1.9.jar</runtime-relative-path>
+                <binary-origin>external/cobertura-1.9.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/cobertura/asm-2.2.1.jar</runtime-relative-path>
+                <binary-origin>external/asm-2.2.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/cobertura/asm-tree-2.2.1.jar</runtime-relative-path>
+                <binary-origin>external/asm-tree-2.2.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/cobertura/jakarta-oro-2.0.8.jar</runtime-relative-path>
+                <binary-origin>external/jakarta-oro-2.0.8.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/cobertura/log4j-1.2.9.jar</runtime-relative-path>
+                <binary-origin>external/log4j-1.2.9.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>
