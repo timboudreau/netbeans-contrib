@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.util.Properties;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -62,8 +64,19 @@ public final class RunUnitTestsAction extends ExtendedAction {
             try {
                 Properties props = SeleniumSupport.getProjectProperties(project.getProjectDirectory());
                 String unitTestDir = props.getProperty("test.src.dir");
+                if (unitTestDir == null){
+                    NotifyDescriptor desc = new NotifyDescriptor.Message(NbBundle.getMessage(RunSeleniumTestsAction.class, "No_Unit_Tests"), NotifyDescriptor.INFORMATION_MESSAGE);
+                    DialogDisplayer.getDefault().notifyLater(desc);
+                    return;
+                }
                 FileObject unitTestSources = project.getProjectDirectory().getFileObject(unitTestDir);
-                testProperties.setProperty("test.includes", listAllTestIncludes(unitTestSources));
+                String includes = listAllTestIncludes(unitTestSources);
+                if (includes == null){
+                    NotifyDescriptor desc = new NotifyDescriptor.Message(NbBundle.getMessage(RunSeleniumTestsAction.class, "No_Unit_Tests"), NotifyDescriptor.INFORMATION_MESSAGE);
+                    DialogDisplayer.getDefault().notifyLater(desc);
+                    return;
+                }
+                testProperties.setProperty("test.includes", includes);
                 testProperties.setProperty("javac.includes", ActionUtils.antIncludesList(unitTestSources.getChildren(), unitTestSources));
                 ActionUtils.runTarget(buildXML, new String[]{"test-single"}, testProperties);
             } catch (IOException ex) {
