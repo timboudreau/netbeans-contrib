@@ -111,9 +111,6 @@ public abstract class ExtendedAction extends NodeAction {
                 }
             }
         }
-        if (result == null){
-            return "";
-        }
         return result;
     }
 }
