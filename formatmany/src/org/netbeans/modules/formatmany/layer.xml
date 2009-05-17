@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Source">
+            <file name="org-netbeans-modules-formatmany-FormatManyAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="folder">
+            <folder name="any">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-formatmany-FormatManyAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-formatmany-FormatManyAction.instance"/>
+                        <attr name="position" intvalue="1150"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Source">
+            <file name="org-netbeans-modules-formatmany-FormatManyAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-formatmany-FormatManyAction.instance"/>
+                <attr name="position" intvalue="350"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Projects">
+        <folder name="Actions">
+            <file name="org-netbeans-modules-formatmany-FormatManyAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-formatmany-FormatManyAction.instance"/>
+                <attr name="position" intvalue="120"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
