@@ -49,7 +49,8 @@ import org.netbeans.modules.parsing.spi.{ParseException}
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.netbeans.modules.erlang.editor.ErlangParserResult
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstRootScope}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.openide.filesystems.{FileObject,FileChangeAdapter,FileEvent,FileRenameEvent}
 
 import scala.collection.mutable.HashMap

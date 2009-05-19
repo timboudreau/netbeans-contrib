@@ -45,7 +45,7 @@ import org.netbeans.api.lexer.{TokenHierarchy}
  *
  * @author Caoyuan Deng
  */
-case class AstSym() {
+abstract class AstSym {
    var item:AstItem = _
     
    def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
@@ -53,7 +53,7 @@ case class AstSym() {
 }
 
 /**
- * @Note: scala bug maybe
+ * @Note
  * This should be "case" object, otherwise it's equals(x:Any) will always return true
  */
 case object NoSymbol extends AstSym

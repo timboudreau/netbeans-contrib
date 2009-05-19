@@ -50,7 +50,7 @@ import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.parsing.spi.Parser.Result
 import org.netbeans.modules.parsing.spi.indexing.{Context,EmbeddingIndexer,EmbeddingIndexerFactory,Indexable}
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexDocument,IndexingSupport}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.openide.filesystems.{FileObject,FileStateInvalidException,FileUtil}
 import org.openide.util.Exceptions

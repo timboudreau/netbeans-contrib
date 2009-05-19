@@ -43,7 +43,7 @@ import org.netbeans.api.lexer.{Token,TokenHierarchy,TokenId,TokenSequence}
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRootScope}
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.csl.api.{ElementKind,DeclarationFinder,OffsetRange}
 import org.openide.filesystems.FileObject

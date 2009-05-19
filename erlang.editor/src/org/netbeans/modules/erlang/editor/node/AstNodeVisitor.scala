@@ -44,7 +44,7 @@ import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRef,AstRootScope,AstScope,AstVisitor}
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId._
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.openide.filesystems.FileObject
 
 import scala.collection.mutable.{ArrayBuffer,Stack}

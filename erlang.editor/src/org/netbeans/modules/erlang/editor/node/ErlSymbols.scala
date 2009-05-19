@@ -9,11 +9,10 @@ package org.netbeans.modules.erlang.editor.node
 
 import org.netbeans.modules.erlang.editor.ast.{AstSym}
 
-object ErlSymbols {
+abstract class ErlSymbol extends AstSym
+object ErlSymbol {
    val NO_TYPE = "<notype>"
     
-   case class ErlSymbol() extends AstSym
-
    case class ErlTerm(name:String) extends ErlSymbol
 
    case class ErlFunction(var in:Option[String], var name:String, var arity:Int) extends ErlSymbol {

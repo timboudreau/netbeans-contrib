@@ -74,7 +74,7 @@ class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem
 
 trait LanguageAstRef {self:AstRef =>
    import ElementKind._
-   import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+   import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 
    def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
       case CALL if self.getKind == CALL => (symbol, ref.symbol) match {

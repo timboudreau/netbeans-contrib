@@ -48,7 +48,7 @@ import org.netbeans.modules.csl.spi.{DefaultCompletionResult,ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRootScope,AstScope}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.rats.LexerErlang
 import org.netbeans.modules.erlang.editor.lexer.{LexUtil,ErlangTokenId}
 

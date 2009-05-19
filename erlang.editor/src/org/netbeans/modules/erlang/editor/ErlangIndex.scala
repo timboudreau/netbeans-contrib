@@ -47,7 +47,7 @@ import org.netbeans.modules.parsing.spi.{Parser}
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexResult,QuerySupport}
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem}
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.util.ErlangUtil
 import org.openide.filesystems.{FileObject,FileUtil}
 import org.openide.util.Exceptions

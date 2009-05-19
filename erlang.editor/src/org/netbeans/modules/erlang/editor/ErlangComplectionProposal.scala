@@ -44,7 +44,7 @@ import javax.swing.text.BadLocationException
 import org.netbeans.editor.Utilities
 import org.netbeans.modules.csl.api.{CompletionProposal,ElementHandle,ElementKind,HtmlFormatter,Modifier}
 import org.netbeans.modules.erlang.editor.ast.{AstElementHandle,AstDfn}
-import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.rats.LexerErlang
 import org.openide.util.Exceptions
 

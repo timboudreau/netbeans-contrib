@@ -173,7 +173,7 @@ class AstDfn(_idToken:Option[Token[TokenId]],
  */
 trait LanguageAstDfn {self:AstDfn =>
    import ElementKind._
-   import org.netbeans.modules.erlang.editor.node.ErlSymbols._
+   import org.netbeans.modules.erlang.editor.node.ErlSymbol._
    import org.netbeans.modules.erlang.editor.util.ErlangUtil
 
    /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
