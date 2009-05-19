@@ -74,20 +74,21 @@ generic Attribute =
   / AttrVal
   / SYNTAX_ERROR
   )
+/ void:"-":s !"spec" AtomId     // -else -endif etc
 ;
 
 // ----- predefined attributes
 
 generic PredAttr =
-  void:"-":s "define"     void:"(":s ( AtomId / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
-/ void:"-":s "record"     void:"(":s ( AtomId / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
-/ void:"-":s "module"     void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E ModuleParams )?                          void:")":s
-/ void:"-":s "import"     void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
-/ void:"-":s "export"     void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
-/ void:"-":s "include"    void:"(":s String void:")":s
-/ void:"-":s "includelib" void:"(":s String void:")":s
-/ void:"-":s "compile"    void:"(":s Exprs  void:")":s
-/ void:"-":s "file"       void:"(":s String COMMA_E Integer void:")":s
+  void:"-":s "define"      void:"(":s ( AtomId / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
+/ void:"-":s "record"      void:"(":s ( AtomId / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
+/ void:"-":s "module"      void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E ModuleParams )?                          void:")":s
+/ void:"-":s "import"      void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
+/ void:"-":s "export"      void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
+/ void:"-":s "include"     void:"(":s String void:")":s
+/ void:"-":s "include_lib" void:"(":s String void:")":s
+/ void:"-":s "compile"     void:"(":s Exprs  void:")":s
+/ void:"-":s "file"        void:"(":s String COMMA_E Integer void:")":s
 ;
 
 generic ModuleParams =
