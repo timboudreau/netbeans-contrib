@@ -189,15 +189,22 @@ public class FixImportsHelper {
         }
         return weight;
     }
-    private static final String ERR_PREFIX = "not found: value "; // NOI18N
+    private static final String ERR_PREFIX1 = "not found: value "; // NOI18N
+    private static final String ERR_PREFIX2 = "not found: type "; // NOI18N
 
     public static String getMissingClassName(String errorMessage) {
         String missingClass = null;
 
-        if (errorMessage.startsWith(ERR_PREFIX)) {
-
-            missingClass = errorMessage.substring(ERR_PREFIX.length());
+        if (errorMessage.startsWith(ERR_PREFIX1)) {
+            missingClass = errorMessage.substring(ERR_PREFIX1.length());
             
+            int idx = missingClass.indexOf(" ");
+            if (idx != -1) {
+                return missingClass.substring(0, idx);
+            }
+        } else if (errorMessage.startsWith(ERR_PREFIX2)) {
+            missingClass = errorMessage.substring(ERR_PREFIX2.length());
+
             int idx = missingClass.indexOf(" ");
             if (idx != -1) {
                 return missingClass.substring(0, idx);
