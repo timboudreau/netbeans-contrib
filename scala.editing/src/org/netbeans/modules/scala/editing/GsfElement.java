@@ -167,13 +167,17 @@ public class GsfElement implements ElementHandle {
         if (isScala()) {
             return ((AstElement) element).getIn();
         } else {
-            Element enclElement = element.getEnclosingElement();
-            if (enclElement instanceof PackageElement) {
-                return ((PackageElement) enclElement).getQualifiedName().toString();
-            } else if (enclElement instanceof TypeElement) {
-                return ((TypeElement) enclElement).getQualifiedName().toString();
+            if (element != null) {
+                Element enclElement = element.getEnclosingElement();
+                if (enclElement instanceof PackageElement) {
+                    return ((PackageElement) enclElement).getQualifiedName().toString();
+                } else if (enclElement instanceof TypeElement) {
+                    return ((TypeElement) enclElement).getQualifiedName().toString();
+                } else {
+                    return enclElement.toString();
+                }
             } else {
-                return enclElement.toString();
+                return "";
             }
         }
     }
@@ -261,8 +265,11 @@ public class GsfElement implements ElementHandle {
     }
 
     public void htmlFormat(HtmlFormatter formatter) {
-        formatter.appendText(getIn());
-        formatter.appendText(".");
+        String in = getIn().trim();
+        if (in.length() > 0) {
+            formatter.appendText(in);
+            formatter.appendText(".");
+        }
         formatter.appendText(getName());
 //        if (isScala()) {
 //            ((AstElement) element).htmlFormat(formatter);
