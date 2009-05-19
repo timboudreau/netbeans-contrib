@@ -305,6 +305,11 @@ public class ScalaFormatter implements Formatter {
                                 }
                             }
 
+                            if (indent < 0) {
+                                // @todo why? #150319
+                                continue;
+                            }
+
                             // Adjust the indent at the given line (specified by offset) to the given indent
                             int currentIndent = GsfUtilities.getLineIndent(doc, lineBegin);
 
