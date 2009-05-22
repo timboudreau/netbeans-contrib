@@ -49,9 +49,9 @@ import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 
-public final class RefreshAction implements ActionListener, Runnable {
+public final class RefreshAllAction implements ActionListener, Runnable {
 
-    private static Logger TIMER = Logger.getLogger("TIMER.RefreshAction");
+    private static Logger TIMER = Logger.getLogger("TIMER.RefreshAllAction");
 
     public void actionPerformed(ActionEvent e) {
         RequestProcessor.getDefault().post(this);
@@ -67,8 +67,8 @@ public final class RefreshAction implements ActionListener, Runnable {
         IndexingManager.getDefault().refreshAllIndices();
         if (TIMER.isLoggable(Level.FINE)) {
             long delta = System.currentTimeMillis() - start;
-            LogRecord rec = new LogRecord(Level.FINE, "RefreshAction");
-            rec.setParameters(new Object[]{RefreshAction.class.getName(), delta});
+            LogRecord rec = new LogRecord(Level.FINE, "RefreshAllAction");
+            rec.setParameters(new Object[]{RefreshAllAction.class.getName(), delta});
             TIMER.log(rec);
         }
     }
