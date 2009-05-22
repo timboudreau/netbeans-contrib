@@ -81,7 +81,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
    private val io :InputOutput = IOProvider.getDefault.getIO("Info", false)
 
-   def getPersistentUrl(file:Filea) :String = {
+   def getPersistentUrl(file:File) :String = {
       try {
          file.toURI.toURL.toExternalForm
          // Make relative URLs for urls in the libraries
