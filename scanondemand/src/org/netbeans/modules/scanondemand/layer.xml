@@ -3,9 +3,9 @@
 <filesystem>
     <folder name="Actions">
         <folder name="System">
-            <file name="org-netbeans-modules-scanondemand-RefreshAction.instance">
+            <file name="org-netbeans-modules-scanondemand-RefreshAllAction.instance">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scanondemand.Bundle"/>
-                <attr name="delegate" newvalue="org.netbeans.modules.scanondemand.RefreshAction"/>
+                <attr name="delegate" newvalue="org.netbeans.modules.scanondemand.RefreshAllAction"/>
                 <attr name="displayName" bundlevalue="org.netbeans.modules.scanondemand.Bundle#CTL_RefreshAction"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
@@ -19,9 +19,20 @@
                 <attr name="position" intvalue="1875"/>
             </file>
             <file name="org-netbeans-modules-scanondemand-RefreshAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/System/org-netbeans-modules-scanondemand-RefreshAction.instance"/>
+                <attr name="originalFile" stringvalue="Actions/System/org-netbeans-modules-scanondemand-RefreshAllAction.instance"/>
                 <attr name="position" intvalue="1850"/>
             </file>
         </folder>
     </folder>
+    
+    <folder name="Loaders">
+        <folder name="folder">
+            <folder name="any">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-scanondemand-RefreshFolderAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
 </filesystem>
