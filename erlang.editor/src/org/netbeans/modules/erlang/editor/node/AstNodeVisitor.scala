@@ -844,13 +844,57 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
       } else "{}"
    }
 
-   def visitRecordExpr(that:GNode) = {}
+   def visitRecordExpr(that:GNode) = that.size match {
+      case 1 =>
+         visitRecordExpr1(that.getGeneric(0))
+      case 2 =>
+         visitExprMax(that.getGeneric(0))
+         visitRecordExpr1(that.getGeneric(1))
+   }
 
-   def visitRecordTuple(that:GNode) = {}
+   def visitRecordExpr1(that:GNode) = {
+      val n0 = that.getGeneric(0)
+      n0.getName match {
+         case "RecId" => visitRecId(n0)
+         case "MacroId" => visitMacroId(n0)
+      }
+      
+      val n1 = that.getGeneric(1)
+      n1.getName match {
+         case "AtomId" => visitAtomId(n1)
+         case "MacroId" => visitMacroId(n1)
+         case "RecordTuple" => visitRecordTuple(n1)
+      }
+   }
 
-   def visitRecordFields(that:GNode) = {}
+   def visitRecordTuple(that:GNode) = {
+      val n = that.getGeneric(0)
+      if (n != null) {
+         visitRecordFields(n)
+      }
+   }
 
-   def visitRecordField(that:GNode) = {}
+   def visitRecordFields(that:GNode) = {
+      val n0 = that.getGeneric(0)
+      visitRecordField(n0)
+      val ns :Pair[GNode] = that.getList(1)
+      eachPair(ns){n =>
+         visitRecordField(n)
+      }
+
+   }
+
+   def visitRecordField(that:GNode) = {
+      val n0 = that.getGeneric(0)
+      n0.getName match {
+         case "VarId" => visitVarId(n0)
+         case "AtomId" => visitAtomId(n0)
+         case "MacroId" => visitMacroId(n0)
+      }
+      
+      val expr = that.getGeneric(1)
+      visitExpr(expr)
+   }
 
    def visitFunctionCall(that:GNode) = {
       val expr800 = that.getGeneric(0)
@@ -1124,6 +1168,10 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
    }
 
    def visitRecId(that:GNode) :String = {
+      that.getString(0)
+   }
+
+   def visitMacroId(that:GNode) :String = {
       that.getString(0)
    }
 

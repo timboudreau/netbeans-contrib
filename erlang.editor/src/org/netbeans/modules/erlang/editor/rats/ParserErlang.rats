@@ -323,8 +323,13 @@ generic LcExpr =
 transient generic Tuple = void:"{":s Exprs? void:"}":s ;
 
 transient generic RecordExpr =
-  ( RecId / void:"#":s MacroId ) ( void:".":s ( AtomId / MacroId ) / RecordTuple )
-/ ExprMax ( RecId / void:"#":s MacroId ) ( void:".":s ( AtomId / MacroId ) / RecordTuple )
+  RecordExpr1
+/ ExprMax RecordExpr1
+;
+
+transient generic RecordExpr1 = 
+  RecId              ( void:".":s ( AtomId / MacroId ) / RecordTuple )
+/ void:"#":s MacroId ( void:".":s ( AtomId / MacroId ) / RecordTuple )
 ;
 
 transient generic RecordTuple = void:"{":s RecordFields? void:"}":s ;
@@ -378,8 +383,8 @@ transient generic TryClauses = TryClause ( SEMI_E TryClause )* ;
 
 generic TryClause =
   AtomId void:":":s Expr ClauseGuard? ClauseBody
-/ VarId   void:":":s Expr ClauseGuard? ClauseBody
-/                    Expr ClauseGuard? ClauseBody
+/ VarId  void:":":s Expr ClauseGuard? ClauseBody
+/                   Expr ClauseGuard? ClauseBody
 ;
 
 transient generic QueryExpr = void:"query":s ListComprehension END_E ;
