@@ -178,17 +178,29 @@ trait LanguageAstDfn {self:AstDfn =>
 
    /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
    def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
+      
       case (CALL, METHOD) => (ref.symbol, symbol) match {
             case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
                if nameX == nameY && arityX == arityY => true
             case _ => false
          }
+
+      case (ATTRIBUTE, ATTRIBUTE) => (ref.symbol, symbol) match {
+            case (ErlRecord(nameX, fieldsX), ErlRecord(nameY, fieldsY))
+               if nameX == nameY => true
+            case (ErlRecordField(nameX, fieldX), ErlRecordField(nameY, fieldY))
+               if nameX == nameY && fieldX == fieldY=> true
+            case _ => false
+         }
+
       case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
+         
       case _ =>
          if (ref.getName == getName) {
             ref.symbol == self.asInstanceOf[AstItem].symbol
          } else false
    }
+   
 
    def docComment :String = {
       val srcDoc = doc match {

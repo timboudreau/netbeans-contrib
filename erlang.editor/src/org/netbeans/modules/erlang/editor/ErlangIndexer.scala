@@ -52,6 +52,7 @@ import org.netbeans.modules.parsing.spi.indexing.{Context,EmbeddingIndexer,Embed
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexDocument,IndexingSupport}
 import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager
 import org.openide.filesystems.{FileObject,FileStateInvalidException,FileUtil}
 import org.openide.util.Exceptions
 import org.openide.windows.{IOProvider,InputOutput}
@@ -182,9 +183,9 @@ class ErlangIndexer extends EmbeddingIndexer {
                   case x :: _ => x.name
                   case _ => null
                }
-            case _ => null
-               // @todo getHeaderFqn(fo)
+            case _ => getHeaderFqn(fo)
          }
+         
          if (fqn == null) {
             return
          }
@@ -203,7 +204,7 @@ class ErlangIndexer extends EmbeddingIndexer {
        * @NOTE Add "lib;" before header file fqn of lib, it also contains its ext (such as ".hrl")
        */
       private def getHeaderFqn(fo:FileObject) :String = {
-         val libFo :FileObject = null//RubyPlatformManager.getDefaultPlatform().getLibFO();
+         val libFo :FileObject = RubyPlatformManager.getDefaultPlatform().getLibFO();
          assert(libFo != null)
          val relativePath = FileUtil.getRelativePath(libFo, fo)
          /**
@@ -309,7 +310,7 @@ class ErlangIndexer extends EmbeddingIndexer {
 
          sb.append(";").append(record.offset(th))
          sb.append(";").append(record.endOffset(th))
-         record.fields.foreach{sb.append(";").append(_)}
+         record.fields.foreach{x => sb.append(";").append(x.field)}
 
          document.addPair(ErlangIndexer.FIELD_RECORD, sb.toString, true, true)
       }

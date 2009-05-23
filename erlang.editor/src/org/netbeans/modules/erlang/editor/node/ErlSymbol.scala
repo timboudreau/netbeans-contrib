@@ -54,6 +54,7 @@ object ErlSymbol {
    case class ErlModule(name:String) extends ErlSymbol
    case class ErlInclude(isLib:Boolean, path:String) extends ErlSymbol
    case class ErlExport(functions:List[ErlFunction]) extends ErlSymbol
-   case class ErlRecord(name:String, fields:List[String]) extends ErlSymbol
-   case class ErlMacro(name:String, params:List[String], var body:String) extends ErlSymbol
+   case class ErlRecord(name:String, fields:Seq[ErlRecordField]) extends ErlSymbol
+   case class ErlRecordField(name:String, field:String) extends ErlSymbol
+   case class ErlMacro(name:String, params:Seq[String], var body:String) extends ErlSymbol
 }

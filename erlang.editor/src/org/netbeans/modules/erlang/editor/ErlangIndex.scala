@@ -139,7 +139,7 @@ class ErlangIndex(querySupport:QuerySupport) {
       }
       /** search including headfiles */
       for (include <- queryIncludes(fqn)) {
-         val sym = include.symbol.asInstanceOf[ErlInclude]
+         val sym = include.asInstanceOf[ErlInclude]
          for (r <- queryFiles(sym.path, QuerySupport.Kind.EXACT)) {
             val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
             if (signatures != null) {
@@ -170,7 +170,7 @@ class ErlangIndex(querySupport:QuerySupport) {
 
       /** search including headfiles */
       for (include <- queryIncludes(fqn)) {
-         val sym = include.symbol.asInstanceOf[ErlInclude]
+         val sym = include.asInstanceOf[ErlInclude]
          for (r <- queryFiles(sym.path, QuerySupport.Kind.EXACT)) {
             val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
             if (signatures != null) {
@@ -250,8 +250,8 @@ class ErlangIndex(querySupport:QuerySupport) {
          case Array(nameX, _, arityX, offsetX, endOffsetX, _*) => (nameX, arityX.toInt, offsetX.toInt, endOffsetX.toInt)
          case Array(nameX, _*) => (nameX, 0, 0, 0)
       }
-      val fields = for (i <- 5 until groups.length) yield groups(i)
-      val record = ErlRecord(name, fields.toList)
+      val fields = for (i <- 5 until groups.length) yield ErlRecordField(name, groups(i))
+      val record = ErlRecord(name, fields)
       record
    }
 

@@ -48,8 +48,7 @@ import org.netbeans.modules.parsing.spi.{ParseException}
 
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.netbeans.modules.erlang.editor.ErlangParserResult
-import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstRootScope}
-import org.netbeans.modules.erlang.editor.node.ErlSymbol
+import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstRootScope,AstSym}
 import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.openide.filesystems.{FileObject,FileChangeAdapter,FileEvent,FileRenameEvent}
 
@@ -104,7 +103,7 @@ object ErlangUtil {
       }
    }
 
-   def resolveDfn(fo:FileObject, symbol:ErlSymbol) :Option[AstDfn] = {
+   def resolveDfn(fo:FileObject, symbol:AstSym) :Option[AstDfn] = {
       resolveRootScope(fo) match {
          case None => None
          case Some(rootScope) => rootScope.findDfnOfSym(symbol)

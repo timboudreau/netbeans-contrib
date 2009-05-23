@@ -48,6 +48,7 @@ import org.netbeans.modules.csl.api.StructureScanner._
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstRootScope,AstScope}
 import org.netbeans.modules.erlang.editor.lexer.{ErlangTokenId,LexUtil}
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.openide.util.Exceptions
 
 import scala.collection.mutable.ArrayBuffer
@@ -165,7 +166,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
       for (dfn <- defs) {
          val kind = dfn.getKind
          kind match {
-            case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE =>
+            case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE if !dfn.isInstanceOf[ErlRecordField] =>
                var range = dfn.getOffsetRange(pResult)
                var start = range.getStart
                // * start the fold at the end of the line behind last non-whitespace, should add 1 to start after "->"
@@ -210,7 +211,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
       override
       def isLeaf :Boolean = dfn.getKind match {
          case MODULE | CLASS | METHOD => false
-         case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+         case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE if !dfn.isInstanceOf[ErlRecordField] => true
          case _ => true
       }
 

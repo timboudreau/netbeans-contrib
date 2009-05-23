@@ -87,7 +87,6 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
       exit(that)
    }
 
-
    def visitAttribute(that:GNode) = {
       val scope = new AstScope(boundsTokens(that))
       rootScope.addScope(scope)
@@ -122,9 +121,11 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
       scopes.pop
    }
 
-   def visitPredAttr(that:GNode) = {
+   def visitPredAttr(that:GNode) :AstDfn = {
       val inScope = scopes.top
-      val attr = that.getString(0) match {
+      val attrName = that.getString(0)
+      val attr = attrName match {
+         
          case "module" =>
             val atomId = that.getGeneric(1)
             val fstTk = idToken(idNode(atomId))
@@ -137,34 +138,89 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                case Nil => (fstTk, Nil)
                case x :: xs => (x, fstTk :: (xs.reverse))
             }
+            val moduleSym = ErlModule(nameTk.get.text.toString)
+            
             val attrDfn = new AstDfn(nameTk, ElementKind.MODULE, inScope, fo)
-            val erlModule = ErlModule(nameTk.get.text.toString)
-            attrDfn.symbol = erlModule
+            attrDfn.symbol = moduleSym
             attrDfn.property("pkg", pkgPaths)
+            rootScope.addDfn(attrDfn)
             attrDfn
+
          case "export" =>
             val functionNames = that.getGeneric(1)
             if (functionNames != null) {
-               val attrDfn = new AstDfn(idToken(idNode(that)), ElementKind.ATTRIBUTE, inScope, fo)
                val erlFunctions = visitFunctionNames(functionNames)
                val erlExport = ErlExport(erlFunctions.toList)
+               
+               val attrDfn = new AstDfn(idToken(idNode(that)), ElementKind.ATTRIBUTE, inScope, fo)
                attrDfn.symbol = erlExport
+               rootScope.addDfn(attrDfn)
                attrDfn
             } else null
+
+         case "record" =>
+            val id = that.getGeneric(1)
+            val name = id.getName match {
+               case "AtomId" => visitAtomId(id)
+               case "VarId" => visitVarId(id)
+            }
+
+            val fieldNames = visitRecordFieldNames(that.getGeneric(2))
+            val recFields = fieldNames.map{x =>
+               val dfn = new AstDfn(idToken(idNode(x._1)), ElementKind.FIELD, inScope, fo)
+               rootScope.addDfn(dfn)
+               val fieldSym = ErlRecordField(name, x._2)
+               dfn.symbol = fieldSym
+               fieldSym
+            }
+            val recordSym = ErlRecord(name, recFields)
+
+            val attrDfn = new AstDfn(idToken(idNode(id)), ElementKind.ATTRIBUTE, inScope, fo)
+            attrDfn.symbol = recordSym
+            rootScope.addDfn(attrDfn)
+            attrDfn
+
+         case "include" | "include_lib" =>
+            val isLib = attrName.equals("include_lib")
+            val path = that.getString(0)
+            val includeSym = ErlInclude(isLib, path)
+            
+            val attrDfn = new AstDfn(idToken(idNode(that)), ElementKind.OTHER, inScope, fo)
+            attrDfn.symbol = includeSym
+            rootScope.addDfn(attrDfn)
+            attrDfn
+
          case _ =>
             null
             //new AstDfn(that, idToken(idNode(atomId)), ElementKind.ATTRIBUTE, inScope, fo)
       }
-      if (attr != null) rootScope.addDfn(attr)
+      
+      attr
    }
 
-   def visitFunctionNames(that:GNode) :ArrayBuffer[ErlFunction] = {
+   def visitRecordFieldNames(that:GNode) :Seq[(GNode, String)] = {
+      val names = new ArrayBuffer[(GNode, String)]
+      
+      val n0 = that.getGeneric(0)
+      names += visitRecordFieldName(n0)
+
+      val ns :Pair[GNode] = that.getList(1)
+      names ++= foldPair(ns){n =>
+         visitRecordFieldName(n)
+      }
+      names
+   }
+
+   def visitRecordFieldName(that:GNode) :(GNode, String) = {
+      (that, visitAtomId(that.getGeneric(0)))
+   }
+
+   def visitFunctionNames(that:GNode) :Seq[ErlFunction] = {
       val functionName = that.getGeneric(0)
 
       val erlFunctions = new ArrayBuffer[ErlFunction]
 
-      val erlFunction = visitFunctionName(functionName)
-      erlFunctions + erlFunction
+      erlFunctions + visitFunctionName(functionName)
 
       val ns :Pair[GNode] = that.getList(1)
       erlFunctions ++= foldPair(ns){n =>
@@ -455,8 +511,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
    def visitIntType(that:GNode) :Int = {
       val minus = that.getString(0)
-      val int = visitInteger(that.getGeneric(1))
-      if (minus != null) -int else int
+      val i = visitInteger(that.getGeneric(1))
+      if (minus != null) -i else i
    }
 
    def visitFunType100(that:GNode) :(List[String], String) = {
@@ -854,39 +910,53 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
    def visitRecordExpr1(that:GNode) = {
       val n0 = that.getGeneric(0)
-      n0.getName match {
+      val recName = n0.getName match {
          case "RecId" => visitRecId(n0)
          case "MacroId" => visitMacroId(n0)
       }
+      val ref = new AstRef(idToken(idNode(n0)), ElementKind.ATTRIBUTE)
+      val inScope = scopes.top
+      inScope.addRef(ref)
+      val rec = ErlRecord(recName, Nil)
+      ref.symbol = rec
       
       val n1 = that.getGeneric(1)
       n1.getName match {
          case "AtomId" => visitAtomId(n1)
          case "MacroId" => visitMacroId(n1)
-         case "RecordTuple" => visitRecordTuple(n1)
+         case "RecordTuple" =>
+            visitRecordTuple(n1).foreach{field =>
+               val ref = new AstRef(idToken(idNode(field._1)), ElementKind.FIELD)
+               inScope.addRef(ref)
+               val recField = ErlRecordField(recName, field._2)
+               ref.symbol = recField
+            }
       }
    }
 
-   def visitRecordTuple(that:GNode) = {
+   def visitRecordTuple(that:GNode) :Seq[(GNode, String)] = {
       val n = that.getGeneric(0)
       if (n != null) {
          visitRecordFields(n)
-      }
+      } else Nil
    }
 
-   def visitRecordFields(that:GNode) = {
+   def visitRecordFields(that:GNode) :Seq[(GNode, String)] = {
+      val fields = new ArrayBuffer[(GNode, String)]
+
       val n0 = that.getGeneric(0)
-      visitRecordField(n0)
+      fields += visitRecordField(n0)
+
       val ns :Pair[GNode] = that.getList(1)
-      eachPair(ns){n =>
+      fields ++= foldPair(ns){n =>
          visitRecordField(n)
       }
-
+      fields
    }
 
-   def visitRecordField(that:GNode) = {
+   def visitRecordField(that:GNode) :(GNode, String) = {
       val n0 = that.getGeneric(0)
-      n0.getName match {
+      val fieldName = n0.getName match {
          case "VarId" => visitVarId(n0)
          case "AtomId" => visitAtomId(n0)
          case "MacroId" => visitMacroId(n0)
@@ -894,6 +964,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
       
       val expr = that.getGeneric(1)
       visitExpr(expr)
+
+      (that, fieldName)
    }
 
    def visitFunctionCall(that:GNode) = {

@@ -117,7 +117,22 @@ class ErlangDeclarationFinder extends DeclarationFinder {
                      case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
                      case None => DeclarationLocation.NONE
                   }
-               case _ =>  DeclarationLocation.NONE
+
+               case ErlRecord(name, _) =>
+                  val index = ErlangIndex.get(pResult)
+                  index.queryRecords(name).find(x => x.symbol.asInstanceOf[ErlRecord].name.equals(name)) match {
+                     case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+                     case None => DeclarationLocation.NONE
+                  }
+
+               case ErlRecordField(name, field) =>
+                  val index = ErlangIndex.get(pResult)
+                  index.queryRecords(name).find(x => x.symbol.asInstanceOf[ErlRecord].name.equals(name)) match {
+                     case Some(x) =>
+                        new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+                     case None => DeclarationLocation.NONE
+                  }
+               case _ => DeclarationLocation.NONE
             }
       }
 
