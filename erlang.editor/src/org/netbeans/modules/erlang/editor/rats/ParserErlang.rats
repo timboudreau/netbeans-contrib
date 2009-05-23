@@ -359,7 +359,7 @@ generic ReceiveExpr =
 
 generic FunExpr =
   void:"fun":k ( AtomId / MacroId ) void:":":s FunctionName
-/ void:"fun":k                                  FunctionName
+/ void:"fun":k                                 FunctionName
 / void:"fun":k FunClauses END_E
 ;
 

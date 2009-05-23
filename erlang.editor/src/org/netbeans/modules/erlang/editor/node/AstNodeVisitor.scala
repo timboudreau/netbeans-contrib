@@ -243,6 +243,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
          val tpes = visitClauseArgs(clauseArgs)
          dfn.property("args", tpes)
          inVarDefs.pop
+         
          val clauseGuard = that.getGeneric(2)
          if (clauseGuard != null) {
             visitClauseGuard(clauseGuard)
@@ -962,14 +963,24 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
    }
 
    def visitFunClause(that:GNode) = {
-      val args = that.getGeneric(0)
-      visitArgumentList(args)
+      val inScope = scopes.top
+      val scope = new AstScope(boundsTokens(that))
+      inScope.addScope(scope)
+      scopes.push(scope)
+
+      val clauseArgs = that.getGeneric(0)
+      inVarDefs.push(ElementKind.PARAMETER)
+      visitArgumentList(clauseArgs)
+      inVarDefs.pop
+      
       val clauseGuard = that.getGeneric(1)
       if (clauseGuard != null) {
          visitClauseGuard(clauseGuard)
       }
       val clauseBody = that.getGeneric(2)
       visitClauseBody(clauseBody)
+
+      scopes.pop
    }
 
    def visitTryExpr(that:GNode) = {
