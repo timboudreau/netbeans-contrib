@@ -114,8 +114,8 @@ class ErlangDeclarationFinder extends DeclarationFinder {
                case ErlFunction(Some(module), name, arity) =>
                   val index = ErlangIndex.get(pResult)
                   index.queryFunction(module, name, arity) match {
-                     case None => DeclarationLocation.NONE
                      case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+                     case None => DeclarationLocation.NONE
                   }
                case _ =>  DeclarationLocation.NONE
             }

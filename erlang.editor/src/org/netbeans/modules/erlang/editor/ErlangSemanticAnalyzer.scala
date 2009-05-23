@@ -49,6 +49,7 @@ import org.netbeans.modules.parsing.spi.{Scheduler,SchedulerEvent,ParserResultTa
 import org.netbeans.modules.erlang.editor.ast.{AstDfn,AstItem,AstRef,AstRootScope}
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
 import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
+import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 
 /**
  *
@@ -90,28 +91,31 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
            doc <- LexUtil.document(pResult, true)
       ) {
          var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-         visitItems(th, rootScope, highlights)
+         visitItems(pResult, th, rootScope, highlights)
 
          this.semanticHighlights = if (highlights.size > 0) highlights else null
       }
    }
 
-   private def visitItems(th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
+   private def visitItems(pResult:ErlangParserResult, th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
       import ElementKind._
       for (item <- rootScope.idTokenToItem(th).values;
            hiToken <- item.idToken
       ) {
-            
+
          val hiRange = LexUtil.rangeOfToken(th, hiToken)
-         item match {
-            case dfn:AstDfn => dfn.getKind match {
+         rootScope.findDfnOf(item) match {
+            case Some(x) => 
+               x.getKind match {
                   case MODULE =>
                      highlights.put(hiRange, ColoringAttributes.CLASS_SET)
                   case CLASS =>
                      highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+                  case METHOD if item.getKind == CALL =>
+                     highlights.put(hiRange, ColoringAttributes.FIELD_SET)
                   case METHOD =>
                      highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                  case ATTRIBUTE if dfn.isFunctionClause =>
+                  case ATTRIBUTE if x.isFunctionClause =>
                      highlights.put(hiRange, ColoringAttributes.METHOD_SET)
                   case ATTRIBUTE =>
                      highlights.put(hiRange, ColoringAttributes.STATIC_SET)
@@ -119,12 +123,21 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
                      highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
                   case _ =>
                }
-            case ref:AstRef => ref.getKind match {
-                  case CALL =>
-                     highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                  case PARAMETER =>
-                     highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
-                  case _ =>
+            case None => item.symbol match {
+                  // search in remote modules
+                  case ErlFunction(Some(module), name, arity) =>
+                     // if module part is a Var, we could not determine if it has this function
+                     if (module.length > 0 && module.charAt(0).isLowerCase) {
+                        val index = ErlangIndex.get(pResult)
+                        index.queryFunction(module, name, arity) match {
+                           case Some(x) =>
+                              highlights.put(hiRange, ColoringAttributes.FIELD_SET)
+                           case None =>
+                              highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+                        }
+                     }
+                  case ErlFunction(None, name, arity) => // @todo is it a predefined function?
+                  case _ =>  highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
                }
          }
       }
