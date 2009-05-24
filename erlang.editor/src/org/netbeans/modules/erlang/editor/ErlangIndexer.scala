@@ -148,7 +148,7 @@ class ErlangIndexer extends EmbeddingIndexer {
       private val documents = new ArrayBuffer[IndexDocument]
 
       private val fo :FileObject = LexUtil.fileObject(pResult).get
-      private val tpe = fo.getExt match {
+      private val fileType = fo.getExt match {
          case "hrl" => HEADER
          case _ => MODULE
       }
@@ -159,37 +159,33 @@ class ErlangIndexer extends EmbeddingIndexer {
             // Make relative URLs for preindexed data structures
             //url = ErlangIndex.getPreindexUrl(url);
          }
-      } catch {
-         case ex:FileStateInvalidException => null
-      }
+      } catch {case ex:FileStateInvalidException => null}
 
       private val th:TokenHierarchy[_] = LexUtil.tokenHierarchy(pResult) match {
          case None => null
          case Some(x) => x
       }
 
-      def getDocuments : List[IndexDocument] = documents.toList
+      def getDocuments :List[IndexDocument] = {
+         documents.toList
+      }
 
-      def analyze {
+      def analyze :Unit = {
          if (th == null) return
 
          val rootScope = pResult.rootScope match {
-            case None => return
             case Some(x) => x
+            case None => return
          }
 
-         val fqn = tpe match {
+         val fqn = fileType match {
             case MODULE => rootScope.findAllDfnSyms(classOf[ErlModule]) match {
                   case x :: _ => x.name
-                  case _ => null
+                  case _ => return
                }
             case _ => getHeaderFqn(fo)
          }
          
-         if (fqn == null) {
-            return
-         }
-
          /** we will index exported functions and, defined macros etc */
          val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
          val exports  = rootScope.findAllDfnSyms(classOf[ErlExport])
@@ -212,19 +208,20 @@ class ErlangIndexer extends EmbeddingIndexer {
           * is opened in editor, the file.isPlatform seems always return false;
           */
          if (relativePath == null) {
-            // not a platform lib file
+            // * not a platform lib file
             return fo.getNameExt
          }
 
          val groups = relativePath.split(File.separator)
-         val pkgNameWithVersion = if (groups.length >= 1) groups(0) else relativePath
-         // Remove version number:
+         val pkgNameWithVersion = if (groups.length > 0) groups(0) else relativePath
+         // * Remove version number:
          val dashIdx = pkgNameWithVersion.lastIndexOf('-')
          val pkgName = if (dashIdx != -1) pkgNameWithVersion.substring(0, dashIdx) else pkgNameWithVersion
+         
          val sb = new StringBuilder(30);
          sb.append("lib;").append(pkgName)
          for (i <- 1 until groups.length) {
-            sb.append("/").append(groups(i))
+            sb.append('.').append(groups(i))
          }
          sb.toString
       }
@@ -234,7 +231,7 @@ class ErlangIndexer extends EmbeddingIndexer {
          val document = support.createDocument(indexable)
          documents + document
 
-         val typeAttr = if ( tpe == MODULE) "m" else "h"
+         val typeAttr = if (fileType == MODULE) "m" else "h"
          val attrs = typeAttr
 
          /** @TODO */
@@ -244,6 +241,7 @@ class ErlangIndexer extends EmbeddingIndexer {
          //if (documentSize > 0) {
          //    attributes = attributes + "d(" + documentSize + ")";
          //}
+         
          document.addPair(ErlangIndexer.FIELD_ATTRS, attrs, false, true)
 
          document.addPair(ErlangIndexer.FIELD_FQN_NAME, fqn, true, true)

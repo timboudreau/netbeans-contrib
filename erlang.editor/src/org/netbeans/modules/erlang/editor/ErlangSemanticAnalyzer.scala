@@ -130,13 +130,29 @@ class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
                      if (module.length > 0 && module.charAt(0).isLowerCase) {
                         val index = ErlangIndex.get(pResult)
                         index.queryFunction(module, name, arity) match {
-                           case Some(x) =>
-                              highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                           case None =>
-                              highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+                           case Some(x) => highlights.put(hiRange, ColoringAttributes.FIELD_SET)
+                           case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
                         }
                      }
+
                   case ErlFunction(None, name, arity) => // @todo is it a predefined function?
+
+                  case ErlRecord(name, _) =>
+                     val index = ErlangIndex.get(pResult)
+                     val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+                     index.queryRecord(includes, name) match {
+                        case Some(x) => 
+                        case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+                     }
+
+                  case ErlRecordField(name, field) =>
+                     val index = ErlangIndex.get(pResult)
+                     val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+                     index.queryRecord(includes, name) match {
+                        case Some(x) => 
+                        case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+                     }
+
                   case _ =>  highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
                }
          }

@@ -66,14 +66,11 @@ class ErlangIndex(querySupport:QuerySupport) {
       try {
          val r = querySupport.query(key, name, kind, fieldsToLoad:_*)
          r.toArray(new Array[IndexResult](r.size))
-      } catch {
-         case ex:IOException => Exceptions.printStackTrace(ex); EMPTY_INDEX_RESULT
-      }
+      } catch {case ex:IOException => ex.printStackTrace; EMPTY_INDEX_RESULT}
    }
 
    private def queryFiles(name:String, kind:QuerySupport.Kind, fieldsToLoad:String*) :Array[IndexResult] = {
-      val field = ErlangIndexer.FIELD_FQN_NAME
-      query(field, name, kind, fieldsToLoad:_*)
+      query(ErlangIndexer.FIELD_FQN_NAME, name, kind, fieldsToLoad:_*)
    }
 
    def queryPersistentUrl(fqn:String) :URL = {
@@ -109,85 +106,8 @@ class ErlangIndex(querySupport:QuerySupport) {
       functionsBuf.toArray
    }
 
-   def queryIncludes(fqn:String) : Array[AstDfn] = {
-      includesBuf.clear
-      for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT)) {
-         val signatures = r.getValues(ErlangIndexer.FIELD_INCLUDE)
-         if (signatures != null) {
-            val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-            for (signature <- signatures) {
-               val symbol = createInclude(signature)
-               ErlangUtil.resolveDfn(fo, symbol).foreach{includesBuf + _}
-            }
-         }
-      }
-      includesBuf.toArray
-   }
-
-   def queryRecords(fqn:String) :Array[AstDfn] = {
-      recordsBuf.clear
-      /** search my module first */
-      for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT)) {
-         val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
-         if (signatures != null) {
-            val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-            for (signature <- signatures) {
-               val symbol = createRecord(signature)
-               ErlangUtil.resolveDfn(fo, symbol).foreach{recordsBuf + _}
-            }
-         }
-      }
-      /** search including headfiles */
-      for (include <- queryIncludes(fqn)) {
-         val sym = include.asInstanceOf[ErlInclude]
-         for (r <- queryFiles(sym.path, QuerySupport.Kind.EXACT)) {
-            val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
-            if (signatures != null) {
-               val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-               for (signature <- signatures) {
-                  val symbol = createRecord(signature)
-                  ErlangUtil.resolveDfn(fo, symbol).foreach{recordsBuf + _}
-               }
-            }
-         }
-      }
-      recordsBuf.toArray
-   }
-
-   def queryMacros(fqn:String) :Array[AstDfn] = {
-      definesBuf.clear
-      /** search my module first */
-      for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT)) {
-         val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
-         if (signatures != null) {
-            val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-            for (signature <- signatures) {
-               val symbol = createMacro(signature)
-               ErlangUtil.resolveDfn(fo, symbol).foreach{definesBuf + _}
-            }
-         }
-      }
-
-      /** search including headfiles */
-      for (include <- queryIncludes(fqn)) {
-         val sym = include.asInstanceOf[ErlInclude]
-         for (r <- queryFiles(sym.path, QuerySupport.Kind.EXACT)) {
-            val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
-            if (signatures != null) {
-               val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-               for (signature <- signatures) {
-                  val symbol = createMacro(signature)
-                  ErlangUtil.resolveDfn(fo, symbol).foreach{definesBuf + _}
-               }
-            }
-         }
-      }
-
-      definesBuf.toArray
-   }
-
-   def queryFunction(fqn:String, functionName:String, arity:Int) :Option[AstDfn] = {
-      for (r <- queryFiles(fqn, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_FUNCTION)) {
+   def queryFunction(module:String, functionName:String, arity:Int) :Option[AstDfn] = {
+      for (r <- queryFiles(module, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_FUNCTION)) {
          val signatures = r.getValues(ErlangIndexer.FIELD_FUNCTION)
          if (signatures != null) {
             val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
@@ -203,23 +123,45 @@ class ErlangIndex(querySupport:QuerySupport) {
       None
    }
 
-   def queryMacro(includes:List[ErlInclude], macroName:String) :ErlMacro = {
-      /** search including headfiles */
+   def queryRecord(includes:Seq[ErlInclude], recordName:String) :Option[AstDfn] = {
       for (include <- includes) {
-         for (r <- queryFiles(include.path, QuerySupport.Kind.EXACT)) {
-            val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
+         val name = if (include.isLib) "lib;" + include.path.replace('/', '.') else include.path.replace('/', '.')
+         for (r <- queryFiles(name, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_RECORD)) {
+            val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
             if (signatures != null) {
-               val url = r.getUrl
+               val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
                for (signature <- signatures) {
-                  val macro = createMacro(signature)
-                  if (macro.name.equals(macroName)) {
-                     return macro
+                  createRecord(signature) match {
+                     case symbol@ErlRecord(`recordName`, _) =>
+                        return ErlangUtil.resolveDfn(fo, symbol)
+                     case _ =>
                   }
                }
             }
          }
       }
-      null
+      None
+   }
+
+   def queryMacro(includes:Seq[ErlInclude], macroName:String) :Option[AstDfn] = {
+      /** search including headfiles */
+      for (include <- includes) {
+         val name = if (include.isLib) "lib;" + include.path.replace('/', '.') else include.path.replace('/', '.')
+         for (r <- queryFiles(name, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_MACRO)) {
+            val signatures = r.getValues(ErlangIndexer.FIELD_MACRO)
+            if (signatures != null) {
+               val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
+               for (signature <- signatures) {
+                  createMacro(signature) match {
+                     case symbol@ErlMacro(`macroName`, _, _) =>
+                        return ErlangUtil.resolveDfn(fo, symbol)
+                     case _ =>
+                  }
+               }
+            }
+         }
+      }
+      None
    }
 
    private def createFuntion(signature:String) :ErlFunction = {
@@ -250,7 +192,7 @@ class ErlangIndex(querySupport:QuerySupport) {
          case Array(nameX, _, arityX, offsetX, endOffsetX, _*) => (nameX, arityX.toInt, offsetX.toInt, endOffsetX.toInt)
          case Array(nameX, _*) => (nameX, 0, 0, 0)
       }
-      val fields = for (i <- 5 until groups.length) yield ErlRecordField(name, groups(i))
+      val fields = (5 until groups.length).map{i => ErlRecordField(name, groups(i))}.toArray
       val record = ErlRecord(name, fields)
       record
    }
@@ -261,7 +203,7 @@ class ErlangIndex(querySupport:QuerySupport) {
          case Array(nameX, _, arityX, offsetX, endOffsetX, _*) => (nameX, arityX.toInt, offsetX.toInt, endOffsetX.toInt)
          case Array(nameX, _*) => (nameX, 0, 0, 0)
       }
-      val params = for (i <- 5 until groups.length - 1) yield groups(i)
+      val params = (5 until groups.length - 1).map{i => groups(i)}.toArray
       val body = groups(groups.length - 1)
       val macro = ErlMacro(name, params.toList, body)
       macro

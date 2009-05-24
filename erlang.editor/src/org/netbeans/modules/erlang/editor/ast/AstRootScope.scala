@@ -40,6 +40,8 @@ package org.netbeans.modules.erlang.editor.ast
 
 import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind}
+import org.netbeans.modules.erlang.editor.node.ErlSymbol
+
 import scala.collection.mutable.{ArrayBuffer,HashMap}
 
 /**
@@ -140,7 +142,7 @@ trait LanguageAstRootScope {self:AstRootScope =>
    def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
       self._idTokenToItem.values.find{item =>
          // ElementKind.Rule is "-spec", we won't let it as
-         item.isInstanceOf[AstDfn] && item.symbol == symbol && item.getKind != ElementKind.RULE
+         item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
       }.asInstanceOf[Option[AstDfn]]
    }
 

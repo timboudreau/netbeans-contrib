@@ -172,7 +172,7 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
                val fieldSym = ErlRecordField(name, x._2)
                dfn.symbol = fieldSym
                fieldSym
-            }
+            }.toArray
             val recordSym = ErlRecord(name, recFields)
 
             val attrDfn = new AstDfn(idToken(idNode(id)), ElementKind.ATTRIBUTE, inScope, fo)
@@ -182,8 +182,8 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
 
          case "include" | "include_lib" =>
             val isLib = attrName.equals("include_lib")
-            val path = that.getString(0)
-            val includeSym = ErlInclude(isLib, path)
+            val path = that.getGeneric(1).getGeneric(0).getString(0).trim
+            val includeSym = ErlInclude(isLib, stripBoundsQuotes(path))
             
             val attrDfn = new AstDfn(idToken(idNode(that)), ElementKind.OTHER, inScope, fo)
             attrDfn.symbol = includeSym
@@ -1273,5 +1273,21 @@ class AstNodeVisitor(rootNode:Node, th:TokenHierarchy[_], fo:Option[FileObject])
       case _ =>
          acc += f(p.head)
          foldPair(p.tail, acc){f}
+   }
+
+   def stripBoundsQuotes(s:String) :String = {
+      if (s.length > 0) {
+         val l = s.length
+         val sb = new StringBuilder
+         for (i <- 0 until l) {
+            val c = s.charAt(i)
+            if (c == '"' && (i == 0 || i == l - 1)) {
+               // * strip it
+            } else {
+               sb.append(c)
+            }
+         }
+         sb.toString
+      } else s
    }
 }

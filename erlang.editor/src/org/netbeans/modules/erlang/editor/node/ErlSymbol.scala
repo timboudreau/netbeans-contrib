@@ -57,4 +57,14 @@ object ErlSymbol {
    case class ErlRecord(name:String, fields:Seq[ErlRecordField]) extends ErlSymbol
    case class ErlRecordField(name:String, field:String) extends ErlSymbol
    case class ErlMacro(name:String, params:Seq[String], var body:String) extends ErlSymbol
+
+   def symbolEquals(sym1:AstSym, sym2:AstSym) = {
+      (sym1, sym2) match {
+         case (ErlRecord(name1, _), ErlRecord(name2, _))
+            if name1 == name2 => true
+         case (ErlRecordField(name1, field1), ErlRecordField(name2, field2))
+            if name1 == name2 && field1 == field2 => true
+         case _ => sym1 == sym2
+      }
+   }
 }
