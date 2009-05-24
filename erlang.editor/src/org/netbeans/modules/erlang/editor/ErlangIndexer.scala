@@ -44,6 +44,8 @@ import _root_.java.util.{Collection}
 import _root_.java.util.logging.{Logger,Level}
 import javax.swing.text.Document
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind,Modifier}
 import org.netbeans.modules.parsing.api.Snapshot
@@ -52,7 +54,6 @@ import org.netbeans.modules.parsing.spi.indexing.{Context,EmbeddingIndexer,Embed
 import org.netbeans.modules.parsing.spi.indexing.support.{IndexDocument,IndexingSupport}
 import org.netbeans.modules.erlang.editor.node.ErlSymbol._
 import org.netbeans.modules.erlang.editor.lexer.LexUtil
-import org.netbeans.modules.erlang.platform.api.RubyPlatformManager
 import org.openide.filesystems.{FileObject,FileStateInvalidException,FileUtil}
 import org.openide.util.Exceptions
 import org.openide.windows.{IOProvider,InputOutput}
@@ -97,7 +98,6 @@ class ErlangIndexer extends EmbeddingIndexer {
    override
    protected def index(indexable:Indexable, parserResult:Result, context:Context) :Unit = {
       val start = System.currentTimeMillis
-      //if (file.isPlatform())
         
       val fo = LexUtil.fileObject(parserResult).get
 
@@ -200,8 +200,11 @@ class ErlangIndexer extends EmbeddingIndexer {
        * @NOTE Add "lib;" before header file fqn of lib, it also contains its ext (such as ".hrl")
        */
       private def getHeaderFqn(fo:FileObject) :String = {
-         val libFo :FileObject = RubyPlatformManager.getDefaultPlatform().getLibFO();
-         assert(libFo != null)
+         val libFo = ErlangIndexer.getLibFo() match {
+            case Some(x) => x
+            case None => return fo.getNameExt
+         }
+         
          val relativePath = FileUtil.getRelativePath(libFo, fo)
          /**
           * @NOTE: we can not rely on file.isPlatform here: when a platform file
@@ -373,6 +376,34 @@ object ErlangIndexer {
 
    val LOG = Logger.getLogger(classOf[ErlangIndexer].getName)
 
+   def getLibFo() :Option[FileObject] = {
+      val classpaths = GlobalPathRegistry.getDefault().getPaths(ErlangLanguage.BOOT);
+      val itr = classpaths.iterator
+      if (itr.hasNext) {
+         val roots = itr.next.getRoots
+         if (roots.size > 0) {
+            return Some(roots(0))
+         }
+      }
+      return None
+   }
+
+   def getClasspathRoots(fo:FileObject, classpathId:String) :Seq[FileObject] = {
+      if (fo != null) {
+         val classpath = ClassPath.getClassPath(fo, classpathId);
+         if (classpath != null) {
+            classpath.getRoots()
+         } else Array()
+      } else {
+         var roots = new ArrayBuffer[FileObject]
+         val classpaths = GlobalPathRegistry.getDefault().getPaths(classpathId);
+         val itr = classpaths.iterator
+         while (itr.hasNext) {
+            roots ++= itr.next.getRoots
+         }
+         roots.toArray
+      }
+   }
     
    class Factory extends EmbeddingIndexerFactory {
 
@@ -402,9 +433,9 @@ object ErlangIndexer {
          }
 
          val maxMemoryInMBs = Runtime.getRuntime.maxMemory / (1024.0 * 1024.0)
-         val path = fo.getPath
          fo.getExt match {
             case "erl" | "hrl" =>
+               val path = fo.getPath
                for (indexableFolder <- INDEXABLE_FOLDERS if path.contains(indexableFolder)) {
                   /**
                    * @TODO: a bad hacking:
