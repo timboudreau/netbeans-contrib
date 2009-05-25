@@ -24,16 +24,14 @@
     <target name="run" depends="netbeans">
         <java fork="true" classname="org.netbeans.modules.visual.examples.RunDialog">
             <classpath path="build/classes"/>
-            <classpath path="../../api.visual/build/classes"/>
-            <classpath refid="cp"/>
+            <classpath path="${module.run.classpath}"/>
         </java>
     </target>
 
     <target name="debug" depends="netbeans">
         <java fork="true" classname="org.netbeans.modules.visual.examples.RunDialog">
             <classpath path="build/classes"/>
-            <classpath path="../../api.visual/build/classes"/>
-            <classpath refid="cp"/>
+            <classpath path="${module.run.classpath}"/>
             <jvmarg value="-Xdebug"/>
 	    <jvmarg value="-Xnoagent"/>
 	    <jvmarg value="-Xrunjdwp:transport=dt_socket,suspend=n,server=y,address=3456"/>
