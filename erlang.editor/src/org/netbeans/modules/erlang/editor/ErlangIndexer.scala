@@ -385,7 +385,7 @@ object ErlangIndexer {
             return Some(roots(0))
          }
       }
-      return None
+      None
    }
 
    def getClasspathRoots(fo:FileObject, classpathId:String) :Seq[FileObject] = {
