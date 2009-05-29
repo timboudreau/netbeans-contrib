@@ -6,11 +6,10 @@
     <!-- The building dependency is based on "ant -Dcluster.config=java" -->
     <target name="erlang-build">
         <!-- stable modules -->
-        <ant dir="../../gsfpath.api"/>
-        <ant dir="../../gsf.api"/>
-        <ant dir="../../gsf"/>
         <ant dir="../../extexecution"/>
         <!-- contrib modules -->
+        <ant dir="../../contrib/xtc"/>
+        <ant dir="../../contrib/libs.scala"/>
         <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang"/>
         <ant dir="../../contrib/erlang.editor"/>
@@ -24,6 +23,8 @@
 
    <!-- since the minima download package j2se has include above stable modules, only following nbms are needed -->
    <target name="erlang-nbm" depends="erlang-build">
+        <ant dir="../../contrib/xtc" target="nbm"/>
+        <ant dir="../../contrib/libs.scala" target="nbm"/>
         <ant dir="../../contrib/languages.execution" target="nbm"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang" target="nbm"/>
         <ant dir="../../contrib/erlang.editor" target="nbm"/>
@@ -32,7 +33,18 @@
         <ant dir="../../contrib/erlang.project" target="nbm"/>
         <ant dir="../../contrib/erlang.console" target="nbm"/>
         <ant dir="../../contrib/erlang.kit" target="nbm"/>
-      <antcall target="netbeans"/>
+        <antcall target="netbeans"/>
+        <copy todir="build">
+            <fileset dir="../../contrib/xtc/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/libs.scala/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/languages.execution/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/c.ericsson.otp.erlang/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/erlang.editor/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/erlang.makeproject/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/erlang.platform/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/erlang.project/build"><filename name="*.nbm"/></fileset>
+            <fileset dir="../../contrib/erlang.console/build"><filename name="*.nbm"/></fileset>
+        </copy>
    </target>
 
 
@@ -45,6 +57,8 @@
         <ant dir="../../contrib/erlang.editor" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/c.ericsson.otp.erlang" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/libs.scala" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/xtc" inheritAll="false" target="clean"/>
         <ant target="clean"/>
     </target>
 
