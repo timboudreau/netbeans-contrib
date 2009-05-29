@@ -76,7 +76,7 @@ public class NoDOGetCookieTest extends TreeRuleTestBase {
                        "        o.get|Cookie(EditorCookie.class);\n" +
                        "    }\n" +
                        "}\n",
-                       "5:8-5:39:error:Use of DO.getCookie",
+                       "5:8-5:39:verifier:Use of DO.getCookie",
                        "FixImpl",
                        "package test; import org.openide.loaders.DataObject; import org.openide.cookies.EditorCookie; public class Test { private void test(DataObject o) { o.getLookup().lookup(EditorCookie.class); } } ");
     }
