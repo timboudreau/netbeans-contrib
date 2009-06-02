@@ -95,7 +95,8 @@ body {
       "=", 
       "=>", 
       "\u21D2",
-      "<-", 
+      "<-",
+      "\u2190",
       "<:",
       "<%",
       ">:",
@@ -137,6 +138,7 @@ String key =
 / SKIP_N "=>"       :keyword SKIP_TILL_N
 / SKIP_N "\u21D2"   :keyword SKIP_TILL_N
 / SKIP_N "<-"       :keyword SKIP_TILL_N
+/ SKIP_N "\u2190"   :keyword SKIP_TILL_N
 / SKIP_N "<:"       :keyword SKIP_TILL_N
 / SKIP_N "<%"       :keyword SKIP_TILL_N
 / SKIP_N ">:"       :keyword SKIP_TILL_N
@@ -198,6 +200,7 @@ generic Keyword =
 / "=>"        :keyword @RArrow
 / "\u21D2"    :keyword @RArrow
 / "<-"        :keyword @LArrow
+/ "\u2190"    :keyword @LArrow
 / "<:"        :keyword @UBound
 / "<%"        :keyword @VBound
 / ">:"        :keyword @LBound
@@ -252,7 +255,9 @@ String keyword =
   / "yield"     !( idrest )
   / "_"         !( idrest )
   / "=>"        !( opchar )
+  / "\u21D2"    !( opchar )
   / "<-"        !( opchar )
+  / "\u2190"    !( opchar )
   / "<:"        !( opchar )
   / "<%"        !( opchar )
   / ">:"        !( opchar )
@@ -260,7 +265,6 @@ String keyword =
   / ":"         !( opchar )
   / "#"         !( opchar )
   / "@"         !( opchar )
-  / "\u21D2"    !( opchar )
   )
 ;
 

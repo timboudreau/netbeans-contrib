@@ -158,7 +158,7 @@ public enum ScalaTokenId implements TokenId {
     Yield("yield", "keyword"),
     Wild("_", "s_keyword"),
     RArrow(null, "s_keyword"), // "=>" or "\u21D2", no fixed
-    LArrow("<-", "s_keyword"),
+    LArrow(null, "s_keyword"), // "<-" or "\u2190", no fixed
     UBound("<:", "s_keyword"),
     VBound("<%", "s_keyword"),
     LBound(">:", "s_keyword"),
