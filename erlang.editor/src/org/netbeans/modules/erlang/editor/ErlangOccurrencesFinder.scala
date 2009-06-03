@@ -81,6 +81,8 @@ class ErlangOccurrencesFinder extends OccurrencesFinder[ErlangParserResult] {
 
    def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
       resume
+      // * clean old occurrences if any
+      this.occurrences = null
       if (pResult == null || isCancelled) {
          return
       }
