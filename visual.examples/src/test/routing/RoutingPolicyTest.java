@@ -84,13 +84,14 @@ public class RoutingPolicyTest extends Scene {
         panel.setLayout (new BorderLayout ());
 
         JToolBar bar = new JToolBar ();
-        bar.add (new AbstractAction("Force Rerouting") {
-            public void actionPerformed (ActionEvent e) {
-                connection.reroute ();
-                validate ();
-            }
-        });
-        bar.addSeparator ();
+// Removed since Force Rerouting is not needed in this demo
+//        bar.add (new AbstractAction("Force Rerouting") {
+//            public void actionPerformed (ActionEvent e) {
+//                connection.reroute ();
+//                validate ();
+//            }
+//        });
+//        bar.addSeparator ();
         bar.add (new JLabel ("Switch routing policy:"));
         bar.add (new AbstractAction("Always Route") {
             public void actionPerformed (ActionEvent e) {

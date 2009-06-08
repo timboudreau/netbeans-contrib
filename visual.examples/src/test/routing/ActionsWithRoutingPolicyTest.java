@@ -76,13 +76,14 @@ public class ActionsWithRoutingPolicyTest extends Scene {
         panel.setLayout (new BorderLayout ());
 
         JToolBar bar = new JToolBar ();
-        bar.add (new AbstractAction("Force Rerouting") {
-            public void actionPerformed (ActionEvent e) {
-                connection.reroute ();
-                validate ();
-            }
-        });
-        bar.addSeparator ();
+// Removed since Force Rerouting is not needed in this demo
+//        bar.add (new AbstractAction("Force Rerouting") {
+//            public void actionPerformed (ActionEvent e) {
+//                connection.reroute ();
+//                validate ();
+//            }
+//        });
+//        bar.addSeparator ();
         bar.add (new AbstractAction("Reset routing policy to always-route") {
             public void actionPerformed (ActionEvent e) {
                 connection.setRoutingPolicy (ConnectionWidget.RoutingPolicy.ALWAYS_ROUTE);
