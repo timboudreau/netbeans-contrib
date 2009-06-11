@@ -51,7 +51,7 @@ import org.netbeans.modules.j2ee.dd.api.web.WebAppMetadata;
 import org.netbeans.modules.j2ee.dd.spi.MetadataUnit;
 import org.netbeans.modules.j2ee.dd.spi.web.WebAppMetadataModelFactory;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
-import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation2;
 import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation;
@@ -59,7 +59,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 @SuppressWarnings("deprecation") // getJavaSources
-class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation  {
+class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation2  {
 
     private FileObject docBase;
     private String root;
@@ -142,8 +142,8 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
         return null;
     }
 
-    public Object getModuleType() {
-        return J2eeModule.WAR;
+    public J2eeModule.Type getModuleType() {
+        return J2eeModule.Type.WAR;
     }
 
     public String getUrl() {
