@@ -16,11 +16,11 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurati
 public class GeModuleConfigurationFactory implements ModuleConfigurationFactory {
 
     public ModuleConfiguration create(J2eeModule j2eeModule) throws ConfigurationException {
-	if (J2eeModule.WAR == j2eeModule.getModuleType()) {
+        if (J2eeModule.Type.WAR.equals(j2eeModule.getType())) {
             return new GeWarModuleConfiguration(j2eeModule);
-        } else if (J2eeModule.EJB == j2eeModule.getModuleType()) {
+        } else if (J2eeModule.Type.EJB.equals(j2eeModule.getType())) {
             return new GeEjbModuleConfiguration(j2eeModule);
-        } else if (J2eeModule.EAR == j2eeModule.getModuleType()) {
+        } else if (J2eeModule.Type.EAR.equals(j2eeModule.getType())) {
             return new GeEarModuleConfiguration(j2eeModule);
         }
         
