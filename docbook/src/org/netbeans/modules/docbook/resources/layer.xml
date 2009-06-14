@@ -326,9 +326,15 @@ made subject to such option by the copyright holder.
                 <file name="keybindings.xml" url="keybindings.xml"/>
                 <file name="macros.xml" url="macros.xml"/>
                 <folder name="popup">
-                    <file name="org-netbeans-modules-docbook-ValidationAction.instance"/>
-                    <file name="org-netbeans-modules-docbook-AddChapterAction.instance"/>
-                    <file name="org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                    <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-ToHtmlAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-ValidationAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ValidationAction.instance"/>
+                    </file>
                 </folder>
             </folder>
             <folder name="xml"/>

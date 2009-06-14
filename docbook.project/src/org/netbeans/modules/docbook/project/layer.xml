@@ -77,7 +77,9 @@ made subject to such option by the copyright holder.
         <folder name="text">
             <folder name="x-docbook+xml">
                 <folder name="popup">
-                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
+                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
+                    </file>
                 </folder>
             </folder>
         </folder>

@@ -86,30 +86,40 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="CA-C.instance">
-	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.generator.GeneratorAction"/>
-	</file>
-        <file name="CA-R.instance">
-	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.bundlelookup.BundleLookupAction"/>
-	</file>
-        <file name="CA-A.instance">
-	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.namelookup.NameLookupAction"/>
-	</file>
-        <file name="C-F10.instance">
-	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.runinternally.RunInternallyAction"/>
-	</file>
-        <file name="CA-B.instance">
-	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.runinternally.RunGUIBrowserAction"/>
-	</file>
+        <file name="C-F10.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
+        </file>
+        <file name="CA-A.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
+        </file>
+        <file name="CA-B.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
+        </file>
+        <file name="CA-C.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
+        </file>
+        <file name="CA-R.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
+        </file>
     </folder>
     <folder name="Toolbars">
         <folder name="Jemmy Support">
             <attr name="position" intvalue="2000"/>
-                <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
-                <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
-                <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
-                <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
-                <file name="org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
+                <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
+            </file>
         </folder>
     </folder>
     <folder name="Services">

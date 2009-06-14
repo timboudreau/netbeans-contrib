@@ -50,18 +50,22 @@ made subject to such option by the copyright holder.
                     <file name="scala-project-separator-1.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="530"/>
+                        <attr name="misplaced.action.allowed" boolvalue="true"/>
                     </file>
                     <file name="RunFile.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.run"/>
                         <attr name="position" intvalue="550"/>
+                        <attr name="misplaced.action.allowed" boolvalue="true"/>
                     </file>
                     <file name="DebugFile.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.debug"/>
                         <attr name="position" intvalue="560"/>
+                        <attr name="misplaced.action.allowed" boolvalue="true"/>
                     </file>
                     <file name="DebugTestFile.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ScalaProjectModule.debugTest"/>
                         <attr name="position" intvalue="570"/>
+                        <attr name="misplaced.action.allowed" boolvalue="true"/>
                     </file>
                 </folder>
             </folder>
