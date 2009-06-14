@@ -60,6 +60,7 @@ import scala.collection.mutable.HashMap
  */
 object ErlangUtil {
    val FoToRootScope = new HashMap[FileObject, AstRootScope]
+   val ModuleToDfns = new HashMap[String, Seq[AstDfn]]
 
    private class FoChangeAdapter extends FileChangeAdapter {
       override
@@ -88,9 +89,9 @@ object ErlangUtil {
                      def run(resultIterator:ResultIterator) :Unit = {
                         resultIterator.getParserResult match {
                            case r:ErlangParserResult =>
-                              r.rootScope.foreach{x =>
+                              r.rootScope.foreach{scope =>
                                  fo.addFileChangeListener(new FoChangeAdapter)
-                                 FoToRootScope + (fo -> x)
+                                 FoToRootScope + (fo -> scope)
                               }
                            case _ =>
                         }
@@ -99,8 +100,17 @@ object ErlangUtil {
             } catch {case e:ParseException =>}
                 
             FoToRootScope.get(fo)
-         case some => some
+         case x => x
       }
+   }
+
+   /** @Todo */
+   def cacheDfns(rootScope:AstRootScope) :Unit = {
+      val includes = rootScope.findAllDfnsOf(classOf[ErlInclude])
+      val exports  = rootScope.findAllDfnsOf(classOf[ErlExport])
+      val records  = rootScope.findAllDfnsOf(classOf[ErlRecord])
+      val macros   = rootScope.findAllDfnsOf(classOf[ErlMacro])
+      exports
    }
 
    def resolveDfn(fo:FileObject, symbol:AstSym) :Option[AstDfn] = {

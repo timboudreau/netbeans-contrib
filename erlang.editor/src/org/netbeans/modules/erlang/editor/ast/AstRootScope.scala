@@ -116,15 +116,19 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
    def findItemAt(token:Token[TokenId]) :Option[AstItem] = _idTokenToItem.get(token)
 
    def findAllDfnSyms[A <: AstSym](clazz:Class[A]) :List[A] = {
+      findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
+   }
+
+   def findAllDfnsOf[A <: AstSym](clazz:Class[A]) :List[AstDfn] = {
       _idTokenToItem.values.filter{item =>
          item.isInstanceOf[AstDfn] && clazz.isInstance(item.symbol)
-      }.map(_.symbol).toList.asInstanceOf[List[A]]
+      }.toList.asInstanceOf[List[AstDfn]]
    }
 
    def findFirstItemWithName(name:String) :Option[AstItem] = {
-      _idTokenToItem.find{k => k._1.text.toString == name} match {
+      _idTokenToItem.find{case (token, item) => token.text.toString == name} match {
          case None => None
-         case Some(x) => Some(x._2)
+         case Some((token, item)) => Some(item)
       }
    }
 
