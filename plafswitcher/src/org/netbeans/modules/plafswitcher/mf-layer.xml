@@ -43,9 +43,8 @@ made subject to such option by the copyright holder.
 Contributor(s): Petr Nejedly
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
-
 <filesystem>
-  <folder name="Actions" >
+  <folder name="Actions">
     <folder name="View">
       <file name="org-netbeans-modules-plafswitcher-ChoosePlaf.instance"/>
     </folder>
@@ -53,8 +52,10 @@ Contributor(s): Petr Nejedly
   <folder name="Menu">
     <folder name="View">
       <attr name="Separator2.instance/org-netbeans-modules-plafswitcher-ChoosePlaf.instance" boolvalue="true"/>
-      <file name="org-netbeans-modules-plafswitcher-ChoosePlaf.instance"/>
       <attr name="org-netbeans-modules-plafswitcher-ChoosePlaf.instance/org-openide-actions-WorkspaceSwitchAction.instance" boolvalue="true"/>
-    </folder>
+        <file name="org-netbeans-modules-plafswitcher-ChoosePlaf.shadow">
+                <attr name="originalFile" stringvalue="Actions/View/org-netbeans-modules-plafswitcher-ChoosePlaf.instance"/>
+            </file>
+        </folder>
   </folder>
 </filesystem>

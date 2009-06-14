@@ -99,23 +99,29 @@ made subject to such option by the copyright holder.
   <folder name="Toolbars">
      <folder name="Versioning">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
-            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance">
-                <attr name="position" intvalue="100"/>
-            </file>
-            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance">
-                <attr name="position" intvalue="200"/>
-            </file>
-            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance">
+            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-AddCommandAction.instance"/>
                 <attr name="position" intvalue="300"/>
             </file>
-            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance">
-                <attr name="position" intvalue="400"/>
+            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
+                <attr name="position" intvalue="200"/>
             </file>
-            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance">
+            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-DiffCommandAction.instance"/>
                 <attr name="position" intvalue="500"/>
             </file>
-            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance">
+            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance"/>
                 <attr name="position" intvalue="600"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance"/>
+                <attr name="position" intvalue="400"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance"/>
+                <attr name="position" intvalue="100"/>
             </file>
         </folder>
   </folder>

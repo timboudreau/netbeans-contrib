@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0"?>
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -40,9 +40,7 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
-
 <filesystem>
 
   <folder name="vcs">
@@ -58,7 +56,7 @@ made subject to such option by the copyright holder.
     <folder name="Window">
         <folder name="Versioning">
             <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" boolvalue="true"/>
-            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" /> 
+            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance"/> 
         </folder>
     </folder>
   </folder>
@@ -68,17 +66,29 @@ made subject to such option by the copyright holder.
      <folder name="Versioning">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
             <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance/org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance" />
             <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance/org-netbeans-modules-vcscore-actions-AddCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance" />
             <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance/org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance" />
             <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance/org-netbeans-modules-vcscore-actions-DiffCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance" />
+            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-AddCommandAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
+            </file>
             <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance/org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance" />
-            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance" />
+            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-DiffCommandAction.instance"/>
+            </file>
 
+            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Versioning/org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance"/>
+            </file>
         </folder>
   </folder>
 
@@ -87,9 +97,9 @@ made subject to such option by the copyright holder.
   <folder name="VCSMountTemplates">
     <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" url="GenericVCSMountFS.settings">
       <attr name="template" boolvalue="true"/>
-      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
-      <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/vcsGeneric.gif" />
-      <attr name="VcsMountAction.mnemonic" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle"/>
+      <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/vcsGeneric.gif"/>
+      <attr name="VcsMountAction.mnemonic" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle"/>
       <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
       <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
     </file>
@@ -110,10 +120,10 @@ made subject to such option by the copyright holder.
        </folder>
        <file name="CommandLineVcsFileSystem.shadow">
         <attr name="originalFile" stringvalue="VCSMountTemplates/org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings"/>
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle"/>
        </file>
-       <attr name="org-netbeans-core-ExLocalFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true" />
-       <attr name="org-netbeans-core-ExJarFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true" />
+       <attr name="org-netbeans-core-ExLocalFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true"/>
+       <attr name="org-netbeans-core-ExJarFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true"/>
      </folder>
    </folder>
 
@@ -141,9 +151,9 @@ made subject to such option by the copyright holder.
         -->
         <folder name="entities">
             <folder name="NetBeans">
-                <file name="DTD_VCS_Configuration_1_0" url="nbres:/org/netbeans/modules/vcs/profiles/config/configuration-1_0.dtd" />
-                <file name="DTD_VCS_Configuration_1_1" url="nbres:/org/netbeans/modules/vcs/profiles/config/vcs-configuration-1_1.dtd" />
-                <file name="DTD_VCS_Advanced_FSSettings_1_0" url="nbres:/org/netbeans/modules/vcs/advanced/projectsettings/fssettings-1_0.dtd" />
+                <file name="DTD_VCS_Configuration_1_0" url="nbres:/org/netbeans/modules/vcs/profiles/config/configuration-1_0.dtd"/>
+                <file name="DTD_VCS_Configuration_1_1" url="nbres:/org/netbeans/modules/vcs/profiles/config/vcs-configuration-1_1.dtd"/>
+                <file name="DTD_VCS_Advanced_FSSettings_1_0" url="nbres:/org/netbeans/modules/vcs/advanced/projectsettings/fssettings-1_0.dtd"/>
             </folder>
         </folder>
         <folder name="lookups">
@@ -168,8 +178,8 @@ made subject to such option by the copyright holder.
             -->
             <folder name="VersionControl">
                 <file name="org-netbeans-modules-vcs-advanced-profilesSettings-VcsSettingsNode.instance">
-                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.profilesSettings.Bundle" />
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/profilesSettings/vcsSettings.gif" />
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.profilesSettings.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/profilesSettings/vcsSettings.gif"/>
                 </file>
             </folder>    
         </folder>            

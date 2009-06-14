@@ -68,10 +68,6 @@ Microsystems, Inc. All Rights Reserved.
                     </folder>                    
                 </folder>
                 <folder name="Popup">
-                    <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
-                        <attr name="position" intvalue="700"/>
-                    </file>
                     <file name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.editorSubmenuAction"/>
                         <attr name="position" intvalue="800"/>
@@ -83,6 +79,10 @@ Microsystems, Inc. All Rights Reserved.
                     <file name="SeparatorAfterSelectInPopupAction.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance"/>
+                        <attr name="position" intvalue="700"/>
                     </file>
                 </folder>
                 <folder name="FoldManager">

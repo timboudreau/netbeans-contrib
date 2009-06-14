@@ -54,7 +54,7 @@ Contributor(s): Petr Nejedly
         </folder>
 
         <folder name="Components">
-	    <file name="jabber.settings"url="jabber.settings" />
+	    <file name="jabber.settings" url="jabber.settings"/>
         </folder>
     </folder>
         
