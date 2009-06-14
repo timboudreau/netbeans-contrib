@@ -42,6 +42,11 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="SetPortletModeAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Templates">
         <folder name="JSF">
             <file name="PortletPage.jsp" url="/org/netbeans/modules/portalpack/visualweb/templates/PortletPage.jsp.template">
@@ -79,11 +84,11 @@ made subject to such option by the copyright holder.
               <folder name="visual">
                 <folder name="Actions">
                   <!-- Add Set As Initial Page action -->
-                  <file name="SetPortletModeAction.instance">
-                     <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.visualweb.actions.JsfSetAsInitialAction"/>
-                     <attr name="position" intvalue="150"/>
-                   </file>
-                </folder>
+                  <file name="SetPortletModeAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/SetPortletModeAction.instance"/>
+                            <attr name="position" intvalue="150"/>
+                        </file>
+                    </folder>
                </folder>
               </folder>
           </folder>

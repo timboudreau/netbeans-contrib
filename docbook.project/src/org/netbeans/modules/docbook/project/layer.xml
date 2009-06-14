@@ -42,11 +42,17 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-docbook+xml">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance">
+                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
                         <attr name="position" intvalue="150"/>
                     </file>
                 </folder>

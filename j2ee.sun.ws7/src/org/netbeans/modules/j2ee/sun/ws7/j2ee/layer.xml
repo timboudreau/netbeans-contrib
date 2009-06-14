@@ -42,6 +42,11 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="RegisterAction.instance"/>
+        </folder>
+    </folder>
     <folder name="J2EE">
         <folder name="DeploymentPlugins">
             <folder name="SUNWebserver7">
@@ -158,11 +163,11 @@ made subject to such option by the copyright holder.
                         <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-PropertiesAction.instance"/>
                         <attr name="position" intvalue="1400"/>
                     </file>
-                    <file name="RegisterAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.serverresources.actions.RegisterWS70ResourceAction"/>
-                <attr name="position" intvalue="300"/>
-              </file>
-              <file name="RenameAction.shadow">
+                    <file name="RegisterAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/RegisterAction.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="RenameAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-RenameAction.instance"/>
                         <attr name="position" intvalue="1100"/>
                     </file>

@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-licensechanger-ChangeLicenseAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Loaders">
         <folder name="folder">
             <folder name="any">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-licensechanger-ChangeLicenseAction.instance">
+                    <file name="org-netbeans-modules-licensechanger-ChangeLicenseAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-licensechanger-ChangeLicenseAction.instance"/>
                         <attr name="position" intvalue="951"/>
                     </file>
                 </folder>

@@ -42,13 +42,19 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Menu">
         <folder name="Window">
             <folder name="Other">
-                <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance">
+                <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
+                <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance"/>
                     <attr name="position" intvalue="829"/>
                 </file>
-                <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
             </folder>    
         </folder>
     </folder>
@@ -66,7 +72,7 @@ made subject to such option by the copyright holder.
             <file name="tasklist.ics" url="tasklist.ics">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html"/>
                 <attr name="position" intvalue="1539"/>
             </file>
         </folder>
@@ -86,30 +92,24 @@ made subject to such option by the copyright holder.
             <!--Entity registration-->
             <folder name="NetBeans_org_netbeans_modules_tasklist_usertasks">
                 <file name="DTD_User_Tasks_1_0" url="translators/usertasks-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
                 </file>
                 <file name="DTD_User_Tasks_1_1" url="translators/usertasks-1_1.dtd">
-                    <attr name="hint.originalPublicID"
-                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.1//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.1//EN"/>
                 </file>
                 <file name="DTD_User_Tasks_1_2" url="translators/usertasks-1_2.dtd">
-                    <attr name="hint.originalPublicID"
-                    stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.2//EN"/>
                 </file>
             </folder>
             <folder name="NetBeans_org_netbeans_modules_tasklist">
                 <file name="DTD_UserTaskFilter_1_0" url="filter/utfilter-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                    stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UserTaskFilter 1.0//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UserTaskFilter 1.0//EN"/>
                 </file>
                 <file name="DTD_UTPriorityCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UTPriorityCondition 1.0//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UTPriorityCondition 1.0//EN"/>
                 </file>
                 <file name="DTD_DurationFilterCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD DurationFilterCondition 1.0//EN"/>
+                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD DurationFilterCondition 1.0//EN"/>
                 </file>
             </folder>
         </folder>
@@ -146,16 +146,13 @@ made subject to such option by the copyright holder.
                             <folder name="usertasks">
                                 <folder name="filter">
                                     <file name="UserTaskFilter">
-                                        <attr name="settings.providerPath"
-                                        stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
+                                        <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
                                     </file>
                                     <file name="UTPriorityCondition">
-                                        <attr name="settings.providerPath"
-                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UTPriorityCondition_1_0.instance"/>
+                                        <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UTPriorityCondition_1_0.instance"/>
                                     </file>
                                     <file name="DurationFilterCondition">
-                                        <attr name="settings.providerPath"
-                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_DurationFilterCondition_1_0.instance"/>
+                                        <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_DurationFilterCondition_1_0.instance"/>
                                     </file>
                                 </folder>
                             </folder>
@@ -175,24 +172,24 @@ made subject to such option by the copyright holder.
             <file name="UTNoHighlightAnnotation.xml" url="annotations/UTNoHighlightAnnotation.xml"/>
             <folder name="StatusForAnnotationType">
                 <file name="org-netbeans-modules-tasklist-usertasks-UserTaskDone">
-                    <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="0x00FF00" />
-                    <attr name="browseable" boolvalue="true" />
+                    <attr name="status" stringvalue="ok"/>
+                    <attr name="color" stringvalue="0x00FF00"/>
+                    <attr name="browseable" boolvalue="true"/>
                 </file>
                 <file name="org-netbeans-modules-tasklist-usertasks-UTDoneNoHighlight">
-                    <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="0x00FF00" />
-                    <attr name="browseable" boolvalue="true" />
+                    <attr name="status" stringvalue="ok"/>
+                    <attr name="color" stringvalue="0x00FF00"/>
+                    <attr name="browseable" boolvalue="true"/>
                 </file>
                 <file name="org-netbeans-modules-tasklist-usertasks-UT">
-                    <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="0xFF0000" />
-                    <attr name="browseable" boolvalue="true" />
+                    <attr name="status" stringvalue="ok"/>
+                    <attr name="color" stringvalue="0xFF0000"/>
+                    <attr name="browseable" boolvalue="true"/>
                 </file>
                 <file name="org-netbeans-modules-tasklist-usertasks-UTNoHighlight">
-                    <attr name="status" stringvalue="ok" />
-                    <attr name="color" stringvalue="0xFF0000" />
-                    <attr name="browseable" boolvalue="true" />
+                    <attr name="status" stringvalue="ok"/>
+                    <attr name="color" stringvalue="0xFF0000"/>
+                    <attr name="browseable" boolvalue="true"/>
                 </file>
             </folder>
         </folder>
@@ -201,8 +198,7 @@ made subject to such option by the copyright holder.
     <folder name="OptionsDialog">
         <folder name="Advanced">
             <file name="org-netbeans-modules-tasklist-usertasks-Options.instance">
-                <attr name="instanceClass"
-                stringvalue="org.netbeans.modules.tasklist.usertasks.options.UTAdvancedOption"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.options.UTAdvancedOption"/>
             </file>
         </folder>
     </folder>

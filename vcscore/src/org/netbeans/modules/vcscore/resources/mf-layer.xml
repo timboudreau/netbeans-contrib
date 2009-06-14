@@ -46,7 +46,6 @@ made subject to such option by the copyright holder.
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle"/>
       <attr name="position" intvalue="900"/>
-      <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance"/>
       <!--
       <folder name="GlobalCommands">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
@@ -55,19 +54,26 @@ made subject to such option by the copyright holder.
       </folder>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" />
       -->
-      <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance"/>
-    </folder>
+      <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-actions-VcsManagerAction.instance"/>
+            </file>
+        </folder>
     <folder name="Window">
         <folder name="Versioning">
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif"/>
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
-            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance">
-                <attr name="position" intvalue="2100"/>
-            </file>
-            <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance">
-                <attr name="position" intvalue="2200"/>
-            </file>
-        </folder>
+            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance"/>
+                    <attr name="position" intvalue="2100"/>
+                </file>
+                <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-actions-VcsOutputAction.instance"/>
+                    <attr name="position" intvalue="2200"/>
+                </file>
+            </folder>
     </folder>
   </folder>
 
@@ -85,7 +91,14 @@ made subject to such option by the copyright holder.
 
 
   <folder name="Actions">
-    <folder name="Versioning">
+    <folder name="Tools">
+            <file name="org-netbeans-modules-vcscore-VcsFSCommandsAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance"/>
+        </folder>
+        <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle"/>
       <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance"/>
       <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
@@ -225,7 +238,8 @@ made subject to such option by the copyright holder.
 
   <folder name="Projects">
         <folder name="Actions">
-            <file name="org-netbeans-modules-vcscore-VcsFSCommandsAction.instance">
+            <file name="org-netbeans-modules-vcscore-VcsFSCommandsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-VcsFSCommandsAction.instance"/>
                 <attr name="position" intvalue="355"/>
             </file>
         </folder>

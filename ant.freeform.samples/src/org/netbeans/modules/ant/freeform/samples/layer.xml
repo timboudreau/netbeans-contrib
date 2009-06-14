@@ -42,9 +42,15 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-ant-freeform-customcommands-NewCommandAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Projects">
         <folder name="Actions">
-            <file name="org-netbeans-modules-ant-freeform-customcommands-NewCommandAction.instance">
+            <file name="org-netbeans-modules-ant-freeform-customcommands-NewCommandAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-ant-freeform-customcommands-NewCommandAction.instance"/>
                 <attr name="position" intvalue="1007"/>
             </file>
         </folder>

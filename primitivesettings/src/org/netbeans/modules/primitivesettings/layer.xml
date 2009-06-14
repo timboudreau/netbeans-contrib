@@ -41,26 +41,32 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
-
 <filesystem>
-    <folder name="Menu">
+    <folder name="Actions">
         <folder name="Tools">
             <file name="org-netbeans-modules-primitivesettings-TestAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-primitivesettings-TestAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-primitivesettings-TestAction.instance"/>
+            </file>
         </folder>
     </folder>
     
     <folder name="Tmp">
         <folder name="All">
-            <file name="test-null" url="property:nullValue=" />
-            <file name="test-boolean" url="property:boolValue=true" />
-            <file name="test-byte" url="property:byteValue=127" />
-            <file name="test-character" url="property:charValue=W" />
-            <file name="test-double" url="property:doubleValue=3.1415926" />
-            <file name="test-float" url="property:floatValue=1.23456789" />
-            <file name="test-integer" url="property:intValue=99" />
-            <file name="test-long-integer" url="property:longValue=-987654321" />
-            <file name="test-short-integer" url="property:shortValue=-13" />
-            <file name="test-string" url="property:stringValue=Hi there!" />
+            <file name="test-null" url="property:nullValue="/>
+            <file name="test-boolean" url="property:boolValue=true"/>
+            <file name="test-byte" url="property:byteValue=127"/>
+            <file name="test-character" url="property:charValue=W"/>
+            <file name="test-double" url="property:doubleValue=3.1415926"/>
+            <file name="test-float" url="property:floatValue=1.23456789"/>
+            <file name="test-integer" url="property:intValue=99"/>
+            <file name="test-long-integer" url="property:longValue=-987654321"/>
+            <file name="test-short-integer" url="property:shortValue=-13"/>
+            <file name="test-string" url="property:stringValue=Hi there!"/>
         </folder>        
     </folder>
 </filesystem>

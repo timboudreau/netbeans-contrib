@@ -19,6 +19,11 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="SetPortletModeAction.instance"/>
+        </folder>
+    </folder>
     <folder name="portalpack">
         <folder name="listeners">
             <folder name="initial-page">
@@ -55,8 +60,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <folder name="x-ruby">
                 <folder name="Actions">
                   <!-- Add Set As Initial Page action -->
-                    <file name="SetPortletModeAction.instance">
-                        <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.ruby.actions.RubySetAsInitialAction"/>
+                    <file name="SetPortletModeAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/SetPortletModeAction.instance"/>
                         <attr name="position" intvalue="154"/>
                     </file>
                 </folder>

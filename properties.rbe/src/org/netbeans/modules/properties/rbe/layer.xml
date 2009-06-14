@@ -5,17 +5,21 @@
         <folder name="RBE">
             <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction.instance"/>
         </folder>
+        <folder name="Tools">
+            <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorAfter.instance"/>
+            <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorBefore.instance"/>
+        </folder>
     </folder>
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-properties">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorAfter.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorAfter.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorAfter.instance"/>
                         <attr name="position" intvalue="375"/>
                     </file>
-                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorBefore.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorBefore.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorBefore.instance"/>
                         <attr name="position" intvalue="325"/>
                     </file>
                     <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction.shadow">

@@ -42,6 +42,11 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="ScalaPlatformsCustomizerAction.instance"/>
+        </folder>
+    </folder>
     <folder name="org-netbeans-api-scala">
         <!-- Platform - related area -->
         <folder name="platform">
@@ -74,8 +79,8 @@ made subject to such option by the copyright holder.
 
     <folder name="Menu">
         <folder name="Tools">            
-            <file name="ScalaPlatformsCustomizerAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.platform.ui.PlatformsCustomizerAction"/>
+            <file name="ScalaPlatformsCustomizerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/ScalaPlatformsCustomizerAction.instance"/>
                 <attr name="position" intvalue="305"/>
             </file>
         </folder>

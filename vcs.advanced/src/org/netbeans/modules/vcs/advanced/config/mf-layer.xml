@@ -43,7 +43,12 @@ made subject to such option by the copyright holder.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 <filesystem>
 
-  <folder name="vcs">
+  <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="vcs">
     <folder name="config">
       <file name="empty.xml" url="/org/netbeans/modules/vcs/profiles/config/empty.xml"/>
     </folder>
@@ -55,9 +60,11 @@ made subject to such option by the copyright holder.
     </folder>-->
     <folder name="Window">
         <folder name="Versioning">
-            <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" boolvalue="true"/>
-            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance"/> 
-        </folder>
+            <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" boolvalue="true"/> 
+            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance"/>
+                </file>
+            </folder>
     </folder>
   </folder>
   

@@ -42,6 +42,11 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-archiver-CustomizeBeanAction.instance"/>
+        </folder>
+    </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="org-netbeans-modules-archiver-mime-resolver.xml" url="archiver-mime-resolver.xml">
@@ -53,7 +58,8 @@ made subject to such option by the copyright holder.
         <folder name="text">
             <folder name="xml+java-archiver">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-archiver-CustomizeBeanAction.instance">
+                    <file name="org-netbeans-modules-archiver-CustomizeBeanAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-archiver-CustomizeBeanAction.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
                     <file name="org-openide-actions-CopyAction.shadow">
