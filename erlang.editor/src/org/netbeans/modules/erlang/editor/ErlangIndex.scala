@@ -126,16 +126,32 @@ class ErlangIndex(querySupport:QuerySupport) {
    def queryRecord(includes:Seq[ErlInclude], recordName:String) :Option[AstDfn] = {
       for (include <- includes) {
          val name = if (include.isLib) "lib;" + include.path.replace('/', '.') else include.path.replace('/', '.')
-         for (r <- queryFiles(name, QuerySupport.Kind.EXACT, ErlangIndexer.FIELD_RECORD)) {
-            val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
-            if (signatures != null) {
-               val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
-               for (signature <- signatures) {
-                  createRecord(signature) match {
-                     case symbol@ErlRecord(`recordName`, _) =>
-                        return ErlangUtil.resolveDfn(fo, symbol)
-                     case _ =>
-                  }
+         queryRecord(name, recordName, QuerySupport.Kind.EXACT) match {
+            case None =>
+            case x => return x
+         }
+         // * in case of source file itself is under lib, the header file may be used as "include(...)" instead of "include_lib(...)"
+         if (!include.isLib) {
+            val regex = ".*\\." + name
+            queryRecord(regex, recordName, QuerySupport.Kind.REGEXP) match {
+               case None =>
+               case x => return x
+            }
+         }
+      }
+      None
+   }
+
+   def queryRecord(includeFileName:String, recordName:String, kind:QuerySupport.Kind) :Option[AstDfn] = {
+      for (r <- queryFiles(includeFileName, kind, ErlangIndexer.FIELD_RECORD)) {
+         val signatures = r.getValues(ErlangIndexer.FIELD_RECORD)
+         if (signatures != null) {
+            val fo = FileUtil.toFileObject(new File(r.getUrl.toURI))
+            for (signature <- signatures) {
+               createRecord(signature) match {
+                  case symbol@ErlRecord(`recordName`, _) =>
+                     return ErlangUtil.resolveDfn(fo, symbol)
+                  case _ =>
                }
             }
          }
