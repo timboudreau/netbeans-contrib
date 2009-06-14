@@ -20,8 +20,8 @@
         </folder>
         -->
         <folder name="Popup">
-            <file name="ramos-localhistory-LocalHistoryAction.instance">
-                <attr name="instanceClass" stringvalue="ramos.localhistory.LocalHistoryAction"/>
+            <file name="ramos-localhistory-LocalHistoryAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/ramos-localhistory-LocalHistoryAction.instance"/>
             </file>
         </folder>
        

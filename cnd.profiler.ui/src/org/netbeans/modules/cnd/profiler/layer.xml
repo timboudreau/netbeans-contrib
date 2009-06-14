@@ -13,8 +13,8 @@
     </folder>
     <folder name="Menu">
         <folder name="RunProject">
-            <file name="org-netbeans-modules-cnd-profiler-ui-ProfileMainAction.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.cnd.profiler.ui.ProfilerActions.profileMainProject"/>
+            <file name="org-netbeans-modules-cnd-profiler-ui-ProfileMainAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-cnd-profiler-ui-ProfileMainAction.instance"/>
                 <attr name="position" intvalue="123"/>
             </file>
         </folder>

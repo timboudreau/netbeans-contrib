@@ -47,7 +47,7 @@ made subject to such option by the copyright holder.
         <folder name="Refactoring">
             <file name="org-netbeans-modules-javahints-batch-BatchApplyAction.instance"/>
             <file name="org-netbeans-modules-javahints-OrganizeImports.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.batch.BatchApplyAction.createBatchHintAction" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.batch.BatchApplyAction.createBatchHintAction"/>
                 <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.Bundle#CTL_OrganizeImportsAction"/>
                 <attr name="hint" stringvalue="org.netbeans.modules.javahints.OrganizeImports"/>
             </file>
@@ -83,8 +83,10 @@ made subject to such option by the copyright holder.
                     <file name="org-netbeans-modules-javahints-ImageUtilitiesDeprecation.instance"/>
                     <file name="org-netbeans-modules-javahints-NPECheck.instance"/>
                     <file name="org-netbeans-modules-javahints-NoFileToURL.instance"/>
-                    <file name="org-netbeans-modules-javahints-OrganizeImports.instance"/>
                     <file name="org-netbeans-modules-javahints-NoDOGetCookie.instance"/>
+                    <file name="org-netbeans-modules-javahints-OrganizeImports.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-OrganizeImports.instance"/>
+                    </file>
                     <file name="org-netbeans-modules-javahints-SerialVersionUID.instance"/>
 		    <file name="org-netbeans-modules-javahints-StaticImport.instance"/>
                 </folder>

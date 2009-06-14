@@ -41,7 +41,6 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-
 <filesystem>
     <folder name="Menu">
         <attr boolvalue="true" name="Tools/BookmarksMenu.instance"/>
@@ -83,20 +82,20 @@ made subject to such option by the copyright holder.
     <folder name="Toolbars">
     
         <folder name="Bookmarks">
-            <file name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.AddBookmarkAction"/>
-            </file>
             <!-- We store the bookmarks for the toolbar in this folder -->
+            <file name="org-netbeans-modules-bookmarks-actions-AddBookmarkAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Bookmarks/org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance"/>
+            </file>
         </folder>
         
         <folder name="Navigation">
-            <file name="org-netbeans-modules-bookmarks-actions-BackAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.BackAction"/>
-            </file>
-            <file name="org-netbeans-modules-bookmarks-actions-ForwardAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.ForwardAction"/>
+            <file name="org-netbeans-modules-bookmarks-actions-BackAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-bookmarks-actions-BackAction.instance"/>
             </file>
             <attr boolvalue="true" name="org-netbeans-modules-bookmarks-actions-BackAction.instance/org-netbeans-modules-bookmarks-actions-ForwardAction.instance"/>
+            <file name="org-netbeans-modules-bookmarks-actions-ForwardAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-bookmarks-actions-ForwardAction.instance"/>
+            </file>
         </folder>
         <attr boolvalue="true" name="Edit/Navigation"/>
         <attr boolvalue="true" name="View/Navigation"/>
