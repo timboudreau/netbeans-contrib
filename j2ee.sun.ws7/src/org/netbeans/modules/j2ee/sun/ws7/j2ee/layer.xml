@@ -44,7 +44,9 @@ made subject to such option by the copyright holder.
 <filesystem>
     <folder name="Actions">
         <folder name="Tools">
-            <file name="RegisterAction.instance"/>
+            <file name="org-netbeans-modules-j2ee-sun-ws7-RegisterAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.serverresources.actions.RegisterWS70ResourceAction"/>
+            </file>
         </folder>
     </folder>
     <folder name="J2EE">
@@ -164,7 +166,7 @@ made subject to such option by the copyright holder.
                         <attr name="position" intvalue="1400"/>
                     </file>
                     <file name="RegisterAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Tools/RegisterAction.instance"/>
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-j2ee-sun-ws7-RegisterAction.instance"/>
                         <attr name="position" intvalue="300"/>
                     </file>
                     <file name="RenameAction.shadow">
