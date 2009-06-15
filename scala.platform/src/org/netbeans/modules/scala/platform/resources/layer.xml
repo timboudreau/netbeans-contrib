@@ -44,7 +44,9 @@ made subject to such option by the copyright holder.
 <filesystem>
     <folder name="Actions">
         <folder name="Tools">
-            <file name="ScalaPlatformsCustomizerAction.instance"/>
+            <file name="ScalaPlatformsCustomizerAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.platform.ui.PlatformsCustomizerAction"/>
+            </file>
         </folder>
     </folder>
     <folder name="org-netbeans-api-scala">
