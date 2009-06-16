@@ -200,7 +200,7 @@ class ErlangIndexer extends EmbeddingIndexer {
        * @NOTE Add "lib;" before header file fqn of lib, it also contains its ext (such as ".hrl")
        */
       private def getHeaderFqn(fo:FileObject) :String = {
-         val libFo = ErlangIndexer.getLibFo() match {
+         val libFo = ErlangGlobal.libFo match {
             case Some(x) => x
             case None => return fo.getNameExt
          }
@@ -375,35 +375,6 @@ object ErlangIndexer {
    val VERSION = 9
 
    val LOG = Logger.getLogger(classOf[ErlangIndexer].getName)
-
-   def getLibFo() :Option[FileObject] = {
-      val classpaths = GlobalPathRegistry.getDefault().getPaths(ErlangLanguage.BOOT);
-      val itr = classpaths.iterator
-      if (itr.hasNext) {
-         val roots = itr.next.getRoots
-         if (roots.size > 0) {
-            return Some(roots(0))
-         }
-      }
-      None
-   }
-
-   def getClasspathRoots(fo:FileObject, classpathId:String) :Seq[FileObject] = {
-      if (fo != null) {
-         val classpath = ClassPath.getClassPath(fo, classpathId);
-         if (classpath != null) {
-            classpath.getRoots()
-         } else Array()
-      } else {
-         var roots = new ArrayBuffer[FileObject]
-         val classpaths = GlobalPathRegistry.getDefault().getPaths(classpathId);
-         val itr = classpaths.iterator
-         while (itr.hasNext) {
-            roots ++= itr.next.getRoots
-         }
-         roots.toArray
-      }
-   }
     
    class Factory extends EmbeddingIndexerFactory {
 
