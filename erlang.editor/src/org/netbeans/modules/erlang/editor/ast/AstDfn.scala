@@ -174,7 +174,7 @@ class AstDfn(_idToken:Option[Token[TokenId]],
 trait LanguageAstDfn {self:AstDfn =>
    import ElementKind._
    import org.netbeans.modules.erlang.editor.node.ErlSymbol._
-   import org.netbeans.modules.erlang.editor.util.ErlangUtil
+   import org.netbeans.modules.erlang.editor.ErlangGlobal
 
    /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
    def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
@@ -213,7 +213,7 @@ trait LanguageAstDfn {self:AstDfn =>
          return null
       }
 
-      ErlangUtil.docComment(srcDoc, idOffset(th))
+      ErlangGlobal.docComment(srcDoc, idOffset(th))
    }
 
 
