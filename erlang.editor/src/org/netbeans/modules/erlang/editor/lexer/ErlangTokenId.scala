@@ -141,7 +141,7 @@ object ErlangTokenId extends Enumeration {
    val Bar = V("Bar", "|",  "separator")
    val Question = V("Question", "?","separator")
    val DLt = V("DLt", "<<", "separator")
-   val LArrow = V("LArrow", "<-", "separator")
+   val LArrow = V("LArrow", null, "separator") // could be "<-" or "<="
    val Lt = V("Lt", "<", "separator")
    val DGt = V("DGt", ">>", "separator")
    val Ge = V("Ge", ">=", "separator")

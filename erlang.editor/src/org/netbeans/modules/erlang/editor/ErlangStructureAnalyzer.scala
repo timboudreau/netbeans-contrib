@@ -64,7 +64,6 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
    override
    def scan(result:ParserResult) :List[StructureItem] = result match {
-      case null => Collections.emptyList[StructureItem]
       case pResult:ErlangParserResult =>
          var items = Collections.emptyList[StructureItem]
          for (rootScope <- pResult.rootScope) {
@@ -72,6 +71,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
             scanTopForms(rootScope, items, pResult)
          }
          items
+      case _ => Collections.emptyList[StructureItem]
    }
 
    private def scanTopForms(scope:AstScope, items:List[StructureItem], pResult:ErlangParserResult) :Unit = {
@@ -87,7 +87,6 @@ class ErlangStructureAnalyzer extends StructureScanner {
 
    override
    def folds(result:ParserResult) :Map[String, List[OffsetRange]] = result match {
-      case null => Collections.emptyMap[String, List[OffsetRange]]
       case pResult:ErlangParserResult =>
          var folds = Collections.emptyMap[String, List[OffsetRange]]
          for (rootScope <- pResult.rootScope;
@@ -157,6 +156,7 @@ class ErlangStructureAnalyzer extends StructureScanner {
          }
 
          folds
+      case _ => Collections.emptyMap[String, List[OffsetRange]]
    }
 
    @throws(classOf[BadLocationException])
