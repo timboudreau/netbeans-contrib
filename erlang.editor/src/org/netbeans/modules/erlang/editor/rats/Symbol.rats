@@ -67,6 +67,7 @@ transient generic Separator =
 / "?"   :separator @Question
 / "<<"  :separator @DLt
 / "<-"  :separator @LArrow
+/ "<="  :separator @LArrow
 / "<"   :separator @Lt
 / ">>"  :separator @DGt
 / ">="  :separator @Ge

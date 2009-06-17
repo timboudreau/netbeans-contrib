@@ -55,12 +55,14 @@ import org.netbeans.modules.erlang.editor.rats.Error;
 option withLocation;
 
 
-public generic S = SKIP Form+ SKIP EOF ;
+public generic S = SKIP ( void:Script )? Form+ SKIP EOF ;
+
+String Script = "#!" w? ( !n _ )+ n ;
 
 generic Form =
-  Attribute STOP
-/ Function  STOP
-/ Rule      STOP
+  Attribute    STOP
+/ Function     STOP
+/ Rule         STOP
 / SYNTAX_ERROR STOP
 ;
 
@@ -80,11 +82,11 @@ generic Attribute =
 // ----- predefined attributes
 
 generic PredAttr =
-  void:"-":s "define"      void:"(":s ( AtomId / VarId ) ( void:"(":s MacroParams? void:")":s )? ( COMMA_E Expr )*      void:")":s
-/ void:"-":s "record"      void:"(":s ( AtomId / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s                 void:")":s
-/ void:"-":s "module"      void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E ModuleParams )?                          void:")":s
+  void:"-":s "define"      void:"(":s ( AtomId / VarId ) ( void:"(":s MacroParams? void:")":s )? COMMA_E ( !STOP _ )*
+/ void:"-":s "record"      void:"(":s ( AtomId / VarId ) COMMA_E void:"{":s RecordFieldNames void:"}":s               void:")":s
+/ void:"-":s "module"      void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E ModuleParams )?                         void:")":s
 / void:"-":s "import"      void:"(":s AtomId ( void:".":s AtomId )* ( COMMA_E void:"[":s FunctionNames? void:"]":s )? void:")":s
-/ void:"-":s "export"      void:"(":s void:"[":s FunctionNames? void:"]":s                                               void:")":s
+/ void:"-":s "export"      void:"(":s void:"[":s FunctionNames? void:"]":s                                            void:")":s
 / void:"-":s "include"     void:"(":s String void:")":s
 / void:"-":s "include_lib" void:"(":s String void:")":s
 / void:"-":s "compile"     void:"(":s Exprs  void:")":s
@@ -200,10 +202,7 @@ transient generic Function = FunctionClauses ;
 
 transient generic FunctionClauses = FunctionClause ( SEMI_E FunctionClause )* ;
 
-transient generic FunctionClause =
-  AtomId ClauseArgs ClauseGuard? ClauseBody
-/ AtomId SYNTAX_ERROR
-;
+transient generic FunctionClause = AtomId ClauseArgs ClauseGuard? ClauseBody ;
 
 transient generic ClauseArgs = ArgumentList ;
 
@@ -254,7 +253,7 @@ generic Expr800 =
 
 generic Expr900 =
   void:".":s AtomId ( void:".":s AtomId )*
-/ ExprMax            ( void:".":s AtomId )*
+/ ExprMax           ( void:".":s AtomId )*
 ;
 
 generic ExprMax =
@@ -387,7 +386,7 @@ generic TryClause =
 /                   Expr ClauseGuard? ClauseBody
 ;
 
-transient generic QueryExpr = void:"query":s ListComprehension END_E ;
+transient generic QueryExpr = void:"query":k ListComprehension END_E ;
 
 generic ArgumentList = void:"(":s Exprs? void:")":s ;
 
