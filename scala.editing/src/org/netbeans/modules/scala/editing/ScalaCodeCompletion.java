@@ -420,6 +420,12 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                             }
                         }
                     }
+
+                    if (call.caretAfterDot) {
+                        // it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
+                        return completionResult;
+                    }
+
                 }
             }
 
@@ -1699,7 +1705,7 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             return html.toString();
         }
 
-        ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);        
+        ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);
         String name = element.getName();
         if (name != null && name.length() > 0) {
             formatter.setSeqName(name);
