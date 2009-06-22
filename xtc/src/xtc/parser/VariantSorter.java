@@ -39,7 +39,6 @@ import xtc.type.VariantT;
 import xtc.type.Wildcard;
 
 import xtc.util.Runtime;
-import xtc.util.Utilities;
 
 /**
  * Visitor to infer a grammar's variants.
@@ -50,7 +49,7 @@ import xtc.util.Utilities;
  * <em>not</em> been transformed into equivalent right-iterations.
  *
  * @author Robert Grimm
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.31 $
  */
 public class VariantSorter extends Visitor {
 
@@ -121,11 +120,8 @@ public class VariantSorter extends Visitor {
           if (e instanceof NodeMarker) mark = (NodeMarker)e;
         }
 
-        String name = analyzer.current().qName.name;
-        if (null != mark) {
-          name = Utilities.qualify(Utilities.getQualifier(name), mark.name);
-        }
-
+        final String name =
+          (null == mark) ? analyzer.current().name.name : mark.name;
         ast.toTuple(name); // Called for side-effect, i.e., tuple creation.
       }
 
@@ -144,17 +140,14 @@ public class VariantSorter extends Visitor {
   /** Visitor to determine a generic production's variant type. */
   public class Typer extends Visitor {
 
-    /** The flag for creating a new variant. */
-    protected boolean create;
-
     /** The current production. */
     protected FullProduction production;
 
     /** The list of elements. */
     protected List<Element> elements;
 
-    /** The set of node names. */
-    protected Set<String> names;
+    /** The list of node names. */
+    protected List<String> names;
 
     /** The type. */
     protected Type type;
@@ -162,30 +155,7 @@ public class VariantSorter extends Visitor {
     /** Create a new typer. */
     public Typer() {
       elements = new ArrayList<Element>();
-      names    = new HashSet<String>();
-    }
-
-    /**
-     * Determine the specified generic production's variant type.
-     *
-     * <p />This method may only be invoked on a generic production
-     * that does not yet have a variant type.  It tries to match the
-     * production's generic node names to an existing variant type.
-     * If such a type exists, it returns that type.  Next, if the
-     * production does not create a generic node (even though it is
-     * marked as generic), it returns the error type.  Next, if
-     * <code>create</code> is <code>true</code>, it returns a new
-     * variant type.  Otherwise, it returns the error type.
-     *
-     * @param p The generic production.
-     * @param create The flag for creating a new variant.
-     * @return The production's variant type or the error type.
-     */
-    public Type type(Production p, boolean create) {
-      assert AST.isDynamicNode(p.type);
-      assert AST.isGenericNode(p.type);
-      this.create = create;
-      return (Type)dispatch(p);
+      names    = new ArrayList<String>();
     }
 
     /** Visit the specified full production. */
@@ -202,7 +172,7 @@ public class VariantSorter extends Visitor {
 
       // (1) If the production does not create any generic nodes, we
       // signal an error.
-      if (names.isEmpty()) return ErrorT.TYPE;
+      if (0 == names.size()) return ErrorT.TYPE;
 
       // (2) If the production creates generic nodes that already have
       // tuples belonging to the same variant, we return that variant.
@@ -234,7 +204,7 @@ public class VariantSorter extends Visitor {
       // name as another generic production and that production
       // already has a variant type, we return the variant.
       if (1 == names.size()) {
-        final String         name = names.iterator().next();
+        final String         name = names.get(0);
         final FullProduction p2   = analyzer.lookup(new NonTerminal(name));
 
         if (null != p2 &&
@@ -244,7 +214,7 @@ public class VariantSorter extends Visitor {
       }
 
       // (4) Return a new variant named after this production.
-      return create ? ast.toVariant(p.qName.name, false) : ErrorT.TYPE;
+      return ast.toVariant(p.qName.name, false);
     }
 
     /** Visit the specified ordered choice. */
@@ -277,11 +247,8 @@ public class VariantSorter extends Visitor {
           switch (e.tag()) {
           case BINDING: {
             Binding b = (Binding)e;
-            if (CodeGenerator.VALUE.equals(b.name)) {
-              pass = true;
-              break loop;
-            }
-          } break;
+            if (CodeGenerator.VALUE.equals(b.name)) pass = true;
+          } break loop;
 
           case NODE_MARKER:
             mark = (NodeMarker)e;
@@ -290,10 +257,7 @@ public class VariantSorter extends Visitor {
         }
 
         if (! pass) {
-          String name = production.qName.name;
-          if (null != mark) {
-            name = Utilities.qualify(Utilities.getQualifier(name), mark.name);
-          }
+          final String name = (null == mark) ? production.name.name : mark.name;
           if (! names.contains(name)) names.add(name);
         }
       }
@@ -318,9 +282,6 @@ public class VariantSorter extends Visitor {
 
   /** The type operations. */
   protected final AST ast;
-
-  /** The generic production typer. */
-  protected final Typer gtyper;
 
   /** The set of AST nodes resulting in an error. */
   protected Map<Node, Node> malformed;
@@ -368,7 +329,6 @@ public class VariantSorter extends Visitor {
     this.runtime  = runtime;
     this.analyzer = analyzer;
     this.ast      = ast;
-    gtyper        = new Typer();
     malformed     = new IdentityHashMap<Node, Node>();
     productions   = new ArrayList<Production>();
     types         = new ArrayList<Type>();
@@ -458,19 +418,8 @@ public class VariantSorter extends Visitor {
         analyzer.process(p);
       }
 
+      // Pull.
       if (hasChanged) {
-        // Try to match not-yet-marked generic productions that do not
-        // pass the value through to existing variant types.
-        for (Production p : m.productions) {
-          if (AST.isDynamicNode(p.type) &&
-              AST.isGenericNode(p.type) &&
-              ! analyzer.setsValue(p.choice, false)) {
-            final Type t = gtyper.type(p, false);
-            if (! t.isError()) setType(p, t);
-          }
-        }
-
-        // Pull.
         isPushMode = false;
         hasChanged = false;
         for (Production p : m.productions) {
@@ -525,9 +474,11 @@ public class VariantSorter extends Visitor {
     pushPull(m);
 
     // Process any remaining generic productions.
+    final Typer typer = new Typer();
+
     for (Production p : m.productions) {
       if (AST.isDynamicNode(p.type) && AST.isGenericNode(p.type)) {
-        Type t = gtyper.type(p, true);
+        Type t = (Type)typer.dispatch(p);
 
         if (! t.isError()) {
           setType(p, t);
@@ -747,16 +698,13 @@ public class VariantSorter extends Visitor {
 
         } else if (isPushMode) {
           // Process the constructor name.
-          String name = production.qName.name;
-          if (null != mark) {
-            name = Utilities.qualify(Utilities.getQualifier(name), mark.name);
-          }
-
+          final String         name     =
+            (null == mark) ? production.name.name : mark.name;
           final boolean        hasTuple = ast.hasTuple(name);
           final TupleT         tuple    = ast.toTuple(name);
           final List<VariantT> variants = ast.toVariants(tuple);
 
-          if (! hasTuple || variants.isEmpty()) {
+          if (! hasTuple || 0 == variants.size()) {
             ast.add(tuple, types.get(0).toVariant());
           } else if (! variants.contains(types.get(0))) {
             runtime.error("tuple '" + name + "' should appear in variant '" +

@@ -20,13 +20,11 @@ package xtc.type;
 
 import java.io.IOException;
 
-import java.math.BigInteger;
-
 /**
  * Representation of a cast reference.  
  *
  * @author Robert Grimm
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.3 $
  */
 public class CastReference extends RelativeReference {
 
@@ -38,6 +36,9 @@ public class CastReference extends RelativeReference {
    */
   public CastReference(Type type, Reference base) {
     super(type, base);
+
+    // Update the type.
+    normalize();
   }
 
   public boolean isPrefix() {
@@ -46,14 +47,6 @@ public class CastReference extends RelativeReference {
 
   public boolean isCast() {
     return true;
-  }
-
-  public boolean hasLocation() {
-    return base.hasLocation();
-  }
-
-  public BigInteger getLocation(C ops) {
-    return base.getLocation(ops);
   }
 
   public int hashCode() {

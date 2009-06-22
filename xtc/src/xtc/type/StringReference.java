@@ -27,7 +27,7 @@ import xtc.util.Utilities;
  * reference neither has a base nor an offset.
  *
  * @author Robert Grimm
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.8 $
  */
 public class StringReference extends Reference {
 
@@ -46,6 +46,14 @@ public class StringReference extends Reference {
   public StringReference(String literal, Type type) {
     super(type);
     this.literal = literal;
+
+    // Validate the type.
+    /*
+    if ((! this.type.isCString()) && (! this.type.isWideCString())) {
+      throw new IllegalArgumentException("not a C string");
+    }
+    */
+    normalize();
   }
 
   public boolean isString() {

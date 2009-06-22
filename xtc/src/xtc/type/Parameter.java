@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007-2008 Robert Grimm
+ * Copyright (C) 2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,37 +21,54 @@ package xtc.type;
 import java.io.IOException;
 
 /**
- * The superclass of all type parameters.  When a type is
- * parameterized, all occurrences of the same parameter should also be
- * the same instance of a subclass.  Furthermore, the type should be
- * wrapped in a {@link ParameterizedT} listing all parameters.
- * Instantiation of a parameterized type does not require replacing
- * all parameters, but rather should be implemented by wrapping the
- * paramterized type in an {@link InstantiatedT} listing all
- * arguments.  To support efficient unification, this class implements
- * union/find operations with path compression through the {@link
- * #bind(Type)} and {@link #lookup()} operations.
+ * A type parameter.  When a type is parameterized, all occurrences of
+ * the same parameter should also be the same instance of this class.
+ * Furthermore, the type should be wrapped in a {@link ParameterizedT}
+ * listing all parameters.  Instantiation of a parameterized type does
+ * not require replacing all parameters, but rather should be
+ * implemented by wrapping the paramterized type in a {@link
+ * InstantiatedT} listing all arguments.  To support efficient
+ * unification, this class implements union/find operations with path
+ * compression through the {@link #bind(Type)} and {@link #lookup()}
+ * operations.
  *
  * @author Robert Grimm
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.3 $
  */
-public abstract class Parameter extends Type {
+public class Parameter extends Type {
+
+  /** The name. */
+  private final String name;
 
   /** The binding. */
   private Type binding;
 
-  /** Create a new parameter. */
-  public Parameter() {
-    // Nothing to do.
+  /**
+   * Create a new parameter.
+   *
+   * @param name The name.
+   */
+  public Parameter(String name) {
+    this.name = name;
   }
 
   /**
    * Create a new parameter.
    *
    * @param template The type whose annotations to copy.
+   * @param name The name.
    */
-  public Parameter(Type template) {
+  public Parameter(Type template, String name) {
     super(template);
+    this.name = name;
+  }
+
+  public Parameter copy() {
+    return new Parameter(this, name);
+  }
+
+  public Type.Tag tag() {
+    return Type.Tag.PARAMETER;
   }
 
   public boolean isParameter() {
@@ -60,6 +77,15 @@ public abstract class Parameter extends Type {
 
   public Parameter toParameter() {
     return this;
+  }
+
+  /**
+   * Get the name.
+   *
+   * @return The name.
+   */
+  public String getName() {
+    return name;
   }
 
   /**
@@ -90,6 +116,28 @@ public abstract class Parameter extends Type {
     if (null == binding) return this;
     if (binding.isParameter()) binding = binding.toParameter().lookup();
     return binding;
+  }
+
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  public boolean equals(Object o) {
+    if (! (o instanceof Type)) return false;
+    Type t = resolve(o);
+
+    if (this == t) return true;
+    if (! t.isParameter()) return false;
+    Parameter other = t.toParameter();
+    return name.equals(other.name);
+  }
+
+  public void write(Appendable out) throws IOException {
+    out.append(name);
+  }
+
+  public String toString() {
+    return name;
   }
 
 }

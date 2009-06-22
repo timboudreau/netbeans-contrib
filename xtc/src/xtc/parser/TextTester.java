@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ import xtc.util.Runtime;
  * @see Transformer
  *
  * @author Robert Grimm
- * @version $Revision: 1.42 $
+ * @version $Revision: 1.41 $
  */
 public class TextTester extends Visitor {
 
@@ -176,9 +176,9 @@ public class TextTester extends Visitor {
     }
   }
   
-  /** Visit the specified predicate. */
-  public void visit(Predicate p) {
-    // Ignore the predicate.
+  /** Visit the specified semantic predicate. */
+  public void visit(SemanticPredicate p) {
+    // Ignore the semantic action.
   }
   
   /** Visit the specified binding. */

@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2006 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ import xtc.util.Runtime;
  * ordered choice must have been normalized into sequences.
  *
  * @author Robert Grimm
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.29 $
  */
 public class TerminalOptimizer extends GrammarVisitor {
 
@@ -114,9 +114,7 @@ public class TerminalOptimizer extends GrammarVisitor {
         final int kount = klass.count();
 
         if ((1 < kount) && (kount <= Analyzer.MAX_COUNT)) {
-          CharSwitch sw = new CharSwitch(klass, s.subSequence(i+1));
-          sw.setLocation(s);
-          s.elements.set(i, sw);
+          s.elements.set(i, new CharSwitch(klass, s.subSequence(i+1)));
           s = s.subSequence(0, i+1);
 
           if (runtime.test("optionVerbose")) {

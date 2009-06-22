@@ -26,7 +26,7 @@ import xtc.util.Nonce;
  * The superclass of struct and union types.
  *
  * @author Robert Grimm
- * @version $Revision: 1.42 $
+ * @version $Revision: 1.40 $
  */
 public abstract class StructOrUnionT extends DerivedT implements Tagged {
 
@@ -69,10 +69,6 @@ public abstract class StructOrUnionT extends DerivedT implements Tagged {
         members = Type.seal(members);
       }
     }
-    return this;
-  }
-
-  public StructOrUnionT toStructOrUnion() {
     return this;
   }
 
@@ -128,7 +124,7 @@ public abstract class StructOrUnionT extends DerivedT implements Tagged {
     }
   }
 
-  public VariableT getMember(int index) {
+  public Type getMember(int index) {
     int count = -1;
     for (VariableT member: members) {
       if (member.hasName() || (! member.hasWidth())) {

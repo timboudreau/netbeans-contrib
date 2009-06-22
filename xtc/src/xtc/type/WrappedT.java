@@ -26,7 +26,7 @@ import xtc.tree.Location;
  * symbolic information to another, more basic type.
  *
  * @author Robert Grimm
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.36 $
  */
 public abstract class WrappedT extends Type {
 
@@ -181,10 +181,6 @@ public abstract class WrappedT extends Type {
     return type.hasVariable();
   }
 
-  public VariableT toVariable() {
-    return type.toVariable();
-  }
-
   public boolean hasInstantiated() {
     return type.hasInstantiated();
   }
@@ -201,8 +197,8 @@ public abstract class WrappedT extends Type {
     return type.toParameterized();
   }
 
-  public StructOrUnionT toStructOrUnion() {
-    return type.toStructOrUnion();
+  public VariableT toVariable() {
+    return type.toVariable();
   }
 
   public boolean hasTagged() {

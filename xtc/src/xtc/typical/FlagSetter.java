@@ -26,7 +26,7 @@ import xtc.tree.Node;
  * Visitor to set flags indicating which liraries are used. 
  *
  * @author Anh Le
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1 $
  */
 public class FlagSetter extends Visitor {
 

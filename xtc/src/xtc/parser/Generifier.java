@@ -26,7 +26,6 @@ import xtc.tree.Visitor;
 import xtc.type.AST;
 
 import xtc.util.Runtime;
-import xtc.util.Utilities;
 
 /**
  * Visitor to add generic nodes as semantic values.
@@ -51,7 +50,7 @@ import xtc.util.Utilities;
  * DirectLeftRecurser}.
  *
  * @author Robert Grimm
- * @version $Revision: 1.56 $
+ * @version $Revision: 1.55 $
  */
 public class Generifier extends Visitor {
 
@@ -170,10 +169,11 @@ public class Generifier extends Visitor {
     // If this sequence has not ended with a choice, add the
     // appropriate semantic value.
     if (! s.hasTrailingChoice()) {
-      String name = analyzer.current().qName.name;
-      if (! markers.isEmpty()) {
-        name = Utilities.qualify(Utilities.getQualifier(name), 
-                                 markers.get(markers.size()-1).name);
+      final String name;
+      if (0 == markers.size()) {
+        name = analyzer.current().name.unqualify().name;
+      } else {
+        name = markers.get(markers.size()-1).name;
       }
 
       final List<Binding> formatting;

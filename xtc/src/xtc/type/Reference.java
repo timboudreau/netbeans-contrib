@@ -31,26 +31,32 @@ import java.math.BigInteger;
  * is either an index or a field.
  *
  * @author Robert Grimm
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.12 $
  */
 public abstract class Reference {
 
   /** The type. */
-  protected final Type type;
+  protected Type type;
 
   /**
    * Create a new reference.  Note that this constructor resolves the
-   * specified type and strips any arrays.
+   * specified type.
    *
    * @param type The type.
    */
   public Reference(Type type) {
-    type = type.resolve();
+    this.type = type.resolve();
+  }
+
+  /**
+   * Normalize this reference.  This method adjusts the internal type
+   * and should be called from constructors that explicitly set the
+   * type (instead of just using a base reference's type).
+   */
+  protected void normalize() {
     while (type.isArray()) {
       type = type.toArray().getType().resolve();
     }
-
-    this.type = type;
   }
 
   /**
@@ -237,12 +243,11 @@ public abstract class Reference {
   /**
    * Get this reference's absolute memory location.
    *
-   * @param ops The C operations.
    * @return The memory location.
    * @throws IllegalStateException Signals that this reference does
    *   not have an absolute memory location.
    */
-  public BigInteger getLocation(C ops) {
+  public BigInteger getLocation() {
     throw new IllegalStateException();
   }
 

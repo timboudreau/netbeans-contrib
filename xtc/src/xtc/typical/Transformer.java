@@ -36,7 +36,7 @@ import xtc.util.Pair;
  * Visitor to translate Typical ASTs into Java ASTs.
  * 
  * @author Laune Harris, Anh Le
- * @version $Revision: 1.377 $
+ * @version $Revision: 1.372 $
  */
 public class Transformer extends Visitor {
 
@@ -107,7 +107,7 @@ public class Transformer extends Visitor {
      * @param name The name of the primitive operation
      * @param types The types of the instance
      */
-    public PrimitiveInstance(String name, List<String> types, String instanceName) {
+    PrimitiveInstance(String name, List<String> types, String instanceName) {
       this.name = name;
       this.types = types;
       this.instanceName = instanceName;
@@ -153,38 +153,6 @@ public class Transformer extends Visitor {
   }
   
   // =========================================================================
-  
-  /** Representation of a variable binding in a let expression. */
-  static class LetBinding {
-  
-    /** The name of the variable. */
-    public String name;
-
-    public Object typeObject;
-  
-    /** The type node of the variable. */  
-    public Node type;
-
-    /** The value node of the variable. */
-    public Node value;
-
-    /**
-     * Create a new let binding.
-     *
-     * @param name The name of the variable.
-     * @param type The type of the variable.
-     * @param value The value of the variable.
-     */  
-    public LetBinding(String name, Object typeObject, Node type, Node value){
-      this.name = name;
-      this.typeObject = typeObject;
-      this.type = type;
-      this.value = value;
-    }  
-
-  }
-
-  // =========================================================================
 
   /** The type annotation name. */
   protected static final String TYPE = "__type";
@@ -209,18 +177,6 @@ public class Transformer extends Visitor {
 
   /** The annotation name to indicate it is needed to annotate the node. */
   protected static final String ANNOTATE = "annotate_node";
-
-  /** The property indicating the variables from upper levels of binding. */
-  protected static final String UPVARS = "up_variables";
-
-  /** The property indicating the variable bindings from an expression. */
-  protected static final String LETBINDINGS = "let_bindings";
-
-  /** The property indicating the body of a function definition. */
-  protected static final String BODY = "body";
-
-  /** The property indicating a new instance of Let must be created. */
-  protected static final String NEWLET = "new_let";
 
   /** The tree factory. */
   protected final TreeFactory factory;
@@ -306,9 +262,6 @@ public class Transformer extends Visitor {
   /** The list of function definitions. */
   final protected List<Node> functionDefinitions = new ArrayList<Node>();
 
-  /** A spare variable used in binding to a wildcard. */
-  final protected String spareVar;
-
   /** Flag indicating that a namespace declaration has been seen. */
   protected boolean seenNameSpace = false;  
   
@@ -330,11 +283,8 @@ public class Transformer extends Visitor {
   /** A list to store all defined equal attributes. */
   protected List<Attribute> eqAttributeList = new ArrayList<Attribute>();
 
-  /** A variable to remember if type is optimized. */
+  /** A variable to remember is type is optimized. */
   protected boolean replaceType;
-
-  /** A variable to remember if let is optimized. */
-  protected boolean optimizeLet;
 
   /** A variable to check if List is used. */
   private boolean isListUsed;
@@ -411,12 +361,6 @@ public class Transformer extends Visitor {
     // Set replaceType
     if (runtime.test("optimizeType")) replaceType = true;
 
-    // Set optimizeLet
-    if (runtime.test("optimizeLet")) optimizeLet = true;
-    else optimizeLet = false;
-
-    spareVar = table.freshJavaId("spareVar");
-
     // Get the name of the node type
     String tempName = (String)runtime.getValue("optionNodeType"); 
     if (null == tempName) nodeTypeName = "node";
@@ -426,8 +370,6 @@ public class Transformer extends Visitor {
     dispatch(typical.getGeneric(0));
     cbody = makeClassBody();
     cbody = GNode.ensureVariable((GNode)cbody);
-    // Add spare variable declaration
-    if (optimizeLet) cbody.add(factory.fieldDecl3(spareVar));
 
     tbody = GNode.create("ClassBody");
     tbody = GNode.ensureVariable((GNode)tbody);
@@ -535,81 +477,6 @@ public class Transformer extends Visitor {
     packageName = buf.toString();
     packageNode = GNode.create("PackageDeclaration", null, qid);
   }
-  
-  /**
-   * Process a fun expression.
-   * 
-   * @param n The fun expression node.
-   * @return The java code for the fun expression.
-   */
-  public Node visitFunExpression(GNode n) { 
-    Object t = n.getProperty(TYPE);
-    if (null == t) throw new AssertionError("Null type");
-    
-    if (mapper.isFunctionType(t)) {
-      Node params = n.getGeneric(0);
-      Node value = n.getGeneric(1);
-
-      if (n.hasProperty(INANALYZE)) {
-        params.setProperty(INANALYZE, Boolean.TRUE);
-        value.setProperty(INANALYZE, Boolean.TRUE);
-      }  
-
-      final String scopename = (String)n.getProperty("enterScope");
-      boolean didEnter = false;
-      if (n.hasProperty("enterScope")) {     
-        if (!table.current().getName().equals(scopename)) {
-          enterScope(scopename);
-          didEnter = true;
-        }
-      }
-    
-      // Get the number of type variables from the function type
-      final int typeVarNumber = mapper.processTypeVariables(t, 0); 
-      // Check if this function is generic
-      final boolean isGeneric = typeVarNumber > 0;
-      
-      Node returnTypeNode = mapper.getReturnTypeNode(t);      
-      List<Node> paramTypeNodes = mapper.getParameterTypeNodes(t);      
-      Node functionTypeNode = mapper.toTypeNode(t,false);
-      
-      value.setProperty(TYPE, returnTypeNode);
-      
-      //populate the formal parameters for the "apply" method
-      Node formalParameters = GNode.create("FormalParameters", params.size());      
-      for (int i = 0; i < params.size(); i++) {
-        formalParameters.add(GNode.create("FormalParameter", fmod, 
-          paramTypeNodes.get(i), null,
-          params.getGeneric(i).getString(0), null));
-      }
-      
-      // Type parameters node
-      Node typeParas = null;
-      if (isGeneric) {
-        typeParas = GNode.create("TypeParameters");
-        for (int i = 0; i < typeVarNumber; i ++) {
-          typeParas.add(GNode.create("TypeParameter", "T" + i, null));
-        }
-      }
-
-      // Make a new let for the body if necessary
-      Object returnType = mapper.getReturnTypeObject(t);
-      Node valueExpr = (Node)dispatch(value);      
-      valueExpr = checkToLet(valueExpr, returnType);
-      
-
-     
-      Node classBody = GNode.create("ClassBody", 
-        GNode.create("MethodDeclaration", pmod, typeParas,
-        returnTypeNode, "apply", formalParameters, null, null,
-         GNode.create("Block", factory.ret(valueExpr))));
-      
-      if (didEnter) exitScope(scopename);
-      
-      return toNewExpression2(functionTypeNode,null,classBody);
-        
-    } else throw new AssertionError("Function type is required");
-  }
 
   /**
    * Process a value definition.
@@ -683,42 +550,11 @@ public class Transformer extends Visitor {
           typeParas.add(GNode.create("TypeParameter", "T" + i, null));
         }
       }
-
-      // The body of the function
-      Node block;
-      if (!optimizeLet) {
-        block = GNode.create("Block", factory.ret((Node)dispatch(value))); 
-      } else {
-        block = GNode.create("Block");
-        block = GNode.ensureVariable(GNode.cast(block));
-        Node valueExpr = (Node)dispatch(value);
-
-        List<LetBinding> bindList = getBindings(valueExpr);
-        if (null != bindList) {
-          for (LetBinding bind : bindList) {
-            if (!bind.name.equals(spareVar)) {
-              if (mapper.hasTypeVariables(bind.typeObject)) {
-                block.add(factory.fieldDecl2(bind.type, bind.name, bind.value));
-              } else {
-                block.add(factory.fieldDecl2(bind.type, bind.name, 
-                                             factory.cast(bind.value)));
-              }
-            } else {
-              if (mapper.hasTypeVariables(bind.typeObject)) {
-                block.add(factory.assign(toIdentifier(bind.name), bind.value));
-              } else {
-                block.add(factory.assign(toIdentifier(bind.name), 
-                                         factory.cast(bind.value)));
-              }
-            }
-          }
-        }
-        block.add(factory.castReturn(valueExpr));
-      } 
      
       Node classBody = GNode.create("ClassBody", 
         GNode.create("MethodDeclaration", pmod, typeParas,
-        returnTypeNode, "apply", formalParameters, null, null, block)); 
+        returnTypeNode, "apply", formalParameters, null, null,
+         GNode.create("Block", factory.ret((Node)dispatch(value))) )); 
       
       if (!"getNameSpace".equals(name)) exitScope(name);
           
@@ -744,17 +580,8 @@ public class Transformer extends Visitor {
       }
     } else {
       //no function needed, just field declaration
-      //value.setProperty(NEWLET, Boolean.TRUE);
-      Node valueExpr = (Node)dispatch(value);
-      valueExpr = checkToLet(valueExpr, t);
-      // fix cast here
-      if (mapper.hasTypeVariables(t)) {
-        functionDefinitions.add(makeVarDec2(name, mapper.toTypeNode(t, false),
-                                            valueExpr));
-      } else {      
-        functionDefinitions.add(makeVarDec2(name, mapper.toTypeNode(t, false),
-          factory.cast(valueExpr)));
-      }     
+      functionDefinitions.add(makeVarDec2(name, mapper.toTypeNode(t, false),
+        factory.cast((Node)dispatch(value))));   
     }
 
     // Note: in general, we modify the AST in place and are done.  For
@@ -838,7 +665,7 @@ public class Transformer extends Visitor {
    * @return A null literal.
    */
   public Node visitBottom(GNode n) {
-    return GNode.create("NullLiteral");
+    return nullNode;
   }
 
   /**
@@ -873,30 +700,8 @@ public class Transformer extends Visitor {
       n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
     }
-    if (!optimizeLet) { 
-      return factory.consWrapper((Node)dispatch(n.getGeneric(0)),
-                                 (Node)dispatch(n.getGeneric(1)));
-    } else {
-      List<String> upVars = getUpVariables(n);
-      Node left = n.getGeneric(0);
-      Node right = n.getGeneric(1);
-
-      if (null != upVars) left.setProperty(UPVARS, upVars);
-      Node leftExpr = (Node)dispatch(left);
-      List<LetBinding> bl1 = getBindings(leftExpr);      
-      List<String> leftVars = extractVariables(bl1);
-      List<String> upVars2 = groupList(upVars,leftVars);
-
-      if (null != upVars2) right.setProperty(UPVARS, upVars2);
-      Node rightExpr = (Node)dispatch(right);
-
-      List<LetBinding> bl2 = getBindings(rightExpr);
-      List<LetBinding> bl = groupList(bl1,bl2);
-
-      Node ret = factory.consWrapper(leftExpr, rightExpr);
-      if (null != bl) ret.setProperty(LETBINDINGS, bl);
-      return ret;      
-    }      
+    return factory.consWrapper((Node)dispatch(n.getGeneric(0)),
+                               (Node)dispatch(n.getGeneric(1)));  
   }
   
   /**
@@ -916,14 +721,12 @@ public class Transformer extends Visitor {
    * @return A java field access node (with null pointer checks inserted).
    */
   public Node visitFieldExpression(GNode n) {
-    Node expr = n.getGeneric(0);
-
-    if (n.hasProperty(INANALYZE)) {
-      expr.setProperty(INANALYZE, Boolean.TRUE);
+	if (n.hasProperty(INANALYZE)) {
+      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
     }   
-    if ("TupleConstructor".equals(expr.getName())) {
+    if ("TupleConstructor".equals(n.getGeneric(0).getName())) {
       String convertedName = Primitives.convertName(n.getString(1)); 	
-      if ("Limits".equals(expr.getString(0))) {
+      if ("Limits".equals(n.getGeneric(0).getString(0))) {
     	if (Primitives.hasIntegerType(convertedName)) {
     	  return factory.createInteger(toIdentifier(
     			                         "xtc.Limits." + convertedName));
@@ -933,17 +736,13 @@ public class Transformer extends Visitor {
       return toIdentifier("Primitives." + convertedName);
     } 
 
-    passVariables(n, expr);
-    
     // Check replaceType and the field name
     if (replaceType && "type".equals(n.getString(1))) {
-      return (Node)dispatch(expr);
+      return (Node)dispatch(n.getGeneric(0));
     }
- 
-    Node exprNode = (Node)dispatch(expr);
-    Node ret = factory.fieldExpression(exprNode, n.getString(1));
-    passBindings(exprNode, ret);
-    return ret;
+
+    return factory.fieldExpression((Node)dispatch(n.getGeneric(0)),
+                                   n.getString(1));
   }
   
   /**
@@ -990,7 +789,6 @@ public class Transformer extends Visitor {
         continue;
       }
         
-      node.setProperty(RHS, matchArg +  ".get" + (i + 1) + "()");  
       node.setProperty(BINDINGS, (n.getProperty(BINDINGS)));
       node.setProperty(MATCHARG, (String)n.getProperty(MATCHARG) + 
                        ".get" + (i + 1) + "()");
@@ -1008,15 +806,9 @@ public class Transformer extends Visitor {
         matchName = matches.get(ms);
       } else {
         matches.put(ms, matchName);
-        Object t = n.getProperty(TYPE);
-        Node tNode = null;
-        if (mapper.hasTypeVariables(t)) {
-          tNode = mapper.toTypeNode(t, true); 
-        } else {
-          tNode = mapper.toTypeNode(t, false);
-        }
         Node matchFunction = 
-          factory.matchFunction(matchName, tNode, condition);
+          factory.matchFunction(matchName, 
+            mapper.toTypeNode(n.getProperty(TYPE), true), condition);
         
         matchFunction.getGeneric(4).getGeneric(0).set(3, "m");
         staticFields.add(matchFunction);
@@ -1093,17 +885,9 @@ public class Transformer extends Visitor {
       if (node.hasName("WildCard")) continue;
       
       if (node.hasName("Variable")) {
-        // fix cast here
-        Object t = n.getProperty(TYPE);
-        if (mapper.hasTypeVariables(t)) {
-          ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(node.getString(0), 
-          mapper.toTypeNode(mapper.getBase(t), false), 
-          toIdentifier(matchArg + ".get(" + i + ")")));
-        } else {
-          ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(node.getString(0), 
-          mapper.toTypeNode(mapper.getBase(t), false), 
-          factory.cast(toIdentifier(matchArg + ".get(" + i + ")"))));
-        }
+        ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(node.getString(0), 
+        mapper.toTypeNode(mapper.getBase(n.getProperty(TYPE)), false), 
+        factory.cast(toIdentifier(matchArg + ".get(" + i + ")"))));
         continue;
       }
       
@@ -1120,13 +904,7 @@ public class Transformer extends Visitor {
     } 
 
     if (n.hasProperty(TOP)) {
-      Object t = n.getProperty(TYPE);
-      Node listTypeNode = null;
-      if (mapper.hasTypeVariables(t)) {
-        listTypeNode = mapper.toTypeNode(t, true);
-      } else {
-        listTypeNode = mapper.toTypeNode(t, false);
-      }  
+      Node listTypeNode = mapper.toTypeNode(n.getProperty(TYPE), true);
 
       condition = replaceMatchArg(condition, matchArg);
       
@@ -1213,9 +991,7 @@ public class Transformer extends Visitor {
     
     List<Node> statements = new ArrayList<Node>();
     
-    Object t = n.getGeneric(0).getProperty(TYPE);
-    
-    Node typeNode = mapper.toTypeNode(t, false);
+    Node typeNode = mapper.toTypeNode(n.getGeneric(0).getProperty(TYPE), false);
 
     String name = table.freshJavaId("result");
     
@@ -1225,27 +1001,18 @@ public class Transformer extends Visitor {
                     factory.ret(toIdentifier("null"))));
       
     }
-
-    Node no = n.getGeneric(0);
-    if (n.hasProperty(INANALYZE)) {
-      no.setProperty(INANALYZE, Boolean.TRUE);      
-    }    
-    passVariables(n, no);
-    Node expr = (Node)dispatch(no);
-    statements.add(factory.fieldDecl2(typeNode, name,expr));
-    // fix cast here
-    if (mapper.hasTypeVariables(t)) {                                      
-      statements.add(factory.ifStatement(factory.isNull(toIdentifier(name)),
-              factory.ret((Node)dispatch(n.getGeneric(1)))));
-    } else {
-      statements.add(factory.ifStatement(factory.isNull(toIdentifier(name)),
-              factory.ret(factory.cast((Node)dispatch(n.getGeneric(1))))));
-    }        
+    
+    statements.add(factory.fieldDecl2(typeNode, name,
+                                      (Node)dispatch(n.getGeneric(0))));
+    statements.add(factory.ifStatement(factory.isNull(toIdentifier(name)),
+            factory.ret(factory.cast((Node)dispatch(n.getGeneric(1))))));
     statements.add(factory.ret(toIdentifier(name)));
 
-    Node ret = factory.guardExpression(typeNode, statements);
-    passBindings(expr, ret); 
-    return ret;
+    if (n.hasProperty(INANALYZE)) {
+      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);      
+    }    
+    
+    return factory.guardExpression(typeNode, statements);     
   }
   
   /**
@@ -1360,19 +1127,9 @@ public class Transformer extends Visitor {
 
     //process arguments
     Node args = GNode.create("Arguments");
-    
-    List<LetBinding> bl = null;
-    List<String> upVars = getUpVariables(n);
         
     for (int i = 0; i < funcArgs.size(); i++) {
-      Node arg = funcArgs.getGeneric(i);
-      if (null != upVars) arg.setProperty(UPVARS, upVars);
-      Node expr = (Node)dispatch(arg);
-      List<LetBinding> l = getBindings(expr);
-      List<String> vars = extractVariables(l);
-      upVars = groupList(upVars, vars);
-      bl = groupList(bl,l); 
-      args.add(expr);      
+      args.add(dispatch(funcArgs.getGeneric(i)));      
     }      
 
     // Name of this function
@@ -1389,8 +1146,6 @@ public class Transformer extends Visitor {
    
     // Return type of this function
     final Node retTypeNode;
-
-    Node ret = null;
 
     // Process function application of the form Name.name ...
     if (3 == n.size()) {
@@ -1423,26 +1178,20 @@ public class Transformer extends Visitor {
           // This must be a complete function application
           args1.add(args.getGeneric(0));  
           args1.add(toIdentifier("hashTable"));
-          ret = factory.castInvocation(toIdentifier("Primitives.get"),
+          return factory.castInvocation(toIdentifier("Primitives.get"),
                                         "apply", args1); 
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         } else {
           if (2 == args.size()) {
             // complete application
             args1.add(args.getGeneric(0)); 
             args1.add(args.getGeneric(1));   
             args1.add(toIdentifier("hashTable"));
-            ret = factory.castInvocation(toIdentifier("Primitives.put"),
+            return factory.castInvocation(toIdentifier("Primitives.put"),
                                           "apply", args1); 
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
           } else {
             // incomplete application
             String tempVar = table.freshJavaId("var");
-            ret = factory.curryingPut(toIdentifier(tempVar), args.getGeneric(0));
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
+            return factory.curryingPut(toIdentifier(tempVar), args.getGeneric(0));
           }
         }
         
@@ -1451,7 +1200,8 @@ public class Transformer extends Visitor {
       //check if this is a complete or imcomplete function application
       if (args.size() == paramTypes.size()) {
         // This is a complete function application
-        // Special case the pair ops are generic
+        // Special case the pair ops
+        //   are generic
         final String newInstance;
         Node newIns = null;
         
@@ -1466,45 +1216,6 @@ public class Transformer extends Visitor {
           final String typeName = mapper.toTypeString(t);
           final Node typeNode = mapper.toTypeNode(t, false);
 
-          // Check for type variables
-          if (mapper.hasTypeVariables(t)) {
-            if ("head".equals(newName)) {
-              ret = factory.newApplyHead(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("tail".equals(newName)) {
-              ret = factory.newApplyHead(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret; 
-            } else if ("append".equals(newName)) {
-              ret = factory.newApplyAppend(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret; 
-            } else if ("union".equals(newName)) {
-              ret = factory.newApplyUnion(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("cons".equals(newName)) {
-              ret = factory.newApplyCons(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("nth".equals(newName)) {
-              ret = factory.newApplyNth(typeNode, makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("intersection".equals(newName)) {
-              ret = factory.newApplyIntersection(typeNode, 
-                                                  makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("subtraction".equals(newName)) {
-              ret = factory.newApplySubtraction(typeNode, 
-                                                 makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            }
-          }
-          
           List<String> instanceTypes = new ArrayList<String>();
           instanceTypes.add(typeName);
 
@@ -1540,10 +1251,8 @@ public class Transformer extends Visitor {
    
           if (null == instanceName) primitiveDeclList.add(newIns);
 
-          ret = factory.apply(toIdentifier(output + "Support." + newInstance),
+          return factory.apply(toIdentifier(output + "Support." + newInstance),
                                makeArgumentList(args));
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         }  
 
         if ("exists".equals(newName)) {
@@ -1551,13 +1260,6 @@ public class Transformer extends Visitor {
             mapper.getBase(funcArgs.getGeneric(1).getProperty(TYPE));
           final String typeName = mapper.toTypeString(t);
           final Node typeNode = mapper.toTypeNode(t, false);
-          // check for type variables
-          if (mapper.hasTypeVariables(t)) {
-            ret = factory.newApplyExists(typeNode, makeArgumentList(args)); 
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
-          }
-          
           List<String> instanceTypes = new ArrayList<String>();
           instanceTypes.add(typeName);
           
@@ -1572,10 +1274,8 @@ public class Transformer extends Visitor {
           } else {
             newInstance = instanceName;
           }                    
-          ret = factory.apply(toIdentifier(output + "Support." + newInstance),
+          return factory.apply(toIdentifier(output + "Support." + newInstance),
                                makeArgumentList(args));
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         }
         
         // Instances with two type parameters
@@ -1587,22 +1287,6 @@ public class Transformer extends Visitor {
             mapper.getBase(funcArgs.getGeneric(1).getProperty(TYPE));
           final String typeName2 = mapper.toTypeString(t2);
           final Node typeNode2 = mapper.toTypeNode(t2, false);
-          
-          // Check for type variables
-          if (mapper.hasTypeVariables(t1) || mapper.hasTypeVariables(t2)) {
-            if ("map".equals(newName)) {
-              ret = factory.newApplyMap(typeNode1, typeNode2, 
-                                         makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } else if ("iter".equals(newName)) {
-              ret = factory.newApplyIter(typeNode1, typeNode2, 
-                                         makeArgumentList(args));
-              if (null != bl) ret.setProperty(LETBINDINGS, bl);
-              return ret;
-            } 
-          }
-          
           List<String> instanceTypes = new ArrayList<String>();
           instanceTypes.add(typeName1);
           instanceTypes.add(typeName2);
@@ -1622,10 +1306,8 @@ public class Transformer extends Visitor {
             newIns = factory.newIter(typeNode1, typeNode2, newInstance);
           } 
           if (null == instanceName) primitiveDeclList.add(newIns);
-          ret = factory.apply(toIdentifier(output + "Support." + newInstance),
+          return factory.apply(toIdentifier(output + "Support." + newInstance),
                                makeArgumentList(args));
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         }  
 
         if ("foldl".equals(newName)) {
@@ -1636,14 +1318,6 @@ public class Transformer extends Visitor {
             mapper.getBase(funcArgs.getGeneric(1).getProperty(TYPE));
           final String typeName2 = mapper.toTypeString(t2);
           final Node typeNode2 = mapper.toTypeNode(t2, false);
-          
-          // Check for type variables
-          if (mapper.hasTypeVariables(t1) || mapper.hasTypeVariables(t2)) {
-            ret = factory.newApplyFoldl(typeNode1, typeNode2,
-                                         makeArgumentList(args)); 
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
-          }
           List<String> instanceTypes = new ArrayList<String>();
           instanceTypes.add(typeName1);
           instanceTypes.add(typeName2);
@@ -1658,21 +1332,15 @@ public class Transformer extends Visitor {
           } else {
             newInstance = instanceName;
           }
-          ret = factory.apply(toIdentifier(output + "Support." + newInstance),
+          return factory.apply(toIdentifier(output + "Support." + newInstance),
                                makeArgumentList(args));
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         }
         // Other primitive functions
-        ret = factory.applyPrimitive(newName, makeArgumentList(args));  
-        if (null != bl) ret.setProperty(LETBINDINGS, bl);
-        return ret;
+        return factory.applyPrimitive(newName, makeArgumentList(args));  
       } else {
         // This is an incomplete function application, process currying
-        ret = makeCurry("Primitives." + newName, args, 
+        return makeCurry("Primitives." + newName, args, 
                          paramTypeNodes, retTypeNode, funcType);
-        if (null != bl) ret.setProperty(LETBINDINGS, bl);
-        return ret;
       }
 
     } else { // Process function application of this form: name ...  
@@ -1689,10 +1357,8 @@ public class Transformer extends Visitor {
           // If it has only one child, that must be a node
           args1.add((Node)dispatch(funcArgs.getGeneric(0)));
           args1.add(toIdentifier("getNameSpace"));        
-          ret = factory.castInvocation(toIdentifier(newName + "2"),
+          return factory.castInvocation(toIdentifier(newName + "2"),
                                         "apply", args1);
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
   
         } else if(2 == funcArgs.size()) {
           Node arg = (Node)dispatch(funcArgs.getGeneric(0));
@@ -1704,18 +1370,14 @@ public class Transformer extends Visitor {
             args1.add(toLiteral("StringLiteral",  "\"" + tag + "\""));
             args1.add((Node)dispatch(funcArgs.getGeneric(1).getGeneric(1)));
             args1.add(toIdentifier("getNameSpace"));
-            ret = factory.castInvocation(toIdentifier(newName + "4"),
+            return factory.castInvocation(toIdentifier(newName + "4"),
                                       "apply", args1);
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
           } else { 
             // The second child is a tag.
             args1.add(arg);
             args1.add(toIdentifier("getNameSpace"));
-            ret = factory.castInvocation(toIdentifier(newName + "2"),
+            return factory.castInvocation(toIdentifier(newName + "2"),
                                       "apply", args1);
-            if (null != bl) ret.setProperty(LETBINDINGS, bl);
-            return ret;
           }
         } else {
           // The arguments include: node, tag and error clause in that order.
@@ -1725,10 +1387,8 @@ public class Transformer extends Visitor {
           args1.add(toLiteral("StringLiteral",  "\"" + tag + "\""));
           args1.add((Node)dispatch(funcArgs.getGeneric(2).getGeneric(1)));
           args1.add(toIdentifier("getNameSpace"));
-          ret = factory.castInvocation(toIdentifier(newName + "4"),
+          return factory.castInvocation(toIdentifier(newName + "4"),
                                         "apply", args1);        
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         } 
       }  
         // Process define.
@@ -1739,9 +1399,7 @@ public class Transformer extends Visitor {
           args1.add((Node)dispatch(funcArgs.getGeneric(1)));
           args1.add(toIdentifier("getNameSpace"));
           
-          ret = factory.apply(toIdentifier("define3"), args1);
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
+          return factory.apply(toIdentifier("define3"), args1);
         } else {
           // It has 3 children: node, type and and error clause in that order.
           String tag = funcArgs.getGeneric(2).getGeneric(0).getString(0);
@@ -1751,10 +1409,8 @@ public class Transformer extends Visitor {
           args1.add(toLiteral("StringLiteral",  "\"" + tag + "\""));
           args1.add((Node)dispatch(funcArgs.getGeneric(2).getGeneric(1)));
           args1.add(toIdentifier("getNameSpace"));
-          ret = factory.invocation(toIdentifier("define5"),
+          return factory.invocation(toIdentifier("define5"),
                                     "apply", args1);                    
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         } 
       }
     
@@ -1762,9 +1418,7 @@ public class Transformer extends Visitor {
       if ("isDefined".equals(newName) || "isDefinedLocally".equals(newName) 
           || "redefine".equals(newName)) {
         args.add(toIdentifier("getNameSpace"));
-        ret = factory.apply(toIdentifier(newName),makeArgumentList(args));  
-        if (null != bl) ret.setProperty(LETBINDINGS, bl);
-        return ret;
+        return factory.apply(toIdentifier(newName),makeArgumentList(args));  
       }
  
       // Get the type of this function
@@ -1779,26 +1433,18 @@ public class Transformer extends Visitor {
       if (args.size() == paramTypes.size()) {
         // Complete function application
         if (Primitives.isPrimitive(newName)) {
-          ret = factory.applyPrimitive(newName, makeArgumentList(args));  
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
+          return factory.applyPrimitive(newName, makeArgumentList(args));  
         } else {
-          ret = factory.apply(toIdentifier(newName),makeArgumentList(args));          
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
+          return factory.apply(toIdentifier(newName),makeArgumentList(args));          
         }
       } else {
         // incomplete function application
         if (Primitives.isPrimitive(newName)) {
-          ret = makeCurry("Primitives." + newName, args, 
+          return makeCurry("Primitives." + newName, args, 
                             paramTypeNodes, retTypeNode, funcType);  
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         } else {
-          ret = makeCurry(newName, args, paramTypeNodes, 
+          return makeCurry(newName, args, paramTypeNodes, 
                            retTypeNode, funcType);
-          if (null != bl) ret.setProperty(LETBINDINGS, bl);
-          return ret;
         }
       }             
     }       
@@ -1811,24 +1457,14 @@ public class Transformer extends Visitor {
    * @return The java representation.
    */
   private Node makeTuple(GNode n) {    
-    GNode args = GNode.create("Arguments");
-    List<String> upVars = getUpVariables(n);
-    List<LetBinding> bl = null;
- 
+    GNode args = GNode.create("Arguments"); 
     for (int i = 0; i < n.size(); i++) {
-      Node no = n.getGeneric(i); 
-      if (n.hasProperty(INANALYZE)) {
-        no.setProperty(INANALYZE, Boolean.TRUE);
-      }
-      if (null != upVars) no.setProperty(UPVARS,upVars);
-      Node expr = (Node)dispatch(no); 
-      args.add(expr);
-      List<LetBinding> l = getBindings(expr);
-      List<String> vars = extractVariables(l);
-      upVars = groupList(upVars, vars);
-      bl = groupList(bl,l);      
-    }  
+      args.add(dispatch(n.getGeneric(i)));
 
+      if (n.hasProperty(INANALYZE)) {
+        n.getGeneric(i).setProperty(INANALYZE, Boolean.TRUE);
+      }
+    }  
     final List<Node> members = mapper.getMemberNodes(n.getProperty(TYPE));
     // Make type arguments        
     Node typeArgs = GNode.create("TypeArguments");                
@@ -1846,12 +1482,9 @@ public class Transformer extends Visitor {
       typeNode = GNode.create("Type",
                    GNode.create("QualifiedIdentifier", "Tuple", "T0"),
                    null);  
-    }
-
-    Node ret = toNewExpression2(typeNode, args,null);
-    if (null != bl) ret.setProperty(LETBINDINGS,bl);       
-    return ret;
-      
+    }      
+    return 
+      toNewExpression2(typeNode, args,null);
   }
    
   /** 
@@ -1862,23 +1495,14 @@ public class Transformer extends Visitor {
    */ 
   private Node makeList(GNode n) {
     List<Node> arguments = new ArrayList<Node>(n.size());
-
-    List<LetBinding> bl = null;
-    List<String> upVars = getUpVariables(n);
     
     //process each list element
     for (int i = 0; i < n.size(); i++) {
-      Node no = n.getGeneric(i);
+      arguments.add((GNode)dispatch(n.getGeneric(i)));
+
       if (n.hasProperty(INANALYZE)) {
-        no.setProperty(INANALYZE, Boolean.TRUE);
+        n.getGeneric(i).setProperty(INANALYZE, Boolean.TRUE);
       }
-      if (null != upVars) no.setProperty(UPVARS, upVars);
-      Node expr = (Node)dispatch(no);
-      arguments.add(expr);
-      List<LetBinding> l = getBindings(expr);
-      List<String> vars = extractVariables(l);
-      upVars = groupList(upVars, vars);
-      bl = groupList(bl,l);      
     }
     
     if (arguments.isEmpty()) {
@@ -1901,7 +1525,6 @@ public class Transformer extends Visitor {
       toNewExpression2(mapper.toTypeNode(n.getProperty(TYPE), false),
                       GNode.create("Arguments", arguments.get(i)), null));
     }
-    if (null != bl) newPair.setProperty(LETBINDINGS, bl);
     return newPair;
   }
 
@@ -1916,19 +1539,11 @@ public class Transformer extends Visitor {
     String name = table.freshJavaId("list");
     String rhs = (String)n.getProperty(RHS);
     
-    String matchArg = (String)n.getProperty(MATCHARG); 
-      
-    // fix cast here
-    Object t = n.getProperty(TYPE);
-    if (mapper.hasTypeVariables(t)) {
-      ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(name, 
-        mapper.toTypeNode(t, false),
-        toIdentifier(rhs)));
-    } else {
-      ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(name, 
-        mapper.toTypeNode(t, false),
-        factory.cast(toIdentifier(rhs))));
-    }  
+    String matchArg = (String)n.getProperty(MATCHARG);   
+
+    ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(name, 
+      mapper.toTypeNode(n.getProperty(TYPE), false),
+      factory.cast(factory.cast(toIdentifier(rhs)))));
 
     Node head = n.getGeneric(0);
     head.setProperty(MATCHARG, "Primitives.wrapHead(" + matchArg + ")");
@@ -1945,7 +1560,7 @@ public class Transformer extends Visitor {
         (tail.hasName("WildCard") || tail.hasName("Variable"))) {
       dispatch(head);
       dispatch(tail);
-      return factory.isNotEmptyCall(toIdentifier(matchArg));
+      return toLiteral("BooleanLiteral", "true");
     } else if (tail.hasName("WildCard") || tail.hasName("Variable")) {
       head = (Node)dispatch(head);
       dispatch(tail);
@@ -1993,20 +1608,12 @@ public class Transformer extends Visitor {
         n.getGeneric(1).setProperty(SCOPE, Boolean.TRUE);
       }
     } else {
-      // fix cast here
-      if (mapper.hasTypeVariables(argType)) {
-        nodes.add(makeVarDec2(matchArg, argTypeNode,
-                           (Node)dispatch(n.getGeneric(0))));
-      } else {
-        nodes.add(makeVarDec2(matchArg, argTypeNode,
-                           factory.cast((Node)dispatch(n.getGeneric(0)))));
-      }                  
+      nodes.add(makeVarDec2(matchArg, argTypeNode,
+                         factory.cast((Node)dispatch(n.getGeneric(0)))));
     }
     
     // Checking and return null
-    if (!containsBottomMatch(n.getGeneric(1))) {
-      nodes.add(factory.ifStatement4(toIdentifier(matchArg)));                   
-    }
+    nodes.add(factory.ifStatement4(toIdentifier(matchArg)));                   
     
     @SuppressWarnings("unchecked")
     List<Node> matches = (List<Node>)dispatch(n.getGeneric(1));
@@ -2018,25 +1625,8 @@ public class Transformer extends Visitor {
       mapper.toTypeNode(n.getProperty(TYPE), false), nodes);  
     
     return match; 
-  } 
-  
-  /** 
-   * Check if a pattern matching contains an explicit match for bottom.
-   *
-   * @param n The pattern matching node.
-   * @return <code> true </code> if it contains a match for bottom pattern. 
-   *   <code> false</code> otherwise.   
-   */
-  private boolean containsBottomMatch(Node n) {
-    for (int i = 0; i < n.size(); i++) {
-      Node patterns = n.getGeneric(i).getGeneric(0);      
-      for(int j= 0; j < patterns.size(); j++) { 
-        Node pat = patterns.getGeneric(j);
-        if (pat.hasName("BottomPattern")) return true;
-      }
-    }
-    return false;  
-  } 
+  }  
+
   
   /**
    * Check if this pattern match is on non-node type constructors.
@@ -2087,7 +1677,6 @@ public class Transformer extends Visitor {
         pmatch2.setProperty(TOP, null);
         pmatch2.setProperty(MATCHARG, n.getProperty(MATCHARG));
         pmatch2.setProperty(RHS, n.getProperty(MATCHARG));
-        pmatch2.setProperty(TYPE,n.getProperty(TYPE));
 
         if (n.hasProperty(ANNOTATE)) { 
           pmatch2.setProperty(ANNOTATE, Boolean.TRUE);
@@ -2188,18 +1777,10 @@ public class Transformer extends Visitor {
     pat.setProperty(RHS, rhs);
     pat.setProperty(BINDINGS, n.getProperty(BINDINGS));
     pat.setProperty(TYPE,pat.getProperty(TYPE));
-     
-    // fix cast here
-    Object t = pat.getProperty(TYPE);
-    if (mapper.hasTypeVariables(t)) {               
-      ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(n.getString(1), 
-        mapper.toTypeNode(t, false), 
-        toIdentifier(matchArg)));
-    } else {
-      ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(n.getString(1), 
-        mapper.toTypeNode(t, false), 
-        factory.cast(toIdentifier(matchArg))));
-    } 
+            
+    ((Node)n.getProperty(BINDINGS)).add(makeVarDec2(n.getString(1), 
+      mapper.toTypeNode(pat.getProperty(TYPE), false), 
+      factory.cast(toIdentifier(matchArg))));
    
     if (isLiteral(n))
       return factory.jequals((Node)dispatch(pat),toIdentifier(matchArg));
@@ -2222,12 +1803,9 @@ public class Transformer extends Visitor {
     pat.setProperty(MATCHARG, n.getProperty(MATCHARG));
     
     if (n.hasProperty(TOP)) pat.setProperty(TOP, null);
-  
-    //n.getGeneric(1).setProperty(NEWLET, Boolean.TRUE);
-    Node expr = (Node)dispatch(n.getGeneric(1));
-    expr = checkToLet(expr, n.getGeneric(1).getProperty(TYPE));
     
-    return factory.ifStatement(expr,(Node)dispatch(pat));
+    return 
+      factory.ifStatement((Node)dispatch(n.getGeneric(1)),(Node)dispatch(pat));
   }
 
 
@@ -2276,22 +1854,15 @@ public class Transformer extends Visitor {
         ifStmnt.set(0, toLiteral("BooleanLiteral", "true"));
       } else {
         ifStmnt.set(0, GNode.create(when.getGeneric(1).getGeneric(0)));
-      }
-    
-      if (optimizeLet) {
-        List<String> vars = getPatternVariables(pattern.getGeneric(0));
-        if (null != vars && !vars.isEmpty()) expr.setProperty(UPVARS, vars);
-      }
-     
-      Node exprNode = (Node)dispatch(expr);
+      }     
       
-      when.getGeneric(1).set(0, factory.ret(exprNode));
+      when.getGeneric(1).set(0, factory.ret((Node)dispatch(expr)));
       ifStmnt.getGeneric(1).add(when);
    
       if (n.hasProperty(ANNOTATE) || n.hasProperty(SCOPE)) {        
-        return augmentIfStatement(ifStmnt, matchArg, n, exprNode);
+        return augmentIfStatement(ifStmnt, matchArg, n);
       }
-      return addToIf(ifStmnt, exprNode);
+      return ifStmnt;
     }
     
     if (pattern.hasName("WildCard") || pattern.hasName("Variable")) {
@@ -2301,41 +1872,24 @@ public class Transformer extends Visitor {
       ifStmnt.set(0, dispatch(pattern));
     }
     
-    if (optimizeLet) {
-      List<String> vars = getPatternVariables(pattern.getGeneric(0));
-      if (null != vars && !vars.isEmpty()) expr.setProperty(UPVARS, vars);
-    }
-
-    Node res = (Node)dispatch(expr);
-    
-    // fix cast
-    Object t = mapper.getPatternMatchRightType(n.getProperty(TYPE));    
+    Node res = (GNode)dispatch(expr);
     if(res.hasName("Block")) {
       ifStmnt.getGeneric(1).add(res);
     } else {  
-      if(conditions == null) {
-        if (mapper.hasTypeVariables(t)) {
-          ifStmnt.getGeneric(1).
-            add(factory.ret(res));
-        } else {
-          ifStmnt.getGeneric(1).
-            add(factory.ret(factory.cast(res)));
-        } 
+      if(conditions == null) {    
+        ifStmnt.getGeneric(1).
+          add(factory.ret(factory.cast((Node)dispatch(expr))));        
       } else { 
         Node b = GNode.create("Block");
         Node newIf = toIfStatement(conditions, b);
-        if (mapper.hasTypeVariables(t)) {
-          b.add(factory.ret(res));
-        } else {
-          b.add(factory.ret(factory.cast(res)));
-        }
+        b.add(factory.ret(factory.cast((Node)dispatch(expr))));
         ifStmnt.getGeneric(1).add(newIf);
       }
     }
     conditions = savedConditions;
     
     if (n.hasProperty(ANNOTATE) || n.hasProperty(SCOPE)) {
-      return augmentIfStatement(ifStmnt, matchArg, n, res);
+      return augmentIfStatement(ifStmnt, matchArg, n);
     }
     
     if (n.hasProperty("TCMatch")) {
@@ -2350,7 +1904,7 @@ public class Transformer extends Visitor {
       }
     }
 
-    return addToIf(ifStmnt, res);
+    return ifStmnt;
   }
    
 
@@ -2424,7 +1978,7 @@ public class Transformer extends Visitor {
             } else if (tname.startsWith("Pair")) {
               inner.add(makeVarDec2(node.getString(0), tNode,
                 factory.cast(toIdentifier("Primitives.getChildren(" + matchArg +
-                    ", " + i + ", " + matchArg + ".size())"))));                  
+                  ", " + i + ", " + matchArg + ".size())"))));
             }
             
             continue;
@@ -2465,7 +2019,7 @@ public class Transformer extends Visitor {
         Node params = n.getGeneric(1);
         
         List<Node> memberNodes = mapper.getMemberNodes(type);
-                
+        
         for (int i = 0; i < params.size(); i++) {
           Node node = params.getGeneric(i);
           
@@ -2474,8 +2028,8 @@ public class Transformer extends Visitor {
           }
           if (node.hasName("Variable")) {
             inner.add(makeVarDec2(node.getString(0), memberNodes.get(i),
-                factory.cast(toIdentifier(matchArg + ".getTuple().get" + 
-                                          (i + 1) + "()"))));
+              factory.cast(toIdentifier(matchArg + ".getTuple().get" + 
+                                        (i + 1) + "()"))));
             continue;
           }
 
@@ -2521,14 +2075,8 @@ public class Transformer extends Visitor {
         matchName = matches.get(ms);
       } else {
         matches.put(ms, matchName);
-        Node tNode = null;
-        if (mapper.hasTypeVariables(type)) {
-          tNode = mapper.toTypeNode(type, true);
-        } else {
-          tNode = mapper.toTypeNode(type, false);
-        }
         Node matchFunction = 
-          factory.matchFunction(matchName, tNode , 
+          factory.matchFunction(matchName, mapper.toTypeNode(type, false), 
                                 condition);   
        
         matchFunction.getGeneric(4).getGeneric(0).set(3, "m");
@@ -2818,11 +2366,7 @@ public class Transformer extends Visitor {
       for (int j = 1; j < n.size(); j++) {
         n.getGeneric(j).setProperty(INANALYZE, Boolean.TRUE);
       }
-    } 
-
-    List<LetBinding> bl = null;
-    List<String> upVars = getUpVariables(n);
-    Node ret; 
+    }  
 
     if (n.getProperty(TYPE)  != null && 
         gnodeType.equals(mapper.toTypeNode(n.getProperty(TYPE),false)) || 
@@ -2831,36 +2375,18 @@ public class Transformer extends Visitor {
       args2.add(toLiteral("StringLiteral", "\"" + n.getString(0) + "\"" ));
                 
       for (int i = 1; i < n.size(); i++) {
-        Node no = n.getGeneric(i);
-        if (null != upVars) no.setProperty(UPVARS, upVars);
-        Node expr = (Node)dispatch(no);
-        List<LetBinding> l = getBindings(expr);
-        List<String> vars = extractVariables(l);
-        upVars = groupList(upVars, vars);
-        bl = groupList(bl,l); 
-        args2.add(expr);
+        args2.add((Node)dispatch(n.getGeneric(i)));
       }
       
-      ret = factory.gnodeCreate(args2);
-      if (null != bl) ret.setProperty(LETBINDINGS, bl);
-      return ret;
+      return factory.gnodeCreate(args2);
     }
     
     for (int i = 1; i < n.size(); i++) {
-      Node no = n.getGeneric(i);
-      if (null != upVars) no.setProperty(UPVARS, upVars);
-      Node expr = (Node)dispatch(no);
-      List<LetBinding> l = getBindings(expr);
-      List<String> vars = extractVariables(l);
-      upVars = groupList(upVars, vars);
-      bl = groupList(bl,l); 
-      args.add(expr);
+      args.add(dispatch(n.getGeneric(i)));
     }
 
-    ret = toNewExpression2(mapper.toTypeNode(n.getString(0), false), 
+    return toNewExpression2(mapper.toTypeNode(n.getString(0), false), 
                             args,null);
-    if (null != bl) ret.setProperty(LETBINDINGS, bl);
-    return ret;
   }
   
   /**
@@ -2911,14 +2437,8 @@ public class Transformer extends Visitor {
         ((GNode)n.getProperty(BINDINGS)).add(makeVarDec2(name, typeNode,
                              factory.gnodeCast(toIdentifier(rhs))));
       } else {
-        // fix cast here
-        if (mapper.hasTypeVariables(type)) {
-          ((GNode)n.getProperty(BINDINGS)).add(makeVarDec2(name, typeNode,
-                               toIdentifier(rhs)));
-        } else {
-          ((GNode)n.getProperty(BINDINGS)).add(makeVarDec2(name, typeNode,
-                               factory.cast(toIdentifier(rhs))));
-        }                    
+        ((GNode)n.getProperty(BINDINGS)).add(makeVarDec2(name, typeNode,
+                             factory.cast(toIdentifier(rhs))));
       }        
     } else {
       Node cond = factory.jequals(toIdentifier(rhs),toIdentifier(name));
@@ -2958,31 +2478,19 @@ public class Transformer extends Visitor {
     Node firstNode = n.getGeneric(0);
 
     Node args = GNode.create("Arguments");
-    List<LetBinding> bl = null;
-    List<String> upVars = getUpVariables(n);
-
     for (String s : fieldNames) {
       boolean found = false;
       for (int i = 1; i < n.size(); i++) {
         if (s.equals(n.getGeneric(i).getString(0))) {
           found = true;
-          Node no = n.getGeneric(i).getNode(1);
-          if (null != upVars) no.setProperty(UPVARS, upVars);
-          Node expr = (Node)dispatch(no);
-          List<LetBinding> l = getBindings(expr);
-          List<String> vars = extractVariables(l);
-          upVars = groupList(upVars, vars);
-          bl = groupList(bl,l); 
-          args.add(expr);
+          args.add(dispatch(n.getGeneric(i).getNode(1)));
         }
       }
       if (!found && ("WithExpression".equals(firstNode.getName()))) {
         if (!bottomWith) {
           // expression with
-          //firstNode.getGeneric(0).setProperty(NEWLET, Boolean.TRUE);
-          Node letNode = (Node)dispatch(firstNode.getGeneric(0));
-          letNode = checkToLet(letNode, firstNode.getGeneric(0).getProperty(TYPE)); 
-          args.add(factory.fieldExpression(letNode, s)); 
+          args.add(factory.fieldExpression(
+                     (Node)dispatch(firstNode.getGeneric(0)), s)); 
         } else {
           args.add(GNode.create("NullLiteral"));
         }
@@ -2990,9 +2498,7 @@ public class Transformer extends Visitor {
         assert found : "cannot determine field value";
       }
     }
-    Node ret = toNewExpression2(mapper.toTypeNode(rt,false), args, null);
-    if (null != bl) ret.setProperty(LETBINDINGS, bl);
-    return ret;
+    return toNewExpression2(mapper.toTypeNode(rt,false), args, null);
   }
   
   /**
@@ -3004,18 +2510,65 @@ public class Transformer extends Visitor {
   public Node visitFieldAssign(GNode n) {
     if (n.hasProperty(INANALYZE)) {
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
-    } 
-    if (!optimizeLet) { 
-      return factory.assignField(toIdentifier(n.getString(0)),
+    }  
+    return factory.assignField(toIdentifier(n.getString(0)),
                                (Node)dispatch(n.getNode(1)));
-    } else {
-      passVariables(n, n.getGeneric(1));
-      Node expr = (Node)dispatch(n.getNode(1));
-      Node ret = factory.assignField(toIdentifier(n.getString(0)), expr);
-      passBindings(expr, ret);
-      return ret;
-    }
   }
+
+  /**
+   * Collapse a let expression.
+   * @param n The let expression node.
+   */
+  private void collapseLet(GNode n) {
+    Node bindings = GNode.ensureVariable(n.getGeneric(0));
+    Node value = n.getGeneric(1);
+
+    if (value.hasName("LetExpression")) {
+      Node vbindings = value.getGeneric(0);
+      boolean collapse = true;
+
+      for (int i = 0; i < n.size(); i++) {
+        if (n.getGeneric(i).getGeneric(0).hasName("Variable") &&
+            containsBinding(vbindings, 
+                            n.getGeneric(i).getGeneric(0).getString(0))) {
+          collapse = false;
+        }
+      }
+      
+      if (collapse) {
+        for (int i = 0; i < vbindings.size(); i++) {
+          bindings.add(vbindings.getGeneric(i));
+        }
+        n.set(0, bindings);
+        n.set(1, value.getGeneric(1));   
+        
+        String scopename = (String)value.getProperty("enterScope");
+        if (table.current().hasNested(scopename)) {
+          table.current().merge(scopename);
+        }
+
+        collapseLet(n);
+      }
+    }    
+  }
+
+  /**
+   * Test if a let binding node contains a named binding.
+   *
+   * @param n The let binding node.
+   * @param binding The name of the binding.
+   * @return <code>true</code> if the node contains the binding.
+   */
+  private boolean containsBinding(Node n, String binding) {
+    for (int i = 0; i < n.size(); i++) {
+      if (n.getGeneric(i).getGeneric(0).hasName("Variable") &&
+          binding.equals(n.getGeneric(i).getGeneric(0).getString(0))) {
+        return true;
+      }                                                
+    }
+    return false;    
+  }
+
 
   /**
    * Process a let expression.
@@ -3025,8 +2578,8 @@ public class Transformer extends Visitor {
    */
   public Node visitLetExpression(GNode n) {
     
-    if (runtime.test("optimizeFoldLet")) {
-      new LetFolder().collapseLet(n, table);      
+    if (runtime.test("optimizeLet")) {
+      collapseLet(n);
     }
     
     if (n.hasProperty(INANALYZE)) {
@@ -3048,264 +2601,66 @@ public class Transformer extends Visitor {
     Object resultType = n.getProperty(TYPE);
     int size = bindings.size();
     Node block = null;
-    Node res = null; 
+    Node res = (GNode)dispatch(value);
     
-    Object t = value.getProperty(TYPE);
-
-    if (!optimizeLet) {
-      res = (GNode)dispatch(value);
-      if ("Block".equals(res.getName())) {
-        block = GNode.create("Block", res);
-      } else {
-        // fix cast here
-        if (mapper.hasTypeVariables(t)) {
-          block = GNode.create("Block", factory.ret(res));
-        } else {
-          block = GNode.create("Block", factory.ret(factory.cast(res)));
-        }
-      }
+    if ("Block".equals(res.getName())) {
+      block = GNode.create("Block", res);
+    } else {
+      block = GNode.create("Block", factory.ret(factory.cast(res)));
+    }
  
-      Node letclass = GNode.create("ClassBody");
-      letclass = GNode.ensureVariable((GNode)letclass);
-      GNode letbody = GNode.create("Block");
+    Node letclass = GNode.create("ClassBody");
+    letclass = GNode.ensureVariable((GNode)letclass);
+    GNode letbody = GNode.create("Block");
     
-      for (int i = 0; i < size; i++) {
-        Node binding = bindings.getGeneric(i);
-        Node left = binding.getGeneric(0);
-        Node right = binding.getGeneric(1);
+    for (int i = 0; i < size; i++) {
+      Node binding = bindings.getGeneric(i);
+      Node left = binding.getGeneric(0);
+      Node right = binding.getGeneric(1);
 
-        if (n.hasProperty(INANALYZE)) right.setProperty(INANALYZE, Boolean.TRUE); 
+      if (n.hasProperty(INANALYZE)) right.setProperty(INANALYZE, Boolean.TRUE); 
      
-        String bname;
-        Object btype;
-  
-        right = (Node)dispatch(right);
-  
-        if (left.hasName("Variable")) {
-          bname = left.getString(0);
-          btype = left.getProperty(TYPE);
-          letclass.add(makeVarDec2(bname, mapper.toTypeNode(btype, false) , null));
-          // fix cast here
-          if (mapper.hasTypeVariables(btype)) {
-            letbody.add(factory.assign(toIdentifier(bname), right));
-          } else {
-            letbody.add(factory.assign(toIdentifier(bname), factory.cast(right)));
-          }
+      String bname;
+      Object btype;
+
+      right = (Node)dispatch(right);
+
+      if (left.hasName("Variable")) {
+        bname = left.getString(0);
+        btype = left.getProperty(TYPE);
+        letclass.add(makeVarDec2(bname, mapper.toTypeNode(btype, false) , null));
+        letbody.add(factory.assign(toIdentifier(bname), factory.cast(right)));
         
-        } else if ("TypedPattern".equals(left.getName()) &&
-                   "Variable".equals(left.getGeneric(0).getName())) {
-          bname = left.getGeneric(0).getString(0);        
-          btype = left.getProperty(TYPE);
-          letclass.add(makeVarDec2(bname, mapper.toTypeNode(btype, false), null));
-          // fix cast here
-          if (mapper.hasTypeVariables(btype)) {
-            letbody.add(factory.assign(toIdentifier(bname),right));
-          } else {
-            letbody.add(factory.assign(toIdentifier(bname),factory.cast(right)));
-          }
-        
-        } else {
-          if (right.hasName("ConditionalExpression")) {
-            letbody.add(factory.discard(right));
-          } else {
-            letbody.add(factory.expressionStmnt(right));
-          }
-        }
-      }       
-
-      if (letbody.size() > 0) {
-        letclass.add(letbody);
-      }
-    
-      letclass.add(GNode.create("MethodDeclaration",
-        toModifiers("public"),null, mapper.toTypeNode(resultType, false),
-        "apply", GNode.create("FormalParameters"), null, null, block));
-    
-      Node let = factory.letExpression(mapper.toTypeNode(resultType, false));
-      let.getGeneric(0).set(4, letclass);
-
-      if (didEnter) exitScope(scopename);
-      return let;
-
-    } else { // optimizing Let
-      List<String> upVars = getUpVariables(n);
-      List<LetBinding> bl = null;
-
-      // Get variables in let bindings
-      List<String> vars = new ArrayList<String>();
-      for (int i = 0; i < size; i++) {
-        Node binding = bindings.getGeneric(i);
-        Node left = binding.getGeneric(0);
-        if (left.hasName("Variable")) {
-          vars.add(left.getString(0));          
-        
-        } else if ("TypedPattern".equals(left.getName()) &&
-                   "Variable".equals(left.getGeneric(0).getName())) {
-          vars.add(left.getGeneric(0).getString(0));
-        }  
-      }
-      // check for redefinitions
-      boolean check = false;
-      for (String v : vars) {
-        if (null != upVars && upVars.contains(v)) {
-          check = true;
-          continue;
-        }
-      }
-
-      if (check) upVars = vars;
-      else upVars = groupList(upVars, vars);
-
-      for (int i = 0; i < size; i++) {
-        Node binding = bindings.getGeneric(i);
-        Node left = binding.getGeneric(0);
-        Node right = binding.getGeneric(1);
-        String name;
-        Object type;
-        if (left.hasName("Variable")) {
-          name = left.getString(0);
-          type = left.getProperty(TYPE);        
-        } else if ("TypedPattern".equals(left.getName()) &&
-                   "Variable".equals(left.getGeneric(0).getName())) {
-          name = left.getGeneric(0).getString(0);
-          type = left.getProperty(TYPE);        
-        } else {
-          name = spareVar;
-          type = right.getProperty(TYPE);        
-        } 
-        // process the value of a binding
-        right.setProperty(UPVARS, upVars);
-        Node expr = (Node)dispatch(right);
-        List<LetBinding> l = getBindings(expr);
-        List<String> vs = extractVariables(l);
-        bl = groupList(bl,l);
-        if (null == bl) {
-          bl = new ArrayList<LetBinding>();
-          bl.add(new LetBinding(name, type, mapper.toTypeNode(type, false), expr));
-        } else {
-          bl.add(new LetBinding(name, type, mapper.toTypeNode(type, false), expr));
-        }
-        upVars = groupList(upVars, vs);
-      }
+      } else if ("TypedPattern".equals(left.getName()) &&
+                 "Variable".equals(left.getGeneric(0).getName())) {
+        bname = left.getGeneric(0).getString(0);        
+        btype = left.getProperty(TYPE);
+        letclass.add(makeVarDec2(bname, mapper.toTypeNode(btype, false), null));
+        letbody.add(factory.assign(toIdentifier(bname),factory.cast(right)));
       
-      // Process the expression
-      value.setProperty(UPVARS, upVars);
-      res = (Node)dispatch(value);
-      List<LetBinding> l = getBindings(res);
-      bl = groupList(bl,l);
-      Node let = null; 
-      if (check || n.hasProperty(NEWLET)) {
-        let = convertToLet(res, bl, t);
       } else {
-        res.setProperty(LETBINDINGS, bl);
-        let = res;
-      } 
-      
-      if (didEnter) exitScope(scopename);
-      return let;
-    }    
-  }
-
-  /**
-   * Check and convert an expression to let expression if it contains bindings.
-   *
-   * @param n The expression node.
-   * @param retType The type of that expression.
-   * @return the converted node.
-   */
-  private Node checkToLet(Node n, Object retType) {
-    List<LetBinding> bl = getBindings(n);
-    if (null == bl || bl.isEmpty()) return n;
-
-    Node block = null;
-    if ("Block".equals(n.getName())) {
-      block = GNode.create("Block", n);
-    } else {
-      // fix cast here
-      if (mapper.hasTypeVariables(retType)) {
-        block = GNode.create("Block", factory.ret(n));
-      } else {
-        block = GNode.create("Block", factory.ret(factory.cast(n)));
+        if (right.hasName("ConditionalExpression")) {
+          letbody.add(factory.discard(right));
+        } else {
+          letbody.add(factory.expressionStmnt(right));
+        }
       }
-    }
- 
-    Node letclass = GNode.create("ClassBody");
-    letclass = GNode.ensureVariable((GNode)letclass);
-    GNode letbody = GNode.create("Block");
-
-    for (LetBinding bind : bl) {
-      if (!bind.name.equals(spareVar)) {
-        letclass.add(makeVarDec2(bind.name, bind.type , null));
-      }
-      if (mapper.hasTypeVariables(bind.typeObject)) {
-        letbody.add(factory.assign(toIdentifier(bind.name), bind.value));
-      } else {
-        letbody.add(factory.assign(toIdentifier(bind.name), 
-                                   factory.cast(bind.value)));
-      }
-    }
+    }       
 
     if (letbody.size() > 0) {
       letclass.add(letbody);
     }
     
     letclass.add(GNode.create("MethodDeclaration",
-      toModifiers("public"),null, mapper.toTypeNode(retType, false),
+      toModifiers("public"),null, mapper.toTypeNode(resultType, false),
       "apply", GNode.create("FormalParameters"), null, null, block));
     
-    Node let = factory.letExpression(mapper.toTypeNode(retType, false));
+    Node let = factory.letExpression(mapper.toTypeNode(resultType, false));
     let.getGeneric(0).set(4, letclass);
-    return let;    
-  }
-
-  /**
-   * Convert an expression to let expression if it contains bindings.
-   *
-   * @param n The expression node.
-   * @param bl The list of variable bindings.
-   * @param retType The type of that expression.
-   * @return the converted node.
-   */
-  private Node convertToLet(Node n, List<LetBinding> bl, Object retType) {
-    Node block = null;
-    if ("Block".equals(n.getName())) {
-      block = GNode.create("Block", n);
-    } else {
-      // fix cast here
-      if (mapper.hasTypeVariables(retType)) {
-        block = GNode.create("Block", factory.ret(n));
-      } else {
-        block = GNode.create("Block", factory.ret(factory.cast(n)));
-      }
-    }
- 
-    Node letclass = GNode.create("ClassBody");
-    letclass = GNode.ensureVariable((GNode)letclass);
-    GNode letbody = GNode.create("Block");
-
-    for (LetBinding bind : bl) {
-      if (!bind.name.equals(spareVar)) {
-        letclass.add(makeVarDec2(bind.name, bind.type , null));
-      }
-      if (mapper.hasTypeVariables(bind.typeObject)) {
-        letbody.add(factory.assign(toIdentifier(bind.name), bind.value));
-      } else {
-        letbody.add(factory.assign(toIdentifier(bind.name), 
-                                   factory.cast(bind.value)));
-      }
-    }
-
-    if (letbody.size() > 0) {
-      letclass.add(letbody);
-    }
     
-    letclass.add(GNode.create("MethodDeclaration",
-      toModifiers("public"),null, mapper.toTypeNode(retType, false),
-      "apply", GNode.create("FormalParameters"), null, null, block));
-    
-    Node let = factory.letExpression(mapper.toTypeNode(retType, false));
-    let.getGeneric(0).set(4, letclass);
-    return let;    
+    if (didEnter) exitScope(scopename);
+
+    return let;
   }
  
   /**
@@ -3354,30 +2709,17 @@ public class Transformer extends Visitor {
    */
   public Node visitAdditiveExpression(GNode n) {
     String op = n.getString(1);
-    if (n.hasProperty(INANALYZE)) {
-      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
-      n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
     Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(2).setProperty(UPVARS, upVars);
     Node right = (Node)dispatch(n.getGeneric(2));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret;    
+    if (n.hasProperty(INANALYZE)) {
+      left.setProperty(INANALYZE, Boolean.TRUE);
+      right.setProperty(INANALYZE, Boolean.TRUE);
+    }  
     
-    if ("+".equals(op))  ret = factory.addInt(left, right);
-    else if ("-".equals(op))  ret = factory.subtractInt(left, right);
-    else if ("+.".equals(op)) ret = factory.addFloat64(left, right);
-    else ret = factory.subtractFloat64(left, right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    if ("+".equals(op))  return factory.addInt(left, right);
+    if ("-".equals(op))  return factory.subtractInt(left, right);
+    if ("+.".equals(op)) return factory.addFloat64(left, right);
+    return factory.subtractFloat64(left, right);
   }
 
   /**
@@ -3387,29 +2729,15 @@ public class Transformer extends Visitor {
    * @return The java equivalent.
    */
   public Node visitConcatenationExpression(GNode n) {
-    if (n.hasProperty(INANALYZE)) {
-      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
-      n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
     Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(2).setProperty(UPVARS, upVars);
     Node right = (Node)dispatch(n.getGeneric(2));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret;        
+    if (n.hasProperty(INANALYZE)) {
+      left.setProperty(INANALYZE, Boolean.TRUE);
+      right.setProperty(INANALYZE, Boolean.TRUE);
+    }  
     
-    if ("^".equals(n.getString(1))) ret = factory.concatStrings(left, right);
-    else ret = factory.concatLists(left, right);
-
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    if ("^".equals(n.getString(1))) return factory.concatStrings(left, right);
+    return factory.concatLists(left, right);
   }
 
   /**
@@ -3420,32 +2748,17 @@ public class Transformer extends Visitor {
    */
   public Node visitMultiplicativeExpression(GNode n) {
     String op = n.getString(1);
-    if (n.hasProperty(INANALYZE)) {
-      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
-      n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
     Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(2).setProperty(UPVARS, upVars);
     Node right = (Node)dispatch(n.getGeneric(2));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret;            
+    if (n.hasProperty(INANALYZE)) {
+      left.setProperty(INANALYZE, Boolean.TRUE);
+      right.setProperty(INANALYZE, Boolean.TRUE);
+    }  
     
-    if ("*".equals(op))  ret = factory.multiplyInt(left, right);
-    else if ("/".equals(op))  ret = factory.divideInt(left, right);
-    else if ("%".equals(op))  ret = factory.modInt(left, right);
-    else if ("*.".equals(op)) ret = factory.multiplyFloat64(left, right);
-    else ret = factory.divideFloat64(left, right);
-
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    if ("*".equals(op))  return factory.multiplyInt(left, right);
+    if ("/".equals(op))  return factory.divideInt(left, right);
+    if ("*.".equals(op)) return factory.multiplyFloat64(left, right);
+    return factory.divideFloat64(left, right);
   }
 
   /**
@@ -3455,23 +2768,12 @@ public class Transformer extends Visitor {
    * @return The java relational expression
    */
   public Node visitRelationalExpression(GNode n) {
-    if (n.hasProperty(INANALYZE)) {
-      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
-      n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
     Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(2).setProperty(UPVARS, upVars);
     Node right = (Node)dispatch(n.getGeneric(2));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret;                
+    if (n.hasProperty(INANALYZE)) {
+      left.setProperty(INANALYZE, Boolean.TRUE);
+      right.setProperty(INANALYZE, Boolean.TRUE);
+    }  
   
     String op = n.getString(1);
     String internal = null;
@@ -3486,10 +2788,8 @@ public class Transformer extends Visitor {
     if (">=.".equals(op)) internal = "greaterEqualFloat64";
     assert null != internal : "undefined relational operator " + op;
      
-    ret = 
+    return 
       factory.relationalExpr(toIdentifier("Primitives." + internal),left,right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
   }
 
   /**
@@ -3503,21 +2803,8 @@ public class Transformer extends Visitor {
       n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
     }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
-    Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(1).setProperty(UPVARS, upVars);
-    Node right = (Node)dispatch(n.getGeneric(1));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret = factory.or(left, right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    return factory.or((Node)dispatch(n.getGeneric(0)),
+                      (Node)dispatch(n.getGeneric(1)));
   }
   
   /** 
@@ -3531,21 +2818,8 @@ public class Transformer extends Visitor {
       n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
     }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
-    Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(1).setProperty(UPVARS, upVars);
-    Node right = (Node)dispatch(n.getGeneric(1));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret = factory.and(left, right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    return factory.and((Node)dispatch(n.getGeneric(0)), 
+                       (Node)dispatch(n.getGeneric(1)));
   }
   
   /**
@@ -3558,11 +2832,7 @@ public class Transformer extends Visitor {
     if (n.hasProperty(INANALYZE)) {
       n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);      
     }  
-    passVariables(n, n.getGeneric(0));
-    Node expr = (Node)dispatch(n.getGeneric(0));
-    Node ret = factory.not(expr);
-    passBindings(expr, ret);
-    return ret;
+    return factory.not((Node)dispatch(n.getGeneric(0)));
   }
   
   /**
@@ -3572,52 +2842,31 @@ public class Transformer extends Visitor {
    * @return The java equivalent.
    */
   public Node visitEqualityExpression(GNode n) {
-    String op = n.getString(1);
-    if (n.hasProperty(INANALYZE)) {
-      n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
-      n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
     Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    List<String> vars = extractVariables(bl1);
-    upVars = groupList(upVars,vars);
-
-    if (null != upVars) n.getGeneric(2).setProperty(UPVARS, upVars);
     Node right = (Node)dispatch(n.getGeneric(2));
-    List<LetBinding> bl2 = getBindings(right);
-    bl1 = groupList(bl1, bl2);
-    Node ret;            
+    if (n.hasProperty(INANALYZE)) {
+      left.setProperty(INANALYZE, Boolean.TRUE);
+      right.setProperty(INANALYZE, Boolean.TRUE);
+    }  
+    String op = n.getString(1);
     
     if ("=".equals(op)) {
       if ("Bottom".equals(n.getGeneric(0).getName())) {    
-        ret = factory.equalsBottom(right);
-        if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-        return ret;      
+        return factory.equalsBottom(right);      
       } else if ("Bottom".equals(n.getGeneric(2).getName())) {
-        ret = factory.equalsBottom(left);
-        if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-        return ret;    
+        return factory.equalsBottom(left);    
       }
     } else {
        if ("Bottom".equals(n.getGeneric(0).getName())) {    
-        ret = factory.notEqualsBottom(right);
-        if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-        return ret;      
+        return factory.notEqualsBottom(right);      
       } else if ("Bottom".equals(n.getGeneric(2).getName())) {
-        ret = factory.notEqualsBottom(left);
-        if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-        return ret;    
+        return factory.notEqualsBottom(left);    
       }
     }
 
-    ret = 
+    return 
       ("=".equals(n.getString(1))) ? factory.equal(left, right)
                                    : factory.not(factory.equal(left, right));
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
   }
 
   /**
@@ -3835,10 +3084,8 @@ public class Transformer extends Visitor {
   public Node visitErrorClause(GNode n) {
     Node loc = (Node)dispatch(n.getGeneric(2));
     if (null == loc) loc = nullNode;
-    //n.getGeneric(1).setProperty(NEWLET, Boolean.TRUE);
-    Node letNode = (Node)dispatch(n.getGeneric(1));
-    letNode = checkToLet(letNode, n.getGeneric(1).getProperty(TYPE));
-    return factory.errorClause(n.getGeneric(0).getString(0), letNode,loc);
+    return factory.errorClause(n.getGeneric(0).getString(0),
+                               (Node)dispatch(n.getGeneric(1)),loc);
   }
 
   /**
@@ -3854,20 +3101,13 @@ public class Transformer extends Visitor {
         n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
       }
     }
-    //n.getGeneric(0).setProperty(NEWLET, Boolean.TRUE);
-    //n.getGeneric(1).setProperty(NEWLET, Boolean.TRUE);
-
-    Node exp0 = (Node)dispatch(n.getGeneric(0));
-    exp0 = checkToLet(exp0, n.getGeneric(0).getProperty(TYPE)); 
-
-    Node exp1 = (Node)dispatch(n.getGeneric(1));
-    exp1 = checkToLet(exp1, n.getGeneric(1).getProperty(TYPE)); 
+    Node exp = (Node)dispatch(n.getGeneric(0));
 
     return (null == n.getGeneric(1)) 
       ? GNode.create("PostfixExpression", toIdentifier("assertion"),
-          GNode.create("Arguments", exp0))
+          GNode.create("Arguments", exp))
       : GNode.create("PostfixExpression", toIdentifier("assertion"),
-          GNode.create("Arguments", exp0, exp1));
+          GNode.create("Arguments", exp, dispatch(n.getGeneric(1))));
   }
 
   /**
@@ -3880,18 +3120,9 @@ public class Transformer extends Visitor {
     if (n.hasProperty(INANALYZE)) {
       n.getGeneric(0).setProperty(INANALYZE, Boolean.TRUE);
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
-    }  
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
-    Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-        
-    Node right = (Node)dispatch(n.getGeneric(1));
-    right = checkToLet(right, n.getGeneric(1).getProperty(TYPE));
-    Node ret = factory.ifExpression(left, right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    }
+    return factory.ifExpression((Node)dispatch(n.getGeneric(0)),
+                                (Node)dispatch(n.getGeneric(1)));
   }
   
   /**
@@ -3906,22 +3137,8 @@ public class Transformer extends Visitor {
       n.getGeneric(1).setProperty(INANALYZE, Boolean.TRUE);
       n.getGeneric(2).setProperty(INANALYZE, Boolean.TRUE);
     }
-
-    List<String> upVars = getUpVariables(n);
-    if (null != upVars) n.getGeneric(0).setProperty(UPVARS, upVars); 
-    Node left = (Node)dispatch(n.getGeneric(0));
-    List<LetBinding> bl1 = getBindings(left);
-    
-
-    Node middle = (Node)dispatch(n.getGeneric(1));
-    middle = checkToLet(middle, n.getGeneric(1).getProperty(TYPE));
-
-    Node right = (Node)dispatch(n.getGeneric(2));
-    right = checkToLet(right, n.getGeneric(2).getProperty(TYPE));
-
-    Node ret = factory.ifElseExpression(left, middle, right);
-    if (null != bl1) ret.setProperty(LETBINDINGS, bl1);
-    return ret;
+    return factory.ifElseExpression((Node)dispatch(n.getGeneric(0)),
+      (Node)dispatch(n.getGeneric(1)), (Node)dispatch(n.getGeneric(2)));
   }
   
   /**
@@ -3936,7 +3153,6 @@ public class Transformer extends Visitor {
  
     // get the expression
     Node expr = n.getGeneric(nodeSize -1);
-    passVariables(n, expr);
 
     if (n.hasProperty(INANALYZE)) expr.setProperty(INANALYZE, Boolean.TRUE);
  
@@ -3968,12 +3184,10 @@ public class Transformer extends Visitor {
     // Add statement
     for (Node node: list) {      
       Node boolNode = node.getGeneric(0);
-      //boolNode.setProperty(NEWLET, Boolean.TRUE);
       if (n.hasProperty(INANALYZE)) {
         boolNode.setProperty(INANALYZE, Boolean.TRUE);
       }
       Node boolExpr = (Node)dispatch(boolNode);
-      boolExpr = checkToLet(boolExpr, boolNode.getProperty(TYPE));
 
       final String newVar = table.freshJavaId("var");
 
@@ -4050,9 +3264,7 @@ public class Transformer extends Visitor {
    
     // return null at the end
     requireBlock.add(factory.ret(nullNode));
-    Node ret = factory.requireExpression(genericType, requireBlock);
-    passBindings(valExpr, ret);
-    return ret;
+    return factory.requireExpression(genericType, requireBlock);
   }
   
   /** Store nodes that need to process scopes. */
@@ -4153,15 +3365,14 @@ public class Transformer extends Visitor {
   }
 
   /**
-   * Augment a translated IfStatement of a pattern match to process scope.
+   * Augment a translated IfStatement of a pattern match to process scope
    *
-   * @param n The IfStatement node.
-   * @param matchArg The argument of the match expression.
-   * @param no The pattern match node.
-   * @param bn The node to get bindings from (if exists).
-   * @return The augmented IfStatement. 
+   * @param n The IfStatement node
+   * @param matchArg The argument of the match expression
+   * @param no The pattern match node
+   * @return The augmented IfStatement 
    */
-  public Node augmentIfStatement(Node n, String matchArg, GNode no, Node bn) {
+  public Node augmentIfStatement(Node n, String matchArg, GNode no) {
     Node block = n.getGeneric(1);
     GNode pattern = no.getGeneric(0).getGeneric(0);
     List<Integer> indexList = getIndexList(pattern);
@@ -4196,29 +3407,6 @@ public class Transformer extends Visitor {
                                              toIdentifier(nodeName)));
       }
     }
-    // Add bindings if exists
-    List<LetBinding> bl = getBindings(bn);
-      
-    if (null != bl) {
-      for (LetBinding bind : bl) {
-        if (!bind.name.equals(spareVar)) {
-          if (mapper.hasTypeVariables(bind.typeObject)) { 
-            block.add(factory.fieldDecl2(bind.type, bind.name, bind.value));
-          } else {
-            block.add(factory.fieldDecl2(bind.type, bind.name, 
-                      factory.cast(bind.value)));
-          }
-        } else {
-          if (mapper.hasTypeVariables(bind.typeObject)) {
-            block.add(factory.assign(toIdentifier(bind.name), bind.value));
-          } else {
-            block.add(factory.assign(toIdentifier(bind.name), 
-                      factory.cast(bind.value)));
-          }
-        }
-      }
-    }
-
     // Store the return value
     String freshId = table.freshJavaId("retValue");
     block.add(factory.storeValue(freshId, retNode.getGeneric(0)));
@@ -4235,52 +3423,8 @@ public class Transformer extends Visitor {
                                      toIdentifier(freshId)));
     }
     // return
-    Object t = mapper.getPatternMatchRightType(no.getProperty(TYPE));
-    if (mapper.hasTypeVariables(t)) {
-      block.add(factory.castReturn(toIdentifier(freshId)));
-    } else {
-      block.add(factory.castReturn(toIdentifier(freshId)));
-    }
+    block.add(factory.castReturn(toIdentifier(freshId)));
     return n;    
-  } 
-
-  /**
-   * Add bindings to an if statement
-   *
-   * @param n The if statement node
-   * @param no The node annotated with bindings
-   * @return The if statement with bindings added
-   */
-  public Node addToIf(Node n, Node no) {
-    Node block = n.getGeneric(1);
-    int size = block.size();
-    // Get the last return statement of the block
-    Node retNode = block.getGeneric(size - 1);
-    block.set(size - 1, null);
-
-    List<LetBinding> bl = getBindings(no);
-
-    if (null != bl) {
-      for (LetBinding bind : bl) {
-        if (!bind.name.equals(spareVar)) {
-          if (mapper.hasTypeVariables(bind.typeObject)) { 
-            block.add(factory.fieldDecl2(bind.type, bind.name, bind.value));
-          } else {
-            block.add(factory.fieldDecl2(bind.type, bind.name, 
-                      factory.cast(bind.value)));
-          }
-        } else {
-          if (mapper.hasTypeVariables(bind.typeObject)) {
-            block.add(factory.assign(toIdentifier(bind.name), bind.value));
-          } else {
-            block.add(factory.assign(toIdentifier(bind.name), 
-                      factory.cast(bind.value)));
-          }
-        }
-      }
-    }	
-    block.add(retNode);
-    return n; 
   } 
 
   /**
@@ -4521,151 +3665,6 @@ public class Transformer extends Visitor {
     //set the name
     decl.getGeneric(2).getGeneric(0).set(0, s);
     return decl;
-  }
-
-  /**
-   * Get variale bindings from a node.
-   * 
-   * @param n The node to get variable bindings.
-   * @return A list of bindings.
-   */
-  @SuppressWarnings("unchecked")
-  private List<LetBinding> getBindings(Node n) {    
-    return (List<LetBinding>)n.getProperty(LETBINDINGS);
-  }
-
-  /**
-   * Get annotated variales from a node.
-   * 
-   * @param n The node to get variables bindings.
-   * @return A list of variables (string).
-   */
-  @SuppressWarnings("unchecked")
-  private List<String> getUpVariables(Node n) {
-    return (List<String>)n.getProperty(UPVARS);
-  }
-
-  /**
-   * Get variables from a list of bindings.
-   *
-   * @param l The list of bindings.
-   * @return A list of variables.
-   */
-  private List<String> extractVariables(List<LetBinding> l) {
-    if (null == l) return null;
-    List<String> ret = new ArrayList<String>();
-    for (LetBinding bind : l) {
-      ret.add(bind.name);
-    }
-    return ret;
-  }
-
-  /**
-   * Group variables from 2 lists of variables.
-   * @param l1 The first list.
-   * @param l2 The second list.
-   * @return The resulted list.
-   */
-  private <T0> List<T0> groupList(List<T0> l1, List<T0> l2) {
-    if (null == l1) return l2;
-    if (null == l2) return l1;
-    List<T0> ret = l1;
-    ret.addAll(l2);
-    return ret;
-  }
-
-  /**
-   * Pass annotated variables from a node to another.
-   *
-   * @param from The node to get annotated variables.
-   * @param to The node to pass variables to.
-   */
-  private void passVariables(Node from, Node to) {
-    List<String> vars = getUpVariables(from);
-    if (null != vars) to.setProperty(UPVARS, vars);
-  }
-
-  /**
-   * Pass annotated bindings from a node to another.
-   *
-   * @param from The node to get annotated bindings.
-   * @param to The node to pass bindings to.
-   */
-  private void passBindings(Node from, Node to) {
-    List<LetBinding> bl = getBindings(from);
-    if (null != bl) to.setProperty(LETBINDINGS, bl);
-  }
-
-  /** 
-   * Get variables from a pattern.
-   *
-   * @param n The pattern node.
-   * @return A list of variables.
-   */ 
-  private List<String> getPatternVariables(Node n) {
-    String name = n.getName();
-    
-    if ("TuplePattern".equals(name)) {
-      List<String> res = new ArrayList<String>();
-      for (int i = 0; i < n.size(); i++) {
-        List<String> vars = getPatternVariables(n.getGeneric(i));
-        if (null != vars) res.addAll(vars);
-      }
-      return res;
-      
-    } else if ("WhenPattern".equals(name)) {
-      return getPatternVariables(n.getGeneric(0));
-
-    } else if ("AsPattern".equals(name)) {
-      List<String> vars = getPatternVariables(n.getGeneric(0));
-      vars.add(n.getString(1));
-      return vars; 
-
-    } else if ("TypedPattern".equals(name)) {
-      return getPatternVariables(n.getGeneric(0));
-
-    } else if ("ConsPattern".equals(name)) {
-      List<String> res = getPatternVariables(n.getGeneric(0));
-      res.addAll(getPatternVariables(n.getGeneric(1)));
-      return res;
-
-    } else if ("Variable".equals(name)) {
-      List<String> res = new ArrayList<String>(); 
-      res.add(n.getString(0));
-      return res;
-
-    } else if ("TypeConstructorPattern".equals(name)) {
-      if (1 < n.size()) return getPatternVariables(n.getGeneric(1));
-      else return new ArrayList<String>(); 
-
-    } else if ("PatternParameters".equals(name)) {
-      List<String> res = new ArrayList<String>();
-      for (int i = 0; i < n.size(); i++) {
-        List<String> vars = getPatternVariables(n.getGeneric(i));
-        if (null != vars) res.addAll(vars);
-      }
-      return res;
-
-    } else if ("ListPattern".equals(name)) {
-      List<String> res = new ArrayList<String>();
-      for (int i = 0; i < n.size(); i++) {
-        List<String> vars = getPatternVariables(n.getGeneric(i));
-        if (null != vars) res.addAll(vars);
-      }
-      return res;
-
-    } else if ("RecordPattern".equals(name)) {
-      List<String> res = new ArrayList<String>();
-      for (int i = 0; i < n.size(); i++) {
-        List<String> vars = getPatternVariables(n.getGeneric(i));
-        if (null != vars) res.addAll(vars);
-      }
-      return res;
-
-    } else if ("FieldPattern".equals(name)) {
-      return getPatternVariables(n.getGeneric(1));
-
-    } else return new ArrayList<String>();
   }
 
   /** Run this transformer. */

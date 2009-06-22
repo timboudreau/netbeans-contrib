@@ -738,13 +738,6 @@ their own productions.  As a result, they require explicit actions to
 create their semantic values, unless, of course, <i>Rats!</i> can
 automatically determine the corresponding values.
 
-<p />The creation of generic syntax tree nodes can be customized
-through the <a href="#attributes">factory attribute</a>, which
-specifies a class different from <code>GNode</code>.  For example,
-<code>factory(MyTreeFactory)</code> causes <em>Rats!</em> to emit
-invocations to <code>MyTreeFactory.create</code> methods instead
-of <code>GNode.create</code>.
-
 <!-- -------------------------------------------------------------------- -->
 
 <a name="list-valued"></a><h4>List-Valued Productions</h4>
@@ -844,7 +837,7 @@ Node LogicalAndExpression =
       { yyValue = apply(actions, seed); }
    ;
 
-constant Action&lt;Node&gt; LogicalAndExpressionTail =
+Action&lt;Node&gt; LogicalAndExpressionTail =
    "&&":Symbol right:BitwiseOrExpression
       {
          yyValue = new Action&lt;Node&gt;() {
@@ -860,9 +853,6 @@ The <code>LogicalAndExpressionTail*</code> expression creates a list
 of {@link xtc.util.Action actions}, with each action on the list
 creating a generic node that is annotated with the source location
 corresponding to the start of the production.
-(The <code>constant</code> attribute ensures that the Java binding for
-<code>right</code> is declared <code>final</code>; this is necessary
-because <code>right</code> is referenced in an anonymous inner class.)
 The <code>LogicalAndExpression</code> production uses {@link
 xtc.parser.ParserBase#apply(Pair,Object)} to apply each action in the
 list onto the result of the previous action, starting with
@@ -1433,11 +1423,6 @@ dumping a plain-text representation of the parser's memoization table
 to a printer: <code>dump({@link xtc.tree.Printer})</code>.  The
 attribute does not have a value and can only be specified as a
 grammar-wide attribute.</li>
-
-<li><code>explicit</code> instructs <i>Rats!</i> to always generate an
-explicit error for the production instead of reusing parse errors
-where possible.  The attribute does not have a value and can only be
-specified as a per-production attribute.</li>
 
 </ul>
 

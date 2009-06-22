@@ -24,9 +24,9 @@ import java.io.IOException;
  * A null literal representing a bindable null value.
  *
  * @author Robert Grimm
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1 $
  */
-public class NullLiteral extends Literal {
+public class NullLiteral extends Element {
 
   /** Create a new null literal. */
   public NullLiteral() { /* Nothing to do. */ }

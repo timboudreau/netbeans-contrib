@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007-2008 Robert Grimm
+ * Copyright (C) 2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ import xtc.util.Runtime;
  * token-level.</li>
  *
  * <li>This visitor ensures that all void productions are correctly
- * annotated with the {@link Properties#CONSUMER} property, indicating
+ * annotated with the {@link Properties#INPUT} property, indicating
  * whether they consume the input.</li>
  *
  * </ol>
@@ -69,7 +69,7 @@ import xtc.util.Runtime;
  * @see RootFinder
  *
  * @author Robert Grimm
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.11 $
  */
 public class Tokenizer extends GrammarVisitor {
 

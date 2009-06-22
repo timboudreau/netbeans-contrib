@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ import xtc.type.JavaAST;
  * generator for Java.
  *
  * @author Robert Grimm
- * @version $Revision: 1.189 $
+ * @version $Revision: 1.186 $
  */
 public class Rats extends Tool {
 
@@ -125,6 +125,8 @@ public class Rats extends Tool {
            "Avoid creating parse errors for individual terms.").
       bool("Oerrors2", "optimizeErrors2", false,
            "Avoid creating parse errors for transient productions.").
+      bool("Oselect", "optimizeSelect", true,
+           "Optimize the selection of parse errors.").
       bool("Ovalues", "optimizeValues", true,
            "Avoid creating duplicate semantic values.").
       bool("Omatches", "optimizeMatches", true,
@@ -322,10 +324,7 @@ public class Rats extends Tool {
     // as transient, because a folded duplicate may be referenced more
     // than once and thus should not be marked as transient, even
     // though the non-folded productions could be marked as transient.
-    if (runtime.test("optimizeGrammar") &&
-        ! runtime.test("optionASTDefinition")) {
-      dup.dispatch(module);
-    }
+    if (runtime.test("optimizeGrammar")) dup.dispatch(module);
     if (runtime.test("optimizePrefixes")) prefix.dispatch(module);
     boolean changed = false;
     do {
@@ -390,6 +389,11 @@ public class Rats extends Tool {
       // Perform prefix folding again, as the expanding of choices may
       // lead to new common prefixes.
       prefix.dispatch(module);
+
+      // Check for unreachable alternatives (again since this was
+      // already done inside Resolver).
+      new ReachabilityChecker(runtime, ana).dispatch(module);
+      if (0 < runtime.errorCount()) return;
     }
     if (runtime.test("optimizeGrammar")) {
       // Do duplicate production folding again, as the desugaring of
@@ -397,16 +401,8 @@ public class Rats extends Tool {
       // dead production elimination again, as the expanding of
       // choices can lead to new deaths.
       dead.dispatch(module);
-      if (! runtime.test("optionASTDefinition")) dup.dispatch(module);
+      dup.dispatch(module);
     }
-    if (runtime.test("optimizePrefixes")) {
-      // Check for unreachable alternatives (again, since this was
-      // already done inside Resolver).  We do this after dead
-      // production elemination to avoid duplicate error messages.
-      new ReachabilityChecker(runtime, ana).dispatch(module);
-      if (0 < runtime.errorCount()) return;
-    }
-
     meta.dispatch(module);
     ref.dispatch(module);
     if (runtime.test("optimizeNonTransient")) {

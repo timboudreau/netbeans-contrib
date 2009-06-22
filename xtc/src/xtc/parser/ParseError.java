@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ package xtc.parser;
  * An erroneous parse.
  *
  * @author Robert Grimm
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.25 $
  */
 public final class ParseError extends Result {
 
@@ -35,7 +35,8 @@ public final class ParseError extends Result {
    *
    * @see SemanticValue#error
    */
-  public static final ParseError DUMMY = new ParseError("parse error", -1);
+  public static final ParseError DUMMY =
+    new ParseError("parse error", -1);
 
   /** The error message. */
   public final String msg;
@@ -73,11 +74,7 @@ public final class ParseError extends Result {
   }
 
   public ParseError select(final ParseError other) {
-    return this.index <= other.index ? other : this;
-  }
-
-  public ParseError select(final ParseError other, final int index) {
-    return this.index <= index || this.index <= other.index ? other : this;
+    return (index <= other.index)? other : this;
   }
 
   /**
@@ -90,7 +87,7 @@ public final class ParseError extends Result {
    * @param index The index of the parse error.
    */
   public ParseError select(final String msg, final int index) {
-    return this.index <= index ? new ParseError(msg, index) : this;
+    return (this.index < index)? new ParseError(msg, index) : this;
   }
 
   public SemanticValue createValue(final Object value, final ParseError error) {

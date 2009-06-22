@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2006-2008 Robert Grimm
+ * Copyright (C) 2006-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,19 +24,12 @@ import java.util.List;
  * Definition of node property names.
  *
  * @author Robert Grimm
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.16 $
  */
 public class Properties {
 
   // Hide the constructor.
   private Properties() { /* Nothing to do. */ }
-
-  /**
-   * The consumer property.  It is associated with productions, has a
-   * boolean value, and indicates whether a production may consume the
-   * input.
-   */
-  public static final String CONSUMER = "consumer";
 
   /**
    * The cost property.  It is associated with productions, has an
@@ -75,6 +68,13 @@ public class Properties {
 
   /** The generic recursion value. */
   public static final String GENERIC_RECURSION = "recursion";
+
+  /**
+   * The input property.  It is associated with productions, has a
+   * boolean value, and indicates whether a production may consume the
+   * input.
+   */
+  public static final String INPUT = "input";
 
   /**
    * The formatting property.  It is associated with sequences, has a
@@ -133,13 +133,6 @@ public class Properties {
    * nonterminal.
    */
   public static final String REPEATED = "repeated";
-
-  /**
-   * The restrict property.  It is associated with productions, has a
-   * boolean value, and indicates whether a production restricts the
-   * input.
-   */
-  public static final String RESTRICT = "restrict";
 
   /**
    * The root property.  It is associated with grammars, has a

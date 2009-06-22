@@ -92,7 +92,6 @@ SOURCE = \
 	Module.java \
 	Grammar.java \
 	ParseTreeNode.java \
-	Literal.java \
 	NullLiteral.java \
 	ValueElement.java \
 	NullValue.java \

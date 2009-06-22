@@ -28,7 +28,7 @@ import java.math.BigInteger;
  * base nor an offset.
  *
  * @author Robert Grimm
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.3 $
  */
 public class NullReference extends Reference {
 
@@ -48,7 +48,7 @@ public class NullReference extends Reference {
     return true;
   }
 
-  public BigInteger getLocation(C ops) {
+  public BigInteger getLocation() {
     return BigInteger.ZERO;
   }
 

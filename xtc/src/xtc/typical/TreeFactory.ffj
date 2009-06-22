@@ -75,9 +75,7 @@ factory xtc.typical.TreeFactory {
                          super(runt);
                          analyzer = analyze;                         
                        }                      
-                     }
-                     
-  modInt          { Primitives.modInt . apply (#argument1, #argument2) }                                                                     
+                     }                        
 
   typesConstr        { private #name () {} }
   createInteger      { BigInteger.valueOf(#literal) }
@@ -107,7 +105,6 @@ factory xtc.typical.TreeFactory {
   fieldDecl          { final #type name = #value; }
   fieldDecl1         { #type name = #value; }
   fieldDecl2         { final #type #name = #value; } 
-  fieldDecl3         { Object #name = null; }
   fieldExpression    { (null == #argument) ? null : #argument . #tail }
 
   functionExpression {
@@ -176,7 +173,6 @@ factory xtc.typical.TreeFactory {
  
   isBottom           { Primitives.isBottom.apply(#argument) }
   isEmptyCall        { ((null != #argument) && (((Pair)#argument).isEmpty())) }
-  isNotEmptyCall     { ((null != #argument) && !(((Pair)#argument).isEmpty())) }
   isMethod           { public boolean isName() { return false; } } 
   isMethodCall       { ((null != #argument) &&  (#argument . #argument2())) }
   jand               { ( #argument1 && #argument2 ) }
@@ -224,55 +220,28 @@ factory xtc.typical.TreeFactory {
 
   newCons            { static final Primitives.Cons<#type> #name = 
                          new Primitives.Cons<#type>(); }
-  newApplyCons       { new Primitives.Cons<#type>() . apply ( #[agrs] ) }
-                           
   newHead            { static final Primitives.Head<#type> #name = 
                          new Primitives.Head<#type>(); }
-  newApplyHead       { new Primitives.Head<#type>() . apply ( #[args] ) }                       
-                         
   newTail            { static final Primitives.Tail<#type> #name = 
-                         new Primitives.Tail<#type>(); }
-  newApplyTail       { new Primitives.Tail<#type>() . apply ( #[args] ) } 
-                         
+                         new Primitives.Tail<#type>(); } 
   newNth             { static final Primitives.Nth<#type> #name = 
                          new Primitives.Nth<#type>(); }
-  newApplyNth        { new Primitives.Nth<#type>() . apply ( #[args] ) }
-                           
   newExists          { static final Primitives.Exists<#type> #name = 
                          new Primitives.Exists<#type>(); }
-  newApplyExists     { new Primitives.Exists<#type>() . apply ( #[args] ) }                       
-                         
   newIter            { static final Primitives.Iter<#type1, #type2> #name = 
                          new Primitives.Iter<#type1, #type2>(); }
-  newApplyIter       { new Primitives.Iter<#type1, #type2>() . 
-                         apply ( #[args] ) }                       
-                         
   newMap             { static final Primitives.Map<#type1, #type2> #name = 
                          new Primitives.Map<#type1, #type2>(); }
-  newApplyMap        { new Primitives.Map<#type1, #type2>() . 
-                         apply ( #[args] ) }                       
-                         
   newFoldl           { static final Primitives.FoldLeft<#type1, #type2> #name = 
                          new Primitives.FoldLeft<#type1, #type2>(); }
-  newApplyFoldl      { new Primitives.FoldLeft<#type1, #type2>() . 
-                         apply ( #[args] ) }                                            
-                         
   newAppend          { static final Primitives.Append<#type> #name = 
                          new Primitives.Append<#type>(); }
-  newApplyAppend     { new Primitives.Append<#type>() . apply ( #[args] ) }                                          
-  
   newUnion           { static final Primitives.Union<#type> #name = 
                          new Primitives.Union<#type>(); }
-  newApplyUnion      { new Primitives.Union<#type>() . apply ( #[args] ) }                                            
-                         
   newIntersection    { static final Primitives.Intersection<#type> #name = 
                          new Primitives.Intersection<#type>(); }
-  newApplyIntersection { new Primitives.Intersection<#type>() . 
-                           apply ( #[args] ) }                         
-                         
   newSubtraction     { static final Primitives.Subtraction<#type> #name = 
                          new Primitives.Subtraction<#type>(); }
-  newApplySubtraction { new Primitives.Subtraction<#type>() . apply ( #[args] ) }                         
 
   nextCall           { #argument . next() }
   

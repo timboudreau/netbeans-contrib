@@ -47,7 +47,6 @@ PACKAGE_LOC = xtc
 
 SOURCE = \
 	Constants.java \
-	Platform.java \
 	Limits.java
 
 
@@ -68,18 +67,11 @@ include $(JAVA_DEV_ROOT)/Makerules
 .PHONY : configure
 
 configure :
-	$(JAVAC) $(JAVAC_OPTIONS) Platform.java
-	$(JAVA) xtc.Platform > config.h
-ifeq ($(CC),cl)
-	$(CC) $(CFLAGS) /Felimitgen limits.c
-else
-	$(CC) $(CFLAGS) -std=c99 -o limitgen limits.c
-endif
+	$(CC) -std=c99 -o limitgen limits.c
 	./limitgen > Limits.java
-	$(RM) config.h limitgen
+	$(RM) limitgen
 	$(JAVAC) $(JAVAC_OPTIONS) Limits.java
 	$(JAVAC) $(JAVAC_OPTIONS) type/C.java
 	$(JAVAC) $(JAVAC_OPTIONS) lang/C.java
-	$(JAVAC) $(JAVAC_OPTIONS) lang/CAnalyzer.java
 
 endif

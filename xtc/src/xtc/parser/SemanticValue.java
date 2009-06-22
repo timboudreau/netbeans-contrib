@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ package xtc.parser;
  * A semantic value.
  *
  * @author Robert Grimm
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.22 $
  */
 public final class SemanticValue extends Result {
 
@@ -86,17 +86,12 @@ public final class SemanticValue extends Result {
   }
 
   public ParseError select(final ParseError error) {
-    return this.error.index <= error.index ? error : this.error;
-  }
-
-  public ParseError select(final ParseError error, final int index) {
-    return this.error.index <= index || this.error.index <= error.index ?
-      error : this.error;
+    return (this.error.index < error.index)? error : this.error;
   }
 
   public SemanticValue createValue(final Object value, final ParseError error) {
-    return value == this.value && error == this.error ?
-      this : new SemanticValue(value, index, error);
+    return (((value == this.value) && (error == this.error))?
+            this : new SemanticValue(value, index, error));
   }
 
 }

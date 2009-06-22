@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,7 +30,6 @@ import xtc.type.AST;
 import xtc.type.Type;
 
 import xtc.util.Runtime;
-import xtc.util.Utilities;
 
 /**
  * Visitor to transform direct left-recursions into equivalent
@@ -48,7 +47,7 @@ import xtc.util.Utilities;
  * <p />This visitor may report errors to the user.
  *
  * @author Robert Grimm
- * @version $Revision: 1.82 $
+ * @version $Revision: 1.77 $
  */
 public class DirectLeftRecurser extends Visitor {
 
@@ -205,11 +204,9 @@ public class DirectLeftRecurser extends Visitor {
     varAction  = null;
 
     // Create the new right-recursive production and the action
-    // variable.  Note that any public, explicit, stateful, and
-    // resetting attributes are not inherited.
+    // variable.  Note that the state and reset attributes are not
+    // inherited.
     List<Attribute> attributes = new ArrayList<Attribute>(p.attributes);
-    attributes.remove(Constants.ATT_PUBLIC);
-    attributes.remove(Constants.ATT_EXPLICIT);
     attributes.remove(Constants.ATT_STATEFUL);
     attributes.remove(Constants.ATT_RESETTING);
     if (isGeneric &&
@@ -299,12 +296,6 @@ public class DirectLeftRecurser extends Visitor {
         if (isRecursive(alternative, (FullProduction)analyzer.current())) {
           state = STATE_RECURSION;
 
-          // Make sure that the recursive case in generic productions
-          // actually has an automatically determinable value.
-          if (isGeneric && Analyzer.setsValue(alternative, false)) {
-            runtime.error("unable to determine value of recursion",alternative);
-          }
-
           // Remove the first, directly left-recursive element from
           // the sequence.
           alternative.elements.remove(0);
@@ -341,6 +332,10 @@ public class DirectLeftRecurser extends Visitor {
                               "base case", alternative);
                 b = new Binding(Analyzer.DUMMY, alternative);
               }
+              
+            } else {
+              // Rename the bound variable.
+              b.name = analyzer.variable();
             }
             seed = b;
 
@@ -428,10 +423,11 @@ public class DirectLeftRecurser extends Visitor {
       if (runtime.test("optimizeLeftIterations")) {
         if (isGeneric) {
           // Add a generic action value.
-          String name = analyzer.current().qName.name;
-          if (! markers.isEmpty()) {
-            name = Utilities.qualify(Utilities.getQualifier(name),
-                                     markers.get(markers.size()-1).name);
+          final String name;
+          if (0 == markers.size()) {
+            name = analyzer.current().name.unqualify().name;
+          } else {
+            name = markers.get(markers.size()-1).name;
           }
 
           final List<Binding> formatting;
@@ -453,11 +449,11 @@ public class DirectLeftRecurser extends Visitor {
           // Add a recursive invocation and a generic recursion value.
           final Binding b = new Binding(analyzer.variable(), pTail.name);
           s.add(b);
-
-          String name = analyzer.current().qName.name;
-          if (! markers.isEmpty()) {
-            name = Utilities.qualify(Utilities.getQualifier(name),
-                                     markers.get(markers.size()-1).name);
+          final String name;
+          if (0 == markers.size()) {
+            name = analyzer.current().name.unqualify().name;
+          } else {
+            name = markers.get(markers.size()-1).name;
           }
 
           final List<Binding> formatting;

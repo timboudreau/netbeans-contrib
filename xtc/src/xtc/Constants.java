@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2009 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ import xtc.tree.Attribute;
  * Global constants.
  *
  * @author Robert Grimm
- * @version $Revision: 1.123 $
+ * @version $Revision: 1.114 $
  */
 public interface Constants {
 
@@ -35,20 +35,20 @@ public interface Constants {
   public static final int MAJOR = 1;
 
   /** The minor version number. */
-  public static final int MINOR = 14;
+  public static final int MINOR = 13;
 
   /** The revision number. */
-  public static final int REVISION = 3;
+  public static final int REVISION = 2;
 
   /** The complete version as a string. */
   public static final String VERSION = MAJOR + "." + MINOR + "." + REVISION;
 
   /** The copyright notice for <em>Rats&#033;</em>. */
-  public static final String COPY = "(C) 2004-2009 Robert Grimm";
+  public static final String COPY = "(C) 2004-2007 Robert Grimm";
 
   /** The copyright notice for all of xtc. */
   public static final String FULL_COPY =
-    "(C) 2004-2009 Robert Grimm and New York University";
+    "(C) 2004-2007 Robert Grimm and New York University";
 
   /** 
    * The start index for lines.  Note that the same constant is also
@@ -198,22 +198,13 @@ public interface Constants {
   /** The attribute name of all visibility attributes. */
   public static final String NAME_VISIBILITY = "visibility";
 
-  /** The attribute value of the public visibility attribute. */
-  public static final String VALUE_PUBLIC = "public";
-
-  /** The attribute value of the protected visibility attribute. */
-  public static final String VALUE_PROTECTED = "protected";
-
-  /** The attribute value of the private visibility attribute. */
-  public static final String VALUE_PRIVATE = "private";
-
   /** The public visibility attribute. */
   public static final Attribute ATT_PUBLIC =
-    new Attribute(NAME_VISIBILITY, VALUE_PUBLIC);
+    new Attribute(NAME_VISIBILITY, "public");
 
   /** The protected visibility attribute. */
   public static final Attribute ATT_PROTECTED =
-    new Attribute(NAME_VISIBILITY, VALUE_PROTECTED);
+    new Attribute(NAME_VISIBILITY, "protected");
 
   /** The package private visibility attribute. */
   public static final Attribute ATT_PACKAGE_PRIVATE =
@@ -221,7 +212,7 @@ public interface Constants {
 
   /** The private visibility attribute. */
   public static final Attribute ATT_PRIVATE =
-    new Attribute(NAME_VISIBILITY, VALUE_PRIVATE);
+    new Attribute(NAME_VISIBILITY, "private");
 
   // =========================================================================
 
@@ -239,9 +230,6 @@ public interface Constants {
 
   /** The canonical <code>dump</code> attribute. */
   public static final Attribute ATT_DUMP = new Attribute("dump");
-
-  /** The canonical <code>explicit</code> attribute. */
-  public static final Attribute ATT_EXPLICIT = new Attribute("explicit");
 
   /** The canonical <code>flatten</code> attribute. */
   public static final Attribute ATT_FLATTEN = new Attribute("flatten");
@@ -316,9 +304,6 @@ public interface Constants {
 
   /** The canonical <code>synchronized</code> attribute. */
   public static final Attribute ATT_SYNCHRONIZED = new Attribute("synchronized");
-
-  /** The canonical <code>threadLocal</code> attribute. */
-  public static final Attribute ATT_THREAD_LOCAL = new Attribute("threadLocal");
 
   /** The canonical <code>transient</code> attribute. */
   public static final Attribute ATT_TRANSIENT = new Attribute("transient");

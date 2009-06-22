@@ -25,7 +25,7 @@ import java.io.IOException;
  * has neither a base nor an offset.
  *
  * @author Robert Grimm
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.3 $
  */
 public abstract class VariableReference extends Reference {
 
@@ -50,6 +50,9 @@ public abstract class VariableReference extends Reference {
   public VariableReference(String name, Type type) {
     super(type);
     this.name = name;
+
+    // Adjust the type.
+    normalize();
   }
 
   public boolean isVariable() {

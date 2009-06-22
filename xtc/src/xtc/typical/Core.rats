@@ -21,7 +21,7 @@
  * Definition of Typical syntax rules.
  *
  * @author Laune Harris, Anh Le
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.36 $
  */
 module xtc.typical.Core(Type, Constant, Identifier, Symbol, Spacing);
 
@@ -286,7 +286,7 @@ generic FunctionApplication =
   ;  
 
 generic Arguments = Argument+ ;
-Node Argument = FieldExpression / Pattern ;
+Node Argument = FieldExpression / Pattern;
 
 generic PredicateArgument = 
     void:"(":Symbol void:"predicate":Keyword Patterns void:")":Symbol  
@@ -305,7 +305,6 @@ Node PrimaryExpression =
   / <PredicateExpression> PredicateExpression
   / <ReduceExpression>    ReduceExpression
   / <Function>            FunctionExpression
-  / <Fun> 		  FunExpression
   / <Record>              RecordExpression
   / <Negation>            LogicalNegationExpression
   / <Match>               MatchExpression 
@@ -330,9 +329,6 @@ generic LetBindings = LetBinding ( void:"and":Keyword LetBinding )* ;
 generic LetBinding = Pattern void:"=":Symbol Expression ;
 
 generic FunctionExpression = void:"function":Keyword PatternMatching ;
-
-generic FunExpression = 
-    void:"fun":Keyword Parameters void:"->":Symbol Expression ;
 
 generic MatchExpression = 
     void:"match":Keyword Expression void:"with":Keyword PatternMatching

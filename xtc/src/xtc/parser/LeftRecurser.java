@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2004-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ import xtc.util.Runtime;
  * TextTester have been marked} as such.
  *
  * @author Robert Grimm
- * @version $Revision: 1.49 $
+ * @version $Revision: 1.47 $
  */
 public class LeftRecurser extends Visitor {
 
@@ -77,8 +77,8 @@ public class LeftRecurser extends Visitor {
       analyzer.process(m);
 
       for (Production p : m.productions) {
-        // Only process full productions that have not been processed.
-        if ((! p.isFull()) || analyzer.isProcessed(p.qName)) continue;
+        // Only process full productions that have not been marked.
+        if ((! p.isFull()) || analyzer.isMarked(p.qName)) continue;
 
         // Reset the per-production state.
         terminated = false;
@@ -96,8 +96,8 @@ public class LeftRecurser extends Visitor {
     analyzer.init(m);
 
     for (Production p : m.productions) {
-      // Only process full productions that have not been processed.
-      if (analyzer.isProcessed(p.qName)) continue;
+      // Only process full productions that have not been marked.
+      if (analyzer.isMarked(p.qName)) continue;
 
       // Reset the per-production state.
       terminated = false;
@@ -136,7 +136,6 @@ public class LeftRecurser extends Visitor {
 
     analyzer.notWorkingOn(p.qName);
     analyzer.exit(closure);
-    analyzer.processed(p.qName);
   }
 
   /** Visit the specified ordered choice. */
@@ -204,10 +203,8 @@ public class LeftRecurser extends Visitor {
         p.setProperty(Properties.RECURSIVE, Boolean.TRUE);
         terminated = true;
 
-      } else if (! analyzer.isProcessed(p.qName)) {
-        dispatch(p);
       } else {
-        terminated = true;
+        dispatch(p);
       }
     } else {
       terminated = true;

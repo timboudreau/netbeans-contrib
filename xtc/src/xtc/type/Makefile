@@ -62,8 +62,6 @@ SOURCE = \
 	Tagged.java \
 	Type.java \
 	Parameter.java \
-	NamedParameter.java \
-	InternalParameter.java \
 	Wildcard.java \
 	WrappedT.java \
 	AnnotatedT.java \

@@ -34,7 +34,7 @@ import xtc.util.Function;
  * The primitives for Typical.
  * 
  * @author Robert Grimm
- * @version $Revision: 1.49 $
+ * @version $Revision: 1.48 $
  */ 
 public class Primitives {
 
@@ -1369,10 +1369,8 @@ public class Primitives {
     PRIMITIVE_NAMES.put("node_type", "nodeType");
     PRIMITIVE_NAMES.put("is_big_endian", "IS_BIG_ENDIAN");
     PRIMITIVE_NAMES.put("void_size", "VOID_SIZE");
-    PRIMITIVE_NAMES.put("bool_size", "BOOL_SIZE");
     PRIMITIVE_NAMES.put("pointer_size", "POINTER_SIZE");
     PRIMITIVE_NAMES.put("pointer_align", "POINTER_ALIGN");
-    PRIMITIVE_NAMES.put("pointer_nat_align", "POINTER_NAT_ALIGN");
     PRIMITIVE_NAMES.put("ptrdiff_rank", "PTRDIFF_RANK");
     PRIMITIVE_NAMES.put("sizeof_rank", "SIZEOF_RANK");
     PRIMITIVE_NAMES.put("ptrdiff_size", "PTRDIFF_SIZE");
@@ -1388,12 +1386,8 @@ public class Primitives {
     PRIMITIVE_NAMES.put("is_wchar_signed", "IS_WCHAR_SIGNED");
     PRIMITIVE_NAMES.put("wchar_rank", "WCHAR_RANK");
     PRIMITIVE_NAMES.put("wchar_size", "WCHAR_SIZE");
-    PRIMITIVE_NAMES.put("void_align", "VOID_ALIGN");
-    PRIMITIVE_NAMES.put("bool_align", "BOOL_ALIGN");
-    PRIMITIVE_NAMES.put("bool_nat_align", "BOOL_NAT_ALIGN");
     PRIMITIVE_NAMES.put("short_size", "SHORT_SIZE");
     PRIMITIVE_NAMES.put("short_align", "SHORT_ALIGN");
-    PRIMITIVE_NAMES.put("short_nat_align", "SHORT_NAT_ALIGN");
     PRIMITIVE_NAMES.put("short_bits", "SHORT_BITS");
     PRIMITIVE_NAMES.put("short_min", "SHORT_MIN");
     PRIMITIVE_NAMES.put("short_max", "SHORT_MAX");
@@ -1403,7 +1397,6 @@ public class Primitives {
     PRIMITIVE_NAMES.put("is_int_signed", "IS_INT_SIGNED");
     PRIMITIVE_NAMES.put("int_size", "INT_SIZE");
     PRIMITIVE_NAMES.put("int_align", "INT_ALIGN");
-    PRIMITIVE_NAMES.put("int_nat_align", "INT_NAT_ALIGN");
     PRIMITIVE_NAMES.put("int_bits", "INT_BITS");
     PRIMITIVE_NAMES.put("int_min", "INT_MIN");
     PRIMITIVE_NAMES.put("int_max", "INT_MAX");
@@ -1412,7 +1405,6 @@ public class Primitives {
     PRIMITIVE_NAMES.put("uint_mod", "UINT_MOD");
     PRIMITIVE_NAMES.put("long_size", "LONG_SIZE");
     PRIMITIVE_NAMES.put("long_align", "LONG_ALIGN");
-    PRIMITIVE_NAMES.put("long_nat_align", "LONG_NAT_ALIGN");
     PRIMITIVE_NAMES.put("long_bits", "LONG_BITS");
     PRIMITIVE_NAMES.put("long_min", "LONG_MIN");
     PRIMITIVE_NAMES.put("long_max", "LONG_MAX");
@@ -1421,7 +1413,6 @@ public class Primitives {
     PRIMITIVE_NAMES.put("ulong_mod", "ULONG_MOD");
     PRIMITIVE_NAMES.put("long_long_size", "LONG_LONG_SIZE");
     PRIMITIVE_NAMES.put("long_long_align", "LONG_LONG_ALIGN");
-    PRIMITIVE_NAMES.put("long_long_nat_align", "LONG_LONG_NAT_ALIGN");
     PRIMITIVE_NAMES.put("long_long_bits", "LONG_LONG_BITS");
     PRIMITIVE_NAMES.put("long_long_min", "LONG_LONG_MIN");
     PRIMITIVE_NAMES.put("long_long_max", "LONG_LONG_MAX");
@@ -1430,15 +1421,10 @@ public class Primitives {
     PRIMITIVE_NAMES.put("ulong_long_mod", "ULONG_LONG_MOD");
     PRIMITIVE_NAMES.put("float_size", "FLOAT_SIZE");
     PRIMITIVE_NAMES.put("float_align", "FLOAT_ALIGN");
-    PRIMITIVE_NAMES.put("float_nat_align", "FLOAT_NAT_ALIGN");
     PRIMITIVE_NAMES.put("double_size", "DOUBLE_SIZE");
     PRIMITIVE_NAMES.put("double_align", "DOUBLE_ALIGN");
-    PRIMITIVE_NAMES.put("double_nat_align", "DOUBLE_NAT_ALIGN");
     PRIMITIVE_NAMES.put("long_double_size", "LONG_DOUBLE_SIZE");
     PRIMITIVE_NAMES.put("long_double_align", "LONG_DOUBLE_ALIGN");
-    PRIMITIVE_NAMES.put("long_double_nat_align", "LONG_DOUBLE_NAT_ALIGN");
-    PRIMITIVE_NAMES.put("function_align", "FUNCTION_ALIGN");
-    PRIMITIVE_NAMES.put("function_size", "FUNCTION_SIZE");
   }
 
   /**
@@ -1460,44 +1446,31 @@ public class Primitives {
     INTEGER_TYPES.add("VOID_SIZE");
     INTEGER_TYPES.add("POINTER_SIZE");
     INTEGER_TYPES.add("POINTER_ALIGN");
-    INTEGER_TYPES.add("POINTER_NAT_ALIGN");
     INTEGER_TYPES.add("PTRDIFF_RANK");
     INTEGER_TYPES.add("SIZEOF_RANK");
     INTEGER_TYPES.add("PTRDIFF_SIZE");
     INTEGER_TYPES.add("SIZEOF_SIZE");
-    INTEGER_TYPES.add("BOOL_SIZE");
-    INTEGER_TYPES.add("BOOL_ALIGN");
-    INTEGER_TYPES.add("BOOL_NAT_ALIGN");
     INTEGER_TYPES.add("CHAR_BITS");
     INTEGER_TYPES.add("WCHAR_RANK");
     INTEGER_TYPES.add("WCHAR_SIZE");
     INTEGER_TYPES.add("SHORT_SIZE");
     INTEGER_TYPES.add("SHORT_ALIGN");
-    INTEGER_TYPES.add("SHORT_NAT_ALIGN");
     INTEGER_TYPES.add("SHORT_BITS");
     INTEGER_TYPES.add("INT_SIZE");
     INTEGER_TYPES.add("INT_ALIGN");
-    INTEGER_TYPES.add("INT_NAT_ALIGN");
     INTEGER_TYPES.add("INT_BITS");
     INTEGER_TYPES.add("LONG_SIZE");
     INTEGER_TYPES.add("LONG_ALIGN");
-    INTEGER_TYPES.add("LONG_NAT_ALIGN");
     INTEGER_TYPES.add("LONG_BITS");
     INTEGER_TYPES.add("LONG_LONG_SIZE");
     INTEGER_TYPES.add("LONG_LONG_ALIGN");
-    INTEGER_TYPES.add("LONG_LONG_NAT_ALIGN");
     INTEGER_TYPES.add("LONG_LONG_BITS");
     INTEGER_TYPES.add("FLOAT_SIZE");
     INTEGER_TYPES.add("FLOAT_ALIGN");
-    INTEGER_TYPES.add("FLOAT_NAT_ALIGN");
     INTEGER_TYPES.add("DOUBLE_SIZE");
     INTEGER_TYPES.add("DOUBLE_ALIGN");
-    INTEGER_TYPES.add("DOUBLE_NAT_ALIGN");
     INTEGER_TYPES.add("LONG_DOUBLE_SIZE");
     INTEGER_TYPES.add("LONG_DOUBLE_ALIGN");
-    INTEGER_TYPES.add("LONG_DOUBLE_NAT_ALIGN");
-    INTEGER_TYPES.add("FUNCTION_SIZE");
-    INTEGER_TYPES.add("FUNCTION_ALIGN");
   }
   
   /**

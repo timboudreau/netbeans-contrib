@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2005-2008 Robert Grimm
+ * Copyright (C) 2005-2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ import xtc.util.Utilities;
  * Properties#RECURSIVE} properties as appropriate.
  *
  * @author Robert Grimm
- * @version $Revision: 1.128 $
+ * @version $Revision: 1.124 $
  */
 public class Resolver extends Visitor {
 
@@ -1554,18 +1554,16 @@ public class Resolver extends Visitor {
   private final Visitor checkRepetitionsVisitor = new Visitor() {
       public void visit(Repetition r) {
         dispatch(r.element);
-        if (analyzer.matchesEmpty(r.element) &&
-            ! (Analyzer.strip(r.element) instanceof Action)) {
+        if (analyzer.matchesEmpty(r.element)) {
           runtime.error("repeated element matches empty input", r);
         }
       }
       public void visit(Option o) {
         dispatch(o.element);
-        if (! analyzer.restrictsInput(o.element) &&
-            ! (Analyzer.strip(o.element) instanceof Action) &&
-            ! analyzer.grammar().modules.get(0).
-              hasAttribute(Constants.ATT_NO_WARNINGS) &&
-            ! analyzer.current().hasAttribute(Constants.ATT_NO_WARNINGS)) {
+        if (analyzer.matchesEmpty(o.element) &&
+            (! analyzer.grammar().modules.get(0).
+             hasAttribute(Constants.ATT_NO_WARNINGS)) &&
+            (! analyzer.current().hasAttribute(Constants.ATT_NO_WARNINGS))) {
           runtime.warning("optional element already matches empty input", o);
         }
       }
@@ -1585,35 +1583,6 @@ public class Resolver extends Visitor {
         // Nothing to do.
       }
     };
-
-  /**
-   * Check that explicit productions do not match the empty input.
-   *
-   * @param g The grammar.
-   */
-  protected void checkExplicit(Grammar g) {
-    analyzer.register(checkExplicitVisitor);
-    analyzer.init(g);
-
-    for (Module m : g.modules) {
-      analyzer.process(m);
-      for (Production p : m.productions) {
-        if (p.isFull()) analyzer.process(p);
-      }
-    }
-  }
-
-  /** The visitor for checking explicit productions. */
-  @SuppressWarnings("unused")
-  private final Visitor checkExplicitVisitor = new Visitor() {
-      public void visit(Production p) {
-        if (p.hasAttribute(Constants.ATT_EXPLICIT) &&
-            analyzer.matchesEmpty(p.choice)) {
-          runtime.error("explicit production matches empty input", p);
-        }
-      }
-    };
-
 
   /**
    * Combine the modules in the specified grammar.  This method
@@ -1752,13 +1721,12 @@ public class Resolver extends Visitor {
     internTypes(g);
 
     // ----------------------------------------------------------------------
-    //   Perform checks that require that modifications have been applied.
+    //           Check left-recursions and repeated elements
     // ----------------------------------------------------------------------
 
     checkRecursions(g);
     checkRepetitions(g);
     new ReachabilityChecker(runtime, analyzer).dispatch(g);
-    checkExplicit(g);
 
     // Only continue if there were no errors.
     if (runtime.seenError()) return null;
@@ -1786,7 +1754,6 @@ public class Resolver extends Visitor {
         
       } else if (Constants.ATT_WITH_LOCATION.getName().equals(p.dType) ||
                  Constants.ATT_CONSTANT.getName().equals(p.dType) ||
-                 Constants.ATT_EXPLICIT.getName().equals(p.dType) ||
                  Constants.ATT_NO_INLINE.getName().equals(p.dType) ||
                  Constants.ATT_MEMOIZED.getName().equals(p.dType) ||
                  Constants.ATT_VERBOSE.getName().equals(p.dType) ||
@@ -1845,7 +1812,6 @@ public class Resolver extends Visitor {
               (! Constants.ATT_WITH_LOCATION.equals(att)) &&
               (! Constants.ATT_CONSTANT.equals(att)) &&
               (! Constants.ATT_VARIANT.equals(att)) &&
-              (! Constants.ATT_EXPLICIT.equals(att)) &&
               (! Constants.ATT_VERBOSE.equals(att)) &&
               (! Constants.ATT_NO_WARNINGS.equals(att)) &&
               (! Constants.ATT_IGNORING_CASE.equals(att)) &&
@@ -1997,10 +1963,6 @@ public class Resolver extends Visitor {
 
       case PARSER_ACTION:
         runtime.error("voided parser action", v);
-        break;
-
-      case NULL:
-        runtime.error("voided null literal", v);
         break;
 
       case NODE_MARKER:

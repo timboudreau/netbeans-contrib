@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007-2008 Robert Grimm
+ * Copyright (C) 2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ import xtc.tree.Locatable;
  * Common type operations for Java ASTs.
  *
  * @author Robert Grimm
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.6 $
  */
 public class JavaAST extends AST {
 
@@ -215,13 +215,9 @@ public class JavaAST extends AST {
   }
 
   protected Type internUser(String s) {
-    if (PRIMITIVES.contains(s)) {
-      throw new IllegalArgumentException("Java primitive type");
-    } else if (MODIFIERS.contains(s)) {
-      throw new IllegalArgumentException("Java modifier as type");
-    } else if (KEYWORDS.contains(s)) {
-      throw new IllegalArgumentException("Java keyword as type");
-    }
+    assert ! PRIMITIVES.contains(s);
+    assert ! MODIFIERS.contains(s);
+    assert ! KEYWORDS.contains(s);
 
     final int idx = s.indexOf('<');
     if (-1 == idx) {
@@ -238,7 +234,7 @@ public class JavaAST extends AST {
       do {
         int end = endOfType(args, start);
 
-        parameters.add(new NamedParameter("T" + count));
+        parameters.add(new Parameter("T" + count));
         arguments.add(intern(args.substring(start, end)));
 
         start = end + 1;
