@@ -34,7 +34,7 @@ import xtc.util.Runtime;
  * Visitor to add lists as semantic values.
  *
  * @author Robert Grimm
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class ListMaker extends Visitor {
 
@@ -166,7 +166,7 @@ public class ListMaker extends Visitor {
       }
 
       // Ensure the alternative has a semantic value.
-      if (0 == bindings.size()) {
+      if (bindings.isEmpty()) {
         // An empty list value.
         s.add(EmptyListValue.VALUE);
       } else if ((1 == bindings.size()) &&

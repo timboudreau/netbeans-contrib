@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -150,10 +150,17 @@ import xtc.util.Utilities;
  * element.<p /></li>
  *
  * <li>A method to determine whether an element {@link
+ * #restrictsInput(Element) restricts the input}.<p /></li>
+ *
+ * <li>A method to determine whether an element {@link
  * #consumesInput(Element) consumes the input}.<p /></li>
  *
  * <li>A method to determine whether an element {@link
  * #matchesEmpty(Element) matches the empty input}.<p /></li>
+ *
+ * <li>A method to determine whether an element {@link
+ * #isNotFollowedBy(Element) relies only on not-followed-by
+ * predicates}.<p /></li>
  *
  * <li>A set of methods to process bindings, notably a method to
  * determine whether an element {@link #isBindable(Element) can be
@@ -192,7 +199,7 @@ import xtc.util.Utilities;
  * analyzer utility is used across different visitors.
  *
  * @author Robert Grimm
- * @version $Revision: 1.144 $
+ * @version $Revision: 1.147 $
  */
 public class Analyzer extends Utility {
 
@@ -1640,16 +1647,19 @@ public class Analyzer extends Utility {
    * @return The stripped element.
    */
   public static Element strip(Element e) {
-    if (e instanceof OrderedChoice) {
+    switch (e.tag()) {
+    case CHOICE:
       OrderedChoice c = (OrderedChoice)e;
       if (1 == c.alternatives.size()) {
         e = strip(c.alternatives.get(0));
       }
-    } else if (e instanceof Sequence) {
+      break;
+    case SEQUENCE:
       Sequence s = (Sequence)e;
       if (1 == s.size()) {
         e = strip(s.get(0));
       }
+      break;
     }
     return e;
   }
@@ -1668,16 +1678,19 @@ public class Analyzer extends Utility {
       if (1 == c.alternatives.size()) {
         Element e = c.alternatives.get(0);
 
-        if (e instanceof OrderedChoice) {
+        switch (e.tag()) {
+        case CHOICE:
           c       = (OrderedChoice)e;
           changed = true;
+          break;
 
-        } else if (e instanceof Sequence) {
+        case SEQUENCE:
           Sequence s = (Sequence)e;
           if ((1 == s.size()) && (s.get(0) instanceof OrderedChoice)) {
             c       = (OrderedChoice)s.get(0);
             changed = true;
           }
+          break;
         }
       }
     } while (changed);
@@ -1791,6 +1804,7 @@ public class Analyzer extends Utility {
 
     final int l  = s.size();
     Sequence  s2 = new Sequence(new ArrayList<Element>(nl));
+    s2.setLocation(s);
 
     loop: for (int i=0; i<l; i++) {
       Element e = s.get(i);
@@ -1864,6 +1878,7 @@ public class Analyzer extends Utility {
         // class's count.
         Sequence result = new Sequence(joinTerminals(source.subSequence(1),
                                                      t.subSequence(1)));
+        result.setLocation(source);
         result.elements.add(0, s1);
 
         return result;
@@ -2166,6 +2181,125 @@ public class Analyzer extends Utility {
   // =======================================================================
 
   /**
+   * Determine whether the specified element restricts the input.
+   * Note that this method requires that the production and module
+   * containing the element are currently being processed; i.e., the
+   * corresponding <code>process()</code> invocations must have been
+   * performed.  Further note that this method internally uses this
+   * analyzer's working set.  Finally, note that, after processing a
+   * production, this method sets the production's {@link
+   * Properties#RESTRICT} property.
+   *
+   * @param e The element.
+   * @return <code>true</code> if the element restricts the input.
+   */
+  public boolean restrictsInput(Element e) {
+    return (Boolean)restrictsInputVisitor.dispatch(e);
+  }
+
+  /** The restricts input visitor. */
+  @SuppressWarnings("unused")
+  private final Visitor restrictsInputVisitor = new Visitor() {
+      public Boolean visit(FullProduction p) {
+        // Perform internal consistency checks.
+        assert ! isBeingWorkedOn(p.qName);
+        assert ! p.hasProperty(Properties.RESTRICT);
+
+        // Enter the production's module.
+        Object closure = enter(p);
+        
+        // Mark the production as being processed.
+        workingOn(p.qName);
+        
+        // Process the production.
+        Boolean result = (Boolean)dispatch(p.choice);
+        
+        // Remember the result.
+        p.setProperty(Properties.RESTRICT, result);
+        
+        // Unmark the production.
+        notWorkingOn(p.qName);
+        
+        // Exit the production's module.
+        exit(closure);
+        
+        // Done.
+        return result;
+      }
+
+      public Boolean visit(OrderedChoice c) {
+        for (Sequence alt : c.alternatives) {
+          if (! (Boolean)dispatch(alt)) return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+      }
+      
+      public Boolean visit(Repetition r) {
+        return r.once;
+      }
+
+      public Boolean visit(Option o) {
+        return Boolean.FALSE;
+      }
+
+      public Boolean visit(Sequence s) {
+        for (Element e : s.elements) {
+          if ((Boolean)dispatch(e)) return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+      }
+
+      public Boolean visit(Predicate p) {
+        // We assume that semantic predicates restrict the input.
+        return Boolean.TRUE;
+      }
+
+      public Boolean visit(NonTerminal nt) {
+        FullProduction p;
+
+        try {
+          p = lookup(nt);
+        } catch (IllegalArgumentException x) {
+          return Boolean.TRUE;
+        }
+
+        if (null != p) {
+          if (p.hasProperty(Properties.RESTRICT)) {
+            return (Boolean)p.getProperty(Properties.RESTRICT);
+          } else if (isBeingWorkedOn(p.qName)) {
+            return Boolean.TRUE;
+          } else {
+            return (Boolean)dispatch(p);
+          }
+        } else {
+          return Boolean.TRUE;
+        }
+      }
+
+      public Boolean visit(Terminal t) {
+        return Boolean.TRUE;
+      }
+
+      public Boolean visit(UnaryOperator op) {
+        // The default for bindings, string matches, and voided elements.
+        return (Boolean)dispatch(op.element);
+      }
+      
+      public Boolean visit(ParserAction pa) {
+        // Parser actions are assumed to consume some input.
+        return Boolean.TRUE;
+      }
+      
+      public Boolean visit(Element e) {
+        // Actions, parse tree nodes, null literals, and value
+        // elements do not consume any input.
+        return Boolean.FALSE;
+      }
+    };
+
+  // =======================================================================
+
+  /**
    * Determine whether the specified element may consume the input.
    * Note that this method requires that the production and module
    * containing the element are currently being processed; i.e., the
@@ -2173,7 +2307,7 @@ public class Analyzer extends Utility {
    * performed.  Further note that this method internally uses this
    * analyzer's working set.  Finally, note that, after processing a
    * production, this method sets the production's {@link
-   * Properties#INPUT} property.
+   * Properties#CONSUMER} property.
    *
    * @param e The element.
    * @return <code>true</code> if the element consumes the input.
@@ -2188,7 +2322,7 @@ public class Analyzer extends Utility {
       public Boolean visit(FullProduction p) {
         // Perform internal consistency checks.
         assert ! isBeingWorkedOn(p.qName);
-        assert ! p.hasProperty(Properties.INPUT);
+        assert ! p.hasProperty(Properties.CONSUMER);
 
         // Enter the production's module.
         Object closure = enter(p);
@@ -2200,7 +2334,7 @@ public class Analyzer extends Utility {
         Boolean result = (Boolean)dispatch(p.choice);
         
         // Remember the result.
-        p.setProperty(Properties.INPUT, result);
+        p.setProperty(Properties.CONSUMER, result);
         
         // Unmark the production.
         notWorkingOn(p.qName);
@@ -2241,8 +2375,8 @@ public class Analyzer extends Utility {
         }
 
         if (null != p) {
-          if (p.hasProperty(Properties.INPUT)) {
-            return (Boolean)p.getProperty(Properties.INPUT);
+          if (p.hasProperty(Properties.CONSUMER)) {
+            return (Boolean)p.getProperty(Properties.CONSUMER);
           } else if (isBeingWorkedOn(p.qName)) {
             return Boolean.TRUE;
           } else {
@@ -2397,6 +2531,67 @@ public class Analyzer extends Utility {
         // Actions, parse tree nodes, null literals, and value
         // elements do not consume any input.
         return Boolean.TRUE;
+      }
+    };
+
+  // =======================================================================
+
+  /**
+   * Determine whether the specified element is a not-followed-by
+   * predicate.  Note that this method requires that the production
+   * and module containing the element are currently being processed;
+   * i.e., the corresponding <code>process()</code> invocations must
+   * have been performed.
+   *
+   * @param e The element.
+   * @return <code>true</code> if the specified element is a
+   *   not-followed-by predicate.
+   */
+  public boolean isNotFollowedBy(Element e) {
+    return (Boolean)isNotFollowedByVisitor.dispatch(strip(e));
+  }
+
+  /** The is not-followed-by visitor. */
+  @SuppressWarnings("unused")
+  private final Visitor isNotFollowedByVisitor = new Visitor() {
+      public Boolean visit(FullProduction p) {
+        Object  closure = enter(p);
+        Boolean result  = (Boolean)dispatch(strip(p.choice));
+        exit(closure);
+        return result;
+      }
+
+      public Boolean visit(OrderedChoice c) {
+        for (Sequence alt : c.alternatives) {
+          if (! (Boolean)dispatch(alt)) return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+      }
+
+      public Boolean visit(Sequence s) {
+        for (Element e : s.elements) {
+          if (! (Boolean)dispatch(e)) return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+      }
+
+      public Boolean visit(NonTerminal nt) {
+        FullProduction p;
+        try {
+          p = lookup(nt);
+        } catch (IllegalArgumentException x) {
+          return Boolean.FALSE;
+        }
+
+        return null != p ? (Boolean)dispatch(p) : Boolean.FALSE;
+      }
+
+      public Boolean visit(NotFollowedBy p) {
+        return Boolean.TRUE;
+      }
+    
+      public Boolean visit(Element e) {
+        return Boolean.FALSE;
       }
     };
 
@@ -2795,16 +2990,25 @@ public class Analyzer extends Utility {
     boolean hasNull = false;
 
     for (Element e : l) {
-      if (e instanceof Binding) {
+      switch (e.tag()) {
+      case BINDING:
         if (CodeGenerator.VALUE.equals(((Binding)e).name)) return false;
-
-      } else if (e instanceof Action) {
+        break;
+      case ACTION:
         if (((Action)e).setsValue()) return false;
-
-      } else if (e instanceof NullValue) {
+        break;
+      case NULL_VALUE:
         hasNull = true;
-
-      } else if (e instanceof ValueElement) {
+        break;
+      case ACTION_BASE_VALUE:
+      case BINDING_VALUE:
+      case GENERIC_ACTION_VALUE:
+      case GENERIC_RECURSION_VALUE:
+      case GENERIC_NODE_VALUE:
+      case EMPTY_LIST_VALUE:
+      case PROPER_LIST_VALUE:
+      case STRING_VALUE:
+      case TOKEN_VALUE:
         return false;
       }
     }
@@ -2825,10 +3029,10 @@ public class Analyzer extends Utility {
    *   <code>null</code>.
    */
   public boolean mayBeNull(Element element) {
-    if (element instanceof Option) {
+    switch (element.tag()) {
+    case OPTION:
       return true;
-
-    } else if (element instanceof NonTerminal) {
+    case NONTERMINAL:
       NonTerminal nt = (NonTerminal)element;
       Production  p  = lookup(nt);
       if (p.getBooleanProperty(Properties.OPTION)) return true;

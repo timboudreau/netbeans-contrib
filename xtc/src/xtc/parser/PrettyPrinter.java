@@ -38,7 +38,7 @@ import xtc.type.AST;
  * The grammar pretty printer.
  *
  * @author Robert Grimm
- * @version $Revision: 1.116 $
+ * @version $Revision: 1.117 $
  */
 public class PrettyPrinter extends Visitor {
 
@@ -876,7 +876,7 @@ public class PrettyPrinter extends Visitor {
    */
   protected void print(Action a, boolean caret) {
     if (newline) printer.indent();
-    if (0 == a.code.size()) {
+    if (a.code.isEmpty()) {
       // Nothing to do.
       newline = false;
 

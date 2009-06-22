@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ import xtc.tree.Visitor;
  * {@link #print(Type,String)} methods.
  *
  * @author Robert Grimm
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class SourcePrinter extends Visitor {
 
@@ -52,6 +52,7 @@ public class SourcePrinter extends Visitor {
     LITERALS.add(Constants.ATT_RESTRICT);
     LITERALS.add(Constants.ATT_STRICT_FP);
     LITERALS.add(Constants.ATT_SYNCHRONIZED);
+    LITERALS.add(Constants.ATT_THREAD_LOCAL); // Must be printed separately.
     LITERALS.add(Constants.ATT_TRANSIENT);
     LITERALS.add(Constants.ATT_VOLATILE);
   }
@@ -416,6 +417,11 @@ public class SourcePrinter extends Visitor {
     } else if (Constants.ATT_CONSTANT.equals(att)) {
       space();
       printer.p("const");
+      needsSpace = true;
+
+    } else if (Constants.ATT_THREAD_LOCAL.equals(att)) {
+      space();
+      printer.p("__thread");
       needsSpace = true;
 
     } else if (LITERALS.contains(att)) {

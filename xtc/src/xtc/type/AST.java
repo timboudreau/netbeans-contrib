@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ import xtc.util.Utilities;
  * wildcard has name "?".
  *
  * @author Robert Grimm
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.39 $
  */
 public abstract class AST {
 
@@ -164,10 +164,10 @@ public abstract class AST {
     GENERIC.addAttribute(Constants.ATT_GENERIC);
     FORMATTING    = new InternalT("formatting");
     FORMATTING.addAttribute(Constants.ATT_NODE);
-    LIST          = new ParameterizedT(new Parameter("element"),
+    LIST          = new ParameterizedT(new NamedParameter("element"),
                                        new InternalT("list"));
     WILD_LIST     = new InstantiatedT(Wildcard.TYPE, LIST);
-    ACTION        = new ParameterizedT(new Parameter("element"),
+    ACTION        = new ParameterizedT(new NamedParameter("element"),
                                        new InternalT("action"));
     WILD_ACTION   = new InstantiatedT(Wildcard.TYPE, ACTION);
 
@@ -316,6 +316,8 @@ public abstract class AST {
    *
    * @param s The type as a string.
    * @return The type.
+   * @throws IllegalArgumentException Signals that the string
+   *   representation is not a valid type.
    */
   public Type intern(String s) {
     // Try the map from strings to types.
@@ -360,6 +362,8 @@ public abstract class AST {
    *
    * @param s The user-defined type as a string.
    * @return The type.
+   * @throws IllegalArgumentException Signals that the string
+   *   representation is not a valid type.
    */
   protected abstract Type internUser(String s);
 
@@ -484,7 +488,8 @@ public abstract class AST {
     case VOID:
       return FuzzyBoolean.FALSE;
 
-    case PARAMETER:
+    case NAMED_PARAMETER:
+    case INTERNAL_PARAMETER:
     case WILDCARD:
       return FuzzyBoolean.MAYBE;
 
@@ -699,7 +704,8 @@ public abstract class AST {
     case UNIT:
     case VOID:
     case ERROR:
-    case PARAMETER:
+    case NAMED_PARAMETER:
+    case INTERNAL_PARAMETER:
     case WILDCARD:
       return false;
 
@@ -1684,9 +1690,10 @@ public abstract class AST {
       printer.p("bottom");
       break;
 
-    case PARAMETER:
+    case NAMED_PARAMETER:
+    case INTERNAL_PARAMETER:
     case WILDCARD:
-      printer.p("'").p(type.resolve().toParameter().getName());
+      printer.p("'").p(type.resolve().toString());
       break;
       
     case ERROR:

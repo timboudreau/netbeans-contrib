@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ import xtc.util.Runtime;
  * module.
  *
  * @author Robert Grimm
- * @version $Revision: 1.52 $
+ * @version $Revision: 1.53 $
  */
 public class Inliner extends GrammarVisitor {
 
@@ -157,11 +157,12 @@ public class Inliner extends GrammarVisitor {
     FullProduction p = analyzer.lookup(nt);
 
     if (Generifier.isGeneric(p) || AST.isList(p.type) ||
+        p.hasAttribute(Constants.ATT_EXPLICIT) ||
         (attributeState &&
          (p.hasAttribute(Constants.ATT_STATEFUL) ||
           p.hasAttribute(Constants.ATT_RESETTING)))) {
       // Never inline generic or list-valued productions, nor
-      // productions with the state or reset attribute.
+      // productions with the explicit, state, or reset attribute.
       return nt;
     }
 

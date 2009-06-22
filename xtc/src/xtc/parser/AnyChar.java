@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,15 +24,12 @@ import java.io.IOException;
  * The any character element.
  *
  * @author Robert Grimm
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class AnyChar extends CharTerminal {
 
-  /** The canonical any character element. */
-  public static final AnyChar ANY = new AnyChar();
-
-  /** Hide the constructor. */
-  private AnyChar() { /* Nothing to do. */ }
+  /** Create a new any character element. */
+  public AnyChar() { /* Nothing to do. */ }
 
   public Tag tag() {
     return Tag.ANY_CHAR;
@@ -43,8 +40,7 @@ public class AnyChar extends CharTerminal {
   }
 
   public boolean equals(Object o) {
-    if (ANY == o) return true;
-    return (o instanceof AnyChar);
+    return o instanceof AnyChar;
   }
 
   public void write(Appendable out) throws IOException {

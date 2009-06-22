@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ import java.io.IOException;
  * A type wildcard.
  *
  * @author Robert Grimm
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class Wildcard extends Parameter {
 
@@ -38,7 +38,7 @@ public class Wildcard extends Parameter {
 
   /** Create a new wildcard. */
   public Wildcard() {
-    super("?");
+    super();
   }
 
   /**
@@ -47,7 +47,7 @@ public class Wildcard extends Parameter {
    * @param template The type whose annotations to copy.
    */
   public Wildcard(Type template) {
-    super(template, "?");
+    super(template);
   }
 
   public Wildcard copy() {
@@ -75,10 +75,6 @@ public class Wildcard extends Parameter {
    */
   public void bind(Type type) {
     throw new IllegalStateException("Unable to bind wildcard");
-  }
-
-  public Type lookup() {
-    return this;
   }
 
   public int hashCode() {

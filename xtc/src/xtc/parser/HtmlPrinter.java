@@ -43,7 +43,7 @@ import xtc.type.AST;
  * A grammar pretty printer producing HTML.
  *
  * @author Robert Grimm
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  */
 public class HtmlPrinter extends PrettyPrinter {
 
@@ -97,7 +97,7 @@ public class HtmlPrinter extends PrettyPrinter {
     Comment c = m.documentation;
 
     // Make sure we have something to print.
-    if ((! verbose) || (null == c) || (0 == c.text.size())) {
+    if (! verbose || null == c || c.text.isEmpty()) {
       return;
     }
 

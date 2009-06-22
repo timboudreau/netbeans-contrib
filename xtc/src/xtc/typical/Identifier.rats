@@ -21,7 +21,7 @@
  * Definition of Typical identifiers.
  *
  * @author Laune Harris, Anh Le
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 module xtc.typical.Identifier(Spacing);
 
@@ -40,7 +40,7 @@ body {
          "warning", "when", "with" ,"reduce", "then",
          "to", "true", "false", "sig", "modify", 
          "module", "_", "predicate", "instantiate",
-         "import", "eqattribute", "function", "let",
+         "import", "eqattribute", "function", "fun", "let",
          "at", "begin", "end", "default", "Node"}
      );
   } 

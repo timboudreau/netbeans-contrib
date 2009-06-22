@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
  * Grammar for <i>Rats!</i>' own grammars.
  *
  * @author Robert Grimm
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.30 $
  */ 
 module xtc.parser.PGrammar;
 
@@ -221,7 +221,7 @@ Element Voided =
 // ------------------------------------------------------------- Prefix
 
 Element Prefix =
-   ( "&":Symbol s:Suffix
+     "&":Symbol s:Suffix
       {
         if (s instanceof Action) {
           yyValue = new SemanticPredicate((Action)s);
@@ -235,32 +235,32 @@ Element Prefix =
       { yyValue = new ParserAction((Action)s); }
    / id:Word ":":Symbol s:Suffix
       { yyValue = new Binding(id, s);   }
-   / text:StringLiteral Spacing ":":Symbol s:Suffix
-      { yyValue = new StringMatch(text.substring(1, text.length()-1), s); }
+   / t1:StringLiteral Spacing ":":Symbol s:Suffix
+      { 
+         final String t2 = Utilities.unescape(t1.substring(1, t1.length()-1));
+         yyValue = new StringMatch(t2, s);
+      }
    / Suffix
-   )
    ;
 
 // ------------------------------------------------------------- Suffix
 
 Element Suffix =
-   ( p:Primary "?":Symbol { yyValue = new Option(p);            }
+     p:Primary "?":Symbol { yyValue = new Option(p);            }
    / p:Primary "*":Symbol { yyValue = new Repetition(false, p); }
    / p:Primary "+":Symbol { yyValue = new Repetition(true,  p); }
    / Primary
-   )
    ;
 
 // ------------------------------------------------------------- Primary
 
 Element Primary =
-   ( NullLiteral
+     NullLiteral
    / NonTerminal
    / Terminal
    / NodeMarker
    / Action
    / void:"(":Symbol Choice void:")":Symbol
-   )
    ;
 
 // ------------------------------------------------------------- Null literal
@@ -282,18 +282,17 @@ NonTerminal UnqualifiedNonTerminal =
 // ------------------------------------------------------------- Terminals
 
 Terminal Terminal =
-   ( '_' Spacing 
-      { yyValue = AnyChar.ANY; }
+     '_' Spacing 
+      { yyValue = new AnyChar(); }
    / c:CharacterLiteral Spacing
       { yyValue = new CharLiteral(Utilities.unescape(c).charAt(1)); }
    / '[' l:Range* ']' Spacing
       { yyValue = new CharClass(l.list()); }
    / s1:StringLiteral Spacing
       {
-         String s2 = Utilities.unescape(s1);
-         yyValue   = new StringLiteral(s2.substring(1, s2.length()-1));
+         final String s2 = Utilities.unescape(s1);
+         yyValue = new StringLiteral(s2.substring(1, s2.length()-1));
       }
-   )
    ;
 
 CharRange Range =
@@ -339,16 +338,22 @@ transient String ActionText =
 // ------------------------------------------------------------- Attributes
 
 public Attribute Attribute = 
-     "public":Word     { yyValue = Constants.ATT_PUBLIC;    }
-   / "protected":Word  { yyValue = Constants.ATT_PROTECTED; }
-   / "private":Word    { yyValue = Constants.ATT_PRIVATE;   }
+     "public":Word
+        { yyValue = new Attribute(Constants.NAME_VISIBILITY,
+                                  Constants.VALUE_PUBLIC); }
+   / "protected":Word
+        { yyValue = new Attribute(Constants.NAME_VISIBILITY,
+                                  Constants.VALUE_PROTECTED); }
+   / "private":Word
+        { yyValue = new Attribute(Constants.NAME_VISIBILITY,
+                                  Constants.VALUE_PRIVATE); }
    / name:Word 
      value:( void:"(":Symbol AttributeValue void:")":Symbol )?
         { yyValue = new Attribute(name, value); }
    ;
 
 Object AttributeValue =
-   ( lit:IntegerLiteral Spacing
+     lit:IntegerLiteral Spacing
       {
          try {
             yyValue = Integer.decode(lit);
@@ -358,7 +363,6 @@ Object AttributeValue =
       }
    / Name
    / StringLiteral Spacing
-   )
    ;
 
 // ------------------------------------------------------------- Identifiers

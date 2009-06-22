@@ -230,6 +230,8 @@ public class LineupPrinter extends Printer {
     if (n instanceof LineMarker) {
       final LineMarker m = (LineMarker) n;
       assert n.getLocation().file.equals(m.file) && n.getLocation().line == m.line - 1;
+      if (Constants.FIRST_COLUMN < column)
+        super.pln();
       indent = 0;
       markedFile = m.file;
       markedLine = m.line;

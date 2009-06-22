@@ -33,7 +33,7 @@ import xtc.tree.GNode;
  * Type to Java type mapper.
  * 
  * @author Laune Harris
- * @version $Revision: 1.56 $
+ * @version $Revision: 1.58 $
  */
 public class TypeMapper {
 
@@ -217,7 +217,7 @@ public class TypeMapper {
       
       if (rt.isVariableT()) {
         String str = rt.getTuple().get1();
-        if (inFunctionType && variableNames.containsKey(str)) {
+        if (variableNames.containsKey(str)) {
           return variableNames.get(str);
         } else return "Object";
       }
@@ -355,7 +355,10 @@ public class TypeMapper {
 
       if (rt.isVariableT()) {
         String str = rt.getTuple().get1();
-        if (inFunctionType && variableNames.containsKey(str)) {
+        if (objectToWild) {
+          return makeTypeNode("Object", objectToWild);
+        }
+        if (variableNames.containsKey(str)) {
           return GNode.create("Type",
                    GNode.create("QualifiedIdentifier", variableNames.get(str)),
                    null);
@@ -506,6 +509,100 @@ public class TypeMapper {
 
     throw new AssertionError("unknown type " + o);    
   }
+  
+  /**
+   * Check if a typical type contains type variables.
+   *
+   * @param o The typical type to check.
+   * @return <code> true </code> if this type contains type variables,
+   *    <code> false </code> otherwise 
+   */
+  public boolean hasTypeVariables(Object o) {
+    if (null == o) return false;
+    if (o.equals(nameTupleT)) return false;
+
+    if (isTGType(o)) {
+      // Get the type field
+      TypicalTypes.raw_type<?> rt = unwrapRawType(o);
+     
+      if (null == rt) throw new AssertionError("Null raw type");
+ 
+      if (rt.isVariableT()) {
+        String str = (String)rt.getTuple().get1();
+        if (variableNames.containsKey(str)) return true;
+        return false;        
+      }
+
+      // Check with each kind of field type
+      if (rt.isConstructorT()) {
+        return hasTypeVariables(rt.getTuple().get3());
+      } 
+      
+      if (rt.isVariantT()) {
+        Pair<Object> tl = rt.getTuple().get1();
+        for (Iterator<?> iter = tl.iterator(); iter.hasNext(); ) {
+          if (hasTypeVariables(iter.next())) return true;
+        }
+        return false;
+      }
+
+      if (rt.isFieldT()) {
+        return hasTypeVariables(rt.getTuple().get3());
+      }
+
+      if (rt.isConstructedT()) {
+        // FIXME HERE - Support other constructed types
+        return hasTypeVariables(getBase(rt));
+      }
+
+      if (rt.isRecordT()) {
+        Pair<Object> tl = rt.getTuple().get1();
+        for (Iterator<?> iter = tl.iterator(); iter.hasNext(); ) {
+          if (hasTypeVariables(iter.next())) return true;
+        }
+        return false;        
+      }
+
+      if (rt.isTupleT()) {
+        //Workaround to fix incompatible type bug on Mac OS
+        Object o1 = rt;
+        @SuppressWarnings("unchecked")
+        TypicalTypes.TupleT tt = (TypicalTypes.TupleT)o1; 
+        //End workaround
+
+        @SuppressWarnings("unchecked")
+        Pair<?> tl  = tt.getTuple().get1();
+        for (Iterator<?> iter = tl.iterator(); iter.hasNext(); ) {
+          if (hasTypeVariables(iter.next())) return true;
+        }
+        return false;
+      }
+
+      if (rt.isPairOfType()) {
+        return hasTypeVariables(rt.getTuple().get1()) ||
+               hasTypeVariables(rt.getTuple().get2());        
+      }
+
+      if (rt.isFunctionT()) {
+        Object retType = rt.getTuple().get2();
+        if (hasTypeVariables(retType)) return true;
+        
+        Pair<?> params = cast(rt.getTuple().get1());
+        for (Iterator<?> iter = params.iterator(); iter.hasNext();) {
+          if (hasTypeVariables(iter.next())) return true;          
+        }
+        return false;        
+      }
+      return false;
+
+    } else if (o instanceof PatternMatchType) {
+      PatternMatchType po = (PatternMatchType)o; 
+      return hasTypeVariables(po.left) || hasTypeVariables(po.right);    
+
+    } else { // Not a typical type
+      throw new AssertionError("unknown type " + o);
+    }    
+  }
 
   /**
    * Get type variables from a typical type
@@ -593,7 +690,7 @@ public class TypeMapper {
           for (String mem : varList) if (-1 == res.indexOf(mem)) res.add(mem);
         }
 
-        TypicalTypes.type retType = (TypicalTypes.type)rt.getTuple().get2();
+        Object retType = rt.getTuple().get2();
         varList = getTypeVariables(retType);
         for (String mem : varList) if (-1 == res.indexOf(mem)) res.add(mem);
         return res;        
@@ -612,7 +709,7 @@ public class TypeMapper {
       throw new AssertionError("unknown type " + o);
     }    
   }
-
+  
   /**
    * Preprocess type variables in function type
    * 
@@ -634,41 +731,55 @@ public class TypeMapper {
         List<String> retTypeVariables = getTypeVariables(retType);
         
         // Get all type variables from parameter types
-        List<String> sl = new ArrayList<String>();
+        List<List<String>> sll = new ArrayList<List<String>>();
         for (Iterator<?> iter = params.iterator(); iter.hasNext();) {
           List<String> varList = getTypeVariables(iter.next());
-          for (String mem : varList) if (-1 == sl.indexOf(mem)) sl.add(mem);
+          sll.add(varList);
         }
 
         // If a type variables is in return type, assign a new name and
         //   put in the hash map, otherwise put "Object"
         int res = 0;
         
-        for (String mem : sl) {
-          if (-1 != retTypeVariables.indexOf(mem)) {
-            variableNames.put(mem, "T" + index);
-            index++;
-            res++;  
-          } else {
-            variableNames.put(mem, "Object");
+        for (int li = 0; li < sll.size(); li++) {
+          List<String> sl = sll.get(li);
+          for (String mem : sl) {
+            // Check if this type variabl appears more than once or
+            //   it appears in the return type  
+            if (((sl.indexOf(mem) != sl.lastIndexOf(mem)) || 
+                (-1 != retTypeVariables.indexOf(mem))) &&
+                !variableNames.containsKey(mem)) {
+              variableNames.put(mem, "T" + index);
+              index++;
+              res++;    
+            } else {
+              // Check if this type variable appear in other parameter types
+              for (int ld = 0; ld < sll.size(); ld++) {
+                if (li != ld) {
+                  List<String> strl = sll.get(ld);
+                  if ((-1 != strl.indexOf(mem)) &&
+                      !variableNames.containsKey(mem)) {
+                    variableNames.put(mem, "T" + index);
+                    index++;
+                    res++;      
+                  } 
+                }
+              }
+            }
           }
-        }
-        
+        }        
         if ((null != retType) && isFunctionType(retType)) {
           res = res + processTypeVariables(retType, index);          
         }
-
         return res;
-
       } else {
         throw new AssertionError("function type expected, found " + o);
       }
     } else {
       throw new AssertionError("unknown type " + o);
-    }
-  
+    }  
   }
-  
+
   /**
    * Get the type of the left side of a pattern matching.
    *
@@ -904,6 +1015,26 @@ public class TypeMapper {
       return res;
     } else {
       return getType(toTypeString(rt)); 
+    }       
+  }
+
+  /**
+   * Get the the return type object from a type.
+   *
+   * @param o The type object.
+   * @return The return type object of this type. 
+   */
+  public Object getReturnTypeObject(Object o) {
+    if (null == o) throw new AssertionError("Null type");
+
+    TypicalTypes.raw_type<?> rt = null;
+    if (isTGType(o)) rt =  unwrapRawType(o);
+    else throw new AssertionError("Not a type " + o);
+    
+    if (rt.isFunctionT()) {
+      return rt.getTuple().get2();      
+    } else {
+      return o; 
     }       
   }
 

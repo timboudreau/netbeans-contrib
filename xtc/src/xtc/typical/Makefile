@@ -61,6 +61,7 @@ SOURCE = \
 	TypeCollector.java \
 	FreeVariableCollector.java \
 	FlagSetter.java \
+	LetFolder.java \
 	Transformer.java \
 	Typical.java 
 
@@ -91,7 +92,7 @@ analyzers :
 	$(JAVAC) $(JAVAC_OPTIONS) TypicalSupport.java
 	$(JAVAC) $(JAVAC_OPTIONS) TypicalAnalyzer.java
 	$(TYPICAL) -checkOnly Typical.tpcl # Sanity check
-	
+
 factories :
 	$(FACTORY) TreeFactory.ffj
 	$(JAVAC) $(JAVAC_OPTIONS) TreeFactory.java

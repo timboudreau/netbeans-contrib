@@ -54,6 +54,7 @@ mltype node =
   | LetBindings of node list
   | LetBinding of node * node
   | FunctionExpression of node
+  | FunExpression of node * node
   | MatchExpression of node * node
   | RequireExpression of node list
   | RequireArgs of node * node * node * node opt
@@ -126,7 +127,8 @@ equality raw_type = ConstructorT(_,s,_) | FieldT(_,_,t) | ConstructedT(tl,s) ;
  *****************************************************************************)
 scope
     ValueDefinition(s,a,b) -> Scope(Named(SimpleName(s)),[a,b])
-  | LetExpression(_,a) -> Scope(Anonymous("let"),[a])
+  | LetExpression(_,a)     -> Scope(Anonymous("let"),[a])
+  | FunExpression(a,b)     -> Scope(Anonymous("fun"),[a,b])   
   | PatternMatch(_,_) as a -> Scope(Anonymous("patternmatching"),[a]);
 
 (*****************************************************************************
@@ -420,8 +422,17 @@ mlvalue analyze no = match no with
                       _ = resolveMutual no in lookup no                
               | _ -> bottom
             end         
-        else lookup no                
-                                 
+        else lookup no 
+                       
+  | FunExpression(p,v) -> 
+      let pts = analyze p in
+        begin match pts.type with
+            TupleT([]) -> error "FunEpression must have parameters"
+          | TupleT(tl) -> 
+              let ret = analyze v in
+              let funT = {type = FunctionT(tl,ret)} in resolveType funT
+          | _ -> bottom       
+        end
 
   | Parameters(pl) -> let tl = List.map analyze pl in
       if !(List.exists is_bottom tl) then {type = TupleT(tl)}
@@ -452,7 +463,7 @@ mlvalue analyze no = match no with
                 annotate_list l "no_binding_check" wildt and
           _ = if (has_annotation no "ensure_node") then
                 annotate_list l "ensure_node" wildt and                  
-          typeList = List.map analyze l in  
+          typeList = List.map analyze l in 
         if !(List.exists is_bottom typeList) then                            
           let res = List.foldl unify typeList wildt in
             if (is_not_bottom res) then
@@ -1432,12 +1443,13 @@ mlvalue unify t1 t2 = if (is_bottom t1) || (is_bottom t2) then bottom
     | (VariableT(str, _), _) -> 
         let t = Map.get str in
           if (is_bottom t) then
-            let _ = Map.put str t2 in t2
+            if (containTypeVar t2 str) then bottom
+            else let _ = Map.put str t2 in t2
           else unify t t2
     | (_, VariableT(_, _)) -> unify t2 t1 
 
     | (PairOfType(tl1, tr1),PairOfType(tl2, tr2)) ->
-       let tl = unify tl1 tl2 and 
+       let tl = unify tl1 tl2 and
            tr = unify tr1 tr2 in
          if (is_not_bottom tl) && (is_not_bottom tr) then
            {type = PairOfType(tl, tr)}
@@ -1526,6 +1538,21 @@ mlvalue unify t1 t2 = if (is_bottom t1) || (is_bottom t2) then bottom
                {type = FunctionT(tl, ret)}              
     | _ -> bottom
 ;
+
+mlvalue containTypeVar t s = match t.type with
+    FunctionT(l,ty) -> (containTypeVar ty s) || (containTypeVarList l s) 
+  | TupleT(l) | ConstructedT(l,_) -> containTypeVarList l s
+  | VariableT(str,_) ->
+      if (s = str) then true
+      else let ty = Map.get str in
+        if (is_bottom ty) then false
+        else containTypeVar ty s
+  | PairOfType(t1,t2) -> (containTypeVar t1 s) || (containTypeVar t2 s)
+  | _ -> false;
+  
+mlvalue containTypeVarList l s = match l with
+    [] -> false
+  | x::xs -> (containTypeVar x s) || (containTypeVarList xs s);     
 
 (* Unify 2 list of types, return a list of unified types. *)
 mlvalue unifyTwoList tl1 tl2 = match tl1 with
@@ -1718,7 +1745,7 @@ mlvalue checkMonomorphic n dec =
 (* Analyze list of bindings. *)
 mlvalue analyzeBindings nl enList = match nl with
     [] -> enList
-  | x::xs ->
+  | x::xs -> 
     let en = analyzeBinding x in
       if (is_not_bottom en) then
         if (is_bottom en.entryName) then 
@@ -1906,6 +1933,13 @@ mlvalue getTypeVariables nl resList = match nl with
                if !(List.mem s resList) then
                  getTypeVariables xs (List.append resList [s])
                else error "type variable " ^ s ^ " has been previously defined";
+               
+(* Get parameters from papameter list *)
+mlvalue get_params nl res = match nl with
+    [] -> res
+  | x::xs -> match x with
+                 Parameter(s,_) -> get_params xs (List.append res [s])
+               | _ -> bottom;                  
 
 (* Check if a variable is unused in a list of node. *)
 mlvalue isUsedInList s nl = match nl with
@@ -1939,7 +1973,16 @@ mlvalue isUsedVariable s no = if (is_bottom no) then false
   | LetExpression(n1,n2) ->
       let strList = retrieveVariables no in
         if (List.mem s strList) then false
-        else (isUsedVariable s n1) || (isUsedVariable s n2) 
+        else (isUsedVariable s n1) || (isUsedVariable s n2)
+        
+  | FunExpression(n1,n2) ->
+      begin match n1 with
+          Parameters(pl) -> 
+            let strList = get_params pl [] in
+              if (List.mem s strList) then false
+              else isUsedVariable s n2
+        | _ -> false  
+      end            
 
   | LogicalOrExpression(n1,n2) | LogicalAndExpression(n1,n2) | 
     EqualityExpression(n1,_,n2) | RelationalExpression(n1,_,n2) | 
@@ -2326,7 +2369,7 @@ mlvalue getCall no s li = if (is_bottom no) then li
 
   | LowerID(str) -> let ca = {caller = s, callee = str} in List.union li [ca]
 
-  | PredicateExpression(_,e) | FieldExpression(e,_) | 
+  | PredicateExpression(_,e) | FieldExpression(e,_) | FunExpression(_,e) |
     LogicalNegationExpression(e)| LetBinding(_,e) | FunctionExpression(e) | 
     PatternMatch(_,e) | FieldAssignment(_,e) | ScopeDefinition(e) | 
     NameSpaceStructure(_, _, e) | ReduceExpression(_,_,e) | ErrorClause(_,e,_)
@@ -2620,6 +2663,8 @@ mlvalue preload n = let
   _ = load "getNameSpace" "value" {type = FunctionT([nodet],tup)} and
   _ = load "getScope" "value" {type = FunctionT([nodet],
                                                {type = TypeName("scopeT")})} and
+  _ = load "Limits.void_size" "value" intt and
+  _ = load "Limits.bool_size" "value" intt and
   _ = load "Limits.int_size" "value" intt and
   _ = load "Limits.short_size" "value" intt and
   _ = load "Limits.long_size" "value" intt and
@@ -2628,7 +2673,29 @@ mlvalue preload n = let
   _ = load "Limits.double_size" "value" intt and
   _ = load "Limits.pointer_size" "value" intt and
   _ = load "Limits.long_double_size" "value" intt and
+  _ = load "Limits.function_size" "value" intt and
   _ = load "Limits.array_max" "value" intt and
+  _ = load "Limits.void_align" "value" intt and
+  _ = load "Limits.bool_align" "value" intt and
+  _ = load "Limits.bool_nat_align" "value" intt and
+  _ = load "Limits.short_align" "value" intt and
+  _ = load "Limits.short_nat_align" "value" intt and
+  _ = load "Limits.int_align" "value" intt and
+  _ = load "Limits.int_nat_align" "value" intt and
+  _ = load "Limits.long_align" "value" intt and
+  _ = load "Limits.long_nat_align" "value" intt and
+  _ = load "Limits.long_long_align" "value" intt and
+  _ = load "Limits.long_long_nat_align" "value" intt and
+  _ = load "Limits.float_align" "value" intt and
+  _ = load "Limits.float_nat_align" "value" intt and
+  _ = load "Limits.double_align" "value" intt and
+  _ = load "Limits.double_nat_align" "value" intt and
+  _ = load "Limits.long_double_align" "value" intt and
+  _ = load "Limits.long_double_nat_align" "value" intt and
+  _ = load "Limits.pointer_align" "value" intt and
+  _ = load "Limits.pointer_nat_align" "value" intt and
+  _ = load "Limits.function_align" "value" intt and
+  _ = load "Limits.char_bits" "value" intt and
   _ = load "nonce" "value" intt                                                
   in [n] ;
 
@@ -2666,7 +2733,7 @@ mlvalue resolveNode no = match no with
                             
   | TypeDefinition(n1,_,n2) | ValueDefinition(_,n1,n2) | PatternMatch(n1,n2) |
     WhenPattern(n1,n2) | TypedPattern(n1,n2) | ConsPattern(n1,n2) |
-    FieldPattern(n1,n2) | LogicalOrExpression(n1,n2) | 
+    FieldPattern(n1,n2) | LogicalOrExpression(n1,n2) | FunExpression(n1,n2) | 
     LogicalAndExpression(n1,n2) | EqualityExpression(n1,_,n2) |
     RelationalExpression(n1,_,n2) | AdditiveExpression(n1,_,n2) |
     MultiplicativeExpression(n1,_,n2) | ConsExpression(n1,n2) |
@@ -3450,6 +3517,8 @@ mlvalue allWildCard row = match row with
   | x::xs -> match x.pat with
                  WildCardPattern | VariablePattern _ ->
                    allWildCard xs
+               | TupPattern(pl) ->
+                   (allWildCard pl) && (allWildCard xs)    
                | _ -> false ;
 
 (* Show unmatched patterns in a pretty form. *)

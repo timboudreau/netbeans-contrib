@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -107,7 +107,7 @@ import xtc.util.Utilities;
  * </ul>
  *
  * @author Robert Grimm
- * @version $Revision: 1.290 $
+ * @version $Revision: 1.293 $
  */
 public class CodeGenerator extends Visitor {
 
@@ -233,9 +233,6 @@ public class CodeGenerator extends Visitor {
   /** The flag for performing case-insensitive comparisons. */
   protected boolean attributeIgnoringCase;
 
-  /** The flag for not generating matching errors. */
-  protected boolean attributeNoMatchingErrors;
-
   /** The flag for using a global state object. */
   protected boolean attributeStateful;
 
@@ -302,14 +299,20 @@ public class CodeGenerator extends Visitor {
   /** The nesting level for nested choices. */
   protected int choiceLevel;
 
-  /** The nesting level for repetitions. */
-  protected int repetitionLevel;
+  /** The flag for repetitions. */
+  protected boolean repeated;
 
-  /** The saved repetition level (for predicates). */
-  protected int savedRepetitionLevel;
+  /** The saved repetition flag for predicates. */
+  protected boolean savedRepeated;
 
   /** The flag for at-least-once repetitions. */
-  protected boolean repeatOnce;
+  protected boolean repeatedOnce;
+
+  /** The saved at-least-once flag for predicates. */
+  protected boolean savedRepeatedOnce;
+
+  /** The nesting level for repetitions. */
+  protected int repetitionLevel;
 
   /**
    * The name of the variable referencing the element value for bound
@@ -321,11 +324,14 @@ public class CodeGenerator extends Visitor {
   /** The types of bound repetitions, i.e. {@link MetaData#boundRepetitions}. */
   protected List<Type> repetitionTypes;
 
+  /** The flag for options. */
+  protected boolean optional;
+
+  /** The saved option flag for predicates. */
+  protected boolean savedOptional;
+
   /** The nesting level for options. */
   protected int optionLevel;
-
-  /** The saved option level (for predicates). */
-  protected int savedOptionLevel;
 
   /**
    * The name of the variable referencing the element value for bound
@@ -1559,37 +1565,9 @@ public class CodeGenerator extends Visitor {
           p(" = new Chunk").p(chunk).pln("();");
       }
 
-      if (p.getBooleanProperty(Properties.RECURSIVE)) {
-        // The code emitted by this block is adapted from an idea
-        // presented by Jeremy Brustle on the PEG mailing list,
-        // https://lists.csail.mit.edu/pipermail/peg/2007-September/000147.html.
-
-        printer.indent().p("if (").p(nullExpr()).p(" == ").p(field).pln(") {").
-          incr();
-        printer.indent().pln("Result current = ParseError.DUMMY;");
-        printer.indent().pln("Result previous;");
-        printer.indent().pln("do {").incr();
-        printer.indent().p(field).pln(" = current;");
-
-        printer.pln();
-        printer.indent().pln("previous = current;");
-        printer.indent().p("current  = ").p(method).p("$1(").p(ARG_INDEX).
-          pln(");");
-        printer.decr().indent().p("} while (current.hasValue() && ").buffer().
-          p("current.index > previous.index);").fit("         ").pln();
-
-        printer.pln();
-        printer.indent().p("if (ParseError.DUMMY == previous && ").buffer().
-          p("current.index > previous.index) {").fit("    ").pln().incr();
-        printer.indent().p(field).pln(" = current;");
-        printer.decr().indent().pln('}');
-        printer.decr().indent().pln('}');
-
-      } else {
-        printer.indent().p("if (").p(nullExpr()).p(" == ").p(field).p(") ").
-          buffer().p(field).p(" = ").p(method).p("$1(").p(ARG_INDEX).p(");").
-          fitMore().pln();
-      }
+      printer.indent().p("if (").p(nullExpr()).p(" == ").p(field).p(") ").
+        buffer().p(field).p(" = ").p(method).p("$1(").p(ARG_INDEX).p(");").
+        fitMore().pln();
 
       if (attributeProfile) {
         printer.indent().p(fieldName(p.name, PREFIX_COUNT_FIELD)).pln("++;");
@@ -1622,7 +1600,8 @@ public class CodeGenerator extends Visitor {
     // in a type name.  Second, print the individual declarations.
     String ptype = extern(p.type);
     if (attributeRawTypes) ptype = rawT(ptype);
-    int    w     = Math.max("ParseError".length(), ptype.length());
+
+    int w = Math.max("ParseError".length(), ptype.length());
 
     if (! attributeRawTypes) {
       for (Type t : repetitionTypes) {
@@ -1719,22 +1698,24 @@ public class CodeGenerator extends Visitor {
     }
 
     // Emit code for production element.
-    indexName            = INDEX;
-    resultName           = RESULT;
-    baseIndex            = ARG_INDEX;
-    useBaseIndex         = true;
-    indentLevel          = 0;
-    choiceLevel          = -1;
-    repetitionLevel      = 0;
-    savedRepetitionLevel = 0;
-    repeatOnce           = false;
-    repeatedElement      = null;
-    optionLevel          = 0;
-    savedOptionLevel     = 0;
-    optionalElement      = null;
-    createsNodeValue     = false;
-    seenTest             = false;
-    endsWithParseError   = false;
+    indexName          = INDEX;
+    resultName         = RESULT;
+    baseIndex          = ARG_INDEX;
+    useBaseIndex       = true;
+    indentLevel        = 0;
+    choiceLevel        = -1;
+    repeated           = false;
+    repeatedOnce       = false;
+    repeatedElement    = null;
+    savedRepeated      = false;
+    savedRepeatedOnce  = false;
+    optional           = false;
+    optionLevel        = 0;
+    optionalElement    = null;
+    savedOptional      = false;
+    createsNodeValue   = false;
+    seenTest           = false;
+    endsWithParseError = false;
     dispatch(p.choice);
 
     if (seenTest) {
@@ -1745,16 +1726,21 @@ public class CodeGenerator extends Visitor {
       }
       printer.pln();
       printer.indent().pln("// Done.");
-      if (endsWithParseError &&
-          (! ((! p.isMemoized()) &&
-              runtime.test("optimizeErrors2")))) {
-        parseError();
-      }
       if (attributeVerbose) {
         printer.indent().p("traceFailure(\"").p(p.name.toIdentifier()).
           p("\", ").p(ARG_INDEX).pln(");");
       }
-      printer.indent().p("return ").p(PARSE_ERROR).pln(';');
+      if (p.hasAttribute(Constants.ATT_EXPLICIT)) {
+        printer.indent().p("return new ParseError(\"").
+          p(Utilities.split(p.name.unqualify().name, ' ')).p(" expected\", ").
+          p(ARG_INDEX).pln(");");
+      } else {
+        if (endsWithParseError &&
+            (p.isMemoized() || ! runtime.test("optimizeErrors2"))) {
+          parseError();
+        }
+        printer.indent().p("return ").p(PARSE_ERROR).pln(';');
+      }
     }
     printer.decr().indent().pln('}');
     printer.pln();
@@ -1767,10 +1753,13 @@ public class CodeGenerator extends Visitor {
    * parse error, and for testing the result.
    *
    * @param methodName The name of the parser method to use.
-   * @param saveIndex Flag for whether to save the index in the base
-   *   index variable.
+   * @param saveIndex The flag for whether to save the index in the
+   *   base index variable.
+   * @param threadError The flag for whether to thread the parse
+   *   error.
    */
-  protected void result(String methodName, boolean saveIndex) {
+  protected void result(String methodName,
+                        boolean saveIndex, boolean threadError) {
     printer.pln();
 
     // Clear the first element flag.
@@ -1784,7 +1773,7 @@ public class CodeGenerator extends Visitor {
     if (saveIndex) {
       align = Math.max(align, BASE_INDEX.length());
     }
-    if ((! notFollowedBy()) && (! PARSE_CHAR.equals(methodName))) {
+    if (! notFollowedBy() && ! PARSE_CHAR.equals(methodName)) {
       align = Math.max(align, PARSE_ERROR.length());
     }
     align += (printer.level() * Constants.INDENTATION) + 1 + 
@@ -1808,16 +1797,7 @@ public class CodeGenerator extends Visitor {
       }
 
       // Thread parse error.
-      if ((! notFollowedBy()) && (! PARSE_CHAR.equals(methodName))) {
-        if (runtime.test("optimizeSelect")) {
-          printer.indent().p(PARSE_ERROR).align(align).p("= ").buffer().
-            p(resultName).p(".select(").p(PARSE_ERROR).p(");").fitMore().pln();
-        } else {
-          printer.indent().p(PARSE_ERROR).align(align).p("= ").buffer().
-            p(PARSE_ERROR).p(".select(").p(resultName).p(".parseError());").
-            fitMore().pln();
-        }
-      }
+      if (threadError) threadParseError(align);
 
       useBaseIndex = false;
 
@@ -1839,17 +1819,24 @@ public class CodeGenerator extends Visitor {
       }
 
       // Thread parse error.
-      if ((! notFollowedBy()) && (! PARSE_CHAR.equals(methodName))) {
-        if (runtime.test("optimizeSelect")) {
-          printer.indent().p(PARSE_ERROR).align(align).p("= ").buffer().
-            p(resultName).p(".select(").p(PARSE_ERROR).p(");").fitMore().pln();
-        } else {
-          printer.indent().p(PARSE_ERROR).align(align).p("= ").buffer().
-            p(PARSE_ERROR).p(".select(").p(resultName).p(".parseError());").
-            fitMore().pln();
-        }
-      }
+      if (threadError) threadParseError(align);
     }
+  }
+
+  /** 
+   * Emit code for threading parse error.
+   *
+   * @param align The alignment for the assignment operator.
+   */
+  protected void threadParseError(int align) {
+    printer.indent().p(PARSE_ERROR).align(align).p("= ").buffer().
+      p(resultName).p(".select(").p(PARSE_ERROR);
+    if (optional) {
+      printer.p(", ").p(OPTION).p(optionLevel);
+    } else if (repeated && ! repeatedOnce) {
+      printer.p(", ").p(REPETITION).p(repetitionLevel);
+    }
+    printer.p(");").fitMore().pln();
   }
 
   /** Emit the code testing whether the result has a value. */
@@ -1922,11 +1909,9 @@ public class CodeGenerator extends Visitor {
     // the current element for character terminals and the last
     // character for string terminals.
 
-    if ((predicate && (predicateIter.hasNext() ||
-                       (! isLastChar) ||
-                       (savedRepetitionLevel < repetitionLevel) ||
-                       (savedOptionLevel < optionLevel))) ||
-        (! predicate)) {
+    if (! predicate ||
+        (predicate && 
+         (predicateIter.hasNext() || ! isLastChar || repeated || optional))) {
       printer.indent().p(indexName).p(" = ").p(oldIndex).pln(" + 1;");
       useBaseIndex = true;
       baseIndex    = indexName;
@@ -1975,13 +1960,13 @@ public class CodeGenerator extends Visitor {
         dispatch(predicateIter.next());
         return;
 
-      } else if (savedRepetitionLevel < repetitionLevel) {
+      } else if (repeated) {
         // Assign the repetition parser variable and, if necessary,
         // the repeated flag; then continue with the loop.
         printer.pln();
         saveIndex(REPETITION + repetitionLevel, "", baseIndex);
 
-        if (repeatOnce) {
+        if (repeatedOnce) {
           printer.indent().p(REPEATED).p(repetitionLevel).pln("   = true;");
         }
         if (null != repeatedElement) {
@@ -1999,7 +1984,7 @@ public class CodeGenerator extends Visitor {
         printer.indent().pln("continue;");
         return;
 
-      } else if (savedOptionLevel < optionLevel) {
+      } else if (optional) {
         printer.pln();
         saveIndex(OPTION + optionLevel, " ", baseIndex);
 
@@ -2021,6 +2006,9 @@ public class CodeGenerator extends Visitor {
         // Restore regular element processing and fall through for
         // followed-by predicates.
         predicate     = false;
+        optional      = savedOptional;
+        repeated      = savedRepeated;
+        repeatedOnce  = savedRepeatedOnce;
         firstElement  = savedFirstElement;
         baseIndex     = savedBaseIndex;
         useBaseIndex  = savedUseBaseIndex;
@@ -2033,11 +2021,11 @@ public class CodeGenerator extends Visitor {
     if (elementIter.hasNext()) {
       dispatch(elementIter.next());
 
-    } else if (0 < repetitionLevel) {
+    } else if (repeated) {
       printer.pln();
       saveIndex(REPETITION + repetitionLevel, "", baseIndex);
 
-      if (repeatOnce) {
+      if (repeatedOnce) {
         printer.indent().p(REPEATED).p(repetitionLevel).pln("   = true;");
       }
       if (null != repeatedElement) {
@@ -2054,7 +2042,7 @@ public class CodeGenerator extends Visitor {
 
       printer.indent().pln("continue;");
 
-    } else if (0 < optionLevel) {
+    } else if (optional) {
       printer.pln();
       saveIndex(OPTION + optionLevel, " ", baseIndex);
 
@@ -2133,7 +2121,8 @@ public class CodeGenerator extends Visitor {
   }
 
   /**
-   * Emit the code for generating a parse error.
+   * Emit the code for generating a parse error based on the
+   * production's name.
    */
   protected void parseError() {
     printer.indent().p(PARSE_ERROR).p(" = ").p(PARSE_ERROR).p(".select(\"").
@@ -2142,16 +2131,14 @@ public class CodeGenerator extends Visitor {
   }
 
   /**
-   * Emit the code for generating a parse error.
+   * Emit the code for generating a parse error based on a fixed text.
    *
    * @param text The expected text.
    */
   protected void parseError(String text) {
-    printer.indent().p(PARSE_ERROR).p(" = ").p(PARSE_ERROR).
-      p(".select(\"\\\"").
-      p(Utilities.escape(text,
-                         Utilities.JAVA_ESCAPES | Utilities.ESCAPE_DOUBLE)).
-      p("\\\" expected\", ").p(BASE_INDEX).pln(");");
+    printer.indent().p(PARSE_ERROR).p(" = ").p(PARSE_ERROR).p(".select(\"'").
+      escape(text, Utilities.JAVA_ESCAPES | Utilities.ESCAPE_DOUBLE).
+      p("' expected\", ").p(BASE_INDEX).pln(");");
   }
 
   // ========================================================================
@@ -2244,8 +2231,7 @@ public class CodeGenerator extends Visitor {
     firstElement        = false;
     String   base       = baseIndex; 
     boolean  used       = useBaseIndex;
-    boolean  once       = repeatOnce;
-    repeatOnce          = r.once;
+
     String   repel      = repeatedElement;
     if (hasBinding()) {
       // Per class documentation, the repeated element must be a
@@ -2265,6 +2251,13 @@ public class CodeGenerator extends Visitor {
     bindingElement      = null;
     Type type           = bindingType;
     bindingType         = null;
+
+    boolean rep         = repeated;
+    repeated            = true;
+    boolean once        = repeatedOnce;
+    repeatedOnce        = r.once;
+    boolean opt         = optional;
+    optional            = false;
     repetitionLevel++;
 
     // Save current parser.
@@ -2272,7 +2265,7 @@ public class CodeGenerator extends Visitor {
     saveIndex(REPETITION + repetitionLevel, "", base);
 
     // Reset repeated flag if necessary.
-    if (repeatOnce) {
+    if (repeatedOnce) {
       printer.indent().p(REPEATED).p(repetitionLevel).pln("   = false;");
     }
 
@@ -2308,14 +2301,16 @@ public class CodeGenerator extends Visitor {
     }
 
     // Emit code for the rest of the current sequence.
-    if (repeatOnce) {
+    if (repeatedOnce) {
       printer.pln();
       printer.indent().p("if (").p(REPEATED).p(repetitionLevel).pln(") {").
         incr();
     }
     repetitionLevel--;
-    repeatOnce         = once;
+    repeated           = rep;
+    repeatedOnce       = once;
     repeatedElement    = repel;
+    optional           = opt;
 
     bindingName        = name;
     bindingElement     = bound;
@@ -2358,6 +2353,7 @@ public class CodeGenerator extends Visitor {
     firstElement        = false;
     String  base        = baseIndex;
     boolean used        = useBaseIndex;
+
     String  optel       = optionalElement;
     if (hasBinding()) {
       // Per class documentation, the optional element must be a
@@ -2377,6 +2373,11 @@ public class CodeGenerator extends Visitor {
     bindingElement      = null;
     Type type           = bindingType;
     bindingType         = null;
+
+    boolean opt         = optional;
+    optional            = true;
+    boolean rep         = repeated;
+    repeated            = false;
     optionLevel++;
 
     // Save current parser.
@@ -2398,9 +2399,6 @@ public class CodeGenerator extends Visitor {
       iter          = elementIter;
       elementIter   = ((Sequence)o.element).elements.iterator();
     }
-    int rlevel      = repetitionLevel;
-    repetitionLevel = 0;
-
 
     // Emit code for the optional elements.
     baseIndex    = OPTION + optionLevel;
@@ -2413,11 +2411,12 @@ public class CodeGenerator extends Visitor {
     } else {
       elementIter   = iter;
     }
-    repetitionLevel = rlevel;
 
     // Emit code for the rest of the current sequence.
     optionLevel--;
+    optional           = opt;
     optionalElement    = optel;
+    repeated           = rep;
 
     bindingName        = name;
     bindingElement     = bound;
@@ -2451,22 +2450,26 @@ public class CodeGenerator extends Visitor {
     assert ! predicate;
     assert p.element instanceof Sequence;
 
-    predicate            = true;
-    notFollowedBy        = false;
-    savedFirstElement    = firstElement;
-    savedBaseIndex       = baseIndex;
+    predicate         = true;
+    notFollowedBy     = false;
+    savedOptional     = optional;
+    optional          = false;
+    savedRepeated     = repeated;
+    repeated          = false;
+    savedRepeatedOnce = repeatedOnce;
+    repeatedOnce      = false;
+    savedFirstElement = firstElement;
+    savedBaseIndex    = baseIndex;
     if (! useBaseIndex) {
       // Only set a new base index if the base index is not used for
       // the next element.
-      baseIndex          = RESULT + ".index";
+      baseIndex       = RESULT + ".index";
     }
-    savedUseBaseIndex    = useBaseIndex;
-    savedRepetitionLevel = repetitionLevel;
-    savedOptionLevel     = optionLevel;
-    useBaseIndex         = true;
-    indexName            = PRED_INDEX;
-    resultName           = PRED_RESULT;
-    predicateIter        = ((Sequence)p.element).elements.iterator();
+    savedUseBaseIndex = useBaseIndex;
+    useBaseIndex      = true;
+    indexName         = PRED_INDEX;
+    resultName        = PRED_RESULT;
+    predicateIter     = ((Sequence)p.element).elements.iterator();
 
     // Emit code for the followed-by predicate and the rest of the
     // rule sequence.
@@ -2492,22 +2495,26 @@ public class CodeGenerator extends Visitor {
     assert ! predicate;
     assert p.element instanceof Sequence;
 
-    predicate            = true;
-    notFollowedBy        = true;
-    savedFirstElement    = firstElement;
-    savedBaseIndex       = baseIndex;
+    predicate         = true;
+    notFollowedBy     = true;
+    savedOptional     = optional;
+    optional          = false;
+    savedRepeated     = repeated;
+    repeated          = false;
+    savedRepeatedOnce = repeatedOnce;
+    repeatedOnce      = false;
+    savedFirstElement = firstElement;
+    savedBaseIndex    = baseIndex;
     if (! useBaseIndex) {
       // Only set a new base index if the base index is not used for
       // the next element.
-      baseIndex          = RESULT + ".index";
+      baseIndex       = RESULT + ".index";
     }
-    savedUseBaseIndex    = useBaseIndex;
-    useBaseIndex         = true;
-    savedRepetitionLevel = repetitionLevel;
-    savedOptionLevel     = optionLevel;
-    indexName            = PRED_INDEX;
-    resultName           = PRED_RESULT;
-    predicateIter        = ((Sequence)p.element).elements.iterator();
+    savedUseBaseIndex = useBaseIndex;
+    useBaseIndex      = true;
+    indexName         = PRED_INDEX;
+    resultName        = PRED_RESULT;
+    predicateIter     = ((Sequence)p.element).elements.iterator();
 
     // Emit code for the not-followed-by predicate.
     printer.pln();
@@ -2517,6 +2524,9 @@ public class CodeGenerator extends Visitor {
 
     // Restore regular element processing.
     predicate     = false;
+    optional      = savedOptional;
+    repeated      = savedRepeated;
+    repeatedOnce  = savedRepeatedOnce;
     firstElement  = savedFirstElement;
     baseIndex     = savedBaseIndex;
     useBaseIndex  = savedUseBaseIndex;
@@ -2729,8 +2739,8 @@ public class CodeGenerator extends Visitor {
     NonTerminal nt = (NonTerminal)m.element;
 
     result(methodName(nt),
-           (! notFollowedBy()) && ((! runtime.test("optimizeErrors1")) ||
-                                   (! first)));
+           ! notFollowedBy() && (! runtime.test("optimizeErrors1") || ! first),
+           false);
     stringValueTest(m.text, attributeIgnoringCase);
 
     if (hasBinding()) {
@@ -2758,7 +2768,7 @@ public class CodeGenerator extends Visitor {
 
   /** Generate code for the specified nonterminal. */
   public void visit(NonTerminal nt) {
-    result(methodName(nt), false);
+    result(methodName(nt), false, ! notFollowedBy());
     valueTest();
 
     if (hasBinding()) {
@@ -2770,8 +2780,8 @@ public class CodeGenerator extends Visitor {
 
     // If the referenced production is transient and does not generate
     // parse errors, we might need to generate one in this production.
-    if ((! notFollowedBy()) &&
-        (! analyzer.lookup(nt).isMemoized()) &&
+    if (! notFollowedBy() &&
+        ! analyzer.lookup(nt).isMemoized() &&
         runtime.test("optimizeErrors2")) {
       endsWithParseError = true;
     }
@@ -2785,7 +2795,7 @@ public class CodeGenerator extends Visitor {
   /** Generate code for the any character element. */
   public void visit(AnyChar a) {
     String oldIndex = useBaseIndex? baseIndex : resultName + ".index";
-    result(PARSE_CHAR, false);
+    result(PARSE_CHAR, false, false);
     charValueTest();
     index(oldIndex, true);
 
@@ -2810,7 +2820,7 @@ public class CodeGenerator extends Visitor {
   /** Generate code for the specified character literal. */
   public void visit(CharLiteral l) {
     String oldIndex = useBaseIndex? baseIndex : resultName + ".index";
-    result(PARSE_CHAR, false);
+    result(PARSE_CHAR, false, false);
     printer.indent().p("if (\'").escape(l.c, Utilities.JAVA_ESCAPES).
       p("\' == ").p(CHAR).pln(") {").incr();
     index(oldIndex, true);
@@ -2836,7 +2846,7 @@ public class CodeGenerator extends Visitor {
   /** Generate code for the specified character class. */
   public void visit(CharClass c) {
     String oldIndex = useBaseIndex? baseIndex : resultName + ".index";
-    result(PARSE_CHAR, false);
+    result(PARSE_CHAR, false, false);
     charValueTest();
     index(oldIndex, true);
 
@@ -2923,8 +2933,9 @@ public class CodeGenerator extends Visitor {
 
       String oldIndex = useBaseIndex? baseIndex : resultName + ".index";
       result(PARSE_CHAR,
-             ((0 == i) && (! notFollowedBy()) &&
-              ((! runtime.test("optimizeErrors1")) || (! first))));
+             0 == i && ! notFollowedBy() &&
+             (! runtime.test("optimizeErrors1") || ! first),
+             false);
       printer.indent().p("if (\'").escape(c, Utilities.JAVA_ESCAPES).
         p("\' == ").p(CHAR).pln(") {").incr();
       index(oldIndex, i == length-1);
@@ -2958,7 +2969,7 @@ public class CodeGenerator extends Visitor {
   /** Generate code for the specified character switch. */
   public void visit(CharSwitch s) {
     String oldIndex = useBaseIndex? baseIndex : resultName + ".index";
-    result(PARSE_CHAR, false);
+    result(PARSE_CHAR, false, false);
     charValueTest();
     index(oldIndex, true);
     printer.pln();
@@ -3007,7 +3018,7 @@ public class CodeGenerator extends Visitor {
         }
         
         printer.decr().indent().pln('}');
-        if (seenTest) {
+        if (seenTest || optional) {
           printer.indent().pln("break;");
         }
       }
@@ -3108,15 +3119,7 @@ public class CodeGenerator extends Visitor {
     printer.pln();
 
     // Thread parse error.
-    if (! notFollowedBy()) {
-      if (runtime.test("optimizeSelect")) {
-        printer.indent().p(PARSE_ERROR).p(" = ").buffer().p(resultName).
-          p(".select(").p(PARSE_ERROR).p(");").fitMore().pln();
-      } else {
-        printer.indent().p(PARSE_ERROR).p(" = ").buffer().p(PARSE_ERROR).
-          p(".select(").p(resultName).p(".parseError());").fitMore().pln();
-      }
-    }
+    if (! notFollowedBy()) threadParseError(0);
 
     // Test for value.
     valueTest();

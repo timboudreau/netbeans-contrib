@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ import xtc.type.AST;
  * single module.
  *
  * @author Robert Grimm
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.36 $
  */
 public class ChoiceExpander extends GrammarVisitor {
 
@@ -177,13 +177,14 @@ public class ChoiceExpander extends GrammarVisitor {
           MetaData   md = (MetaData)p.getProperty(Properties.META_DATA);
 
           // If a void, text-only, or token-level production is
-          // transient/inline, does not reference itself, and does not
-          // have the state or reset attribute, inline a copy of it.
-          // If the production is neither void, text-only, nor
-          // token-level, it must have the inline attribute and the
-          // choices2 optimization must be enabled.
+          // transient/inline, is not explicit, does not reference
+          // itself, and does not have the state or reset attribute,
+          // inline a copy of it.  If the production is neither void,
+          // text-only, nor token-level, it must have the inline
+          // attribute and the choices2 optimization must be enabled.
           if ((((! p.isMemoized()) &&
                 (! p.hasAttribute(Constants.ATT_NO_INLINE)) &&
+                (! p.hasAttribute(Constants.ATT_EXPLICIT)) &&
                 (AST.isVoid(p.type) ||
                  p.getBooleanProperty(Properties.TEXT_ONLY) ||
                  p.getBooleanProperty(Properties.TOKEN))) ||
@@ -194,6 +195,14 @@ public class ChoiceExpander extends GrammarVisitor {
                   (p.hasAttribute(Constants.ATT_STATEFUL) ||
                    p.hasAttribute(Constants.ATT_RESETTING))))) {
             OrderedChoice choice = analyzer.copy(p.choice);
+
+            // If the choice about to be inlined has only one
+            // alternative (i.e., one alternative replaces another),
+            // then we remember the source location of the original
+            // alternative.
+            if (1 == choice.alternatives.size()) {
+              choice.alternatives.get(0).setLocation(alternative);
+            }
 
             // Fix any value elements for the larger expression about
             // to be inlined.

@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ package xtc.parser;
  * The superclass of all parser results.
  *
  * @author Robert Grimm
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public abstract class Result {
 
@@ -95,6 +95,19 @@ public abstract class Result {
    * @return The more specific parse error.
    */
   public abstract ParseError select(ParseError error);
+
+  /**
+   * Select the more specific parse error.  This method comparse this
+   * result (i.e., either the parse error or embedded parse error)
+   * with specified error and index.  If this result represents an
+   * error beyond the specified error and index, it returns this
+   * result's error.  Otherwise, it returns the specified parse error.
+   *
+   * @param error The error.
+   * @param index The index.
+   * @return The more specific parse error.
+   */
+  public abstract ParseError select(ParseError error, int index);
 
   /**
    * Create a semantic value based on this result.  A straight-forward

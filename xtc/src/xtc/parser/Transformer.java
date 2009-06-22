@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2007 Robert Grimm
+ * Copyright (C) 2004-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -57,7 +57,7 @@ import xtc.util.Runtime;
  * <p />This visitor may report errors to the user.
  *
  * @author Robert Grimm
- * @version $Revision: 1.124 $
+ * @version $Revision: 1.127 $
  */
 public class Transformer extends Visitor {
 
@@ -152,7 +152,7 @@ public class Transformer extends Visitor {
             s.add(new TokenValue(text));
           }
 
-        } else if (0 == elements.size()) {
+        } else if (elements.isEmpty()) {
           s.add(NullValue.VALUE);
 
         } else {
@@ -331,7 +331,10 @@ public class Transformer extends Visitor {
                            p.qName + ']');
       }
 
-      // Do not inherit any stateful or resetting attribute.
+      // Do not inherit any public, explicit, stateful, or resetting
+      // attribute.
+      p.attributes.remove(Constants.ATT_PUBLIC);
+      p.attributes.remove(Constants.ATT_EXPLICIT);
       p.attributes.remove(Constants.ATT_STATEFUL);
       p.attributes.remove(Constants.ATT_RESETTING);
       if (isTextOnly()) {
