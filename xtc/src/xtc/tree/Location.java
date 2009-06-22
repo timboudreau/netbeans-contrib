@@ -37,17 +37,27 @@ public class Location implements Comparable {
   /** The column. */
   public final int column;
 
+  /** The offset. */
+  public final int offset;
+
+  /** The end offset. */
+  public final int endOffset;
+
   /**
    * Create a new location.
    *
    * @param file The file name.
    * @param line The line number.
    * @param column The column.
+   * @param offset The offset.
+   * @param endOffset The end offset.
    */
-  public Location(String file, int line, int column) {
+  public Location(String file, int line, int column, int offset, int endOffset) {
     this.file   = file;
     this.line   = line;
     this.column = column;
+    this.offset    = offset;
+    this.endOffset = endOffset;
   }
 
   public int hashCode() {

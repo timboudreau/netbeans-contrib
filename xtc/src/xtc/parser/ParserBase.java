@@ -411,7 +411,7 @@ public abstract class ParserBase {
   public final Location location(final int index) {
     final Column c = column(index);
 
-    return new Location(c.file, c.line, c.column);
+    return new Location(c.file, c.line, c.column, index, yyCount - 1);
   }
 
   /**
@@ -500,7 +500,7 @@ public abstract class ParserBase {
   public final void setLocation(final Locatable locatable, final int index) {
     if ((null != locatable) && (! locatable.hasLocation())) {
       Column c = column(index);
-      locatable.setLocation(new Location(c.file, c.line, c.column));
+      locatable.setLocation(new Location(c.file, c.line, c.column, index, yyCount - 1));
     }
   }
 
