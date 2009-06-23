@@ -26,7 +26,7 @@ import java.math.BigInteger;
  * Representation of an index reference.
  *
  * @author Robert Grimm
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IndexReference extends RelativeReference {
 
@@ -72,14 +72,11 @@ public class IndexReference extends RelativeReference {
     return base.hasLocation();
   }
 
-  public BigInteger getLocation() {
-    if (base.isNull()) {
-      return index;
-    } else if (base.hasLocation()) {
-      return base.getLocation().add(index);
-    } else {
-      return super.getLocation();
-    }
+  public BigInteger getLocation(C ops) {
+    if (! base.hasLocation()) throw new IllegalStateException();
+
+    return base.getLocation(ops).
+      add(index.multiply(BigInteger.valueOf(ops.getSize(type))));
   }
 
   public Reference add(BigInteger val) {

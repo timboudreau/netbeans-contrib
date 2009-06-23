@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ import xtc.util.Runtime;
  * Visitor to ensure that every alternative is reachable.
  *
  * @author Robert Grimm
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class ReachabilityChecker extends Visitor {
 
@@ -84,7 +84,7 @@ public class ReachabilityChecker extends Visitor {
     final int size = c.alternatives.size();
     for (int i=0; i<size; i++) {
       Sequence s = c.alternatives.get(i);
-      if (analyzer.matchesEmpty(s) && (i < size-1)) {
+      if (! analyzer.restrictsInput(s) && (i < size-1)) {
         runtime.error("unreachable alternative", c.alternatives.get(i+1));
         break;
       } else {
@@ -101,6 +101,14 @@ public class ReachabilityChecker extends Visitor {
   /** Visit the specified unary operator. */
   public void visit(UnaryOperator op) {
     dispatch(op.element);
+  }
+
+  /** Visit the specified character switch. */
+  public void visit(CharSwitch s) {
+    for (CharCase kase : s.cases) {
+      dispatch(kase.element);
+    }
+    dispatch(s.base);
   }
 
   /** Visit the specified element. */

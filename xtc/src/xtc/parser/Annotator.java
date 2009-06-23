@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ import xtc.util.Runtime;
  * @see Analyzer#consumesInput(Element)
  *
  * @author Robert Grimm
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.33 $
  */
 public class Annotator extends Visitor {
 
@@ -396,7 +396,10 @@ public class Annotator extends Visitor {
                                AST.GENERIC, nt,
                                nt.qualify(analyzer.module().name.name),
                                new OrderedChoice(alt));
-          // Do not inherit any stateful or restting attribute.
+          // Do not inherit any public, explicit, stateful, or
+          // restting attribute.
+          q.attributes.remove(Constants.ATT_PUBLIC);
+          q.attributes.remove(Constants.ATT_EXPLICIT);
           q.attributes.remove(Constants.ATT_STATEFUL);
           q.attributes.remove(Constants.ATT_RESETTING);
           // But do ensure that the new production is transient.
@@ -1070,7 +1073,7 @@ public class Annotator extends Visitor {
       // do not consume any input.
       if (p.getBooleanProperty(Properties.LEXICAL) ||
           (AST.isVoid(p.type) &&
-           (! p.getBooleanProperty(Properties.INPUT)))) {
+           (! p.getBooleanProperty(Properties.CONSUMER)))) {
         continue;
       }
 
@@ -1116,7 +1119,7 @@ public class Annotator extends Visitor {
       if ((! p.getBooleanProperty(Properties.TOKEN)) &&
           (p.getBooleanProperty(Properties.LEXICAL) ||
            (AST.isVoid(p.type) &&
-            (! p.getBooleanProperty(Properties.INPUT))))) {
+            (! p.getBooleanProperty(Properties.CONSUMER))))) {
         continue;
       }
 
@@ -1236,7 +1239,7 @@ public class Annotator extends Visitor {
     return (Generifier.isGeneric(p) ||
             (AST.isVoid(p.type) &&
              (! p.getBooleanProperty(Properties.LEXICAL)) &&
-             p.getBooleanProperty(Properties.INPUT)));
+             p.getBooleanProperty(Properties.CONSUMER)));
   }
 
   /**
@@ -1244,7 +1247,7 @@ public class Annotator extends Visitor {
    * value.  Any production that is not void or that consumes the
    * input can have a semantic value.  This method assumes that
    * productions have been correctly annotated with the {@link
-   * Properties#INPUT} property.
+   * Properties#CONSUMER} property.
    *
    * @param p The production.
    * @return <code>true</code> if the specified production can have a
@@ -1252,7 +1255,7 @@ public class Annotator extends Visitor {
    */
   public static boolean isValuable(FullProduction p) {
     return (! AST.isVoid(p.type)) ||
-      p.getBooleanProperty(Properties.INPUT);
+      p.getBooleanProperty(Properties.CONSUMER);
   }
 
   /**

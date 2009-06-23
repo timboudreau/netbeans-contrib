@@ -24,7 +24,7 @@ import java.io.IOException;
  * Representation of an indirect reference.  
  *
  * @author Robert Grimm
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IndirectReference extends RelativeReference {
 
@@ -35,19 +35,11 @@ public class IndirectReference extends RelativeReference {
    * in which case the type is the array's element type.
    *
    * @param base The base reference.
-   * @throws IllegalArgumentException Signals that the base reference
-   *   does not have a pointer type.
+   * @throws ClassCastException Signals that the base reference does
+   *   not have a pointer type.
    */
   public IndirectReference(Reference base) {
-    super(base.type, base);
-
-    // Update the type.
-    if (! type.isPointer()) {
-      throw new IllegalArgumentException("not a pointer");
-    }
-
-    type = ((PointerT)type).getType().resolve();
-    normalize();
+    super(base.type.toPointer().getType(), base);
   }
 
   public boolean isPrefix() {

@@ -43,7 +43,7 @@ import xtc.util.SymbolTable;
  * The Typical compiler.
  * 
  * @author Laune Harris, Anh Le
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  */
 public class Typical extends Tool {
 
@@ -81,10 +81,12 @@ public class Typical extends Tool {
            "Print the java source code of the generated checker.").
       bool("Oswitch", "optimizeMatch", false,
            "Use switch statements and type tags for pattern matches.").
-      bool("Ofold-let", "optimizeLet", false,
+      bool("Ofold-let", "optimizeFoldLet", false,
            "Collapse let expressions where possible.").
+      bool("Olet", "optimizeLet", false,
+           "Avoid creating a Let object if possible.").     
       bool("Otype", "optimizeType", false,
-           "Eliminate type records, if not attributes are defined.").
+           "Eliminate type records, if attributes are not defined.").
       word("node", "optionNodeType", false,
            "Specify the name of the node type.");
   }

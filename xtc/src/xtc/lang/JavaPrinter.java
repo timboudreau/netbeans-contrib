@@ -18,7 +18,6 @@
  */
 package xtc.lang;
 
-import xtc.lang.*;
 import java.util.Iterator;
 
 import xtc.tree.Comment;

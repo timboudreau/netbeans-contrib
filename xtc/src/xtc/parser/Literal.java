@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2004-2008 Robert Grimm
+ * Copyright (C) 2007 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,37 +18,15 @@
  */
 package xtc.parser;
 
-import java.io.IOException;
-
 /**
- * The any character element.
+ * The superclass of all literals.
  *
  * @author Robert Grimm
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.4 $
  */
-public class AnyChar extends CharTerminal {
+public abstract class Literal extends Element {
 
-  /** Create a new any character element. */
-  public AnyChar() { /* Nothing to do. */ }
-
-  public Tag tag() {
-    return Tag.ANY_CHAR;
-  }
-
-  public int hashCode() {
-    return 3;
-  }
-
-  public boolean equals(Object o) {
-    return o instanceof AnyChar;
-  }
-
-  public void write(Appendable out) throws IOException {
-    out.append('_');
-  }
-
-  public String toString() {
-    return "_";
-  }
+  /** Create a new literal. */
+  public Literal() { /* Nothing to do. */ }
 
 }

@@ -46,7 +46,7 @@ import xtc.util.Utilities;
  * #add(int,Object)}, and {@link #remove(int)}.
  *
  * @author Robert Grimm
- * @version $Revision: 1.54 $
+ * @version $Revision: 1.55 $
  */
 public abstract class Node implements Iterable<Object>, Locatable {
 
@@ -401,6 +401,22 @@ public abstract class Node implements Iterable<Object>, Locatable {
    */
   public Object get(int index) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get the boolean child at the specified index.
+   *
+   * @param index The index.
+   * @return The child at that position as a boolean.
+   * @throws IndexOutOfBoundsException Signals that the index is out
+   *   of range.
+   * @throws ClassCastException Signals that the child is not a
+   *   boolean.
+   * @throws UnsupportedOperationException Signals that this node does
+   *   not support generic traversal.
+   */
+  public boolean getBoolean(int index) {
+    return (Boolean)get(index);
   }
 
   /**

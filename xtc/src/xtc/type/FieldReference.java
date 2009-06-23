@@ -20,11 +20,13 @@ package xtc.type;
 
 import java.io.IOException;
 
+import java.math.BigInteger;
+
 /**
  * Representation of a field reference.
  *
  * @author Robert Grimm
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class FieldReference extends RelativeReference {
 
@@ -40,24 +42,19 @@ public class FieldReference extends RelativeReference {
    *
    * @param base The base reference.
    * @param name The member name.
+   * @throws ClassCastException Signals that the base reference is
+   *   does not have a struct or union.
    * @throws IllegalArgumentException Signals that the base reference
    *   does not have a struct/union with the named member.
    */
   public FieldReference(Reference base, String name) {
-    super(base.type, base);
+    super(base.type.toStructOrUnion().lookup(name), base);
     this.name = name;
 
-    // Update the type.
-    if (! type.hasStructOrUnion()) {
-      throw new IllegalArgumentException("not a struct/union");
-    }
-
-    type = type.toTagged().lookup(name).resolve();
     if (type.isError()) {
       throw new IllegalArgumentException("struct/union without member '" +
                                          name + "'");
     }
-    normalize();
   }
 
   public boolean hasField() {
@@ -66,6 +63,17 @@ public class FieldReference extends RelativeReference {
 
   public String getField() {
     return name;
+  }
+
+  public boolean hasLocation() {
+    return base.hasLocation();
+  }
+
+  public BigInteger getLocation(C ops) {
+    if (! base.hasLocation()) throw new IllegalStateException();
+
+    return base.getLocation(ops).
+      add(BigInteger.valueOf(ops.getOffset(base.type.toStructOrUnion(), name)));
   }
 
   public int hashCode() {

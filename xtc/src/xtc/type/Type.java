@@ -123,7 +123,7 @@ import xtc.util.Runtime;
  * uses a boolean parameter to control forwarding.
  *
  * @author Robert Grimm
- * @version $Revision: 1.110 $
+ * @version $Revision: 1.112 $
  */
 public abstract class Type extends Node {
 
@@ -145,8 +145,10 @@ public abstract class Type extends Node {
     FUNCTION,
     /** A method. */
     METHOD,
-    /** A parameter. */
-    PARAMETER,
+    /** A named parameter. */
+    NAMED_PARAMETER,
+    /** An internal parameter. */
+    INTERNAL_PARAMETER,
     /** A wildcard. */
     WILDCARD,
     /** A pointer. */
@@ -1106,6 +1108,46 @@ public abstract class Type extends Node {
   }
 
   /**
+   * Determine whether this type is a named parameter.
+   *
+   * @return <code>true</code> if this type is a named parameter.
+   */
+  public boolean isNamedParameter() {
+    return false;
+  }
+
+  /**
+   * Get this type as a named parameter.
+   *
+   * @return This type as a named parameter.
+   * @throws ClassCastException Signals that this type is not a
+   *   named parameter.
+   */
+  public NamedParameter toNamedParameter() {
+    throw new ClassCastException("Not a named parameter " + this);
+  }
+
+  /**
+   * Determine whether this type is an internal parameter.
+   *
+   * @return <code>true</code> if this type is an internal parameter.
+   */
+  public boolean isInternalParameter() {
+    return false;
+  }
+
+  /**
+   * Get this type as an internal parameter.
+   *
+   * @return This type as an internal parameter.
+   * @throws ClassCastException Signals that this type is not an
+   *   internal parameter.
+   */
+  public InternalParameter toInternalParameter() {
+    throw new ClassCastException("Not an internal parameter " + this);
+  }
+
+  /**
    * Determine whether this type is a wildcard.
    *
    * @return <code>true</code> if this type is a wildcard.
@@ -1124,6 +1166,8 @@ public abstract class Type extends Node {
   public Wildcard toWildcard() {
     throw new ClassCastException("Not a wildcard " + this);
   }
+
+  // =========================================================================
 
   /**
    * Determine whether this type is void.
@@ -1368,6 +1412,17 @@ public abstract class Type extends Node {
     default:
       return false;
     }
+  }
+
+  /**
+   * Get this type as a struct or union.
+   *
+   * @return This type as a struct or union.
+   * @throws ClassCastException Signals that this type is not a struct
+   *   or union.
+   */
+  public StructOrUnionT toStructOrUnion() {
+    throw new ClassCastException("Not a struct or union " + this);
   }
 
   /**

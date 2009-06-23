@@ -16,40 +16,33 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  */
-package xtc.parser;
+package xtc;
 
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+
+import xtc.tree.Printer;
 
 /**
- * A null literal representing a bindable null value.
+ * Utility program to create a platform's configuration header.
  *
  * @author Robert Grimm
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1 $
  */
-public class NullLiteral extends Literal {
+public class Platform {
 
-  /** Create a new null literal. */
-  public NullLiteral() { /* Nothing to do. */ }
+  /** Hide the constructor. */
+  private Platform() { /* Nothing to do. */ }
 
-  public Tag tag() {
-    return Tag.NULL;
-  }
+  /** Generate the current platform's configuration header. */
+  public static void main(String[] args) {
+    Printer printer = new
+      Printer(new BufferedWriter(new OutputStreamWriter(System.out)));
 
-  public int hashCode() {
-    return 0;
-  }
-
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    return o instanceof NullLiteral;
-  }
-
-  public void write(Appendable out) throws IOException {
-    out.append("null");
-  }
-
-  public String toString() {
-    return "null";
+    printer.p("#define OS \"").p(System.getProperty("os.name")).p(' ').
+      p(System.getProperty("os.version")).pln('"');
+    printer.p("#define ARCH \"").p(System.getProperty("os.arch")).pln('"');
+    printer.flush();
   }
 
 }

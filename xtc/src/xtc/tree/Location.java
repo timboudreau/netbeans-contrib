@@ -36,10 +36,10 @@ public class Location implements Comparable {
 
   /** The column. */
   public final int column;
-  
+
   /** The offset. */
   public final int offset;
-  
+
   /** The end offset. */
   public final int endOffset;
 
@@ -53,9 +53,9 @@ public class Location implements Comparable {
    * @param endOffset The end offset.
    */
   public Location(String file, int line, int column, int offset, int endOffset) {
-    this.file      = file;
-    this.line      = line;
-    this.column    = column;
+    this.file   = file;
+    this.line   = line;
+    this.column = column;
     this.offset    = offset;
     this.endOffset = endOffset;
   }

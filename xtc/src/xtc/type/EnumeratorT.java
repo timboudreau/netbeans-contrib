@@ -28,23 +28,12 @@ import java.math.BigInteger;
  * enumerators have been seen (C99 6.7.2.2).
  *
  * @author Robert Grimm
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.39 $
  */
 public class EnumeratorT extends WrappedT {
 
   /** The name. */
   private String name;
-
-  /**
-   * Create a new, incomplete enumerator.  The enumerator's type is
-   * the {@link ErrorT#TYPE error type}.
-   *
-   * @param name The name.
-   * @param value The value.
-   */
-  public EnumeratorT(String name, BigInteger value) {
-    this(ErrorT.TYPE, name, value);
-  }
 
   /**
    * Create a new enumerator.  The specified type should be an {@link

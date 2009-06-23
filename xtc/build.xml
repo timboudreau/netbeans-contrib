@@ -2,4 +2,8 @@
 <project basedir="." default="netbeans" name="contrib/xtc">
     <description>Builds, tests, and runs the project xtc</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="fixcrlf">
+        <fixcrlf srcdir="./" includes="**,**/*" excludes="**/*.gif, **/*.png" eol="lf"/>
+    </target>
 </project>

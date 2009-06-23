@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007 Robert Grimm
+ * Copyright (C) 2007-2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ import xtc.util.Utilities;
  * Common type operations for the C language.
  *
  * @author Robert Grimm
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.43 $
  */
 public class C {
 
@@ -155,6 +155,16 @@ public class C {
     type = type.resolve();
 
     return type.isArray() && isWideChar(type.toArray().getType());
+  }
+
+  /**
+   * Determine whether the specified type is a string literal.
+   *
+   * @param type The type.
+   * @return <code>true</code> if the type is a string literal.
+   */
+  public boolean isStringLiteral(Type type) {
+    return (isString(type) || isWideString(type)) && type.hasConstant();
   }
 
   // =========================================================================
@@ -628,6 +638,26 @@ public class C {
 
   // =========================================================================
 
+  /** The memoized thread-local flag. */
+  private Boolean threadlocal = null;
+
+  /**
+   * Determine whether the current target supports thread-local
+   * storage.
+   *
+   * @return <code>true</code> if the current target supports
+   *   thread-local storage.
+   */
+  public boolean hasThreadLocals() {
+    if (null == threadlocal) {
+      threadlocal = Limits.IS_ELF ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    return threadlocal;
+  }
+
+  // =========================================================================
+
   /**
    * Get the specified type's alignment in bytes.
    *
@@ -637,11 +667,13 @@ public class C {
    *   have a static alignment.
    */
   public long getAlignment(Type type) {
-    return getAlignment(type, false);
+    return getAlignment(type, true);
   }
 
   /**
-   * Get the specified type's alignment in bytes.
+   * Get the specified type's alignment in bytes.  A type's natural
+   * alignment is the type's alignment outside arrays, structures, and
+   * unions.
    *
    * @param type The type.
    * @param natural The flag for determining the natural alignment.
@@ -650,7 +682,27 @@ public class C {
    *   Signals that the type does not have a static alignment.
    */
   public long getAlignment(Type type, boolean natural) {
-    long alignment = getAligned(type);
+    final Type resolved = type.resolve();
+
+    if (resolved.isStruct() || resolved.isUnion()) {
+      if (isPacked(type)) {
+        // If the structure or union is packed, its alignment is 1.
+        return 1;
+      } else {
+        // Otherwise, the alignment is the maximum of the overall
+        // alignment and the members' alignments.
+        long alignment = Math.max(1, getAligned(type));
+        for (Type t : type.toTagged().getMembers()) {
+          // Bit-fields with a zero width do not count.
+          if (0 != t.toVariable().getWidth()) {
+            alignment = Math.max(alignment, getAlignment(t, false));
+          }
+        }
+        return alignment;
+      }
+    }
+
+    final long alignment = getAligned(type);
     if (-1 != alignment) return alignment;
 
     switch (type.tag()) {
@@ -658,7 +710,7 @@ public class C {
       return Limits.VOID_ALIGN;
 
     case BOOLEAN:
-      return 1;
+      return natural ? Limits.BOOL_NAT_ALIGN : Limits.BOOL_ALIGN;
 
     case INTEGER:
     case FLOAT:
@@ -669,48 +721,39 @@ public class C {
         return 1;
       case SHORT:
       case U_SHORT:
-        return natural ? Limits.SHORT_ALIGN : Limits.SHORT_SIZE;
+        return natural ? Limits.SHORT_NAT_ALIGN : Limits.SHORT_ALIGN;
       case INT:
       case S_INT:
       case U_INT:
-        return natural ? Limits.INT_ALIGN : Limits.INT_SIZE;
+        return natural ? Limits.INT_NAT_ALIGN : Limits.INT_ALIGN;
       case LONG:
       case U_LONG:
-        return natural ? Limits.LONG_ALIGN : Limits.LONG_SIZE;
+        return natural ? Limits.LONG_NAT_ALIGN : Limits.LONG_ALIGN;
       case LONG_LONG:
       case U_LONG_LONG:
-        return natural ? Limits.LONG_LONG_ALIGN : Limits.LONG_LONG_SIZE;
+        return natural ? Limits.LONG_LONG_NAT_ALIGN : Limits.LONG_LONG_ALIGN;
       case FLOAT:
-        return natural ? Limits.FLOAT_ALIGN : Limits.FLOAT_SIZE;
+        return natural ? Limits.FLOAT_NAT_ALIGN : Limits.FLOAT_ALIGN;
       case DOUBLE:
-        return natural ? Limits.DOUBLE_ALIGN : Limits.DOUBLE_SIZE;
+        return natural ? Limits.DOUBLE_NAT_ALIGN : Limits.DOUBLE_ALIGN;
       case LONG_DOUBLE:
-        return natural ? Limits.LONG_DOUBLE_ALIGN : Limits.LONG_DOUBLE_SIZE;
+        return natural ? Limits.LONG_DOUBLE_NAT_ALIGN : Limits.LONG_DOUBLE_ALIGN;
       case FLOAT_COMPLEX:
-        return natural ? Limits.FLOAT_ALIGN : Limits.FLOAT_SIZE;
+        return natural ? Limits.FLOAT_NAT_ALIGN : Limits.FLOAT_ALIGN;
       case DOUBLE_COMPLEX:
-        return natural ? Limits.DOUBLE_ALIGN : Limits.DOUBLE_SIZE;
+        return natural ? Limits.DOUBLE_NAT_ALIGN : Limits.DOUBLE_ALIGN;
       case LONG_DOUBLE_COMPLEX:
-        return natural ? Limits.LONG_DOUBLE_ALIGN : Limits.LONG_DOUBLE_SIZE;
+        return natural ? Limits.LONG_DOUBLE_NAT_ALIGN : Limits.LONG_DOUBLE_ALIGN;
       default:
         throw new
           AssertionError("Invalid number kind " + type.toNumber().getKind());
       }
 
     case POINTER:
-      return natural ? Limits.POINTER_ALIGN : Limits.POINTER_SIZE;
+      return natural ? Limits.POINTER_NAT_ALIGN : Limits.POINTER_ALIGN;
 
     case ARRAY:
       return getAlignment(type.resolve().toArray().getType(), natural);
-
-    case STRUCT:
-    case UNION: {
-      alignment = 1;
-      for (Type t : type.toTagged().getMembers()) {
-        alignment = Math.max(alignment, getAlignment(t, true));
-      }
-      return alignment;
-    }
 
     case FUNCTION:
       return Limits.FUNCTION_ALIGN;
@@ -736,7 +779,7 @@ public class C {
       return Limits.VOID_SIZE;
 
     case BOOLEAN:
-      return 1;
+      return Limits.BOOL_SIZE;
 
     case INTEGER:
     case FLOAT:
@@ -788,7 +831,7 @@ public class C {
     }
 
     case STRUCT:
-      return getSize(type.resolve().toStruct());
+      return layout(type.resolve().toStruct(), null);
 
     case UNION: {
       long size = 0;
@@ -806,34 +849,159 @@ public class C {
     }
   }
 
+  // =========================================================================
+
   /**
-   * Get the specified struct's size in bytes.
+   * Get the specified member's offset for the specified structure or
+   * union.
    *
-   * @param type The struct.
-   * @return The struct's size.
-   * @throws IllegalArgumentException Signals that the struct does not
-   *   have a static size.
+   * @param type The structure or union.
+   * @param name The member's name.
+   * @return The offset or -1 if the structure or union does not have
+   *   a member with the specified name or the member is a bit-field.
    */
-  protected long getSize(StructT type) {
+  public long getOffset(StructOrUnionT type, String name) {
+    if (type.isStruct()) {
+      return layout(type.toStruct(), name);
+    } else {
+      for (VariableT var : type.getMembers()) {
+        if (var.hasName(name)) {
+          return 0;
+        } else if (! var.hasName() && ! var.hasWidth()) {
+          final long offset = getOffset(var.toStructOrUnion(), name);
+          if (-1 != offset) return offset;
+        }
+      }
+      return -1;
+    }
+  }
+
+  // =========================================================================
+
+  /**
+   * Lay out the specified structure.
+   *
+   * @param type The structure.
+   * @param name The member name or <code>null</code> for the entire
+   *   structure.
+   * @return The offset/size or -1 if the structure does not have a
+   *   member with the specified name or the member is a bit-field.
+   */
+  public long layout(StructT type, String name) {
     final List<VariableT> members     = type.getMembers();
     final int             memberCount = members.size();
     final boolean         hasTrailing = hasTrailingArray(type);
-    final long            alignment   = getAligned(type);
-    final boolean         isPacked    = (-1 != alignment) ? false:isPacked(type);
+    final boolean         isPacked    = isPacked(type);
 
-    long size = 0;
+    long size     = 0;
+    long bitCount = 0;
+    long bitSize  = 0;
+    long bitAlign = 1;
+    long maxAlign = Math.max(1, getAligned(type));
+
     for (int i=0; i<memberCount; i++) {
+      // Ignore any trailing array.
+      if (hasTrailing && i == memberCount-1) break;
+
+      // Process the member.
       final VariableT var = members.get(i);
 
-      if (! hasTrailing || i<memberCount-1) {
-        if (! isPacked) {
-          final long a   = (-1 == alignment)? getAlignment(var,true) : alignment;
+      // Determine whether this member is the last one affecting the
+      // structure's size.
+      final boolean isLastMember =
+        i == memberCount-1 || (hasTrailing && i == memberCount-2);
+
+      // Determine the member's alignment.
+      final long a = isPacked ? 1 : getAlignment(var, false);
+      if (0 != var.getWidth()) maxAlign = Math.max(a, maxAlign);
+
+      if (! var.hasKind(VariableT.Kind.BITFIELD)) {
+        // Process the regular member.
+        final long mod = size % a;
+        if (0 != mod) size += (a - mod);
+
+        if (null != name) {
+          if (var.hasName(name)) {
+            return size;
+          } else if (! var.hasName()) {
+            final long offset = getOffset(var.toStructOrUnion(), name);
+            if (-1 != offset) return size + offset;
+          }
+        }
+
+        size += getSize(var);
+
+      } else {
+        // Process bit-field.
+        final int width = var.getWidth();
+        assert -1 < width;
+
+        if (isPacked) {
+          bitCount += width;
+
+          if (isLastMember || -1 == members.get(i+1).getWidth()) {
+            size += (bitCount / Limits.CHAR_BITS);
+            if (0 != bitCount % Limits.CHAR_BITS) size++;
+
+            bitCount = 0;
+            bitSize  = 0;
+            bitAlign = 1;
+          }
+
+        } else if (0 == width) {
+          size += (bitCount / Limits.CHAR_BITS);
+          if (0 != bitCount % Limits.CHAR_BITS) size++;
+
+          // Use this member's alignment for padding.
           final long mod = size % a;
           if (0 != mod) size += (a - mod);
+
+          bitCount = 0;
+          bitSize  = 0;
+          bitAlign = 1;
+
+        } else {
+          if (0 == bitSize) {
+            bitCount = width;
+            bitSize  = getSize(var);
+            bitAlign = a;
+
+          } else if (bitCount + width <= Limits.toWidth(bitSize)) {
+            bitCount += width;
+
+          } else {
+            size += bitSize;
+
+            // Use the original member's alignment for padding.
+            final long mod = size % bitAlign;
+            if (0 != mod) size += (bitAlign - mod);
+
+            bitCount = width;
+            bitSize  = getSize(var);
+            bitAlign = a;
+          }
+
+          if (isLastMember || -1 == members.get(i+1).getWidth()) {
+            size += (bitCount / Limits.CHAR_BITS);
+            if (0 != bitCount % Limits.CHAR_BITS) size++;
+
+            // Any necessary padding is either emitted when processing
+            // the next non-bit-field member or when completing the
+            // size calculation through the code below.
+
+            bitCount = 0;
+            bitSize  = 0;
+            bitAlign = 1;
+          }
         }
-        size += getSize(var);
       }
     }
+
+    if (null != name) return -1;
+
+    // Account for padding to comply with the maximum alignment.
+    final long mod = size % maxAlign;
+    if (0 != mod) size += (maxAlign - mod);
 
     return size;
   }
@@ -905,6 +1073,32 @@ public class C {
       return getSize(number) * Limits.CHAR_BITS;
     default:
       throw new AssertionError("Not a C number " + number);
+    }
+  }
+
+  /**
+   * Fit the specified number to the closest integer type, starting
+   * with <code>int</code>.
+   *
+   * @param number The number.
+   * @return The closest containing integer type or {@link
+   *   ErrorT#TYPE} if the number is too large.
+   */
+  public Type fit(BigInteger number) {
+    if (Limits.fitsInt(number)) {
+      return NumberT.INT;
+    } else if (Limits.fitsUnsignedInt(number)) {
+      return NumberT.U_INT;
+    } else if (Limits.fitsLong(number)) {
+      return NumberT.LONG;
+    } else if (Limits.fitsUnsignedLong(number)) {
+      return NumberT.U_LONG;
+    } else if (Limits.fitsLongLong(number)) {
+      return NumberT.LONG_LONG;
+    } else if (Limits.fitsUnsignedLongLong(number)) {
+      return NumberT.U_LONG_LONG;
+    } else {
+      return ErrorT.TYPE;
     }
   }
 

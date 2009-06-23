@@ -29,7 +29,7 @@ import xtc.tree.Node;
  * equal if they describe the same module.
  *
  * @author Robert Grimm
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public abstract class ModuleDependency extends Node {
 
@@ -138,9 +138,9 @@ public abstract class ModuleDependency extends Node {
    *   with the specified one.
    */
   public boolean isConsistentWith(ModuleDependency dep) {
-    return ((! visibleName().equals(dep.visibleName())) ||
+    return (! visibleName().equals(dep.visibleName()) ||
             this.equals(dep) ||
-            ((0 == arguments.size()) && (null == target)));
+            (arguments.isEmpty() && null == target));
   }
 
   /**

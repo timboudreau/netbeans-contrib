@@ -1,6 +1,6 @@
 /*
  * xtc - The eXTensible Compiler
- * Copyright (C) 2007-2008 Robert Grimm
+ * Copyright (C) 2008 Robert Grimm
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,64 +21,54 @@ package xtc.type;
 import java.io.IOException;
 
 /**
- * A type wildcard.
+ * A named parameter.
  *
  * @author Robert Grimm
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.1 $
  */
-public class Wildcard extends Parameter {
+public class NamedParameter extends Parameter {
 
-  /** The canonical wildcard. */
-  public static final Wildcard TYPE;
+  /** The name. */
+  private String name;
 
-  static {
-    TYPE = new Wildcard();
-    TYPE.seal();
-  }
-
-  /** Create a new wildcard. */
-  public Wildcard() {
-    super();
+  /**
+   * Create a new named parameter.
+   *
+   * @param name The name.
+   */
+  public NamedParameter(String name) {
+    this.name = name;
   }
 
   /**
-   * Create a new wildcard.
+   * Create a new named parameter.
    *
    * @param template The type whose annotations to copy.
+   * @param name The name.
    */
-  public Wildcard(Type template) {
+  private NamedParameter(Type template, String name) {
     super(template);
+    this.name = name;
   }
 
-  public Wildcard copy() {
-    return new Wildcard(this);
+  public NamedParameter copy() {
+    return new NamedParameter(this, name);
   }
 
   public Type.Tag tag() {
-    return Type.Tag.WILDCARD;
+    return Type.Tag.NAMED_PARAMETER;
   }
 
-  public boolean isWildcard() {
+  public boolean isNamedParameter() {
     return true;
   }
 
-  public Wildcard toWildcard() {
+  public NamedParameter toNamedParameter() {
     return this;
   }
 
-  /**
-   * Bind this wildcard.  Wildcards cannot be bound.
-   *
-   * @param type The type.
-   * @throws IllegalStateException Signals that wildcards cannot be
-   *   bound.
-   */
-  public void bind(Type type) {
-    throw new IllegalStateException("Unable to bind wildcard");
-  }
-
   public int hashCode() {
-    return 63;
+    return name.hashCode();
   }
 
   public boolean equals(Object o) {
@@ -86,7 +76,16 @@ public class Wildcard extends Parameter {
     Type t = resolve(o);
 
     if (this == t) return true;
-    return t.isWildcard();
+    if (! t.isNamedParameter()) return false;
+    return name.equals(t.toNamedParameter().name);
+  }
+
+  public void write(Appendable out) throws IOException {
+    out.append(name);
+  }
+
+  public String toString() {
+    return name;
   }
 
 }
