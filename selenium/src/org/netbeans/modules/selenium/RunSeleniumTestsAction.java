@@ -76,7 +76,7 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
                 //wait deployment finished
                 task.result();
 
-                FileObject seleniumSources = SeleniumSupport.getSelenimDir(project);
+                FileObject seleniumSources = SeleniumSupport.getSeleniumDir(project);
                 String includes = listAllTestIncludes(seleniumSources);
                 if (includes == null){
                     NotifyDescriptor desc = new NotifyDescriptor.Message(NbBundle.getMessage(RunSeleniumTestsAction.class, "No_Selenium_Tests"), NotifyDescriptor.INFORMATION_MESSAGE);
