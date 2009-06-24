@@ -81,7 +81,7 @@ public class SeleniumSupport {
         return false;
     }
 
-    public static FileObject getSelenimDir(Project project) {
+    public static FileObject getSeleniumDir(Project project) {
         final FileObject projectDir = project.getProjectDirectory();
         for (FileObject fileObject : projectDir.getChildren()) {
             if (SELENIUM_FOLDER_NAME.equals(fileObject.getName())) {

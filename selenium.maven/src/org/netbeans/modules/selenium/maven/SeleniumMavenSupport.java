@@ -112,15 +112,15 @@ final class SeleniumMavenSupport {
             rep.setReleases(model.getFactory().createReleaseRepositoryPolicy());
 
             Dependency dep = ModelUtils.checkModelDependency(model,
-                    "org.openqa.selenium.client-drivers", "selenium-java-client-driver", true);
+                    "org.seleniumhq.selenium.client-drivers", "selenium-java-client-driver", true);
             dep.setScope("test");
-            dep.setVersion("1.0-beta-1");
+            dep.setVersion("1.0.1");
         }
     }
 
     public static boolean isProjectReady(Project project) {
         POMModel model = getPOMModel(project);
-        return ModelUtils.hasModelDependency(model, "org.openqa.selenium.client-drivers", "selenium-java-client-driver");
+        return ModelUtils.hasModelDependency(model, "org.seleniumhq.selenium.client-drivers", "selenium-java-client-driver");
     }
 
     public static boolean isMavenProject(Project project) {

@@ -66,12 +66,17 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
             FileObject buildXML = findBuildXml(project);
             Properties p = new Properties();
             p.setProperty("forceRedeploy", "false"); //NOI18N
+            if (buildXML == null){
+                NotifyDescriptor desc = new NotifyDescriptor.Message(NbBundle.getMessage(RunSeleniumTestsAction.class, "No_Build_XML"), NotifyDescriptor.INFORMATION_MESSAGE);
+                DialogDisplayer.getDefault().notifyLater(desc);
+                return;
+            }
             try {
                 ExecutorTask task = ActionUtils.runTarget(buildXML, new String[]{"run-deploy"}, p);
                 //wait deployment finished
                 task.result();
 
-                FileObject seleniumSources = SeleniumSupport.getSelenimDir(project);
+                FileObject seleniumSources = SeleniumSupport.getSeleniumDir(project);
                 String includes = listAllTestIncludes(seleniumSources);
                 if (includes == null){
                     NotifyDescriptor desc = new NotifyDescriptor.Message(NbBundle.getMessage(RunSeleniumTestsAction.class, "No_Selenium_Tests"), NotifyDescriptor.INFORMATION_MESSAGE);

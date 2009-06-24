@@ -121,7 +121,8 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         this.wiz = wiz;
         Project proj = Templates.getProject(wiz);
         if (isAntProject(proj)){
-            assert (SeleniumSupport.getSelenimDir(proj) != null);
+            FileObject seleniumDir = SeleniumSupport.getSeleniumDir(proj);
+            assert (seleniumDir != null);
             panel = createPanel(wiz);
             panel.getComponent();
         } else {
@@ -169,7 +170,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
             groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
             return Templates.createSimpleTargetChooser(project, groups);
         } else {
-            FileObject seleniumDir = SeleniumSupport.getSelenimDir(project);
+            FileObject seleniumDir = SeleniumSupport.getSeleniumDir(project);
             for (SourceGroup selGroup : groups) {
                 if (selGroup.getRootFolder().equals(seleniumDir)){
                     return JavaTemplates.createPackageChooser(project, new SourceGroup[]{selGroup});

@@ -68,7 +68,7 @@ public abstract class ExtendedAction extends NodeAction {
     protected boolean enable(Node[] activatedNodes) {
         for (Node node : activatedNodes) {
             Project proj = getProjectForNode(node);
-            if ((proj != null) && SeleniumSupport.hasSeleniumDir(proj)) {
+            if ((proj != null) && SeleniumSupport.hasSeleniumDir(proj) && findBuildXml(proj) != null) {
                 return true;
             }
         }
