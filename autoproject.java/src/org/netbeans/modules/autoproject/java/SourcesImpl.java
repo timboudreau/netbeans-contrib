@@ -70,33 +70,41 @@ class SourcesImpl implements Sources, PropertyChangeListener {
 
     private final Project p;
     private final ChangeSupport cs = new ChangeSupport(this);
+    private SourceGroup[] javaGroups;
 
     public SourcesImpl(Project p) {
         this.p = p;
         Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
     }
 
-    public SourceGroup[] getSourceGroups(String type) {
-        List<SourceGroup> groups = new ArrayList<SourceGroup>();
+    public synchronized SourceGroup[] getSourceGroups(String type) {
         if (type.equals(Sources.TYPE_GENERIC)) {
-            groups.add(GenericSources.group(p, p.getProjectDirectory(), "root", ProjectUtils.getInformation(p).getDisplayName(), null, null));
+            return new SourceGroup[] {GenericSources.group(p, p.getProjectDirectory(),
+                    "root", ProjectUtils.getInformation(p).getDisplayName(), null, null)};
         } else if (type.equals(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-            String top = FileUtil.getFileDisplayName(p.getProjectDirectory());
-            for (Map.Entry<String,String> entry : Cache.pairs()) {
-                String k = entry.getKey();
-                if (k.endsWith(JavaCacheConstants.SOURCE) && k.startsWith(top)) {
-                    FileObject root = FileUtil.toFileObject(FileUtil.normalizeFile(new File(k.substring(0, k.length() - JavaCacheConstants.SOURCE.length()))));
-                    if (root != null && FileOwnerQuery.getOwner(root) == p) {
-                        LOG.log(Level.FINE, "Found Java-type group in {0}", root);
-                        String path = FileUtil.getRelativePath(p.getProjectDirectory(), root);
-                        String name = path.length() > 0 ? path : "Source Packages"; // XXX I18N
-                        groups.add(GenericSources.group(p, root, path, name, null, null));
-                        // XXX should add file listener to root in case it gets deleted
+            if (javaGroups == null) {
+                List<SourceGroup> groups = new ArrayList<SourceGroup>();
+                String top = FileUtil.getFileDisplayName(p.getProjectDirectory());
+                for (Map.Entry<String,String> entry : Cache.pairs()) {
+                    String k = entry.getKey();
+                    if (k.endsWith(JavaCacheConstants.SOURCE) && k.startsWith(top)) {
+                        FileObject root = FileUtil.toFileObject(FileUtil.normalizeFile(
+                                new File(k.substring(0, k.length() - JavaCacheConstants.SOURCE.length()))));
+                        if (root != null && FileOwnerQuery.getOwner(root) == p) {
+                            LOG.log(Level.FINE, "Found Java-type group in {0}", root);
+                            String path = FileUtil.getRelativePath(p.getProjectDirectory(), root);
+                            String name = path.length() > 0 ? path : "Source Packages"; // XXX I18N
+                            groups.add(GenericSources.group(p, root, path, name, null, null));
+                            // XXX should add file listener to root in case it gets deleted
+                        }
                     }
                 }
+                javaGroups = groups.toArray(new SourceGroup[groups.size()]);
             }
+            return javaGroups;
+        } else {
+            return new SourceGroup[0];
         }
-        return groups.toArray(new SourceGroup[groups.size()]);
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -107,9 +115,10 @@ class SourcesImpl implements Sources, PropertyChangeListener {
         cs.removeChangeListener(listener);
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public synchronized void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().endsWith(JavaCacheConstants.SOURCE)) {
             // XXX could be more discriminating
+            javaGroups = null;
             cs.fireChange();
         }
     }
