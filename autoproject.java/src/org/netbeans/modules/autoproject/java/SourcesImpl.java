@@ -89,7 +89,8 @@ class SourcesImpl implements Sources, PropertyChangeListener {
                     if (root != null && FileOwnerQuery.getOwner(root) == p) {
                         LOG.log(Level.FINE, "Found Java-type group in {0}", root);
                         String path = FileUtil.getRelativePath(p.getProjectDirectory(), root);
-                        groups.add(GenericSources.group(p, root, path, path, null, null));
+                        String name = path.length() > 0 ? path : "Source Packages"; // XXX I18N
+                        groups.add(GenericSources.group(p, root, path, name, null, null));
                         // XXX should add file listener to root in case it gets deleted
                     }
                 }
