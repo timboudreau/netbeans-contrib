@@ -96,7 +96,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
             root = root.getParentFile();
         }
         if (root == null) {
-            LOG.log(Level.FINE, "Found no classpath definition for {0} in {1}", new Object[] {type, f});
+            // do not log; pretty normal
             return null;
         }
         return findClassPathImpl(root, type);
