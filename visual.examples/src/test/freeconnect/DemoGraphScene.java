@@ -56,7 +56,6 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     private WidgetAction connectAction = ActionFactory.createExtendedConnectAction(interractionLayer, new SceneConnectProvider(this));
     private WidgetAction reconnectAction = ActionFactory.createReconnectAction(new SceneReconnectProvider(this));
     private WidgetAction moveControlPointAction = ActionFactory.createFreeMoveControlPointAction();
-    private WidgetAction selectAction = ActionFactory.createSelectAction(new ObjectSelectProvider());
 
     private NodeMenu nodeMenu=new NodeMenu(this);
     private EdgeMenu edgeMenu=new EdgeMenu(this);
@@ -80,6 +79,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         label.setToolTipText("Hold 'Ctrl'+'Mouse Right Button' to create Edge");
         label.setLabel(node);
         label.setImage(IMAGE);
+        label.getActions().addAction(createSelectAction());
         label.getActions().addAction(connectAction);
         label.getActions().addAction(moveAction);
         mainLayer.addChild(label);
