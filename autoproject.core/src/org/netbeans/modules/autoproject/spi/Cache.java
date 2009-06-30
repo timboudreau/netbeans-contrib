@@ -139,13 +139,13 @@ public class Cache {
 
     public static void put(String key, String value) {
         Parameters.notNull("key", key);
-        LOG.log(Level.FINE, "put({0}, {1})", new Object[] {key, value});
         String oldValue;
         synchronized (Cache.class) {
             initData();
             if (Utilities.compareObjects(value, oldValue = data.get(key))) {
                 return;
             }
+            LOG.log(Level.FINE, "put({0}, {1})", new Object[] {key, value});
             if (value != null) {
                 String[] pieces = value.split("(?<=[" + File.pathSeparator + "])");
                 if (pieces.length > 1) {

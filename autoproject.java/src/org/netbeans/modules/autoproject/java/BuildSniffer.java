@@ -39,9 +39,13 @@
 
 package org.netbeans.modules.autoproject.java;
 
+import java.io.BufferedReader;
 import org.netbeans.modules.autoproject.spi.Cache;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -177,7 +181,6 @@ public class BuildSniffer extends AntLogger {
                 appendPathStructure(child, event, sources, state);
             }
         }
-        // XXX consider includes/excludes too?
         List<String> _destdir = new ArrayList<String>();
         appendPath(task.getAttribute("destdir"), event, _destdir, false);
         assert _destdir.size() <= 1;
@@ -190,6 +193,18 @@ public class BuildSniffer extends AntLogger {
                 buildSysclasspath = "ignore";
             } else {
                 buildSysclasspath = "last";
+            }
+        }
+        if (!buildSysclasspath.equals("ignore")) { // warn that this is a bad idea
+            File script = event.getScriptLocation();
+            if (script != null) {
+                String message = "set includeantruntime=\"false\" on <javac> for repeatable builds";
+                try {
+                    event.getSession().println(script + ":" + event.getLine() + ": warning: " + message, true,
+                            event.getSession().createStandardHyperlink(script.toURI().toURL(), message, event.getLine(), -1, -1, -1));
+                } catch (MalformedURLException x) {
+                    LOG.log(Level.WARNING, null, x);
+                }
             }
         }
         List<String> classpath = new ArrayList<String>();
@@ -236,8 +251,11 @@ public class BuildSniffer extends AntLogger {
                 state.sourceForBinary.put(destdir, otherSourceRoots);
             }
         }
+        String includes = findInclExclProp(event, task, "includes", "includesfile", "include", true);
+        String excludes = findInclExclProp(event, task, "excludes", "excludesfile", "exclude", false);
         for (String s : sources) {
-            writePath(s + JavaCacheConstants.SOURCE, sources, state);
+            Cache.put(s + JavaCacheConstants.INCLUDES, includes);
+            Cache.put(s + JavaCacheConstants.EXCLUDES, excludes);
             writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
             if (destdir != null) {
                 Cache.put(s + JavaCacheConstants.BINARY, destdir);
@@ -251,7 +269,73 @@ public class BuildSniffer extends AntLogger {
             if (encoding != null) {
                 Cache.put(s + Cache.ENCODING, event.evaluate(encoding));
             }
+            writePath(s + JavaCacheConstants.SOURCE, sources, state);
         }
+    }
+
+    private String findInclExclProp(AntEvent event, TaskStructure task, String prop, String fileprop, String nested, boolean includesMode) {
+        StringBuilder val = new StringBuilder();
+        String propV = task.getAttribute(prop);
+        if (propV != null) {
+            for (String pattern : event.evaluate(propV).split("[, ]+")) {
+                addInclExcl(val, pattern, includesMode);
+            }
+        }
+        String fileV = task.getAttribute(fileprop);
+        if (fileV != null) {
+            File f = resolve(event, event.evaluate(fileV));
+            if (f.isFile()) {
+                try {
+                    Reader r = new FileReader(f);
+                    try {
+                        BufferedReader b = new BufferedReader(r);
+                        String line;
+                        while ((line = b.readLine()) != null) {
+                            addInclExcl(val, line, includesMode);
+                        }
+                    } finally {
+                        r.close();
+                    }
+                } catch (IOException x) {
+                    LOG.log(Level.INFO, "failed to read " + f, x);
+                }
+            }
+        }
+        for (TaskStructure child : task.getChildren()) {
+            if (child.getName().equals(nested)) {
+                String ifProp = child.getAttribute("if");
+                if (ifProp != null && event.getProperty(ifProp) == null) {
+                    continue;
+                }
+                String unlessProp = child.getAttribute("unless");
+                if (unlessProp != null && event.getProperty(unlessProp) != null) {
+                    continue;
+                }
+                addInclExcl(val, event.evaluate(child.getAttribute("name")), includesMode);
+            }
+        }
+        return val.length() > 0 ? val.toString() : null;
+    }
+    private void addInclExcl(StringBuilder val, String pattern, boolean includesMode) {
+        if (pattern.length() == 0) {
+            return;
+        }
+        if (includesMode && pattern.equals("**/*.java")) {
+            // Of course we are including Java source files! Poorly written build script.
+            // Ignore, or we would not include folders from SourceGroup.contains!
+            return;
+        }
+        if (pattern.endsWith("/**")) {
+            // Simplify a bit for readability...
+            pattern = pattern.substring(0, pattern.length() - 2);
+        } else if (pattern.endsWith("/**/*.*")) {
+            // Again a poorly written build script which really meant to exclude the _folder_.
+            pattern = pattern.substring(0, pattern.length() - 6);
+        }
+        if (val.length() > 0) {
+            val.append(',');
+        }
+        val.append(pattern);
     }
 
     private void handleJar(AntEvent event, State state) {
