@@ -432,6 +432,9 @@ public class StaticImport extends AbstractHint {
         System.out.println("GUESS " + klass + "." + sn);
         Pair<Map<String, List<TypeElement>>, Map<String, List<TypeElement>>> candidates = new ComputeImports().computeCandidates(info);
         Set<String> fqns = new HashSet<String>();
+        if (candidates == null || candidates.a == null) {
+            return fqns;
+        }
         for (String k : candidates.a.keySet()) {
             if (!klass.equals(k)) {
                 continue;
