@@ -24,17 +24,17 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.visual.experimental.widget.general.ListItemWidget;
 import org.netbeans.modules.visual.experimental.widget.general.ListWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class ListTest extends GraphPinScene.StringGraph {
 
-    private static final Image IMAGE = Utilities.loadImage ("test/resources/custom_displayable_32.png"); // NOI18N
+    private static final Image IMAGE = ImageUtilities.loadImage("test/resources/custom_displayable_32.png"); // NOI18N
 
     private LayerWidget layer;
 

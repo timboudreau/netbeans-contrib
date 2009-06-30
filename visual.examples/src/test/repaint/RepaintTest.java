@@ -22,18 +22,18 @@ import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.widget.*;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class RepaintTest extends Scene {
 
-    private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
+    private static final Image IMAGE = ImageUtilities.loadImage("test/resources/displayable_64.png"); // NOI18N
 
     private ImageWidget floatingImage;
     private LabelWidget position;

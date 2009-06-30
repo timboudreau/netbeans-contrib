@@ -24,10 +24,10 @@ import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -50,7 +50,7 @@ public class ResizeTest extends Scene {
         createLabel (100, 100).setBorder (BorderFactory.createResizeBorder (5));
         createLabel (200, 200).setBorder (BorderFactory.createResizeBorder (8, Color.BLACK, true));
         createLabel (300, 300).setBorder (BorderFactory.createBevelBorder (true));
-        createLabel (400, 400).setBorder (BorderFactory.createImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("test/resources/shadow_normal.png"))); // NOI18N
+        createLabel (400, 400).setBorder (BorderFactory.createImageBorder (new Insets (5, 5, 5, 5), ImageUtilities.loadImage("test/resources/shadow_normal.png"))); // NOI18N
     }
 
     public LabelWidget createLabel (int x, int y) {

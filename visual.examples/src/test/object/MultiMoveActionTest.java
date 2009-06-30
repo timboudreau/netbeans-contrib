@@ -25,19 +25,19 @@ import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class MultiMoveActionTest extends GraphScene<String,String> {
 
-    private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
+    private static final Image IMAGE = ImageUtilities.loadImage("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget backgroundLayer;
     private LayerWidget mainLayer;

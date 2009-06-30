@@ -30,16 +30,16 @@ import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.netbeans.api.visual.action.ActionFactory;
-import org.openide.util.Utilities;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class KeyboardGraphScene extends GraphScene.StringGraph {
 
-    private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
+    private static final Image IMAGE = ImageUtilities.loadImage("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget mainLayer;
     private LayerWidget connLayer;

@@ -25,10 +25,10 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -50,7 +50,7 @@ public class IconNodeHeaderTest {
         theWidgetWithHeader.addChild (0, header);
 
         IconNodeWidget widget = new IconNodeWidget (scene, IconNodeWidget.TextOrientation.BOTTOM_CENTER);
-        widget.setImage (Utilities.loadImage ("test/resources/displayable_64.png")); // NOI18N
+        widget.setImage (ImageUtilities.loadImage("test/resources/displayable_64.png")); // NOI18N
         widget.setLabel ("Double-click me to change the visibility of the header");
         widget.setPreferredLocation (new Point (0, 0)); // the location of icon node widget relatively to the reference point
         theWidgetWithHeader.addChild (widget);

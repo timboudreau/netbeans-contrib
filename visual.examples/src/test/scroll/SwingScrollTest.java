@@ -22,10 +22,10 @@ import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.*;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -51,7 +51,7 @@ public class SwingScrollTest extends Scene {
         view.addChild (new LabelWidget (this, "Drag scroll bars to move the view"));
         view.addChild (new LabelWidget (this, "Click on arrow and slider to perform unit and block scroll of the view"));
         view.addChild (new SeparatorWidget (this, SeparatorWidget.Orientation.HORIZONTAL));
-        view.addChild (new ImageWidget (this, Utilities.loadImage ("test/resources/displayable_64.png")));
+        view.addChild (new ImageWidget (this, ImageUtilities.loadImage("test/resources/displayable_64.png")));
         view.addChild (new LabelWidget (this, "Long Long Long Long Long Long Label 1"));
         view.addChild (new LabelWidget (this, "Label 1"));
         view.addChild (new LabelWidget (this, "Label 2"));

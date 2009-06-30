@@ -21,12 +21,12 @@ package test.convolve;
 import org.netbeans.api.visual.widget.*;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.action.ActionFactory;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -68,7 +68,7 @@ public class ConvolveTest extends Scene {
         widget.getActions ().addAction (ActionFactory.createMoveAction ());
         layer.addChild (widget);
 
-        widget.addChild (new ImageWidget (this, Utilities.loadImage ("test/resources/displayable_64.png"))); // NOI18N
+        widget.addChild (new ImageWidget (this, ImageUtilities.loadImage("test/resources/displayable_64.png"))); // NOI18N
         widget.addChild (new LabelWidget (this, text));
     }
 
@@ -80,7 +80,7 @@ public class ConvolveTest extends Scene {
         convolve.getActions ().addAction (ActionFactory.createMoveAction ());
         layer.addChild (convolve);
 
-        convolve.addChild (new ImageWidget (this, Utilities.loadImage ("test/resources/displayable_64.png"))); // NOI18N
+        convolve.addChild (new ImageWidget (this, ImageUtilities.loadImage("test/resources/displayable_64.png"))); // NOI18N
         convolve.addChild (new LabelWidget (this, text));
     }
 

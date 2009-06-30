@@ -24,7 +24,7 @@ import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
 import test.SceneSupport;
 
 /**
@@ -38,7 +38,7 @@ public class IconNodeWidget extends Widget {
         setOpaque (true);
         setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.CENTER, 4)); // use vertical layout
 
-        addChild (new ImageWidget (scene, Utilities.loadImage (icon))); // add image sub-widget
+        addChild (new ImageWidget (scene, ImageUtilities.loadImage(icon))); // add image sub-widget
         addChild (new LabelWidget (scene, label)); // add label sub-widget
     }
 

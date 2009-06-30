@@ -51,10 +51,6 @@ import org.netbeans.api.visual.widget.Widget;
 import test.SceneSupport;
 
 /**
- *
- * @author Holy
- */
-/**
  * @author Tomas Holy
  */
 public class ColorAnimPerfTest {

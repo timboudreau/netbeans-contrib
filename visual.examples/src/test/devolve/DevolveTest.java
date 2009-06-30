@@ -26,18 +26,18 @@ import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class DevolveTest extends GraphScene.StringGraph {
 
-    private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
+    private static final Image IMAGE = ImageUtilities.loadImage("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget mainLayer;
     private SceneLayout devolveLayout;

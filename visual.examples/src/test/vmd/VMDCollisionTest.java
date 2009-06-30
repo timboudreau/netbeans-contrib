@@ -19,24 +19,24 @@
 package test.vmd;
 
 import org.netbeans.api.visual.vmd.VMDGraphScene;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
 import java.util.Arrays;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class VMDCollisionTest {
 
-    private static final Image IMAGE_LIST = Utilities.loadImage ("test/resources/list_32.png"); // NOI18N
-    private static final Image IMAGE_CANVAS = Utilities.loadImage ("test/resources/custom_displayable_32.png"); // NOI18N
-    private static final Image IMAGE_COMMAND = Utilities.loadImage ("test/resources/command_16.png"); // NOI18N
-    private static final Image IMAGE_ITEM = Utilities.loadImage ("test/resources/item_16.png"); // NOI18N
-    private static final Image GLYPH_PRE_CODE = Utilities.loadImage ("test/resources/preCodeGlyph.png"); // NOI18N
-    private static final Image GLYPH_POST_CODE = Utilities.loadImage ("test/resources/postCodeGlyph.png"); // NOI18N
-    private static final Image GLYPH_CANCEL = Utilities.loadImage ("test/resources/cancelGlyph.png"); // NOI18N
+    private static final Image IMAGE_LIST = ImageUtilities.loadImage("test/resources/list_32.png"); // NOI18N
+    private static final Image IMAGE_CANVAS = ImageUtilities.loadImage("test/resources/custom_displayable_32.png"); // NOI18N
+    private static final Image IMAGE_COMMAND = ImageUtilities.loadImage("test/resources/command_16.png"); // NOI18N
+    private static final Image IMAGE_ITEM = ImageUtilities.loadImage("test/resources/item_16.png"); // NOI18N
+    private static final Image GLYPH_PRE_CODE = ImageUtilities.loadImage("test/resources/preCodeGlyph.png"); // NOI18N
+    private static final Image GLYPH_POST_CODE = ImageUtilities.loadImage("test/resources/postCodeGlyph.png"); // NOI18N
+    private static final Image GLYPH_CANCEL = ImageUtilities.loadImage("test/resources/cancelGlyph.png"); // NOI18N
 
     private static int nodeID = 1;
     private static int edgeID = 1;

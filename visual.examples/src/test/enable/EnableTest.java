@@ -23,13 +23,13 @@ import org.netbeans.api.visual.widget.ComponentWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -42,7 +42,7 @@ public class EnableTest {
         scene.addChild (layer);
 
         final IconNodeWidget widget = new IconNodeWidget (scene);
-        widget.setImage (Utilities.loadImage ("test/resources/displayable_64.png")); // NOI18N
+        widget.setImage (ImageUtilities.loadImage("test/resources/displayable_64.png")); // NOI18N
         widget.setLabel ("You can move this widget by dragging. To disable/enable the widget, press the button.");
         widget.getLabelWidget ().setBackground (Color.GRAY);
         widget.setPreferredLocation (new Point (100, 50));

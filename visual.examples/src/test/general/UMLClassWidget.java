@@ -22,18 +22,18 @@ import org.netbeans.api.visual.border.Border;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.*;
-import org.openide.util.Utilities;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class UMLClassWidget extends Widget {
 
-    private static final Image IMAGE_CLASS = Utilities.loadImage ("test/resources/class.gif"); // NOI18N
-    private static final Image IMAGE_MEMBER = Utilities.loadImage ("test/resources/variablePublic.gif"); // NOI18N
-    private static final Image IMAGE_OPERATION = Utilities.loadImage ("test/resources/methodPublic.gif"); // NOI18N
+    private static final Image IMAGE_CLASS = ImageUtilities.loadImage("test/resources/class.gif"); // NOI18N
+    private static final Image IMAGE_MEMBER = ImageUtilities.loadImage("test/resources/variablePublic.gif"); // NOI18N
+    private static final Image IMAGE_OPERATION = ImageUtilities.loadImage("test/resources/methodPublic.gif"); // NOI18N
 
     private LabelWidget className;
     private Widget members;

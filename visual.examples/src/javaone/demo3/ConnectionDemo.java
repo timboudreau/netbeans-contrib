@@ -26,10 +26,10 @@ import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -43,13 +43,13 @@ public class ConnectionDemo {
         scene.addChild(mainLayer);
 
         ImageWidget first = new ImageWidget (scene);
-        first.setImage (Utilities.loadImage ("javaone/resources/a.png"));
+        first.setImage (ImageUtilities.loadImage("javaone/resources/a.png"));
         first.setPreferredLocation(new Point (100, 100));
         first.getActions().addAction(ActionFactory.createMoveAction ());
         mainLayer.addChild(first);
 
         ImageWidget second = new ImageWidget (scene);
-        second.setImage (Utilities.loadImage ("javaone/resources/b.png"));
+        second.setImage (ImageUtilities.loadImage("javaone/resources/b.png"));
         second.setPreferredLocation(new Point (300, 200));
         second.getActions().addAction(ActionFactory.createMoveAction ());
         mainLayer.addChild(second);

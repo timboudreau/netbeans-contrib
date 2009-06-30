@@ -5,12 +5,12 @@ import org.netbeans.api.visual.action.ContiguousSelectEvent;
 import org.netbeans.api.visual.action.ContiguousSelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.model.ObjectScene;
-import org.netbeans.api.visual.widget.general.ListItemWidget;
-import org.netbeans.api.visual.widget.general.ListWidget;
 import test.SceneSupport;
 
 import java.util.Collections;
 import java.util.HashSet;
+import org.netbeans.modules.visual.experimental.widget.general.ListItemWidget;
+import org.netbeans.modules.visual.experimental.widget.general.ListWidget;
 
 /**
  * @author David Kaspar

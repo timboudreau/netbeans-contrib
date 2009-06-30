@@ -26,10 +26,10 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
@@ -82,7 +82,7 @@ public class CardContainerWidget extends Widget {
 
         IconNodeWidget card2 = new IconNodeWidget (scene);
         card2.setLabel ("This is the second card. Drag me to to move me.");
-        card2.setImage (Utilities.loadImage ("test/resources/displayable_64.png"));
+        card2.setImage (ImageUtilities.loadImage("test/resources/displayable_64.png"));
         container.addCard (card2);
 
         SceneSupport.show (scene);

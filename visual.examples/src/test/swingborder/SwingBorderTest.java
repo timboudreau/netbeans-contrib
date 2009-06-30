@@ -24,7 +24,6 @@ import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import javax.swing.border.BevelBorder;
@@ -32,13 +31,14 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import org.openide.util.ImageUtilities;
 
 /**
  * @author David Kaspar
  */
 public class SwingBorderTest {
 
-    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = BorderFactory.createImageBorder (new Insets (6, 6, 6, 6), Utilities.loadImage ("test/resources/shadow_normal.png")); // NOI18N
+    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = BorderFactory.createImageBorder (new Insets (6, 6, 6, 6), ImageUtilities.loadImage("test/resources/shadow_normal.png")); // NOI18N
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
