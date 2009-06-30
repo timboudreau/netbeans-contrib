@@ -128,6 +128,7 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
             String defaultTarget = projectEl != null ? projectEl.getAttribute("default") : ""; // NOI18N
             if (targets != null) {
                 targetCombo.setModel(new DefaultComboBoxModel(targets.toArray(new String[targets.size()])));
+                targetCombo.setSelectedItem(null); // force refresh
                 targetCombo.setSelectedItem(guessTarget(command, targets, defaultTarget));
             }
         }
@@ -173,12 +174,14 @@ public final class UnboundTargetAlert extends JPanel implements  ActionListener 
         final DialogDescriptor d = new DialogDescriptor(this, title);
         d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
         d.setMessageType(NotifyDescriptor.ERROR_MESSAGE);
-        d.setValid(!"".equals(targetCombo.getSelectedItem()));
-        targetCombo.addItemListener(new ItemListener() {
+        ItemListener listener = new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                d.setValid(((String) targetCombo.getSelectedItem()).trim().length() > 0);
+                String text = (String) targetCombo.getSelectedItem();
+                d.setValid(text != null && text.trim().length() > 0);
             }
-        });
+        };
+        listener.itemStateChanged(null);
+        targetCombo.addItemListener(listener);
         Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
         targetCombo.requestFocusInWindow();
         // XXX combo box gets cut off at the bottom unless you do something - why??
