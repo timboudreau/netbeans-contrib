@@ -238,6 +238,79 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "c" + File.pathSeparator + prefix + "s", Cache.get(prefix + "c4.jar" + JavaCacheConstants.JAR));
     }
 
+    public void testIncludesExcludes() throws Exception {
+        assertIncludesExcludes("", null, null);
+        assertIncludesExcludes("includes='dir1/,dir/2/' excludes='dir3/,dir/4/'", "dir1/,dir/2/", "dir3/,dir/4/");
+        assertIncludesExcludes("includes='**/*.java'", null, null);
+        assertIncludesExcludes("includes='dir1/**,dir2/**/*.*' excludes='dir3/**,dir4/**/*.*'", "dir1/,dir2/", "dir3/,dir4/");
+        write("includes", "foo\nbar");
+        write("excludes", "baz\n");
+        assertIncludesExcludes("includesfile='includes' excludesfile='excludes'", "foo,bar", "baz");
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <property name='excl' value='this,that'/>\n" +
+                "  <javac srcdir='s' destdir='c' excludes='${excl}'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals("this,that", Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s1'/>\n" +
+                "  <mkdir dir='s2'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='sub1/' excludes='sub2/'>\n" +
+                "   <src path='s1:s2'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("sub1/", Cache.get(prefix + "s1" + JavaCacheConstants.INCLUDES));
+        assertEquals("sub2/", Cache.get(prefix + "s1" + JavaCacheConstants.EXCLUDES));
+        assertEquals("sub1/", Cache.get(prefix + "s2" + JavaCacheConstants.INCLUDES));
+        assertEquals("sub2/", Cache.get(prefix + "s2" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <property name='use.2' value='true'/>\n" +
+                "  <javac srcdir='s' destdir='c'>\n" +
+                "   <include name='foo bar/'/>\n" +
+                "   <include name='sub1/' if='use.1'/>\n" +
+                "   <include name='sub2/' if='use.2'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("foo bar/,sub2/", Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        // XXX unless attr, nested <includesfile> w/ if/unless, ...
+        // XXX would be nice to also honor <selector>s as used by Apache Ant's build script
+    }
+    private void assertIncludesExcludes(String javacOpts, String includes, String excludes) throws Exception {
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' " + javacOpts + "/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(includes, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals(excludes, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+    }
+
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
     }

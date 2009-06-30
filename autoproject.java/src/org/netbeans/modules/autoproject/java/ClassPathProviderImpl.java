@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.autoproject.java;
 
+import java.net.URISyntaxException;
 import org.netbeans.modules.autoproject.spi.Cache;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -62,9 +63,11 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.spi.java.classpath.ClassPathFactory;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.spi.java.classpath.FilteringPathResourceImplementation;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
+import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.WeakListeners;
@@ -188,7 +191,13 @@ class ClassPathProviderImpl implements ClassPathProvider {
             LOG.log(Level.FINE, "calculated {0} for {1}: {2}", new Object[] {type, root, newurls});
             List<PathResourceImplementation> resources = new ArrayList<PathResourceImplementation>(newurls.size());
             for (URL u : newurls) {
-                resources.add(ClassPathSupport.createResource(u));
+                PathResourceImplementation resource;
+                if (type.equals(ClassPath.SOURCE)) {
+                    resource = new SourcePRI(u);
+                } else {
+                    resource = ClassPathSupport.createResource(u);
+                }
+                resources.add(resource);
             }
             return resources;
         }
@@ -204,6 +213,65 @@ class ClassPathProviderImpl implements ClassPathProvider {
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().contains(root)) {
                 getResources();
+            }
+        }
+
+    }
+
+    private static final class SourcePRI implements FilteringPathResourceImplementation, PropertyChangeListener {
+
+        private final URL root;
+        private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+        private PathMatcher matcher;
+
+        SourcePRI(URL root) {
+            this.root = root;
+            Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
+        }
+
+        public URL[] getRoots() {
+            return new URL[] {root};
+        }
+
+        public boolean includes(URL root, String resource) {
+            return pathMatcher().matches(resource, true);
+        }
+
+        public ClassPathImplementation getContent() {
+            return null;
+        }
+
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+            pcs.addPropertyChangeListener(listener);
+        }
+
+        public void removePropertyChangeListener(PropertyChangeListener listener) {
+            pcs.removePropertyChangeListener(listener);
+        }
+
+        private synchronized PathMatcher pathMatcher() {
+            if (matcher != null) {
+                return matcher;
+            }
+            try {
+                File d = new File(root.toURI());
+                matcher = new PathMatcher(Cache.get(d + JavaCacheConstants.INCLUDES), Cache.get(d + JavaCacheConstants.EXCLUDES), d);
+            } catch (URISyntaxException x) {
+                LOG.log(Level.INFO, root.toString(), x);
+                matcher = new PathMatcher(null, null, null);
+            }
+            return matcher;
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            String prop = evt.getPropertyName();
+            if (prop.endsWith(JavaCacheConstants.INCLUDES) || prop.endsWith(JavaCacheConstants.EXCLUDES)) {
+                synchronized (this) {
+                    matcher = null;
+                }
+                PropertyChangeEvent ev = new PropertyChangeEvent(this, PROP_INCLUDES, null, null);
+                ev.setPropagationId(evt);
+                pcs.firePropertyChange(ev);
             }
         }
 

@@ -39,9 +39,11 @@
 
 package org.netbeans.modules.autoproject.java;
 
+import javax.swing.Icon;
 import org.netbeans.modules.autoproject.spi.Cache;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +54,12 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.support.GenericSources;
+import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ChangeSupport;
@@ -92,9 +96,7 @@ class SourcesImpl implements Sources, PropertyChangeListener {
                                 new File(k.substring(0, k.length() - JavaCacheConstants.SOURCE.length()))));
                         if (root != null && FileOwnerQuery.getOwner(root) == p) {
                             LOG.log(Level.FINE, "Found Java-type group in {0}", root);
-                            String path = FileUtil.getRelativePath(p.getProjectDirectory(), root);
-                            String name = path.length() > 0 ? path : "Source Packages"; // XXX I18N
-                            groups.add(GenericSources.group(p, root, path, name, null, null));
+                            groups.add(new Group(root));
                             // XXX should add file listener to root in case it gets deleted
                         }
                     }
@@ -115,12 +117,100 @@ class SourcesImpl implements Sources, PropertyChangeListener {
         cs.removeChangeListener(listener);
     }
 
-    public synchronized void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().endsWith(JavaCacheConstants.SOURCE)) {
             // XXX could be more discriminating
-            javaGroups = null;
+            synchronized (this) {
+                javaGroups = null;
+            }
             cs.fireChange();
         }
+    }
+
+    private final class Group implements SourceGroup, PropertyChangeListener {
+
+        private final FileObject root;
+        private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+        Group(FileObject root) {
+            this.root = root;
+            Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
+        }
+
+        public FileObject getRootFolder() {
+            return root;
+        }
+
+        public String getName() {
+            return FileUtil.getRelativePath(p.getProjectDirectory(), root);
+        }
+
+        public String getDisplayName() {
+            String n = getName();
+            return n.length() > 0 ? n : "Source Packages"; // XXX I18N
+        }
+
+        public Icon getIcon(boolean opened) {
+            return null;
+        }
+
+        public boolean contains(FileObject file) throws IllegalArgumentException {
+                if (file == root) {
+                    return true;
+                }
+                String path = FileUtil.getRelativePath(root, file);
+                if (path == null) {
+                    throw new IllegalArgumentException(file + " is not inside " + root);
+                }
+                if (file.isFolder()) {
+                    path += "/"; // NOI18N
+                }
+                if (!computeIncludeExcludePatterns().matches(path, true)) {
+                    return false;
+                }
+                if (file.isFolder() && file != p.getProjectDirectory() && ProjectManager.getDefault().isProject(file)) {
+                    return false;
+                }
+                // XXX FOQ & SQ calls disabled for typed source roots; difficult to make fast (#97215)
+                return true;
+        }
+
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+            pcs.addPropertyChangeListener(listener);
+        }
+
+        public void removePropertyChangeListener(PropertyChangeListener listener) {
+            pcs.removePropertyChangeListener(listener);
+        }
+
+        private PathMatcher matcher;
+        private PathMatcher computeIncludeExcludePatterns() {
+            synchronized (this) {
+                if (matcher != null) {
+                    return matcher;
+                }
+            }
+            File rootF = FileUtil.toFile(root);
+            String includesPattern = Cache.get(rootF + JavaCacheConstants.INCLUDES);
+            String excludesPattern = Cache.get(rootF + JavaCacheConstants.EXCLUDES);
+            PathMatcher _matcher = new PathMatcher(includesPattern, excludesPattern, rootF);
+            synchronized (this) {
+                matcher = _matcher;
+            }
+            return _matcher;
+        }
+        private synchronized void resetIncludeExcludePatterns() {
+            matcher = null;
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            String prop = evt.getPropertyName();
+            if (prop.endsWith(JavaCacheConstants.INCLUDES) || prop.endsWith(JavaCacheConstants.EXCLUDES)) {
+                resetIncludeExcludePatterns();
+                pcs.firePropertyChange(PROP_CONTAINERSHIP, null, null);
+            }
+        }
+
     }
 
 }

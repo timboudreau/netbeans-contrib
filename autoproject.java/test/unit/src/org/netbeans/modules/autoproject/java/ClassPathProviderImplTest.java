@@ -42,12 +42,14 @@ package org.netbeans.modules.autoproject.java;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.test.MockPropertyChangeListener;
 import org.openide.util.test.TestFileUtils;
 
 public class ClassPathProviderImplTest extends NbTestCase {
@@ -56,8 +58,13 @@ public class ClassPathProviderImplTest extends NbTestCase {
         super(n);
     }
 
-    public void testEmptyClasspath() throws Exception {
+    protected @Override void setUp() throws Exception {
+        super.setUp();
         clearWorkDir();
+        Cache.clear();
+    }
+
+    public void testEmptyClasspath() throws Exception {
         File r = getWorkDir();
         FileObject fo = FileUtil.toFileObject(r);
         String s = r.getAbsolutePath();
@@ -68,7 +75,6 @@ public class ClassPathProviderImplTest extends NbTestCase {
     }
 
     public void testInferredSourceRoots() throws Exception {
-        clearWorkDir();
         File src = new File(getWorkDir(), "src");
         File clazz = new File(src, "pkg/Clazz.java");
         TestFileUtils.writeFile(clazz, "package pkg; public class Clazz {}");
@@ -76,6 +82,33 @@ public class ClassPathProviderImplTest extends NbTestCase {
         ClassPath sourcepath = cpp.findClassPath(FileUtil.toFileObject(clazz), ClassPath.SOURCE);
         assertNotNull(sourcepath);
         assertEquals(Collections.singletonList(FileUtil.toFileObject(src)), Arrays.asList(sourcepath.getRoots()));
+    }
+
+    public void testIncludesExcludes() throws Exception {
+        File r = getWorkDir();
+        FileObject fo = FileUtil.toFileObject(r);
+        String s = r.getAbsolutePath();
+        Cache.put(s + JavaCacheConstants.SOURCE, s);
+        Cache.put(s + JavaCacheConstants.CLASSPATH, "");
+        Cache.put(s + JavaCacheConstants.INCLUDES, "com/");
+        Cache.put(s + JavaCacheConstants.EXCLUDES, "com/foreign1/,com/foreign2/");
+        ClassPathProvider cpp = new ClassPathProviderImpl(null);
+        ClassPath sourcepath = cpp.findClassPath(fo, ClassPath.SOURCE);
+        assertNotNull(sourcepath);
+        List<ClassPath.Entry> entries = sourcepath.entries();
+        assertEquals(1, entries.size());
+        ClassPath.Entry entry = entries.get(0);
+        assertEquals(fo, entry.getRoot());
+        assertTrue(entry.includes("com/domestic/Class.java"));
+        assertFalse(entry.includes("com/foreign1/Class.java"));
+        assertFalse(entry.includes("com/foreign2/Class.java"));
+        MockPropertyChangeListener pcl = new MockPropertyChangeListener(ClassPath.PROP_INCLUDES);
+        sourcepath.addPropertyChangeListener(pcl);
+        Cache.put(s + JavaCacheConstants.EXCLUDES, "com/foreign1/");
+        pcl.assertEvents(ClassPath.PROP_INCLUDES);
+        assertTrue(entry.includes("com/domestic/Class.java"));
+        assertFalse(entry.includes("com/foreign1/Class.java"));
+        assertTrue(entry.includes("com/foreign2/Class.java"));
     }
 
 }
