@@ -100,7 +100,6 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         this.wiz = wiz;
         SeleniumPHPSupport.prepareProject(Templates.getProject(wiz));
         panel = createPanel(wiz);
-        panel.getComponent();
     }
 
     public void uninitialize(WizardDescriptor wiz) {
