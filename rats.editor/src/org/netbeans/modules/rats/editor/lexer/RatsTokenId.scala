@@ -47,6 +47,7 @@ import _root_.java.util.HashSet
 import _root_.java.util.Map
 import _root_.java.util.Arrays
 
+import org.netbeans.api.java.lexer.JavaTokenId;
 import org.netbeans.api.lexer.InputAttributes
 import org.netbeans.api.lexer.Language
 import org.netbeans.api.lexer.LanguagePath
@@ -172,7 +173,10 @@ object RatsTokenId extends Enumeration {
     }
 
     override protected def embedding(token:Token[TokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
-      null // No embedding
+      token.id match {
+        case ActionBody => LanguageEmbedding.create(JavaTokenId.language, 0, 0, true);
+        case _ => null
+      }
     }
   }.language
 
