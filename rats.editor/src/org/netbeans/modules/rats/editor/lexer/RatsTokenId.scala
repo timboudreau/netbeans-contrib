@@ -128,13 +128,7 @@ object RatsTokenId extends Enumeration {
   val Dot = V("Dot", ".", "separator")
   val Eq = V("Eq", "=", "separator")
   val Slash = V("Slash", "/", "separator")
-  val And = V("And", "&", "separator")
-  val Not = V("Not", "!", "separator")
-  val Caret = V("Caret", "^", "separator")
   val Colon = V("Colon", ":", "separator")
-  val Question = V("Question", "?", "separator")
-  val Star = V("Star", "*", "separator")
-  val Plus = V("Plus", "+", "separator")
   val LParen = V("LParen", "(", "separator")
   val RParen = V("RParen", ")", "separator")
   val LBrace = V("LBrace", "{", "separator")
@@ -144,6 +138,13 @@ object RatsTokenId extends Enumeration {
   val Gt = V("Gt", ">", "separator")
   val At = V("At", "@", "separator")
   val Underscore = V("Underscore", "_", "separator")
+
+  val And = V("And", "&", "prefix")
+  val Not = V("Not", "!", "prefix")
+  val Caret = V("Caret", "^", "prefix")
+  val Question = V("Question", "?", "suffix")
+  val Star = V("Star", "*", "suffix")
+  val Plus = V("Plus", "+", "suffix")
 
   // - Do we need this token to separator the ActionBody ?
   val Delimiter = V("Delimiter", null, "separator")
