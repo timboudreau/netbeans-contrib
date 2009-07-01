@@ -226,6 +226,18 @@ public class BuildSniffer extends AntLogger {
         if (buildSysclasspath.equals("last")) {
             appendJavaClassPath(classpath);
         }
+        List<String> bootclasspath = new ArrayList<String>();
+        // XXX pay attention to build.sysclasspath if defined
+        appendPath(task.getAttribute("bootclasspath"), event, bootclasspath, true);
+        String bootcpref = task.getAttribute("bootclasspathref");
+        if (bootcpref != null) {
+            appendPath(event.getProperty(bootcpref), event, bootclasspath, true);
+        }
+        for (TaskStructure child : task.getChildren()) {
+            if (child.getName().equals("bootclasspath")) {
+                appendPathStructure(child, event, bootclasspath, state);
+            }
+        }
         // Check to see if source roots are correct; srcdir on <javac> is sometimes wrong.
         ListIterator<String> sourcesIt = sources.listIterator();
         while (sourcesIt.hasNext()) {
@@ -257,10 +269,12 @@ public class BuildSniffer extends AntLogger {
             Cache.put(s + JavaCacheConstants.INCLUDES, includes);
             Cache.put(s + JavaCacheConstants.EXCLUDES, excludes);
             writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
+            if (!bootclasspath.isEmpty()) {
+                writePath(s + JavaCacheConstants.BOOTCLASSPATH, bootclasspath, state);
+            }
             if (destdir != null) {
                 Cache.put(s + JavaCacheConstants.BINARY, destdir);
             }
-            // XXX could also sniff JavaCacheConstants.BOOTCLASSPATH if specified
             String sourceLevel = task.getAttribute("source");
             if (sourceLevel != null) {
                 Cache.put(s + JavaCacheConstants.SOURCE_LEVEL, event.evaluate(sourceLevel));
