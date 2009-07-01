@@ -46,6 +46,7 @@ import java.util.MissingResourceException;
 import javax.swing.Action;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.autoproject.spi.PathFinder;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
@@ -74,7 +75,14 @@ class LogicalViewImpl implements LogicalViewProvider {
     }
 
     public Node findPath(Node root, Object target) {
-        // XXX awaiting a proper API for the child nodes to themselves say how to find things
+        for (PathFinder pf : Lookup.getDefault().lookupAll(PathFinder.class)) {
+            for (Node child : root.getChildren().getNodes(true)) {
+                Node r = pf.findNode(child, target);
+                if (r != null) {
+                    return r;
+                }
+            }
+        }
         return null;
     }
 
