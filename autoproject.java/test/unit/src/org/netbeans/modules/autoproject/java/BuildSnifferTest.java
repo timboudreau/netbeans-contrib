@@ -169,6 +169,8 @@ public class BuildSnifferTest extends NbTestCase {
                 "    <dirset dir='c'/>\n" +
                 "    <fileset refid='stuff'/>\n" +
                 "   </classpath>\n" +
+                "   <classpath location='cpl.jar'/>\n" +
+                "   <classpath path='cpp1.jar:cpp2.jar'/>\n" +
                 "  </javac>\n" +
                 " </target>\n" +
                 "</project>\n");
@@ -179,6 +181,7 @@ public class BuildSnifferTest extends NbTestCase {
             "pe-loc.jar", "pe-path-1.jar", "pe-path-2.jar",
             "lib/aw.jar", "lib/b.jar", "c",
             "lib/r1.jar", "lib/r2.jar",
+            "cpl.jar", "cpp1.jar", "cpp2.jar", // #167929
         }) {
             cp.add(prefix + entry);
         }
