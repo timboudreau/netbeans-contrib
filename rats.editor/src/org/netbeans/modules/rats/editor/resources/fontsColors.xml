@@ -105,6 +105,6 @@ made subject to such option by the copyright holder.
     <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
 
     <!-- embedded java source -->
-    <fontcolor name="embedded" bgColor="E3F2E1"/>
+    <fontcolor name="embedded" bgColor="E3F2E1" default="default"/>
 
 </fontscolors>
