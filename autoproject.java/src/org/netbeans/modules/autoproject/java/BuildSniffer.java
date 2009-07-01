@@ -441,6 +441,7 @@ public class BuildSniffer extends AntLogger {
     }
 
     private static void appendPathStructure(TaskStructure s, AntEvent event, List<String> entries, State state) {
+        appendPath(s.getAttribute("location"), event, entries, false);
         appendPath(s.getAttribute("path"), event, entries, true);
         String ref = s.getAttribute("refid");
         if (ref != null) {
