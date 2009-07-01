@@ -48,6 +48,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.autoproject.spi.PathFinder;
 import org.netbeans.spi.java.project.support.ui.PackageView;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
@@ -57,6 +58,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * Displays source roots etc. for the project.
@@ -128,6 +130,15 @@ public class NodeFactoryImpl implements NodeFactory {
 
         public void removeChangeListener(ChangeListener l) {
             cs.removeChangeListener(l);
+        }
+
+    }
+
+    @ServiceProvider(service=PathFinder.class)
+    public static class PackageViewFinder implements PathFinder {
+
+        public Node findNode(Node root, Object target) {
+            return PackageView.findPath(root, target);
         }
 
     }

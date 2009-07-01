@@ -80,6 +80,7 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
         assertEquals(prefix + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
         assertEquals(prefix + "x.jar", Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.BOOTCLASSPATH));
         assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
     }
 
@@ -309,6 +310,21 @@ public class BuildSnifferTest extends NbTestCase {
         runAnt();
         assertEquals(includes, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
         assertEquals(excludes, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+    }
+
+    public void testBootClassPath() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' bootclasspath='x.jar' includeantruntime='false'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE));
+        assertEquals(prefix + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
+        assertEquals(prefix + "x.jar", Cache.get(prefix + "s" + JavaCacheConstants.BOOTCLASSPATH));
     }
 
     private void write(String file, String body) throws IOException {
