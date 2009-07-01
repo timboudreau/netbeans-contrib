@@ -68,6 +68,9 @@
                     </folder>
                 </folder>
 
+                <file name="org-netbeans-modules-rats-editor-embed-EmbeddingHighlightsLayerFactory.instance"/>
+                <file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>
+
                 <folder name="CodeTemplates">
                     <folder name="Defaults">
                         <file name="codeTemplates.xml" url="codeTemplates.xml">

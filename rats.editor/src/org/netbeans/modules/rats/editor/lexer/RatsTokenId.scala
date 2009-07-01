@@ -145,6 +145,8 @@ object RatsTokenId extends Enumeration {
   val At = V("At", "@", "separator")
   val Underscore = V("Underscore", "_", "separator")
 
+  // - Do we need this token to separator the ActionBody ?
+  val Delimiter = V("Delimiter", null, "separator")
   
   /**
    * MIME type for Erlang. Don't change this without also consulting the various XML files
