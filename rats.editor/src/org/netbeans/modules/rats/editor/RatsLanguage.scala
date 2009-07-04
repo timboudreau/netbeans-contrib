@@ -81,8 +81,8 @@ class RatsLanguage extends DefaultLanguageConfig {
 
   override def getSourcePathIds = Collections.singleton(SOURCE)
     
-  //   override def getParser = new RatsParser
-  //
+  override def getParser = new RatsParser
+  
   //   override def hasStructureScanner = true
   //
   //   override def getStructureScanner = new RatsStructureAnalyzer

@@ -23,7 +23,9 @@
  * @author Robert Grimm
  * @version $Revision: 1.30 $
  */ 
-module org.netbeans.modules.rats.editor.rats.PGrammar;
+module org.netbeans.modules.rats.editor.rats.ParserRats;
+
+import org.netbeans.modules.rats.editor.rats.Error;
 
 header {
    import java.util.ArrayList;
@@ -35,10 +37,11 @@ header {
    import xtc.tree.Comment;
 
    import xtc.util.Utilities;
+   import xtc.parser.*;
 }
 
-option withLocation, constant, stateful(PParserState),
-       parser(xtc.parser.PParser);
+option withLocation, constant, stateful(ParserState),
+       parser(org.netbeans.modules.rats.editor.rats.ParserRats);
 
 // ------------------------------------------------------------- Module
 
