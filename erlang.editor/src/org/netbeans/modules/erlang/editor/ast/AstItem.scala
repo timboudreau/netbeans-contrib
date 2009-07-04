@@ -53,117 +53,117 @@ import scala.collection.mutable.{HashMap}
  */
 trait AstItem extends ForElementHandle {
 
-   def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
-      this.idToken = idToken
-      this.kind = kind
-   }
+  def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
+    this.idToken = idToken
+    this.kind = kind
+  }
 
-   var resultType :String = _
-   /**
-    * @Note:
-    * 1. Not all AstItem has pickToken, such as Expr etc.
-    * 2. Due to strange behavior of StructureAnalyzer, we can not rely on
-    *    pickToken's text as name, pickToken may be <null> and pickToken.text()
-    *    will return null when an Identifier token modified, seems sync issue
-    */
-   private var _symbol :AstSym = NoSymbol
-   private var _idToken :Option[Token[TokenId]] = None
-   private var _name :String = _
-   private var _enclosingScope :Option[AstScope] = _
-   private var properties :Option[HashMap[String, Any]] = None
-   var kind :ElementKind = ElementKind.OTHER
+  var resultType :String = _
+  /**
+   * @Note:
+   * 1. Not all AstItem has pickToken, such as Expr etc.
+   * 2. Due to strange behavior of StructureAnalyzer, we can not rely on
+   *    pickToken's text as name, pickToken may be <null> and pickToken.text()
+   *    will return null when an Identifier token modified, seems sync issue
+   */
+  private var _symbol :AstSym = NoSymbol
+  private var _idToken :Option[Token[TokenId]] = None
+  private var _name :String = _
+  private var _enclosingScope :Option[AstScope] = _
+  private var properties :Option[HashMap[String, Any]] = None
+  var kind :ElementKind = ElementKind.OTHER
 
-   def symbol = _symbol
-   def symbol_=(symbol:AstSym) = {
-      this._symbol = symbol
-      symbol.item = this
-   }
+  def symbol = _symbol
+  def symbol_=(symbol:AstSym) = {
+    this._symbol = symbol
+    symbol.item = this
+  }
 
-   def idToken = _idToken
-   def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>
-      this._idToken = idToken; name = x.text.toString
-   }
+  def idToken = _idToken
+  def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>
+    this._idToken = idToken; name = x.text.toString
+  }
 
-   def name = _name
-   def name_=(name:String) = this._name = name
-   def name_=(idToken:Token[TokenId]) = {
-      if (idToken == null) {
-         _name = "" // should not happen?
-      }
+  def name = _name
+  def name_=(name:String) = this._name = name
+  def name_=(idToken:Token[TokenId]) = {
+    if (idToken == null) {
+      _name = "" // should not happen?
+    }
         
-      try {
-         _name = idToken.text.toString
-      } catch {
-         case ex:Exception =>
-            val l = idToken.length
-            val sb = new StringBuilder(l)
-            var i = 0
-            while (i < l) {
-               sb.append(" ")
-               i += 1
-            }
-            _name = sb.toString
-            println("NPE in AstItem#getName:" + idToken.id)
-      }
-   }
+    try {
+      _name = idToken.text.toString
+    } catch {
+      case ex:Exception =>
+        val l = idToken.length
+        val sb = new StringBuilder(l)
+        var i = 0
+        while (i < l) {
+          sb.append(" ")
+          i += 1
+        }
+        _name = sb.toString
+        println("NPE in AstItem#getName:" + idToken.id)
+    }
+  }
 
-   def idOffset(th:TokenHierarchy[_]) = idToken match {
-      case None =>
-         assert(false, getName + ": Should implement offset(th)")
-         -1
-      case Some(x) => x.offset(th)
-   }
+  def idOffset(th:TokenHierarchy[_]) = idToken match {
+    case None =>
+      assert(false, getName + ": Should implement offset(th)")
+      -1
+    case Some(x) => x.offset(th)
+  }
 
-   def idEndOffset(th:TokenHierarchy[_]) :Int = idToken match {
-      case None =>
-         assert(false, name + ": Should implement getIdEndOffset(th)")
-         -1
-      case Some(x) => x.offset(th) + x.length
-   }
+  def idEndOffset(th:TokenHierarchy[_]) :Int = idToken match {
+    case None =>
+      assert(false, name + ": Should implement getIdEndOffset(th)")
+      -1
+    case Some(x) => x.offset(th) + x.length
+  }
 
-   def binaryName = name
+  def binaryName = name
 
-   def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = {
-      enclosingScope.get.enclosingDfn(clazz)
-   }
+  def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = {
+    enclosingScope.get.enclosingDfn(clazz)
+  }
 
-   /**
-    * @Note: enclosingScope will be set when call
-    *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
-    */
-   def enclosingScope_=(enclosingScope:AstScope) :AstItem = {
-      enclosingScope match {
-         case null => this._enclosingScope = None
-         case _ => this._enclosingScope = Some(enclosingScope)
-      }
-      this
-   }
+  /**
+   * @Note: enclosingScope will be set when call
+   *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
+   */
+  def enclosingScope_=(enclosingScope:AstScope) :AstItem = {
+    enclosingScope match {
+      case null => this._enclosingScope = None
+      case _ => this._enclosingScope = Some(enclosingScope)
+    }
+    this
+  }
 
-   /**
-    * @return the scope that encloses this item
-    */
-   def enclosingScope :Option[AstScope] = {
-      assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
-      _enclosingScope
-   }
+  /**
+   * @return the scope that encloses this item
+   */
+  def enclosingScope :Option[AstScope] = {
+    assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
+    _enclosingScope
+  }
 
-   def rootScope :AstRootScope = enclosingScope.get.root
+  def rootScope :AstRootScope = enclosingScope.get.root
 
-   def property(k:String, v:Any) :Unit = {
-      if (properties == None) {
-         properties = Some(new HashMap)
-      }
-      for (_properties <- properties) {
-         _properties + (k -> v)
-      }
-   }
+  def property(k:String, v:Any) :Unit = {
+    if (properties == None) {
+      properties = Some(new HashMap)
+    }
+    for (_properties <- properties) {
+      _properties + (k -> v)
+    }
+  }
 
-   def property(k:String) :Option[Any] = {
-      for (_properties <- properties) {
-         return _properties.get(k)
-      }
-      None
-   }
+  def property(k:String) :Option[Any] = {
+    for (_properties <- properties) {
+      return _properties.get(k)
+    }
+    None
+  }
 }
 
 /**
@@ -171,17 +171,17 @@ trait AstItem extends ForElementHandle {
  */
 trait ForElementHandle {self:AstItem =>
     
-   def getMimeType :String = ErlangMimeResolver.MIME_TYPE
+  def getMimeType :String = ErlangMimeResolver.MIME_TYPE
 
-   def getName = self.name
+  def getName = self.name
 
-   def getIn :String = ""
+  def getIn :String = ""
 
-   def getKind :ElementKind = self.kind
+  def getKind :ElementKind = self.kind
 
-   def signatureEquals(handle:ElementHandle) = false
+  def signatureEquals(handle:ElementHandle) = false
 
-   def getModifiers :Set[Modifier] = Collections.emptySet[Modifier]
+  def getModifiers :Set[Modifier] = Collections.emptySet[Modifier]
 
-   def getOffsetRange(result:ParserResult) :OffsetRange = OffsetRange.NONE
+  def getOffsetRange(result:ParserResult) :OffsetRange = OffsetRange.NONE
 }

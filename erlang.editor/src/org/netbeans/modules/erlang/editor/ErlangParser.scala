@@ -89,254 +89,248 @@ import org.netbeans.modules.erlang.editor.node.AstNodeVisitor
  */
 class ErlangParser extends Parser {
 
-   private var lastResult :ErlangParserResult = _
+  private var lastResult :ErlangParserResult = _
 
-   @throws(classOf[ParseException])
-   override
-   def parse(snapshot:Snapshot, task:Task, event:SourceModificationEvent) :Unit = {
-      val context = new Context(snapshot, event)
-      lastResult = parseBuffer(context, NONE)
-      lastResult.errors = context.errors
-   }
+  @throws(classOf[ParseException])
+  override def parse(snapshot:Snapshot, task:Task, event:SourceModificationEvent) :Unit = {
+    val context = new Context(snapshot, event)
+    lastResult = parseBuffer(context, NONE)
+    lastResult.errors = context.errors
+  }
 
-   @throws(classOf[ParseException])
-   override
-   def getResult(task:Task) :Result = {
-      assert(lastResult != null, "getResult() called prior parse()") //NOI18N
-      lastResult
-   }
+  @throws(classOf[ParseException])
+  override def getResult(task:Task) :Result = {
+    assert(lastResult != null, "getResult() called prior parse()") //NOI18N
+    lastResult
+  }
 
-   override
-   def cancel :Unit = {}
+  override def cancel :Unit = {}
 
-   override
-   def addChangeListener(changeListener:ChangeListener) :Unit = {
-      // no-op, we don't support state changes
-   }
+  override def addChangeListener(changeListener:ChangeListener) :Unit = {
+    // no-op, we don't support state changes
+  }
 
-   override
-   def removeChangeListener(changeListener:ChangeListener) :Unit = {
-      // no-op, we don't support state changes
-   }
+  override def removeChangeListener(changeListener:ChangeListener) :Unit = {
+    // no-op, we don't support state changes
+  }
 
-   private def lexToAst(source:Snapshot, offset:Int) :Int = source match {
-      case null => offset
-      case _ => source.getEmbeddedOffset(offset)
-   }
+  private def lexToAst(source:Snapshot, offset:Int) :Int = source match {
+    case null => offset
+    case _ => source.getEmbeddedOffset(offset)
+  }
 
-   private def astToLex(source:Snapshot, offset:Int) :Int = source match {
-      case null => offset
-      case _ => source.getOriginalOffset(offset)
-   }
+  private def astToLex(source:Snapshot, offset:Int) :Int = source match {
+    case null => offset
+    case _ => source.getOriginalOffset(offset)
+  }
 
-   private def sanitizeSource(context:Context, sanitizing:Sanitize) :Boolean = {
-      false
-   }
+  private def sanitizeSource(context:Context, sanitizing:Sanitize) :Boolean = {
+    false
+  }
 
-   private def sanitize(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
-      sanitizing match {
-         case NEVER =>
-            createParseResult(context)
-         case NONE =>
-            createParseResult(context)
-         case _ =>
-            // we are out of trick, just return as it
-            createParseResult(context)
+  private def sanitize(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
+    sanitizing match {
+      case NEVER =>
+        createParseResult(context)
+      case NONE =>
+        createParseResult(context)
+      case _ =>
+        // we are out of trick, just return as it
+        createParseResult(context)
+    }
+  }
+
+  protected def notifyError(context:Context, message:String, sourceName:String,
+                            start:Int, end:Int, lineSource:String, isLineError:Boolean,
+                            sanitizing:Sanitize, severity:Severity,
+                            key:String, params:Object) :Unit = {
+
+    val error = DefaultError.createDefaultError(key, message, null, context.fo.getOrElse(null), start, end, isLineError, severity).asInstanceOf[DefaultError]
+
+    params match {
+      case null =>
+      case x:Array[Object] => error.setParameters(x)
+      case _ => error.setParameters(Array(params))
+    }
+
+    context.notifyError(error)
+
+    if (sanitizing == NONE) {
+      context.errorOffset = start
+    }
+  }
+
+  protected def parseBuffer(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
+    var sanitizedSource = false
+    var source = context.source
+    val doc = context.snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
+
+    sanitizing match {
+      case NONE | NEVER =>
+      case _ =>
+        val ok = sanitizeSource(context, sanitizing)
+        if (ok) {
+          assert(context.sanitizedSource != null)
+          sanitizedSource = true
+          source = context.sanitizedSource
+        } else {
+          // Try next trick
+          return sanitize(context, sanitizing)
+        }
+    }
+
+    if (sanitizing == NONE) {
+      context.errorOffset = -1
+    }
+
+    val parser = createParser(context)
+
+    val ignoreErrors = sanitizedSource
+    var root :Option[GNode] = None
+    try {
+      var error :Option[ParseError] = None
+      val r = parser.pS(0)
+      if (r.hasValue) {
+        val v = r.asInstanceOf[SemanticValue]
+        root = Some(v.value.asInstanceOf[GNode])
+      } else {
+        error = Some(r.parseError)
       }
-   }
 
-   protected def notifyError(context:Context, message:String, sourceName:String,
-                             start:Int, end:Int, lineSource:String, isLineError:Boolean,
-                             sanitizing:Sanitize, severity:Severity,
-                             key:String, params:Object) :Unit = {
+      if (!ignoreErrors) {
+        def syntaxError(err:ParseError) = {
+          val start = err.index match {
+            case -1 => 0
+            case x  => x
+          }
 
-      val error = DefaultError.createDefaultError(key, message, null, context.fo.getOrElse(null), start, end, isLineError, severity).asInstanceOf[DefaultError]
+          var end = -1
+          try {
+            // * @Note row should plus 1 to equal NetBeans' doc offset
+            end = Utilities.getRowLastNonWhite(doc, start) + 1
+          } catch {case ex:BadLocationException =>}
 
-      params match {
-         case null =>
-         case x:Array[Object] => error.setParameters(x)
-         case _ => error.setParameters(Array(params))
-      }
+          if (end != -1 && end <= start) {
+            end += 1
+          }
 
-      context.notifyError(error)
-
-      if (sanitizing == NONE) {
-         context.errorOffset = start
-      }
-   }
-
-   protected def parseBuffer(context:Context, sanitizing:Sanitize) :ErlangParserResult = {
-      var sanitizedSource = false
-      var source = context.source
-      val doc = context.snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-
-      sanitizing match {
-         case NONE | NEVER =>
-         case _ =>
-            val ok = sanitizeSource(context, sanitizing)
-            if (ok) {
-               assert(context.sanitizedSource != null)
-               sanitizedSource = true
-               source = context.sanitizedSource
-            } else {
-               // Try next trick
-               return sanitize(context, sanitizing)
-            }
-      }
-
-      if (sanitizing == NONE) {
-         context.errorOffset = -1
-      }
-
-      val parser = createParser(context)
-
-      val ignoreErrors = sanitizedSource
-      var root :Option[GNode] = None
-      try {
-         var error :Option[ParseError] = None
-         val r = parser.pS(0)
-         if (r.hasValue) {
-            val v = r.asInstanceOf[SemanticValue]
-            root = Some(v.value.asInstanceOf[GNode])
-         } else {
-            error = Some(r.parseError)
-         }
-
-         if (!ignoreErrors) {
-            def syntaxError(err:ParseError) = {
-               val start = err.index match {
-                  case -1 => 0
-                  case x  => x
-               }
-
-               var end = -1
-               try {
-                  // * @Note row should plus 1 to equal NetBeans' doc offset
-                  end = Utilities.getRowLastNonWhite(doc, start) + 1
-               } catch {case ex:BadLocationException =>}
-
-               if (end != -1 && end <= start) {
-                  end += 1
-               }
-
-               val isLineError = end == -1
-               notifyError(context, err.msg, "Syntax error",
-                           start, end, "", isLineError,
-                           sanitizing, Severity.ERROR,
-                           "SYNTAX_ERROR", Array(err))
-            }
+          val isLineError = end == -1
+          notifyError(context, err.msg, "Syntax error",
+                      start, end, "", isLineError,
+                      sanitizing, Severity.ERROR,
+                      "SYNTAX_ERROR", Array(err))
+        }
                 
-            // --- recovered errors
-            for (err <- parser.errors) {
-               syntaxError(err)
-            }
+        // --- recovered errors
+        for (err <- parser.errors) {
+          syntaxError(err)
+        }
 
-            // --- No-recoverable error
-            for (err <- error) {
-               syntaxError(err)
-               //System.err.println(err.msg)
-            }
-         }
+        // --- No-recoverable error
+        for (err <- error) {
+          syntaxError(err)
+          //System.err.println(err.msg)
+        }
+      }
+    } catch {
+      case e:IOException => e.printStackTrace
+      case e:IllegalArgumentException =>
+        // An internal exception thrown by parser, just catch it and notify
+        notifyError(context, e.getMessage, "",
+                    0, 0, "", true,
+                    sanitizing, Severity.ERROR,
+                    "SYNTAX_ERROR", Array(e))
+    }
+
+    root match {
+      case Some(_) =>
+        context.sanitized = sanitizing
+        context.root = root
+
+        analyze(context)
+
+        val r = createParseResult(context)
+        r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
+        r.source = source
+        r
+      case None =>
+        sanitize(context, sanitizing)
+    }
+  }
+
+  private def analyze(context:Context) :Unit = {
+    val doc = LexUtil.document(context.snapshot, false)
+
+    // * we need TokenHierarchy to do anaylzing task
+    for (root <- context.root;
+         th <- LexUtil.tokenHierarchy(context.snapshot)) {
+      // * Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
+      for (x <- doc) {x.readLock}
+      try {
+        val visitor = new AstNodeVisitor(root, th, context.fo)
+        visitor.visit(root)
+        context.rootScope = Some(visitor.rootScope)
       } catch {
-         case e:IOException => e.printStackTrace
-         case e:IllegalArgumentException =>
-            // An internal exception thrown by parser, just catch it and notify
-            notifyError(context, e.getMessage, "",
-                        0, 0, "", true,
-                        sanitizing, Severity.ERROR,
-                        "SYNTAX_ERROR", Array(e))
+        case ex:Throwable => ex.printStackTrace
+      } finally {
+        for (x <- doc) {x.readUnlock}
       }
+    }
+  }
 
-      root match {
-         case Some(_) =>
-            context.sanitized = sanitizing
-            context.root = root
+  private def fileName(context:Context) :String = {
+    context.fo match {
+      case None => "<current>"
+      case Some(x) => x.getNameExt
+    }
+  }
 
-            analyze(context)
+  protected def createParser(context:Context) :ParserErlang = {
+    val in = new StringReader(context.source)
+    new ParserErlang(in, fileName(context))
+  }
 
-            val r = createParseResult(context)
-            r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
-            r.source = source
-            r
-         case None =>
-            sanitize(context, sanitizing)
-      }
-   }
+  private def createParseResult(context:Context) :ErlangParserResult = {
+    new ErlangParserResult(context.snapshot, context.root, context.rootScope)
+  }
 
-   private def analyze(context:Context) :Unit = {
-      val doc = LexUtil.document(context.snapshot, false)
+  /** Parsing context */
+  class Context(val snapshot:Snapshot, event:SourceModificationEvent) {
+    val errors :List[Error] = new ArrayList[Error]
 
-      // * we need TokenHierarchy to do anaylzing task
-      for (root <- context.root;
-           th <- LexUtil.tokenHierarchy(context.snapshot)) {
-         // * Due to Token hierarchy will be used in analyzing, should do it in an Read-lock atomic task
-         for (x <- doc) {x.readLock}
-         try {
-            val visitor = new AstNodeVisitor(root, th, context.fo)
-            visitor.visit(root)
-            context.rootScope = Some(visitor.rootScope)
-         } catch {
-            case ex:Throwable => ex.printStackTrace
-         } finally {
-            for (x <- doc) {x.readUnlock}
-         }
-      }
-   }
+    var source :String = ErlangParser.asString(snapshot.getText)
+    var caretOffset :Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
 
-   private def fileName(context:Context) :String = {
-      context.fo match {
-         case None => "<current>"
-         case Some(x) => x.getNameExt
-      }
-   }
+    var root :Option[GNode] = None
+    var rootScope :Option[AstRootScope] = None
+    var errorOffset :Int = _
+    var sanitizedSource :String = _
+    var sanitizedRange :OffsetRange = OffsetRange.NONE
+    var sanitizedContents :String = _
+    var sanitized :Sanitize = NONE
 
-   protected def createParser(context:Context) :ParserErlang = {
-      val in = new StringReader(context.source)
-      new ParserErlang(in, fileName(context))
-   }
+    def notifyError(error:Error) = errors.add(error)
 
-   private def createParseResult(context:Context) :ErlangParserResult = {
-      new ErlangParserResult(context.snapshot, context.root, context.rootScope)
-   }
+    def fo :Option[FileObject] = snapshot.getSource.getFileObject match {
+      case null => None
+      case x => Some(x)
+    }
 
-   /** Parsing context */
-   class Context(val snapshot:Snapshot, event:SourceModificationEvent) {
-      val errors :List[Error] = new ArrayList[Error]
+    override def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
 
-      var source :String = ErlangParser.asString(snapshot.getText)
-      var caretOffset :Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
-
-      var root :Option[GNode] = None
-      var rootScope :Option[AstRootScope] = None
-      var errorOffset :Int = _
-      var sanitizedSource :String = _
-      var sanitizedRange :OffsetRange = OffsetRange.NONE
-      var sanitizedContents :String = _
-      var sanitized :Sanitize = NONE
-
-      def notifyError(error:Error) = errors.add(error)
-
-      def fo :Option[FileObject] = snapshot.getSource.getFileObject match {
-         case null => None
-         case x => Some(x)
-      }
-
-      override
-      def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
-
-   }
+  }
 }
 
 object ErlangParser {
-   def asString(sequence:CharSequence) :String = sequence match {
-      case s:String => s
-      case _ => sequence.toString
-   }
+  def asString(sequence:CharSequence) :String = sequence match {
+    case s:String => s
+    case _ => sequence.toString
+  }
 
-   def sourceUri(source:Source) :String = source.getFileObject match {
-      case null => "fileless" //NOI18N
-      case f => f.getNameExt
-   }
+  def sourceUri(source:Source) :String = source.getFileObject match {
+    case null => "fileless" //NOI18N
+    case f => f.getNameExt
+  }
 }
 
 /** Attempts to sanitize the input buffer */

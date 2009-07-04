@@ -316,8 +316,7 @@ class RatsParser extends Parser {
       case x => Some(x)
     }
 
-    override
-    def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
+    override def toString = "ErlangParser.Context(" + fo + ")" // NOI18N
 
   }
 }

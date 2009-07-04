@@ -43,28 +43,28 @@ import org.netbeans.modules.erlang.editor.ast.{AstSym}
 
 abstract class ErlSymbol extends AstSym
 object ErlSymbol {
-   val NO_TYPE = "<notype>"
+  val NO_TYPE = "<notype>"
     
-   case class ErlTerm(name:String) extends ErlSymbol
+  case class ErlTerm(name:String) extends ErlSymbol
 
-   case class ErlFunction(var in:Option[String], var name:String, var arity:Int) extends ErlSymbol {
-      var returnType :String = NO_TYPE
-      var argTypes :List[String] = Nil
-   }
-   case class ErlModule(name:String) extends ErlSymbol
-   case class ErlInclude(isLib:Boolean, path:String) extends ErlSymbol
-   case class ErlExport(functions:List[ErlFunction]) extends ErlSymbol
-   case class ErlRecord(name:String, fields:Seq[ErlRecordField]) extends ErlSymbol
-   case class ErlRecordField(name:String, field:String) extends ErlSymbol
-   case class ErlMacro(name:String, params:Seq[String], var body:String) extends ErlSymbol
+  case class ErlFunction(var in:Option[String], var name:String, var arity:Int) extends ErlSymbol {
+    var returnType :String = NO_TYPE
+    var argTypes :List[String] = Nil
+  }
+  case class ErlModule(name:String) extends ErlSymbol
+  case class ErlInclude(isLib:Boolean, path:String) extends ErlSymbol
+  case class ErlExport(functions:List[ErlFunction]) extends ErlSymbol
+  case class ErlRecord(name:String, fields:Seq[ErlRecordField]) extends ErlSymbol
+  case class ErlRecordField(name:String, field:String) extends ErlSymbol
+  case class ErlMacro(name:String, params:Seq[String], var body:String) extends ErlSymbol
 
-   def symbolEquals(sym1:AstSym, sym2:AstSym) = {
-      (sym1, sym2) match {
-         case (ErlRecord(name1, _), ErlRecord(name2, _))
-            if name1 == name2 => true
-         case (ErlRecordField(name1, field1), ErlRecordField(name2, field2))
-            if name1 == name2 && field1 == field2 => true
-         case _ => sym1 == sym2
-      }
-   }
+  def symbolEquals(sym1:AstSym, sym2:AstSym) = {
+    (sym1, sym2) match {
+      case (ErlRecord(name1, _), ErlRecord(name2, _))
+        if name1 == name2 => true
+      case (ErlRecordField(name1, field1), ErlRecordField(name2, field2))
+        if name1 == name2 && field1 == field2 => true
+      case _ => sym1 == sym2
+    }
+  }
 }

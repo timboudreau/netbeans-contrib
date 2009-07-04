@@ -50,104 +50,103 @@ import scala.collection.mutable.{ArrayBuffer,HashMap}
  */
 class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) with LanguageAstRootScope {
 
-   protected val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
-   private var tokens :List[Token[TokenId]] = Nil
-   private var tokensSorted :Boolean = false
+  protected val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
+  private var tokens :List[Token[TokenId]] = Nil
+  private var tokensSorted :Boolean = false
 
-   def contains(idToken:Token[TokenId]) :Boolean = _idTokenToItem.contains(idToken)
+  def contains(idToken:Token[TokenId]) :Boolean = _idTokenToItem.contains(idToken)
 
-   def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[TokenId], AstItem] = {
-      if (!tokensSorted) {
-         tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
-         tokensSorted = true
-      }
+  def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[TokenId], AstItem] = {
+    if (!tokensSorted) {
+      tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
+      tokensSorted = true
+    }
 
-      _idTokenToItem
-   }
+    _idTokenToItem
+  }
 
-   private def sortedToken(th:TokenHierarchy[_]) :List[Token[TokenId]] = {
-      if (!tokensSorted) {
-         tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
-         tokensSorted = true
-      }
+  private def sortedToken(th:TokenHierarchy[_]) :List[Token[TokenId]] = {
+    if (!tokensSorted) {
+      tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
+      tokensSorted = true
+    }
 
-      tokens
-   }
+    tokens
+  }
 
-   /**
-    * To make sure each idToken only corresponds to one AstItem, if more than
-    * one AstItem point to the same idToken, only the first one will be stored
-    */
-   protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
-      case None =>
-         _idTokenToItem + (idToken -> item)
-         tokensSorted = false
-         true
-      case Some(exsitOne) =>
-         // if existOne is dfn and with narrow visible than new one, replace it
-         if (item.isInstanceOf[AstDfn]) {
-            _idTokenToItem + (idToken -> item)
-            tokensSorted = false
-            true
-         } else false
-   }
+  /**
+   * To make sure each idToken only corresponds to one AstItem, if more than
+   * one AstItem point to the same idToken, only the first one will be stored
+   */
+  protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
+    case None =>
+      _idTokenToItem + (idToken -> item)
+      tokensSorted = false
+      true
+    case Some(exsitOne) =>
+      // if existOne is dfn and with narrow visible than new one, replace it
+      if (item.isInstanceOf[AstDfn]) {
+        _idTokenToItem + (idToken -> item)
+        tokensSorted = false
+        true
+      } else false
+  }
    
-   override
-   def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
-      val tokens1 = sortedToken(th)
+  override def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
+    val tokens1 = sortedToken(th)
 
-      var lo = 0
-      var hi = tokens1.size - 1
-      while (lo <= hi) {
-         val mid = (lo + hi) >> 1
-         val middle = tokens1(mid)
-         if (offset < middle.offset(th)) {
-            hi = mid - 1
-         } else if (offset > middle.offset(th) + middle.length) {
-            lo = mid + 1
-         } else {
-            return _idTokenToItem.get(middle)
-         }
+    var lo = 0
+    var hi = tokens1.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = tokens1(mid)
+      if (offset < middle.offset(th)) {
+        hi = mid - 1
+      } else if (offset > middle.offset(th) + middle.length) {
+        lo = mid + 1
+      } else {
+        return _idTokenToItem.get(middle)
       }
+    }
 
-      None
-   }
+    None
+  }
 
-   def findItemAt(token:Token[TokenId]) :Option[AstItem] = _idTokenToItem.get(token)
+  def findItemAt(token:Token[TokenId]) :Option[AstItem] = _idTokenToItem.get(token)
 
-   def findAllDfnSyms[A <: AstSym](clazz:Class[A]) :List[A] = {
-      findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
-   }
+  def findAllDfnSyms[A <: AstSym](clazz:Class[A]) :List[A] = {
+    findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
+  }
 
-   def findAllDfnsOf[A <: AstSym](clazz:Class[A]) :List[AstDfn] = {
-      _idTokenToItem.values.filter{item =>
-         item.isInstanceOf[AstDfn] && clazz.isInstance(item.symbol)
-      }.toList.asInstanceOf[List[AstDfn]]
-   }
+  def findAllDfnsOf[A <: AstSym](clazz:Class[A]) :List[AstDfn] = {
+    _idTokenToItem.values.filter{item =>
+      item.isInstanceOf[AstDfn] && clazz.isInstance(item.symbol)
+    }.toList.asInstanceOf[List[AstDfn]]
+  }
 
-   def findFirstItemWithName(name:String) :Option[AstItem] = {
-      _idTokenToItem.find{case (token, item) => token.text.toString == name} match {
-         case None => None
-         case Some((token, item)) => Some(item)
-      }
-   }
+  def findFirstItemWithName(name:String) :Option[AstItem] = {
+    _idTokenToItem.find{case (token, item) => token.text.toString == name} match {
+      case None => None
+      case Some((token, item)) => Some(item)
+    }
+  }
 
-   private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
-      o1.offset(th) < o2.offset(th)
-   }
+  private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
+    o1.offset(th) < o2.offset(th)
+  }
 
-   protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
-      sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
-   }
+  protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
+    sortedToken(th).foreach{token => println("AstItem: " + _idTokenToItem.get(token))}
+  }
 }
 
 trait LanguageAstRootScope {self:AstRootScope =>
     
-   def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
-      self._idTokenToItem.values.find{item =>
-         // ElementKind.Rule is "-spec", we won't let it as
-         item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
-      }.asInstanceOf[Option[AstDfn]]
-   }
+  def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
+    self._idTokenToItem.values.find{item =>
+      // ElementKind.Rule is "-spec", we won't let it as
+      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
+    }.asInstanceOf[Option[AstDfn]]
+  }
 
 }

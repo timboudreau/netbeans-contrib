@@ -53,94 +53,92 @@ import org.openide.filesystems.FileObject
  * @author Caoyuan Deng
  */
 class ErlangDeclarationFinder extends DeclarationFinder {
-   import DeclarationFinder._
+  import DeclarationFinder._
 
-   override
-   def getReferenceSpan(document:Document, caretOffset:Int) :OffsetRange = {
-      val th = TokenHierarchy.get(document) match {
-         case null => return OffsetRange.NONE
-         case x => x
+  override def getReferenceSpan(document:Document, caretOffset:Int) :OffsetRange = {
+    val th = TokenHierarchy.get(document) match {
+      case null => return OffsetRange.NONE
+      case x => x
+    }
+
+    val range = for (ts <- LexUtil.tokenSequence(th, caretOffset)) yield {
+      ts.move(caretOffset)
+      if (!ts.moveNext && !ts.movePrevious) {
+        OffsetRange.NONE
+      } else {
+        // Determine whether the caret position is right between two tokens
+        val isBetween = (caretOffset == ts.offset)
+
+        getReferenceSpan(ts, th, caretOffset) match {
+          case OffsetRange.NONE if isBetween && ts.movePrevious =>
+            // The caret is between two tokens, and the token on the right
+            // wasn't linkable. Try on the left instead.
+            getReferenceSpan(ts, th, caretOffset)
+          case x => x
+        }
       }
+    }
 
-      val range = for (ts <- LexUtil.tokenSequence(th, caretOffset)) yield {
-         ts.move(caretOffset)
-         if (!ts.moveNext && !ts.movePrevious) {
-            OffsetRange.NONE
-         } else {
-            // Determine whether the caret position is right between two tokens
-            val isBetween = (caretOffset == ts.offset)
+    range match {
+      case None => OffsetRange.NONE
+      case Some(x) => x
+    }
+  }
 
-            getReferenceSpan(ts, th, caretOffset) match {
-               case OffsetRange.NONE if isBetween && ts.movePrevious =>
-                  // The caret is between two tokens, and the token on the right
-                  // wasn't linkable. Try on the left instead.
-                  getReferenceSpan(ts, th, caretOffset)
-               case x => x
+  private def getReferenceSpan(ts:TokenSequence[TokenId], th:TokenHierarchy[_], lexOffset:Int) :OffsetRange = {
+    val token = ts.token
+    token.id match {
+      case ErlangTokenId.Atom | ErlangTokenId.Var | ErlangTokenId.Rec | ErlangTokenId.Macro =>
+        LexUtil.rangeOfToken(th, token)
+      case _ => OffsetRange.NONE
+    }
+  }
+
+  override def findDeclaration(result:ParserResult, caretOffset:Int) :DeclarationLocation = {
+    val pResult = result match {
+      case null => return DeclarationLocation.NONE
+      case x:ErlangParserResult => x
+    }
+
+    val location = for (rootScope <- pResult.rootScope;
+                        th <- LexUtil.tokenHierarchy(pResult);
+                        closest <- rootScope.findItemAt(th, caretOffset)
+    ) yield rootScope.findDfnOf(closest) match {
+      case Some(x) =>
+        // local
+        new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+      case None => closest.symbol match {
+          // search in remote modules
+          case ErlFunction(Some(module), name, arity) =>
+            val index = ErlangIndex.get(pResult)
+            index.queryFunction(module, name, arity) match {
+              case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+              case None => DeclarationLocation.NONE
             }
-         }
-      }
 
-      range match {
-         case None => OffsetRange.NONE
-         case Some(x) => x
-      }
-   }
+          case ErlRecord(name, _) =>
+            val index = ErlangIndex.get(pResult)
+            val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+            index.queryRecord(includes, name) match {
+              case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+              case None => DeclarationLocation.NONE
+            }
 
-   private def getReferenceSpan(ts:TokenSequence[TokenId], th:TokenHierarchy[_], lexOffset:Int) :OffsetRange = {
-      val token = ts.token
-      token.id match {
-         case ErlangTokenId.Atom | ErlangTokenId.Var | ErlangTokenId.Rec | ErlangTokenId.Macro =>
-            LexUtil.rangeOfToken(th, token)
-         case _ => OffsetRange.NONE
-      }
-   }
-
-   override
-   def findDeclaration(result:ParserResult, caretOffset:Int) :DeclarationLocation = {
-      val pResult = result match {
-         case null => return DeclarationLocation.NONE
-         case x:ErlangParserResult => x
-      }
-
-      val location = for (rootScope <- pResult.rootScope;
-                          th <- LexUtil.tokenHierarchy(pResult);
-                          closest <- rootScope.findItemAt(th, caretOffset)
-      ) yield rootScope.findDfnOf(closest) match {
-         case Some(x) =>
-            // local
-            new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
-         case None => closest.symbol match {
-               // search in remote modules
-               case ErlFunction(Some(module), name, arity) =>
-                  val index = ErlangIndex.get(pResult)
-                  index.queryFunction(module, name, arity) match {
-                     case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
-                     case None => DeclarationLocation.NONE
-                  }
-
-               case ErlRecord(name, _) =>
-                  val index = ErlangIndex.get(pResult)
-                  val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
-                  index.queryRecord(includes, name) match {
-                     case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
-                     case None => DeclarationLocation.NONE
-                  }
-
-               case ErlRecordField(name, field) =>
-                  val index = ErlangIndex.get(pResult)
-                  val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
-                  index.queryRecord(includes, name) match {
-                     case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
-                     case None => DeclarationLocation.NONE
-                  }
+          case ErlRecordField(name, field) =>
+            val index = ErlangIndex.get(pResult)
+            val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+            index.queryRecord(includes, name) match {
+              case Some(x) => new DeclarationLocation(x.getFileObject, x.idOffset(th), x)
+              case None => DeclarationLocation.NONE
+            }
                   
-               case _ => DeclarationLocation.NONE
-            }
-      }
+          case _ => DeclarationLocation.NONE
+        }
+    }
 
-      location match {
-         case None => DeclarationLocation.NONE
-         case Some(x) => x
-      }
-   }
+    location match {
+      case None => DeclarationLocation.NONE
+      case Some(x) => x
+    }
+  }
 }

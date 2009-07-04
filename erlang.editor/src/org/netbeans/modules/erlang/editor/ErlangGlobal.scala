@@ -61,134 +61,130 @@ import scala.collection.mutable.ArrayBuffer
  *  @author Caoyuan Deng
  */
 object ErlangGlobal {
-   val FoToRootScope = new HashMap[FileObject, AstRootScope]
-   val ModuleToDfns = new HashMap[String, Seq[AstDfn]]
+  val FoToRootScope = new HashMap[FileObject, AstRootScope]
+  val ModuleToDfns = new HashMap[String, Seq[AstDfn]]
 
-   private class FoChangeAdapter extends FileChangeAdapter {
-      override
-      def fileChanged(fe:FileEvent) :Unit = reset(fe.getFile)
+  private class FoChangeAdapter extends FileChangeAdapter {
+    override def fileChanged(fe:FileEvent) :Unit = reset(fe.getFile)
 
-      override
-      def fileDeleted(fe:FileEvent) :Unit = reset(fe.getFile)
+    override def fileDeleted(fe:FileEvent) :Unit = reset(fe.getFile)
 
-      override
-      def fileRenamed(fe:FileRenameEvent) :Unit = reset(fe.getFile)
+    override def fileRenamed(fe:FileRenameEvent) :Unit = reset(fe.getFile)
 
-      private def reset(fo:FileObject) :Unit = {
-         fo.removeFileChangeListener(this)
-         FoToRootScope.get(fo) match {
-            case None =>
-            case Some(scope) =>
-               FoToRootScope.removeKey(fo)
-               scope.findAllDfnSyms(classOf[ErlModule]) match {
-                  case module :: _ => ModuleToDfns.removeKey(module.name)
-                  case _ =>
-               }
-         }
-      }
-   }
-
-   def resolveRootScope(fo:FileObject) :Option[AstRootScope] = {
+    private def reset(fo:FileObject) :Unit = {
+      fo.removeFileChangeListener(this)
       FoToRootScope.get(fo) match {
-         case None =>
-            val source = Source.create(fo)
-            try {
-               ParserManager.parse(Collections.singleton(source), new UserTask {
-                     @throws(classOf[Exception])
-                     override
-                     def run(resultIterator:ResultIterator) :Unit = {
-                        resultIterator.getParserResult match {
-                           case r:ErlangParserResult =>
-                              for (scope <- r.rootScope) {
-                                 fo.addFileChangeListener(new FoChangeAdapter)
-                                 FoToRootScope + (fo -> scope)
-                                 cacheDfns(scope)
-                              }
-                           case _ =>
-                        }
-                     }
-                  })
-            } catch {case e:ParseException =>}
+        case None =>
+        case Some(scope) =>
+          FoToRootScope.removeKey(fo)
+          scope.findAllDfnSyms(classOf[ErlModule]) match {
+            case module :: _ => ModuleToDfns.removeKey(module.name)
+            case _ =>
+          }
+      }
+    }
+  }
+
+  def resolveRootScope(fo:FileObject) :Option[AstRootScope] = {
+    FoToRootScope.get(fo) match {
+      case None =>
+        val source = Source.create(fo)
+        try {
+          ParserManager.parse(Collections.singleton(source), new UserTask {
+              @throws(classOf[Exception])
+              override def run(resultIterator:ResultIterator) :Unit = {
+                resultIterator.getParserResult match {
+                  case r:ErlangParserResult =>
+                    for (scope <- r.rootScope) {
+                      fo.addFileChangeListener(new FoChangeAdapter)
+                      FoToRootScope + (fo -> scope)
+                      cacheDfns(scope)
+                    }
+                  case _ =>
+                }
+              }
+            })
+        } catch {case e:ParseException =>}
                 
-            FoToRootScope.get(fo)
-         case x => x
-      }
-   }
+        FoToRootScope.get(fo)
+      case x => x
+    }
+  }
 
-   /** Only cache export functions for .erl file */
-   def cacheDfns(rootScope:AstRootScope) :Unit = {
-      val module = rootScope.findAllDfnSyms(classOf[ErlModule]) match {
-         case x :: _ => x.name
-         case _ => return
-      }
+  /** Only cache export functions for .erl file */
+  def cacheDfns(rootScope:AstRootScope) :Unit = {
+    val module = rootScope.findAllDfnSyms(classOf[ErlModule]) match {
+      case x :: _ => x.name
+      case _ => return
+    }
       
-      val exports  = rootScope.findAllDfnsOf(classOf[ErlExport])
-      ModuleToDfns += (module -> exports)
-   }
+    val exports  = rootScope.findAllDfnsOf(classOf[ErlExport])
+    ModuleToDfns += (module -> exports)
+  }
 
-   def findFunction(module:String, functionName:String, arity:Int) :Option[AstDfn] = {
-      ModuleToDfns.get(module) match {
-         case None => None
-         case Some(dfns) => dfns.find{x => x.symbol match {
-               case ErlFunction(_, `functionName`, `arity`) => true
-               case _ => false
-            }}
+  def findFunction(module:String, functionName:String, arity:Int) :Option[AstDfn] = {
+    ModuleToDfns.get(module) match {
+      case None => None
+      case Some(dfns) => dfns.find{x => x.symbol match {
+            case ErlFunction(_, `functionName`, `arity`) => true
+            case _ => false
+          }}
+    }
+  }
+
+  def resolveDfn(fo:FileObject, symbol:AstSym) :Option[AstDfn] = {
+    resolveRootScope(fo) match {
+      case None => None
+      case Some(rootScope) => rootScope.findDfnOfSym(symbol)
+    }
+  }
+
+  def docComment(doc:BaseDocument, itemOffset:int) :String = {
+    val th = TokenHierarchy.get(doc)
+    if (th == null) {
+      return null
+    }
+
+    doc.readLock // Read-lock due to token hierarchy use
+    val range = LexUtil.docCommentRangeBefore(th, itemOffset)
+    doc.readUnlock
+
+    if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
+      try {
+        return doc.getText(range.getStart, range.getLength)
+      } catch {case ex:BadLocationException =>}
+    }
+
+    null
+  }
+
+  def libFo :Option[FileObject] = {
+    val classpaths = GlobalPathRegistry.getDefault.getPaths(ErlangLanguage.BOOT);
+    val itr = classpaths.iterator
+    if (itr.hasNext) {
+      val roots = itr.next.getRoots
+      if (roots.size > 0) {
+        return Some(roots(0))
       }
-   }
+    }
+    None
+  }
 
-   def resolveDfn(fo:FileObject, symbol:AstSym) :Option[AstDfn] = {
-      resolveRootScope(fo) match {
-         case None => None
-         case Some(rootScope) => rootScope.findDfnOfSym(symbol)
-      }
-   }
-
-   def docComment(doc:BaseDocument, itemOffset:int) :String = {
-      val th = TokenHierarchy.get(doc)
-      if (th == null) {
-         return null
-      }
-
-      doc.readLock // Read-lock due to token hierarchy use
-      val range = LexUtil.docCommentRangeBefore(th, itemOffset)
-      doc.readUnlock
-
-      if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
-         try {
-            return doc.getText(range.getStart, range.getLength)
-         } catch {case ex:BadLocationException =>}
-      }
-
-      null
-   }
-
-   def libFo :Option[FileObject] = {
-      val classpaths = GlobalPathRegistry.getDefault.getPaths(ErlangLanguage.BOOT);
+  def getClasspathRoots(fo:FileObject, classpathId:String) :Seq[FileObject] = {
+    if (fo != null) {
+      val classpath = ClassPath.getClassPath(fo, classpathId);
+      if (classpath != null) {
+        classpath.getRoots()
+      } else Array()
+    } else {
+      var roots = new ArrayBuffer[FileObject]
+      val classpaths = GlobalPathRegistry.getDefault.getPaths(classpathId);
       val itr = classpaths.iterator
-      if (itr.hasNext) {
-         val roots = itr.next.getRoots
-         if (roots.size > 0) {
-            return Some(roots(0))
-         }
+      while (itr.hasNext) {
+        roots ++= itr.next.getRoots
       }
-      None
-   }
-
-   def getClasspathRoots(fo:FileObject, classpathId:String) :Seq[FileObject] = {
-      if (fo != null) {
-         val classpath = ClassPath.getClassPath(fo, classpathId);
-         if (classpath != null) {
-            classpath.getRoots()
-         } else Array()
-      } else {
-         var roots = new ArrayBuffer[FileObject]
-         val classpaths = GlobalPathRegistry.getDefault.getPaths(classpathId);
-         val itr = classpaths.iterator
-         while (itr.hasNext) {
-            roots ++= itr.next.getRoots
-         }
-         roots
-      }
-   }
+      roots
+    }
+  }
 
 }

@@ -67,104 +67,99 @@ class AstDfn(_idToken:Option[Token[TokenId]],
              var fo:Option[FileObject]
 ) extends AstItem with AstElementHandle with LanguageAstDfn {
     
-   // we allow _bindingScope to be set later
-   if (_bindingScope != null) {
-      _bindingScope.bindingDfn = Some(this)
-   }
+  // we allow _bindingScope to be set later
+  if (_bindingScope != null) {
+    _bindingScope.bindingDfn = Some(this)
+  }
 
-   make(_idToken, _kind)
+  make(_idToken, _kind)
 
-   private var modifiers :Set[Modifier] = _
+  private var modifiers :Set[Modifier] = _
 
-   override
-   def getFileObject :FileObject = fo.getOrElse(null)
+  override def getFileObject :FileObject = fo.getOrElse(null)
 
-   override
-   def getKind :ElementKind = super[AstItem].getKind
+  override def getKind :ElementKind = super[AstItem].getKind
 
-   override
-   def getModifiers :Set[Modifier] = modifiers match {
-      case null => Collections.emptySet[Modifier]
-      case _ => modifiers
-   }
+  override def getModifiers :Set[Modifier] = modifiers match {
+    case null => Collections.emptySet[Modifier]
+    case _ => modifiers
+  }
 
-   override
-   def getOffsetRange(pResult:ParserResult) :OffsetRange = LexUtil.tokenHierarchy(pResult) match {
-      case None => OffsetRange.NONE
-      case Some(th) =>
-         val offset = boundsOffset(th)
-         val endOffset = boundsEndOffset(th)
-         if (offset >= 0 && endOffset >= offset) {
-            new OffsetRange(boundsOffset(th), boundsEndOffset(th))
-         } else OffsetRange.NONE
-   }
+  override def getOffsetRange(pResult:ParserResult) :OffsetRange = LexUtil.tokenHierarchy(pResult) match {
+    case None => OffsetRange.NONE
+    case Some(th) =>
+      val offset = boundsOffset(th)
+      val endOffset = boundsEndOffset(th)
+      if (offset >= 0 && endOffset >= offset) {
+        new OffsetRange(boundsOffset(th), boundsEndOffset(th))
+      } else OffsetRange.NONE
+  }
 
-   def tpe :String = {
-      "NoType"
-   }
+  def tpe :String = {
+    "NoType"
+  }
 
-   def enclosedElements :ArrayBuffer[AstDfn] = {
-      if (_bindingScope != null) {
-         _bindingScope.dfns
-      } else new ArrayBuffer
-   }
+  def enclosedElements :ArrayBuffer[AstDfn] = {
+    if (_bindingScope != null) {
+      _bindingScope.dfns
+    } else new ArrayBuffer
+  }
 
-   def enclosingDfn :Option[AstDfn] = enclosingScope.get.bindingDfn
+  def enclosingDfn :Option[AstDfn] = enclosingScope.get.bindingDfn
 
-   override
-   def toString = {
-      "Def: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
-   }
+  override def toString = {
+    "Def: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
+  }
 
-   def bindingScope :AstScope = {
-      assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
-      _bindingScope
-   }
+  def bindingScope :AstScope = {
+    assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
+    _bindingScope
+  }
 
-   def boundsOffset(th:TokenHierarchy[_]) :Int = {
-      bindingScope.boundsOffset(th)
-   }
+  def boundsOffset(th:TokenHierarchy[_]) :Int = {
+    bindingScope.boundsOffset(th)
+  }
 
-   def boundsEndOffset(th:TokenHierarchy[_]) :Int = {
-      bindingScope.boundsEndOffset(th)
-   }
+  def boundsEndOffset(th:TokenHierarchy[_]) :Int = {
+    bindingScope.boundsEndOffset(th)
+  }
 
-   def range(th:TokenHierarchy[_]) :OffsetRange = {
-      bindingScope.range(th)
-   }
+  def range(th:TokenHierarchy[_]) :OffsetRange = {
+    bindingScope.range(th)
+  }
 
-   def mayEqual(dfn:AstDfn) :Boolean = {
-      this == dfn
-      //return getName().equals(def.getName())
-   }
+  def mayEqual(dfn:AstDfn) :Boolean = {
+    this == dfn
+    //return getName().equals(def.getName())
+  }
 
-   def doc :Option[BaseDocument] = fo match {
-      case None => None
-      case Some(x) => GsfUtilities.getDocument(x, true) match {
-            case null => None
-            case docx => Some(docx)
-         }
-   }
+  def doc :Option[BaseDocument] = fo match {
+    case None => None
+    case Some(x) => GsfUtilities.getDocument(x, true) match {
+        case null => None
+        case docx => Some(docx)
+      }
+  }
 
-   def packageName :String = {
-      null
-   }
+  def packageName :String = {
+    null
+  }
 
-   def qualifiedName :String = {
-      null
-   }
+  def qualifiedName :String = {
+    null
+  }
 
-   def isInherited :Boolean = {
-      false
-   }
+  def isInherited :Boolean = {
+    false
+  }
 
-   def isDeprecated :boolean = {
-      false
-   }
+  def isDeprecated :boolean = {
+    false
+  }
 
-   def isEmphasize :Boolean = {
-      false
-   }
+  def isEmphasize :Boolean = {
+    false
+  }
 
 }
 
@@ -172,103 +167,103 @@ class AstDfn(_idToken:Option[Token[TokenId]],
  * Erlang special functions
  */
 trait LanguageAstDfn {self:AstDfn =>
-   import ElementKind._
-   import org.netbeans.modules.erlang.editor.node.ErlSymbol._
-   import org.netbeans.modules.erlang.editor.ErlangGlobal
+  import ElementKind._
+  import org.netbeans.modules.erlang.editor.node.ErlSymbol._
+  import org.netbeans.modules.erlang.editor.ErlangGlobal
 
-   /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
-   def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
+  /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
+  def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
       
-      case (CALL, METHOD) => (ref.symbol, symbol) match {
-            case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
-               if nameX == nameY && arityX == arityY => true
-            case _ => false
-         }
+    case (CALL, METHOD) => (ref.symbol, symbol) match {
+        case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
+          if nameX == nameY && arityX == arityY => true
+        case _ => false
+      }
 
-      case (ATTRIBUTE, ATTRIBUTE) => (ref.symbol, symbol) match {
-            case (ErlRecord(nameX, fieldsX), ErlRecord(nameY, fieldsY))
-               if nameX == nameY => true
-            case (ErlRecordField(nameX, fieldX), ErlRecordField(nameY, fieldY))
-               if nameX == nameY && fieldX == fieldY=> true
-            case _ => false
-         }
+    case (ATTRIBUTE, ATTRIBUTE) => (ref.symbol, symbol) match {
+        case (ErlRecord(nameX, fieldsX), ErlRecord(nameY, fieldsY))
+          if nameX == nameY => true
+        case (ErlRecordField(nameX, fieldX), ErlRecordField(nameY, fieldY))
+          if nameX == nameY && fieldX == fieldY=> true
+        case _ => false
+      }
 
-      case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
+    case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
          
-      case _ =>
-         if (ref.getName == getName) {
-            ref.symbol == self.asInstanceOf[AstItem].symbol
-         } else false
-   }
+    case _ =>
+      if (ref.getName == getName) {
+        ref.symbol == self.asInstanceOf[AstItem].symbol
+      } else false
+  }
    
 
-   def docComment :String = {
-      val srcDoc = doc match {
-         case None => return null
-         case Some(x) => x
+  def docComment :String = {
+    val srcDoc = doc match {
+      case None => return null
+      case Some(x) => x
+    }
+
+    val th = TokenHierarchy.get(srcDoc)
+    if (th == null) {
+      return null
+    }
+
+    ErlangGlobal.docComment(srcDoc, idOffset(th))
+  }
+
+
+  def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
+    case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
+    case METHOD | RULE => symbol match {
+        case ErlFunction(_, name, arity) =>
+          formatter.appendText(name)
+          formatter.appendText("/")
+          formatter.appendText(arity.toString)
+        case _ =>
+          formatter.appendText(getName)
+          formatter.appendText("/?")
       }
-
-      val th = TokenHierarchy.get(srcDoc)
-      if (th == null) {
-         return null
+    case ATTRIBUTE if isFunctionClause => property("args") match {
+        case Some(args:List[String]) =>
+          formatter.appendText("(")
+          val itr = args.elements
+          while (itr.hasNext) {
+            formatter.appendText(itr.next)
+            if (itr.hasNext) {
+              formatter.appendText(", ")
+            }
+          }
+          formatter.appendText(")")
+        case _ => formatter.appendText("()")
       }
-
-      ErlangGlobal.docComment(srcDoc, idOffset(th))
-   }
-
-
-   def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
-      case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-      case METHOD | RULE => symbol match {
-            case ErlFunction(_, name, arity) =>
-               formatter.appendText(name)
-               formatter.appendText("/")
-               formatter.appendText(arity.toString)
-            case _ =>
-               formatter.appendText(getName)
-               formatter.appendText("/?")
-         }
-      case ATTRIBUTE if isFunctionClause => property("args") match {
-            case Some(args:List[String]) =>
-               formatter.appendText("(")
-               val itr = args.elements
-               while (itr.hasNext) {
-                  formatter.appendText(itr.next)
-                  if (itr.hasNext) {
-                     formatter.appendText(", ")
-                  }
-               }
-               formatter.appendText(")")
-            case _ => formatter.appendText("()")
-         }
-      case ATTRIBUTE => formatter.appendText(getName)
-      case _ => formatter.appendText(getName)
-   }
+    case ATTRIBUTE => formatter.appendText(getName)
+    case _ => formatter.appendText(getName)
+  }
     
 
-   def isFunctionClause = {
-      //* is it FunctionClause of enclosingDfn ?
-      enclosingDfn.filter{_.getKind == METHOD}.isDefined && self.getKind == ATTRIBUTE
-   }
+  def isFunctionClause = {
+    //* is it FunctionClause of enclosingDfn ?
+    enclosingDfn.filter{_.getKind == METHOD}.isDefined && self.getKind == ATTRIBUTE
+  }
 
-   def functionDfn :Option[AstDfn] = self.getKind match {
-      case ElementKind.METHOD => Some(self)
-      case ElementKind.ATTRIBUTE if self.isFunctionClause =>  self.enclosingDfn
-      case _ => None
-   }
+  def functionDfn :Option[AstDfn] = self.getKind match {
+    case ElementKind.METHOD => Some(self)
+    case ElementKind.ATTRIBUTE if self.isFunctionClause =>  self.enclosingDfn
+    case _ => None
+  }
 
-   def functionClauses :List[AstDfn] = functionDfn match {
-      case None => Nil
-      case Some(x) => x.bindingScope.dfns.filter{_.getKind == ElementKind.ATTRIBUTE}.toList
-   }
+  def functionClauses :List[AstDfn] = functionDfn match {
+    case None => Nil
+    case Some(x) => x.bindingScope.dfns.filter{_.getKind == ElementKind.ATTRIBUTE}.toList
+  }
 
-   def spec :Option[ErlFunction] = self.symbol match {
-      case f@ErlFunction(_, name, arity) =>
-         rootScope.dfns.find{dfn => dfn.getKind == ElementKind.RULE && dfn.symbol == f} match {
-            case None => None
-            case Some(x) => Some(x.symbol.asInstanceOf[ErlFunction])
-         }
-      case _ => None
-   }
+  def spec :Option[ErlFunction] = self.symbol match {
+    case f@ErlFunction(_, name, arity) =>
+      rootScope.dfns.find{dfn => dfn.getKind == ElementKind.RULE && dfn.symbol == f} match {
+        case None => None
+        case Some(x) => Some(x.symbol.asInstanceOf[ErlFunction])
+      }
+    case _ => None
+  }
 }
 

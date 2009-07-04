@@ -58,47 +58,44 @@ class ErlangParserResult(val snapshot:Snapshot,
                          val rootScope:Option[AstRootScope]
 ) extends ParserResult(snapshot) {
 
-   override
-   protected def invalidate :Unit = {
-      // XXX: what exactly should we do here?
-   }
+  override protected def invalidate :Unit = {
+    // XXX: what exactly should we do here?
+  }
 
-   override
-   def getDiagnostics :List[Error] = _errors
+  override def getDiagnostics :List[Error] = _errors
 
-   private var _errors = Collections.emptyList[Error]
+  private var _errors = Collections.emptyList[Error]
     
-   def errors = _errors
-   def errors_=(errors:List[Error]) = {
-      this._errors = new ArrayList[Error](errors)
-   }
+  def errors = _errors
+  def errors_=(errors:List[Error]) = {
+    this._errors = new ArrayList[Error](errors)
+  }
 
-   var source :String = _
+  var source :String = _
     
-   /**
-    * Return whether the source code for the parse result was "cleaned"
-    * or "sanitized" (modified to reduce chance of parser errors) or not.
-    * This method returns OffsetRange.NONE if the source was not sanitized,
-    * otherwise returns the actual sanitized range.
-    */
-   var sanitizedRange = OffsetRange.NONE
-   var sanitizedContents :String = _
-   var sanitized :Sanitize = NONE
+  /**
+   * Return whether the source code for the parse result was "cleaned"
+   * or "sanitized" (modified to reduce chance of parser errors) or not.
+   * This method returns OffsetRange.NONE if the source was not sanitized,
+   * otherwise returns the actual sanitized range.
+   */
+  var sanitizedRange = OffsetRange.NONE
+  var sanitizedContents :String = _
+  var sanitized :Sanitize = NONE
 
-   var isCommentsAdded :Boolean = false
+  var isCommentsAdded :Boolean = false
     
-   /**
-    * Set the range of source that was sanitized, if any.
-    */
-   def setSanitized(sanitized:Sanitize, sanitizedRange:OffsetRange, sanitizedContents:String) :Unit = {
-      this.sanitized = sanitized
-      this.sanitizedRange = sanitizedRange
-      this.sanitizedContents = sanitizedContents
-   }
+  /**
+   * Set the range of source that was sanitized, if any.
+   */
+  def setSanitized(sanitized:Sanitize, sanitizedRange:OffsetRange, sanitizedContents:String) :Unit = {
+    this.sanitized = sanitized
+    this.sanitizedRange = sanitizedRange
+    this.sanitizedContents = sanitizedContents
+  }
 
 
-   override
-   def toString = {
-      "ErlangParseResult(file=" + snapshot.getSource.getFileObject + ",rootnode=" + rootNode + ")"
-   }
+  override def toString = {
+    "ErlangParseResult(file=" + snapshot.getSource.getFileObject + ",rootnode=" + rootNode + ")"
+  }
 }

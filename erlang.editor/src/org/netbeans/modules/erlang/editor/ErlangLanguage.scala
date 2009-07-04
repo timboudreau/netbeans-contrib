@@ -64,70 +64,51 @@ import org.netbeans.modules.erlang.editor.lexer.ErlangTokenId
  * @author Caoyuan Deng
  */
 class ErlangLanguage extends DefaultLanguageConfig {
-   import ErlangLanguage._
+  import ErlangLanguage._
 
-   override
-   def getLexerLanguage = ErlangTokenId.language
+  override def getLexerLanguage = ErlangTokenId.language
 
-   override
-   def getLineCommentPrefix = "%" // NOI18N
+  override def getLineCommentPrefix = "%" // NOI18N
  
-   override
-   def getDisplayName :String =  "Erlang" // NOI18N
+  override def getDisplayName :String =  "Erlang" // NOI18N
     
-   override
-   def getPreferredExtension :String = "erl" // NOI18N
+  override def getPreferredExtension :String = "erl" // NOI18N
     
-   override
-   def getParser = new ErlangParser
+  override def getParser = new ErlangParser
 
-   override
-   def hasStructureScanner = true
+  override def hasStructureScanner = true
 
-   override
-   def getStructureScanner = new ErlangStructureAnalyzer
+  override def getStructureScanner = new ErlangStructureAnalyzer
 
-   override
-   def getSemanticAnalyzer = new ErlangSemanticAnalyzer
+  override def getSemanticAnalyzer = new ErlangSemanticAnalyzer
 
-   override
-   def hasOccurrencesFinder = true
+  override def hasOccurrencesFinder = true
 
-   override
-   def getOccurrencesFinder = new ErlangOccurrencesFinder
+  override def getOccurrencesFinder = new ErlangOccurrencesFinder
 
-   override
-   def getKeystrokeHandler = new ErlangKeystrokeHandler
+  override def getKeystrokeHandler = new ErlangKeystrokeHandler
 
-   override
-   def hasFormatter =  true
+  override def hasFormatter =  true
 
-   override
-   def getFormatter = new ErlangFormatter
+  override def getFormatter = new ErlangFormatter
 
-   override
-   def getInstantRenamer = new ErlangInstantRenamer
+  override def getInstantRenamer = new ErlangInstantRenamer
 
-   override
-   def getDeclarationFinder = new ErlangDeclarationFinder
+  override def getDeclarationFinder = new ErlangDeclarationFinder
 
-   /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
-   override
-   def getLibraryPathIds = Collections.singleton(BOOT)
+  /** @see org.netbeans.modules.erlang.platform.ErlangPlatformClassPathProvider and ModuleInstall */
+  override def getLibraryPathIds = Collections.singleton(BOOT)
 
-   override
-   def getSourcePathIds = Collections.singleton(SOURCE)
+  override def getSourcePathIds = Collections.singleton(SOURCE)
 
-   override
-   def getIndexerFactory = new ErlangIndexer.Factory
+  override def getIndexerFactory = new ErlangIndexer.Factory
 
-   override
-   def getCompletionHandler = new ErlangCodeCompletion
+  override def getCompletionHandler = new ErlangCodeCompletion
 }
 
 object ErlangLanguage {
-   val BOOT    = "erlang/classpath/boot"
-   val COMPILE = "erlang/classpath/compile"
-   val EXECUTE = "erlang/classpath/execute"
-   val SOURCE  = "erlang/classpath/source"
+  val BOOT    = "erlang/classpath/boot"
+  val COMPILE = "erlang/classpath/compile"
+  val EXECUTE = "erlang/classpath/execute"
+  val SOURCE  = "erlang/classpath/source"
 }

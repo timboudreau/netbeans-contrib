@@ -46,10 +46,10 @@ import org.netbeans.api.lexer.{TokenHierarchy}
  * @author Caoyuan Deng
  */
 abstract class AstSym {
-   var item:AstItem = _
+  var item:AstItem = _
     
-   def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
-   def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
+  def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
+  def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
 }
 
 /**

@@ -57,105 +57,100 @@ import org.netbeans.modules.erlang.editor.node.ErlSymbol._
  */
 class ErlangSemanticAnalyzer extends SemanticAnalyzer[ErlangParserResult] {
 
-   private var cancelled = false
-   private var semanticHighlights :Map[OffsetRange, Set[ColoringAttributes]] = _
+  private var cancelled = false
+  private var semanticHighlights :Map[OffsetRange, Set[ColoringAttributes]] = _
 
-   protected def isCancelled :Boolean = synchronized {cancelled}
+  protected def isCancelled :Boolean = synchronized {cancelled}
 
-   protected def resume :Unit = synchronized {cancelled = false}
+  protected def resume :Unit = synchronized {cancelled = false}
 
-   override
-   def getHighlights :Map[OffsetRange, Set[ColoringAttributes]] = semanticHighlights
+  override def getHighlights :Map[OffsetRange, Set[ColoringAttributes]] = semanticHighlights
 
-   override
-   def getPriority = 0
+  override def getPriority = 0
 
-   override
-   def getSchedulerClass = Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER
+  override def getSchedulerClass = Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER
     
-   override
-   def cancel :Unit = {cancelled = true}
+  override def cancel :Unit = {cancelled = true}
 
-   @throws(classOf[Exception])
-   override
-   def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
-      resume
-      semanticHighlights = null
+  @throws(classOf[Exception])
+  override def run(pResult:ErlangParserResult, event:SchedulerEvent) :Unit = {
+    resume
+    semanticHighlights = null
 
-      if (pResult == null || isCancelled) {
-         return
+    if (pResult == null || isCancelled) {
+      return
+    }
+
+    for (rootScope <- pResult.rootScope;
+         th <- LexUtil.tokenHierarchy(pResult);
+         doc <- LexUtil.document(pResult, true)
+    ) {
+      var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
+      visitItems(pResult, th, rootScope, highlights)
+
+      this.semanticHighlights = if (highlights.size > 0) highlights else null
+    }
+  }
+
+  private def visitItems(pResult:ErlangParserResult, th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
+    import ElementKind._
+    for (item <- rootScope.idTokenToItem(th).values;
+         hiToken <- item.idToken
+    ) {
+
+      val hiRange = LexUtil.rangeOfToken(th, hiToken)
+      rootScope.findDfnOf(item) match {
+        case Some(x) =>
+          x.getKind match {
+            case MODULE =>
+              highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+            case CLASS =>
+              highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+            case METHOD if item.getKind == CALL =>
+              highlights.put(hiRange, ColoringAttributes.FIELD_SET)
+            case METHOD =>
+              highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+            case ATTRIBUTE if x.isFunctionClause =>
+              highlights.put(hiRange, ColoringAttributes.METHOD_SET)
+            case ATTRIBUTE =>
+              highlights.put(hiRange, ColoringAttributes.STATIC_SET)
+            case PARAMETER =>
+              highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
+            case _ =>
+          }
+        case None => item.symbol match {
+            // search in remote modules
+            case ErlFunction(Some(module), name, arity) =>
+              // if module part is a Var, we could not determine if it has this function
+              if (module.length > 0 && module.charAt(0).isLowerCase) {
+                val index = ErlangIndex.get(pResult)
+                index.queryFunction(module, name, arity) match {
+                  case Some(x) => highlights.put(hiRange, ColoringAttributes.FIELD_SET)
+                  case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+                }
+              }
+
+            case ErlFunction(None, name, arity) => // @todo is it a predefined function?
+
+            case ErlRecord(name, _) =>
+              val index = ErlangIndex.get(pResult)
+              val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+              index.queryRecord(includes, name) match {
+                case Some(x) =>
+                case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+              }
+
+            case ErlRecordField(name, field) =>
+              val index = ErlangIndex.get(pResult)
+              val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
+              index.queryRecord(includes, name) match {
+                case Some(x) =>
+                case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+              }
+
+            case _ =>  highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
+          }
       }
-
-      for (rootScope <- pResult.rootScope;
-           th <- LexUtil.tokenHierarchy(pResult);
-           doc <- LexUtil.document(pResult, true)
-      ) {
-         var highlights = new HashMap[OffsetRange, Set[ColoringAttributes]](100)
-         visitItems(pResult, th, rootScope, highlights)
-
-         this.semanticHighlights = if (highlights.size > 0) highlights else null
-      }
-   }
-
-   private def visitItems(pResult:ErlangParserResult, th:TokenHierarchy[_], rootScope:AstRootScope, highlights:Map[OffsetRange, Set[ColoringAttributes]]) :Unit = {
-      import ElementKind._
-      for (item <- rootScope.idTokenToItem(th).values;
-           hiToken <- item.idToken
-      ) {
-
-         val hiRange = LexUtil.rangeOfToken(th, hiToken)
-         rootScope.findDfnOf(item) match {
-            case Some(x) => 
-               x.getKind match {
-                  case MODULE =>
-                     highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                  case CLASS =>
-                     highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                  case METHOD if item.getKind == CALL =>
-                     highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                  case METHOD =>
-                     highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                  case ATTRIBUTE if x.isFunctionClause =>
-                     highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                  case ATTRIBUTE =>
-                     highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                  case PARAMETER =>
-                     highlights.put(hiRange, ColoringAttributes.PARAMETER_SET)
-                  case _ =>
-               }
-            case None => item.symbol match {
-                  // search in remote modules
-                  case ErlFunction(Some(module), name, arity) =>
-                     // if module part is a Var, we could not determine if it has this function
-                     if (module.length > 0 && module.charAt(0).isLowerCase) {
-                        val index = ErlangIndex.get(pResult)
-                        index.queryFunction(module, name, arity) match {
-                           case Some(x) => highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                           case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
-                        }
-                     }
-
-                  case ErlFunction(None, name, arity) => // @todo is it a predefined function?
-
-                  case ErlRecord(name, _) =>
-                     val index = ErlangIndex.get(pResult)
-                     val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
-                     index.queryRecord(includes, name) match {
-                        case Some(x) => 
-                        case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
-                     }
-
-                  case ErlRecordField(name, field) =>
-                     val index = ErlangIndex.get(pResult)
-                     val includes = rootScope.findAllDfnSyms(classOf[ErlInclude])
-                     index.queryRecord(includes, name) match {
-                        case Some(x) => 
-                        case None => highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
-                     }
-
-                  case _ =>  highlights.put(hiRange, ColoringAttributes.UNUSED_SET)
-               }
-         }
-      }
-   }
+    }
+  }
 }
