@@ -60,7 +60,7 @@ String sep =
 
 // ----- For lexer token
 
-transient generic Separator = 
+generic Separator = 
   "{":separator @LBrace
 / "}":separator @RBrace
 / "(":separator @LParen
@@ -73,7 +73,7 @@ transient generic Separator =
 / "|":separator @Bar
 ;
 
-transient String separator = 
+String separator = 
   "("
 / ")"
 / "["
