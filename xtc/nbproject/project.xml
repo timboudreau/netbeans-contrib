@@ -6,6 +6,8 @@
             <code-name-base>xtc</code-name-base>
             <module-dependencies/>
             <public-packages>
+                <package>xtc</package>
+                <package>xtc.lang</package>
                 <package>xtc.parser</package>
                 <package>xtc.tree</package>
                 <package>xtc.type</package>
