@@ -236,9 +236,6 @@
 ^hibernate/src/org/netbeans/modules/hibernate/reveng/model$
 ^hibernate/test/unit/data/db-derby-10.2.2.0-bin$
 ^o.sample.registry.model/catalog\.xml$
-^xtest.examples/MyModule/mymodule\.jar$
-^xtest.examples/PaintApp/dist$
-^xtest.examples/anagrams/dist$
 \.orig\..*$
 \.chg\..*$
 \.conflict\~$

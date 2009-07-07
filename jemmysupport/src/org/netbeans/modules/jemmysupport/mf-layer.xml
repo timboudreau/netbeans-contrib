@@ -50,7 +50,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
             <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
             <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
             <file name="org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
-            <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
@@ -71,10 +70,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
                 <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
                 <attr name="position" intvalue="3150"/>
             </file>
-            <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
-                <attr name="position" intvalue="3140"/>
-            </file>
             <file name="org-netbeans-modules-jemmysupport-separator3100.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="3100"/>
@@ -86,9 +81,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="C-F10.shadow">
-            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
-        </file>
         <file name="CA-A.shadow">
             <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
         </file>
@@ -116,9 +108,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
             </file>
             <file name="org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
-            </file>
-            <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
             </file>
         </folder>
     </folder>
