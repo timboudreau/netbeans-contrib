@@ -78,7 +78,7 @@ public class EventRequestProcessor {
             throw new IllegalStateException("The invoke() method is running."); // NOI18N
         }
 
-        this.actions = new ArrayList(actions);
+        this.actions = new ArrayList<Action>(actions);
         this.currentActionIndex = 0;
 
         try {

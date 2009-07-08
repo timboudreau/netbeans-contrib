@@ -47,7 +47,6 @@
 package org.netbeans.modules.erd.graphics;
 
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -55,17 +54,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 import org.netbeans.modules.erd.editor.ERDTopComponent;
+import org.openide.util.ImageUtilities;
 
 
 
 public class ERDToolBar extends JToolBar {
     static ResourceBundle bundle = NbBundle.getBundle("org.netbeans.modules.erd.graphics.Bundle");
-    public static final Image zoominImage = Utilities.loadImage ("org/netbeans/modules/erd/resources/zoomin.gif"); // NOI18N
-    public static final Image zoomoutImage = Utilities.loadImage ("org/netbeans/modules/erd/resources/zoomout.gif"); // NOI18N
-    public static final Image gridImage = Utilities.loadImage ("org/netbeans/modules/erd/resources/snap-to-grid.png"); // NOI18N
-    public static final Image layoutImage = Utilities.loadImage ("org/netbeans/modules/erd/resources/realign-screens.png"); // NOI18N
+    public static final Image zoominImage = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/zoomin.gif"); // NOI18N
+    public static final Image zoomoutImage = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/zoomout.gif"); // NOI18N
+    public static final Image gridImage = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/snap-to-grid.png"); // NOI18N
+    public static final Image layoutImage = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/realign-screens.png"); // NOI18N
 
-   ERDTopComponent topComponent;
+    private static final long serialVersionUID = -1;
+    ERDTopComponent topComponent;
 
     public ERDToolBar (ERDTopComponent topComponent) {
         super ();

@@ -25,7 +25,6 @@ made subject to such option by the copyright holder.
 package org.netbeans.modules.erd.wizard;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,7 +36,7 @@ import javax.swing.event.ChangeListener;
 public class ChangeSupport {
 
     private Object source;
-    private LinkedList listeners = new LinkedList();
+    private LinkedList<ChangeListener> listeners = new LinkedList<ChangeListener>();
 
     public ChangeSupport(Object source) {
         this.source = source;
@@ -56,12 +55,12 @@ public class ChangeSupport {
     }
 
     public void fireChange(ChangeEvent event) {
-        HashSet listenersCopy = null;
+        HashSet<ChangeListener> listenersCopy = null;
         synchronized (this) {
-            listenersCopy = new HashSet(listeners);
+            listenersCopy = new HashSet<ChangeListener>(listeners);
         }
-        for (Iterator i = listenersCopy.iterator(); i.hasNext();) {
-            ((ChangeListener)i.next()).stateChanged(event);
+        for (ChangeListener l : listenersCopy) {
+            l.stateChanged(event);
         }
     }
 }

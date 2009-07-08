@@ -42,38 +42,24 @@
 package org.netbeans.modules.erd.wizard;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.*;
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.db.explorer.ConnectionManager;
 import org.netbeans.api.db.explorer.DatabaseConnection;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.awt.StatusDisplayer;
-import org.openide.filesystems.*;
-import org.openide.loaders.DataFolder;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
 import org.netbeans.modules.dbschema.jdbcimpl.ConnectionProvider;
 import org.netbeans.modules.dbschema.*;
 import org.netbeans.modules.dbschema.jdbcimpl.SchemaElementImpl;
-import org.netbeans.modules.dbschema.jdbcimpl.wizard.DBSchemaWizardData;
 import org.netbeans.modules.dbschema.jdbcimpl.wizard.ProgressFrame;
 import org.netbeans.modules.erd.io.ERDContext;
 import org.openide.ErrorManager;
-import org.openide.util.Mutex;
-import sun.jdbc.odbc.ee.ConnectionHandler;
-import sun.net.www.protocol.http.Handler;
 
 
 public class CaptureERD {
-    static ResourceBundle bundle = NbBundle.getBundle("org.netbeans.modules.dbschema.jdbcimpl.resources.Bundle"); //NOI18N
     
-    private static final String defaultName = bundle.getString("DefaultSchemaName"); //NOI18N
+    private static final String defaultName = NbBundle.getMessage(CaptureERD.class, "DefaultSchemaName"); //NOI18N
     private ERDContext context;
     private boolean isAlreadyConnected;
     private DatabaseConnection dbconn;
@@ -115,12 +101,12 @@ public class CaptureERD {
         try {
             final ConnectionProvider c = cp;
             if (c == null) {
-                throw new SQLException(bundle.getString("EXC_ConnectionNotEstablished"));
+                throw new SQLException(NbBundle.getMessage(CaptureERD.class, "EXC_ConnectionNotEstablished"));
             }
             Runnable mytask=new Runnable() {
                 public void run() {
                     try {
-                        StatusDisplayer.getDefault().setStatusText(bundle.getString("CreatingDatabaseSchema")); //NOI18N
+                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(CaptureERD.class, "CreatingDatabaseSchema")); //NOI18N
                         
                         final ProgressFrame pf = new ProgressFrame();
                         final SchemaElementImpl sei = new SchemaElementImpl(c);
@@ -140,25 +126,25 @@ public class CaptureERD {
                                 }
                                 
                                 if (event.getPropertyName().equals("tableName")) { //NOI18N
-                                    message = MessageFormat.format(bundle.getString("CapturingTable"), new String[] {((String) event.getNewValue()).toUpperCase()}); //NOI18N
+                                    message = NbBundle.getMessage(CaptureERD.class, "CapturingTable", ((String)event.getNewValue()).toUpperCase()); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
                                 
                                 if (event.getPropertyName().equals("FKt")) { //NOI18N
-                                    message = MessageFormat.format(bundle.getString("CaptureFK"), new String[] {((String) event.getNewValue()).toUpperCase(), bundle.getString("CaptureFKtable")}); //NOI18N
+                                    message = NbBundle.getMessage(CaptureERD.class, "CaptureFK", ((String) event.getNewValue()).toUpperCase(), NbBundle.getMessage(CaptureERD.class, "CaptureFKtable")); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
                                 
                                 if (event.getPropertyName().equals("FKv")) { //NOI18N
-                                    message = MessageFormat.format(bundle.getString("CaptureFK"), new String[] {((String) event.getNewValue()).toUpperCase(), bundle.getString("CaptureFKview")}); //NOI18N
+                                    message = NbBundle.getMessage(CaptureERD.class, "CaptureFK", ((String) event.getNewValue()).toUpperCase(), NbBundle.getMessage(CaptureERD.class, "CaptureFKview")); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
                                 
                                 if (event.getPropertyName().equals("viewName")) { //NOI18N
-                                    message = MessageFormat.format(bundle.getString("CapturingView"), new String[] {((String) event.getNewValue()).toUpperCase()}); //NOI18N
+                                    message = NbBundle.getMessage(CaptureERD.class, "CapturingView", ((String) event.getNewValue()).toUpperCase()); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
@@ -184,8 +170,8 @@ public class CaptureERD {
                         pf.finishProgress();
                         
                         if (! sei.isStop()) {
-                            pf.setMessage(bundle.getString("SchemaSaved")); //NOI18N
-                            StatusDisplayer.getDefault().setStatusText(bundle.getString("SchemaSaved")); //NOI18N
+                            pf.setMessage(NbBundle.getMessage(CaptureERD.class, "SchemaSaved")); //NOI18N
+                            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(CaptureERD.class, "SchemaSaved")); //NOI18N
                             
                             pf.setVisible(false);
                             pf.dispose();
@@ -208,7 +194,7 @@ public class CaptureERD {
             };
             mytask.run();
         } catch (Exception exc) {
-            String message = MessageFormat.format(bundle.getString("UnableToCreateSchema"), new String[] {exc.getMessage()}); //NOI18N
+            String message = NbBundle.getMessage(CaptureERD.class, "UnableToCreateSchema", exc.getMessage()); //NOI18N
             StatusDisplayer.getDefault().setStatusText(message);
             
             

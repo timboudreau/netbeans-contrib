@@ -43,25 +43,20 @@ package org.netbeans.modules.erd.editor;
 import org.netbeans.modules.erd.util.LoadingPanel;
 import java.awt.BorderLayout;
 import java.awt.Graphics2D;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import org.netbeans.modules.dbschema.SchemaElement;
 import org.netbeans.modules.erd.*;
 import org.netbeans.modules.erd.graphics.ERDToolBar;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.netbeans.modules.erd.model.ERDController;
 import org.netbeans.modules.erd.model.ERDDocument;
 import org.netbeans.modules.erd.model.ERDDocumentAwareness;
-import org.openide.ErrorManager;
 import org.openide.awt.UndoRedo;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -79,7 +74,6 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
     
     private JComponent view;
     private JScrollPane scroll;
-    private SchemaElement se;
     private LoadingPanel loadingPanel;
     private ERDDataObject dataObject;
     private ERDDocument document;
@@ -120,15 +114,18 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
         controller.paint(graphics2D);
     }
     
+    @Override
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_NEVER;
     }
     
+    @Override
     public void componentOpened() {
         dataObject.getDocumentSerializer ().startLoadingDocument ();
         editorSupport.updateDisplayName();
     }
     
+    @Override
     public void componentClosed() {
        // dataObject.notifyClosed();
         //documentS
@@ -136,10 +133,12 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
     
    
     
+    @Override
     protected String preferredID() {
         return PREFERRED_ID;
     }
 
+    @Override
     protected void componentShowing() {
         super.componentShowing();
     }
@@ -227,6 +226,7 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
         
    }
    
+    @Override
    protected void componentActivated() {
         super.componentActivated();
    }

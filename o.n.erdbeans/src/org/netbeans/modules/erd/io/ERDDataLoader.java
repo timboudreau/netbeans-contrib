@@ -68,10 +68,12 @@ public class ERDDataLoader extends UniFileLoader {
         super("org.netbeans.modules.erd.io.ERDDataObject");
     }
     
+    @Override
     protected String defaultDisplayName() {
         return NbBundle.getMessage(ERDDataLoader.class, "LBL_ERD_loader_name");
     }
     
+    @Override
     protected void initialize() {
         super.initialize();
         getExtensions().addMimeType(REQUIRED_MIME);
@@ -84,7 +86,9 @@ public class ERDDataLoader extends UniFileLoader {
    /* protected String actionsContext() {
         return "Loaders/" + REQUIRED_MIME + "/Actions";
     }*/
-    
+
+    @Override
+    @SuppressWarnings("deprecation")
     protected SystemAction[] defaultActions() {
 		// TODO Auto-generated method stub
 	return new SystemAction[]{

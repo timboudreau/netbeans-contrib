@@ -32,7 +32,6 @@ import javax.swing.SwingUtilities;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.ErrorManager;
-import org.openide.util.Mutex;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -78,7 +77,7 @@ public class EventRequestProcessor {
             throw new IllegalStateException("The invoke() method is running."); // NOI18N
         }
 
-        this.actions = new ArrayList(actions);
+        this.actions = new ArrayList<Action>(actions);
         this.currentActionIndex = 0;
 
         try {

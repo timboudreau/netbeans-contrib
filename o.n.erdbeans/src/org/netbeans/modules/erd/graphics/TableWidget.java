@@ -49,7 +49,6 @@ import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.model.StateModel;
 import org.netbeans.api.visual.widget.*;
-import org.openide.util.Utilities;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -58,12 +57,13 @@ import java.util.List;
 import org.netbeans.api.visual.vmd.VMDGlyphSetWidget;
 import org.netbeans.api.visual.vmd.VMDNodeAnchor;
 import org.netbeans.api.visual.widget.Scene.SceneListener;
+import org.openide.util.ImageUtilities;
 
 
 public class TableWidget extends SwingScrollWidget implements StateModel.Listener {
     
-    private static final Image IMAGE_EXPAND = Utilities.loadImage("org/netbeans/modules/visual/resources/vmd-expand.png"); // NOI18N
-    private static final Image IMAGE_COLLAPSE = Utilities.loadImage("org/netbeans/modules/visual/resources/vmd-collapse.png"); // NOI18N
+    private static final Image IMAGE_EXPAND = ImageUtilities.loadImage("org/netbeans/modules/visual/resources/vmd-expand.png"); // NOI18N
+    private static final Image IMAGE_COLLAPSE = ImageUtilities.loadImage("org/netbeans/modules/visual/resources/vmd-collapse.png"); // NOI18N
     
     private static final Border BORDER_NODE = new VMDNodeBorder();
     private static final Color BORDER_CATEGORY_BACKGROUND = new Color(0xCDDDF8);
@@ -101,14 +101,14 @@ public class TableWidget extends SwingScrollWidget implements StateModel.Listene
         setView(new MyView(scene));
         getView().setOpaque(false);
         getView().setBorder(BORDER_NODE);
-        getView().setLayout(LayoutFactory.createVerticalLayout());
+        getView().setLayout(LayoutFactory.createVerticalFlowLayout());
         //setMinimumBounds (new Rectangle (0, 0, 128, 0));
         
         header = new Widget(scene);
         header.setBorder(BORDER);
         header.setBackground(COLOR_SELECTED);
         header.setOpaque(false);
-        header.setLayout(LayoutFactory.createHorizontalLayout(LayoutFactory.SerialAlignment.CENTER, 8));
+        header.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
         //addChild (header);
         getView().addChild(header);
         
@@ -215,6 +215,7 @@ public class TableWidget extends SwingScrollWidget implements StateModel.Listene
      * @param previousState the previous state
      * @param state the new state
      */
+    @Override
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         if (! previousState.isSelected()  &&  state.isSelected()){
             collapseWidget();
@@ -347,7 +348,7 @@ public class TableWidget extends SwingScrollWidget implements StateModel.Listene
     
     public void sort(){
         List<Widget> columns=getColumnWidgets();
-        LinkedList sortedColumns=new LinkedList();
+        LinkedList<Widget> sortedColumns=new LinkedList<Widget>();
         for(Widget column:columns){
             ColumnWidget columnWidget=(ColumnWidget)column;
             
@@ -384,6 +385,7 @@ public class TableWidget extends SwingScrollWidget implements StateModel.Listene
     
     private final class ToggleMinimizedAction extends WidgetAction.Adapter {
         
+        @Override
         public State mousePressed(Widget widget, WidgetMouseEvent event) {
             if (event.getButton() == MouseEvent.BUTTON1 || event.getButton() == MouseEvent.BUTTON2) {
                 stateModel.toggleBooleanState();

@@ -48,14 +48,14 @@ import org.netbeans.modules.erd.graphics.ERDScene;
 import org.netbeans.modules.erd.model.ComponentDescriptor;
 import org.netbeans.modules.erd.model.TypeID;
 
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
 
 public class ColumnDescriptor extends ComponentDescriptor{
     
     public final static String NAME="COLUMN#COMPONENT";
-    private static final Image FOREIGN_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_f.png"); // NOI18N
-    private static final Image PRIMARY_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_p.png"); // NOI18N
-    private static final Image PF_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_pf.png"); // NOI18N
+    private static final Image FOREIGN_KEY_IMAGE = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/key_f.png"); // NOI18N
+    private static final Image PRIMARY_KEY_IMAGE = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/key_p.png"); // NOI18N
+    private static final Image PF_KEY_IMAGE = ImageUtilities.loadImage ("org/netbeans/modules/erd/resources/key_pf.png"); // NOI18N
     private static int size=16;
     
     public final static TypeID type=new TypeID(TypeID.TYPE.COMPONENT,NAME);
@@ -105,12 +105,12 @@ public class ColumnDescriptor extends ComponentDescriptor{
     public void presentComponent(ERDScene scene){
         String pinId=getId();
         String table=getProperty(PROPERTY.TABLE);
-        String isFK=getProperty(PROPERTY.IS_FK);
-        String isPK=getProperty(PROPERTY.IS_PK);
+        String isFKloc=getProperty(PROPERTY.IS_FK);
+        String isPKloc=getProperty(PROPERTY.IS_PK);
         
         
         
-        List<Image> list=getImage(isFK,isPK);
+        List<Image> list=getImage(isFKloc,isPKloc);
         ((ColumnWidget) scene.addPin (table, pinId)).setProperties (createLabel(list.isEmpty()), list,columnType);
         
     }

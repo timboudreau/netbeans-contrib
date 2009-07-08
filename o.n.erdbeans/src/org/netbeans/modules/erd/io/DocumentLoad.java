@@ -41,8 +41,6 @@
 
 package org.netbeans.modules.erd.io;
 
-import com.sun.net.ssl.internal.ssl.Debug;
-import java.awt.Point;
 import org.netbeans.modules.dbschema.SchemaElement;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
@@ -55,15 +53,10 @@ import org.xml.sax.SAXParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.dbschema.SchemaElementUtil;
 
-import org.netbeans.modules.erd.graphics.ERDScene;
-import org.netbeans.modules.erd.io.ERDContext;
 import org.netbeans.modules.erd.model.DocumentBuilder;
 import org.netbeans.modules.erd.model.ERDComponent;
 import org.netbeans.modules.erd.model.ERDDocument;

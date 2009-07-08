@@ -41,16 +41,7 @@
 package org.netbeans.modules.erd.editor;
 
 
-import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.awt.print.Pageable;
-import java.awt.print.Printable;
-import java.awt.print.PrinterAbortException;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeSupport;
 import org.openide.cookies.*;
 import org.openide.filesystems.FileLock;
@@ -63,16 +54,12 @@ import org.openide.windows.CloneableOpenSupport;
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
 import java.io.*;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.netbeans.modules.erd.model.DocumentSerializer;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.text.CloneableEditorSupport.Pane;
-import org.openide.text.NbDocument;
-import org.openide.text.PrintSettings;
+//import org.openide.text.PrintSettings;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -80,7 +67,7 @@ import org.openide.util.RequestProcessor;
 /**
  * @author uszaty
  */
-public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCookie, EditCookie, PrintCookie {
+public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCookie, EditCookie {
     
     private enum ShowingType {
         OPEN, EDIT
@@ -125,7 +112,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     
     protected void notifyUnmodified() {
         
-        SaveCookie save = (SaveCookie)dataObject.getCookie(SaveCookie.class);
+        SaveCookie save = dataObject.getCookie(SaveCookie.class);
         if (save != null) {
             dataObject.removeSaveCookie(save);
             dataObject.setModified(false);
@@ -143,12 +130,14 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
         return can;
     }
     
+    @Override
     public void open() {
         showingType = ShowingType.OPEN;
         super.open();
         
     }
     
+    @Override
     public void edit() {
         showingType = ShowingType.EDIT;
         super.open();
@@ -160,59 +149,59 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     }
     
     
-    public void print() {
-        
-        synchronized (LOCK_PRINTING) {
-            if (printing) {
-                return;
-            }
-            
-            printing = true;
-        }
-        
-
-        
-        try {
-            PrinterJob job = PrinterJob.getPrinterJob();
-            ERDTopComponent tc=(ERDTopComponent)topComponent;
-            
-            Printable o =new ERDPrintable(tc);
-            
-            
-           PageFormat pf = PrintSettings.getPageFormat(job);
-           job.setPrintable((Printable) o, pf);
-           
-            
-            if (job.printDialog()) {
-                job.print();
-            }
-        }  catch (PrinterAbortException e) { // user exception
-            notifyProblem(e, "CTL_Printer_Abort"); // NOI18N
-        }catch (PrinterException e) {
-            notifyProblem(e, "EXC_Printer_Problem"); // NOI18N
-        } finally {
-            synchronized (LOCK_PRINTING) {
-                printing = false;
-            }
-        }
-    }
+//    public void print() {
+//
+//        synchronized (LOCK_PRINTING) {
+//            if (printing) {
+//                return;
+//            }
+//
+//            printing = true;
+//        }
+//
+//
+//
+//        try {
+//            PrinterJob job = PrinterJob.getPrinterJob();
+//            ERDTopComponent tc=(ERDTopComponent)topComponent;
+//
+//            Printable o =new ERDPrintable(tc);
+//
+//
+//           PageFormat pf = PrintSettings.getPageFormat(job);
+//           job.setPrintable((Printable) o, pf);
+//
+//
+//            if (job.printDialog()) {
+//                job.print();
+//            }
+//        }  catch (PrinterAbortException e) { // user exception
+//            notifyProblem(e, "CTL_Printer_Abort"); // NOI18N
+//        }catch (PrinterException e) {
+//            notifyProblem(e, "EXC_Printer_Problem"); // NOI18N
+//        } finally {
+//            synchronized (LOCK_PRINTING) {
+//                printing = false;
+//            }
+//        }
+//    }
     
     
-   static class ERDPrintable implements Printable {
-        private ERDTopComponent mComponent;
-        
-        public ERDPrintable(ERDTopComponent c) {
-            mComponent = c;
-        }
-        
-        public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
-            if (pageIndex > 0)
-                return NO_SUCH_PAGE;
-            Graphics2D g2 = (Graphics2D) g;
-            mComponent.print(g2);
-            return PAGE_EXISTS;
-        }
-    }
+//   static class ERDPrintable implements Printable {
+//        private ERDTopComponent mComponent;
+//
+//        public ERDPrintable(ERDTopComponent c) {
+//            mComponent = c;
+//        }
+//
+//        public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+//            if (pageIndex > 0)
+//                return NO_SUCH_PAGE;
+//            Graphics2D g2 = (Graphics2D) g;
+//            mComponent.print(g2);
+//            return PAGE_EXISTS;
+//        }
+//    }
     
     
     private static void notifyProblem(Exception e, String key) {
@@ -407,6 +396,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             return ((ERDDataObject) getDataObject()).getPrimaryEntry().takeLock();
         }
         
+        @Override
         public CloneableOpenSupport findCloneableOpenSupport() {
             return (CloneableOpenSupport)getDataObject().getCookie(ERDEditorSupport.class);
         }
@@ -416,7 +406,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             DataObject dataObject = DataObject.find(FileUtil.toFileObject(new File(path)));
             if (dataObject == null)
                 return;
-            OpenCookie cookie = (OpenCookie)dataObject.getCookie(OpenCookie.class);
+            OpenCookie cookie = dataObject.getCookie(OpenCookie.class);
             if (cookie != null)
                 cookie.open();
         }

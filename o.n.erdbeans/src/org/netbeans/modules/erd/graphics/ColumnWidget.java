@@ -48,7 +48,6 @@ import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.vmd.VMDGlyphSetWidget;
-import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
@@ -76,7 +75,7 @@ public class ColumnWidget extends Widget{
         setBackground (ColumnWidget.COLOR_SELECTED);
         setOpaque (false);
         addChild (glyphsWidget = new VMDGlyphSetWidget (scene));
-        setLayout (LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.CENTER, 8));
+        setLayout (LayoutFactory.createHorizontalFlowLayout (LayoutFactory.SerialAlignment.CENTER, 8));
         addChild (nameWidget = new LabelWidget (scene));
         
 
@@ -88,6 +87,7 @@ public class ColumnWidget extends Widget{
      * @param previousState the previous state
      * @param state the new state
      */
+    @Override
     protected void notifyStateChanged (ObjectState previousState, ObjectState state) {
         setOpaque (state.isSelected ());
         setBorder (state.isFocused () || state.isHovered () ? ColumnWidget.BORDER_HOVERED : ColumnWidget.BORDER);
