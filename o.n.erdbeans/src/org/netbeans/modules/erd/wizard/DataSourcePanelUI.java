@@ -27,7 +27,6 @@ package org.netbeans.modules.erd.wizard;
 
 
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javax.swing.event.*;
 import org.netbeans.api.db.explorer.ConnectionManager;
@@ -56,8 +55,6 @@ public class DataSourcePanelUI extends javax.swing.JPanel implements ListDataLis
 
     static final long serialVersionUID = 5364628520334696421L;
 
-    private ArrayList dbconns;
-    private ArrayList list=new ArrayList();
     private WizardContext data;
     private Node dbNode;
     private Node[] drvNodes;
@@ -66,9 +63,6 @@ public class DataSourcePanelUI extends javax.swing.JPanel implements ListDataLis
     
     
     public DataSourcePanelUI() {
-        
-        dbconns = new ArrayList();
-        
 
         putClientProperty("WizardPanel_contentSelectedIndex", new Integer(1)); //NOI18N
         setName(bundle.getString("DataSource")); //NOI18N
@@ -77,10 +71,6 @@ public class DataSourcePanelUI extends javax.swing.JPanel implements ListDataLis
         resize();
         initAccessibility();
 
-        
-        
-        
-        
     }
     
     

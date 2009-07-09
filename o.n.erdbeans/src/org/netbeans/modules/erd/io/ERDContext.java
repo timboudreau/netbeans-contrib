@@ -43,7 +43,6 @@
 package org.netbeans.modules.erd.io;
 import org.netbeans.modules.dbschema.SchemaElement;
 import org.netbeans.modules.erd.model.ERDDocument;
-import org.netbeans.modules.erd.wizard.WizardContext;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 

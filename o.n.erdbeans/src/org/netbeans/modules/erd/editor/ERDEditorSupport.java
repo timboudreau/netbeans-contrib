@@ -233,7 +233,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     }
     
     protected String messageOpening() {
-        return NbBundle.getMessage(DataObject.class , "CTL_ObjectOpen", // NOI18N
+        return NbBundle.getMessage(ERDEditorSupport.class , "CTL_ObjectOpen", // NOI18N
                 dataObject.getPrimaryFile().getNameExt(),
                 FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
                 );
@@ -255,13 +255,13 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             }
         }
         
-        return NbBundle.getMessage(DataObject.class, "LAB_EditorName",
+        return NbBundle.getMessage(ERDEditorSupport.class, "LAB_EditorName",
                 new Integer(version), name );
     }
     
     
     protected String messageOpened() {
-        return NbBundle.getMessage(DataObject.class, "CTL_ObjectOpened", // NOI18N
+        return NbBundle.getMessage(ERDEditorSupport.class, "CTL_ObjectOpened", // NOI18N
                 dataObject.getPrimaryFile().getNameExt(),
                 FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
                 );
@@ -323,7 +323,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     
     protected String messageSave() {
         return NbBundle.getMessage(
-                DataObject.class,
+                ERDEditorSupport.class,
                 "MSG_SaveFile", // NOI18N
                 dataObject.getPrimaryFile().getNameExt()
                 );
