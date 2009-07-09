@@ -56,7 +56,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/activitysupplier.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>
@@ -65,7 +65,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/airlinesupplier.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>
@@ -74,7 +74,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/bank.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>
@@ -83,7 +83,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/consumerwebsite.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>
@@ -100,7 +100,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/lodgingsupplier.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>
@@ -109,7 +109,7 @@ made subject to such option by the copyright holder.
                             <attr name="template" boolvalue="true"/>
                             <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/j2ee/adventure/resources/opc.html"/>
                             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.adventure.Bundle"/>
-                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/j2ee/earproject/ui/resources/projectIcon.gif"/>
                             <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.blueprints.ui.projects.J2eeSampleProjectIterator"/>
                             <attr name="prjType" stringvalue="ear"/>
                         </file>

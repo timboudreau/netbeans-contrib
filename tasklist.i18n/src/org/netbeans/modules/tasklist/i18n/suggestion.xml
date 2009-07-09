@@ -47,5 +47,5 @@ made subject to such option by the copyright holder.
     description_key="HINT_i18ntype"
     long_description_key="LONGHINT_i18ntype"
     localizing_bundle="org.netbeans.modules.tasklist.i18n.Bundle"
-    icon="nbresloc:org/netbeans/modules/tasklist/i18n/i18nAction.gif"
+    icon="nbresloc:/org/netbeans/modules/tasklist/i18n/i18nAction.gif"
 />

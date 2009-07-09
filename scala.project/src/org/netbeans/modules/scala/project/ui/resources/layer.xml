@@ -157,7 +157,7 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/project/ui/resources/class.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/class.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaJUnitTestFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
             </file>

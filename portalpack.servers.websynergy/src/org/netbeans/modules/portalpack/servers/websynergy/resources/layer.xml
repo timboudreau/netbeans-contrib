@@ -113,13 +113,13 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
       
      <folder name="liferay"> 
         <folder name="templates">
-            <file name="liferay-display-400.template" url="nbresloc:templates/liferay-display-400.template">
+            <file name="liferay-display-400.template" url="nbresloc:/templates/liferay-display-400.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="liferay-plugin-package-430.template" url="nbresloc:templates/liferay-plugin-package-430.template">
+            <file name="liferay-plugin-package-430.template" url="nbresloc:/templates/liferay-plugin-package-430.template">
                 <attr name="position" intvalue="0"/>
             </file>    
-            <file name="liferay-portlet-440.template" url="nbresloc:templates/liferay-portlet-440.template">
+            <file name="liferay-portlet-440.template" url="nbresloc:/templates/liferay-portlet-440.template">
                 <attr name="position" intvalue="0"/>
             </file>
         </folder>

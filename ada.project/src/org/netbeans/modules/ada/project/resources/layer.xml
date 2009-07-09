@@ -95,7 +95,7 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
             <file name="NewAdaMain.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMain.adb">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaMainFileDescription.html"/>
@@ -105,7 +105,7 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
             <file name="NewAdaSpec.ads" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpec.ads">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-spec-16.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ada-spec-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaSpecFileDescription.html"/>
@@ -115,7 +115,7 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
             <file name="NewAdaBody.adb" url="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBody.adb">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ada.project.resources.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/ada-body-16.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.ada.project.ui.wizards.NewFileWizardIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ada/project/ui/resources/EmptyAdaBodyFileDescription.html"/>

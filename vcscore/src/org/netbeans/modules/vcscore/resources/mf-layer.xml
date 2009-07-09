@@ -63,7 +63,7 @@ made subject to such option by the copyright holder.
         </folder>
     <folder name="Window">
         <folder name="Versioning">
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
             <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance"/>

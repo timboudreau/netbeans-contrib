@@ -69,7 +69,7 @@ made subject to such option by the copyright holder.
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/gwtsupport/resources/EntryPoint.html" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.gwtsupport.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/gwtsupport/resources/entrypoint.gif"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/gwtsupport/resources/entrypoint.gif"/>
             </file>
     </folder>
     </folder>        

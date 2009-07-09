@@ -47,7 +47,7 @@ made subject to such option by the copyright holder.
     description_key="HINT_violationtype"
     long_description_key="LONGHINT_violationtype"
     localizing_bundle="org.netbeans.modules.tasklist.pmd.Bundle"
-    icon="nbresloc:org/netbeans/modules/tasklist/pmd/pmd.gif"
+    icon="nbresloc:/org/netbeans/modules/tasklist/pmd/pmd.gif"
 >
    <actions>
        <action class="org.netbeans.modules.tasklist.pmd.EditRulesAction"/>

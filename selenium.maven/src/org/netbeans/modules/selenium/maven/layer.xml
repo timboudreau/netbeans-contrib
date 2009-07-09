@@ -6,7 +6,7 @@
             <attr name="position" intvalue="1230"/>
             <file name="SeleneseMavenTest.java" url="SeleneseTest.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.selenium.maven.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/resources/class.gif"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/selenium/maven/SeleneseTest.html"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.selenium.maven.SeleneseTestWizardOperator.create"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>

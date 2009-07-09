@@ -46,5 +46,5 @@ made subject to such option by the copyright holder.
     description_key="HINT_violationtype"
     long_description_key="LONGHINT_violationtype"
     localizing_bundle="org.netbeans.modules.tasklist.checkstyle.Bundle"
-    icon="nbresloc:org/netbeans/modules/tasklist/checkstyle/checkstyle.gif"
+    icon="nbresloc:/org/netbeans/modules/tasklist/checkstyle/checkstyle.gif"
 />
