@@ -47,5 +47,5 @@ made subject to such option by the copyright holder.
     description_key="HINT_copyrighttype"
     long_description_key="LONGHINT_copyrighttype"
     localizing_bundle="org.netbeans.modules.tasklist.copyright.Bundle"
-    icon="nbresloc:org/netbeans/modules/tasklist/copyright/copyright.gif"
+    icon="nbresloc:/org/netbeans/modules/tasklist/copyright/copyright.gif"
 />

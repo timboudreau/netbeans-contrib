@@ -47,7 +47,7 @@ made subject to such option by the copyright holder.
         <folder name="Hidden">
            <file name="org-netbeans-modules-tasklist-core-TaskTransfer.instance"/>
            <file name="org-netbeans-modules-tasklist-core-TaskEditorListener.instance">
-               <attr name="instanceOf" stringvalue="org-netbeans-modules-tasklist-core-TaskViewListener"/>
+               <attr name="instanceOf" stringvalue="org.netbeans.modules.tasklist.core.TaskViewListener"/>
            </file>
 	</folder>
     </folder>
