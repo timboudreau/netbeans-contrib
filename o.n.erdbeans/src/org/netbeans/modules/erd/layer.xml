@@ -122,7 +122,7 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>-->
-    <folder name="Menu">
+    <!--<folder name="Menu">
         <folder name="File">
             <file name="org-netbeans-modules-erd-actions-PngAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-actions-PngAction.instance"/>
@@ -134,11 +134,12 @@ made subject to such option by the copyright holder.
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erd-action-ERDAction.instance"/>
             </file>
         </folder>
-    </folder>
+    </folder>-->
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="ERDResolver.xml" url="ERDResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+                <attr name="position" intvalue="1400"/>
             </file>
         </folder>
     </folder>
@@ -157,19 +158,18 @@ made subject to such option by the copyright holder.
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erd/wizard2/eRD.html"/>
             </file>
         </folder>-->
-    <folder name="Persistence">
-      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
-      <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/dbschema/jdbcimpl/resources/Databases.html"/>
+        <folder name="Persistence">
+          <attr name="position" intvalue="1300"/>
 
-      <file name="ERD.erd" url="templates/ERD.erd">
-         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
-         <attr name="template" boolvalue="true"/>
-         <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/dbschema/jdbcimpl/resources/DBSchema.html"/>
-         <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.erd.wizard.ERDWizard.singleton"/>
-         <attr name="templateCategory" stringvalue="web-types,ejb-types,persistence"/>
-      </file>
-      <attr name="Database Schema.dbschema/JDBC Form Wizard.java" boolvalue="true"/>
-    </folder>
+          <file name="ERD.erd" url="ERDTemplate.erd">
+             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+             <attr name="template" boolvalue="true"/>
+             <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/dbschema/jdbcimpl/resources/DBSchema.html"/>
+             <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erd.wizard.ERDWizard.singleton"/>
+             <attr name="templateCategory" stringvalue="web-types,ejb-types,persistence"/>
+             <attr name="position" intvalue="1400"/>
+          </file>
+        </folder>
     </folder>
    <!-- <folder name="Windows2">
         <folder name="Components">
