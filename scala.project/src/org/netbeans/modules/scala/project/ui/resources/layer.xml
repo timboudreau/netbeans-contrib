@@ -120,6 +120,7 @@ made subject to such option by the copyright holder.
             <file name="Main.scala" url="Main.scala">
                 <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
                 <!-- This is a hack to allow Scala files to show up in Java projects as well in case you want to mix in Java project. -->
                 <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
@@ -129,37 +130,41 @@ made subject to such option by the copyright holder.
             <file name="Class.scala" url="EmptyScalaClass.scala">
                 <attr name="position" intvalue="200"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/class.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaClassFileDescription.html"/>
-                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
 
             <file name="Object.scala" url="EmptyScalaObject.scala">
                 <attr name="position" intvalue="300"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/class.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaObjectFileDescription.html"/>
-                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
 
             <file name="Trait.scala" url="EmptyScalaTrait.scala">
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/class.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaTraitFileDescription.html"/>
-                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
 
             <file name="JUnitTest.scala" url="EmptyScalaJUnitTest.scala">
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/class.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaJUnitTestFileDescription.html"/>
-                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
         </folder>
         

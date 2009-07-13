@@ -1,13 +1,13 @@
-/*
- * __NAME__.scala
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
 
-package __PACKAGE__
+<#if package?? && package != "">
+package ${package}
 
-object __NAME__ {
+</#if>
+object ${name} {
 
   /**
    * @param args the command line arguments
