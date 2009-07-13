@@ -117,7 +117,7 @@ public class ElementDescription {
                 || e.getQualifiedName().length() == 0
                 || e.getSimpleName() == null
                 || e.getSimpleName().length() == 0) {
-                return NbBundle.getMessage(ElementDescription.class, "NAME_AnonynmousInner") + e.getEnclosingElement().accept(this, true);
+                return NbBundle.getMessage(ElementDescription.class, "NAME_AnonymousInner", e.getEnclosingElement().accept(this, true));
             }
             
             return p ? e.getQualifiedName().toString() : e.getSimpleName().toString();
