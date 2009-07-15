@@ -80,7 +80,14 @@ final class TodoSourceParsing {
                while (pos < endOffset) {
                   FinderFactory.WholeWordsFwdFinder finder =
                         new FinderFactory.WholeWordsFwdFinder(doc, word, true);
-                  int next = doc.find(finder, pos, endOffset);
+                  endOffset = Math.min(doc.getLength(), endOffset);
+                  int next = 0;
+                  try {
+                     next = doc.find(finder, pos, endOffset);
+                  } catch (BadLocationException ble) {
+                     //#165641 Ignore it since document was edited during parsing
+                     break;
+                  }
 
                   if ((next >= startOffset) && (next < endOffset)) {
                      // See if it looks like a token we care about (comments)
