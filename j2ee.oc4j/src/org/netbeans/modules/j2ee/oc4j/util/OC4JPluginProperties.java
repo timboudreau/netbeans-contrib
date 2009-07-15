@@ -141,7 +141,7 @@ public class OC4JPluginProperties {
         if (path == null) {
             ArrayList<URL> list = new ArrayList<URL>();
             try {
-                File j2eeDoc = InstalledFileLocator.getDefault().locate("docs/javaee5-doc-api.zip", null, false); // NOI18N
+                File j2eeDoc = InstalledFileLocator.getDefault().locate("docs/javaee6-doc-api.zip", null, false); // NOI18N
                 if (j2eeDoc != null) {
                     list.add(OC4JPluginUtils.fileToUrl(j2eeDoc));
                 }
