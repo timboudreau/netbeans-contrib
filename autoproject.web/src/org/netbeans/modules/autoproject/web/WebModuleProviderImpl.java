@@ -64,6 +64,7 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
 
     private static final Logger LOG = Logger.getLogger(WebModuleProviderImpl.class.getName());
     private static final Map<Project,Map<FileObject, WebModule>> webModules = new WeakHashMap<Project,Map<FileObject, WebModule>>();
+    private static final Map<Project, WebModule> webModulesWithoutDocRoot = new WeakHashMap<Project, WebModule>();
     
     private Project p;
     private String root;
@@ -94,17 +95,20 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
         }
         if (docRoot == null) {
             LOG.log(Level.FINE, "Found no docroot for {0} in {1}", new Object[] {file, p.getProjectDirectory()});
-            return null;
         }
         Map<FileObject, WebModule> projectWebModules = webModules.get(p);
         if (projectWebModules == null) {
             projectWebModules = new HashMap<FileObject, WebModule>();
             webModules.put(p, projectWebModules);
         }
-        WebModule wm = projectWebModules.get(docRoot);
+        WebModule wm = docRoot != null ? projectWebModules.get(docRoot) : webModulesWithoutDocRoot.get(p);
         if (wm == null) {
             wm = WebModuleFactory.createWebModule(new WebModuleImpl(docRoot, root, cpp, this));
-            projectWebModules.put(docRoot, wm);
+            if (docRoot != null) {
+                projectWebModules.put(docRoot, wm);
+            } else {
+                webModulesWithoutDocRoot.put(p, wm);
+            }
         }
         return wm;
     }
@@ -124,9 +128,7 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
                     break;
                 }
             }
-            if (docRoot != null) {
-                j2eeModule = J2eeModuleFactory.createJ2eeModule(new WebModuleImpl(docRoot, root, cpp, this));
-            }
+            j2eeModule = J2eeModuleFactory.createJ2eeModule(new WebModuleImpl(docRoot, root, cpp, this));
         }
         return j2eeModule;
     }
