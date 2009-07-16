@@ -43,6 +43,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import org.netbeans.api.j2ee.core.Profile;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.modules.j2ee.dd.api.web.DDProvider;
@@ -53,13 +54,12 @@ import org.netbeans.modules.j2ee.dd.spi.web.WebAppMetadataModelFactory;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation2;
 import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
-import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation;
+import org.netbeans.modules.web.spi.webmodule.WebModuleImplementation2;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 @SuppressWarnings("deprecation") // getJavaSources
-class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation2  {
+class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementation2  {
 
     private FileObject docBase;
     private String root;
@@ -81,8 +81,8 @@ class WebModuleImpl implements WebModuleImplementation, J2eeModuleImplementation
         return "UNKNOWN"; // XXX: will have to ask user for context
     }
 
-    public String getJ2eePlatformVersion() {
-        return WebModule.JAVA_EE_5_LEVEL; // XXX: will have to ask user
+    public Profile getJ2eeProfile() {
+        return Profile.JAVA_EE_5; // XXX: will have to ask user
     }
 
     public FileObject getWebInf() {
