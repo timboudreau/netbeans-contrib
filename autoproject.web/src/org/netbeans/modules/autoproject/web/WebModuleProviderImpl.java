@@ -81,16 +81,15 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
     public WebModule findWebModule (FileObject file) {
         assert p.equals(FileOwnerQuery.getOwner(file));
 
-        String docBaseFolders = Cache.get(root + WebCacheConstants.DOCROOT);
-        if (docBaseFolders == null) {
-            return null;
-        }
         FileObject docRoot = null;
-        for (String piece : docBaseFolders.split("[:;]")) {
-            FileObject aRoot = FileUtil.toFileObject(new File(piece));
-            if (aRoot != null && (FileUtil.isParentOf(aRoot, file) || aRoot == file)) {
-                docRoot = aRoot;
-                break;
+        String docBaseFolders = Cache.get(root + WebCacheConstants.DOCROOT);
+        if (docBaseFolders != null) {
+            for (String piece : docBaseFolders.split("[:;]")) {
+                FileObject aRoot = FileUtil.toFileObject(new File(piece));
+                if (aRoot != null && (FileUtil.isParentOf(aRoot, file) || aRoot == file)) {
+                    docRoot = aRoot;
+                    break;
+                }
             }
         }
         if (docRoot == null) {
@@ -116,16 +115,15 @@ class WebModuleProviderImpl extends J2eeModuleProvider implements WebModuleProvi
     @Override
     public J2eeModule getJ2eeModule() {
         if (j2eeModule == null) {
-            String docBaseFolders = Cache.get(root + WebCacheConstants.DOCROOT);
-            if (docBaseFolders == null) {
-                return null;
-            }
             FileObject docRoot = null;
-            for (String piece : docBaseFolders.split("[:;]")) {
-                FileObject aRoot = FileUtil.toFileObject(new File(piece));
-                if (aRoot != null) {
-                    docRoot = aRoot;
-                    break;
+            String docBaseFolders = Cache.get(root + WebCacheConstants.DOCROOT);
+            if (docBaseFolders != null) {
+                for (String piece : docBaseFolders.split("[:;]")) {
+                    FileObject aRoot = FileUtil.toFileObject(new File(piece));
+                    if (aRoot != null) {
+                        docRoot = aRoot;
+                        break;
+                    }
                 }
             }
             j2eeModule = J2eeModuleFactory.createJ2eeModule(new WebModuleImpl(docRoot, root, cpp, this));
