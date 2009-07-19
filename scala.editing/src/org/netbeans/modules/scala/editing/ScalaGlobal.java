@@ -168,8 +168,9 @@ public class ScalaGlobal {
                 settings.verbose().value_$eq(false);
             }
 
-            settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-sourcepath", srcPath}));
-            settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
+            settings.sourcepath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{srcPath}));
+            //settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
+            settings.outputDirs().setSingleOutput(outPath);
 
             // add boot, compile classpath
             ClassPath bootCp = null;
@@ -191,14 +192,14 @@ public class ScalaGlobal {
 
             StringBuilder sb = new StringBuilder();
             computeClassPath(project, sb, bootCp);
-            settings.bootclasspath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-bootclasspath", sb.toString()}));
+            settings.bootclasspath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{sb.toString()}));
 
             sb.delete(0, sb.length());
             computeClassPath(project, sb, compCp);
             if (forTest && !inStdLib && dirs.outDir != null) {
                 sb.append(File.pathSeparator).append(dirs.outDir);
             }
-            settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-classpath", sb.toString()}));
+            settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{sb.toString()}));
 
             global = new Global(settings) {
 
@@ -451,11 +452,11 @@ public class ScalaGlobal {
             //scala.List a = scala.Nil$;
 
             global.settings().stop().value_$eq(scala.netbeans.Wrapper$.MODULE$.stringNil());
-            global.settings().stop().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-Ystop:" + stopPhase.name()}));
+            global.settings().stop().tryToSetColon(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{stopPhase.name()}));
             Global.Run run = global.new Run();
             global.resetSelectTypeErrors();
 
-            scala.List srcFiles = scala.netbeans.Wrapper$.MODULE$.srcFileList(new BatchSourceFile[]{srcFile});
+            scala.collection.immutable.List srcFiles = scala.netbeans.Wrapper$.MODULE$.srcFileList(new BatchSourceFile[]{srcFile});
             try {
                 run.compileSources(srcFiles);
             } catch (AssertionError ex) {
@@ -475,7 +476,7 @@ public class ScalaGlobal {
                 System.out.println("selectTypeErrors:" + selectTypeErrors);
             }
 
-            scala.Iterator units = run.units();
+            scala.collection.Iterator units = run.units();
             while (units.hasNext()) {
                 CompilationUnit unit = (CompilationUnit) units.next();
                 if (unit.source() == srcFile) {

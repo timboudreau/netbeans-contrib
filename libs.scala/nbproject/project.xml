@@ -47,19 +47,17 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.libs.scala</code-name-base>
             <module-dependencies/>
             <public-packages>
-                <package>sbaz</package>
-                <package>sbaz.clui</package>
-                <package>sbaz.clui.commands</package>
-                <package>sbaz.keys</package>
-                <package>sbaz.keys.msgpatt</package>
-                <package>sbaz.messages</package>
                 <package>scala</package>
                 <package>scala.actors</package>
+                <package>scala.actors.forkjoin</package>
                 <package>scala.actors.remote</package>
+                <package>scala.annotation</package>
+                <package>scala.annotation.unchecked</package>
                 <package>scala.collection</package>
+                <package>scala.collection.generic</package>
                 <package>scala.collection.immutable</package>
-                <package>scala.collection.jcl</package>
                 <package>scala.collection.mutable</package>
+                <package>scala.collection.script</package>
                 <package>scala.compat</package>
                 <package>scala.concurrent</package>
                 <package>scala.dbc</package>
@@ -73,12 +71,14 @@ made subject to such option by the copyright holder.
                 <package>scala.dbc.vendor</package>
                 <package>scala.io</package>
                 <package>scala.mobile</package>
+                <package>scala.net</package>
                 <package>scala.netbeans</package>
                 <package>scala.ref</package>
                 <package>scala.reflect</package>
                 <package>scala.runtime</package>
                 <package>scala.swing</package>
                 <package>scala.swing.event</package>
+                <package>scala.swing.test</package>
                 <package>scala.testing</package>
                 <package>scala.text</package>
                 <package>scala.tools.ant</package>
@@ -92,7 +92,9 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.nsc.backend.jvm</package>
                 <package>scala.tools.nsc.backend.msil</package>
                 <package>scala.tools.nsc.backend.opt</package>
+                <package>scala.tools.nsc.dependencies</package>
                 <package>scala.tools.nsc.doc</package>
+                <package>scala.tools.nsc.interactive</package>
                 <package>scala.tools.nsc.interpreter</package>
                 <package>scala.tools.nsc.io</package>
                 <package>scala.tools.nsc.javac</package>
@@ -109,19 +111,15 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.util</package>
                 <package>scala.util</package>
                 <package>scala.util.automata</package>
+                <package>scala.util.control</package>
                 <package>scala.util.grammar</package>
                 <package>scala.util.logging</package>
                 <package>scala.util.matching</package>
-                <package>scala.util.parsing</package>
                 <package>scala.util.parsing.ast</package>
                 <package>scala.util.parsing.combinator</package>
                 <package>scala.util.parsing.combinator.lexical</package>
                 <package>scala.util.parsing.combinator.syntactical</package>
                 <package>scala.util.parsing.combinator.testing</package>
-                <package>scala.util.parsing.combinatorold</package>
-                <package>scala.util.parsing.combinatorold.lexical</package>
-                <package>scala.util.parsing.combinatorold.syntactical</package>
-                <package>scala.util.parsing.combinatorold.testing</package>
                 <package>scala.util.parsing.input</package>
                 <package>scala.util.parsing.json</package>
                 <package>scala.util.parsing.syntax</package>
@@ -138,32 +136,24 @@ made subject to such option by the copyright holder.
                 <package>scala.xml.transform</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/sbaz-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/sbaz-2.7.3.jar</binary-origin>
+                <runtime-relative-path>ext/scala-compiler-2.8.0.jar</runtime-relative-path>
+                <binary-origin>external/scala-compiler-2.8.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/sbaz-tests-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/sbaz-tests-2.7.3.jar</binary-origin>
+                <runtime-relative-path>ext/scala-dbc-2.8.0.jar</runtime-relative-path>
+                <binary-origin>external/scala-dbc-2.8.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-compiler-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/scala-compiler-2.7.3.jar</binary-origin>
+                <runtime-relative-path>ext/scala-library-2.8.0.jar</runtime-relative-path>
+                <binary-origin>external/scala-library-2.8.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.7.3.jar</binary-origin>
+                <runtime-relative-path>ext/scala-swing-2.8.0.jar</runtime-relative-path>
+                <binary-origin>external/scala-swing-2.8.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/scala-library-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/scala-library-2.7.3.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-swing-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/scala-swing-2.7.3.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala.netbeans-2.7.3.jar</runtime-relative-path>
-                <binary-origin>external/scala.netbeans-2.7.3.jar</binary-origin>
+                <runtime-relative-path>ext/scala.netbeans-2.8.0.jar</runtime-relative-path>
+                <binary-origin>external/scala.netbeans-2.8.0.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

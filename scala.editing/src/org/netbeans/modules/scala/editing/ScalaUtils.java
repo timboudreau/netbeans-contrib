@@ -939,9 +939,9 @@ public class ScalaUtils {
     }
 
     public static boolean isMainMethodPresent(AstDef obj) {
-        final scala.List<Symbol> members = obj.getType().members();
+        final scala.collection.immutable.List<Symbol> members = obj.getType().members();
         for (int j = 0; j < members.length(); j++) {
-            Symbol methodCandidate = members.apply(j);
+            Symbol methodCandidate = (Symbol) members.apply(j);
             if (methodCandidate.isMethod() && isMainMethod(methodCandidate)) {
                 return true;
             }
@@ -959,7 +959,7 @@ public class ScalaUtils {
             return false;
         }
         method.tpe().paramTypes();
-        scala.List params = method.tpe().paramTypes();
+        scala.collection.immutable.List params = method.tpe().paramTypes();
         if (params != null && params.size() != 1) {
             return false;
         }

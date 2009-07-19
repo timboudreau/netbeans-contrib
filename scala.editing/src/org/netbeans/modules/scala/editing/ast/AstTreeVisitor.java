@@ -52,7 +52,7 @@ import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
-import scala.tools.nsc.ast.Trees.Annotation;
+//import scala.tools.nsc.ast.Trees.Annotation;
 import scala.tools.nsc.ast.Trees.AppliedTypeTree;
 import scala.tools.nsc.ast.Trees.Apply;
 import scala.tools.nsc.ast.Trees.ApplyDynamic;
@@ -290,11 +290,11 @@ public class AstTreeVisitor extends AstVisitor {
         visit(tree.expr());
     }
 
-    @Override
-    public void visitAnnotation(Annotation tree) {
-        visit(tree.constr());
-        visit(tree.elements());
-    }
+//    @Override
+//    public void visitAnnotation(Annotation tree) {
+//        visit(tree.constr());
+//        visit(tree.elements());
+//    }
 
     @Override
     public void visitBlock(Block tree) {
@@ -426,13 +426,13 @@ public class AstTreeVisitor extends AstVisitor {
          * where (a, c, c) will be Apply::TypeApply
          */
         boolean isTupleApply = false;
-        scala.List<Symbol> funOwnerChain = tree.fun().symbol().ownerChain();
+        scala.collection.immutable.List<Symbol> funOwnerChain = tree.fun().symbol().ownerChain();
         int size = funOwnerChain.size();
         if (size == 4) {
-            if (funOwnerChain.apply(0).rawname().decode().equals("apply") &&
-                    funOwnerChain.apply(1).rawname().decode().startsWith("Tuple") &&
-                    funOwnerChain.apply(2).rawname().decode().equals("scala") &&
-                    funOwnerChain.apply(3).rawname().decode().equals("<root>")) {
+            if (((Symbol)funOwnerChain.apply(0)).rawname().decode().equals("apply") &&
+                    ((Symbol)funOwnerChain.apply(1)).rawname().decode().startsWith("Tuple") &&
+                    ((Symbol)funOwnerChain.apply(2)).rawname().decode().equals("scala") &&
+                    ((Symbol)funOwnerChain.apply(3)).rawname().decode().equals("<root>")) {
                 isTupleApply = true;
             }
         }
@@ -634,12 +634,12 @@ public class AstTreeVisitor extends AstVisitor {
 
     private boolean isTupleClass(Symbol symbol) {
         if (symbol != null) {
-            scala.List<Symbol> chain = symbol.ownerChain();
+            scala.collection.immutable.List<Symbol> chain = symbol.ownerChain();
             int size = chain.size();
             if (size == 3) {
-                if (chain.apply(0).rawname().decode().startsWith("Tuple") &&
-                        chain.apply(1).rawname().decode().equals("scala") &&
-                        chain.apply(2).rawname().decode().equals("<root>")) {
+                if (((Symbol)chain.apply(0)).rawname().decode().startsWith("Tuple") &&
+                        ((Symbol)chain.apply(1)).rawname().decode().equals("scala") &&
+                        ((Symbol)chain.apply(2)).rawname().decode().equals("<root>")) {
                     return true;
                 }
             }

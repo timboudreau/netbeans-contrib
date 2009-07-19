@@ -55,6 +55,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
+import scala.tools.nsc.io.PlainFile;
 import scala.tools.nsc.util.BatchSourceFile;
 
 /**
@@ -119,7 +120,7 @@ public class ScalaParserResult extends ParserResult {
             TokenHierarchy th = getSnapshot().getTokenHierarchy();
 
             Global global = parser.global();
-            BatchSourceFile srcFile = new BatchSourceFile(filePath, getSnapshot().getText().toString().toCharArray());
+            BatchSourceFile srcFile = new BatchSourceFile(new PlainFile(file), getSnapshot().getText().toString().toCharArray());
             try {
                 CompilationUnit unit = ScalaGlobal.compileSourceForDebugger(parser.global(), srcFile);
                 rootScopeForDebugger = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();

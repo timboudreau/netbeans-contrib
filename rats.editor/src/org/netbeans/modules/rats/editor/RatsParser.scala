@@ -165,15 +165,14 @@ class RatsParser extends Parser {
 
     sanitizing match {
       case NONE | NEVER =>
-      case _ =>
-        val ok = sanitizeSource(context, sanitizing)
-        if (ok) {
-          assert(context.sanitizedSource != null)
-          sanitizedSource = true
-          source = context.sanitizedSource
-        } else {
-          // Try next trick
-          return sanitize(context, sanitizing)
+      case _ => sanitizeSource(context, sanitizing) match {
+          case true =>
+            assert(context.sanitizedSource != null)
+            sanitizedSource = true
+            source = context.sanitizedSource
+          case _ =>
+            // Try next trick
+            return sanitize(context, sanitizing)
         }
     }
 

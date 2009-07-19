@@ -2028,8 +2028,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
         }
 
         try {
-            scala.List members = resType.members();
-            for (scala.Iterator itr = members.elements(); itr.hasNext();) {
+            scala.collection.immutable.List members = resType.members();
+            for (scala.collection.Iterator itr = members.elements(); itr.hasNext();) {
                 Symbol member = (Symbol) itr.next();
 
                 if (!JavaUtilities.startsWith(member.nameString(), prefix)) {

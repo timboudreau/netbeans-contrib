@@ -409,7 +409,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider, JavaSo
             out.print(JavaScalaMapping.toJavaType(ScalaElement.typeQualifiedName(type, false)));
         }
 
-        private void printParams(PrintWriter out, scala.List params) {
+        private void printParams(PrintWriter out, scala.collection.immutable.List params) {
             out.print("(");
             int size = params.size();
             for (int i = 0; i < size; i++) {

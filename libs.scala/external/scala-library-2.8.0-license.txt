@@ -1,12 +1,12 @@
-Name: Scala Bazaar library
-Version: 2.7.3
-Description: Scala Bazaar library
+Name: Scala runtime library
+Version: 2.8.0
+Description: Scala runtime library
 License: BSD-like
 Origin: http://www.scala-lang.org/
-Files: sbaz-2.7.3.jar
+Files: scala-library-2.8.0.jar
 Source: http://www.scala-lang.org/downloads/license.html
 
-Copyright (c) 2002-2008 EPFL, Lausanne, unless otherwise specified.
+Copyright (c) 2002-2009 EPFL, Lausanne, unless otherwise specified.
 All rights reserved.
 
 This software was developed by the Programming Methods Laboratory of the

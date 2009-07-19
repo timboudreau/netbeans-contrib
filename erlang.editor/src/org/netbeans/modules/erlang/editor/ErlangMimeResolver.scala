@@ -38,10 +38,10 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.erlang.editor;
+package org.netbeans.modules.erlang.editor
 
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MIMEResolver;
+import org.openide.filesystems.FileObject
+import org.openide.filesystems.MIMEResolver
 
 /**
  * Recognize Erlang file types
@@ -49,7 +49,7 @@ import org.openide.filesystems.MIMEResolver;
  * 
  * @author Caoyuan Deng
  */
-@org.openide.util.lookup.ServiceProvider{val service = classOf[org.openide.filesystems.MIMEResolver]}
+@org.openide.util.lookup.ServiceProvider(service = classOf[org.openide.filesystems.MIMEResolver])
 class ErlangMimeResolver extends MIMEResolver {        
   def findMIMEType(fo:FileObject) :String = {
     if (ErlangMimeResolver.isErlangExt(fo.getExt)) ErlangMimeResolver.MIME_TYPE else null
@@ -57,7 +57,7 @@ class ErlangMimeResolver extends MIMEResolver {
 }
 
 object ErlangMimeResolver {
-  val MIME_TYPE = "text/x-erlang"; // NOI18N
+  val MIME_TYPE = "text/x-erlang" // NOI18N
 
   /**
    * Extensions recognized as being Erlang.
