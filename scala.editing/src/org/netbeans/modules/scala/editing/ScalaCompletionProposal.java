@@ -223,11 +223,11 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.deprecated(false);
             }
 
-            scala.List typeParams = methodType.typeParams();
+            scala.collection.immutable.List typeParams = methodType.typeParams();
             if (!typeParams.isEmpty()) {
                 formatter.appendHtml("[");
                 
-                for (scala.Iterator itr = typeParams.elements(); itr.hasNext();) {
+                for (scala.collection.Iterator itr = typeParams.elements(); itr.hasNext();) {
                     TypeSymbol typeParam = (TypeSymbol) itr.next();
                     formatter.appendText(typeParam.nameString());
 
@@ -239,15 +239,15 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
                 formatter.appendHtml("]");
             }
 
-            scala.List paramTypes = methodType.paramTypes();
-            scala.List paramNames = element.paramNames();
+            scala.collection.immutable.List paramTypes = methodType.paramTypes();
+            scala.collection.immutable.List paramNames = element.paramNames();
 
             if (!paramTypes.isEmpty()) {
                 formatter.appendHtml("("); // NOI18N
 
                 int i = 0;
-                scala.Iterator nameItr = paramNames == null ? null : paramNames.elements();
-                for (scala.Iterator itr = paramTypes.elements(); itr.hasNext();) {
+                scala.collection.Iterator nameItr = paramNames == null ? null : paramNames.elements();
+                for (scala.collection.Iterator itr = paramTypes.elements(); itr.hasNext();) {
                     Type param = (Type) itr.next();
 
                     formatter.parameters(true);
@@ -277,10 +277,10 @@ public abstract class ScalaCompletionProposal implements CompletionProposal {
         }
 
         public List<String> getInsertParams() {
-            scala.List paramTypes = methodType.paramTypes();
+            scala.collection.immutable.List paramTypes = methodType.paramTypes();
             if (!paramTypes.isEmpty()) {
                 List<String> result = new ArrayList<String>(paramTypes.size());
-                for (scala.Iterator itr = paramTypes.elements(); itr.hasNext();) {
+                for (scala.collection.Iterator itr = paramTypes.elements(); itr.hasNext();) {
                     Type param = (Type) itr.next();
                     result.add(param.typeSymbol().nameString().toLowerCase());
                 }

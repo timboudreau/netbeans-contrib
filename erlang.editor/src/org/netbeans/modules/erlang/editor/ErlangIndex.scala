@@ -52,7 +52,7 @@ import org.openide.filesystems.{FileObject,FileUtil}
 import org.openide.util.Exceptions
 
 import scala.collection.mutable.{ArrayBuffer,HashSet,HashMap}
-import scala.collection.jcl.{CollectionWrapper}
+//import scala.collection.jcl.{CollectionWrapper}
 
 /**
  *

@@ -303,7 +303,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             formatter.appendText(type.typeSymbol().nameString());
         }
 
-        scala.List typeParams = type.typeParams();
+        scala.collection.immutable.List typeParams = type.typeParams();
         if (!typeParams.isEmpty()) {
             formatter.appendHtml("[");
             int size = typeParams.size();
@@ -319,7 +319,7 @@ public class AstDef extends AstItem implements ScalaElementHandle {
             formatter.appendHtml("]");
         }
 
-        scala.List paramTypes = type.paramTypes();
+        scala.collection.immutable.List paramTypes = type.paramTypes();
         if (!paramTypes.isEmpty()) {
             formatter.appendHtml("("); // NOI18N
 

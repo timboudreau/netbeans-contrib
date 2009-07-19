@@ -142,6 +142,7 @@ public class ErrorRecoverGlobal {
 
             TokenHierarchy th = TokenHierarchy.create(sb, ScalaTokenId.language());
             if (th != null) {
+                /*_
                 String filePath = "<NetBeansErrorRecover>";
                 BatchSourceFile srcFile = new BatchSourceFile(filePath, sb.toString().toCharArray());
 
@@ -153,6 +154,7 @@ public class ErrorRecoverGlobal {
                         return found.getSymbol();
                     }
                 }
+                 */
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
@@ -174,6 +176,7 @@ public class ErrorRecoverGlobal {
 
         TokenHierarchy th = TokenHierarchy.create(sb, ScalaTokenId.language());
         if (th != null) {
+            /*_
             String filePath = "<NetBeansErrorRecover>";
             BatchSourceFile srcFile = new BatchSourceFile(filePath, sb.toString().toCharArray());
 
@@ -194,6 +197,8 @@ public class ErrorRecoverGlobal {
                     }
                 }
             }
+             * 
+             */
         }
 
         return null;

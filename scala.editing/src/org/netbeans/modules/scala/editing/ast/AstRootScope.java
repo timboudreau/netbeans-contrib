@@ -190,13 +190,13 @@ public class AstRootScope extends AstScope {
 
     private boolean isJavaLangObject(Symbol symbol) {
         if (symbol.nameString().equals("Object")) {
-            scala.List<Symbol> chain = symbol.ownerChain();
+            scala.collection.immutable.List<Symbol> chain = symbol.ownerChain();
             int size = chain.size();
             if (size == 4) {
-                if (chain.apply(0).rawname().decode().startsWith("Object") &&
-                        chain.apply(1).rawname().decode().equals("lang") &&
-                        chain.apply(2).rawname().decode().equals("java") &&
-                        chain.apply(3).rawname().decode().equals("<root>")) {
+                if (((Symbol)chain.apply(0)).rawname().decode().startsWith("Object") &&
+                        ((Symbol)chain.apply(1)).rawname().decode().equals("lang") &&
+                        ((Symbol)chain.apply(2)).rawname().decode().equals("java") &&
+                        ((Symbol)chain.apply(3)).rawname().decode().equals("<root>")) {
                     return true;
                 }
             }

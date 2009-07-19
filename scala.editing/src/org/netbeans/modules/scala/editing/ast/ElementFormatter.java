@@ -66,7 +66,7 @@ public class ElementFormatter {
         }
     }
 
-    public void printTypes(scala.List tpes, String begin, String infix, String end) {
+    public void printTypes(scala.collection.immutable.List tpes, String begin, String infix, String end) {
         if (!tpes.isEmpty()) {
             printTypes0(tpes, begin, infix, end);
         }
@@ -101,7 +101,7 @@ public class ElementFormatter {
         } else if (tpe instanceof PolyType) {
             PolyType tpe1 = (PolyType) tpe;
             sb.append("[");
-            scala.List tvars = tpe1.typeParams();
+            scala.collection.immutable.List tvars = tpe1.typeParams();
             if (!tvars.isEmpty()) {
                 //printTVar(tvars.head());
 //              for (Symbol tvar : tvars.tail()) {
@@ -137,7 +137,7 @@ public class ElementFormatter {
 //      print("<unknown type>")
     }
 
-    private StringBuilder printTypes0(scala.List tpes, String begin, String infix, String end) {
+    private StringBuilder printTypes0(scala.collection.immutable.List tpes, String begin, String infix, String end) {
         print(begin);
         if (!tpes.isEmpty()) {
 //      printType(tpes.head());
@@ -157,7 +157,7 @@ public class ElementFormatter {
             TypeRef tpe1 = (TypeRef) tpe;
             SingletonType sType = (SingletonType) tpe1.pre();
             Symbol sym = tpe1.sym();
-            scala.List args = tpe1.args();
+            scala.collection.immutable.List args = tpe1.args();
             Symbol root = null;
             Symbol top = null;
             //TypeRef(SingletonType(ThisType(root), top), sym, args) = >
@@ -169,7 +169,7 @@ public class ElementFormatter {
                     print(" => ");
                     printParameterType((Type) args.tail().head(), basic);
                 } else {
-                    printParameterTypes((scala.List) args.take(args.length() - 1), "(", ", ", ")", basic);
+                    printParameterTypes((scala.collection.immutable.List) args.take(args.length() - 1), "(", ", ", ")", basic);
                     print(" => ");
                     printParameterType((Type) args.last(), basic);
                 }
@@ -188,11 +188,11 @@ public class ElementFormatter {
         return sb;
     }
 
-    private StringBuilder printParameterTypes(scala.List tpes, String begin, String infix, String end, boolean basic) {
+    private StringBuilder printParameterTypes(scala.collection.immutable.List tpes, String begin, String infix, String end, boolean basic) {
         print(begin);
         if (!tpes.isEmpty()) {
             printParameterType((Type) tpes.head(), basic);
-            scala.List tail = tpes.tail();
+            scala.collection.immutable.List tail = tpes.tail().toList();
             for (int i = 0; i < tail.length(); i++) {
                 Type t = (Type) tail.apply(i);
                 print(infix);
@@ -242,7 +242,7 @@ public class ElementFormatter {
             TypeRef tpe1 = (TypeRef) tpe;
             SingletonType sType = (SingletonType) tpe1.pre();
             Symbol sym = tpe1.sym();
-            scala.List args = tpe1.args();
+            scala.collection.immutable.List args = tpe1.args();
             Symbol root = null;
             Symbol top = null;
             if ((root.nameString().equals("<root>") || root.nameString().equals("")) &&

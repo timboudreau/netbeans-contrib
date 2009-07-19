@@ -53,7 +53,7 @@ import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.ast.Trees.Alternative;
 import scala.tools.nsc.ast.Trees.Annotated;
-import scala.tools.nsc.ast.Trees.Annotation;
+//import scala.tools.nsc.ast.Trees.Annotation;
 import scala.tools.nsc.ast.Trees.AppliedTypeTree;
 import scala.tools.nsc.ast.Trees.Apply;
 import scala.tools.nsc.ast.Trees.ApplyDynamic;
@@ -138,17 +138,17 @@ public abstract class AstVisitor {
         return rootScope;
     }
 
-    protected void visit(scala.List trees) {
+    protected void visit(scala.collection.immutable.List trees) {
         if (trees.isEmpty()) {
             return;
         }
 
-        for (scala.Iterator itr = trees.elements(); itr.hasNext();) {
+        for (scala.collection.Iterator itr = trees.elements(); itr.hasNext();) {
             Object tree = itr.next();
             if (tree instanceof Tree) {
                 visit((Tree) tree);
-            } else if (tree instanceof scala.List) {
-                visit((scala.List) tree);
+            } else if (tree instanceof scala.collection.immutable.List) {
+                visit((scala.collection.immutable.List) tree);
             } else if (tree instanceof Tuple2) {
                 /*
                 System.out.println("Visit Tuple: " + tree + " class=" + tree.getClass().getCanonicalName());
@@ -208,8 +208,8 @@ public abstract class AstVisitor {
                 visitLabelDef((LabelDef) tree);
             } else if (tree instanceof Import) {
                 visitImport((Import) tree);
-            } else if (tree instanceof Annotation) {
-                visitAnnotation((Annotation) tree);
+//            } else if (tree instanceof Annotation) {
+//                visitAnnotation((Annotation) tree);
             } else if (tree instanceof Template) {
                 visitTemplate((Template) tree);
             } else if (tree instanceof Block) {
@@ -315,8 +315,8 @@ public abstract class AstVisitor {
     public void visitImport(Import tree) {
     }
 
-    public void visitAnnotation(Annotation tree) {
-    }
+//    public void visitAnnotation(Annotation tree) {
+//    }
 
     public void visitTemplate(Template tree) {
     }
