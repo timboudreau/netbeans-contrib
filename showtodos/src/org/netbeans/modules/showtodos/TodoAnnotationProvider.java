@@ -85,6 +85,10 @@ public class TodoAnnotationProvider implements AnnotationProvider {
 
    public void annotate(Line.Set lines, Lookup context) {
       final DataObject dataObj = context.lookup(DataObject.class);
+      if (dataObj == null) {
+         // Nothing to do
+         return;
+      }
       new ScanningListener().attachTo(dataObj);
       annotate(dataObj);
    }
