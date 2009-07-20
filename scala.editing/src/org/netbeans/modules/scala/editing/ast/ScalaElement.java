@@ -68,6 +68,7 @@ import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.io.AbstractFile;
 import scala.tools.nsc.io.PlainFile;
+import scala.tools.nsc.io.VirtualFile;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.Type;
 import scala.tools.nsc.util.BatchSourceFile;
@@ -268,11 +269,9 @@ public class ScalaElement implements ScalaElementHandle {
                     char[] text = srcDoc.getChars(0, srcDoc.getLength());
                     File f = new File(path);
                     BatchSourceFile srcFile;
-                    if (f != null & f.exists()) {
-                        srcFile = new BatchSourceFile(new PlainFile(f), text);
-                    } else {
-                        return;
-                    }
+                    AbstractFile af = f != null ? new PlainFile(f) : new VirtualFile("<current>", "");
+                    srcFile = new BatchSourceFile(af, text);
+                    
                     TokenHierarchy th = TokenHierarchy.get(srcDoc);
                     if (th == null) {
                         return;
