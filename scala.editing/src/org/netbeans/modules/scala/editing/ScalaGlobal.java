@@ -77,6 +77,8 @@ import scala.tools.nsc.util.BatchSourceFile;
  * @author Caoyuan Deng
  */
 public class ScalaGlobal {
+    //a source group type for separate scala source roots, as seen in maven projects for example.
+    public static final String SOURCES_TYPE_SCALA = "scala"; //NOI18N
 
     private static boolean debug = false;
     private final static Map<Project, Reference<Global>> ProjectToGlobal =
@@ -297,7 +299,11 @@ public class ScalaGlobal {
     private static SrcOutDirs findDirsInfo(Project project) {
         SrcOutDirs dirs = new SrcOutDirs();
 
-        SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        SourceGroup[] sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA);
+        if (sgs.length == 0) {
+            //as a fallback use java ones..
+            sgs = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        }
         if (sgs.length > 0) {
             dirs.srcDir = sgs[0].getRootFolder();
             dirs.outDir = findOutDir(project, dirs.srcDir);
