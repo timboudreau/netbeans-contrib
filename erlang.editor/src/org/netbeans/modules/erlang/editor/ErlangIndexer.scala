@@ -40,7 +40,7 @@ package org.netbeans.modules.erlang.editor
 
 import _root_.java.io.{File,IOException}
 import _root_.java.net.MalformedURLException
-import _root_.java.util.{Collection}
+import _root_.java.lang.{Iterable}
 import _root_.java.util.logging.{Logger,Level}
 import javax.swing.text.Document
 import org.netbeans.editor.BaseDocument;
@@ -425,7 +425,7 @@ object ErlangIndexer {
       }
     }
 
-    override def filesDeleted(deleted:Collection[_ <: Indexable], context:Context) :Unit = {
+    override def filesDeleted(deleted:Iterable[_ <: Indexable], context:Context) :Unit = {
       try {
         val is = IndexingSupport.getInstance(context)
         val itr = deleted.iterator
@@ -435,7 +435,7 @@ object ErlangIndexer {
       } catch {case ioe:IOException => LOG.log(Level.WARNING, null, ioe)}
     }
 
-    override def filesDirty(dirty:Collection[_ <: Indexable], context:Context) :Unit = {
+    override def filesDirty(dirty:Iterable[_ <: Indexable], context:Context) :Unit = {
       try {
         val is = IndexingSupport.getInstance(context)
         val itr = dirty.iterator

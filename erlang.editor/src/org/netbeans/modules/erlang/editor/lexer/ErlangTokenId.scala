@@ -180,7 +180,7 @@ object ErlangTokenId extends Enumeration {
 
     protected def createTokenIds :Collection[TokenId] = {
       val ids = new HashSet[TokenId]
-      elements.foreach{ids add _.asInstanceOf[TokenId]}
+      values.foreach{ids add _.asInstanceOf[TokenId]}
       ids
     }
     

@@ -38,10 +38,10 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.rats.editor;
+package org.netbeans.modules.rats.editor
 
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MIMEResolver;
+import org.openide.filesystems.FileObject
+import org.openide.filesystems.MIMEResolver
 
 /**
  * Recognize Erlang file types
@@ -49,7 +49,7 @@ import org.openide.filesystems.MIMEResolver;
  * 
  * @author Caoyuan Deng
  */
-@org.openide.util.lookup.ServiceProvider{val service = classOf[org.openide.filesystems.MIMEResolver]}
+@org.openide.util.lookup.ServiceProvider(service = classOf[org.openide.filesystems.MIMEResolver])
 class RatsMimeResolver extends MIMEResolver {
   def findMIMEType(fo:FileObject) :String = {
     if (RatsMimeResolver.isRatsExt(fo.getExt)) RatsMimeResolver.MIME_TYPE else null

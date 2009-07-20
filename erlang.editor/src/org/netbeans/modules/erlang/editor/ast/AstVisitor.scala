@@ -66,7 +66,7 @@ abstract class AstVisitor(rootNode:Node, th:TokenHierarchy[_]) extends Visitor {
   protected val astPath = new Stack[GNode]
   protected val scopes = new Stack[AstScope]
 
-  scopes += rootScope
+  scopes push rootScope
 
   def visit(node:GNode) {
     enter(node)
