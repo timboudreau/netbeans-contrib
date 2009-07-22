@@ -54,7 +54,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -113,10 +112,10 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -130,7 +129,7 @@ import org.w3c.dom.NodeList;
  */
 public final class J2SEProject implements Project, AntProjectListener {
 
-    private static final Icon J2SE_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/scala/project/ui/resources/scalaProject.png")); // NOI18N
+    private static final Icon J2SE_PROJECT_ICON = ImageUtilities.loadImageIcon("org/netbeans/modules/scala/project/ui/resources/scalaProject.png", true); // NOI18N
 
     private static final Logger LOG = Logger.getLogger(J2SEProject.class.getName());
     private final AuxiliaryConfiguration aux;
@@ -158,7 +157,7 @@ public final class J2SEProject implements Project, AntProjectListener {
             }
         }
         refHelper = new ReferenceHelper(helper, aux, eval);
-        buildExtender = AntBuildExtenderFactory.createAntExtender(new J2SEExtenderImplementation());
+        buildExtender = AntBuildExtenderFactory.createAntExtender(new J2SEExtenderImplementation(), refHelper);
         /// TODO replace this GeneratedFilesHelper with the default one when fixing #101710
         genFilesHelper = new GeneratedFilesHelper(helper, buildExtender);
         UpdateImplementation updateProject = new UpdateProjectImpl(this, helper, aux);
@@ -284,6 +283,7 @@ public final class J2SEProject implements Project, AntProjectListener {
                     J2SEProject.this,
                     new Info(),
                     aux,
+                    helper.createAuxiliaryProperties(),
                     helper.createCacheDirectoryProvider(),
                     spp,
                     actionProvider,
