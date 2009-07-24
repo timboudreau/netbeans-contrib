@@ -71,7 +71,7 @@ public final class CodeStyle {
     }
 
     /** For testing purposes only */
-    public static CodeStyle getTestStyle(Preferences prefs) {
+    public static CodeStyle get(Preferences prefs) {
         return new CodeStyle(prefs);
     }
     

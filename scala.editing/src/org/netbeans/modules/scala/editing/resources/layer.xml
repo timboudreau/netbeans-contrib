@@ -117,27 +117,28 @@
     </folder>
 
     <folder name="OptionsDialog">
+        <folder name="Editor">
+            <folder name="Formatting">
+                <folder name="text">
+                    <folder name="x-scala">
+                      <file name="Indents.instance">
+                          <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
+                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editing.options.FmtTabsIndents.getController"/>
+                          <attr name="position" intvalue="100"/>
+                      </file>
+
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
         <folder name="PreviewExamples">
             <folder name="text">
                 <file name="x-scala" url="ScalaExample.scala"/>
             </folder>
         </folder>
 
-        <file name="ScalaOptionsCategory.instance">
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.ScalaOptionsCategory"/>
-            <attr name="position" intvalue="306"/>
-        </file>
     </folder>
 
-    <folder name="org.netbeans.modules.scala">
-        <folder name="options">
-            <file name="Formatting.instance">
-                <attr name="position" intvalue="150"/>
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.FormattingAdvancedOption"/>
-            </file>
-        </folder>
-    </folder>
-    
     <folder name="CslPlugins">
         <folder name="text">
             <folder name="x-scala">

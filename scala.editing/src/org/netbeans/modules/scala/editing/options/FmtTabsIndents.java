@@ -20,9 +20,9 @@
 package org.netbeans.modules.scala.editing.options;
 
 import org.netbeans.api.editor.settings.SimpleValueNames;
+import org.netbeans.modules.options.editor.spi.PreferencesCustomizer;
 import static org.netbeans.modules.scala.editing.options.FmtOptions.*;
 import static org.netbeans.modules.scala.editing.options.FmtOptions.CategorySupport.OPTION_ID;
-import org.netbeans.modules.scala.editing.options.FmtOptions.CategorySupport;
 import org.openide.util.NbBundle;
 
 /**
@@ -43,10 +43,10 @@ public class FmtTabsIndents extends javax.swing.JPanel {
         indentHtmlCheckBox.putClientProperty(OPTION_ID, indentHtml);        
     }
     
-    public static FormattingOptionsPanel.Category getController() {
-        return new CategorySupport(
-                "LBL_Indents", 
-                new FmtTabsIndents(),    // NOI18N   
+    public static PreferencesCustomizer.Factory getController() {
+        return new Factory(
+                PreferencesCustomizer.TABS_AND_INDENTS_ID,
+                FmtTabsIndents.class,
                 NbBundle.getMessage(FmtTabsIndents.class, "SAMPLE_Indents"), // NOI18N
                 new String[] { SimpleValueNames.TEXT_LIMIT_WIDTH, "30" }
                 ); // NOI18N
