@@ -67,6 +67,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
 import scala.tools.nsc.Global;
 import scala.tools.nsc.Settings;
@@ -488,13 +489,13 @@ public class ScalaGlobal {
                 if (unit.source() == srcFile) {
                     if (debug) {
                         final CompilationUnit unit1 = unit;
-                        Runnable browser = new Runnable() {
-
-                            public void run() {
-                                global.treeBrowser().browse(unit1.body());
+                        RequestProcessor.getDefault().post(
+                            new Runnable() {
+                                public void run() {
+                                    global.treeBrowser().browse(unit1.body());
+                                }
                             }
-                        };
-                        new Thread(browser).start();
+                        );
                     }
                     return unit;
                 }
