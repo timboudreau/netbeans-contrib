@@ -43,11 +43,7 @@ package org.netbeans.modules.scala.editor.lexer
 import _root_.java.io.IOException
 import _root_.java.io.Reader
 import org.netbeans.api.lexer.{Token, TokenId}
-import org.netbeans.modules.scala.editor.rats.LexerScala
-import org.netbeans.spi.lexer.Lexer
-import org.netbeans.spi.lexer.LexerInput
-import org.netbeans.spi.lexer.LexerRestartInfo
-import org.netbeans.spi.lexer.TokenFactory
+import org.netbeans.spi.lexer.{Lexer, LexerInput, LexerRestartInfo, TokenFactory}
 import xtc.parser.Result
 import xtc.tree.GNode
 import xtc.util.Pair
@@ -55,6 +51,7 @@ import xtc.util.Pair
 import _root_.scala.collection.mutable.ArrayBuffer
 
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId._
+import org.netbeans.modules.scala.editor.rats.LexerScala
 
 /**
  *
@@ -194,7 +191,6 @@ class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
 
       val tokenInfo = new TokenInfo(0, null)
       tokenStream += tokenInfo
-      return
     }
         
     var i = 0

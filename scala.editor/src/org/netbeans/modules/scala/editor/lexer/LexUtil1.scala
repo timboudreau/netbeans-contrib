@@ -107,7 +107,7 @@ trait LanguageLexUtil {
 
 }
 
-object LexUtil extends LanguageLexUtil {
+object LexUtil1 extends LanguageLexUtil {
 
   def fileObject(pResult:ParserResult) :Option[FileObject] = pResult match {
     case null => None
