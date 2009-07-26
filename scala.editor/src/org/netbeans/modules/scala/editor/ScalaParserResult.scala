@@ -41,15 +41,13 @@
 package org.netbeans.modules.scala.editor
 
 import _root_.java.io.File
-import _root_.java.util.{ArrayList, Collections}
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
-import org.netbeans.modules.scala.editor.ast.AstRootScope
-import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
+import org.netbeans.modules.scala.editor.ast.ScalaRootScope
+//import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
 import org.openide.filesystems.{FileObject, FileUtil}
-import _root_.scala.tools.nsc.CompilationUnits.CompilationUnit
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
 import _root_.scala.tools.nsc.util.BatchSourceFile
@@ -60,8 +58,9 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
  */
 class ScalaParserResult(val parser:ScalaParser,
                         snapshot:Snapshot, 
-                        val rootScope:AstRootScope,
-                        var errors:List[Error]) extends ParserResult(snapshot) {
+                        val rootScope:ScalaRootScope,
+                        var errors:List[Error]
+) extends ParserResult(snapshot) {
 
   var source :String = _
   var sanitizedRange = OffsetRange.NONE
@@ -72,19 +71,23 @@ class ScalaParserResult(val parser:ScalaParser,
    * otherwise returns the actual sanitized range.
    */
   var sanitizedContents :String = _
-  private var sanitized :ScalaParser.Sanitize = _
   var commentsAdded :Boolean = _
-  private var rootScopeForDebugger :AstRootScope = _
+  private var sanitized :ScalaParser.Sanitize = _
+  private var rootScopeForDebugger :ScalaRootScope = _
 
   override protected def invalidate :Unit = {
     // XXX: what exactly should we do here?
   }
 
   override def getDiagnostics :_root_.java.util.List[_ <: Error] = {
-    return if (errors == null) Collections.emptyList[Error] else errors
+    if (errors == null) {
+      _root_.java.util.Collections.emptyList[Error]
+    } else {
+      _root_.java.util.Arrays.asList(errors.toArray:_*)
+    }
   }
 
-  def rootScopeForDebugger :AstRootScope = {
+  def getRootScopeForDebugger :ScalaRootScope = {
     if (rootScopeForDebugger == null) {
       val fo = getSnapshot.getSource.getFileObject
       val file :File = if (fo != null) FileUtil.toFile(fo) else null
@@ -97,8 +100,9 @@ class ScalaParserResult(val parser:ScalaParser,
       val af = if (file != null) new PlainFile(file) else new VirtualFile("<current>", "")
       val srcFile = new BatchSourceFile(af, getSnapshot.getText.toString.toCharArray)
       try {
-        val unit = ScalaGlobal.compileSourceForDebugger(parser.global, srcFile)
-        rootScopeForDebugger = new AstTreeVisitor(global, unit, th, srcFile).getRootScope
+        val unit = ScalaGlobal.compileSourceForDebugger(global, srcFile)
+        //rootScopeForDebugger = new AstTreeVisitor(global, unit, th, srcFile).getRootScope
+        null // @todo
       } catch {
         case ex:AssertionError =>
           // avoid scala nsc's assert error
@@ -109,7 +113,7 @@ class ScalaParserResult(val parser:ScalaParser,
           // An internal exception thrown by ParserScala, just catch it and notify
         case ex:Exception =>
           // Scala's global throws too many exceptions
-          //ex.printStackTrace();
+          //ex.printStackTrace)
       }
     }
 
@@ -126,7 +130,7 @@ class ScalaParserResult(val parser:ScalaParser,
   }
 
   def getSanitized :ScalaParser.Sanitize = {
-    return sanitized
+    sanitized
   }
 
   override def toString = {

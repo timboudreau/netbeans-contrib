@@ -53,16 +53,18 @@ abstract class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extend
 
   def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
     
-  override def getKind :ElementKind = super.getKind match {
-    // if it's a OTHER, we could try to get its kind from its dfn
-    case kindX@ElementKind.OTHER => enclosingScope match {
-        case None =>  kindX
-        case Some(scope) => scope.findDfnOf(this) match {
-            case None => kindX
-            case Some(dfn) => dfn.getKind
-          }
-      }
-    case kindX => kindX
+  override def getKind :ElementKind = {
+    super.getKind match {
+      // if it's a OTHER, we could try to get its kind from its dfn
+      case x@ElementKind.OTHER => enclosingScope match {
+          case None => x
+          case Some(scope) => scope.findDfnOf(this) match {
+              case None => x
+              case Some(dfn) => dfn.getKind
+            }
+        }
+      case x => x
+    }
   }
 
   override def toString = {

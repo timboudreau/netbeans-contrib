@@ -38,7 +38,6 @@
  */
 package org.netbeans.api.language.util.ast
 
-import _root_.java.util.{Collections, Set}
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, OffsetRange}
 import org.netbeans.modules.csl.spi.{ParserResult}
@@ -50,7 +49,7 @@ import _root_.scala.collection.mutable.{HashMap}
  *
  * @author Caoyuan Deng
  */
-trait AstItem[S] extends ForElementHandle {
+trait AstItem extends ForElementHandle {
 
   def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
     this.idToken = idToken
@@ -65,7 +64,7 @@ trait AstItem[S] extends ForElementHandle {
    *    pickToken's text as name, pickToken may be <null> and pickToken.text()
    *    will return null when an Identifier token modified, seems sync issue
    */
-  private var _symbol :S = null;
+  private var _symbol :AstSymbol[_] = _
   private var _idToken :Option[Token[TokenId]] = None
   private var _name :String = _
   private var _enclosingScope :Option[AstScope] = _
@@ -73,7 +72,7 @@ trait AstItem[S] extends ForElementHandle {
   var kind :ElementKind = ElementKind.OTHER
 
   def symbol = _symbol
-  def symbol_=(symbol:S) = {
+  def symbol_=(symbol:AstSymbol[_]) = {
     this._symbol = symbol
     symbol.item = this
   }
@@ -180,7 +179,7 @@ trait ForElementHandle {self:AstItem =>
 
   def signatureEquals(handle:ElementHandle) = false
 
-  def getModifiers :Set[Modifier] = Collections.emptySet[Modifier]
+  def getModifiers :_root_.java.util.Set[Modifier] = _root_.java.util.Collections.emptySet[Modifier]
 
   def getOffsetRange(result:ParserResult) :OffsetRange = OffsetRange.NONE
 }

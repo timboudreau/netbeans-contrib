@@ -49,18 +49,18 @@ import org.netbeans.modules.csl.spi.{GsfUtilities,ParserResult}
 import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.lex.LexUtil
-import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
+import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
 
-import org.netbeans.modules.scala.editor.node.ErlSymbol._
-import org.netbeans.modules.scala.editor.ErlangGlobal
+//import org.netbeans.modules.scala.editor.node.ErlSymbol._
+//import org.netbeans.modules.scala.editor.ErlangGlobal
 
 /**
  * Scala AstDfn special functions
  */
-class ScalaAstDfn(_idToken:Option[Token[TokenId]],
-                  _kind:ElementKind,
-                  private var _bindingScope:AstScope,
-                  var fo:Option[FileObject]
+class ScalaDfn(_idToken:Option[Token[TokenId]],
+               _kind:ElementKind,
+               _bindingScope:AstScope,
+               fo:Option[FileObject]
 ) extends AstDfn(_idToken, _kind, _bindingScope, fo) {
   import ElementKind._
 
@@ -68,27 +68,27 @@ class ScalaAstDfn(_idToken:Option[Token[TokenId]],
 
   /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
   def isReferredBy(ref:AstRef) :Boolean = (ref.kind, getKind) match {
-      
-    case (CALL, METHOD) => (ref.symbol, symbol) match {
-        case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
-          if nameX == nameY && arityX == arityY => true
-        case _ => false
-      }
-
-    case (ATTRIBUTE, ATTRIBUTE) => (ref.symbol, symbol) match {
-        case (ErlRecord(nameX, fieldsX), ErlRecord(nameY, fieldsY))
-          if nameX == nameY => true
-        case (ErlRecordField(nameX, fieldX), ErlRecordField(nameY, fieldY))
-          if nameX == nameY && fieldX == fieldY=> true
-        case _ => false
-      }
-
-    case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
-         
-    case _ =>
-      if (ref.getName == getName) {
-        ref.symbol == self.asInstanceOf[AstItem].symbol
-      } else false
+    case _ => false // @todo
+      //    case (CALL, METHOD) => (ref.symbol, symbol) match {
+      //        case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
+      //          if nameX == nameY && arityX == arityY => true
+      //        case _ => false
+      //      }
+      //
+      //    case (ATTRIBUTE, ATTRIBUTE) => (ref.symbol, symbol) match {
+      //        case (ErlRecord(nameX, fieldsX), ErlRecord(nameY, fieldsY))
+      //          if nameX == nameY => true
+      //        case (ErlRecordField(nameX, fieldX), ErlRecordField(nameY, fieldY))
+      //          if nameX == nameY && fieldX == fieldY=> true
+      //        case _ => false
+      //      }
+      //
+      //    case (_, RULE) => false // RULE is spec dfn, don't let it's reffered by anything
+      //
+      //    case _ =>
+      //      if (ref.getName == getName) {
+      //        ref.symbol == self.asInstanceOf[AstItem].symbol
+      //      } else false
   }
    
 
@@ -103,22 +103,23 @@ class ScalaAstDfn(_idToken:Option[Token[TokenId]],
       return null
     }
 
-    ErlangGlobal.docComment(srcDoc, idOffset(th))
+    //ErlangGlobal.docComment(srcDoc, idOffset(th))
+    return null // todo
   }
 
 
   def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
     case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
     case METHOD | RULE => symbol match {
-        case ErlFunction(_, name, arity) =>
-          formatter.appendText(name)
-          formatter.appendText("/")
-          formatter.appendText(arity.toString)
+        //        case ErlFunction(_, name, arity) =>
+        //          formatter.appendText(name)
+        //          formatter.appendText("/")
+        //          formatter.appendText(arity.toString)
         case _ =>
           formatter.appendText(getName)
           formatter.appendText("/?")
       }
-    case ATTRIBUTE if isFunctionClause => property("args") match {
+    case ATTRIBUTE /*if isFunctionClause*/ => property("args") match {
         case Some(args:List[String]) =>
           formatter.appendText("(")
           val itr = args.elements
@@ -131,34 +132,9 @@ class ScalaAstDfn(_idToken:Option[Token[TokenId]],
           formatter.appendText(")")
         case _ => formatter.appendText("()")
       }
-    case ATTRIBUTE => formatter.appendText(getName)
+    //case ATTRIBUTE => formatter.appendText(getName)
     case _ => formatter.appendText(getName)
   }
     
-
-  def isFunctionClause = {
-    //* is it FunctionClause of enclosingDfn ?
-    enclosingDfn.filter{_.getKind == METHOD}.isDefined && self.getKind == ATTRIBUTE
-  }
-
-  def functionDfn :Option[AstDfn] = self.getKind match {
-    case ElementKind.METHOD => Some(self)
-    case ElementKind.ATTRIBUTE if self.isFunctionClause =>  self.enclosingDfn
-    case _ => None
-  }
-
-  def functionClauses :List[AstDfn] = functionDfn match {
-    case None => Nil
-    case Some(x) => x.bindingScope.dfns.filter{_.getKind == ElementKind.ATTRIBUTE}.toList
-  }
-
-  def spec :Option[ErlFunction] = self.symbol match {
-    case f@ErlFunction(_, name, arity) =>
-      rootScope.dfns.find{dfn => dfn.getKind == ElementKind.RULE && dfn.symbol == f} match {
-        case None => None
-        case Some(x) => Some(x.symbol.asInstanceOf[ErlFunction])
-      }
-    case _ => None
-  }
 }
 

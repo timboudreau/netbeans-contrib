@@ -29,34 +29,24 @@ package org.netbeans.modules.scala.editor
 
 import _root_.java.io.{File, IOException, InputStream}
 import _root_.java.lang.ref.{Reference, WeakReference}
-import _root_.java.util.{ArrayList, Collection, Collections, EnumSet, HashMap, LinkedList, List, Map, WeakHashMap}
-import javax.swing.text.BadLocationException;
+import javax.swing.text.BadLocationException
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.SourceForBinaryQuery
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.TokenHierarchy
+import org.netbeans.api.language.util.ast.{AstScope, AstSymbol}
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.OffsetRange
+import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
-import org.netbeans.modules.parsing.api.ParserManager
-import org.netbeans.modules.parsing.api.ResultIterator
-import org.netbeans.modules.parsing.api.Source
-import org.netbeans.modules.parsing.api.UserTask
-import org.netbeans.modules.parsing.spi.ParseException
-import org.netbeans.modules.parsing.spi.Parser
-import org.netbeans.modules.scala.editor.ast.AstDfn
-import org.netbeans.modules.scala.editor.ast.AstRootScope
-import org.netbeans.modules.scala.editor.ast.AstScope
+import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
+import org.netbeans.modules.parsing.spi.{ParseException, Parser}
+import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaDfn, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
-import org.netbeans.modules.scala.editor.nodes.AstElement
-import org.netbeans.modules.scala.editor.rats.LexerScala
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.FileObject
-import org.openide.util.Exceptions
-import org.openide.util.NbBundle
-import _root_.scala.tools.nsc.symtab.Symbols.Symbol
+import org.openide.util.{Exceptions, NbBundle}
+import _root_.scala.tools.nsc.symtab.Symbols
 import _root_.scala.tools.nsc.util.Position
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -64,7 +54,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
  *
  * @author Caoyuan Deng
  */
-object ScalaUtils {
+object ScalaUtil {
 
   val ANONFUN = "$anonfun"
 
@@ -87,10 +77,8 @@ object ScalaUtils {
       for (i <- offset until text.length if !break) {
         text.charAt(i) match {
           case '\n' => break = true
-          case c =>
-            if (!Character.isWhitespace(c)) {
-              return false
-            }
+          case c if !Character.isWhitespace(c) => return false
+          case _ =>
         }
       }
     
@@ -99,10 +87,8 @@ object ScalaUtils {
       for (i <- offset - 1 to 0 if !break) {
         text.charAt(i) match {
           case '\n' => break = true
-          case c =>
-            if (!Character.isWhitespace(c)) {
-              return false
-            }
+          case c if !Character.isWhitespace(c) => return false
+          case _ =>
         }
       }
 
@@ -209,7 +195,7 @@ object ScalaUtils {
       for (i <- offset - 1 to 0) {
         text.charAt(i) match {
           case '\n' => return i + 1
-          case _ => ()
+          case _ =>
         }
       }
 
@@ -253,8 +239,8 @@ object ScalaUtils {
     }
   }
 
-  val scalaFileToSource = new WeakHashMap[FileObject, Reference[Source]]
-  val scalaFileToCompilationInfo = new WeakHashMap[FileObject, Reference[Parser.Result]]
+  val scalaFileToSource = new _root_.java.util.WeakHashMap[FileObject, Reference[Source]]
+  val scalaFileToCompilationInfo = new _root_.java.util.WeakHashMap[FileObject, Reference[Parser.Result]]
 
   def getCompilationInfoForScalaFile(fo:FileObject) :Parser.Result = {
     var info :Parser.Result = scalaFileToCompilationInfo.get(fo) match {
@@ -266,7 +252,7 @@ object ScalaUtils {
       val pResults = new Array[Parser.Result](1)
       val source = getSourceForScalaFile(fo)
       try {
-        ParserManager.parse(Collections.singleton(source), new UserTask {
+        ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
             @throws(classOf[Exception])
             override def run(resultIterator:ResultIterator) :Unit = {
               pResults(0) = resultIterator.getParserResult
@@ -302,7 +288,7 @@ object ScalaUtils {
     source
   }
 
-  def getDocComment(info:Parser.Result, element:AstElement) :String = {
+  def getDocComment(info:Parser.Result, element:JavaElement) :String = {
     if (info == null) {
       return null
     }
@@ -315,7 +301,7 @@ object ScalaUtils {
     val th = info.getSnapshot.getTokenHierarchy
 
     doc.readLock // Read-lock due to token hierarchy use
-    val range = ScalaLexUtil.getDocumentationRange(element, th)
+    val range = ScalaLexUtil.getDocumentationRange(th, element.getBoundsOffset(th))
     doc.readUnlock
 
     if (range.getEnd < doc.getLength) {
@@ -350,7 +336,7 @@ object ScalaUtils {
     null
   }
 
-  def getOffset(info:Parser.Result, element:AstElement) :Int = {
+  def getOffset(info:Parser.Result, element:JavaElement) :Int = {
     if (info == null) {
       return -1
     }
@@ -359,9 +345,9 @@ object ScalaUtils {
     element.getPickOffset(th)
   }
 
-  def getFileObject(info:ParserResult, symbol:Symbol) :FileObject = {
+  def getFileObject(info:ParserResult, symbol:Symbols#Symbol) :FileObject = {
     val qName :String = try {
-      symbol.enclClass.fullNameString().replace('.', File.separatorChar)
+      symbol.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {
       case ex:_root_.java.lang.Error => null
         // java.lang.Error: no-symbol does not have owner
@@ -384,11 +370,10 @@ object ScalaUtils {
     try {
       val srcFo = info.getSnapshot.getSource.getFileObject
       val cpInfo = ClasspathInfo.create(srcFo)
-      val cp = ClassPathSupport.createProxyClassPath(
-        Array(cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE))
-      )
+      val cp = ClassPathSupport.createProxyClassPath(Array(
+          cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
+          cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
+          cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)):_*)
 
       val clzFo = cp.findResource(clzName)
       var srcPath :String = null
@@ -431,11 +416,11 @@ object ScalaUtils {
 
   def getBinaryClassName(pResult:ScalaParserResult, offset:Int) :String = {
     val th = pResult.getSnapshot.getTokenHierarchy
-    val rootScope = pResult.rootScopeForDebugger
+    val rootScope = pResult.getRootScopeForDebugger
     var clzName = ""
 
     for (enclDfn <- rootScope.enclosingDfn(TMPL_KINDS, th, offset)) {
-      val sym = enclDfn.getSymbol
+      val sym = enclDfn.symbol.asInstanceOf[AstSymbol[Symbols#Symbol]].value
       if (sym != null) {
         // "scalarun.Dog.$talk$1"
         val fqn = new StringBuilder(sym.fullNameString('.'))
@@ -490,7 +475,7 @@ object ScalaUtils {
    * @return the classes containing main method
    * @throws IllegalArgumentException when file does not exist or is not a java source file.
    */
-  def getMainClasses(fo:FileObject) :Seq[AstDfn] = {
+  def getMainClasses(fo:FileObject) :Seq[ScalaDfn] = {
     if (fo == null || !fo.isValid || fo.isVirtual) {
       throw new IllegalArgumentException
     }
@@ -499,14 +484,14 @@ object ScalaUtils {
       case x => x
     }
     try {
-      val result = new ArrayBuffer[AstDfn]
-      ParserManager.parse(Collections.singleton(source), new UserTask {
+      val result = new ArrayBuffer[ScalaDfn]
+      ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
           override def run(resultIterator:ResultIterator) :Unit = {
             val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]
-            val rootScope = pResult.rootScope
-            if (rootScope == null) {
-              return
+            val rootScope = pResult.rootScope match {
+              case null => return
+              case x => x
             }
             // Get all defs will return all visible packages from the root and down
             val visibleDfns = getAllDefs(rootScope, ElementKind.PACKAGE);
@@ -514,34 +499,27 @@ object ScalaUtils {
               // Only go through the defs for each package scope.
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
-              val objs = packaging.bindingScope.dfns
-              for (obj <- objs) {
-                if (isMainMethodPresent(obj)) {
-                  result += obj
-                }
+              packaging.bindingScope.dfns foreach {
+                case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
               }
             }
-            for (obj <- rootScope.visibleDfns(ElementKind.MODULE)) {
-              if (isMainMethodPresent(obj)) {
-                result += obj
-              }
+            rootScope.visibleDfns(ElementKind.MODULE) foreach {
+              case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
             }
           }
 
-          def getAllDefs(rootScope:AstScope, kind:ElementKind) :Seq[AstDfn] = {
-            val result = new ArrayBuffer[AstDfn]
+          def getAllDefs(rootScope:AstScope, kind:ElementKind) :Seq[ScalaDfn] = {
+            val result = new ArrayBuffer[ScalaDfn]
             getAllDefs(rootScope, kind, result)
 
-            return result
+            result
           }
 
-          private def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[AstDfn]) :Unit = {
-            for (dfn <- astScope.dfns) {
-              if (dfn.getKind == kind) {
-                result += dfn
-              }
+          private def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Unit = {
+            astScope.dfns.foreach {
+              case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
             }
-            for (childScope <- astScope.subScopes) {
+            astScope.subScopes.foreach{childScope =>
               getAllDefs(childScope, kind, result)
             }
           }
@@ -553,10 +531,10 @@ object ScalaUtils {
     }
   }
 
-  def isMainMethodPresent(obj:AstDfn) :Boolean = {
-    val members = obj.tpe.members
+  def isMainMethodPresent(obj:ScalaDfn) :Boolean = {
+    val members = obj.symbol.asInstanceOf[AstSymbol[Symbols#Symbol]].value.tpe.members
     for (j <- 0 until members.length) {
-      val methodCandidate = members(j).asInstanceOf[Symbol]
+      val methodCandidate = members(j).asInstanceOf[Symbols#Symbol]
       if (methodCandidate.isMethod && isMainMethod(methodCandidate)) {
         return true
       }
@@ -570,7 +548,7 @@ object ScalaUtils {
    * @param method to be checked
    * @return true when the method is a main method
    */
-  def isMainMethod(method:Symbol) :boolean = {
+  def isMainMethod(method:Symbols#Symbol) :boolean = {
     if (!method.nameString.equals("main")) {  //NOI18N
       return false
     }
@@ -589,8 +567,8 @@ object ScalaUtils {
    * @return the classes containing the main methods
    * Currently this method is not optimized and may be slow
    */
-  def getMainClasses(sourceRoots:Array[FileObject]) :Seq[AstDfn] = {
-    val result = new ArrayBuffer[AstDfn]
+  def getMainClasses(sourceRoots:Array[FileObject]) :Seq[ScalaDfn] = {
+    val result = new ArrayBuffer[ScalaDfn]
     for (root <- sourceRoots) {
       result ++= getMainClasses(root)
       try {
@@ -598,7 +576,7 @@ object ScalaUtils {
         val compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE)
         val srcPath = ClassPathSupport.createClassPath(Array(root):_*)
         val cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath)
-        //                final Set<AstElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
+        //                final Set<JavaElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
         //                Source js = Source.create(cpInfo);
         //                js.runUserActionTask(new CancellableTask<CompilationController>() {
         //
@@ -606,7 +584,7 @@ object ScalaUtils {
         //                    }
         //
         //                    public void run(CompilationController control) throws Exception {
-        //                        for (AstElement cls : classes) {
+        //                        for (JavaElement cls : classes) {
         //                            TypeElement te = cls.resolve(control);
         //                            if (te != null) {
         //                                Iterable<? extends ExecutableElement> methods = ElementFilter.methodsIn(te.getEnclosedElements());

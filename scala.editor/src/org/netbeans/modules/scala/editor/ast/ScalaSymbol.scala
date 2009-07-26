@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -36,25 +36,11 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.api.language.util.ast
 
-import org.netbeans.modules.csl.api.ElementHandle
+package org.netbeans.modules.scala.editor.ast
 
-/**
- *
- * @author Caoyuan Deng
- */
-trait AstElementHandle extends ElementHandle {
+import org.netbeans.api.language.util.ast.{AstSymbol}
 
-  def symbol :AstSymbol[_]
+import _root_.scala.tools.nsc.symtab.Symbols
 
-  def tpe :String
-    
-  def docComment :String
-
-  def isDeprecated :Boolean
-
-  def isInherited :Boolean
-    
-  def isEmphasize :Boolean
-}
+abstract class ScalaSymbol extends AstSymbol[Symbols#Symbol]

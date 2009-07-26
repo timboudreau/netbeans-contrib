@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,29 +31,40 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * 
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.api.language.util.ast
+package org.netbeans.modules.scala.editor.ast
 
-import org.netbeans.api.lexer.{TokenHierarchy}
+import org.netbeans.api.lexer.{Token, TokenId}
+import org.netbeans.modules.csl.api.ElementKind
+import org.netbeans.api.language.util.ast.AstRef
+
+//import org.netbeans.modules.scala.editor.node.ErlSymbol._
 
 /**
- * A wrapper class of language's symbol which may be a GNode(Fortress) or true symbol (Scala)
- *
+ * Mirror with AstDfn information
+ * 
+ * Represent usage/reference of an AstDfn
+ * 
  * @author Caoyuan Deng
  */
-trait AstSym[S] {
-  var item:AstItem[S] = _
-    
-  def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
-  def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
-}
+class ScalaRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstRef(_idToken, _kind) {
+  import ElementKind._
 
-/**
- * @Note
- * This should be "case" object, otherwise it's equals(x:Any) will always return true
- */
-case object NoSymbol extends AstSym[Any]
+  def getMimeType :String = ScalaMimeResolver.MIME_TYPE
+
+  override def isOccurrence(ref:AstRef) :Boolean = ref.getKind match {
+    //    case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
+    //        case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
+    //          if inX == inY && nameX == nameY && arityX == arityY => true
+    //        case _ => false
+    //      }
+    case _ =>
+      if (ref.name == name) {
+        true
+      } else false
+  }
+}

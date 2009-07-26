@@ -43,33 +43,21 @@ package org.netbeans.modules.scala.editor
 import _root_.java.io.File
 import _root_.java.net.URL
 import _root_.java.util.{ArrayList, Collection, Collections, Set}
-import javax.swing.event.ChangeListener;
-import javax.swing.text.BadLocationException;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Utilities;
-import org.netbeans.modules.csl.api.Error;
-import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.csl.api.Severity;
-import org.netbeans.modules.csl.spi.DefaultError;
-import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.api.Task;
-import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.parsing.spi.Parser
-import org.netbeans.modules.parsing.spi.ParserFactory;
-import org.netbeans.modules.parsing.spi.SourceModificationEvent;
-import org.netbeans.modules.scala.editor.ast.AstRootScope;
-import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtilities
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import javax.swing.event.ChangeListener
+import javax.swing.text.BadLocationException
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
+import org.netbeans.editor.{BaseDocument, Utilities}
+import org.netbeans.modules.csl.api.{Error, OffsetRange, Severity}
+import org.netbeans.modules.csl.spi.{DefaultError, GsfUtilities}
+import org.netbeans.modules.parsing.api.{Snapshot, Task}
+import org.netbeans.modules.parsing.spi.{ParseException, Parser, ParserFactory, SourceModificationEvent}
+import org.netbeans.modules.scala.editor.ast.ScalaRootScope
+//import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
+import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.rats.LexerScala
 import org.openide.filesystems.{FileObject, FileStateInvalidException, FileUtil}
 import org.openide.util.Exceptions
 import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.tools.nsc.CompilationUnits.CompilationUnit
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
 import _root_.scala.tools.nsc.reporters.Reporter
@@ -177,11 +165,11 @@ class ScalaParser extends Parser {
   private def sanitizeSource(context:Context, sanitizing:Sanitize) :Boolean = {
 
     if (sanitizing == Sanitize.MISSING_END) {
-      context.sanitizedSource = context.source + "end";
-      val start = context.source.length();
-      context.sanitizedRange = new OffsetRange(start, start + 4);
-      context.sanitizedContents = "";
-      return true;
+      context.sanitizedSource = context.source + "end"
+      val start = context.source.length
+      context.sanitizedRange = new OffsetRange(start, start + 4)
+      context.sanitizedContents = ""
+      return true
     }
 
     var offset = context.caretOffset
@@ -206,21 +194,21 @@ class ScalaParser extends Parser {
 
     try {
       // Sometimes the offset shows up on the next line
-      if (ScalaUtils.isRowEmpty(source, offset) || ScalaUtils.isRowWhite(source, offset)) {
-        offset = ScalaUtils.getRowStart(source, offset) - 1;
+      if (ScalaUtil.isRowEmpty(source, offset) || ScalaUtil.isRowWhite(source, offset)) {
+        offset = ScalaUtil.getRowStart(source, offset) - 1
         if (offset < 0) {
           offset = 0
         }
       }
 
-      if (!(ScalaUtils.isRowEmpty(source, offset) || ScalaUtils.isRowWhite(source, offset))) {
+      if (!(ScalaUtil.isRowEmpty(source, offset) || ScalaUtil.isRowWhite(source, offset))) {
         if ((sanitizing == Sanitize.EDITED_LINE) || (sanitizing == Sanitize.ERROR_LINE)) {
           // See if I should try to remove the current line, since it has text on it.
-          val lineEnd = ScalaUtils.getRowLastNonWhite(source, offset);
+          val lineEnd = ScalaUtil.getRowLastNonWhite(source, offset)
 
           if (lineEnd != -1) {
             val sb = new StringBuilder(source.length)
-            val lineStart = ScalaUtils.getRowStart(source, offset);
+            val lineStart = ScalaUtil.getRowStart(source, offset)
             val rest = lineStart + 1
 
             sb.append(source.substring(0, lineStart))
@@ -240,7 +228,7 @@ class ScalaParser extends Parser {
           assert(sanitizing == Sanitize.ERROR_DOT || sanitizing == Sanitize.EDITED_DOT)
           // Try nuking dots/colons from this line
           // See if I should try to remove the current line, since it has text on it.
-          val lineStart = ScalaUtils.getRowStart(source, offset)
+          val lineStart = ScalaUtil.getRowStart(source, offset)
           var lineEnd = offset - 1
           var break = false
           while (lineEnd >= lineStart && lineEnd < source.length && !break) {
@@ -253,13 +241,13 @@ class ScalaParser extends Parser {
           
           if (lineEnd > lineStart) {
             val sb = new StringBuilder(source.length)
-            val line = source.substring(lineStart, lineEnd + 1);
+            val line = source.substring(lineStart, lineEnd + 1)
             var removeChars = 0
             var removeEnd = lineEnd + 1
 
             if (line.endsWith(".") || line.endsWith("(")) { // NOI18N
               removeChars = 1
-            } else if (line.endsWith(",")) { // NOI18N                            removeChars = 1;
+            } else if (line.endsWith(",")) { // NOI18N
               removeChars = 1
             } else if (line.endsWith(", ")) { // NOI18N
               removeChars = 2
@@ -278,13 +266,14 @@ class ScalaParser extends Parser {
             } else {
               // Make sure the line doesn't end with one of the JavaScript keywords
               // (new, do, etc) - we can't handle that!
-              for (String keyword : LexerScala.SCALA_KEYWORDS) { // reserved words are okay
-
-                if (line.endsWith(keyword)) {
-                  removeChars = 1;
-                  break;
-                }
-              }
+              /*_
+               for (keyword <- LexerScala.SCALA_KEYWORDS) { // reserved words are okay
+               if (line.endsWith(keyword)) {
+               removeChars = 1;
+               break;
+               }
+               }
+               */
             }
 
             if (removeChars == 0) {
@@ -305,7 +294,7 @@ class ScalaParser extends Parser {
             assert(sb.length == source.length)
 
             context.sanitizedRange = new OffsetRange(removeStart, removeEnd)
-            context.sanitizedSource = sb.toString()
+            context.sanitizedSource = sb.toString
             context.sanitizedContents = source.substring(removeStart, removeEnd)
             return true
           }
@@ -322,7 +311,7 @@ class ScalaParser extends Parser {
 
     sanitizing match {
       case Sanitize.NEVER =>
-        return createParserResult(context);
+        return createParserResult(context)
 
       case Sanitize.NONE =>
 
@@ -330,7 +319,7 @@ class ScalaParser extends Parser {
         // of sanitization - removing dots/colons at the edited offset.
         // First try removing the dots or double colons around the failing position
         if (context.caretOffset != -1) {
-          return parseBuffer(context, Sanitize.EDITED_DOT);
+          return parseBuffer(context, Sanitize.EDITED_DOT)
         }
 
         // Fall through to try the next trick
@@ -496,15 +485,15 @@ class ScalaParser extends Parser {
   //    }
 
   protected def parseBuffer(context:Context, sanitizing:Sanitize) :ScalaParserResult = {
-    var sanitizedSource = false;
-    var source = context.source;
+    var sanitizedSource = false
+    var source = context.source
 
     if (!(sanitizing == Sanitize.NONE || sanitizing == Sanitize.NEVER)) {
-      val ok = sanitizeSource(context, sanitizing);
+      val ok = sanitizeSource(context, sanitizing)
 
       if (ok) {
         assert(context.sanitizedSource != null)
-        sanitizedSource = true;
+        sanitizedSource = true
         source = context.sanitizedSource
       } else {
         // Try next trick
@@ -526,7 +515,7 @@ class ScalaParser extends Parser {
     // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
     //String filePath = file != null ? file.getAbsolutePath() : "<current>";
 
-    var rootScope :AstRootScope = null
+    var rootScope :ScalaRootScope = null
 
     // Scala global parser
     val reporter = new ErrorReporter(context, doc, sanitizing)
@@ -537,7 +526,7 @@ class ScalaParser extends Parser {
     val srcFile = new BatchSourceFile(af, source.toCharArray)
     try {
       val unit = ScalaGlobal.compileSourceForPresentation(global, srcFile)
-      rootScope = new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
+      rootScope = null//new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
     } catch {
       case ex:AssertionError =>
         // avoid scala nsc's assert error
@@ -560,7 +549,7 @@ class ScalaParser extends Parser {
       pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
       pResult
     } else {
-      // Don't do sanitize trying:
+      // Don't try sanitizing:
       //return sanitize(context, sanitizing);
       val pResult = createParserResult(context)
       pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)
@@ -588,7 +577,7 @@ class ScalaParser extends Parser {
     new ScalaParserResult(this, context.snapshot, context.rootScope, context.errors)
   }
 
-  private def processObjectSymbolError(context:Context, root:AstRootScope) :Sanitize = {
+  private def processObjectSymbolError(context:Context, root:ScalaRootScope) :Sanitize = {
     val errors = context.errors
     val th = context.snapshot.getTokenHierarchy
     if (errors.isEmpty || th == null) {
@@ -598,17 +587,17 @@ class ScalaParser extends Parser {
     for (error <- errors) {
       val msg = error.getDescription
       if (msg.startsWith("identifier expected but")) {
-        val start = error.getStartPosition();
+        val start = error.getStartPosition
 
-        val ts = ScalaLexUtilities.getTokenSequence(th, start - 1)
+        val ts = ScalaLexUtil.getTokenSequence(th, start - 1)
         ts.move(start - 1)
         if (!ts.moveNext() && !ts.movePrevious) {
         } else {
-          val token = ScalaLexUtilities.findPreviousNonWsNonComment(ts)
+          var token = ScalaLexUtil.findPreviousNonWsNonComment(ts)
           if (token != null && token.id == ScalaTokenId.Dot) {
             if (context.caretOffset == token.offset(th) + 1) {
               if (ts.movePrevious) {
-                token = ScalaLexUtilities.findPreviousNonWsNonComment(ts)
+                token = ScalaLexUtil.findPreviousNonWsNonComment(ts)
                 if (token != null && token.id == ScalaTokenId.Identifier) {
                   return Sanitize.EDITED_DOT
                 }
@@ -622,7 +611,7 @@ class ScalaParser extends Parser {
     Sanitize.NONE
   }
 
-  private def computeLinesOffset(source:String) :List[Int] = {
+  private def computeLinesOffset(source:String) :Seq[Int] = {
     val length = source.length
 
     val linesOffset = new ArrayBuffer[Int](length / 25)
@@ -637,27 +626,27 @@ class ScalaParser extends Parser {
       }
     }
 
-    linesOffset.toList
+    linesOffset
   }
 
   protected def notifyError(context:Context, key:String, msg:String,
                             start:Int, end:Int, isLineError:Boolean, 
                             sanitizing:Sanitize, severity:Severity,
-                            params:Object) :Unit = {
+                            params:Object
+  ) :Unit = {
 
-    val error = DefaultError.createDefaultError(key, msg, msg, context.fileObject, start, end, isLineError, severity).asInstanceOf[DefaultError]
+    val error = DefaultError.createDefaultError(key, msg, msg, context.fileObject,
+                                                start, end, isLineError, severity).asInstanceOf[DefaultError]
     params match {
-      case null => ()
-      case x:Array[Object] =>
-        error.setParameters(x)
-      case _ =>
-        error.setParameters(Array(params))
+      case null =>
+      case x:Array[Object] => error.setParameters(x)
+      case _ => error.setParameters(Array(params))
     }
 
     context.notifyError(error)
 
     if (sanitizing == Sanitize.NONE) {
-      context.errorOffset = end;
+      context.errorOffset = end
     }
   }
 
@@ -677,7 +666,7 @@ class ScalaParser extends Parser {
     var sanitizedContents :String = _
     var sanitized :Sanitize = Sanitize.NONE
     var errors :List[Error] = Nil
-    var rootScope :AstRootScope
+    var rootScope :ScalaRootScope = _
 
     def notifyError(error:Error) :Unit = {
       errors = error :: errors
@@ -700,31 +689,25 @@ class ScalaParser extends Parser {
       if (!ignoreError) {
         // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
         pos.source match {
-          case Some(sourceFile) if (!context.fileObject.getPath.equals(sourceFile.file.path)) =>
+          case Some(sourceFile) if !context.fileObject.getPath.equals(sourceFile.file.path) =>
             //System.out.println("Error in source: " + sourceFile);
             return
-          case _ => ()
-        }
-
-        val offset = ScalaUtils.getOffset(pos)
-        var sev = org.netbeans.modules.csl.api.Severity.ERROR
-        severity.id match {
-          case 0 =>
-            return
-          case 1 =>
-            sev = org.netbeans.modules.csl.api.Severity.WARNING
-          case 2 =>
-            sev = org.netbeans.modules.csl.api.Severity.ERROR
           case _ =>
-            return
         }
 
-        var end = -1
-        try {
+        val offset = ScalaUtil.getOffset(pos)
+        val sev = severity.id match {
+          case 0 => return
+          case 1 => org.netbeans.modules.csl.api.Severity.WARNING
+          case 2 => org.netbeans.modules.csl.api.Severity.ERROR
+          case _ => return
+        }
+
+        var end = try {
           // * @Note row should plus 1 to equal NetBeans' doc offset
-          end = Utilities.getRowLastNonWhite(doc, offset) + 1
+          Utilities.getRowLastNonWhite(doc, offset) + 1
         } catch {
-          case ex:BadLocationException => ()
+          case ex:BadLocationException => -1
         }
 
         if (end != -1 && end <= offset) {
@@ -740,7 +723,7 @@ class ScalaParser extends Parser {
 }
 
 object ScalaParser {
-  private var version:Long = _
+  private var version :Long = _
   private val profile = Array(0.0f, 0.0f)
 
   /** Attempts to sanitize the input buffer */

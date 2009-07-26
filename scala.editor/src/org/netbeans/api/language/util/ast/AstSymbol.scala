@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,19 +34,27 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editor.ast
+package org.netbeans.api.language.util.ast
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.api.lexer.{TokenHierarchy}
 
-import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope, AstSym}
+/**
+ * A wrapper class of language's symbol which may be a GNode(Fortress, Erlang) or true Symbol (Scala)
+ *
+ * @author Caoyuan Deng
+ */
+trait AstSymbol[T] {
+  var item :AstItem = _
+  var value :T
 
-class ScalaAstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstRootScope(boundsTokens) {
-  def findDfnOfSym(symbol:AstSym) :Option[AstDfn] = {
-    _idTokenToItem.values.find{item =>
-      // ElementKind.Rule is "-spec", we won't let it as
-      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
-    }.asInstanceOf[Option[AstDfn]]
-  }
+  def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
+  def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
 }
+
+/**
+ * @Note
+ * This should be "case" object, otherwise it's equals(x:Any) will always return true
+ */
+//case object NoSymbol extends AstSymbol[Any]

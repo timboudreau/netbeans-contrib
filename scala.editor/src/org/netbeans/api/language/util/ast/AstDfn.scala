@@ -38,19 +38,13 @@
  */
 package org.netbeans.api.language.util.ast
 
-import _root_.java.util.{Collections, Set, HashSet}
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.editor.{BaseDocument}
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.HtmlFormatter
-import org.netbeans.modules.csl.api.Modifier
-import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.spi.{GsfUtilities,ParserResult}
+import org.netbeans.modules.csl.api.{ElementKind, HtmlFormatter, Modifier, OffsetRange}
+import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.lex.LexUtil
-
-import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
  * AST Definition
@@ -74,14 +68,14 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
 
   make(_idToken, _kind)
 
-  private var modifiers :Set[Modifier] = _
+  private var modifiers :_root_.java.util.Set[Modifier] = _
 
   override def getFileObject :FileObject = fo.getOrElse(null)
 
   override def getKind :ElementKind = super[AstItem].getKind
 
-  override def getModifiers :Set[Modifier] = modifiers match {
-    case null => Collections.emptySet[Modifier]
+  override def getModifiers :_root_.java.util.Set[Modifier] = modifiers match {
+    case null => _root_.java.util.Collections.emptySet[Modifier]
     case _ => modifiers
   }
 
@@ -103,17 +97,13 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
     "NoType"
   }
 
-  def enclosedElements :ArrayBuffer[AstDfn] = {
+  def enclosedElements :Seq[AstDfn] = {
     if (_bindingScope != null) {
       _bindingScope.dfns
-    } else new ArrayBuffer
+    } else Nil
   }
 
   def enclosingDfn :Option[AstDfn] = enclosingScope.get.bindingDfn
-
-  override def toString = {
-    "Def: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
-  }
 
   def bindingScope :AstScope = {
     assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
@@ -137,12 +127,14 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
     //return getName().equals(def.getName())
   }
 
-  def doc :Option[BaseDocument] = fo match {
-    case None => None
-    case Some(x) => GsfUtilities.getDocument(x, true) match {
-        case null => None
-        case docx => Some(docx)
-      }
+  def doc :Option[BaseDocument] = {
+    fo match {
+      case None => None
+      case Some(x) => GsfUtilities.getDocument(x, true) match {
+          case null => None
+          case docx => Some(docx)
+        }
+    }
   }
 
   def packageName :String = {
@@ -166,4 +158,8 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
   }
 
   def isReferredBy(ref:AstRef) :Boolean
+
+  override def toString = {
+    "Dfn: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
+  }
 }

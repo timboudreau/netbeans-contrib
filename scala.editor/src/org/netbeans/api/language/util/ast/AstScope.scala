@@ -98,17 +98,17 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     case Some(x) => x.offset(th) + x.length
   }
   
-  def subScopes :ArrayBuffer[AstScope] = _subScopes match {
+  def subScopes :Seq[AstScope] = _subScopes match {
     case None => new ArrayBuffer
     case Some(x) => x
   }
 
-  def dfns :ArrayBuffer[AstDfn] = _dfns match {
+  def dfns :Seq[AstDfn] = _dfns match {
     case None => new ArrayBuffer
     case Some(x) => x
   }
 
-  def refs :ArrayBuffer[AstRef] = _refs match {
+  def refs :Seq[AstRef] = _refs match {
     case None => new ArrayBuffer
     case Some(x) => x
   }
@@ -386,7 +386,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     None
   }
     
-  def findOccurrences(item:AstItem) :ArrayBuffer[AstItem] = {
+  def findOccurrences(item:AstItem) :Seq[AstItem] = {
     var dfn :Option[AstDfn] = item match {
       case x:AstDfn => Some(x)
       case x:AstRef => findDfnOf(x)
@@ -395,7 +395,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     dfn match {
       case None =>
         // dfn may be a remote one, just try to find all same refs
-        findAllRefsSameAs(item.asInstanceOf[AstRef]).asInstanceOf[ArrayBuffer[AstItem]]
+        findAllRefsSameAs(item.asInstanceOf[AstRef])
       case Some(x) =>
         val occurrences = new ArrayBuffer[AstItem]
         occurrences + x
@@ -432,7 +432,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
 
-  def findRefsOf(dfn:AstDfn) :ArrayBuffer[AstRef] = {
+  def findRefsOf(dfn:AstDfn) :Seq[AstRef] = {
     val result = new ArrayBuffer[AstRef]
 
     val enclosingScope = dfn.enclosingScope match {
@@ -466,7 +466,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     case Some(x) => x.root
   }
 
-  private def findAllRefsSameAs(ref:AstRef) :ArrayBuffer[AstRef] = {
+  private def findAllRefsSameAs(ref:AstRef) :Seq[AstRef] = {
     val result = new ArrayBuffer[AstRef]
 
     result + ref
@@ -504,7 +504,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     case None => None
   }
 
-  def visibleDfns(kind:ElementKind) :ArrayBuffer[AstDfn] = {
+  def visibleDfns(kind:ElementKind) :Seq[AstDfn] = {
     val result = new ArrayBuffer[AstDfn]
     visibleDfnsUpward(kind, result)
     result
@@ -564,7 +564,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     
   private final def visibleDfnsUpward[A <: AstDfn](clazz:Class[A], result:ArrayBuffer[A]) :Unit = {
     for (xs <- _dfns) {
-      result ++ xs.filter{clazz isInstance _}.asInstanceOf[ArrayBuffer[A]]
+      result ++ xs.filter{clazz isInstance _}
     }
     
     for (x <- parent) {
@@ -593,7 +593,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     findDfnMatchedDownside(name, symbol, dfns)
   }
 
-  private def findDfnMatchedDownside(name:String, symbol:GNode, dfns:ArrayBuffer[AstDfn]) :Option[AstDfn] = {
+  private def findDfnMatchedDownside(name:String, symbol:GNode, dfns:Seq[AstDfn]) :Option[AstDfn] = {
     for (dfn <- dfns) {
       val mySymbol = dfn.symbol
       //            if (symbol.isType()) {

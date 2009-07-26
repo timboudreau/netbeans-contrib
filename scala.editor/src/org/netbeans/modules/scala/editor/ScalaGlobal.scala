@@ -40,10 +40,7 @@ package org.netbeans.modules.scala.editor
 
 import _root_.java.io.{File, IOException}
 import _root_.java.lang.ref.{Reference, WeakReference}
-import _root_.java.net.{MalformedURLException,
-                        URI,
-                        URISyntaxException,
-                        URL}
+import _root_.java.net.{MalformedURLException, URI, URISyntaxException, URL}
 import _root_.java.util.{Iterator, Map, WeakHashMap}
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
@@ -58,8 +55,8 @@ import org.openide.filesystems.{FileChangeAdapter,
                                 FileSystem,
                                 FileUtil,
                                 JarFileSystem}
-import org.openide.util.Exceptions
-import _root_.scala.tools.nsc.CompilationUnits.CompilationUnit
+import org.openide.util.{Exceptions, RequestProcessor}
+import _root_.scala.tools.nsc.CompilationUnits
 import _root_.scala.tools.nsc.{Global,Settings}
 import _root_.scala.tools.nsc.util.BatchSourceFile
 
@@ -75,12 +72,12 @@ object ScalaGlobal {
     var testOutDir :FileObject = _
   }
 
+  private val debug = false
+
   // @see org.netbeans.api.java.project.JavaProjectConstants
   private val SOURCES_TYPE_JAVA = "java" // NOI18N
   // a source group type for separate scala source roots, as seen in maven projects for example.
   private val SOURCES_TYPE_SCALA = "scala" //NOI18N
-
-  private val debug = false
 
   private val ProjectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
   private val ProjectToGlobal = new WeakHashMap[Project, Reference[Global]]
@@ -102,8 +99,6 @@ object ScalaGlobal {
    * following guessing method:
    */
   def getGlobal(fo:FileObject) :Global = synchronized {
-    var global :Global = null
-
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // it may be a standalone file, or file in standard lib
@@ -116,174 +111,172 @@ object ScalaGlobal {
       }
     }
 
-    if (project != null) {
-      val dirs = ProjectToDirs.get(project) match {
+    val dirs = ProjectToDirs.get(project) match {
+      case null =>
+        val dirsx = findDirsInfo(project);
+        ProjectToDirs.put(project, new WeakReference(dirsx))
+        dirsx
+      case ref => ref.get
+    }
+
+    // is fo under test source?
+    val forTest = if (dirs.testSrcDir != null && (dirs.testSrcDir.equals(fo) ||
+                                                  FileUtil.isParentOf(dirs.testSrcDir, fo))) {
+      true
+    } else {
+      false
+    }
+
+    // Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
+    val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
+    if (globalRef != null) {
+      globalRef.get match {
         case null =>
-          val dirsx = findDirsInfo(project);
-          ProjectToDirs.put(project, new WeakReference(dirsx))
-          dirsx
-        case ref => ref.get
-      }
-
-      // is fo under test source?
-      val forTest = if (dirs.testSrcDir != null && (dirs.testSrcDir.equals(fo) ||
-                                                    FileUtil.isParentOf(dirs.testSrcDir, fo))) {
-
-        true
-      } else false
-
-      // Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
-      val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
-      if (globalRef != null) {
-        global = globalRef.get
-        if (global != null) {
-          return global
-        }
-      }
-
-      val (srcPath, outPath) = if (forTest) {
-        (if (dirs.testSrcDir == null) "" else FileUtil.toFile(dirs.testSrcDir).getAbsolutePath(),
-         if (dirs.testOutDir == null) "" else FileUtil.toFile(dirs.testOutDir).getAbsolutePath())
-      } else {
-        (if (dirs.srcDir == null) "" else FileUtil.toFile(dirs.srcDir).getAbsolutePath(),
-         if (dirs.outDir == null) "" else FileUtil.toFile(dirs.outDir).getAbsolutePath())
-      }
-
-      val settings = new Settings();
-      if (debug) {
-        settings.debug.value = true
-        settings.verbose.value = true
-      } else {
-        settings.verbose.value = false
-      }
-
-      settings.sourcepath.tryToSet(List(srcPath))
-      //settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
-      settings.outputDirs.setSingleOutput(outPath)
-
-      // add boot, compile classpath
-      val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
-      var (bootCp, compCp) :(ClassPath, ClassPath) = if (cpp != null) {
-        (cpp.findClassPath(fo, ClassPath.BOOT), cpp.findClassPath(fo, ClassPath.COMPILE))
-      } else (null, null)
-
-      var inStdLib = false
-      if (bootCp == null || compCp == null) {
-        // in case of fo in standard libaray
-        inStdLib = true
-        bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
-        compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
-      }
-
-      val sb = new StringBuilder
-      computeClassPath(project, sb, bootCp)
-      settings.bootclasspath.tryToSet(List(sb.toString))
-
-      sb.delete(0, sb.length)
-      computeClassPath(project, sb, compCp);
-      if (forTest && !inStdLib && dirs.outDir != null) {
-        sb.append(File.pathSeparator).append(dirs.outDir)
-      }
-      settings.classpath.tryToSet(List(sb.toString))
-
-      global = new Global(settings) {
-
-        override def onlyPresentation = false
-        
-        override def logError(msg:String, t:Throwable) :Unit = {
-          //Exceptions.printStackTrace(t);
-        }
-      }
-
-      if (forTest) {
-        ProjectToGlobalForTest.put(project, new WeakReference[Global](global))
-        if (dirs.testOutDir != null) {
-          dirs.testOutDir.addFileChangeListener(new FileChangeAdapter {
-
-              override def fileChanged(fe:FileEvent) :Unit = {
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileRenamed(fe:FileRenameEvent) :Unit = {
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileDeleted(fe:FileEvent) :Unit = {
-                // maybe a clean task invoked
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-            })
-        }
-
-        if (dirs.outDir != null) {
-          // monitor outDir's changes,
-          /** @Todo should reset global for any changes under out dir, including subdirs */
-          dirs.outDir.addFileChangeListener(new FileChangeAdapter {
-
-              override def fileChanged(fe:FileEvent) :Unit = {
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileRenamed(fe:FileRenameEvent) :Unit = {
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileDeleted(fe:FileEvent) :Unit = {
-                ProjectToGlobalForTest.remove(project)
-                ProjectToDirs.remove(project)
-              }
-            })
-        }
-      } else {
-        ProjectToGlobal.put(project, new WeakReference(global))
-        if (dirs.outDir != null) {
-          dirs.outDir.addFileChangeListener(new FileChangeAdapter {
-
-              override def fileChanged(fe:FileEvent) :Unit = {
-                ProjectToGlobal.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileRenamed(fe:FileRenameEvent) :Unit = {
-                ProjectToGlobal.remove(project)
-                ProjectToDirs.remove(project)
-              }
-
-              override def fileDeleted(fe:FileEvent) :Unit = {
-                // maybe a clean task invoked
-                ProjectToGlobal.remove(project)
-                ProjectToDirs.remove(project)
-              }
-            })
-        }
+        case global => return global
       }
     }
 
-    return global
+    val (srcPath, outPath) = if (forTest) {
+      (if (dirs.testSrcDir == null) "" else FileUtil.toFile(dirs.testSrcDir).getAbsolutePath,
+       if (dirs.testOutDir == null) "" else FileUtil.toFile(dirs.testOutDir).getAbsolutePath)
+    } else {
+      (if (dirs.srcDir == null) "" else FileUtil.toFile(dirs.srcDir).getAbsolutePath,
+       if (dirs.outDir == null) "" else FileUtil.toFile(dirs.outDir).getAbsolutePath)
+    }
+
+    val settings = new Settings
+    if (debug) {
+      settings.debug.value = true
+      settings.verbose.value = true
+    } else {
+      settings.verbose.value = false
+    }
+
+    settings.sourcepath.tryToSet(List(srcPath))
+    //settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
+    settings.outputDirs.setSingleOutput(outPath)
+
+    // add boot, compile classpath
+    val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
+    var (bootCp, compCp) :(ClassPath, ClassPath) = if (cpp != null) {
+      (cpp.findClassPath(fo, ClassPath.BOOT), cpp.findClassPath(fo, ClassPath.COMPILE))
+    } else (null, null)
+
+    var inStdLib = false
+    if (bootCp == null || compCp == null) {
+      // in case of fo in standard libaray
+      inStdLib = true
+      bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
+      compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
+    }
+
+    val sb = new StringBuilder
+    computeClassPath(project, sb, bootCp)
+    settings.bootclasspath.tryToSet(List(sb.toString))
+
+    sb.delete(0, sb.length)
+    computeClassPath(project, sb, compCp)
+    if (forTest && !inStdLib && dirs.outDir != null) {
+      sb.append(File.pathSeparator).append(dirs.outDir)
+    }
+    settings.classpath.tryToSet(List(sb.toString))
+
+    val global = new Global(settings) {
+      override def onlyPresentation = false
+      override def logError(msg:String, t:Throwable) :Unit = {}
+    }
+
+    if (forTest) {
+      ProjectToGlobalForTest.put(project, new WeakReference[Global](global))
+      if (dirs.testOutDir != null) {
+        dirs.testOutDir.addFileChangeListener(new FileChangeAdapter {
+
+            override def fileChanged(fe:FileEvent) :Unit = {
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileDeleted(fe:FileEvent) :Unit = {
+              // maybe a clean task invoked
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+          })
+      }
+
+      if (dirs.outDir != null) {
+        // monitor outDir's changes,
+        /** @Todo should reset global for any changes under out dir, including subdirs */
+        dirs.outDir.addFileChangeListener(new FileChangeAdapter {
+
+            override def fileChanged(fe:FileEvent) :Unit = {
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileDeleted(fe:FileEvent) :Unit = {
+              ProjectToGlobalForTest.remove(project)
+              ProjectToDirs.remove(project)
+            }
+          })
+      }
+    } else {
+      ProjectToGlobal.put(project, new WeakReference(global))
+      if (dirs.outDir != null) {
+        dirs.outDir.addFileChangeListener(new FileChangeAdapter {
+
+            override def fileChanged(fe:FileEvent) :Unit = {
+              ProjectToGlobal.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+              ProjectToGlobal.remove(project)
+              ProjectToDirs.remove(project)
+            }
+
+            override def fileDeleted(fe:FileEvent) :Unit = {
+              // maybe a clean task invoked
+              ProjectToGlobal.remove(project)
+              ProjectToDirs.remove(project)
+            }
+          })
+      }
+    }
+    
+    global
   }
 
   private def findDirsInfo(project:Project) :SrcOutDirs = {
     val dirs = new SrcOutDirs();
 
     val sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA) match {
-      case x if x.length == 0 =>
+      case Array() =>
         // as a fallback use java ones..
         ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_JAVA)
       case x => x
     }
-    
-    if (sgs.length > 0) {
-      dirs.srcDir = sgs(0).getRootFolder
-      dirs.outDir = findOutDir(project, dirs.srcDir)
-      if (sgs.length > 1) {
-        dirs.testSrcDir = sgs(1).getRootFolder
+
+    sgs match {
+      case Array(src) =>
+        dirs.srcDir = src.getRootFolder
+        dirs.outDir = findOutDir(project, dirs.srcDir)
+      case Array(src, test, _*) =>
+        dirs.srcDir = src.getRootFolder
+        dirs.outDir = findOutDir(project, dirs.srcDir)
+        dirs.testSrcDir = test.getRootFolder
         dirs.testOutDir = findOutDir(project, dirs.testSrcDir)
-      }
+      case _ =>
     }
 
     dirs
@@ -336,7 +329,7 @@ object ScalaGlobal {
       val projectDir = project.getProjectDirectory
       if (projectDir != null && projectDir.isFolder) {
         try {
-          val tmpClasses = "tmpClasses";
+          val tmpClasses = "tmpClasses"
           out = projectDir.getFileObject(tmpClasses) match {
             case null => projectDir.createFolder(tmpClasses)
             case x => x
@@ -401,16 +394,16 @@ object ScalaGlobal {
     }
   }
 
-  def compileSourceForPresentation(global:Global, srcFile:BatchSourceFile ) :CompilationUnit = {
+  def compileSourceForPresentation(global:Global, srcFile:BatchSourceFile ) :CompilationUnits#CompilationUnit = {
     compileSource(global, srcFile, Phase.superaccessors)
   }
 
   // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcudes 'stopPhase'
-  def compileSourceForDebugger(global:Global, srcFile:BatchSourceFile) :CompilationUnit = {
+  def compileSourceForDebugger(global:Global, srcFile:BatchSourceFile) :CompilationUnits#CompilationUnit = {
     compileSource(global, srcFile, Phase.constructors)
   }
 
-  def compileSource(global:Global, srcFile:BatchSourceFile, stopPhase:Phase) :CompilationUnit = {
+  def compileSource(global:Global, srcFile:BatchSourceFile, stopPhase:Phase) :CompilationUnits#CompilationUnit = {
     global synchronized {
       global.settings.stop.value = Nil
       global.settings.stop.tryToSetColon(List(stopPhase.name))
@@ -432,24 +425,22 @@ object ScalaGlobal {
       }
 
       if (debug) {
-        val selectTypeErrors = global.selectTypeErrors
-        System.out.println("selectTypeErrors:" + selectTypeErrors)
+        println("selectTypeErrors:" + global.selectTypeErrors)
       }
 
       val units = run.units
       while (units.hasNext) {
-        val unit = units.next
-        if (unit.source == srcFile) {
-          if (debug) {
-            val browser = new Runnable {
-              def run :Unit = {
-                global.treeBrowser.browse(unit.body)
-              }
+        units.next match {
+          case unit if (unit.source == srcFile) =>
+            if (debug) {
+              RequestProcessor.getDefault.post(new Runnable {
+                  def run :Unit = {
+                    global.treeBrowser.browse(unit.body)
+                  }
+                })
             }
-            new Thread(browser).start
-          }
-          
-          return unit
+            return unit
+          case _ =>
         }
       }
 

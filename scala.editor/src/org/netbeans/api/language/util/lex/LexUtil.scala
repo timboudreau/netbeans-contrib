@@ -50,7 +50,7 @@ import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.loaders.{DataObject, DataObjectNotFoundException}
 import org.openide.util.Exceptions
 
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId._
+import org.netbeans.modules.scala.editor.lexer.ScalaTokenId.ScalaTokenId
 
 import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
 
@@ -60,7 +60,6 @@ import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
  * @author Caoyuan Deng
  */
 trait LexUtil {
-
   val LANGUAGE :Language[TokenId]
   val WS_COMMENTS :Set[TokenId]
   val WS :Set[TokenId]
@@ -168,7 +167,6 @@ trait LexUtil {
           val t = itr.next
           if (t.language == LANGUAGE) {
             ts = t.asInstanceOf[TokenSequence[TokenId]]
-
             break = true
           }
         }
@@ -238,7 +236,7 @@ trait LexUtil {
     ts.token
   }
 
-  def findNextIn(ts:TokenSequence[TokenId], includes:List[TokenId]) :Token[TokenId] = {
+  def findNextIn(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.moveNext() && !includes.contains(ts.token.id)) {}
     }
@@ -252,12 +250,12 @@ trait LexUtil {
     ts.token
   }
 
-  def findNextIncluding(ts:TokenSequence[TokenId], includes:List[TokenId]) :Token[TokenId] = {
+  def findNextIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
     while (ts.moveNext && !includes.contains(ts.token.id)) {}
     ts.token
   }
 
-  def findPreviousIncluding(ts:TokenSequence[TokenId], includes:List[TokenId]) :Token[TokenId] = {
+  def findPreviousIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.movePrevious && !includes.contains(ts.token.id)) {}
     }
@@ -574,7 +572,7 @@ trait LexUtil {
   }
 
   /** Compute the balance of begin/end tokens on the line */
-  def getLineBalance(doc:BaseDocument, offset:Int, up:TokenId, down:TokenId) : Stack[Token[_ <: TokenId]] = {
+  def getLineBalance(doc:BaseDocument, offset:Int, up:TokenId, down:TokenId) :Stack[Token[_ <: TokenId]] = {
     val balanceStack = new Stack[Token[_ <: TokenId]]
     try {
       val begin = Utilities.getRowStart(doc, offset)
@@ -954,7 +952,7 @@ trait LexUtil {
    }
    */
 
-  def getDocumentationRange(nodeOffset:Int, th:TokenHierarchy[_]) :OffsetRange = {
+  def getDocumentationRange(th:TokenHierarchy[_], nodeOffset:Int) :OffsetRange = {
     val astOffset = nodeOffset
     // XXX This is wrong; I should do a
     //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
@@ -1282,19 +1280,19 @@ trait LexUtil {
     new OffsetRange(offset, offset + token.length)
   }
 
-  def getDocument(fileObject:FileObject, openIfNecessary:Boolean) :BaseDocument = {
+  def getDocument(fo:FileObject, openIfNecessary:Boolean) :Option[BaseDocument] = {
     try {
-      val dobj = DataObject.find(fileObject)
+      val dobj = DataObject.find(fo)
       val ec = dobj.getCookie(classOf[EditorCookie])
       if (ec != null) {
-        return (if (openIfNecessary) ec.openDocument else ec.getDocument).asInstanceOf[BaseDocument]
+        return (if (openIfNecessary) Some(ec.openDocument) else Some(ec.getDocument)).asInstanceOf[Option[BaseDocument]]
       }
     } catch {
       case ex:DataObjectNotFoundException => Exceptions.printStackTrace(ex)
-      case ex:IOException => Exceptions.printStackTrace(ex);
+      case ex:IOException => Exceptions.printStackTrace(ex)
     }
 
-    null
+    None
   }
 
   def getPositionedSequence(doc:BaseDocument, offset:Int) :TokenSequence[TokenId] = {
