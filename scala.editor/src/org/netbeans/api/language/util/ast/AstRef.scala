@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,18 +31,46 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editor.util
+package org.netbeans.api.language.util.ast
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import org.netbeans.api.lexer.{Token, TokenId}
+import org.netbeans.modules.csl.api.ElementKind
 
-object Sorter {
-  def sort[T](ab:ArrayBuffer[T])(compareFun:(T, T) => Boolean) :Unit = {
-    val sorted = ab.toList.sort{compareFun}
-    var i = 0
-    for (e <- sorted) {
-      ab(i) = e
-      i += 1
+/**
+ * Mirror with AstDfn information
+ * 
+ * Represent usage/reference of an AstDfn
+ * 
+ * @author Caoyuan Deng
+ */
+abstract class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem {
+  make(_idToken, _kind)
+
+  def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
+    
+  override def getKind :ElementKind = {
+    super.getKind match {
+      // if it's a OTHER, we could try to get its kind from its dfn
+      case x@ElementKind.OTHER => enclosingScope match {
+          case None => x
+          case Some(scope) => scope.findDfnOf(this) match {
+              case None => x
+              case Some(dfn) => dfn.getKind
+            }
+        }
+      case x => x
     }
   }
+
+  override def toString = {
+    "Ref: " + name + " (idToken=" + super.idToken + ")"
+  }
+
+  def isOccurrence(ref:AstRef) :Boolean
 }
+

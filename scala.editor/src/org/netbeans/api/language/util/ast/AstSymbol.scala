@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,18 +31,30 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editor.util
+package org.netbeans.api.language.util.ast
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import org.netbeans.api.lexer.{TokenHierarchy}
 
-object Sorter {
-  def sort[T](ab:ArrayBuffer[T])(compareFun:(T, T) => Boolean) :Unit = {
-    val sorted = ab.toList.sort{compareFun}
-    var i = 0
-    for (e <- sorted) {
-      ab(i) = e
-      i += 1
-    }
-  }
+/**
+ * A wrapper class of language's symbol which may be a GNode(Fortress, Erlang) or true Symbol (Scala)
+ *
+ * @author Caoyuan Deng
+ */
+trait AstSymbol[T] {
+  var item :AstItem = _
+  var value :T
+
+  def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
+  def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
 }
+
+/**
+ * @Note
+ * This should be "case" object, otherwise it's equals(x:Any) will always return true
+ */
+//case object NoSymbol extends AstSymbol[Any]
