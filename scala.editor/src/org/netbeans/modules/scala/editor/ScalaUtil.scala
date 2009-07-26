@@ -41,7 +41,7 @@ import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
-import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaDfn, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaDfn, ScalaRootScope, ScalaSymbol}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.FileObject
@@ -316,9 +316,9 @@ object ScalaUtil {
   }
 
   def getDocComment(doc:BaseDocument, symbolOffset:Int) :String = {
-    val th = TokenHierarchy.get(doc)
-    if (th == null) {
-      return null
+    val th = TokenHierarchy.get(doc) match {
+      case null => return null
+      case x => x
     }
 
     doc.readLock // Read-lock due to token hierarchy use
@@ -494,15 +494,15 @@ object ScalaUtil {
               case x => x
             }
             // Get all defs will return all visible packages from the root and down
-            val visibleDfns = getAllDefs(rootScope, ElementKind.PACKAGE);
-            for (packaging <- visibleDfns) {
+            getAllDefs(rootScope, ElementKind.PACKAGE) foreach {
               // Only go through the defs for each package scope.
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
-              packaging.bindingScope.dfns foreach {
+              packaging => packaging.bindingScope.dfns foreach {
                 case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
               }
             }
+            
             rootScope.visibleDfns(ElementKind.MODULE) foreach {
               case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
             }
@@ -516,11 +516,11 @@ object ScalaUtil {
           }
 
           private def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Unit = {
-            astScope.dfns.foreach {
+            astScope.dfns foreach {
               case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
             }
-            astScope.subScopes.foreach{childScope =>
-              getAllDefs(childScope, kind, result)
+            astScope.subScopes foreach {
+              childScope => getAllDefs(childScope, kind, result)
             }
           }
         })
@@ -532,15 +532,9 @@ object ScalaUtil {
   }
 
   def isMainMethodPresent(obj:ScalaDfn) :Boolean = {
-    val members = obj.symbol.asInstanceOf[AstSymbol[Symbols#Symbol]].value.tpe.members
-    for (j <- 0 until members.length) {
-      val methodCandidate = members(j).asInstanceOf[Symbols#Symbol]
-      if (methodCandidate.isMethod && isMainMethod(methodCandidate)) {
-        return true
-      }
+    obj.symbol.asInstanceOf[ScalaSymbol].value.tpe.members exists {
+      member => member.isMethod && isMainMethod(member)
     }
-
-    false
   }
 
   /**
@@ -548,17 +542,11 @@ object ScalaUtil {
    * @param method to be checked
    * @return true when the method is a main method
    */
-  def isMainMethod(method:Symbols#Symbol) :boolean = {
-    if (!method.nameString.equals("main")) {  //NOI18N
-      return false
+  def isMainMethod(method:Symbols#Symbol) :Boolean = {
+    (method.nameString, method.tpe.paramTypes) match {
+      case ("main", List(x)) => true  //NOI18N
+      case _ => false
     }
-    method.tpe.paramTypes
-    val params = method.tpe.paramTypes
-    if (params != null && params.size != 1) {
-      return false
-    }
-
-    true
   }
 
   /**

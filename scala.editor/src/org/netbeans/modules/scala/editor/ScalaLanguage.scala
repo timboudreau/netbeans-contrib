@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.editor
 
-import _root_.java.util.{Collections}
 import org.netbeans.api.lexer.Language
 import org.netbeans.modules.csl.api.{CodeCompletionHandler,
                                      DeclarationFinder,
@@ -54,8 +53,7 @@ import org.netbeans.modules.csl.api.{CodeCompletionHandler,
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig
 import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory
-import org.openide.filesystems.{FileObject,
-                                FileUtil}
+import org.openide.filesystems.{FileObject, FileUtil}
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 
 /**
@@ -77,11 +75,11 @@ class ScalaLanguage extends DefaultLanguageConfig {
   /**
    * @see org.netbeans.modules.scala.platform.ScalaPlatformClassPathProvider and ModuleInstall
    */
-  override def getLibraryPathIds = Collections.singleton(BOOT)
+  override def getLibraryPathIds = _root_.java.util.Collections.singleton(BOOT)
 
-  override def getSourcePathIds = Collections.singleton(SOURCE)
+  override def getSourcePathIds = _root_.java.util.Collections.singleton(SOURCE)
     
-  //override def getParser = new ScalaParser
+  override def getParser = new ScalaParser
   
   //   override def hasStructureScanner = true
   //
