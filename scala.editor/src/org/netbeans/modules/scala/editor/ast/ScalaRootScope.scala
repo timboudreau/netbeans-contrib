@@ -42,6 +42,11 @@ import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope, AstSymbol}
 
+
+object ScalaRootScope {
+  def apply(boundsTokens:Array[Token[TokenId]]) = new ScalaRootScope(boundsTokens)
+}
+
 class ScalaRootScope(boundsTokens:Array[Token[TokenId]]) extends AstRootScope(boundsTokens) {
 //  def findDfnOfSym(symbol:AstSymbol[_]) :Option[AstDfn] = {
 //    _idTokenToItem.values.find{item =>

@@ -57,7 +57,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
  */
 object ScalaHome {
 
-  def getGlobalForStdLib :Global = {
+  def getGlobalForStdLib :ScalaGlobal = {
     val scalaHome = getScalaHome
     val scalaHomeDir :File = try {
       val dir = new File(scalaHome)
@@ -96,12 +96,8 @@ object ScalaHome {
     //System.out.println("comp:" + sb);
     settings.classpath.tryToSet(List(sb.toString))
 
-    val global = new Global(settings) {
+    val global = new ScalaGlobal(settings) {
       override def onlyPresentation = true
-
-      override def logError(msg:String, t:Throwable) :Unit = {
-        //Exceptions.printStackTrace(t);
-      }
     }
 
     global

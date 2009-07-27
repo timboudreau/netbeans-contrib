@@ -78,8 +78,8 @@ trait AstItem extends ForElementHandle {
   }
 
   def idToken = _idToken
-  def idToken_=(idToken:Option[Token[TokenId]]) = idToken.foreach{x =>
-    this._idToken = idToken; name = x.text.toString
+  def idToken_=(idToken:Option[Token[TokenId]]) = idToken foreach {
+    x => this._idToken = idToken; name = x.text.toString
   }
 
   def name = _name

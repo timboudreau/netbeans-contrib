@@ -91,12 +91,10 @@ import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.Typed;
 //import scala.tools.nsc.ast.Trees.UnApply;
 //import scala.tools.nsc.ast.Trees.ValDef;
-import _root_.scala.tools.nsc.symtab.{Symbols}
+import _root_.scala.tools.nsc.symtab.{SymbolTable}
 import _root_.scala.tools.nsc.symtab.Flags._
 import _root_.scala.tools.nsc.util.{BatchSourceFile, Position}
 import _root_.scala.collection.immutable.{Stack, HashSet}
-
-
 
 /**
  *
@@ -107,54 +105,63 @@ import _root_.scala.collection.immutable.{Stack, HashSet}
  * 
  * @author Caoyuan Deng
  */
-abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
-                               th:TokenHierarchy[_],
-                               sourceFile:BatchSourceFile) {
+abstract class ScalaAstVisitor {
 
-  val global: Global
-  import global._
+  val trees: SymbolTable
+  import trees._
 
   val EOL = System.getProperty("line.separator", "\n")
 
   protected var debug :Boolean = _
   protected var indentLevel :Int = _
   protected var astPath :Stack[Tree] = new Stack[Tree]
-  protected var scopes :Stack[AstScope] = new Stack[AstScope]
   //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
   protected var visited :Set[Tree] = new HashSet[Tree]
 
-  val fo :Option[FileObject] = if (sourceFile != null) {
-    val file = new File(sourceFile.path)
-    if (file != null && file.exists) {
-      // it's a real file and not archive file
-      FileUtil.toFileObject(file) match {
-        case null => None
-        case x => Some(x)
-      }
+  protected var scopes :Stack[AstScope] = _
+  protected var rootScope :ScalaRootScope = _
+
+  protected var fo :Option[FileObject] = _
+  protected var th :TokenHierarchy[_] = _
+
+  def visit(unit:CompilationUnit, th:TokenHierarchy[_]) :ScalaRootScope = {
+    this.th = th
+    val srcFile = unit.source
+    this.fo = if (srcFile ne null) {
+      val file = new File(srcFile.path)
+      if (file != null && file.exists) {
+        // it's a real file and not archive file
+        FileUtil.toFileObject(file) match {
+          case null => None
+          case x => Some(x)
+        }
+      } else None
     } else None
-  } else None
-
-  private val rootTree = unit.body.asInstanceOf[Tree]
-  protected var rootScope = new ScalaRootScope(getBoundsTokens(offset(rootTree), sourceFile.length))
-  scopes.push(rootScope)
-  //exprs.push(rootScope.getExprContainer());
-  //visit(rootTree)
-  if (debug) {
-    //rootScope.getExprContainer().print();
-  }
-
-  def getRootScope :ScalaRootScope = {
-    rootScope
+    
+    if (unit.body ne null) {
+      this.scopes = new Stack[AstScope]
+      val rootTree = unit.body.asInstanceOf[Tree]
+      this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
+      scopes.push(rootScope)
+      //exprs.push(rootScope.getExprContainer());
+      //visit(rootTree)
+      if (debug) {
+        //rootScope.getExprContainer().print();
+      }
+      
+      (new NodeVisitor).visit(unit.body)
+      rootScope
+    } else ScalaRootScope(Array())
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
   var infolevel = InfoLevel.Quiet
 
-  object nodeVisitor extends Function1[global.Tree, String] {
+  class NodeVisitor {
 
     private val buf = new StringBuilder
     
-    def apply(tree: Tree): String = {
+    def visit(tree: Tree): String = {
       def traverse(tree: Tree, level: Int, comma: Boolean) {
         def println(s: String) {
           for (i <- 0 until level) buf.append("  ")
@@ -284,7 +291,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
           buf.toString
         }
         
-        def nodeinfo2(tree: Tree): String = (if (comma) "," else "") + nodeinfo(tree)
+        def nodeinfo2(tree: Tree): String = {if (comma) "," else ""} + nodeinfo(tree)
         
         tree match {
           case AppliedTypeTree(tpt, args) =>
@@ -357,8 +364,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
             println("DefDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
-            if (tparams.isEmpty)
-            println("  List(), // no type parameter")
+            if (tparams.isEmpty) println("  List(), // no type parameter")
             else {
               val n = tparams.length
               println("  List( // " + n + " type parameter(s)")
@@ -451,8 +457,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
             for (stat <- stats) traverse(stat, level + 1, false)
             printcln(")")
             scopes.pop
-          case _ =>
-            tree match {
+          case _ => tree match {
               case p: Product =>
                 if (p.productArity != 0) {
                   println(p.productPrefix+"(")
@@ -625,145 +630,10 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
    }
    exit(tree)
    }
-
-   def visitPackageDef(tree:Trees#PackageDef) :Unit = {
-   }
-
-   def visitClassDef(tree:Trees#ClassDef) :Unit = {
-   }
-
-   def visitModuleDef(tree:Trees#ModuleDef) :Unit = {
-   }
-
-   def visitValDef(tree:Trees#ValDef) :Unit = {
-   }
-
-   def visitDefDef(tree:Trees#DefDef) :Unit = {
-   }
-
-   def visitTypeDef(tree:Trees#TypeDef) :Unit = {
-   }
-
-   def visitLabelDef(tree:Trees#LabelDef) :Unit = {
-   }
-
-   def visitImport(tree:Trees#Import) :Unit = {
-   }
-
-   //    def visitAnnotation(Annotation) :Unit = {
-   //    }
-
-   def visitTemplate(tree:Trees#Template) :Unit = {
-   }
-
-   def visitBlock(tree:Trees#Block) :Unit = {
-   }
-
-   def visitMatch(tree:Trees#Match) :Unit = {
-   }
-
-   def visitCaseDef(tree:Trees#CaseDef) :Unit = {
-   }
-
-   def visitSequence(tree:Trees#Sequence) :Unit = {
-   }
-
-   def visitAlternative(tree:Trees#Alternative) :Unit = {
-   }
-
-   def visitStar(tree:Trees#Star) :Unit = {
-   }
-
-   def visitBind(tree:Trees#Bind) :Unit = {
-   }
-
-   def visitUnApply(tree:Trees#UnApply) :Unit = {
-   }
-
-   def visitArrayValue(tree:Trees#ArrayValue) :Unit = {
-   }
-
-   def visitFunction(tree:Trees#Function) :Unit = {
-   }
-
-   def visitAssign(tree:Trees#Assign) :Unit = {
-   }
-
-   def visitIf(tree:Trees#If) :Unit = {
-   }
-
-   def visitReturn(tree:Trees#Return) {
-   }
-
-   def visitTry(tree:Trees#Try) {
-   }
-
-   def visitThrow(tree:Trees#Throw) :Unit = {
-   }
-
-   def visitNew(tree:Trees#New) :Unit = {
-   }
-
-   def visitTyped(tree:Trees#Typed) :Unit = {
-   }
-
-   def visitTypeApply(tree:Trees#TypeApply) :Unit = {
-   }
-
-   def visitApply(tree:Trees#Apply) :Unit = {
-   }
-
-   def visitApplyDynamic(tree:Trees#ApplyDynamic) :Unit = {
-   }
-
-   def visitSuper(tree:Trees#Super) :Unit = {
-   }
-
-   def visitThis(tree:Trees#This) :Unit = {
-   }
-
-   def visitSelect(tree:Trees#Select) :Unit = {
-   }
-
-   def visitIdent(tree:Trees#Ident) :Unit = {
-   }
-
-   def visitLiteral(tree:Trees#Literal) :Unit = {
-   }
-
-   def visitTypeTree(tree:Trees#TypeTree) :Unit = {
-   }
-
-   def visitAnnotated(tree:Trees#Annotated) :Unit = {
-   }
-
-   def visitSingletonTypeTree(tree:Trees#SingletonTypeTree) :Unit = {
-   }
-
-   def visitSelectFromTypeTree(tree:Trees#SelectFromTypeTree) :Unit = {
-   }
-
-   def visitCompoundTypeTree(tree:Trees#CompoundTypeTree) :Unit = {
-   }
-
-   def visitAppliedTypeTree(tree:Trees#AppliedTypeTree) :Unit = {
-   }
-
-   def visitTypeBoundsTree(tree:Trees#TypeBoundsTree) :Unit = {
-   }
-
-   def visitExistentialTypeTree(tree:Trees#ExistentialTypeTree) :Unit = {
-   }
-
-   def visitStubTree(tree:Trees#StubTree) :Unit = {
-   }
-
-   def visitDocDef(tree:Trees#DocDef) :Unit = {
-   }
    */
   
   // ---- Helper methods
-  protected def getCurrentParent :global.Tree = {
+  protected def getCurrentParent :Tree = {
     assert(astPath.size >= 2)
     astPath(astPath.size - 2)
   }
@@ -781,7 +651,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
     sb.toString
   }
 
-  protected def enter(tree:global.Tree) :Unit = {
+  protected def enter(tree:Tree) :Unit = {
     indentLevel += 1
     astPath.push(tree)
 
@@ -790,19 +660,17 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
     }
   }
 
-  protected def exit(node:global.Tree) :Unit = {
+  protected def exit(node:Tree) :Unit = {
     indentLevel -= 1
     astPath.pop
   }
 
-  protected def offset(tree:global.Tree) :Int = {
-    val offsetOpt = tree.pos.offset
-    offset(offsetOpt)
+  protected def offset(tree:Tree) :Int = {
+    offset(tree.pos.offset)
   }
 
-  protected def offset(symbol:Symbols#Symbol) :Unit = {
-    val offsetOpt = symbol.pos.offset
-    offset(offsetOpt)
+  protected def offset(symbol:Symbol) :Unit = {
+    offset(symbol.pos.offset)
   }
 
   protected def offset(intOption:Option[Int]) :Int = {
@@ -817,7 +685,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree:global.Tree) :Option[Token[TokenId]] = {
+  protected def getIdToken(tree:Tree) :Option[Token[TokenId]] = {
     val symbol = tree.symbol
     if (symbol == null) {
       return None
@@ -833,7 +701,6 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
       assert(false, "Should not happen!")
     }
 
-    //var token :Token[TokenId] = null
     var altToken :Token[TokenId] = null
     var token = (tree, name) match {
       case (x:This, _)     => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
@@ -938,7 +805,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
     println(item)
   }
 
-  protected def debugPrintAstPath(tree:global.Tree) :Unit = {
+  protected def debugPrintAstPath(tree:Tree) :Unit = {
     if (!debug) {
       return
     }

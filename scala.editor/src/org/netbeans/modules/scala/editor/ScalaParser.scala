@@ -51,8 +51,7 @@ import org.netbeans.modules.csl.api.{Error, OffsetRange, Severity}
 import org.netbeans.modules.csl.spi.{DefaultError, GsfUtilities}
 import org.netbeans.modules.parsing.api.{Snapshot, Task}
 import org.netbeans.modules.parsing.spi.{ParseException, Parser, ParserFactory, SourceModificationEvent}
-import org.netbeans.modules.scala.editor.ast.ScalaRootScope
-//import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope, ScalaAstVisitor}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.rats.LexerScala
 import org.openide.filesystems.{FileObject, FileStateInvalidException, FileUtil}
@@ -72,7 +71,7 @@ class ScalaParser extends Parser {
   import ScalaParser._
   
   private var lastResult :ScalaParserResult = _
-  var global :Global = _
+  var global :ScalaGlobal = _
 
   private def asString(sequence:CharSequence) :String = sequence match {
     case x:String => x
@@ -525,8 +524,7 @@ class ScalaParser extends Parser {
     val af = if (file != null)  new PlainFile(file) else new VirtualFile("<current>", "")
     val srcFile = new BatchSourceFile(af, source.toCharArray)
     try {
-      val unit = ScalaGlobal.compileSourceForPresentation(global, srcFile)
-      rootScope = null//new AstTreeVisitor(global, unit, th, srcFile).getRootScope();
+      rootScope = global.compileSourceForPresentation(srcFile, th)
     } catch {
       case ex:AssertionError =>
         // avoid scala nsc's assert error

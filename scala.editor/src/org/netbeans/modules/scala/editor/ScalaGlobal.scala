@@ -44,9 +44,11 @@ import _root_.java.net.{MalformedURLException, URI, URISyntaxException, URL}
 import _root_.java.util.{Iterator, Map, WeakHashMap}
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
+import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, SourceGroup}
 import org.netbeans.spi.java.classpath.ClassPathProvider
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
+import org.netbeans.modules.scala.editor.ast.{ScalaAstVisitor, ScalaRootScope}
 import org.openide.filesystems.{FileChangeAdapter,
                                 FileEvent,
                                 FileObject,
@@ -56,8 +58,8 @@ import org.openide.filesystems.{FileChangeAdapter,
                                 FileUtil,
                                 JarFileSystem}
 import org.openide.util.{Exceptions, RequestProcessor}
-import _root_.scala.tools.nsc.CompilationUnits
 import _root_.scala.tools.nsc.{Global,Settings}
+import _root_.scala.tools.nsc.symtab.{SymbolTable}
 import _root_.scala.tools.nsc.util.BatchSourceFile
 
 /**
@@ -80,9 +82,9 @@ object ScalaGlobal {
   private val SOURCES_TYPE_SCALA = "scala" //NOI18N
 
   private val ProjectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
-  private val ProjectToGlobal = new WeakHashMap[Project, Reference[Global]]
-  private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[Global]]
-  private var GlobalForStdLid :Option[Global] = None
+  private val ProjectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
+  private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
+  private var GlobalForStdLid :Option[ScalaGlobal] = None
 
   def reset {
     ProjectToGlobal.clear
@@ -98,7 +100,7 @@ object ScalaGlobal {
    * since we can not gaurantee the srcCp returns only one entry, we have to use
    * following guessing method:
    */
-  def getGlobal(fo:FileObject) :Global = synchronized {
+  def getGlobal(fo:FileObject) :ScalaGlobal = synchronized {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // it may be a standalone file, or file in standard lib
@@ -181,13 +183,10 @@ object ScalaGlobal {
     }
     settings.classpath.tryToSet(List(sb.toString))
 
-    val global = new Global(settings) {
-      override def onlyPresentation = false
-      override def logError(msg:String, t:Throwable) :Unit = {}
-    }
+    val global = new ScalaGlobal(settings)
 
     if (forTest) {
-      ProjectToGlobalForTest.put(project, new WeakReference[Global](global))
+      ProjectToGlobalForTest.put(project, new WeakReference[ScalaGlobal](global))
       if (dirs.testOutDir != null) {
         dirs.testOutDir.addFileChangeListener(new FileChangeAdapter {
 
@@ -394,60 +393,71 @@ object ScalaGlobal {
     }
   }
 
-  def compileSourceForPresentation(global:Global, srcFile:BatchSourceFile ) :CompilationUnits#CompilationUnit = {
-    compileSource(global, srcFile, Phase.superaccessors)
+}
+
+class ScalaGlobal(settings:Settings) extends Global(settings) {
+  private var unit: CompilationUnit = _
+  
+  private object scalaAstVisitor extends {
+    val trees :ScalaGlobal.this.type = ScalaGlobal.this
+  } with ScalaAstVisitor
+
+  override def onlyPresentation = false
+
+  override def logError(msg:String, t:Throwable) :Unit = {}
+
+  def compileSourceForPresentation(srcFile:BatchSourceFile, th:TokenHierarchy[_]) :ScalaRootScope = {
+    compileSource(srcFile, Phase.superaccessors, th)
   }
 
   // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcudes 'stopPhase'
-  def compileSourceForDebugger(global:Global, srcFile:BatchSourceFile) :CompilationUnits#CompilationUnit = {
-    compileSource(global, srcFile, Phase.constructors)
+  def compileSourceForDebugger(srcFile:BatchSourceFile, th:TokenHierarchy[_]) :ScalaRootScope = {
+    compileSource(srcFile, Phase.constructors, th)
   }
 
-  def compileSource(global:Global, srcFile:BatchSourceFile, stopPhase:Phase) :CompilationUnits#CompilationUnit = {
-    global synchronized {
-      global.settings.stop.value = Nil
-      global.settings.stop.tryToSetColon(List(stopPhase.name))
-      global.resetSelectTypeErrors
-      val run = new global.Run
+  def compileSource(srcFile:BatchSourceFile, stopPhase:Phase, th:TokenHierarchy[_]) :ScalaRootScope = synchronized {
+    settings.stop.value = Nil
+    settings.stop.tryToSetColon(List(stopPhase.name))
+    resetSelectTypeErrors
+    val run = new this.Run
 
-      val srcFiles = List(srcFile)
-      try {
-        run.compileSources(srcFiles)
-      } catch {
-        case ex:AssertionError =>
-          /**@Note: avoid scala nsc's assert error. Since global's
-           * symbol table may have been broken, we have to reset ScalaGlobal
-           * to clean this global
-           */
-          ScalaGlobal.reset
-        case ex:_root_.java.lang.Error => // avoid scala nsc's Error error
-        case ex:Throwable => // just ignore all ex
-      }
-
-      if (debug) {
-        println("selectTypeErrors:" + global.selectTypeErrors)
-      }
-
-      val units = run.units
-      while (units.hasNext) {
-        units.next match {
-          case unit if (unit.source == srcFile) =>
-            if (debug) {
-              RequestProcessor.getDefault.post(new Runnable {
-                  def run :Unit = {
-                    global.treeBrowser.browse(unit.body)
-                  }
-                })
-            }
-            return unit
-          case _ =>
-        }
-      }
-
-      null
+    val srcFiles = List(srcFile)
+    try {
+      run.compileSources(srcFiles)
+    } catch {
+      case ex:AssertionError =>
+        /**@Note: avoid scala nsc's assert error. Since global's
+         * symbol table may have been broken, we have to reset ScalaGlobal
+         * to clean this global
+         */
+        ScalaGlobal.reset
+      case ex:_root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex:Throwable => // just ignore all ex
     }
-  }
 
+    if (ScalaGlobal.debug) {
+      println("selectTypeErrors:" + selectTypeErrors)
+    }
+
+    val units = run.units
+    while (units.hasNext) {
+      units.next match {
+        case unit if (unit.source == srcFile) =>
+          if (ScalaGlobal.debug) {
+            RequestProcessor.getDefault.post(new Runnable {
+                def run :Unit = {
+                  treeBrowser.browse(unit.body)
+                }
+              })
+          }
+          
+          return scalaAstVisitor.visit(unit, th)
+        case _ =>
+      }
+    }
+
+    ScalaRootScope(Array())
+  }
 }
 
 abstract class Phase(val name:String)

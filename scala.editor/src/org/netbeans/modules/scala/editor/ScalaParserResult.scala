@@ -100,9 +100,7 @@ class ScalaParserResult(val parser:ScalaParser,
       val af = if (file != null) new PlainFile(file) else new VirtualFile("<current>", "")
       val srcFile = new BatchSourceFile(af, getSnapshot.getText.toString.toCharArray)
       try {
-        val unit = ScalaGlobal.compileSourceForDebugger(global, srcFile)
-        //rootScopeForDebugger = new AstTreeVisitor(global, unit, th, srcFile).getRootScope
-        null // @todo
+        rootScopeForDebugger = global.compileSourceForDebugger(srcFile, th)
       } catch {
         case ex:AssertionError =>
           // avoid scala nsc's assert error
