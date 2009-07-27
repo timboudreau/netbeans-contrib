@@ -128,10 +128,6 @@ public abstract class AstVisitor {
         rootScope = new AstRootScope(getBoundsTokens(offset(rootTree), sourceFile.length()));
         scopes.push(rootScope);
         exprs.push(rootScope.getExprContainer());
-        visit(rootTree);
-        if (debug) {
-            rootScope.getExprContainer().print();
-        }
     }
 
     public AstRootScope getRootScope() {

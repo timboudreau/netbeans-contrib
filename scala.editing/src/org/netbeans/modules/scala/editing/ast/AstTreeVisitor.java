@@ -111,7 +111,6 @@ public class AstTreeVisitor extends AstVisitor {
 
     public AstTreeVisitor(Global global, CompilationUnit unit, TokenHierarchy th, BatchSourceFile sourceFile) {
         super(global, unit, th, sourceFile);
-        setBoundsEndToken(rootScope);
         if (sourceFile != null) {
             File file = new File(sourceFile.path());
             if (file != null && file.exists()) {
@@ -122,6 +121,11 @@ public class AstTreeVisitor extends AstVisitor {
             }
         } else {
             fo = null;
+        }
+        visit(unit.body());
+        setBoundsEndToken(rootScope);
+        if (debug) {
+            rootScope.getExprContainer().print();
         }
     }
 
@@ -295,7 +299,6 @@ public class AstTreeVisitor extends AstVisitor {
 //        visit(tree.constr());
 //        visit(tree.elements());
 //    }
-
     @Override
     public void visitBlock(Block tree) {
         Tree parent = getCurrentParent();
@@ -429,10 +432,10 @@ public class AstTreeVisitor extends AstVisitor {
         scala.collection.immutable.List<Symbol> funOwnerChain = tree.fun().symbol().ownerChain();
         int size = funOwnerChain.size();
         if (size == 4) {
-            if (((Symbol)funOwnerChain.apply(0)).rawname().decode().equals("apply") &&
-                    ((Symbol)funOwnerChain.apply(1)).rawname().decode().startsWith("Tuple") &&
-                    ((Symbol)funOwnerChain.apply(2)).rawname().decode().equals("scala") &&
-                    ((Symbol)funOwnerChain.apply(3)).rawname().decode().equals("<root>")) {
+            if (((Symbol) funOwnerChain.apply(0)).rawname().decode().equals("apply") &&
+                    ((Symbol) funOwnerChain.apply(1)).rawname().decode().startsWith("Tuple") &&
+                    ((Symbol) funOwnerChain.apply(2)).rawname().decode().equals("scala") &&
+                    ((Symbol) funOwnerChain.apply(3)).rawname().decode().equals("<root>")) {
                 isTupleApply = true;
             }
         }
@@ -637,9 +640,9 @@ public class AstTreeVisitor extends AstVisitor {
             scala.collection.immutable.List<Symbol> chain = symbol.ownerChain();
             int size = chain.size();
             if (size == 3) {
-                if (((Symbol)chain.apply(0)).rawname().decode().startsWith("Tuple") &&
-                        ((Symbol)chain.apply(1)).rawname().decode().equals("scala") &&
-                        ((Symbol)chain.apply(2)).rawname().decode().equals("<root>")) {
+                if (((Symbol) chain.apply(0)).rawname().decode().startsWith("Tuple") &&
+                        ((Symbol) chain.apply(1)).rawname().decode().equals("scala") &&
+                        ((Symbol) chain.apply(2)).rawname().decode().equals("<root>")) {
                     return true;
                 }
             }
