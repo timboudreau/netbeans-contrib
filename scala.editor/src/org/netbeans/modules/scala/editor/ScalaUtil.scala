@@ -293,9 +293,9 @@ object ScalaUtil {
       return null
     }
 
-    val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-    if (doc == null) {
-      return null
+    val doc = info.getSnapshot.getSource.getDocument(true) match {
+      case null => return null
+      case x:BaseDocument => x
     }
 
     val th = info.getSnapshot.getTokenHierarchy
@@ -345,7 +345,7 @@ object ScalaUtil {
     element.getPickOffset(th)
   }
 
-  def getFileObject(info:ParserResult, symbol:Symbols#Symbol) :FileObject = {
+  def getFileObject(info:ParserResult, symbol:Symbols#Symbol) :Option[FileObject] = {
     val qName :String = try {
       symbol.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {
@@ -357,7 +357,7 @@ object ScalaUtil {
     }
 
     if (qName == null) {
-      return null
+      return None
     }
 
     val lastSep = qName.lastIndexOf(File.separatorChar);
@@ -403,13 +403,13 @@ object ScalaUtil {
         val srcRoots = result.getRoots
         val srcCp = ClassPathSupport.createClassPath(srcRoots:_*)
 
-        return srcCp.findResource(srcPath)
+        return Some(srcCp.findResource(srcPath))
       }
     } catch {
       case ex:IOException => ex.printStackTrace
     }
 
-    null
+    None
   }
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
@@ -499,29 +499,27 @@ object ScalaUtil {
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
               packaging => packaging.bindingScope.dfns foreach {
-                case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
+                case obj:ScalaDfn if isMainMethodExists(obj) => result += obj
               }
             }
             
             rootScope.visibleDfns(ElementKind.MODULE) foreach {
-              case obj:ScalaDfn if isMainMethodPresent(obj) => result += obj
+              case obj:ScalaDfn if isMainMethodExists(obj) => result += obj
             }
           }
 
           def getAllDefs(rootScope:AstScope, kind:ElementKind) :Seq[ScalaDfn] = {
-            val result = new ArrayBuffer[ScalaDfn]
-            getAllDefs(rootScope, kind, result)
-
-            result
+            getAllDefs(rootScope, kind, new ArrayBuffer[ScalaDfn])
           }
 
-          private def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Unit = {
+          def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Seq[ScalaDfn] = {
             astScope.dfns foreach {
               case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
             }
             astScope.subScopes foreach {
               childScope => getAllDefs(childScope, kind, result)
             }
+            result
           }
         })
 
@@ -531,7 +529,7 @@ object ScalaUtil {
     }
   }
 
-  def isMainMethodPresent(obj:ScalaDfn) :Boolean = {
+  def isMainMethodExists(obj:ScalaDfn) :Boolean = {
     obj.symbol.asInstanceOf[ScalaSymbol].value.tpe.members exists {
       member => member.isMethod && isMainMethod(member)
     }
@@ -597,15 +595,15 @@ object ScalaUtil {
     result
   }
 
-  def getClasspathInfoForFileObject(fo:FileObject) :ClasspathInfo = {
+  def getClasspathInfoForFileObject(fo:FileObject) :Option[ClasspathInfo] = {
     val bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT)
     val compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE)
     val srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE)
 
     if (bootPath == null || compilePath == null || srcPath == null) {
-      return null
+      None
+    } else {
+      Some(ClasspathInfo.create(bootPath, compilePath, srcPath))
     }
-
-    ClasspathInfo.create(bootPath, compilePath, srcPath)
   }
 }

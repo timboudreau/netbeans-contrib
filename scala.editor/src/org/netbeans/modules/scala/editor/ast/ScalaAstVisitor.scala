@@ -38,9 +38,12 @@
  */
 package org.netbeans.modules.scala.editor.ast
 
+import _root_.java.io.File
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 import org.netbeans.api.language.util.ast.{AstItem, AstScope}
+import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.openide.filesystems.{FileObject, FileUtil}
 import _root_.scala.tools.nsc.{CompilationUnits, Global}
 import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.Annotated;
@@ -120,6 +123,17 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
   //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
   protected var visited :Set[Tree] = new HashSet[Tree]
 
+  val fo :Option[FileObject] = if (sourceFile != null) {
+    val file = new File(sourceFile.path)
+    if (file != null && file.exists) {
+      // it's a real file and not archive file
+      FileUtil.toFileObject(file) match {
+        case null => None
+        case x => Some(x)
+      }
+    } else None
+  } else None
+
   private val rootTree = unit.body.asInstanceOf[Tree]
   protected var rootScope = new ScalaRootScope(getBoundsTokens(offset(rootTree), sourceFile.length))
   scopes.push(rootScope)
@@ -133,9 +147,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
     rootScope
   }
 
-  object InfoLevel extends Enumeration {
-    val Quiet, Normal, Verbose = Value
-  }
+  object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
   var infolevel = InfoLevel.Quiet
 
   object nodeVisitor extends Function1[global.Tree, String] {
@@ -278,70 +290,69 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
             traverse(tpt, level + 1, true)
-            if (args.isEmpty)
-            println("  List() // no argument")
+            if (args.isEmpty) println("  List() // no argument")
             else {
               val n = args.length
               println("  List( // " + n + " arguments(s)")
-              for (i <- 0 until n)
-              traverse(args(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
               println("  )")
             }
             printcln(")")
           case Apply(fun, args) =>
             println("Apply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty)
-            println("  List() // no argument")
+            if (args.isEmpty) println("  List() // no argument")
             else {
               val n = args.length
               println("  List( // " + n + " argument(s)")
-              for (i <- 0 until n)
-              traverse(args(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
               println("  )")
             }
             printcln(")")
           case ApplyDynamic(fun, args) =>
             println("ApplyDynamic(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty)
-            println("  List() // no argument")
+            if (args.isEmpty) println("  List() // no argument")
             else {
               val n = args.length
               println("  List( // " + n + " argument(s)")
-              for (i <- 0 until n)
-              traverse(args(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
               println("  )")
             }
             printcln(")")
           case Block(stats, expr) =>
             println("Block(" + nodeinfo(tree))
-            if (stats.isEmpty)
-            println("  List(), // no statement")
+            if (stats.isEmpty) println("  List(), // no statement")
             else {
               val n = stats.length
               println("  List( // " + n + " statement(s)")
-              for (i <- 0 until n)
-              traverse(stats(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(stats(i), level + 2, i < n-1)
               println("  ),")
             }
             traverse(expr, level + 1, false)
             printcln(")")
           case ClassDef(mods, name, tparams, impl) =>
+            val scope = AstScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes.push(scope)
+
             println("ClassDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
-            if (tparams.isEmpty)
-            println("  List(), // no type parameter")
+            if (tparams.isEmpty) println("  List(), // no type parameter")
             else {
               val n = tparams.length
               println("  List( // " + n + " type parameter(s)")
-              for (i <- 0 until n)
-              traverse(tparams(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
               println("  ),")
             }
             traverse(impl, level + 1, false)
             printcln(")")
+            scopes.pop
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
             println("DefDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
@@ -356,15 +367,13 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
               println("  ),")
             }
             val n = vparamss.length
-            if (n == 1 && vparamss(0).isEmpty)
-            println("  List(List()), // no parameter")
+            if (n == 1 && vparamss(0).isEmpty) println("  List(List()), // no parameter")
             else {
               println("  List(")
               for (i <- 0 until n) {
                 val m = vparamss(i).length
                 println("    List( // " + m + " parameter(s)")
-                for (j <- 0 until m)
-                traverse(vparamss(i)(j), level + 3, j < m-1)
+                for (j <- 0 until m) traverse(vparamss(i)(j), level + 3, j < m-1)
                 println("    )")
               }
               println("  ),")
@@ -394,13 +403,11 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
                 if (p.tpe ne null) p.tpe.typeSymbol else "null-" + p
               ) + ", // parents")
             traverse(self, level + 1, true)
-            if (body.isEmpty)
-            println("  List() // no body")
+            if (body.isEmpty) println("  List() // no body")
             else {
               val n = body.length
               println("  List( // body")
-              for (i <- 0 until n)
-              traverse(body(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(body(i), level + 2, i < n-1)
               println("  )")
             }
             printcln(")")
@@ -409,8 +416,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
           case TypeApply(fun, args) =>
             println("TypeApply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty)
-            println("  List() // no argument")
+            if (args.isEmpty) println("  List() // no argument")
             else {
               val n = args.length
               println("  List(")
@@ -434,10 +440,17 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
             traverse(rhs, level + 1, false)
             printcln(")")
           case PackageDef(name, stats) =>
+            val scope = AstScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes.push(scope)
             println("PackageDef("+name+", ")
-            for (stat <- stats)
-            traverse(stat, level + 1, false)
+            for (stat <- stats) traverse(stat, level + 1, false)
             printcln(")")
+            scopes.pop
           case _ =>
             tree match {
               case p: Product =>
@@ -804,10 +817,10 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree:global.Tree) :Token[TokenId] = {
+  protected def getIdToken(tree:global.Tree) :Option[Token[TokenId]] = {
     val symbol = tree.symbol
     if (symbol == null) {
-      return null;
+      return None
     }
 
     /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
@@ -857,8 +870,7 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
     //    if (!exprs.peek().isRoot()) {
     //      exprs.peek().addToken(token);
     //    }
-
-    token
+    if (token == null) None else Some(token)
   }
 
   protected def getBoundsTokens(offset:Int, endOffset:Int) :Array[Token[TokenId]] = {
@@ -931,8 +943,10 @@ abstract class ScalaAstVisitor(unit:CompilationUnits#CompilationUnit,
       return
     }
 
-    val idToken = getIdToken(tree)
-    val idTokenStr = if (idToken == null) "<null>" else idToken.text.toString
+    val idTokenStr = getIdToken(tree) match {
+      case None => "<null>"
+      case Some(x) => x.text.toString
+    }
 
     val symbol = tree.symbol
     val symbolStr = if (symbol == null) "<null>" else symbol.toString

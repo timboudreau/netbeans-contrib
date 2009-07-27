@@ -39,8 +39,14 @@
 
 package org.netbeans.modules.scala.editor.ast
 
-import org.netbeans.api.language.util.ast.{AstSymbol}
+import org.netbeans.api.language.util.ast.{AstItem, AstSymbol}
 
 import _root_.scala.tools.nsc.symtab.Symbols
 
-abstract class ScalaSymbol extends AstSymbol[Symbols#Symbol]
+
+object ScalaSymbol {
+  def apply(value:Symbols#Symbol) = new ScalaSymbol(value)
+}
+
+class ScalaSymbol(var value:Symbols#Symbol) extends AstSymbol[Symbols#Symbol] {
+}

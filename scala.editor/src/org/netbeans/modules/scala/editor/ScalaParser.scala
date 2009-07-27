@@ -81,7 +81,7 @@ class ScalaParser extends Parser {
 
   @throws(classOf[ParseException])
   override def parse(snapshot:Snapshot, task:Task, event:SourceModificationEvent) :Unit = {
-    val context = new Context(snapshot, event);
+    val context = new Context(snapshot, event)
     lastResult = parseBuffer(context, Sanitize.NONE)
     lastResult.errors = context.errors
   }
@@ -685,7 +685,7 @@ class ScalaParser extends Parser {
   private class ErrorReporter(context:Context, doc:BaseDocument, sanitizing:Sanitize) extends Reporter {
 
     override def info0(pos:Position, msg:String, severity:Severity, force:Boolean) {
-      val ignoreError = context.sanitizedSource != null;
+      val ignoreError = context.sanitizedSource != null
       if (!ignoreError) {
         // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
         pos.source match {

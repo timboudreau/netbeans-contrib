@@ -52,6 +52,17 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
+object AstScope {
+  def apply(boundsToken:Token[TokenId]) = new AstScope(Array(boundsToken))
+  def apply(boundsTokens:Array[Token[TokenId]]) = new AstScope(boundsTokens)
+
+  // * Sinleton EmptyScope
+  val EMPTY_SCOPE = new AstScope(Array()) {
+    override def boundsOffset(th:TokenHierarchy[_]) = -1
+    override def boundsEndOffset(th:TokenHierarchy[_]) = -1
+  }
+}
+
 class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
   var boundsToken :Option[Token[TokenId]] = None
@@ -126,18 +137,20 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
    * @param dfn to be added
    * @retrun added successfully or not
    */
-  def addDfn(dfn:AstDfn) :Boolean = dfn.idToken match {
-    case None => false
-    case Some(x) =>
-      /** a def will always be added */
-      root.tryToPut(x, dfn)
-      if (_dfns == None) {
-        _dfns = Some(new ArrayBuffer)
-      }
-      _dfns.get + dfn
-      dfnsSorted = false
-      dfn.enclosingScope = this
-      true
+  def addDfn(dfn:AstDfn) :Boolean = {
+    dfn.idToken match {
+      case None => false
+      case Some(x) =>
+        /** a def will always be added */
+        root.tryToPut(x, dfn)
+        if (_dfns == None) {
+          _dfns = Some(new ArrayBuffer)
+        }
+        _dfns.get + dfn
+        dfnsSorted = false
+        dfn.enclosingScope = this
+        true
+    }
   }
 
   /**
@@ -637,12 +650,5 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
   }
 }
 
-object AstScope {
-  // * Sinleton EmptyScope
-  val EMPTY_SCOPE = new AstScope(Array()) {
-    override def boundsOffset(th:TokenHierarchy[_]) = -1
 
-    override def boundsEndOffset(th:TokenHierarchy[_]) = -1
-  }
-}
 

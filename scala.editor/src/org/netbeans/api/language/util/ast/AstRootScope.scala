@@ -77,18 +77,20 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
    * To make sure each idToken only corresponds to one AstItem, if more than
    * one AstItem point to the same idToken, only the first one will be stored
    */
-  protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = _idTokenToItem.get(idToken) match {
-    case None =>
-      _idTokenToItem + (idToken -> item)
-      tokensSorted = false
-      true
-    case Some(exsitOne) =>
-      // if existOne is dfn and with narrow visible than new one, replace it
-      if (item.isInstanceOf[AstDfn]) {
+  protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = {
+    _idTokenToItem.get(idToken) match {
+      case None =>
         _idTokenToItem + (idToken -> item)
         tokensSorted = false
         true
-      } else false
+      case Some(exsitOne) =>
+        // if existOne is dfn and with narrow visible than new one, replace it
+        if (item.isInstanceOf[AstDfn]) {
+          _idTokenToItem + (idToken -> item)
+          tokensSorted = false
+          true
+        } else false
+    }
   }
    
   override def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {

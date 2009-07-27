@@ -57,6 +57,18 @@ import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
 /**
  * Scala AstDfn special functions
  */
+object ScalaDfn {
+  def apply(symbol:ScalaSymbol,
+            _idToken:Option[Token[TokenId]],
+            _kind:ElementKind,
+            _bindingScope:AstScope,
+            fo:Option[FileObject]) = {
+    val dfn = new ScalaDfn(_idToken, _kind, _bindingScope, fo)
+    dfn.symbol = symbol
+    dfn
+  }
+}
+
 class ScalaDfn(_idToken:Option[Token[TokenId]],
                _kind:ElementKind,
                _bindingScope:AstScope,
@@ -132,7 +144,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
           formatter.appendText(")")
         case _ => formatter.appendText("()")
       }
-    //case ATTRIBUTE => formatter.appendText(getName)
+      //case ATTRIBUTE => formatter.appendText(getName)
     case _ => formatter.appendText(getName)
   }
     
