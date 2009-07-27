@@ -257,7 +257,7 @@ object ScalaGlobal {
   }
 
   private def findDirsInfo(project:Project) :SrcOutDirs = {
-    val dirs = new SrcOutDirs();
+    val dirs = new SrcOutDirs
 
     val sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA) match {
       case Array() =>
@@ -289,14 +289,14 @@ object ScalaGlobal {
       case ex:MalformedURLException => Exceptions.printStackTrace(ex); null
     }
 
-    var out:FileObject = null
+    var out :FileObject = null
     val query = project.getLookup.lookup(classOf[BinaryForSourceQueryImplementation])
     if (query != null && srcRootUrl != null) {
       val result = query.findBinaryRoots(srcRootUrl)
       if (result != null) {
         var break = false
         for (url <- result.getRoots if !break && !FileUtil.isArchiveFile(url)) {
-          val uri:URI = try {
+          val uri :URI = try {
             url.toURI
           } catch {
             case ex:URISyntaxException => Exceptions.printStackTrace(ex); null

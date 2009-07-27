@@ -84,9 +84,9 @@ class ScalaLanguage extends DefaultLanguageConfig {
   //   override def hasStructureScanner = true
   //
   //   override def getStructureScanner = new ScalaStructureAnalyzer
-  //
-  //   override def getSemanticAnalyzer = new ScalaSemanticAnalyzer
-  //
+  
+  override def getSemanticAnalyzer = new ScalaSemanticAnalyzer
+  
   //   override def hasOccurrencesFinder = true
   //
   //   override def getOccurrencesFinder = new ScalaOccurrencesFinder
