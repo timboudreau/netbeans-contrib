@@ -58,7 +58,7 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
  */
 class ScalaParserResult(val parser:ScalaParser,
                         snapshot:Snapshot, 
-                        val rootScope:ScalaRootScope,
+                        val rootScope:Option[ScalaRootScope] = None,
                         var errors:List[Error]
 ) extends ParserResult(snapshot) {
 
@@ -73,7 +73,7 @@ class ScalaParserResult(val parser:ScalaParser,
   var sanitizedContents :String = _
   var commentsAdded :Boolean = _
   private var sanitized :ScalaParser.Sanitize = _
-  private var rootScopeForDebugger :ScalaRootScope = _
+  private var rootScopeForDebugger :Option[ScalaRootScope] = _
 
   override protected def invalidate :Unit = {
     // XXX: what exactly should we do here?
@@ -87,7 +87,7 @@ class ScalaParserResult(val parser:ScalaParser,
     }
   }
 
-  def getRootScopeForDebugger :ScalaRootScope = {
+  def getRootScopeForDebugger :Option[ScalaRootScope] = {
     if (rootScopeForDebugger == null) {
       val fo = getSnapshot.getSource.getFileObject
       val file :File = if (fo != null) FileUtil.toFile(fo) else null
@@ -100,7 +100,7 @@ class ScalaParserResult(val parser:ScalaParser,
       val af = if (file != null) new PlainFile(file) else new VirtualFile("<current>", "")
       val srcFile = new BatchSourceFile(af, getSnapshot.getText.toString.toCharArray)
       try {
-        rootScopeForDebugger = global.compileSourceForDebugger(srcFile, th)
+        rootScopeForDebugger = Some(global.compileSourceForDebugger(srcFile, th))
       } catch {
         case ex:AssertionError =>
           // avoid scala nsc's assert error

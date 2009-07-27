@@ -416,7 +416,11 @@ object ScalaUtil {
 
   def getBinaryClassName(pResult:ScalaParserResult, offset:Int) :String = {
     val th = pResult.getSnapshot.getTokenHierarchy
-    val rootScope = pResult.getRootScopeForDebugger
+    val rootScope = pResult.getRootScopeForDebugger match {
+      case None => return null
+      case Some(x) => x
+    }
+    
     var clzName = ""
 
     for (enclDfn <- rootScope.enclosingDfn(TMPL_KINDS, th, offset)) {
@@ -490,8 +494,8 @@ object ScalaUtil {
           override def run(resultIterator:ResultIterator) :Unit = {
             val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]
             val rootScope = pResult.rootScope match {
-              case null => return
-              case x => x
+              case None => return
+              case Some(x) => x
             }
             // Get all defs will return all visible packages from the root and down
             getAllDefs(rootScope, ElementKind.PACKAGE) foreach {
