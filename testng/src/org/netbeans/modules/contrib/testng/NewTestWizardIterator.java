@@ -68,7 +68,6 @@ import org.openide.loaders.DataObject;
  */
 public final class NewTestWizardIterator implements WizardDescriptor.InstantiatingIterator {
 
-    private static final Logger LOGGER = Logger.getLogger(NewTestWizardIterator.class.getName());
     private transient int index;
     private transient WizardDescriptor.Panel[] panels;
     private transient WizardDescriptor wiz;
