@@ -107,11 +107,9 @@
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.ScalaLanguage"/>
                 </file>
-                <!--
                 <file name="structure.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.ScalaStructureAnalyzer"/>
                 </file>
-                -->
             </folder>
         </folder>
     </folder>

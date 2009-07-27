@@ -57,10 +57,7 @@ object AstScope {
   def apply(boundsTokens:Array[Token[TokenId]]) = new AstScope(boundsTokens)
 
   // * Sinleton EmptyScope
-  val EMPTY_SCOPE = new AstScope(Array()) {
-    override def boundsOffset(th:TokenHierarchy[_]) = -1
-    override def boundsEndOffset(th:TokenHierarchy[_]) = -1
-  }
+  val EMPTY_SCOPE = new AstScope(Array())
 }
 
 class AstScope(var boundsTokens:Array[Token[TokenId]]) {
@@ -71,6 +68,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
   if (boundsTokens != null) {
     assert(boundsTokens.length <= 2)
     boundsTokens.length match {
+      case 0 =>
       case 1 =>
         boundsToken = Some(boundsTokens(0))
       case 2 =>
@@ -78,7 +76,7 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
         boundsEndToken = Some(boundsTokens(1))
     }
   }
-
+  
   var bindingDfn :Option[AstDfn] = None
   var parent :Option[AstScope] = None
   private var _subScopes :Option[ArrayBuffer[AstScope]] = None

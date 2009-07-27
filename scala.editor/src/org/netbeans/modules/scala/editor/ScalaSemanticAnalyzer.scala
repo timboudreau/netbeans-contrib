@@ -100,9 +100,9 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
       return
     }
 
-    val rootScope = pResult.rootScope
-    if (rootScope == null) {
-      return
+    val rootScope = pResult.rootScope match {
+      case None => return
+      case Some(x) => x
     }
 
     val th = pResult.getSnapshot.getTokenHierarchy
