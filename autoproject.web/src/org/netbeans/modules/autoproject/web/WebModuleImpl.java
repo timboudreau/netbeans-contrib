@@ -71,6 +71,7 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         this.docBase = docBase;
         this.root = root;
         this.provider = provider;
+        this.cpProvider = cpProvider;
     }
 
     public FileObject getDocumentBase() {
