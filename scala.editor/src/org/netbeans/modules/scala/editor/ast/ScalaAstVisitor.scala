@@ -91,7 +91,7 @@ import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.Typed;
 //import scala.tools.nsc.ast.Trees.UnApply;
 //import scala.tools.nsc.ast.Trees.ValDef;
-import _root_.scala.tools.nsc.symtab.{SymbolTable}
+import _root_.scala.tools.nsc.symtab.{Symbols, SymbolTable}
 import _root_.scala.tools.nsc.symtab.Flags._
 import _root_.scala.tools.nsc.util.{BatchSourceFile, Position}
 import _root_.scala.collection.mutable.{Stack, HashSet}
@@ -118,7 +118,7 @@ abstract class ScalaAstVisitor {
   //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
   protected var visited :HashSet[Tree] = new HashSet[Tree]
 
-  protected var scopes :Stack[AstScope] = _
+  protected var scopes :Stack[AstScope[Symbols#Symbol]] = _
   protected var rootScope :ScalaRootScope = _
 
   protected var fo :Option[FileObject] = _
@@ -138,7 +138,7 @@ abstract class ScalaAstVisitor {
     } else None
     
     if (unit.body ne null) {
-      this.scopes = new Stack[AstScope]
+      this.scopes = new Stack
       val rootTree = unit.body
       this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
       scopes push rootScope
@@ -339,7 +339,7 @@ abstract class ScalaAstVisitor {
             printcln(")")
             
           case ModuleDef(mods, name, impl) =>
-            val scope = AstScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
 
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
@@ -350,7 +350,7 @@ abstract class ScalaAstVisitor {
             scopes pop
             
           case ClassDef(mods, name, tparams, impl) =>
-            val scope = AstScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
 
             (if (mods.isTrait) "trait " else "class ")
@@ -375,7 +375,7 @@ abstract class ScalaAstVisitor {
             scopes pop
             
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
-            val scope = AstScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
 
             val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
@@ -473,7 +473,7 @@ abstract class ScalaAstVisitor {
             traverse(rhs, level + 1, false)
             printcln(")")
           case PackageDef(name, stats) =>
-            val scope = AstScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
 
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
@@ -824,7 +824,7 @@ abstract class ScalaAstVisitor {
     println(message)
   }
 
-  protected def info(message:String, item:AstItem) :Unit = {
+  protected def info(message:String, item:AstItem[Symbols#Symbol]) :Unit = {
     if (!debug) {
       return
     }

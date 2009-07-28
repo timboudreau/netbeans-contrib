@@ -48,7 +48,7 @@ import org.netbeans.modules.csl.api.ElementKind
  * 
  * @author Caoyuan Deng
  */
-abstract class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem {
+abstract class AstRef[T](_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstItem[T] {
   make(_idToken, _kind)
 
   def this(idToken:Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
@@ -71,6 +71,6 @@ abstract class AstRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extend
     "Ref: " + name + " (idToken=" + super.idToken + ")"
   }
 
-  def isOccurrence(ref:AstRef) :Boolean
+  def isOccurrence(ref:AstRef[T]) :Boolean
 }
 

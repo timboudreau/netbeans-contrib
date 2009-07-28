@@ -41,11 +41,9 @@ package org.netbeans.modules.scala.editor.ast
 import _root_.java.lang.annotation.Annotation
 import _root_.javax.lang.model.element.{AnnotationMirror, Element, ElementKind,
                                         ElementVisitor, ExecutableElement, VariableElement}
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.api.language.util.ast.{AstScope, AstItem}
-import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.{HtmlFormatter, OffsetRange}
 
 /**
  * Element with AstNode information
@@ -91,7 +89,7 @@ object JavaElement {
 
 abstract class JavaElement(name:CharSequence,
                            pickToken:Token[_],
-                           var bindingScope:AstScope,
+                           var bindingScope:AstScope[_],
                            var kind:ElementKind
 ) extends Element {
 
@@ -136,7 +134,7 @@ abstract class JavaElement(name:CharSequence,
     getSimpleName + "(kind=" + getKind + ", type=" + asType + ")"
   }
 
-  def getBindingScope :AstScope = {
+  def getBindingScope :AstScope[_] = {
     assert(bindingScope != null , toString + ": Each definition should set binding scope!")
     bindingScope
   }

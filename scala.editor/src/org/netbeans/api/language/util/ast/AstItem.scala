@@ -49,7 +49,7 @@ import _root_.scala.collection.mutable.{HashMap}
  *
  * @author Caoyuan Deng
  */
-trait AstItem extends ForElementHandle {
+trait AstItem[T] extends ForElementHandle {
 
   def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
     this.idToken = idToken
@@ -64,15 +64,15 @@ trait AstItem extends ForElementHandle {
    *    pickToken's text as name, pickToken may be <null> and pickToken.text()
    *    will return null when an Identifier token modified, seems sync issue
    */
-  private var _symbol :AstSymbol[_] = _
+  private var _symbol :AstSymbol[T] = _
   private var _idToken :Option[Token[TokenId]] = None
   private var _name :String = _
-  private var _enclosingScope :Option[AstScope] = _
+  private var _enclosingScope :Option[AstScope[T]] = _
   private var properties :Option[HashMap[String, Any]] = None
   var kind :ElementKind = ElementKind.OTHER
 
   def symbol = _symbol
-  def symbol_=(symbol:AstSymbol[_]) = {
+  def symbol_=(symbol:AstSymbol[T]) = {
     this._symbol = symbol
     symbol.item = this
   }
@@ -121,7 +121,7 @@ trait AstItem extends ForElementHandle {
 
   def binaryName = name
 
-  def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = {
+  def enclosingDfn[A <: AstDfn[T]](clazz:Class[A]) :Option[A] = {
     enclosingScope.get.enclosingDfn(clazz)
   }
 
@@ -129,7 +129,7 @@ trait AstItem extends ForElementHandle {
    * @Note: enclosingScope will be set when call
    *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
    */
-  def enclosingScope_=(enclosingScope:AstScope) :AstItem = {
+  def enclosingScope_=(enclosingScope:AstScope[T]) :AstItem[T] = {
     enclosingScope match {
       case null => this._enclosingScope = None
       case _ => this._enclosingScope = Some(enclosingScope)
@@ -140,12 +140,12 @@ trait AstItem extends ForElementHandle {
   /**
    * @return the scope that encloses this item
    */
-  def enclosingScope :Option[AstScope] = {
+  def enclosingScope :Option[AstScope[T]] = {
     assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
     _enclosingScope
   }
 
-  def rootScope :AstRootScope = enclosingScope.get.root
+  def rootScope :AstRootScope[T] = enclosingScope.get.root
 
   def property(k:String, v:Any) :Unit = {
     if (properties == None) {
@@ -167,7 +167,7 @@ trait AstItem extends ForElementHandle {
 /**
  * Wrap functions that implemented some ElementHandle's methods
  */
-trait ForElementHandle {self:AstItem =>
+trait ForElementHandle {self:AstItem[_] =>
     
   def getMimeType :String
 

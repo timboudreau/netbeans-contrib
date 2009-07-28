@@ -38,9 +38,8 @@
  */
 package org.netbeans.api.language.util.ast
 
-import org.netbeans.api.lexer.{Token,TokenId,TokenHierarchy}
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.OffsetRange
+import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
 import org.netbeans.modules.scala.editor.util.Sorter
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -53,14 +52,11 @@ import xtc.tree.{GNode}
  * @author Caoyuan Deng
  */
 object AstScope {
-  def apply(boundsToken:Token[TokenId]) = new AstScope(Array(boundsToken))
-  def apply(boundsTokens:Array[Token[TokenId]]) = new AstScope(boundsTokens)
-
   // * Sinleton EmptyScope
   val EMPTY_SCOPE = new AstScope(Array())
 }
 
-class AstScope(var boundsTokens:Array[Token[TokenId]]) {
+class AstScope[T](var boundsTokens:Array[Token[TokenId]]) {
 
   var boundsToken :Option[Token[TokenId]] = None
   var boundsEndToken :Option[Token[TokenId]] = None
@@ -77,11 +73,11 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
   
-  var bindingDfn :Option[AstDfn] = None
-  var parent :Option[AstScope] = None
-  private var _subScopes :Option[ArrayBuffer[AstScope]] = None
-  private var _dfns :Option[ArrayBuffer[AstDfn]] = None
-  private var _refs :Option[ArrayBuffer[AstRef]] = None
+  var bindingDfn :Option[AstDfn[T]] = None
+  var parent :Option[AstScope[T]] = None
+  private var _subScopes :List[AstScope[T]] = Nil
+  private var _dfns :List[AstDfn[T]] = Nil
+  private var _refs :List[AstRef[T]] = Nil
   private var scopesSorted :Boolean = false
   private var dfnsSorted :Boolean = false
   private var refsSorted :Boolean = false
@@ -107,26 +103,14 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     case Some(x) => x.offset(th) + x.length
   }
   
-  def subScopes :Seq[AstScope] = _subScopes match {
-    case None => new ArrayBuffer
-    case Some(x) => x
-  }
+  def subScopes :Seq[AstScope[T]] = _subScopes
 
-  def dfns :Seq[AstDfn] = _dfns match {
-    case None => new ArrayBuffer
-    case Some(x) => x
-  }
+  def dfns :Seq[AstDfn[T]] = _dfns
 
-  def refs :Seq[AstRef] = _refs match {
-    case None => new ArrayBuffer
-    case Some(x) => x
-  }
+  def refs :Seq[AstRef[T]] = _refs
 
-  def addScope(scope:AstScope) :Unit = {
-    if (_subScopes == None) {
-      _subScopes = Some(new ArrayBuffer)
-    }
-    _subScopes.get + scope
+  def addScope(scope:AstScope[T]) :Unit = {
+    _subScopes = scope :: _subScopes
     scopesSorted = false
     scope.parent = Some(this)
   }
@@ -135,16 +119,13 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
    * @param dfn to be added
    * @retrun added successfully or not
    */
-  def addDfn(dfn:AstDfn) :Boolean = {
+  def addDfn(dfn:AstDfn[T]) :Boolean = {
     dfn.idToken match {
       case None => false
       case Some(x) =>
         /** a def will always be added */
         root.tryToPut(x, dfn)
-        if (_dfns == None) {
-          _dfns = Some(new ArrayBuffer)
-        }
-        _dfns.get + dfn
+        _dfns = dfn :: _dfns
         dfnsSorted = false
         dfn.enclosingScope = this
         true
@@ -155,260 +136,239 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
    * @param ref to be added
    * @retrun added successfully or not
    */
-  def addRef(ref:AstRef) :Boolean = ref.idToken match {
-    case None => false
-    case Some(x) =>
-      /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
-      if (root.contains(x)) {
-        return false
-      }
+  def addRef(ref:AstRef[T]) :Boolean = {
+    ref.idToken match {
+      case None => false
+      case Some(x) =>
+        /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
+        if (root.contains(x)) {
+          return false
+        }
 
-      root.tryToPut(x, ref)
-      if (_refs == None) {
-        _refs = Some(new ArrayBuffer)
-      }
-      _refs.get + ref
-      refsSorted = false
-      ref.enclosingScope = this
-      true
+        root.tryToPut(x, ref)
+        _refs = ref :: _refs
+        refsSorted = false
+        ref.enclosingScope = this
+        true
+    }
   }
 
-  def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
+  def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem[T]] = {
     // Always seach Ref first, since Ref can be included in Def's range
-    for (xs <- _refs) {
-      if (!refsSorted) {
-        Sorter.sort(xs){compareRef(th, _, _)}
-        refsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        var mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return Some(middle)
-        }
+    if (!refsSorted) {
+      _refs sort {compareRef(th, _, _)}
+      refsSorted = true
+    }
+    var lo = 0
+    var hi = _refs.size - 1
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1
+      val middle = _refs(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return Some(middle)
       }
     }
 
-    for (xs <- _dfns) {
-      if (!dfnsSorted) {
-        Sorter.sort(xs){compareDfn(th, _, _)}
-        dfnsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        var mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return Some(middle)
-        }
+    if (!dfnsSorted) {
+      _dfns sort {compareDfn(th, _, _)}
+      dfnsSorted = true
+    }
+    lo = 0
+    hi = _dfns.size - 1
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1
+      val middle = _dfns(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return Some(middle)
       }
     }
 
-    for (xs <- _subScopes) {
-      if (!scopesSorted) {
-        Sorter.sort(xs){compareScope(th, _, _)}
-        scopesSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        var mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.boundsOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.boundsEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return middle.findItemAt(th, offset)
-        }
+    if (!scopesSorted) {
+      _subScopes sort {compareScope(th, _, _)}
+      scopesSorted = true
+    }
+    lo = 0
+    hi = _subScopes.size - 1
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1
+      val middle = _subScopes(mid)
+      if (offset < middle.boundsOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.boundsEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return middle.findItemAt(th, offset)
       }
     }
 
     None
   }
 
-  def findItemAt(th:TokenHierarchy[_], token:Token[TokenId]) :Option[AstItem] = {
+  def findItemAt(th:TokenHierarchy[_], token:Token[TokenId]) :Option[AstItem[T]] = {
     val offset = token.offset(th)
     // Always seach Ref first, since Ref can be included in Def's range
-    for (xs <- _refs) {
-      if (!refsSorted) {
-        Sorter.sort(xs){compareRef(th, _, _)}
-        refsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          val idToken = middle.idToken
-          if (idToken != null && idToken == token) {
-            return Some(middle)
-          }
-        }
-      }
+    if (!refsSorted) {
+      _refs sort {compareRef(th, _, _)}
+      refsSorted = true
     }
-
-    for (xs <- _dfns) {
-      if (!dfnsSorted) {
-        Sorter.sort(xs){compareDfn(th, _, _)}
-        dfnsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
+    var lo = 0
+    var hi = _refs.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _refs(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        val idToken = middle.idToken
+        if (idToken != null && idToken == token) {
           return Some(middle)
         }
       }
     }
 
-    for (xs <- _subScopes) {
-      if (!scopesSorted) {
-        Sorter.sort(xs){compareScope(th, _, _)}
-        scopesSorted = true
+    if (!dfnsSorted) {
+      _dfns sort {compareDfn(th, _, _)}
+      dfnsSorted = true
+    }
+    lo = 0
+    hi = _dfns.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _dfns(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return Some(middle)
       }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.boundsOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.boundsEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return middle.findItemAt(th, offset)
-        }
+    }
+
+    if (!scopesSorted) {
+      _subScopes sort {compareScope(th, _, _)}
+      scopesSorted = true
+    }
+    lo = 0
+    hi = _subScopes.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _subScopes(mid)
+      if (offset < middle.boundsOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.boundsEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return middle.findItemAt(th, offset)
       }
     }
 
     None
   }
 
-  def findDfnAt[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
+  def findDfnAt[A <: AstDfn[T]](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
 
-    for (xs <- _dfns) {
-      if (!dfnsSorted) {
-        Sorter.sort(xs){compareDfn(th, _, _)}
-        dfnsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
-        }
+    if (!dfnsSorted) {
+      _dfns sort {compareDfn(th, _, _)}
+      dfnsSorted = true
+    }
+    var lo = 0
+    var hi = _dfns.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _dfns(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
       }
     }
     
-    for (xs <- _subScopes) {
-      if (!scopesSorted) {
-        Sorter.sort(xs){compareScope(th, _, _)}
-        scopesSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.boundsOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.boundsEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return middle.findDfnAt(clazz, th, offset)
-        }
+    if (!scopesSorted) {
+      _subScopes sort {compareScope(th, _, _)}
+      scopesSorted = true
+    }
+    lo = 0
+    hi = _subScopes.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _subScopes(mid)
+      if (offset < middle.boundsOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.boundsEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return middle.findDfnAt(clazz, th, offset)
       }
     }
     
     None
   }
     
-  def findRefAt[A <: AstRef](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
+  def findRefAt[A <: AstRef[T]](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A] = {
 
-    for (xs <- _refs) {
-      if (!refsSorted) {
-        Sorter.sort(xs){compareRef(th, _, _)}
-        refsSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.idOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.idEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
-        }
+    if (!refsSorted) {
+      _refs sort {compareRef(th, _, _)}
+      refsSorted = true
+    }
+    var lo = 0
+    var hi = _refs.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _refs(mid)
+      if (offset < middle.idOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.idEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return if (clazz isInstance middle) Some(middle.asInstanceOf[A]) else None
       }
     }
         
-    for (xs <- _subScopes) {
-      if (!scopesSorted) {
-        Sorter.sort(xs){compareScope(th, _, _)}
-        scopesSorted = true
-      }
-      var lo = 0
-      var hi = xs.size - 1
-      while (lo <= hi) {
-        val mid = (lo + hi) >> 1
-        val middle = xs(mid)
-        if (offset < middle.boundsOffset(th)) {
-          hi = mid - 1
-        } else if (offset >= middle.boundsEndOffset(th)) {
-          lo = mid + 1
-        } else {
-          return middle.findRefAt(clazz, th, offset)
-        }
+    if (!scopesSorted) {
+      _subScopes sort {compareScope(th, _, _)}
+      scopesSorted = true
+    }
+    lo = 0
+    hi = _subScopes.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = _subScopes(mid)
+      if (offset < middle.boundsOffset(th)) {
+        hi = mid - 1
+      } else if (offset >= middle.boundsEndOffset(th)) {
+        lo = mid + 1
+      } else {
+        return middle.findRefAt(clazz, th, offset)
       }
     }
     
     None
   }
     
-  def findOccurrences(item:AstItem) :Seq[AstItem] = {
-    var dfn :Option[AstDfn] = item match {
-      case x:AstDfn => Some(x)
-      case x:AstRef => findDfnOf(x)
+  def findOccurrences(item:AstItem[T]) :Seq[AstItem[T]] = {
+    var dfn :Option[AstDfn[T]] = item match {
+      case x:AstDfn[T] => Some(x)
+      case x:AstRef[T] => findDfnOf(x)
     }
 
     dfn match {
       case None =>
         // dfn may be a remote one, just try to find all same refs
-        findAllRefsSameAs(item.asInstanceOf[AstRef])
+        findAllRefsSameAs(item.asInstanceOf[AstRef[T]])
       case Some(x) =>
-        val occurrences = new ArrayBuffer[AstItem]
+        val occurrences = new ArrayBuffer[AstItem[T]]
         occurrences + x
         // @todo ArrayBuffer.++ has strange signature: ++[B >: A](that : Iterable[B]) : ArrayBuffer[B]
         occurrences ++= findRefsOf(x)
@@ -417,23 +377,23 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
 
-  def findDfnOf(item:AstItem) :Option[AstDfn] = item match {
-    case dfn:AstDfn => Some(dfn)
-    case ref:AstRef => findDfnOf(ref)
+  def findDfnOf(item:AstItem[T]) :Option[AstDfn[T]] = item match {
+    case dfn:AstDfn[T] => Some(dfn)
+    case ref:AstRef[T] => findDfnOf(ref)
   }
   
 
-  private def findDfnOf(ref:AstRef) :Option[AstDfn] = ref.enclosingScope match {
-    case None => None
-    case Some(x) => x.findDfnOfUpward(ref)
+  private def findDfnOf(ref:AstRef[T]) :Option[AstDfn[T]] = {
+    ref.enclosingScope match {
+      case None => None
+      case Some(x) => x.findDfnOfUpward(ref)
+    }
   }
 
-  private def findDfnOfUpward(aRef:AstRef) :Option[AstDfn] = {
-    for (xs <- _dfns) {
-      xs.find{_ isReferredBy aRef} match {
-        case None =>
-        case Some(x) => return Some(x)
-      }
+  private def findDfnOfUpward(aRef:AstRef[T]) :Option[AstDfn[T]] = {
+    _dfns.find{_ isReferredBy aRef} match {
+      case None =>
+      case Some(x) => return Some(x)
     }
 
     /** search upward */
@@ -443,8 +403,8 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
 
-  def findRefsOf(dfn:AstDfn) :Seq[AstRef] = {
-    val result = new ArrayBuffer[AstRef]
+  def findRefsOf(dfn:AstDfn[T]) :Seq[AstRef[T]] = {
+    val result = new ArrayBuffer[AstRef[T]]
 
     val enclosingScope = dfn.enclosingScope match {
       case None =>
@@ -453,32 +413,26 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     result
   }
 
-  private def findRefsOfDownward(dfn:AstDfn, result:ArrayBuffer[AstRef]) :Unit = {
+  private def findRefsOfDownward(dfn:AstDfn[T], result:ArrayBuffer[AstRef[T]]) :Unit = {
     // find if there is closest override Def, if so, we shoud bypass it now:
-    for (xs <- _dfns) {
-      xs.find{x => x != dfn && x.mayEqual(dfn)} match {
-        case None =>
-        case Some(x) => return
-      }
+    _dfns.find{x => x != dfn && x.mayEqual(dfn)} match {
+      case None =>
+      case Some(x) => return
     }
 
-    for (xs <- _refs) {
-      result ++ xs.filter{dfn isReferredBy _}
-    }
+    result ++ _refs.filter{dfn isReferredBy _}
 
     /** search downward */
-    for (xs <- _subScopes) {
-      xs.foreach{_.findRefsOfDownward(dfn, result)}
-    }
+    _subScopes.foreach{_.findRefsOfDownward(dfn, result)}
   }
 
-  final def root :AstRootScope = parent match {
-    case None => this.asInstanceOf[AstRootScope]
+  final def root :AstRootScope[T] = parent match {
+    case None => this.asInstanceOf[AstRootScope[T]]
     case Some(x) => x.root
   }
 
-  private def findAllRefsSameAs(ref:AstRef) :Seq[AstRef] = {
-    val result = new ArrayBuffer[AstRef]
+  private def findAllRefsSameAs(ref:AstRef[T]) :Seq[AstRef[T]] = {
+    val result = new ArrayBuffer[AstRef[T]]
 
     result + ref
     root.findAllRefsSameAsDownward(ref, result)
@@ -486,59 +440,56 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     result
   }
 
-  protected def findAllRefsSameAsDownward(ref:AstRef,  result:ArrayBuffer[AstRef]) :Unit = {
-    for (xs <- _refs) {
-      result ++ xs.filter{ref isOccurrence _}
-    }
+  protected def findAllRefsSameAsDownward(ref:AstRef[T],  result:ArrayBuffer[AstRef[T]]) :Unit = {
+    result ++ _refs.filter{ref isOccurrence _}
 
     /** search downward */
-    for (xs <- _subScopes) {
-      xs.foreach{_.findAllRefsSameAsDownward(ref, result)}
-    }
+    _subScopes.foreach{_.findAllRefsSameAsDownward(ref, result)}
   }
 
   private def contains(th:TokenHierarchy[_], offset:Int) :Boolean = {
     offset >= boundsOffset(th) && offset < boundsEndOffset(th)
   }
 
-  def closestScope(th:TokenHierarchy[_], offset:Int) :Option[AstScope] = _subScopes match {
-    case Some(xs) =>
-      /** search children first */
-      xs.find{_.contains(th, offset)} match {
-        case None => None
-        case Some(child) => child.closestScope(th, offset)
-      }
-    case None if this.contains(th, offset) => Some(this)
-      /* we should return None here, since it may under a parent context's call,
-       * we shall tell the parent there is none in this and children of this
-       */
-    case None => None
+  def closestScope(th:TokenHierarchy[_], offset:Int) :Option[AstScope[T]] = {
+    _subScopes match {
+      case Nil if this.contains(th, offset) => Some(this)
+        /* we should return None here, since it may under a parent context's call,
+         * we shall tell the parent there is none in this and children of this
+         */
+      case Nil => None
+      case _ =>
+        /** search children first */
+        _subScopes.find{_.contains(th, offset)} match {
+          case None => None
+          case Some(child) => child.closestScope(th, offset)
+        }
+    }
   }
 
-  def visibleDfns(kind:ElementKind) :Seq[AstDfn] = {
-    val result = new ArrayBuffer[AstDfn]
+  def visibleDfns(kind:ElementKind) :Seq[AstDfn[T]] = {
+    val result = new ArrayBuffer[AstDfn[T]]
     visibleDfnsUpward(kind, result)
     result
   }
 
-  private def visibleDfnsUpward(kind:ElementKind, result:ArrayBuffer[AstDfn]) :Unit = {
-    for (xs <- _dfns) {
-      result ++ xs.filter{_.getKind == kind}
-    }
+  private def visibleDfnsUpward(kind:ElementKind, result:ArrayBuffer[AstDfn[T]]) :Unit = {
+    result ++ _dfns.filter{_.getKind == kind}
 
-    for (x <- parent) {
-      x.visibleDfnsUpward(kind, result)
+    parent match {
+      case None =>
+      case Some(x) => x.visibleDfnsUpward(kind, result)
     }
   }
 
-  def enclosingDfn(kinds:Set[ElementKind], th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = {
+  def enclosingDfn(kinds:Set[ElementKind], th:TokenHierarchy[_], offset:Int) :Option[AstDfn[T]] = {
     closestScope(th, offset) match {
       case None => None
       case Some(x) => x.enclosingDfn(kinds)
     }
   }
 
-  def enclosingDfn(kinds:Set[ElementKind]) :Option[AstDfn] = {
+  def enclosingDfn(kinds:Set[ElementKind]) :Option[AstDfn[T]] = {
     bindingDfn match {
       case None => parent match {
           case None => None
@@ -549,14 +500,14 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
 
-  def enclosingDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn] = {
+  def enclosingDfn(kind:ElementKind, th:TokenHierarchy[_], offset:Int) :Option[AstDfn[T]] = {
     closestScope(th, offset) match {
       case None => None
       case Some(x) => x.enclosingDfn(kind)
     }
   }
 
-  def enclosingDfn(kind:ElementKind) :Option[AstDfn] = {
+  def enclosingDfn(kind:ElementKind) :Option[AstDfn[T]] = {
     bindingDfn match {
       case None => parent match {
           case None => None
@@ -567,30 +518,29 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     }
   }
 
-  def  visibleDfns[A <: AstDfn](clazz:Class[A]) :ArrayBuffer[A] = {
+  def  visibleDfns[A <: AstDfn[T]](clazz:Class[A]) :ArrayBuffer[A] = {
     val result = new ArrayBuffer[A]
     visibleDfnsUpward(clazz, result)
     result
   }
     
-  private final def visibleDfnsUpward[A <: AstDfn](clazz:Class[A], result:ArrayBuffer[A]) :Unit = {
-    for (xs <- _dfns) {
-      result ++ xs.filter{clazz isInstance _}
-    }
+  private final def visibleDfnsUpward[A <: AstDfn[T]](clazz:Class[A], result:ArrayBuffer[A]) :Unit = {
+    result ++ _dfns.filter{clazz isInstance _}
     
-    for (x <- parent) {
-      x.visibleDfnsUpward(clazz, result)
+    parent match {
+      case None =>
+      case Some(x) => x.visibleDfnsUpward(clazz, result)
     }
   }
     
-  def enclosingDfn[A <: AstDfn](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A]= {
+  def enclosingDfn[A <: AstDfn[T]](clazz:Class[A], th:TokenHierarchy[_], offset:Int) :Option[A]= {
     closestScope(th, offset) match {
       case None => None
       case Some(x) => x.enclosingDfn(clazz)
     }
   }
     
-  def enclosingDfn[A <: AstDfn](clazz:Class[A]) :Option[A] = bindingDfn match {
+  def enclosingDfn[A <: AstDfn[T]](clazz:Class[A]) :Option[A] = bindingDfn match {
     case None => parent match {
         case None => None
         case Some(x) => x.enclosingDfn(clazz)
@@ -599,12 +549,12 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     case _ => None
   }
 
-  def findDfnMatched(symbol:GNode) :Option[AstDfn] = {
+  def findDfnMatched(symbol:GNode) :Option[AstDfn[T]] = {
     val name = symbol.toString
     findDfnMatchedDownside(name, symbol, dfns)
   }
 
-  private def findDfnMatchedDownside(name:String, symbol:GNode, dfns:Seq[AstDfn]) :Option[AstDfn] = {
+  private def findDfnMatchedDownside(name:String, symbol:GNode, dfns:Seq[AstDfn[T]]) :Option[AstDfn[T]] = {
     for (dfn <- dfns) {
       val mySymbol = dfn.symbol
       //            if (symbol.isType()) {
@@ -635,15 +585,15 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
 
   // ----- compare functions
 
-  private def compareScope(th:TokenHierarchy[_], o1:AstScope, o2:AstScope) :Boolean = {
+  private def compareScope(th:TokenHierarchy[_], o1:AstScope[T], o2:AstScope[T]) :Boolean = {
     o1.boundsOffset(th) < o2.boundsOffset(th)
   }
 
-  private def compareDfn(th:TokenHierarchy[_], o1:AstDfn, o2:AstDfn) :Boolean = {
+  private def compareDfn(th:TokenHierarchy[_], o1:AstDfn[T], o2:AstDfn[T]) :Boolean = {
     o1.idOffset(th) < o2.idOffset(th)
   }
 
-  private def compareRef(th:TokenHierarchy[_], o1:AstRef, o2:AstRef) :Boolean = {
+  private def compareRef(th:TokenHierarchy[_], o1:AstRef[T], o2:AstRef[T]) :Boolean = {
     o1.idOffset(th) < o2.idEndOffset(th)
   }
 }

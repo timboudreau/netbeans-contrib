@@ -42,12 +42,13 @@ import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope, AstSymbol}
 
+import _root_.scala.tools.nsc.symtab.Symbols
 
 object ScalaRootScope {
   def apply(boundsTokens:Array[Token[TokenId]]) = new ScalaRootScope(boundsTokens)
 }
 
-class ScalaRootScope(boundsTokens:Array[Token[TokenId]]) extends AstRootScope(boundsTokens) {
+class ScalaRootScope(boundsTokens:Array[Token[TokenId]]) extends AstRootScope[Symbols#Symbol](boundsTokens) {
 //  def findDfnOfSym(symbol:AstSymbol[_]) :Option[AstDfn] = {
 //    _idTokenToItem.values.find{item =>
 //      // ElementKind.Rule is "-spec", we won't let it as

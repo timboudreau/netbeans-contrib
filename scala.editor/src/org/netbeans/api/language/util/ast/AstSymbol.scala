@@ -48,7 +48,7 @@ import org.netbeans.api.lexer.{TokenHierarchy}
 trait AstSymbol[T] {
   var value :T
 
-  var item :AstItem = _
+  var item :AstItem[T] = _
   def offset(th:TokenHierarchy[_]) :Int = item.idOffset(th)
   def endOffset(th:TokenHierarchy[_]) :Int = item.idEndOffset(th)
 }

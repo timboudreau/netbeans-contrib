@@ -39,15 +39,11 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
+import javax.swing.text.Document
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId}
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstItem}
 import org.netbeans.modules.csl.api.{ElementKind, ColoringAttributes, OffsetRange, SemanticAnalyzer}
-import org.netbeans.modules.parsing.spi.Parser;
-import org.netbeans.modules.parsing.spi.Scheduler;
-import org.netbeans.modules.parsing.spi.SchedulerEvent
+import org.netbeans.modules.parsing.spi.{Parser, Scheduler, SchedulerEvent}
 import org.netbeans.modules.scala.editor.ast.{ScalaRef, ScalaDfn, ScalaSymbol, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import _root_.scala.tools.nsc.symtab.Types
@@ -154,11 +150,11 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   highlights.put(hiRange, ColoringAttributes.GLOBAL_SET)
                 case ElementKind.METHOD =>
                   try {
-                    ref.symbol.asInstanceOf[ScalaSymbol].value.tpe match {
+                    ref.symbol.value.tpe match {
                       // @todo doesn't work yet
                       //case _:Types#ImplicitMethodType => highlights.put(hiRange, IMPLICIT_METHOD)
                       case _ =>
-                        val symbolName = ref.symbol.asInstanceOf[ScalaSymbol].value.nameString
+                        val symbolName = ref.symbol.value.nameString
                         if (symbolName.equals("apply") || symbolName.startsWith("unapply")) {
                           highlights.put(hiRange, ColoringAttributes.STATIC_SET)
                         } else {

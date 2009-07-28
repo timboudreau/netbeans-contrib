@@ -52,7 +52,7 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.openide.util.Exceptions
 
 import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
-
+import _root_.scala.tools.nsc.symtab.Symbols
 /**
  *
  * @author Caoyuan Deng
@@ -77,7 +77,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  private def scanTopForms(scope:AstScope, items:_root_.java.util.List[StructureItem], pResult:ScalaParserResult) :Unit = {
+  private def scanTopForms(scope:AstScope[Symbols#Symbol], items:_root_.java.util.List[StructureItem], pResult:ScalaParserResult) :Unit = {
     scope.dfns foreach {
       case dfn:ScalaDfn => dfn.getKind match {
           case ElementKind.CLASS | ElementKind.MODULE =>
@@ -168,13 +168,12 @@ class ScalaStructureAnalyzer extends StructureScanner {
   }
   
   @throws(classOf[BadLocationException])
-  private def addCodeFolds(pResult:ScalaParserResult, doc:BaseDocument, defs:Seq[AstDfn], 
+  private def addCodeFolds(pResult:ScalaParserResult, doc:BaseDocument, defs:Seq[AstDfn[Symbols#Symbol]],
                            codeblocks:_root_.java.util.List[OffsetRange]) :Unit = {
     import ElementKind._
        
     for (dfn <- defs) {
-      val kind = dfn.getKind
-      kind match {
+      dfn.getKind match {
         case FIELD | METHOD | CONSTRUCTOR | CLASS | ATTRIBUTE =>
           var range = dfn.getOffsetRange(pResult)
           var start = range.getStart

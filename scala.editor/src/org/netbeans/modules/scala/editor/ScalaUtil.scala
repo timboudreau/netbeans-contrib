@@ -424,7 +424,7 @@ object ScalaUtil {
     var clzName = ""
 
     for (enclDfn <- rootScope.enclosingDfn(TMPL_KINDS, th, offset)) {
-      val sym = enclDfn.symbol.asInstanceOf[AstSymbol[Symbols#Symbol]].value
+      val sym = enclDfn.symbol.value
       if (sym != null) {
         // "scalarun.Dog.$talk$1"
         val fqn = new StringBuilder(sym.fullNameString('.'))
@@ -512,11 +512,11 @@ object ScalaUtil {
             }
           }
 
-          def getAllDefs(rootScope:AstScope, kind:ElementKind) :Seq[ScalaDfn] = {
+          def getAllDefs(rootScope:AstScope[Symbols#Symbol], kind:ElementKind) :Seq[ScalaDfn] = {
             getAllDefs(rootScope, kind, new ArrayBuffer[ScalaDfn])
           }
 
-          def getAllDefs(astScope:AstScope, kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Seq[ScalaDfn] = {
+          def getAllDefs(astScope:AstScope[Symbols#Symbol], kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Seq[ScalaDfn] = {
             astScope.dfns foreach {
               case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
             }
@@ -534,7 +534,7 @@ object ScalaUtil {
   }
 
   def isMainMethodExists(obj:ScalaDfn) :Boolean = {
-    obj.symbol.asInstanceOf[ScalaSymbol].value.tpe.members exists {
+    obj.symbol.value.tpe.members exists {
       member => member.isMethod && isMainMethod(member)
     }
   }

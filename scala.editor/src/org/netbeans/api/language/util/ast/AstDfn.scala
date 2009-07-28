@@ -55,11 +55,11 @@ import org.netbeans.api.language.util.lex.LexUtil
  * 
  * @author Caoyuan Deng
  */
-abstract class AstDfn(_idToken:Option[Token[TokenId]],
-                      _kind:ElementKind,
-                      private var _bindingScope:AstScope,
-                      var fo:Option[FileObject]
-) extends AstItem with AstElementHandle {
+abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
+                         _kind:ElementKind,
+                         private var _bindingScope:AstScope[T],
+                         var fo:Option[FileObject]
+) extends AstItem[T] with AstElementHandle {
     
   // we allow _bindingScope to be set later
   if (_bindingScope != null) {
@@ -97,15 +97,15 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
     "NoType"
   }
 
-  def enclosedElements :Seq[AstDfn] = {
+  def enclosedElements :Seq[AstDfn[T]] = {
     if (_bindingScope != null) {
       _bindingScope.dfns
     } else Nil
   }
 
-  def enclosingDfn :Option[AstDfn] = enclosingScope.get.bindingDfn
+  def enclosingDfn :Option[AstDfn[T]] = enclosingScope.get.bindingDfn
 
-  def bindingScope :AstScope = {
+  def bindingScope :AstScope[T] = {
     assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
     _bindingScope
   }
@@ -122,7 +122,7 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
     bindingScope.range(th)
   }
 
-  def mayEqual(dfn:AstDfn) :Boolean = {
+  def mayEqual(dfn:AstDfn[T]) :Boolean = {
     this == dfn
     //return getName().equals(def.getName())
   }
@@ -157,7 +157,7 @@ abstract class AstDfn(_idToken:Option[Token[TokenId]],
     false
   }
 
-  def isReferredBy(ref:AstRef) :Boolean
+  def isReferredBy(ref:AstRef[T]) :Boolean
 
   override def toString = {
     "Dfn: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"

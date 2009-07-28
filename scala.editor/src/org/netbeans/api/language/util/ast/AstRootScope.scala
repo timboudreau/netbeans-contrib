@@ -47,15 +47,15 @@ import _root_.scala.collection.mutable.{ArrayBuffer, HashMap}
  *
  * @author Caoyuan Deng
  */
-class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTokens) {
+class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](boundsTokens) {
 
-  protected val _idTokenToItem = new HashMap[Token[TokenId], AstItem]
+  protected val _idTokenToItem = new HashMap[Token[TokenId], AstItem[T]]
   private var tokens :List[Token[TokenId]] = Nil
   private var tokensSorted :Boolean = false
 
   def contains(idToken:Token[TokenId]) :Boolean = _idTokenToItem.contains(idToken)
 
-  def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[TokenId], AstItem] = {
+  def idTokenToItem(th:TokenHierarchy[_]) :HashMap[Token[TokenId], AstItem[T]] = {
     if (!tokensSorted) {
       tokens = _idTokenToItem.keySet.toList.sort{compareToken(th, _, _)}
       tokensSorted = true
@@ -77,7 +77,7 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
    * To make sure each idToken only corresponds to one AstItem, if more than
    * one AstItem point to the same idToken, only the first one will be stored
    */
-  protected def tryToPut(idToken:Token[TokenId], item:AstItem) :Boolean = {
+  protected def tryToPut(idToken:Token[TokenId], item:AstItem[T]) :Boolean = {
     _idTokenToItem.get(idToken) match {
       case None =>
         _idTokenToItem + (idToken -> item)
@@ -85,7 +85,7 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
         true
       case Some(exsitOne) =>
         // if existOne is dfn and with narrow visible than new one, replace it
-        if (item.isInstanceOf[AstDfn]) {
+        if (item.isInstanceOf[AstDfn[T]]) {
           _idTokenToItem + (idToken -> item)
           tokensSorted = false
           true
@@ -93,7 +93,7 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
     }
   }
    
-  override def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem] = {
+  override def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem[T]] = {
     val tokens1 = sortedToken(th)
 
     var lo = 0
@@ -113,19 +113,19 @@ class AstRootScope(boundsTokens:Array[Token[TokenId]]) extends AstScope(boundsTo
     None
   }
 
-  def findItemAt(token:Token[TokenId]) :Option[AstItem] = _idTokenToItem.get(token)
+  def findItemAt(token:Token[TokenId]) :Option[AstItem[T]] = _idTokenToItem.get(token)
 
-  def findAllDfnSyms[A <: AstSymbol[_]](clazz:Class[A]) :List[A] = {
+  def findAllDfnSyms[A <: AstSymbol[T]](clazz:Class[A]) :List[A] = {
     findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
   }
 
-  def findAllDfnsOf[A <: AstSymbol[_]](clazz:Class[A]) :List[AstDfn] = {
+  def findAllDfnsOf[A <: AstSymbol[T]](clazz:Class[A]) :List[AstDfn[T]] = {
     _idTokenToItem.values.filter{item =>
-      item.isInstanceOf[AstDfn] && clazz.isInstance(item.symbol)
-    }.toList.asInstanceOf[List[AstDfn]]
+      item.isInstanceOf[AstDfn[T]] && clazz.isInstance(item.symbol)
+    }.toList.asInstanceOf[List[AstDfn[T]]]
   }
 
-  def findFirstItemWithName(name:String) :Option[AstItem] = {
+  def findFirstItemWithName(name:String) :Option[AstItem[T]] = {
     _idTokenToItem.find{case (token, item) => token.text.toString == name} match {
       case None => None
       case Some((token, item)) => Some(item)
