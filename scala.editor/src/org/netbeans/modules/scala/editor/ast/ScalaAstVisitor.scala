@@ -337,9 +337,21 @@ abstract class ScalaAstVisitor {
             }
             traverse(expr, level + 1, false)
             printcln(")")
+          case ModuleDef(mods, name, impl) =>
+            val scope = AstScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+            traverse(impl, level + 1, false)
+            scopes pop
           case ClassDef(mods, name, tparams, impl) =>
             val scope = AstScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
+
+            (if (mods.isTrait) "trait " else "class ")
 
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)

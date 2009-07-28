@@ -64,13 +64,12 @@ class ScalaStructureAnalyzer extends StructureScanner {
   override def scan(result:ParserResult) :_root_.java.util.List[StructureItem] = {
     result match {
       case pResult:ScalaParserResult =>
-        var items = _root_.java.util.Collections.emptyList[StructureItem]
         val rootScope = pResult.rootScope match {
           case None => return _root_.java.util.Collections.emptyList[StructureItem]
           case Some(x) => x
         }
 
-        items = new _root_.java.util.ArrayList[StructureItem](rootScope.dfns.size)
+        val items = new _root_.java.util.ArrayList[StructureItem]
         scanTopForms(rootScope, items, pResult)
       
         items
@@ -81,12 +80,15 @@ class ScalaStructureAnalyzer extends StructureScanner {
   private def scanTopForms(scope:AstScope, items:_root_.java.util.List[StructureItem], pResult:ScalaParserResult) :Unit = {
     scope.dfns foreach {
       case dfn:ScalaDfn => dfn.getKind match {
-          case ElementKind.ATTRIBUTE | ElementKind.METHOD | ElementKind.MODULE =>
-            items.add(new ScalaStructureItem(dfn, pResult))
+          case ElementKind.CLASS | ElementKind.MODULE =>
+            (dfn.enclosingScope, dfn.enclosingDfn) match {
+              case (Some(x), _) if x.isRoot => items.add(new ScalaStructureItem(dfn, pResult))
+              case (_, Some(x)) if x.getKind == ElementKind.PACKAGE => items.add(new ScalaStructureItem(dfn, pResult))
+              case _ =>
+            }
           case _ =>
         }
-        // * for Erlang, only visit the rootScope
-        //scanTopForms(dfn.bindingScope, items, pResult)
+        scanTopForms(dfn.bindingScope, items, pResult)
     }
   }
 
@@ -209,16 +211,18 @@ class ScalaStructureAnalyzer extends StructureScanner {
         
     override def getModifiers :_root_.java.util.Set[Modifier] = dfn.getModifiers
 
-    override def isLeaf :Boolean = dfn.getKind match {
-      case MODULE | CLASS | METHOD => false
-      case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
-      case _ => true
+    override def isLeaf :Boolean = {
+      dfn.getKind match {
+        case MODULE | CLASS | METHOD => false
+        case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+        case _ => true
+      }
     }
 
     override def getNestedItems : _root_.java.util.List[StructureItem] = {
       val nested = dfn.bindingScope.dfns
-      if (nested.size > 0) {
-        val children = new _root_.java.util.ArrayList[StructureItem](nested.size)
+      if (!nested.isEmpty) {
+        val children = new _root_.java.util.ArrayList[StructureItem]
 
         nested foreach {
           case child:ScalaDfn => child.getKind match {
