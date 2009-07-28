@@ -115,7 +115,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     //visitScopeRecursively(doc, th, rootScope, highlights);
     visitItems(th, rootScope, highlights)
 
-    this.semanticHighlights = if (highlights.size > 0) {
+    this.semanticHighlights = if (!highlights.isEmpty) {
       //            if (result.getTranslatedSource() != null) {
       //                Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
       //                for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
@@ -134,7 +134,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
   val IMPLICIT_METHOD = Set(ColoringAttributes.INTERFACE)
 
-  private def visitItems(th:TokenHierarchy[_], rootScope:ScalaRootScope, highlights:_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]) :Unit = {
+  private def visitItems(th:TokenHierarchy[_], rootScope:ScalaRootScope,
+                         highlights:_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]) :Unit = {
     for (item <- rootScope.idTokenToItem(th).values; 
          name = item.getName; idToken = item.idToken;
          if idToken != None && name != "this" && name != "super") {
@@ -182,6 +183,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case _ =>
               }
           }
+        case _ =>
       }
 
     }

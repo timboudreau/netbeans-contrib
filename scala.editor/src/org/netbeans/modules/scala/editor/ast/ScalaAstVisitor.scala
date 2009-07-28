@@ -337,6 +337,7 @@ abstract class ScalaAstVisitor {
             }
             traverse(expr, level + 1, false)
             printcln(")")
+            
           case ModuleDef(mods, name, impl) =>
             val scope = AstScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
@@ -347,6 +348,7 @@ abstract class ScalaAstVisitor {
             scopes push scope
             traverse(impl, level + 1, false)
             scopes pop
+            
           case ClassDef(mods, name, tparams, impl) =>
             val scope = AstScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
@@ -371,7 +373,18 @@ abstract class ScalaAstVisitor {
             traverse(impl, level + 1, false)
             printcln(")")
             scopes pop
+            
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
+            val scope = AstScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+ 
             println("DefDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
@@ -398,6 +411,9 @@ abstract class ScalaAstVisitor {
             println("  " + tpt + ",")
             traverse(rhs, level + 1, false)
             printcln(")")
+
+            scopes pop
+
           case EmptyTree =>
             printcln("EmptyTree")
           case Ident(name) =>
