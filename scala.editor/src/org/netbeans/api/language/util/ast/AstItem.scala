@@ -47,6 +47,8 @@ import _root_.scala.collection.mutable.{HashMap}
 
 /**
  *
+ * T is type of AstSymbol's type parameter. @see AstSymbol[T]
+ *
  * @author Caoyuan Deng
  */
 trait AstItem[T] extends ForElementHandle {

@@ -40,12 +40,8 @@ package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
-import org.netbeans.modules.scala.editor.util.Sorter
 
 import _root_.scala.collection.mutable.ArrayBuffer
-
-import xtc.tree.{GNode}
-
 
 /**
  *
@@ -549,12 +545,12 @@ class AstScope[T](var boundsTokens:Array[Token[TokenId]]) {
     case _ => None
   }
 
-  def findDfnMatched(symbol:GNode) :Option[AstDfn[T]] = {
+  def findDfnMatched(symbol:AstSymbol[T]) :Option[AstDfn[T]] = {
     val name = symbol.toString
     findDfnMatchedDownside(name, symbol, dfns)
   }
 
-  private def findDfnMatchedDownside(name:String, symbol:GNode, dfns:Seq[AstDfn[T]]) :Option[AstDfn[T]] = {
+  private def findDfnMatchedDownside(name:String, symbol:AstSymbol[T], dfns:Seq[AstDfn[T]]) :Option[AstDfn[T]] = {
     for (dfn <- dfns) {
       val mySymbol = dfn.symbol
       //            if (symbol.isType()) {

@@ -43,6 +43,8 @@ import org.netbeans.api.lexer.{TokenHierarchy}
 /**
  * A wrapper class of language's symbol which may be a GNode(Fortress, Erlang) or true Symbol (Scala)
  *
+ * T is type of above wrapped symbol @see #value
+ *
  * @author Caoyuan Deng
  */
 trait AstSymbol[T] {
