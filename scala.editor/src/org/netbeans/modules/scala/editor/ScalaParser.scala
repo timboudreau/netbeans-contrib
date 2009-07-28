@@ -421,7 +421,7 @@ class ScalaParser extends Parser {
                     0, 0, true, sanitizing, Severity.ERROR, Array(ex))
       case ex:Exception =>
         // Scala's global throws too many exceptions
-        //ex.printStackTrace
+        ex.printStackTrace
     }
 
     if (rootScope != None) {

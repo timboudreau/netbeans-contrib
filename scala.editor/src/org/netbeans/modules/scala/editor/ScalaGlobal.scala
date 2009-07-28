@@ -396,8 +396,9 @@ object ScalaGlobal {
 }
 
 class ScalaGlobal(settings:Settings) extends Global(settings) {
-  private var unit: CompilationUnit = _
-  
+
+  // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
+  // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
   private object scalaAstVisitor extends {
     val trees :ScalaGlobal.this.type = ScalaGlobal.this
   } with ScalaAstVisitor

@@ -94,7 +94,7 @@ import _root_.scala.tools.nsc.ast.Trees
 import _root_.scala.tools.nsc.symtab.{SymbolTable}
 import _root_.scala.tools.nsc.symtab.Flags._
 import _root_.scala.tools.nsc.util.{BatchSourceFile, Position}
-import _root_.scala.collection.immutable.{Stack, HashSet}
+import _root_.scala.collection.mutable.{Stack, HashSet}
 
 /**
  *
@@ -116,7 +116,7 @@ abstract class ScalaAstVisitor {
   protected var indentLevel :Int = _
   protected var astPath :Stack[Tree] = new Stack[Tree]
   //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
-  protected var visited :Set[Tree] = new HashSet[Tree]
+  protected var visited :HashSet[Tree] = new HashSet[Tree]
 
   protected var scopes :Stack[AstScope] = _
   protected var rootScope :ScalaRootScope = _
@@ -129,8 +129,7 @@ abstract class ScalaAstVisitor {
     val srcFile = unit.source
     this.fo = if (srcFile ne null) {
       val file = new File(srcFile.path)
-      if (file != null && file.exists) {
-        // it's a real file and not archive file
+      if (file != null && file.exists) { // it's a real file and not archive file
         FileUtil.toFileObject(file) match {
           case null => None
           case x => Some(x)
@@ -140,16 +139,16 @@ abstract class ScalaAstVisitor {
     
     if (unit.body ne null) {
       this.scopes = new Stack[AstScope]
-      val rootTree = unit.body.asInstanceOf[Tree]
+      val rootTree = unit.body
       this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
-      scopes.push(rootScope)
+      scopes push rootScope
       //exprs.push(rootScope.getExprContainer());
       //visit(rootTree)
       if (debug) {
         //rootScope.getExprContainer().print();
       }
       
-      (new NodeVisitor).visit(unit.body)
+      (new NodeVisitor) visit unit.body
       rootScope
     } else ScalaRootScope(Array())
   }
@@ -345,7 +344,7 @@ abstract class ScalaAstVisitor {
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-            scopes.push(scope)
+            scopes push scope
 
             println("ClassDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
@@ -359,7 +358,7 @@ abstract class ScalaAstVisitor {
             }
             traverse(impl, level + 1, false)
             printcln(")")
-            scopes.pop
+            scopes pop
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
             println("DefDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
@@ -452,11 +451,11 @@ abstract class ScalaAstVisitor {
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-            scopes.push(scope)
+            scopes push scope
             println("PackageDef("+name+", ")
             for (stat <- stats) traverse(stat, level + 1, false)
             printcln(")")
-            scopes.pop
+            scopes pop
           case _ => tree match {
               case p: Product =>
                 if (p.productArity != 0) {
@@ -479,6 +478,7 @@ abstract class ScalaAstVisitor {
             }
         }
       }
+      
       buf setLength 0
       traverse(tree, 0, false)
       buf.toString
