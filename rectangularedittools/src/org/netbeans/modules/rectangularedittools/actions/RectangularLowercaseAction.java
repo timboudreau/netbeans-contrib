@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -50,11 +50,11 @@ import org.openide.util.NbBundle;
 public final class RectangularLowercaseAction extends AbstractRectangularAction {
 
     public String getName() {
-        return NbBundle.getMessage(RectangularLowercaseAction.class, "CTL_RectangularLowercaseAction");
+        return NbBundle.getMessage(RectangularLowercaseAction.class, "CTL_RectangularLowercaseAction"); // NOI18N
     }
 
     protected String iconResource() {
-        return "org/netbeans/modules/rectangularedittools/actions/rectangularlowercase.gif";
+        return "org/netbeans/modules/rectangularedittools/actions/rectangularlowercase.gif"; // NOI18N
     }
 
     protected boolean isReplacingAction() {

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -161,7 +161,7 @@ public abstract class AbstractRectangularAction extends CookieAction {
 
                         String replacementText = getReplacementText(rectangleWidth);
 
-                        String newline = "\n";
+                        String newline = "\n"; // NOI18N
                         boolean replaceMultipleRows = false;
                         StringTokenizer replaceRows = null;
 
@@ -213,7 +213,7 @@ public abstract class AbstractRectangularAction extends CookieAction {
                                                     replacementLine = replaceRows.nextToken();
                                                 } else {
                                                     // ran out of replacement text, use ""
-                                                    replacementLine = "";
+                                                    replacementLine = ""; // NOI18N
                                                 }
                                                 replacementTextWidth = replacementLine.length();
                                             }
@@ -347,7 +347,7 @@ public abstract class AbstractRectangularAction extends CookieAction {
     }
 
     protected String getReplacementText(int rectangleWidth) {
-        return "";
+        return ""; // NOI18N
     }
 
     protected String getPostProcessedText(String originalText) {
