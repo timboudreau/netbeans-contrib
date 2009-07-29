@@ -291,7 +291,19 @@ abstract class ScalaAstVisitor {
         }
         
         def nodeinfo2(tree: Tree): String = {if (comma) "," else ""} + nodeinfo(tree)
-        
+
+        def isTupleClass(symbol:Symbol) :Boolean = {
+          if (symbol ne null) {
+            symbol.ownerChain match {
+              case owners@List(tuple, scala, root) => owners.map{_.rawname.decode} match {
+                  case List(a, "scala", "<root>") if a.startsWith("Tuple") => true
+                  case _ => false
+                }
+              case _ => false
+            }
+          } else false
+        }
+
         tree match {
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
@@ -304,6 +316,7 @@ abstract class ScalaAstVisitor {
               println("  )")
             }
             printcln(")")
+
           case Apply(fun, args) =>
             println("Apply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
@@ -315,6 +328,7 @@ abstract class ScalaAstVisitor {
               println("  )")
             }
             printcln(")")
+
           case ApplyDynamic(fun, args) =>
             println("ApplyDynamic(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
@@ -326,6 +340,7 @@ abstract class ScalaAstVisitor {
               println("  )")
             }
             printcln(")")
+
           case Block(stats, expr) =>
             println("Block(" + nodeinfo(tree))
             if (stats.isEmpty) println("  List(), // no statement")
@@ -416,20 +431,26 @@ abstract class ScalaAstVisitor {
 
           case EmptyTree =>
             printcln("EmptyTree")
+
           case Ident(name) =>
             printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
+
           case Literal(value) =>
             printcln("Literal(" + value + ")")
+
           case New(tpt) =>
             println("New(" + nodeinfo(tree))
             traverse(tpt, level + 1, false)
             printcln(")")
+
           case Select(qualifier, selector) =>
             println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)
             printcln("  \"" + selector + "\")")
+
           case Super(qual, mix) =>
             printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
+
           case Template(parents, self, body) =>
             println("Template(" + nodeinfo(tree))
             println("  " + parents.map(p =>
@@ -444,8 +465,10 @@ abstract class ScalaAstVisitor {
               println("  )")
             }
             printcln(")")
+
           case This(qual) =>
             println("This(\"" + qual + "\")" + nodeinfo2(tree))
+
           case TypeApply(fun, args) =>
             println("TypeApply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
@@ -458,20 +481,45 @@ abstract class ScalaAstVisitor {
               println("  )")
             }
             printcln(")")
+
           case TypeTree() =>
+            val symbol = tree.symbol
+            if (symbol ne null) {
+              if (symbol == NoSymbol) {
+                // type tree in case def, for example: case Some(_),
+                // since the symbol is NoSymbol, we should visit its original type
+                val original = tree.asInstanceOf[TypeTree].original
+                if (original != null && !isTupleClass(original.symbol)) {
+                  traverse(original, level, false)
+                }
+              } else {
+                if (!isTupleClass(symbol)) {
+                  val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
+                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                  //visit(tree.original));
+                }
+              }
+            } else {
+              // in case of: <type ?>
+              //System.out.println("Null symbol found, tree is:" + tree);
+            }
+            
             printcln("TypeTree()" + nodeinfo2(tree))
+
           case Typed(expr, tpt) =>
             println("Typed(" + nodeinfo(tree))
             traverse(expr, level + 1, true)
             traverse(tpt, level + 1, false)
             printcln(")")
+
           case ValDef(mods, name, tpt, rhs) =>
             println("ValDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
-            traverse(tpt, level + 1, true)
+            traverse(tpt, level + 1, true) // tpe is usually a TypeTree
             traverse(rhs, level + 1, false)
             printcln(")")
+
           case PackageDef(name, stats) =>
             val scope = ScalaScope(getBoundsToken(offset(tree)))
             scopes.top.addScope(scope)
@@ -484,6 +532,7 @@ abstract class ScalaAstVisitor {
             for (stat <- stats) traverse(stat, level + 1, false)
             printcln(")")
             scopes pop
+            
           case _ => tree match {
               case p: Product =>
                 if (p.productArity != 0) {
