@@ -134,7 +134,12 @@ class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](bo
     o1.offset(th) < o2.offset(th)
   }
 
-  protected def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
-    sortedTokens(th).foreach{token => println("AstItems: " + _idTokenToItems.get(token))}
+  def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
+    sortedTokens(th) foreach {token =>
+      println("<" + token + "> ->")
+      _idTokenToItems.getOrElse(token, Nil) foreach {println(_)}
+      println
+    }
+    println
   }
 }

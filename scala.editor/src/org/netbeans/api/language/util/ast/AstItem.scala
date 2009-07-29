@@ -158,6 +158,10 @@ trait AstItem[T] extends ForElementHandle {
   def property(k:String) :Option[Any] = {
     _properties.get(k)
   }
+
+  override def toString = {
+    symbol.value.toString
+  }
 }
 
 /**

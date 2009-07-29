@@ -160,6 +160,6 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
   def isReferredBy(ref:AstRef[T]) :Boolean
 
   override def toString = {
-    "Dfn: " + name + " (idToken=" + idToken + ", kind=" + _kind +  ")"
+    "Dfn: " + "name=" + name + ", idToken=" + idToken + ", kind=" + _kind + ", symbol=" + symbol.value
   }
 }

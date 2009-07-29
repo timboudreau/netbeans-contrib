@@ -68,7 +68,7 @@ abstract class AstRef[T](_idToken:Option[Token[TokenId]], _kind:ElementKind) ext
   }
 
   override def toString = {
-    "Ref: " + name + " (idToken=" + super.idToken + ")"
+    "Ref: " + "name=" + name + ", idToken=" + super.idToken + ", kind=" + _kind + ", symbol=" + symbol.value
   }
 
   def isOccurrence(ref:AstRef[T]) :Boolean

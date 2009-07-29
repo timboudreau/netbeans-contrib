@@ -506,8 +506,8 @@ class AstScope[T](var boundsTokens:Array[Token[TokenId]]) {
     bindingDfn match {
       case Some(x) if x.getKind == kind => bindingDfn
       case None => parent match {
-          case None => None
           case Some(x) => x.enclosingDfn(kind)
+          case None => None
         }
       case _ => None
     }

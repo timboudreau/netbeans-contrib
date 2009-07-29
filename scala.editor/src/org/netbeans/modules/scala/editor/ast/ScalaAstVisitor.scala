@@ -567,6 +567,7 @@ abstract class ScalaAstVisitor {
       
       buf setLength 0
       traverse(tree, 0, false)
+      rootScope.debugPrintTokens(th)
       buf.toString
     }
   }
