@@ -129,11 +129,11 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
 
   def doc :Option[BaseDocument] = {
     fo match {
-      case None => None
       case Some(x) => GsfUtilities.getDocument(x, true) match {
           case null => None
           case docx => Some(docx)
         }
+      case None => None
     }
   }
 

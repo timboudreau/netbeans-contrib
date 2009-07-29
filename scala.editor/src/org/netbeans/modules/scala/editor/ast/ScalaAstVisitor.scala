@@ -114,9 +114,9 @@ abstract class ScalaAstVisitor {
 
   protected var debug :Boolean = _
   protected var indentLevel :Int = _
-  protected var astPath :Stack[Tree] = new Stack[Tree]
-  //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
-  protected var visited :Set[Tree] = Set()
+  protected var astPath :Stack[Tree] = _
+  //protected var exprs :Stack[AstExpr] = new Stack
+  protected var visited :Set[Tree] = _
 
   protected var scopes :Stack[AstScope[Symbols#Symbol]] = _
   protected var rootScope :ScalaRootScope = _
@@ -124,6 +124,11 @@ abstract class ScalaAstVisitor {
   protected var fo :Option[FileObject] = _
   protected var th :TokenHierarchy[_] = _
 
+  def reset :Unit = {
+    this.scopes = new Stack
+    this.visited = Set()
+  }
+  
   def visit(unit:CompilationUnit, th:TokenHierarchy[_]) :ScalaRootScope = {
     this.th = th
     val srcFile = unit.source
@@ -138,8 +143,7 @@ abstract class ScalaAstVisitor {
     } else None
     
     if (unit.body ne null) {
-      this.scopes = new Stack
-      this.visited = Set()
+      reset
       val rootTree = unit.body
       this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
       scopes push rootScope
@@ -151,7 +155,7 @@ abstract class ScalaAstVisitor {
       
       (new NodeVisitor) visit unit.body
       rootScope
-    } else ScalaRootScope(Array())
+    } else ScalaRootScope.EMPTY
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
@@ -295,11 +299,8 @@ abstract class ScalaAstVisitor {
 
         def isTupleClass(symbol:Symbol) :Boolean = {
           if (symbol ne null) {
-            symbol.ownerChain match {
-              case owners@List(tuple, scala, root) => owners.map{_.rawname.decode} match {
-                  case List(a, "scala", "<root>") if a.startsWith("Tuple") => true
-                  case _ => false
-                }
+            symbol.ownerChain.map{_.rawname.decode} match {
+              case List(a, "scala", "<root>") if a.startsWith("Tuple") => true
               case _ => false
             }
           } else false
@@ -490,25 +491,26 @@ abstract class ScalaAstVisitor {
             printcln(")")
 
           case TypeTree() =>
-            val symbol = tree.symbol
-            if (symbol ne null) {
-              if (symbol == NoSymbol) {
-                // type tree in case def, for example: case Some(_),
-                // since the symbol is NoSymbol, we should visit its original type
+            tree.symbol match {
+              case null =>
+                // * in case of: <type ?>
+                //println("Null symbol found, tree is:" + tree)
+              case NoSymbol =>
+                // * type tree in case def, for example: case Some(_),
+                // * since the symbol is NoSymbol, we should visit its original type
                 val original = tree.asInstanceOf[TypeTree].original
                 if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
-              } else {
+              case symbol =>
+                // * We'll drop tuple type, since all elements in tuple have their own type trees:
+                // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
+                // * need binding trees of a and b
                 if (!isTupleClass(symbol)) {
                   val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                   //if (original != tree) visit(tree.original));
                 }
-              }
-            } else {
-              // in case of: <type ?>
-              //System.out.println("Null symbol found, tree is:" + tree);
             }
             
             printcln("TypeTree()" + nodeinfo2(tree))
@@ -801,14 +803,13 @@ abstract class ScalaAstVisitor {
           tk
         }
       case (_, "_") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
-      case (_, _) if name.startsWith("<error") =>
-        val tk = ts.token
-        if (tk.id == ScalaTokenId.Dot) {
-          // a. where, offset is set to .
-          ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
-        } else {
-          // a.p where, offset is set to p
-          ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+      case (_, _) if name.startsWith("<error") => ts.token.id match {
+          case ScalaTokenId.Dot =>
+            // a. where, offset is set to .
+            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
+          case _ =>
+            // a.p where, offset is set to p
+            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         }
       case _ => ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
     }

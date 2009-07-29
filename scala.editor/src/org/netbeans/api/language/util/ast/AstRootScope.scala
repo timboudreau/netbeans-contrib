@@ -127,8 +127,8 @@ class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](bo
 
   def findFirstItemWithName(name:String) :Option[AstItem[T]] = {
     _idTokenToItem.find{case (token, item) => token.text.toString == name} match {
-      case None => None
       case Some((token, item)) => Some(item)
+      case None => None
     }
   }
 

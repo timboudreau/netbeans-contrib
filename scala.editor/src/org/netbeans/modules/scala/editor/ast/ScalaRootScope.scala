@@ -46,13 +46,14 @@ import _root_.scala.tools.nsc.symtab.Symbols
 
 object ScalaRootScope {
   def apply(boundsTokens:Array[Token[TokenId]]) = new ScalaRootScope(boundsTokens)
+  val EMPTY = new ScalaRootScope(Array())
 }
 
 class ScalaRootScope(boundsTokens:Array[Token[TokenId]]) extends AstRootScope[Symbols#Symbol](boundsTokens) {
-//  def findDfnOfSym(symbol:AstSymbol[_]) :Option[AstDfn] = {
-//    _idTokenToItem.values.find{item =>
-//      // ElementKind.Rule is "-spec", we won't let it as
-//      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
-//    }.asInstanceOf[Option[AstDfn]]
-//  }
+  //  def findDfnOfSym(symbol:AstSymbol[_]) :Option[AstDfn] = {
+  //    _idTokenToItem.values.find{item =>
+  //      // ElementKind.Rule is "-spec", we won't let it as
+  //      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
+  //    }.asInstanceOf[Option[AstDfn]]
+  //  }
 }
