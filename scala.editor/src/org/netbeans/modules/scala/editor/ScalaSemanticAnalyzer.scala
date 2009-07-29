@@ -132,7 +132,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
   private def visitItems(th:TokenHierarchy[_], rootScope:ScalaRootScope,
                          highlights:_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]) :Unit = {
-    for (item <- rootScope.idTokenToItem(th).values; 
+    for (items <- rootScope.idTokenToItems(th).valuesIterator;
+         item <- items;
          name = item.getName; idToken = item.idToken;
          if idToken != None && name != "this" && name != "super") {
 

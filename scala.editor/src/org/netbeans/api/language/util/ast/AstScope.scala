@@ -118,7 +118,7 @@ class AstScope[T](var boundsTokens:Array[Token[TokenId]]) {
     dfn.idToken match {
       case Some(x) =>
         /** a def will always be added */
-        root.tryToPut(x, dfn)
+        root.put(x, dfn)
         _dfns = dfn :: _dfns
         dfnsSorted = false
         dfn.enclosingScope = this
@@ -139,7 +139,7 @@ class AstScope[T](var boundsTokens:Array[Token[TokenId]]) {
           return false
         }
 
-        root.tryToPut(x, ref)
+        root.put(x, ref)
         _refs = ref :: _refs
         refsSorted = false
         ref.enclosingScope = this
