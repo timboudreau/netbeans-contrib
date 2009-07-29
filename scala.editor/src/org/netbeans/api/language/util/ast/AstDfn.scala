@@ -149,7 +149,7 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
     false
   }
 
-  def isDeprecated :boolean = {
+  def isDeprecated :Boolean = {
     false
   }
 

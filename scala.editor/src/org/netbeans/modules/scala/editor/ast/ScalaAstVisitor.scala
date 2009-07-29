@@ -116,7 +116,7 @@ abstract class ScalaAstVisitor {
   protected var indentLevel :Int = _
   protected var astPath :Stack[Tree] = new Stack[Tree]
   //protected var exprs :Stack[AstExpr] = new Stack[AstExpr]
-  protected var visited :HashSet[Tree] = new HashSet[Tree]
+  protected var visited :Set[Tree] = Set()
 
   protected var scopes :Stack[AstScope[Symbols#Symbol]] = _
   protected var rootScope :ScalaRootScope = _
@@ -139,6 +139,7 @@ abstract class ScalaAstVisitor {
     
     if (unit.body ne null) {
       this.scopes = new Stack
+      this.visited = Set()
       val rootTree = unit.body
       this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
       scopes push rootScope
@@ -304,6 +305,12 @@ abstract class ScalaAstVisitor {
           } else false
         }
 
+        if (visited.contains(tree)) {
+          return
+        } else {
+          visited += tree
+        }
+        
         tree match {
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
@@ -489,14 +496,14 @@ abstract class ScalaAstVisitor {
                 // type tree in case def, for example: case Some(_),
                 // since the symbol is NoSymbol, we should visit its original type
                 val original = tree.asInstanceOf[TypeTree].original
-                if (original != null && !isTupleClass(original.symbol)) {
+                if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
               } else {
                 if (!isTupleClass(symbol)) {
                   val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                  //visit(tree.original));
+                  //if (original != tree) visit(tree.original));
                 }
               }
             } else {

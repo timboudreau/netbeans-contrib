@@ -43,8 +43,6 @@ import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, Offse
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.openide.filesystems.{FileObject}
 
-import _root_.scala.collection.mutable.{HashMap}
-
 /**
  *
  * T is type of AstSymbol's type parameter. @see AstSymbol[T]
@@ -69,8 +67,8 @@ trait AstItem[T] extends ForElementHandle {
   private var _symbol :AstSymbol[T] = _
   private var _idToken :Option[Token[TokenId]] = None
   private var _name :String = _
-  private var _enclosingScope :Option[AstScope[T]] = _
-  private var properties :Option[HashMap[String, Any]] = None
+  private var _enclosingScope :Option[AstScope[T]] = None
+  private var _properties :Map[String, Any] = Map()
   var kind :ElementKind = ElementKind.OTHER
 
   def symbol = _symbol
@@ -107,18 +105,22 @@ trait AstItem[T] extends ForElementHandle {
     }
   }
 
-  def idOffset(th:TokenHierarchy[_]) = idToken match {
-    case None =>
-      assert(false, getName + ": Should implement offset(th)")
-      -1
-    case Some(x) => x.offset(th)
+  def idOffset(th:TokenHierarchy[_]) :Int = {
+    idToken match {
+      case None =>
+        assert(false, getName + ": Should implement offset(th)")
+        -1
+      case Some(x) => x.offset(th)
+    }
   }
 
-  def idEndOffset(th:TokenHierarchy[_]) :Int = idToken match {
-    case None =>
-      assert(false, name + ": Should implement getIdEndOffset(th)")
-      -1
-    case Some(x) => x.offset(th) + x.length
+  def idEndOffset(th:TokenHierarchy[_]) :Int = {
+    idToken match {
+      case None =>
+        assert(false, name + ": Should implement getIdEndOffset(th)")
+        -1
+      case Some(x) => x.offset(th) + x.length
+    }
   }
 
   def binaryName = name
@@ -150,19 +152,11 @@ trait AstItem[T] extends ForElementHandle {
   def rootScope :AstRootScope[T] = enclosingScope.get.root
 
   def property(k:String, v:Any) :Unit = {
-    if (properties == None) {
-      properties = Some(new HashMap)
-    }
-    for (_properties <- properties) {
-      _properties + (k -> v)
-    }
+    _properties += (k -> v)
   }
 
   def property(k:String) :Option[Any] = {
-    for (_properties <- properties) {
-      return _properties.get(k)
-    }
-    None
+    _properties.get(k)
   }
 }
 
