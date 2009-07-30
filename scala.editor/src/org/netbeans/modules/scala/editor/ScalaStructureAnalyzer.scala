@@ -97,7 +97,8 @@ class ScalaStructureAnalyzer extends StructureScanner {
       case pResult:ScalaParserResult =>
         var folds = _root_.java.util.Collections.emptyMap[String, _root_.java.util.List[OffsetRange]]
         for (rootScope <- pResult.rootScope;
-             doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true)) {
+             doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true))
+        {
           val th = pResult.getSnapshot.getTokenHierarchy
           val ts = ScalaLexUtil.getTokenSequence(th, 1)
 
@@ -169,7 +170,8 @@ class ScalaStructureAnalyzer extends StructureScanner {
   
   @throws(classOf[BadLocationException])
   private def addCodeFolds(pResult:ScalaParserResult, doc:BaseDocument, defs:Seq[AstDfn[Symbols#Symbol]],
-                           codeblocks:_root_.java.util.List[OffsetRange]) :Unit = {
+                           codeblocks:_root_.java.util.List[OffsetRange]) :Unit =
+  {
     import ElementKind._
        
     for (dfn <- defs) {
@@ -225,7 +227,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
 
         nested foreach {
           case child:ScalaDfn => child.getKind match {
-              case PARAMETER | VARIABLE | OTHER =>
+              case PARAMETER | OTHER =>
               case _ => children.add(new ScalaStructureItem(child, pResult))
             }
         }

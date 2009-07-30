@@ -52,6 +52,7 @@ import org.netbeans.api.language.util.lex.LexUtil
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
 
 import _root_.scala.tools.nsc.symtab.Symbols
+import _root_.scala.tools.nsc.symtab.Flags
 
 /**
  * Scala AstDfn special functions
@@ -76,6 +77,29 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
   import ElementKind._
 
   override def getMimeType :String = ScalaMimeResolver.MIME_TYPE
+
+  override def getModifiers :_root_.java.util.Set[Modifier] = {
+    if (modifiers != null) {
+      return modifiers
+    }
+
+    modifiers = new _root_.java.util.HashSet
+
+    val sym = symbol.value
+    if (sym hasFlag Flags.PROTECTED) {
+      modifiers.add(Modifier.PROTECTED)
+    } else if (sym hasFlag Flags.PRIVATE) {
+      modifiers.add(Modifier.PRIVATE)
+    } else {
+      modifiers.add(Modifier.PUBLIC)
+    }
+
+    if (sym hasFlag Flags.MUTABLE)    modifiers.add(Modifier.STATIC) // to use STATIC icon only
+    if (sym hasFlag Flags.DEPRECATED) modifiers.add(Modifier.DEPRECATED)
+    
+    modifiers
+  }
+
 
   /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
   def isReferredBy(ref:AstRef[Symbols#Symbol]) :Boolean = (ref.kind, getKind) match {

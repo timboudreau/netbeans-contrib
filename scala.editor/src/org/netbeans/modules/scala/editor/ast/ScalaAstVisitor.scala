@@ -112,21 +112,22 @@ abstract class ScalaAstVisitor {
 
   val EOL = System.getProperty("line.separator", "\n")
 
-  protected var debug :Boolean = _
-  protected var indentLevel :Int = _
-  protected var astPath :Stack[Tree] = _
-  //protected var exprs :Stack[AstExpr] = new Stack
-  protected var visited :Set[Tree] = _
+  private var debug :Boolean = _
+  private var indentLevel :Int = _
+  private var astPath :Stack[Tree] = _
+  //private var exprs :Stack[AstExpr] = new Stack
+  private var visited :Set[Tree] = _
 
-  protected var scopes :Stack[AstScope[Symbols#Symbol]] = _
-  protected var rootScope :ScalaRootScope = _
+  private var scopes :Stack[AstScope[Symbols#Symbol]] = _
+  private var rootScope :ScalaRootScope = _
 
-  protected var fo :Option[FileObject] = _
-  protected var th :TokenHierarchy[_] = _
+  private var fo :Option[FileObject] = _
+  private var th :TokenHierarchy[_] = _
 
   def reset :Unit = {
     this.scopes = new Stack
     this.visited = Set()
+    this.astPath = new Stack
   }
   
   def visit(unit:CompilationUnit, th:TokenHierarchy[_]) :ScalaRootScope = {
@@ -153,7 +154,7 @@ abstract class ScalaAstVisitor {
         //rootScope.getExprContainer().print();
       }
       
-      (new NodeVisitor) visit unit.body
+      (new TreeVisitor) visit unit.body
       rootScope
     } else ScalaRootScope.EMPTY
   }
@@ -161,7 +162,7 @@ abstract class ScalaAstVisitor {
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
   var infolevel = InfoLevel.Quiet
 
-  class NodeVisitor {
+  class TreeVisitor {
 
     private val buf = new StringBuilder
     
@@ -311,6 +312,8 @@ abstract class ScalaAstVisitor {
         } else {
           visited += tree
         }
+
+        astPath push tree
         
         tree match {
           case AppliedTypeTree(tpt, args) =>
@@ -522,12 +525,29 @@ abstract class ScalaAstVisitor {
             printcln(")")
 
           case ValDef(mods, name, tpt, rhs) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val kind = getCurrentParent match {
+              case _:Template => ElementKind.FIELD
+              case _:DefDef => ElementKind.PARAMETER
+              case _ => ElementKind.VARIABLE
+            }
+
+            // special case for: val (a, b, c) = (1, 2, 3)
+            if (!isTupleClass(tpt.symbol)) {
+              val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+              if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+            }
+
+            scopes push scope
             println("ValDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
             traverse(tpt, level + 1, true) // tpe is usually a TypeTree
             traverse(rhs, level + 1, false)
             printcln(")")
+            scopes.pop
 
           case PackageDef(name, stats) =>
             val scope = ScalaScope(getBoundsToken(offset(tree)))
@@ -563,6 +583,8 @@ abstract class ScalaAstVisitor {
                 } else printcln(p.productPrefix)
             }
         }
+
+        astPath pop
       }
       
       buf setLength 0
@@ -806,16 +828,20 @@ abstract class ScalaAstVisitor {
       case (_, "_") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
       case (_, _) if name.startsWith("<error") => ts.token.id match {
           case ScalaTokenId.Dot =>
-            // a. where, offset is set to .
+            // a. where, offset is at .
             ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
           case _ =>
-            // a.p where, offset is set to p
+            // a.p where, offset is at p
             ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         }
-      case _ => ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+      case _ => 
+        ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens) match {
+          case x:Token[_] if x.text.toString.trim == name => x
+          case _ => null
+        }
     }
 
-    if (token.isFlyweight) {
+    if (token != null && token.isFlyweight) {
       token = ts.offsetToken
     }
 

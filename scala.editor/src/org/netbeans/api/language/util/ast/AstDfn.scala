@@ -68,15 +68,17 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
 
   make(_idToken, _kind)
 
-  private var modifiers :_root_.java.util.Set[Modifier] = _
+  protected var modifiers :_root_.java.util.Set[Modifier] = _
 
   override def getFileObject :FileObject = fo.getOrElse(null)
 
   override def getKind :ElementKind = super[AstItem].getKind
 
-  override def getModifiers :_root_.java.util.Set[Modifier] = modifiers match {
-    case null => _root_.java.util.Collections.emptySet[Modifier]
-    case _ => modifiers
+  override def getModifiers :_root_.java.util.Set[Modifier] = {
+    modifiers match {
+      case null => _root_.java.util.Collections.emptySet[Modifier]
+      case _ => modifiers
+    }
   }
 
   override def getOffsetRange(pResult:ParserResult) :OffsetRange = {
@@ -160,6 +162,6 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
   def isReferredBy(ref:AstRef[T]) :Boolean
 
   override def toString = {
-    "Dfn: " + "name=" + name + ", idToken=" + idToken + ", kind=" + _kind + ", symbol=" + symbol.value
+    "Dfn: " + "name=" + name + ", idToken=" + idToken + ", kind=" + _kind + ", sym=" + symbol.value + ", mods" + getModifiers
   }
 }
