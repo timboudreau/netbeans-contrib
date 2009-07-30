@@ -60,12 +60,12 @@ import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
  * @author Caoyuan Deng
  */
 trait LexUtil {
-  val LANGUAGE :Language[TokenId]
-  val WS_COMMENTS :Set[TokenId]
-  val WS :Set[TokenId]
-  val DOC_COMMENTS :Set[TokenId]
-  val BLOCK_COMMENTS :Set[TokenId]
-  val LINE_COMMENTS :Set[TokenId]
+  val LANGUAGE: Language[TokenId]
+  val WS_COMMENTS: Set[TokenId]
+  val WS: Set[TokenId]
+  val DOC_COMMENTS: Set[TokenId]
+  val BLOCK_COMMENTS: Set[TokenId]
+  val LINE_COMMENTS: Set[TokenId]
 
   /**
    * Tokens that should cause indentation of the next line. This is true for all {@link #END_PAIRS},
@@ -73,19 +73,19 @@ trait LexUtil {
    * structure for indentation.
    *
    */
-  val INDENT_WORDS :Set[TokenId]
+  val INDENT_WORDS: Set[TokenId]
   /** Tokens that match a corresponding END statement. Even though while, unless etc.
    * can be statement modifiers, those luckily have different token ids so are not a problem
    * here.
    */
-  val END_PAIRS :Set[TokenId] = Set[TokenId]()
+  val END_PAIRS: Set[TokenId] = Set[TokenId]()
 
-  val WHITE_SPACE :TokenId
-  val NEW_LINE :TokenId
-  val LPAREN :TokenId
-  val RPAREN :TokenId
+  val WHITE_SPACE: TokenId
+  val NEW_LINE: TokenId
+  val LPAREN: TokenId
+  val RPAREN: TokenId
 
-  def getDocCommentRangeBefore(th:TokenHierarchy[_], lexOffset:Int) :OffsetRange
+  def getDocCommentRangeBefore(th: TokenHierarchy[_], lexOffset: Int): OffsetRange
 
   /**
    * Return the comment sequence (if any) for the comment prior to the given offset.
@@ -110,7 +110,7 @@ trait LexUtil {
   //    }
   
   /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
-  def getLexerOffset(info:Parser.Result, astOffset:Int) :Int = {
+  def getLexerOffset(info: Parser.Result, astOffset: Int): Int = {
     if (info != null) {
       info.getSnapshot.getOriginalOffset(astOffset)
     } else {
@@ -118,7 +118,7 @@ trait LexUtil {
     }
   }
 
-  def getLexerOffsets(info:Parser.Result, astRange:OffsetRange) :OffsetRange = {
+  def getLexerOffsets(info: Parser.Result, astRange: OffsetRange): OffsetRange = {
     if (info != null) {
       val rangeStart = astRange.getStart
       val start = info.getSnapshot.getOriginalOffset(rangeStart)
@@ -136,12 +136,12 @@ trait LexUtil {
   }
 
   /** Find the Fortress token sequence (in case it's embedded in something else at the top level */
-  def getTokenSequence(doc:BaseDocument, offset:Int) :TokenSequence[TokenId] = {
+  def getTokenSequence(doc: BaseDocument, offset: Int): TokenSequence[TokenId] = {
     val th = TokenHierarchy.get(doc)
     getTokenSequence(th, offset)
   }
 
-  def getTokenSequence(th:TokenHierarchy[_], offset:Int) :TokenSequence[TokenId] = {
+  def getTokenSequence(th: TokenHierarchy[_], offset: Int): TokenSequence[TokenId] = {
     var ts = th.tokenSequence(LANGUAGE)
 
     if (ts == null) {
@@ -176,7 +176,7 @@ trait LexUtil {
     ts
   }
 
-  def getToken(doc:BaseDocument, offset:Int) :Token[_ <: TokenId] = {
+  def getToken(doc: BaseDocument, offset: Int): Token[_ <: TokenId] = {
     val ts = getPositionedSequence(doc, offset)
 
     if (ts != null) {
@@ -186,7 +186,7 @@ trait LexUtil {
     }
   }
 
-  def getTokenChar(doc:BaseDocument, offset:Int) :Char = {
+  def getTokenChar(doc: BaseDocument, offset: Int): Char = {
     val token = getToken(doc, offset)
 
     if (token != null) {
@@ -199,77 +199,77 @@ trait LexUtil {
     0
   }
 
-  def findNextNonWsNonComment(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+  def findNextNonWsNonComment(ts: TokenSequence[TokenId]): Token[TokenId] = {
     findNext(ts, WS_COMMENTS)
   }
 
-  def findPreviousNonWsNonComment(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+  def findPreviousNonWsNonComment(ts: TokenSequence[TokenId]): Token[TokenId] = {
     findPrevious(ts, WS_COMMENTS)
   }
 
-  def findNextNonWs(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+  def findNextNonWs(ts: TokenSequence[TokenId]): Token[TokenId] = {
     findNext(ts, WS)
   }
 
-  def findPreviousNonWs(ts:TokenSequence[TokenId]) :Token[TokenId] = {
+  def findPreviousNonWs(ts: TokenSequence[TokenId]): Token[TokenId] = {
     findPrevious(ts, WS)
   }
 
-  def findNext(ts:TokenSequence[TokenId], ignores:Set[TokenId]) :Token[TokenId] = {
+  def findNext(ts: TokenSequence[TokenId], ignores: Set[TokenId]): Token[TokenId] = {
     if (ignores.contains(ts.token.id)) {
       while (ts.moveNext && ignores.contains(ts.token.id)) {}
     }
     ts.token
   }
 
-  def findPrevious(ts:TokenSequence[TokenId], ignores:Set[TokenId]) :Token[TokenId] = {
+  def findPrevious(ts:TokenSequence[TokenId], ignores:Set[TokenId]): Token[TokenId] = {
     if (ignores.contains(ts.token.id)) {
       while (ts.movePrevious && ignores.contains(ts.token.id)) {}
     }
     ts.token
   }
 
-  def findNext(ts:TokenSequence[TokenId], id:TokenId) :Token[TokenId] = {
-    if (ts.token().id != id) {
+  def findNext(ts: TokenSequence[TokenId], id: TokenId): Token[TokenId] = {
+    if (ts.token.id != id) {
       while (ts.moveNext && ts.token.id != id) {}
     }
     ts.token
   }
 
-  def findNextIn(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
+  def findNextIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Token[TokenId] = {
     if (!includes.contains(ts.token.id)) {
-      while (ts.moveNext() && !includes.contains(ts.token.id)) {}
+      while (ts.moveNext && !includes.contains(ts.token.id)) {}
     }
     ts.token
   }
 
-  def findPrevious(ts:TokenSequence[TokenId], id:TokenId) :Token[TokenId] = {
+  def findPrevious(ts: TokenSequence[TokenId], id: TokenId): Token[TokenId] = {
     if (ts.token.id != id) {
       while (ts.movePrevious && ts.token.id != id) {}
     }
     ts.token
   }
 
-  def findNextIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
+  def findNextIncluding(ts: TokenSequence[TokenId], includes: Set[TokenId]): Token[TokenId] = {
     while (ts.moveNext && !includes.contains(ts.token.id)) {}
     ts.token
   }
 
-  def findPreviousIncluding(ts:TokenSequence[TokenId], includes:Set[TokenId]) :Token[TokenId] = {
+  def findPreviousIncluding(ts: TokenSequence[TokenId], includes: Set[TokenId]): Token[TokenId] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.movePrevious && !includes.contains(ts.token.id)) {}
     }
     ts.token
   }
 
-  def skipParenthesis(ts:TokenSequence[TokenId]) :Boolean = {
+  def skipParenthesis(ts: TokenSequence[TokenId]): Boolean = {
     skipParenthesis(ts, false)
   }
 
   /**
    * Tries to skip parenthesis
    */
-  def skipParenthesis(ts:TokenSequence[TokenId], back:boolean, left:TokenId = LPAREN, right:TokenId = RPAREN) :Boolean = {
+  def skipParenthesis(ts: TokenSequence[TokenId], back: boolean, left: TokenId = LPAREN, right: TokenId = RPAREN): Boolean = {
     var balance = 0
 
     var token = ts.token
@@ -317,7 +317,7 @@ trait LexUtil {
   /**
    * Tries to skip parenthesis
    */
-  def skipPair(ts:TokenSequence[ScalaTokenId], back:boolean, left:TokenId, right:TokenId) :Boolean = {
+  def skipPair(ts: TokenSequence[ScalaTokenId], back: boolean, left: TokenId, right: TokenId): Boolean = {
     var balance = 0
 
     var token = ts.token
@@ -363,7 +363,7 @@ trait LexUtil {
   }
 
   /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-  def findFwd(doc:BaseDocument, ts:TokenSequence[TokenId], up:TokenId, down:TokenId) :OffsetRange = {
+  def findFwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
@@ -384,7 +384,7 @@ trait LexUtil {
   }
 
   /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-  def findBwd(doc:BaseDocument, ts:TokenSequence[TokenId], up:TokenId, down:TokenId) :OffsetRange = {
+  def findBwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
     var balance = 0
     while (ts.movePrevious) {
       val token = ts.token
@@ -405,7 +405,7 @@ trait LexUtil {
   }
 
   /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-  def findFwd(doc:BaseDocument, ts:TokenSequence[TokenId], up:String, down:String) :OffsetRange = {
+  def findFwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
@@ -427,7 +427,7 @@ trait LexUtil {
   }
 
   /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-  def findBwd(doc:BaseDocument, ts:TokenSequence[TokenId], up:String, down:String) :OffsetRange = {
+  def findBwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
     var balance = 0
     while (ts.movePrevious()) {
       val token = ts.token
@@ -453,7 +453,7 @@ trait LexUtil {
    * It does not use indentation for clues since this could be wrong and be
    * precisely the reason why the user is using pair matching to see what's wrong.
    */
-  def findBegin(doc:BaseDocument, ts:TokenSequence[TokenId]) :OffsetRange = {
+  def findBegin(doc: BaseDocument, ts: TokenSequence[TokenId]): OffsetRange = {
     var balance = 0
     while (ts.movePrevious) {
       val token = ts.token
@@ -474,7 +474,7 @@ trait LexUtil {
     OffsetRange.NONE
   }
 
-  def findEnd(doc:BaseDocument, ts:TokenSequence[TokenId]) :OffsetRange = {
+  def findEnd(doc: BaseDocument, ts: TokenSequence[TokenId]): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
@@ -497,7 +497,7 @@ trait LexUtil {
   /** Determine whether "do" is an indent-token (e.g. matches an end) or if
    * it's simply a separator in while,until,for expressions)
    */
-  def isEndmatchingDo(doc:BaseDocument, offset:Int) :Boolean = {
+  def isEndmatchingDo(doc: BaseDocument, offset: Int): Boolean = {
     // In the following case, do is dominant:
     //     expression.do
     //        whatever
@@ -524,7 +524,7 @@ trait LexUtil {
         }
       }
     } catch {
-      case ble:BadLocationException => Exceptions.printStackTrace(ble)
+      case ble: BadLocationException => Exceptions.printStackTrace(ble)
     }
 
     true
@@ -536,7 +536,7 @@ trait LexUtil {
    * @param upToOffset If true, only compute the line balance up to the given offset (inclusive),
    *   and if false compute the balance for the whole line
    */
-  def getBeginEndLineBalance(doc:BaseDocument, offset:Int, upToOffset:Boolean) :Int = {
+  def getBeginEndLineBalance(doc: BaseDocument, offset: Int, upToOffset: Boolean): Int = {
     try {
       val begin = Utilities.getRowStart(doc, offset);
       val end = if (upToOffset) offset else Utilities.getRowEnd(doc, offset)
@@ -567,12 +567,12 @@ trait LexUtil {
 
       balance
     } catch {
-      case ble:BadLocationException => Exceptions.printStackTrace(ble); 0
+      case ble: BadLocationException => Exceptions.printStackTrace(ble); 0
     }
   }
 
   /** Compute the balance of begin/end tokens on the line */
-  def getLineBalance(doc:BaseDocument, offset:Int, up:TokenId, down:TokenId) :Stack[Token[_ <: TokenId]] = {
+  def getLineBalance(doc: BaseDocument, offset: Int, up: TokenId, down: TokenId): Stack[Token[_ <: TokenId]] = {
     val balanceStack = new Stack[Token[_ <: TokenId]]
     try {
       val begin = Utilities.getRowStart(doc, offset)
@@ -607,7 +607,7 @@ trait LexUtil {
 
       balanceStack
     } catch {
-      case ble:BadLocationException => Exceptions.printStackTrace(ble); balanceStack
+      case ble: BadLocationException => Exceptions.printStackTrace(ble); balanceStack
     }
   }
 
@@ -618,7 +618,7 @@ trait LexUtil {
    * @param close the token that decreses the count
    */
   @throws(classOf[BadLocationException])
-  def getTokenBalance(doc:BaseDocument, open:TokenId, close:TokenId, offset:Int) :Int = {
+  def getTokenBalance(doc: BaseDocument, open: TokenId, close: TokenId, offset: Int): Int = {
     val ts = getTokenSequence(doc, 0)
     if (ts == null) {
       return 0
@@ -653,7 +653,7 @@ trait LexUtil {
    * @param close the token that decreses the count
    */
   @throws(classOf[BadLocationException])
-  def getTokenBalance(doc:BaseDocument, open:String, close:String, offset:Int) :int = {
+  def getTokenBalance(doc: BaseDocument, open: String, close: String, offset: Int): int = {
     val ts = getTokenSequence(doc, 0)
     if (ts == null) {
       return 0
@@ -687,7 +687,7 @@ trait LexUtil {
    * offset is within the comment portion) but also contain code.
    */
   @throws(classOf[BadLocationException])
-  def isCommentOnlyLine(doc:BaseDocument, offset:Int) :Boolean = {
+  def isCommentOnlyLine(doc: BaseDocument, offset: Int): Boolean = {
     val begin = Utilities.getRowFirstNonWhite(doc, offset)
 
     if (begin == -1) {
@@ -702,7 +702,7 @@ trait LexUtil {
    * Return the string at the given position, or null if none
    */
   /*_
-   def getStringAt(caretOffset:Int, th:TokenHierarchy[Document]) :String = {
+   def getStringAt(caretOffset:Int, th:TokenHierarchy[Document]): String = {
    val ts = getTokenSequence(th, caretOffset)
 
    if (ts == null) {
@@ -850,11 +850,11 @@ trait LexUtil {
   //    }
   //
   /*_
-   def getSingleQuotedStringOffset(caretOffset:Int, th:TokenHierarchy[Document]) :Int = {
+   def getSingleQuotedStringOffset(caretOffset:Int, th:TokenHierarchy[Document]): Int = {
    getLiteralStringOffset(caretOffset, th, ScalaTokenId.STRING_BEGIN)
    }
 
-   def getRegexpOffset(caretOffset:Int, th:TokenHierarchy[Document]) :Int = {
+   def getRegexpOffset(caretOffset:Int, th:TokenHierarchy[Document]): Int = {
    getLiteralStringOffset(caretOffset, th, ScalaTokenId.REGEXP_BEGIN)
    }
    */
@@ -863,7 +863,7 @@ trait LexUtil {
    * offset. Return -1 otherwise.
    */
   /*
-   private def getLiteralStringOffset(caretOffset:Int, th:TokenHierarchy[Document], begin:ScalaTokenId) :Int = {
+   private def getLiteralStringOffset(caretOffset:Int, th:TokenHierarchy[Document], begin:ScalaTokenId): Int = {
    val ts = getTokenSequence(th, caretOffset)
 
    if (ts == null) {
@@ -924,7 +924,7 @@ trait LexUtil {
    */
 
   /*_
-   def isInsideRegexp(doc:BaseDocument, offset:Int) :Boolean = {
+   def isInsideRegexp(doc:BaseDocument, offset:Int): Boolean = {
    val ts = getTokenSequence(doc, offset)
 
    if (ts == null) {
@@ -952,7 +952,7 @@ trait LexUtil {
    }
    */
 
-  def getDocumentationRange(th:TokenHierarchy[_], nodeOffset:Int) :OffsetRange = {
+  def getDocumentationRange(th: TokenHierarchy[_], nodeOffset: Int): OffsetRange = {
     val astOffset = nodeOffset
     // XXX This is wrong; I should do a
     //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
@@ -971,7 +971,7 @@ trait LexUtil {
    *   such as a method node. In this case it needs to back up to find the comment.
    * @return
    */
-  def getCommentBlock(doc:BaseDocument, caretOffset:Int, isAfter:Boolean) :OffsetRange = {
+  def getCommentBlock(doc: BaseDocument, caretOffset: Int, isAfter:Boolean): OffsetRange = {
     // Check if the caret is within a comment, and if so insert a new
     // leaf "node" which contains the comment line and then comment block
     try {
@@ -1043,7 +1043,7 @@ trait LexUtil {
         }
       }
     } catch {
-      case ble:BadLocationException => Exceptions.printStackTrace(ble)
+      case ble: BadLocationException => Exceptions.printStackTrace(ble)
     }
 
     OffsetRange.NONE
@@ -1084,13 +1084,13 @@ trait LexUtil {
    * @todo Rewrite this now that I have a separate newline token, EOL, that I can
    *   break on - no need to call Utilities.getRowStart.
    */
-  def findSpaceBegin(doc:BaseDocument, lexOffset:Int) :Int = {
+  def findSpaceBegin(doc: BaseDocument, lexOffset: Int): Int = {
     val ts = getTokenSequence(doc, lexOffset)
     if (ts == null) {
       return lexOffset
     }
     var allowPrevLine = false
-    var lineStart:Int = 0
+    var lineStart: Int = 0
     try {
       lineStart = Utilities.getRowStart(doc, Math.min(lexOffset, doc.getLength))
       var prevLast = lineStart - 1
@@ -1099,7 +1099,7 @@ trait LexUtil {
         if (prevLast != -1) {
           val c = doc.getText(prevLast, 1).charAt(0)
           if (c == ',') {
-            // Arglist continuation? // TODO : check lexing
+            // Arglist continuation? // TODO:  check lexing
             allowPrevLine = true
           }
         }
@@ -1143,8 +1143,8 @@ trait LexUtil {
    * Get the documentation associated with the given node in the given document.
    * TODO: handle proper block comments
    */
-  def gatherDocumentation(info:Parser.Result, baseDoc:BaseDocument, nodeOffset:Int) :List[String] = {
-    var comments :List[String] = Nil
+  def gatherDocumentation(info: Parser.Result, baseDoc: BaseDocument, nodeOffset: Int): List[String] = {
+    var comments: List[String] = Nil
     var elementBegin = nodeOffset
     if (info != null && info.getSnapshot.getSource.getDocument(true) == baseDoc) {
       elementBegin = getLexerOffset(info, elementBegin)
@@ -1224,7 +1224,7 @@ trait LexUtil {
    * with a corresponding "end" token, such as "begin", "def", "module",
    * etc.
    */
-  def isBegin(id:TokenId) :Boolean = {
+  def isBegin(id: TokenId): Boolean = {
     END_PAIRS.contains(id)
   }
 
@@ -1233,32 +1233,32 @@ trait LexUtil {
    * with a corresponding "end" token, such as "begin", "def", "module",
    * etc.
    */
-  def isEnd(id:TokenId) :Boolean = {
+  def isEnd(id: TokenId): Boolean = {
     END_PAIRS.contains(id)
   }
 
-  def isWs(id:TokenId) :Boolean = {
+  def isWs(id: TokenId): Boolean = {
     WS.contains(id)
   }
 
-  def isWsComment(id:TokenId) :Boolean = {
+  def isWsComment(id:TokenId): Boolean = {
     WS_COMMENTS.contains(id)
   }
 
-  def isComment(id:TokenId) :Boolean = {
+  def isComment(id: TokenId): Boolean = {
     isLineComment(id) || isBlockComment(id) || isDocComment(id)
   }
 
-  def isLineComment(id:TokenId) :Boolean = {
+  def isLineComment(id: TokenId): Boolean = {
     LINE_COMMENTS.contains(id)
   }
 
-  def isDocComment(id:TokenId) :Boolean = {
+  def isDocComment(id: TokenId): Boolean = {
     DOC_COMMENTS.contains(id)
 
   }
 
-  def isBlockComment(id:TokenId) :Boolean = {
+  def isBlockComment(id:TokenId): Boolean = {
     BLOCK_COMMENTS.contains(id)
   }
 
@@ -1266,21 +1266,21 @@ trait LexUtil {
    * Return true iff the given token is a token that indents its content,
    * such as the various begin tokens as well as "else", "when", etc.
    */
-  def isIndent(id:TokenId) :Boolean = {
+  def isIndent(id: TokenId): Boolean = {
     INDENT_WORDS.contains(id)
   }
 
 
-  def isKeyword(id:TokenId) :Boolean = {
+  def isKeyword(id: TokenId): Boolean = {
     id.primaryCategory.equals("keyword")
   }
 
-  def getRangeOfToken(th:TokenHierarchy[_], token:Token[_ <: TokenId]) :OffsetRange = {
+  def getRangeOfToken(th: TokenHierarchy[_], token: Token[_ <: TokenId]): OffsetRange = {
     val offset = token.offset(th)
     new OffsetRange(offset, offset + token.length)
   }
 
-  def getDocument(fo:FileObject, openIfNecessary:Boolean) :Option[BaseDocument] = {
+  def getDocument(fo: FileObject, openIfNecessary: Boolean): Option[BaseDocument] = {
     try {
       val dobj = DataObject.find(fo)
       val ec = dobj.getCookie(classOf[EditorCookie])
@@ -1295,11 +1295,11 @@ trait LexUtil {
     None
   }
 
-  def getPositionedSequence(doc:BaseDocument, offset:Int) :TokenSequence[TokenId] = {
+  def getPositionedSequence(doc: BaseDocument, offset: Int): TokenSequence[TokenId] = {
     getPositionedSequence(doc, offset, true)
   }
 
-  def getPositionedSequence(doc:BaseDocument, offset:Int, lookBack:Boolean) :TokenSequence[TokenId] = {
+  def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): TokenSequence[TokenId] = {
     var ts = getTokenSequence(doc, offset);
 
     if (ts != null) {

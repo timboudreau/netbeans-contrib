@@ -68,10 +68,10 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
  */
 object ScalaGlobal {
   private class SrcOutDirs {
-    var srcDir :FileObject = _
-    var outDir :FileObject = _
-    var testSrcDir :FileObject = _
-    var testOutDir :FileObject = _
+    var srcDir: FileObject = _
+    var outDir: FileObject = _
+    var testSrcDir: FileObject = _
+    var testOutDir: FileObject = _
   }
 
   private val debug = false
@@ -84,7 +84,7 @@ object ScalaGlobal {
   private val ProjectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
   private val ProjectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
   private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
-  private var GlobalForStdLid :Option[ScalaGlobal] = None
+  private var GlobalForStdLid: Option[ScalaGlobal] = None
 
   def reset {
     ProjectToGlobal.clear
@@ -100,7 +100,7 @@ object ScalaGlobal {
    * since we can not gaurantee the srcCp returns only one entry, we have to use
    * following guessing method:
    */
-  def getGlobal(fo:FileObject) :ScalaGlobal = synchronized {
+  def getGlobal(fo: FileObject): ScalaGlobal = synchronized {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // it may be a standalone file, or file in standard lib
@@ -160,7 +160,7 @@ object ScalaGlobal {
 
     // add boot, compile classpath
     val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
-    var (bootCp, compCp) :(ClassPath, ClassPath) = if (cpp != null) {
+    var (bootCp, compCp): (ClassPath, ClassPath) = if (cpp != null) {
       (cpp.findClassPath(fo, ClassPath.BOOT), cpp.findClassPath(fo, ClassPath.COMPILE))
     } else (null, null)
 
@@ -190,17 +190,17 @@ object ScalaGlobal {
       if (dirs.testOutDir != null) {
         dirs.testOutDir.addFileChangeListener(new FileChangeAdapter {
 
-            override def fileChanged(fe:FileEvent) :Unit = {
+            override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+            override def fileRenamed(fe: FileRenameEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileDeleted(fe:FileEvent) :Unit = {
+            override def fileDeleted(fe: FileEvent): Unit = {
               // maybe a clean task invoked
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
@@ -213,17 +213,17 @@ object ScalaGlobal {
         /** @Todo should reset global for any changes under out dir, including subdirs */
         dirs.outDir.addFileChangeListener(new FileChangeAdapter {
 
-            override def fileChanged(fe:FileEvent) :Unit = {
+            override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+            override def fileRenamed(fe: FileRenameEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileDeleted(fe:FileEvent) :Unit = {
+            override def fileDeleted(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
@@ -234,17 +234,17 @@ object ScalaGlobal {
       if (dirs.outDir != null) {
         dirs.outDir.addFileChangeListener(new FileChangeAdapter {
 
-            override def fileChanged(fe:FileEvent) :Unit = {
+            override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobal.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+            override def fileRenamed(fe: FileRenameEvent): Unit = {
               ProjectToGlobal.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileDeleted(fe:FileEvent) :Unit = {
+            override def fileDeleted(fe: FileEvent): Unit = {
               // maybe a clean task invoked
               ProjectToGlobal.remove(project)
               ProjectToDirs.remove(project)
@@ -256,7 +256,7 @@ object ScalaGlobal {
     global
   }
 
-  private def findDirsInfo(project:Project) :SrcOutDirs = {
+  private def findDirsInfo(project: Project): SrcOutDirs = {
     val dirs = new SrcOutDirs
 
     val sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA) match {
@@ -281,25 +281,25 @@ object ScalaGlobal {
     dirs
   }
 
-  private def findOutDir(project:Project, srcRoot:FileObject) :FileObject = {
-    val srcRootUrl:URL = try {
+  private def findOutDir(project: Project, srcRoot: FileObject): FileObject = {
+    val srcRootUrl: URL = try {
       // make sure the url is in same form of BinaryForSourceQueryImplementation
       FileUtil.toFile(srcRoot).toURI.toURL
     } catch {
-      case ex:MalformedURLException => Exceptions.printStackTrace(ex); null
+      case ex: MalformedURLException => Exceptions.printStackTrace(ex); null
     }
 
-    var out :FileObject = null
+    var out: FileObject = null
     val query = project.getLookup.lookup(classOf[BinaryForSourceQueryImplementation])
     if (query != null && srcRootUrl != null) {
       val result = query.findBinaryRoots(srcRootUrl)
       if (result != null) {
         var break = false
         for (url <- result.getRoots if !break && !FileUtil.isArchiveFile(url)) {
-          val uri :URI = try {
+          val uri: URI = try {
             url.toURI
           } catch {
-            case ex:URISyntaxException => Exceptions.printStackTrace(ex); null
+            case ex: URISyntaxException => Exceptions.printStackTrace(ex); null
           }
 
           if (url != null) {
@@ -334,7 +334,7 @@ object ScalaGlobal {
             case x => x
           }
         } catch {
-          case ex:IOException => Exceptions.printStackTrace(ex)
+          case ex: IOException => Exceptions.printStackTrace(ex)
         }
       }
     }
@@ -342,14 +342,14 @@ object ScalaGlobal {
     out
   }
 
-  private def computeClassPath(project:Project, sb:StringBuilder, cp:ClassPath) :Unit = {
+  private def computeClassPath(project: Project, sb: StringBuilder, cp: ClassPath): Unit = {
     if (cp == null) {
       return
     }
 
     val itr = cp.entries.iterator
     while (itr.hasNext) {
-      val rootFile :File = try {
+      val rootFile: File = try {
         val entryRoot = itr.next.getRoot
         if (entryRoot != null) {
           entryRoot.getFileSystem match {
@@ -364,19 +364,19 @@ object ScalaGlobal {
       if (rootFile != null) {
         FileUtil.toFileObject(rootFile).addFileChangeListener(new FileChangeAdapter {
 
-            override def fileChanged(fe:FileEvent) :Unit = {
+            override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToGlobal.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileRenamed(fe:FileRenameEvent) :Unit = {
+            override def fileRenamed(fe: FileRenameEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
               ProjectToGlobal.remove(project)
               ProjectToDirs.remove(project)
             }
 
-            override def fileDeleted(fe:FileEvent) :Unit = {
+            override def fileDeleted(fe: FileEvent): Unit = {
               // maybe a clean task invoked
               ProjectToGlobalForTest.remove(project)
               ProjectToGlobal.remove(project)
@@ -395,28 +395,28 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings:Settings) extends Global(settings) {
+class ScalaGlobal(settings: Settings) extends Global(settings) {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
   private object scalaAstVisitor extends {
-    val global :ScalaGlobal.this.type = ScalaGlobal.this
+    val global: ScalaGlobal.this.type = ScalaGlobal.this
   } with ScalaAstVisitor
 
   override def onlyPresentation = false
 
-  override def logError(msg:String, t:Throwable) :Unit = {}
+  override def logError(msg: String, t: Throwable): Unit = {}
 
-  def compileSourceForPresentation(srcFile:BatchSourceFile, th:TokenHierarchy[_]) :ScalaRootScope = {
+  def compileSourceForPresentation(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, Phase.superaccessors, th)
   }
 
   // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcudes 'stopPhase'
-  def compileSourceForDebugger(srcFile:BatchSourceFile, th:TokenHierarchy[_]) :ScalaRootScope = {
+  def compileSourceForDebugger(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, Phase.constructors, th)
   }
 
-  def compileSource(srcFile:BatchSourceFile, stopPhase:Phase, th:TokenHierarchy[_]) :ScalaRootScope = synchronized {
+  def compileSource(srcFile: BatchSourceFile, stopPhase: Phase, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(stopPhase.name))
     resetSelectTypeErrors
@@ -426,14 +426,14 @@ class ScalaGlobal(settings:Settings) extends Global(settings) {
     try {
       run.compileSources(srcFiles)
     } catch {
-      case ex:AssertionError =>
+      case ex: AssertionError =>
         /**@Note: avoid scala nsc's assert error. Since global's
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
         ScalaGlobal.reset
-      case ex:_root_.java.lang.Error => // avoid scala nsc's Error error
-      case ex:Throwable => // just ignore all ex
+      case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex: Throwable => // just ignore all ex
     }
 
     if (ScalaGlobal.debug) {
@@ -446,7 +446,7 @@ class ScalaGlobal(settings:Settings) extends Global(settings) {
         case unit if (unit.source == srcFile) =>
           if (ScalaGlobal.debug) {
             RequestProcessor.getDefault.post(new Runnable {
-                def run :Unit = {
+                def run: Unit = {
                   treeBrowser.browse(unit.body)
                 }
               })

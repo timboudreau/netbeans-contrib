@@ -59,11 +59,11 @@ import _root_.scala.tools.nsc.symtab.Symbols
  */
 class ScalaStructureAnalyzer extends StructureScanner {
 
-  override def getConfiguration :Configuration = null
+  override def getConfiguration: Configuration = null
 
-  override def scan(result:ParserResult) :_root_.java.util.List[StructureItem] = {
+  override def scan(result: ParserResult): _root_.java.util.List[StructureItem] = {
     result match {
-      case pResult:ScalaParserResult =>
+      case pResult: ScalaParserResult =>
         val rootScope = pResult.rootScope match {
           case None => return _root_.java.util.Collections.emptyList[StructureItem]
           case Some(x) => x
@@ -77,7 +77,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  private def scanTopForms(scope:AstScope[Symbols#Symbol], items:_root_.java.util.List[StructureItem], pResult:ScalaParserResult) :Unit = {
+  private def scanTopForms(scope: AstScope[Symbols#Symbol], items: _root_.java.util.List[StructureItem], pResult: ScalaParserResult): Unit = {
     scope.dfns foreach {
       case dfn:ScalaDfn => dfn.getKind match {
           case ElementKind.CLASS | ElementKind.MODULE =>
@@ -92,9 +92,9 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  override def folds(result:ParserResult) :_root_.java.util.Map[String, _root_.java.util.List[OffsetRange]] = {
+  override def folds(result: ParserResult): _root_.java.util.Map[String, _root_.java.util.List[OffsetRange]] = {
     result match {
-      case pResult:ScalaParserResult =>
+      case pResult: ScalaParserResult =>
         var folds = _root_.java.util.Collections.emptyMap[String, _root_.java.util.List[OffsetRange]]
         for (rootScope <- pResult.rootScope;
              doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true))
@@ -159,7 +159,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
               folds.put("comments", lineCommentsFolds) // NOI18N
             }
           } catch {
-            case ex:BadLocationException => Exceptions.printStackTrace(ex)
+            case ex: BadLocationException => Exceptions.printStackTrace(ex)
           }
         }
 
@@ -169,8 +169,8 @@ class ScalaStructureAnalyzer extends StructureScanner {
   }
   
   @throws(classOf[BadLocationException])
-  private def addCodeFolds(pResult:ScalaParserResult, doc:BaseDocument, defs:Seq[AstDfn[Symbols#Symbol]],
-                           codeblocks:_root_.java.util.List[OffsetRange]) :Unit =
+  private def addCodeFolds(pResult: ScalaParserResult, doc: BaseDocument, defs: Seq[AstDfn[Symbols#Symbol]],
+                           codeblocks: _root_.java.util.List[OffsetRange]): Unit =
   {
     import ElementKind._
        
@@ -194,25 +194,25 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  private class ScalaStructureItem(val dfn:ScalaDfn, pResult:ScalaParserResult) extends StructureItem {
+  private class ScalaStructureItem(val dfn: ScalaDfn, pResult: ScalaParserResult) extends StructureItem {
     import ElementKind._
 
-    override def getName :String = dfn.getName
+    override def getName: String = dfn.getName
 
-    override def getSortText :String = getName
+    override def getSortText: String = getName
 
-    override def getHtml(formatter:HtmlFormatter) :String = {
+    override def getHtml(formatter:HtmlFormatter): String = {
       dfn.htmlFormat(formatter)
       formatter.getText
     }
 
-    override def getElementHandle :ElementHandle = dfn
+    override def getElementHandle: ElementHandle = dfn
 
-    override def getKind :ElementKind = dfn.getKind
+    override def getKind: ElementKind = dfn.getKind
         
-    override def getModifiers :_root_.java.util.Set[Modifier] = dfn.getModifiers
+    override def getModifiers: _root_.java.util.Set[Modifier] = dfn.getModifiers
 
-    override def isLeaf :Boolean = {
+    override def isLeaf: Boolean = {
       dfn.getKind match {
         case MODULE | CLASS | METHOD => false
         case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
@@ -220,7 +220,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
       }
     }
 
-    override def getNestedItems : _root_.java.util.List[StructureItem] = {
+    override def getNestedItems: _root_.java.util.List[StructureItem] = {
       val nested = dfn.bindingScope.dfns
       if (!nested.isEmpty) {
         val children = new _root_.java.util.ArrayList[StructureItem]
@@ -236,7 +236,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
       } else _root_.java.util.Collections.emptyList[StructureItem]
     }
 
-    override def getPosition :Long = {
+    override def getPosition: Long = {
       try {
         pResult.getSnapshot.getTokenHierarchy match {
           case null => 0
@@ -245,22 +245,22 @@ class ScalaStructureAnalyzer extends StructureScanner {
       } catch {case ex:Exception => 0}
     }
 
-    override def getEndPosition :Long = {
+    override def getEndPosition: Long = {
       try {
         pResult.getSnapshot.getTokenHierarchy match {
           case null => 0
           case th => dfn.boundsEndOffset(th)
         }
-      } catch {case ex:Exception => 0}
+      } catch {case ex: Exception => 0}
     }
 
-    override def equals(o:Any) :Boolean = o match {
+    override def equals(o: Any): Boolean = o match {
       case null => false
       case x:ScalaStructureItem if dfn.getKind == x.dfn.getKind && getName.equals(x.getName) => true
       case _ => false
     }
 
-    override def hashCode :Int = {
+    override def hashCode: Int = {
       var hash = 7
       hash = (29 * hash) + (if (getName != null) getName.hashCode else 0)
       hash = (29 * hash) + (if (dfn.getKind != null) dfn.getKind.hashCode else 0)
@@ -269,6 +269,6 @@ class ScalaStructureAnalyzer extends StructureScanner {
 
     override def toString = getName
 
-    override def getCustomIcon :ImageIcon = null
+    override def getCustomIcon: ImageIcon = null
   }
 }

@@ -58,11 +58,11 @@ import _root_.scala.tools.nsc.symtab.Flags
  * Scala AstDfn special functions
  */
 object ScalaDfn {
-  def apply(symbol:ScalaSymbol,
-            _idToken:Option[Token[TokenId]],
-            _kind:ElementKind,
-            _bindingScope:AstScope[Symbols#Symbol],
-            fo:Option[FileObject]) =
+  def apply(symbol: ScalaSymbol,
+            _idToken: Option[Token[TokenId]],
+            _kind: ElementKind,
+            _bindingScope: AstScope[Symbols#Symbol],
+            fo: Option[FileObject]) =
   {
     val dfn = new ScalaDfn(_idToken, _kind, _bindingScope, fo)
     dfn.symbol = symbol
@@ -70,16 +70,16 @@ object ScalaDfn {
   }
 }
 
-class ScalaDfn(_idToken:Option[Token[TokenId]],
-               _kind:ElementKind,
-               _bindingScope:AstScope[Symbols#Symbol],
-               fo:Option[FileObject]
+class ScalaDfn(_idToken: Option[Token[TokenId]],
+               _kind: ElementKind,
+               _bindingScope: AstScope[Symbols#Symbol],
+               fo: Option[FileObject]
 ) extends AstDfn[Symbols#Symbol](_idToken, _kind, _bindingScope, fo) {
   import ElementKind._
 
-  override def getMimeType :String = ScalaMimeResolver.MIME_TYPE
+  override def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
-  override def getModifiers :_root_.java.util.Set[Modifier] = {
+  override def getModifiers: _root_.java.util.Set[Modifier] = {
     if (modifiers != null) {
       return modifiers
     }
@@ -103,7 +103,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
 
 
   /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
-  def isReferredBy(ref:AstRef[Symbols#Symbol]) :Boolean = (ref.kind, getKind) match {
+  def isReferredBy(ref: AstRef[Symbols#Symbol]): Boolean = (ref.kind, getKind) match {
     case _ => false // @todo
       //    case (CALL, METHOD) => (ref.symbol, symbol) match {
       //        case (ErlFunction(_, nameX, arityX), ErlFunction(_, nameY, arityY))
@@ -128,7 +128,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
   }
    
 
-  def docComment :String = {
+  def docComment: String = {
     val srcDoc = doc match {
       case None => return null
       case Some(x) => x
@@ -144,7 +144,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
   }
 
 
-  def htmlFormat(formatter:HtmlFormatter) :Unit = getKind match {
+  def htmlFormat(formatter: HtmlFormatter): Unit = getKind match {
     case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
     case METHOD | RULE => symbol match {
         //        case ErlFunction(_, name, arity) =>
@@ -156,7 +156,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
           formatter.appendText("/?")
       }
     case ATTRIBUTE /*if isFunctionClause*/ => property("args") match {
-        case Some(args:List[String]) =>
+        case Some(args: List[String]) =>
           formatter.appendText("(")
           val itr = args.elements
           while (itr.hasNext) {

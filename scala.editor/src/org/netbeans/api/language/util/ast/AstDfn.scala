@@ -55,10 +55,10 @@ import org.netbeans.api.language.util.lex.LexUtil
  * 
  * @author Caoyuan Deng
  */
-abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
-                         _kind:ElementKind,
-                         private var _bindingScope:AstScope[T],
-                         var fo:Option[FileObject]
+abstract class AstDfn[T](_idToken: Option[Token[TokenId]],
+                         _kind: ElementKind,
+                         private var _bindingScope: AstScope[T],
+                         var fo: Option[FileObject]
 ) extends AstItem[T] with AstElementHandle {
     
   // we allow _bindingScope to be set later
@@ -68,20 +68,20 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
 
   make(_idToken, _kind)
 
-  protected var modifiers :_root_.java.util.Set[Modifier] = _
+  protected var modifiers: _root_.java.util.Set[Modifier] = _
 
-  override def getFileObject :FileObject = fo.getOrElse(null)
+  override def getFileObject: FileObject = fo.getOrElse(null)
 
-  override def getKind :ElementKind = super[AstItem].getKind
+  override def getKind: ElementKind = super[AstItem].getKind
 
-  override def getModifiers :_root_.java.util.Set[Modifier] = {
+  override def getModifiers: _root_.java.util.Set[Modifier] = {
     modifiers match {
       case null => _root_.java.util.Collections.emptySet[Modifier]
       case _ => modifiers
     }
   }
 
-  override def getOffsetRange(pResult:ParserResult) :OffsetRange = {
+  override def getOffsetRange(pResult: ParserResult): OffsetRange = {
     pResult.getSnapshot.getTokenHierarchy match {
       case null => OffsetRange.NONE
       case th =>
@@ -95,41 +95,41 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
     }
   }
 
-  def tpe :String = {
+  def tpe: String = {
     "NoType"
   }
 
-  def enclosedElements :Seq[AstDfn[T]] = {
+  def enclosedElements: Seq[AstDfn[T]] = {
     if (_bindingScope != null) {
       _bindingScope.dfns
     } else Nil
   }
 
-  def enclosingDfn :Option[AstDfn[T]] = enclosingScope.get.bindingDfn
+  def enclosingDfn: Option[AstDfn[T]] = enclosingScope.get.bindingDfn
 
-  def bindingScope :AstScope[T] = {
+  def bindingScope: AstScope[T] = {
     assert(_bindingScope != null, toString + ": Each definition should set binding scope!")
     _bindingScope
   }
 
-  def boundsOffset(th:TokenHierarchy[_]) :Int = {
+  def boundsOffset(th: TokenHierarchy[_]): Int = {
     bindingScope.boundsOffset(th)
   }
 
-  def boundsEndOffset(th:TokenHierarchy[_]) :Int = {
+  def boundsEndOffset(th: TokenHierarchy[_]): Int = {
     bindingScope.boundsEndOffset(th)
   }
 
-  def range(th:TokenHierarchy[_]) :OffsetRange = {
+  def range(th: TokenHierarchy[_]): OffsetRange = {
     bindingScope.range(th)
   }
 
-  def mayEqual(dfn:AstDfn[T]) :Boolean = {
+  def mayEqual(dfn: AstDfn[T]): Boolean = {
     this == dfn
     //return getName().equals(def.getName())
   }
 
-  def doc :Option[BaseDocument] = {
+  def doc: Option[BaseDocument] = {
     fo match {
       case Some(x) => GsfUtilities.getDocument(x, true) match {
           case null => None
@@ -139,27 +139,27 @@ abstract class AstDfn[T](_idToken:Option[Token[TokenId]],
     }
   }
 
-  def packageName :String = {
+  def packageName: String = {
     null
   }
 
-  def qualifiedName :String = {
+  def qualifiedName: String = {
     null
   }
 
-  def isInherited :Boolean = {
+  def isInherited: Boolean = {
     false
   }
 
-  def isDeprecated :Boolean = {
+  def isDeprecated: Boolean = {
     false
   }
 
-  def isEmphasize :Boolean = {
+  def isEmphasize: Boolean = {
     false
   }
 
-  def isReferredBy(ref:AstRef[T]) :Boolean
+  def isReferredBy(ref: AstRef[T]): Boolean
 
   override def toString = {
     "Dfn: " + "name=" + name + ", idToken=" + idToken + ", kind=" + _kind + ", sym=" + symbol.value + ", mods" + getModifiers

@@ -52,27 +52,25 @@ import _root_.scala.tools.nsc.symtab.Symbols
  * @author Caoyuan Deng
  */
 object ScalaRef {
-  def apply(symbol:ScalaSymbol, _idToken:Option[Token[TokenId]], _kind:ElementKind) = {
+  def apply(symbol: ScalaSymbol, _idToken: Option[Token[TokenId]], _kind: ElementKind) = {
     val ref = new ScalaRef(_idToken, _kind)
     ref.symbol = symbol
     ref
   }
 }
 
-class ScalaRef(_idToken:Option[Token[TokenId]], _kind:ElementKind) extends AstRef[Symbols#Symbol](_idToken, _kind) {
+class ScalaRef(_idToken: Option[Token[TokenId]], _kind: ElementKind) extends AstRef[Symbols#Symbol](_idToken, _kind) {
   import ElementKind._
 
-  def getMimeType :String = ScalaMimeResolver.MIME_TYPE
+  def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
-  override def isOccurrence(ref:AstRef[Symbols#Symbol]) :Boolean = ref.getKind match {
+  override def isOccurrence(ref: AstRef[Symbols#Symbol]): Boolean = ref.getKind match {
     //    case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
     //        case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
     //          if inX == inY && nameX == nameY && arityX == arityY => true
     //        case _ => false
     //      }
     case _ =>
-      if (ref.name == name) {
-        true
-      } else false
+      if (ref.name == name) true else false
   }
 }
