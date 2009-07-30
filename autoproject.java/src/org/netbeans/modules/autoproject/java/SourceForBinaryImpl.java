@@ -110,7 +110,7 @@ class SourceForBinaryImpl implements SourceForBinaryQueryImplementation {
                     }
                 }
             }
-            LOG.log(Level.FINE, "sources of " + root + ": " + roots);
+            LOG.log(roots.isEmpty() ? Level.FINER : Level.FINE, "sources of " + root + ": " + roots);
             return roots.toArray(new FileObject[roots.size()]);
         }
 

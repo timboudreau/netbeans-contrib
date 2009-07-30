@@ -109,7 +109,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
             }
         }
         if (root == null) {
-            LOG.log(Level.FINE, "Found no classpath definition for {0} in {1}", new Object[] {type, f});
+            LOG.log(Level.FINER, "Found no classpath definition for {0} in {1}", new Object[] {type, f});
             return null;
         }
         Map<String,ClassPathImpl> m = classpaths.get(root);
