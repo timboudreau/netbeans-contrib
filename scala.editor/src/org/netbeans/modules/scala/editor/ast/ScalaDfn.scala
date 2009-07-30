@@ -62,7 +62,8 @@ object ScalaDfn {
             _idToken:Option[Token[TokenId]],
             _kind:ElementKind,
             _bindingScope:AstScope[Symbols#Symbol],
-            fo:Option[FileObject]) = {
+            fo:Option[FileObject]) =
+  {
     val dfn = new ScalaDfn(_idToken, _kind, _bindingScope, fo)
     dfn.symbol = symbol
     dfn
@@ -82,7 +83,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
     if (modifiers != null) {
       return modifiers
     }
-
+    
     modifiers = new _root_.java.util.HashSet
 
     val sym = symbol.value
@@ -93,7 +94,7 @@ class ScalaDfn(_idToken:Option[Token[TokenId]],
     } else {
       modifiers.add(Modifier.PUBLIC)
     }
-
+    
     if (sym hasFlag Flags.MUTABLE)    modifiers.add(Modifier.STATIC) // to use STATIC icon only
     if (sym hasFlag Flags.DEPRECATED) modifiers.add(Modifier.DEPRECATED)
     

@@ -430,7 +430,7 @@ abstract class ScalaAstVisitor {
             traverse(tpt, level + 1, true) // tpe is usually a TypeTree
             traverse(rhs, level + 1, false)
             printcln(")")
-            scopes.pop
+            scopes pop
 
           case TypeTree() =>
             tree.symbol match {
