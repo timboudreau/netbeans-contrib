@@ -161,7 +161,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   highlights.put(hiRange, ColoringAttributes.STATIC_SET)
                 case ElementKind.MODULE =>
                   highlights.put(hiRange, ColoringAttributes.GLOBAL_SET)
-                case ElementKind.METHOD =>
+                case ElementKind.CALL =>
                   try {
                     ref.symbol.value.tpe match {
                       // @todo doesn't work yet
@@ -177,6 +177,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   } catch {
                     case t:Throwable =>
                   }
+                case ElementKind.RULE =>
+                  highlights.put(hiRange, ColoringAttributes.UNUSED_SET) // implicit call
                 case _ =>
               }
           }

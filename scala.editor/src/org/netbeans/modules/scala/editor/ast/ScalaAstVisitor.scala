@@ -462,9 +462,19 @@ abstract class ScalaAstVisitor {
              * For error Select tree, for example a.p, the error part's offset will be set to 'p',
              * The tree.qualifier() part's offset will be 'a'
              */
-            val symbol = tree.symbol
-            val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.METHOD)
-            if (symbol != null && symbol == NoSymbol && maybeType != None) {
+            val sym = tree.symbol
+            val kind = if (sym hasFlag IMPLICIT) {
+              ElementKind.RULE
+            } else if (sym hasFlag METHOD) {
+              ElementKind.CALL
+            } else if (sym hasFlag MODULE) {
+              ElementKind.MODULE
+            } else {
+              ElementKind.FIELD
+            }
+            
+            val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), kind)
+            if (sym != null && sym == NoSymbol && maybeType != None) {
               //ref.setResultType(maybeType)
             }
             if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
@@ -856,7 +866,7 @@ abstract class ScalaAstVisitor {
         } else {
           tk
         }
-      case (_, "_") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
+      case (_, "*") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
       case (_, _) if name.startsWith("<error") => ts.token.id match {
           case ScalaTokenId.Dot =>
             // a. where, offset is at .
