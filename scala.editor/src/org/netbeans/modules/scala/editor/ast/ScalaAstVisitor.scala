@@ -107,8 +107,8 @@ import _root_.scala.collection.mutable.{Stack, HashSet}
  */
 abstract class ScalaAstVisitor {
 
-  val trees: SymbolTable
-  import trees._
+  val global: Global
+  import global._
 
   val EOL = System.getProperty("line.separator", "\n")
 
@@ -165,7 +165,9 @@ abstract class ScalaAstVisitor {
   class TreeVisitor {
 
     private val buf = new StringBuilder
-    
+
+    private var maybeType :Option[Type] = None
+
     def visit(tree: Tree): String = {
       def traverse(tree: Tree, level: Int, comma: Boolean) {
         def println(s: String) {
@@ -455,9 +457,38 @@ abstract class ScalaAstVisitor {
             printcln(")")
 
           case Select(qualifier, selector) =>
+            /**
+             * For error Select tree, for example a.p, the error part's offset will be set to 'p',
+             * The tree.qualifier() part's offset will be 'a'
+             */
+            val symbol = tree.symbol
+            val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.METHOD)
+            if (symbol != null && symbol == NoSymbol && maybeType != None) {
+              //ref.setResultType(maybeType)
+            }
+            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+
+            /**
+             * For error Select tree, the qual type may stored, try to fetch it now
+             */
+            def guessMaybeType {
+              val qualSym = qualifier.symbol
+              if (qualSym != null && qualSym == NoSymbol && global != null) {
+                maybeType = global.selectTypeErrors.get(tree)
+              }
+            }
+            
+            qualifier match {
+              case Ident(name) => guessMaybeType
+              case Apply(fun, args) => guessMaybeType
+              case _ =>
+            }
+
             println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)
             printcln("  \"" + selector + "\")")
+
+            maybeType = None
 
           case Super(qual, mix) =>
             printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
