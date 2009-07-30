@@ -318,6 +318,179 @@ abstract class ScalaAstVisitor {
         astPath push tree
         
         tree match {
+          case PackageDef(name, stats) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+            println("PackageDef("+name+", ")
+            for (stat <- stats) traverse(stat, level + 1, false)
+            printcln(")")
+            scopes pop
+
+          case ClassDef(mods, name, tparams, impl) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            (if (mods.isTrait) "trait " else "class ")
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+
+            println("ClassDef(" + nodeinfo(tree))
+            println("  " + symflags(tree))
+            println("  \"" + name + "\",")
+            if (tparams.isEmpty) println("  List(), // no type parameter")
+            else {
+              val n = tparams.length
+              println("  List( // " + n + " type parameter(s)")
+              for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
+              println("  ),")
+            }
+            traverse(impl, level + 1, false)
+            printcln(")")
+            scopes pop
+
+          case ModuleDef(mods, name, impl) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+            traverse(impl, level + 1, false)
+            scopes pop
+
+          case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
+
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            scopes push scope
+
+            println("DefDef(" + nodeinfo(tree))
+            println("  " + symflags(tree))
+            println("  \"" + name + "\",")
+            if (tparams.isEmpty) println("  List(), // no type parameter")
+            else {
+              val n = tparams.length
+              println("  List( // " + n + " type parameter(s)")
+              for (i <- 0 until n)
+              traverse(tparams(i), level + 2, i < n-1)
+              println("  ),")
+            }
+            val n = vparamss.length
+            if (n == 1 && vparamss(0).isEmpty) println("  List(List()), // no parameter")
+            else {
+              println("  List(")
+              for (i <- 0 until n) {
+                val m = vparamss(i).length
+                println("    List( // " + m + " parameter(s)")
+                for (j <- 0 until m) traverse(vparamss(i)(j), level + 3, j < m-1)
+                println("    )")
+              }
+              println("  ),")
+            }
+            println("  " + tpt + ",")
+            traverse(rhs, level + 1, false)
+            printcln(")")
+
+            scopes pop
+
+          case ValDef(mods, name, tpt, rhs) =>
+            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            scopes.top.addScope(scope)
+
+            val kind = getCurrentParent match {
+              case _:Template => ElementKind.FIELD
+              case _:DefDef => ElementKind.PARAMETER
+              case _ => ElementKind.VARIABLE
+            }
+
+            // special case for: val (a, b, c) = (1, 2, 3)
+            if (!isTupleClass(tpt.symbol)) {
+              val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+              if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+            }
+
+            scopes push scope
+            println("ValDef(" + nodeinfo(tree))
+            println("  " + symflags(tree))
+            println("  \"" + name + "\",")
+            traverse(tpt, level + 1, true) // tpe is usually a TypeTree
+            traverse(rhs, level + 1, false)
+            printcln(")")
+            scopes.pop
+
+          case TypeTree() =>
+            tree.symbol match {
+              case null =>
+                // * in case of: <type ?>
+                //println("Null symbol found, tree is:" + tree)
+              case NoSymbol =>
+                // * type tree in case def, for example: case Some(_),
+                // * since the symbol is NoSymbol, we should visit its original type
+                val original = tree.asInstanceOf[TypeTree].original
+                if (original != null && original != tree && !isTupleClass(original.symbol)) {
+                  traverse(original, level, false)
+                }
+              case symbol =>
+                // * We'll drop tuple type, since all elements in tuple have their own type trees:
+                // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
+                // * need binding trees of a and b
+                if (!isTupleClass(symbol)) {
+                  val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
+                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                  //if (original != tree) visit(tree.original));
+                }
+            }
+
+            printcln("TypeTree()" + nodeinfo2(tree))
+
+          case Select(qualifier, selector) =>
+            /**
+             * For error Select tree, for example a.p, the error part's offset will be set to 'p',
+             * The tree.qualifier() part's offset will be 'a'
+             */
+            val symbol = tree.symbol
+            val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.METHOD)
+            if (symbol != null && symbol == NoSymbol && maybeType != None) {
+              //ref.setResultType(maybeType)
+            }
+            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+
+            /**
+             * For error Select tree, the qual type may stored, try to fetch it now
+             */
+            def guessMaybeType {
+              val qualSym = qualifier.symbol
+              if (qualSym != null && qualSym == NoSymbol && global != null) {
+                maybeType = global.selectTypeErrors.get(tree)
+              }
+            }
+
+            qualifier match {
+              case Ident(name) => guessMaybeType
+              case Apply(fun, args) => guessMaybeType
+              case _ =>
+            }
+
+            println("Select(" + nodeinfo(tree))
+            traverse(qualifier, level + 1, true)
+            printcln("  \"" + selector + "\")")
+
+            maybeType = None
+
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
             traverse(tpt, level + 1, true)
@@ -366,82 +539,6 @@ abstract class ScalaAstVisitor {
             traverse(expr, level + 1, false)
             printcln(")")
             
-          case ModuleDef(mods, name, impl) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
-            scopes.top.addScope(scope)
-
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
-            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
-
-            scopes push scope
-            traverse(impl, level + 1, false)
-            scopes pop
-            
-          case ClassDef(mods, name, tparams, impl) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
-            scopes.top.addScope(scope)
-
-            (if (mods.isTrait) "trait " else "class ")
-
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
-            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
-
-            scopes push scope
-
-            println("ClassDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
-            if (tparams.isEmpty) println("  List(), // no type parameter")
-            else {
-              val n = tparams.length
-              println("  List( // " + n + " type parameter(s)")
-              for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
-              println("  ),")
-            }
-            traverse(impl, level + 1, false)
-            printcln(")")
-            scopes pop
-            
-          case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
-            scopes.top.addScope(scope)
-
-            val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
-
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
-            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
-
-            scopes push scope
- 
-            println("DefDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
-            if (tparams.isEmpty) println("  List(), // no type parameter")
-            else {
-              val n = tparams.length
-              println("  List( // " + n + " type parameter(s)")
-              for (i <- 0 until n)
-              traverse(tparams(i), level + 2, i < n-1)
-              println("  ),")
-            }
-            val n = vparamss.length
-            if (n == 1 && vparamss(0).isEmpty) println("  List(List()), // no parameter")
-            else {
-              println("  List(")
-              for (i <- 0 until n) {
-                val m = vparamss(i).length
-                println("    List( // " + m + " parameter(s)")
-                for (j <- 0 until m) traverse(vparamss(i)(j), level + 3, j < m-1)
-                println("    )")
-              }
-              println("  ),")
-            }
-            println("  " + tpt + ",")
-            traverse(rhs, level + 1, false)
-            printcln(")")
-
-            scopes pop
-
           case EmptyTree =>
             printcln("EmptyTree")
 
@@ -455,40 +552,6 @@ abstract class ScalaAstVisitor {
             println("New(" + nodeinfo(tree))
             traverse(tpt, level + 1, false)
             printcln(")")
-
-          case Select(qualifier, selector) =>
-            /**
-             * For error Select tree, for example a.p, the error part's offset will be set to 'p',
-             * The tree.qualifier() part's offset will be 'a'
-             */
-            val symbol = tree.symbol
-            val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.METHOD)
-            if (symbol != null && symbol == NoSymbol && maybeType != None) {
-              //ref.setResultType(maybeType)
-            }
-            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-
-            /**
-             * For error Select tree, the qual type may stored, try to fetch it now
-             */
-            def guessMaybeType {
-              val qualSym = qualifier.symbol
-              if (qualSym != null && qualSym == NoSymbol && global != null) {
-                maybeType = global.selectTypeErrors.get(tree)
-              }
-            }
-            
-            qualifier match {
-              case Ident(name) => guessMaybeType
-              case Apply(fun, args) => guessMaybeType
-              case _ =>
-            }
-
-            println("Select(" + nodeinfo(tree))
-            traverse(qualifier, level + 1, true)
-            printcln("  \"" + selector + "\")")
-
-            maybeType = None
 
           case Super(qual, mix) =>
             printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
@@ -524,75 +587,12 @@ abstract class ScalaAstVisitor {
             }
             printcln(")")
 
-          case TypeTree() =>
-            tree.symbol match {
-              case null =>
-                // * in case of: <type ?>
-                //println("Null symbol found, tree is:" + tree)
-              case NoSymbol =>
-                // * type tree in case def, for example: case Some(_),
-                // * since the symbol is NoSymbol, we should visit its original type
-                val original = tree.asInstanceOf[TypeTree].original
-                if (original != null && original != tree && !isTupleClass(original.symbol)) {
-                  traverse(original, level, false)
-                }
-              case symbol =>
-                // * We'll drop tuple type, since all elements in tuple have their own type trees:
-                // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
-                // * need binding trees of a and b
-                if (!isTupleClass(symbol)) {
-                  val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
-                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                  //if (original != tree) visit(tree.original));
-                }
-            }
-            
-            printcln("TypeTree()" + nodeinfo2(tree))
-
           case Typed(expr, tpt) =>
             println("Typed(" + nodeinfo(tree))
             traverse(expr, level + 1, true)
             traverse(tpt, level + 1, false)
             printcln(")")
 
-          case ValDef(mods, name, tpt, rhs) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
-            scopes.top.addScope(scope)
-
-            val kind = getCurrentParent match {
-              case _:Template => ElementKind.FIELD
-              case _:DefDef => ElementKind.PARAMETER
-              case _ => ElementKind.VARIABLE
-            }
-
-            // special case for: val (a, b, c) = (1, 2, 3)
-            if (!isTupleClass(tpt.symbol)) {
-              val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
-              if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
-            }
-
-            scopes push scope
-            println("ValDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
-            traverse(tpt, level + 1, true) // tpe is usually a TypeTree
-            traverse(rhs, level + 1, false)
-            printcln(")")
-            scopes.pop
-
-          case PackageDef(name, stats) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
-            scopes.top.addScope(scope)
-
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
-            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
-
-            scopes push scope
-            println("PackageDef("+name+", ")
-            for (stat <- stats) traverse(stat, level + 1, false)
-            printcln(")")
-            scopes pop
-            
           case _ => tree match {
               case p: Product =>
                 if (p.productArity != 0) {
