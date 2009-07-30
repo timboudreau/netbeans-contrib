@@ -44,6 +44,6 @@ import org.netbeans.api.language.util.ast.AstScope
 import _root_.scala.tools.nsc.symtab.Symbols
 
 object ScalaScope {
-  def apply(boundsToken:Token[TokenId]) = new AstScope[Symbols#Symbol](Array(boundsToken))
-  def apply(boundsTokens:Array[Token[TokenId]]) = new AstScope[Symbols#Symbol](boundsTokens)
+  def apply(boundsToken: Token[TokenId]) = new AstScope[Symbols#Symbol](Array(boundsToken))
+  def apply(boundsTokens: Array[Token[TokenId]]) = new AstScope[Symbols#Symbol](boundsTokens)
 }

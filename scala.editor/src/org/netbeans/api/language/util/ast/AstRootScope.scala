@@ -45,19 +45,19 @@ import org.netbeans.modules.csl.api.{ElementKind}
  *
  * @author Caoyuan Deng
  */
-class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](boundsTokens) {
+class AstRootScope[T](boundsTokens: Array[Token[TokenId]]) extends AstScope[T](boundsTokens) {
 
-  protected var _idTokenToItems :Map[Token[TokenId], List[AstItem[T]]] = Map.empty
-  private var sortedTokens :List[Token[TokenId]] = Nil
+  protected var _idTokenToItems: Map[Token[TokenId], List[AstItem[T]]] = Map.empty
+  private var sortedTokens: List[Token[TokenId]] = Nil
   private var tokensSorted = false
 
-  def contains(idToken:Token[TokenId]) :Boolean = _idTokenToItems.contains(idToken)
+  def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
 
-  def idTokenToItems(th:TokenHierarchy[_]) :Map[Token[TokenId], List[AstItem[T]]] = {
+  def idTokenToItems(th: TokenHierarchy[_]): Map[Token[TokenId], List[AstItem[T]]] = {
     _idTokenToItems
   }
 
-  private def sortedTokens(th:TokenHierarchy[_]) :List[Token[TokenId]] = {
+  private def sortedTokens(th: TokenHierarchy[_]): List[Token[TokenId]] = {
     if (!tokensSorted) {
       sortedTokens = _idTokenToItems.keySet.toList sort {compareToken(th, _, _)}
       tokensSorted = true
@@ -68,19 +68,19 @@ class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](bo
   /**
    * each idToken may correspond to more then one AstItems
    */
-  protected def put(idToken:Token[TokenId], item:AstItem[T]) = {
+  protected def put(idToken: Token[TokenId], item: AstItem[T]) = {
     _idTokenToItems += idToken -> (item :: _idTokenToItems.getOrElse(idToken, Nil))
     tokensSorted = false
   }
 
-  override def findItemAt(th:TokenHierarchy[_], offset:Int) :Option[AstItem[T]] = {
+  override def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem[T]] = {
     findItemsAt(th, offset) match {
       case x :: xs => Some(x)
       case _ => None
     }
   }
 
-  def findItemsAt(th:TokenHierarchy[_], offset:Int) :List[AstItem[T]] = {
+  def findItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem[T]] = {
     val tokens1 = sortedTokens(th)
 
     var lo = 0
@@ -103,19 +103,19 @@ class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](bo
     Nil
   }
 
-  def findItemsAt(token:Token[TokenId]) :List[AstItem[T]] = {
+  def findItemsAt(token: Token[TokenId]): List[AstItem[T]] = {
     _idTokenToItems.get(token) match {
       case Some(x) => x
       case None => Nil
     }
   }
 
-  def findAllDfnSyms[A <: AstSymbol[T]](clazz:Class[A]) :List[A] = {
+  def findAllDfnSyms[A <: AstSymbol[T]](clazz: Class[A]): List[A] = {
     findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
   }
 
-  def findAllDfnsOf[A <: AstSymbol[T]](clazz:Class[A]) :List[AstDfn[T]] = {
-    var result :List[AstDfn[T]] = Nil
+  def findAllDfnsOf[A <: AstSymbol[T]](clazz: Class[A]): List[AstDfn[T]] = {
+    var result: List[AstDfn[T]] = Nil
     for (items <- _idTokenToItems.valuesIterator;
          item <- items if item.isInstanceOf[AstDfn[T]] && clazz.isInstance(item.symbol)) {
       result = item.asInstanceOf[AstDfn[T]] :: result
@@ -123,18 +123,18 @@ class AstRootScope[T](boundsTokens:Array[Token[TokenId]]) extends AstScope[T](bo
     result
   }
 
-  def findFirstItemWithName(name:String) :Option[AstItem[T]] = {
+  def findFirstItemWithName(name: String): Option[AstItem[T]] = {
     _idTokenToItems.find{case (token, items) => token.text.toString == name} match {
       case Some((token, x :: xs)) => Some(x)
       case _ => None
     }
   }
 
-  private def compareToken(th:TokenHierarchy[_], o1:Token[TokenId], o2:Token[TokenId]) :Boolean = {
+  private def compareToken(th: TokenHierarchy[_], o1: Token[TokenId], o2: Token[TokenId]): Boolean = {
     o1.offset(th) < o2.offset(th)
   }
 
-  def debugPrintTokens(th:TokenHierarchy[_]) :Unit = {
+  def debugPrintTokens(th: TokenHierarchy[_]): Unit = {
     sortedTokens(th) foreach {token =>
       println("<" + token + "> ->")
       _idTokenToItems.getOrElse(token, Nil) foreach {println(_)}

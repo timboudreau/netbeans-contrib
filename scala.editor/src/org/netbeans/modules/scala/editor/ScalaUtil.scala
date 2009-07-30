@@ -58,11 +58,11 @@ object ScalaUtil {
 
   val ANONFUN = "$anonfun"
 
-  def isScalaFile(f:FileObject) :Boolean = {
+  def isScalaFile(f: FileObject): Boolean = {
     ScalaMimeResolver.MIME_TYPE.equals(f.getMIMEType)
   }
 
-  def getOffset(pos:Position) :Int = {
+  def getOffset(pos: Position): Int = {
     pos.offset match {
       case Some(x) => x
       case None => -1
@@ -70,7 +70,7 @@ object ScalaUtil {
   }
 
   @throws(classOf[BadLocationException])
-  def isRowWhite(text:String, offset:Int) :Boolean = {
+  def isRowWhite(text: String, offset: Int): Boolean = {
     try {
       // Search forwards
       var break = false
@@ -94,7 +94,7 @@ object ScalaUtil {
 
       true
     } catch {
-      case ex:Exception =>
+      case ex: Exception =>
         val ble = new BadLocationException(offset + " out of " + text.length, offset)
         ble.initCause(ex)
         throw ble
@@ -102,7 +102,7 @@ object ScalaUtil {
   }
 
   @throws(classOf[BadLocationException])
-  def isRowEmpty(text:String, offset:Int) :Boolean = {
+  def isRowEmpty(text: String, offset: Int): Boolean = {
     try {
       if (offset < text.length) {
         text.charAt(offset) match {
@@ -119,7 +119,7 @@ object ScalaUtil {
 
       true
     } catch {
-      case ex:Exception =>
+      case ex: Exception =>
         val ble = new BadLocationException(offset + " out of " + text.length, offset)
         ble.initCause(ex)
         throw ble
@@ -127,7 +127,7 @@ object ScalaUtil {
   }
 
   @throws(classOf[BadLocationException])
-  def getRowLastNonWhite(text:String, offset:Int) :Int = {
+  def getRowLastNonWhite(text: String, offset: Int): Int = {
     try {
       // Find end of line
       var i = offset
@@ -159,7 +159,7 @@ object ScalaUtil {
   }
 
   @throws(classOf[BadLocationException])
-  def getRowFirstNonWhite(text:String, offset:Int) :Int = {
+  def getRowFirstNonWhite(text: String, offset: Int): Int = {
     try {
       // Find start of line
       var i = offset - 1
@@ -189,7 +189,7 @@ object ScalaUtil {
   }
 
   @throws(classOf[BadLocationException])
-  def getRowStart(text:String, offset:Int) :Int = {
+  def getRowStart(text: String, offset: Int): Int = {
     try {
       // Search backwards
       for (i <- offset - 1 to 0) {
@@ -201,14 +201,14 @@ object ScalaUtil {
 
       0
     } catch {
-      case ex:Exception =>
+      case ex: Exception =>
         val ble = new BadLocationException(offset + " out of " + text.length, offset)
         ble.initCause(ex)
         throw ble
     }
   }
 
-  def endsWith(sb:StringBuilder, s:String) :Boolean = {
+  def endsWith(sb: StringBuilder, s: String): Boolean = {
     val len = s.length
 
     if (sb.length < len) {
@@ -229,7 +229,7 @@ object ScalaUtil {
     true
   }
 
-  def truncate(s:String, length:Int) :String = {
+  def truncate(s: String, length: Int): String = {
     assert(length > 3) // Not for short strings
 
     if (s.length <= length) {
@@ -242,8 +242,8 @@ object ScalaUtil {
   val scalaFileToSource = new _root_.java.util.WeakHashMap[FileObject, Reference[Source]]
   val scalaFileToCompilationInfo = new _root_.java.util.WeakHashMap[FileObject, Reference[Parser.Result]]
 
-  def getCompilationInfoForScalaFile(fo:FileObject) :Parser.Result = {
-    var info :Parser.Result = scalaFileToCompilationInfo.get(fo) match {
+  def getCompilationInfoForScalaFile(fo: FileObject): Parser.Result = {
+    var info: Parser.Result = scalaFileToCompilationInfo.get(fo) match {
       case null => null
       case ref => ref.get
     }
@@ -254,7 +254,7 @@ object ScalaUtil {
       try {
         ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
             @throws(classOf[Exception])
-            override def run(resultIterator:ResultIterator) :Unit = {
+            override def run(resultIterator: ResultIterator): Unit = {
               pResults(0) = resultIterator.getParserResult
             }
           })
@@ -274,8 +274,8 @@ object ScalaUtil {
    * does not support virtual source yet (only ".java" and ".class" files
    * are supported), but we can create js via JavaSource.create(cpInfo);
    */
-  private def getSourceForScalaFile(fo:FileObject) :Source = {
-    var source :Source = scalaFileToSource.get(fo) match {
+  private def getSourceForScalaFile(fo: FileObject): Source = {
+    var source: Source = scalaFileToSource.get(fo) match {
       case null => null
       case ref => ref.get
     }
@@ -288,14 +288,14 @@ object ScalaUtil {
     source
   }
 
-  def getDocComment(info:Parser.Result, element:JavaElement) :String = {
+  def getDocComment(info: Parser.Result, element: JavaElement): String = {
     if (info == null) {
       return null
     }
 
     val doc = info.getSnapshot.getSource.getDocument(true) match {
       case null => return null
-      case x:BaseDocument => x
+      case x: BaseDocument => x
     }
 
     val th = info.getSnapshot.getTokenHierarchy
@@ -315,7 +315,7 @@ object ScalaUtil {
     null
   }
 
-  def getDocComment(doc:BaseDocument, symbolOffset:Int) :String = {
+  def getDocComment(doc: BaseDocument, symbolOffset: Int): String = {
     val th = TokenHierarchy.get(doc) match {
       case null => return null
       case x => x
@@ -329,14 +329,14 @@ object ScalaUtil {
       try {
         return doc.getText(range.getStart, range.getLength)
       } catch {
-        case ex:BadLocationException => Exceptions.printStackTrace(ex)
+        case ex: BadLocationException => Exceptions.printStackTrace(ex)
       }
     }
 
     null
   }
 
-  def getOffset(info:Parser.Result, element:JavaElement) :Int = {
+  def getOffset(info: Parser.Result, element: JavaElement): Int = {
     if (info == null) {
       return -1
     }
@@ -345,8 +345,8 @@ object ScalaUtil {
     element.getPickOffset(th)
   }
 
-  def getFileObject(info:ParserResult, symbol:Symbols#Symbol) :Option[FileObject] = {
-    val qName :String = try {
+  def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
+    val qName: String = try {
       symbol.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {
       case ex:_root_.java.lang.Error => null
@@ -361,7 +361,7 @@ object ScalaUtil {
     }
 
     val lastSep = qName.lastIndexOf(File.separatorChar);
-    val pkgName :String = if (lastSep > 0) {
+    val pkgName: String = if (lastSep > 0) {
       qName.substring(0, lastSep)
     } else null
 
@@ -376,7 +376,7 @@ object ScalaUtil {
           cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)):_*)
 
       val clzFo = cp.findResource(clzName)
-      var srcPath :String = null
+      var srcPath: String = null
       if (clzFo != null) {
         val in = clzFo.getInputStream
         try {
@@ -406,7 +406,7 @@ object ScalaUtil {
         return Some(srcCp.findResource(srcPath))
       }
     } catch {
-      case ex:IOException => ex.printStackTrace
+      case ex: IOException => ex.printStackTrace
     }
 
     None
@@ -414,7 +414,7 @@ object ScalaUtil {
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
 
-  def getBinaryClassName(pResult:ScalaParserResult, offset:Int) :String = {
+  def getBinaryClassName(pResult: ScalaParserResult, offset: Int): String = {
     val th = pResult.getSnapshot.getTokenHierarchy
     val rootScope = pResult.getRootScopeForDebugger match {
       case None => return null
@@ -479,7 +479,7 @@ object ScalaUtil {
    * @return the classes containing main method
    * @throws IllegalArgumentException when file does not exist or is not a java source file.
    */
-  def getMainClasses(fo:FileObject) :Seq[ScalaDfn] = {
+  def getMainClasses(fo: FileObject): Seq[ScalaDfn] = {
     if (fo == null || !fo.isValid || fo.isVirtual) {
       throw new IllegalArgumentException
     }
@@ -491,7 +491,7 @@ object ScalaUtil {
       val result = new ArrayBuffer[ScalaDfn]
       ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
-          override def run(resultIterator:ResultIterator) :Unit = {
+          override def run(resultIterator: ResultIterator): Unit = {
             val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]
             val rootScope = pResult.rootScope match {
               case None => return
@@ -503,20 +503,20 @@ object ScalaUtil {
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
               packaging => packaging.bindingScope.dfns foreach {
-                case obj:ScalaDfn if isMainMethodExists(obj) => result += obj
+                case obj: ScalaDfn if isMainMethodExists(obj) => result += obj
               }
             }
             
             rootScope.visibleDfns(ElementKind.MODULE) foreach {
-              case obj:ScalaDfn if isMainMethodExists(obj) => result += obj
+              case obj: ScalaDfn if isMainMethodExists(obj) => result += obj
             }
           }
 
-          def getAllDefs(rootScope:AstScope[Symbols#Symbol], kind:ElementKind) :Seq[ScalaDfn] = {
+          def getAllDefs(rootScope: AstScope[Symbols#Symbol], kind: ElementKind): Seq[ScalaDfn] = {
             getAllDefs(rootScope, kind, new ArrayBuffer[ScalaDfn])
           }
 
-          def getAllDefs(astScope:AstScope[Symbols#Symbol], kind:ElementKind, result:ArrayBuffer[ScalaDfn]) :Seq[ScalaDfn] = {
+          def getAllDefs(astScope: AstScope[Symbols#Symbol], kind: ElementKind, result: ArrayBuffer[ScalaDfn]): Seq[ScalaDfn] = {
             astScope.dfns foreach {
               case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
             }
@@ -529,11 +529,11 @@ object ScalaUtil {
 
       result
     } catch {
-      case ex:ParseException => Exceptions.printStackTrace(ex); Nil
+      case ex: ParseException => Exceptions.printStackTrace(ex); Nil
     }
   }
 
-  def isMainMethodExists(obj:ScalaDfn) :Boolean = {
+  def isMainMethodExists(obj: ScalaDfn): Boolean = {
     obj.symbol.value.tpe.members exists {
       member => member.isMethod && isMainMethod(member)
     }
@@ -544,7 +544,7 @@ object ScalaUtil {
    * @param method to be checked
    * @return true when the method is a main method
    */
-  def isMainMethod(method:Symbols#Symbol) :Boolean = {
+  def isMainMethod(method: Symbols#Symbol): Boolean = {
     (method.nameString, method.tpe.paramTypes) match {
       case ("main", List(x)) => true  //NOI18N
       case _ => false
@@ -557,7 +557,7 @@ object ScalaUtil {
    * @return the classes containing the main methods
    * Currently this method is not optimized and may be slow
    */
-  def getMainClasses(sourceRoots:Array[FileObject]) :Seq[ScalaDfn] = {
+  def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaDfn] = {
     val result = new ArrayBuffer[ScalaDfn]
     for (root <- sourceRoots) {
       result ++= getMainClasses(root)
@@ -574,11 +574,11 @@ object ScalaUtil {
         //                    }
         //
         //                    public void run(CompilationController control) throws Exception {
-        //                        for (JavaElement cls : classes) {
+        //                        for (JavaElement cls:  classes) {
         //                            TypeElement te = cls.resolve(control);
         //                            if (te != null) {
         //                                Iterable<? extends ExecutableElement> methods = ElementFilter.methodsIn(te.getEnclosedElements());
-        //                                for (ExecutableElement method : methods) {
+        //                                for (ExecutableElement method:  methods) {
         //                                    if (isMainMethod(method)) {
         //                                        if (isIncluded(cls, control.getClasspathInfo())) {
         //                                            result.add(cls);
@@ -592,14 +592,14 @@ object ScalaUtil {
         //                }, false);
         cpInfo
       } catch {
-        case ioe:Exception => Exceptions.printStackTrace(ioe); Nil
+        case ioe: Exception => Exceptions.printStackTrace(ioe); Nil
       }
     }
 
     result
   }
 
-  def getClasspathInfoForFileObject(fo:FileObject) :Option[ClasspathInfo] = {
+  def getClasspathInfoForFileObject(fo: FileObject): Option[ClasspathInfo] = {
     val bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT)
     val compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE)
     val srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE)

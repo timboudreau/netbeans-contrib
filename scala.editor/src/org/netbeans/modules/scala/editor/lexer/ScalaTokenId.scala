@@ -65,11 +65,11 @@ object ScalaTokenId extends Enumeration {
   type ScalaTokenId = V
 
   // Extends Enumeration.Val to get custom enumeration value
-  class V(val name:String, val fixedText:String, val primaryCategory:String) extends Val(name) with TokenId {
+  class V(val name: String, val fixedText: String, val primaryCategory: String) extends Val(name) with TokenId {
     override def ordinal = id
   }
   object V {
-    def apply(name:String, fixedText:String, primaryCategory:String) = new V(name, fixedText, primaryCategory)
+    def apply(name: String, fixedText: String, primaryCategory: String) = new V(name, fixedText, primaryCategory)
   }
 
   val IGNORED = V("IGNORED", null, "ignored")
@@ -208,20 +208,20 @@ object ScalaTokenId extends Enumeration {
   val language = new LanguageHierarchy[TokenId] {
     protected def mimeType = ScalaMimeResolver.MIME_TYPE
 
-    protected def createTokenIds :Collection[TokenId] = {
+    protected def createTokenIds: Collection[TokenId] = {
       val ids = new HashSet[TokenId]
       values.foreach{ids add _.asInstanceOf[TokenId]}
       ids
     }
     
-    protected def createLexer(info:LexerRestartInfo[TokenId]) :Lexer[TokenId] = ScalaLexer.create(info)
+    protected def createLexer(info: LexerRestartInfo[TokenId]): Lexer[TokenId] = ScalaLexer.create(info)
 
-    override protected def createTokenCategories :Map[String, Collection[TokenId]] = {
+    override protected def createTokenCategories: Map[String, Collection[TokenId]] = {
       val cats = new HashMap[String, Collection[TokenId]]
       cats
     }
 
-    override protected def embedding(token:Token[TokenId], languagePath:LanguagePath, inputAttributes:InputAttributes) = {
+    override protected def embedding(token: Token[TokenId], languagePath: LanguagePath, inputAttributes: InputAttributes) = {
       null // No embedding
     }
   }.language

@@ -56,13 +56,13 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
  *
  * @author Caoyuan Deng
  */
-class ScalaParserResult(val parser:ScalaParser,
-                        snapshot:Snapshot, 
-                        val rootScope:Option[ScalaRootScope] = None,
-                        var errors:List[Error]
+class ScalaParserResult(val parser: ScalaParser,
+                        snapshot: Snapshot,
+                        val rootScope: Option[ScalaRootScope] = None,
+                        var errors: List[Error]
 ) extends ParserResult(snapshot) {
 
-  var source :String = _
+  var source: String = _
   var sanitizedRange = OffsetRange.NONE
   /**
    * Return whether the source code for the parse result was "cleaned"
@@ -70,16 +70,16 @@ class ScalaParserResult(val parser:ScalaParser,
    * This method returns OffsetRange.NONE if the source was not sanitized,
    * otherwise returns the actual sanitized range.
    */
-  var sanitizedContents :String = _
-  var commentsAdded :Boolean = _
-  private var sanitized :ScalaParser.Sanitize = _
-  private var rootScopeForDebugger :Option[ScalaRootScope] = _
+  var sanitizedContents: String = _
+  var commentsAdded: Boolean = _
+  private var sanitized: ScalaParser.Sanitize = _
+  private var rootScopeForDebugger: Option[ScalaRootScope] = _
 
-  override protected def invalidate :Unit = {
+  override protected def invalidate: Unit = {
     // XXX: what exactly should we do here?
   }
 
-  override def getDiagnostics :_root_.java.util.List[_ <: Error] = {
+  override def getDiagnostics: _root_.java.util.List[_ <: Error] = {
     if (errors == null) {
       _root_.java.util.Collections.emptyList[Error]
     } else {
@@ -87,12 +87,12 @@ class ScalaParserResult(val parser:ScalaParser,
     }
   }
 
-  def getRootScopeForDebugger :Option[ScalaRootScope] = {
+  def getRootScopeForDebugger: Option[ScalaRootScope] = {
     if (rootScopeForDebugger == null) {
       val fo = getSnapshot.getSource.getFileObject
-      val file :File = if (fo != null) FileUtil.toFile(fo) else null
+      val file: File = if (fo != null) FileUtil.toFile(fo) else null
       // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
-      //val filePath = if (file != null) file.getAbsolutePath) : "<current>";
+      //val filePath = if (file != null) file.getAbsolutePath):  "<current>";
       val th = getSnapshot.getTokenHierarchy
 
       val global = parser.global
@@ -102,14 +102,14 @@ class ScalaParserResult(val parser:ScalaParser,
       try {
         rootScopeForDebugger = Some(global.compileSourceForDebugger(srcFile, th))
       } catch {
-        case ex:AssertionError =>
+        case ex: AssertionError =>
           // avoid scala nsc's assert error
           ScalaGlobal.reset
-        case ex:_root_.java.lang.Error =>
+        case ex: _root_.java.lang.Error =>
           // avoid scala nsc's exceptions
-        case ex:IllegalArgumentException =>
+        case ex: IllegalArgumentException =>
           // An internal exception thrown by ParserScala, just catch it and notify
-        case ex:Exception =>
+        case ex: Exception =>
           // Scala's global throws too many exceptions
           //ex.printStackTrace)
       }
@@ -121,13 +121,13 @@ class ScalaParserResult(val parser:ScalaParser,
   /**
    * Set the range of source that was sanitized, if any.
    */
-  def setSanitized(sanitized:ScalaParser.Sanitize, sanitizedRange:OffsetRange, sanitizedContents:String) :Unit = {
+  def setSanitized(sanitized: ScalaParser.Sanitize, sanitizedRange: OffsetRange, sanitizedContents: String): Unit = {
     this.sanitized = sanitized
     this.sanitizedRange = sanitizedRange
     this.sanitizedContents = sanitizedContents
   }
 
-  def getSanitized :ScalaParser.Sanitize = {
+  def getSanitized: ScalaParser.Sanitize = {
     sanitized
   }
 

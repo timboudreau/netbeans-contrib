@@ -57,9 +57,9 @@ import _root_.scala.collection.mutable.ArrayBuffer
  */
 object ScalaHome {
 
-  def getGlobalForStdLib :ScalaGlobal = {
+  def getGlobalForStdLib: ScalaGlobal = {
     val scalaHome = getScalaHome
-    val scalaHomeDir :File = try {
+    val scalaHomeDir: File = try {
       val dir = new File(scalaHome)
       dir.getCanonicalFile
     } catch {
@@ -67,7 +67,7 @@ object ScalaHome {
     }
 
     val scalaLib = new File(scalaHomeDir, "lib") // NOI18N
-    assert(scalaLib.exists) // : '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
+    assert(scalaLib.exists) //:  '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
 
     val settings = new Settings
     settings.verbose.value = false
@@ -103,21 +103,21 @@ object ScalaHome {
     global
   }
 
-  def getJavaHome :String = {
+  def getJavaHome: String = {
     System.getProperty("scala.java.home") match { // NOI18N
       case null => System.getProperty("java.home"); // NOI18N
       case javaHome => javaHome
     } 
   }
 
-  def getJavaClassPath :String = {
+  def getJavaClassPath: String = {
     System.getProperty("java.class.path") match {
       case null => ""
       case javacClassPath => javacClassPath
     }
   }
 
-  def getScalaHome :String = {
+  def getScalaHome: String = {
     val scalaHome = System.getProperty("scala.home") match { // NOI18N
       case null => System.getenv("SCALA_HOME") // NOI18N
       case x => System.setProperty("scala.home", x); x
@@ -131,8 +131,8 @@ object ScalaHome {
     }
   }
 
-  def getScala :File = {
-    val scalaFo :FileObject = getScalaHome match {
+  def getScala: File = {
+    val scalaFo: FileObject = getScalaHome match {
       case null =>
         println("Can not found ${SCALA_HOME}/bin/scala, the environment variable SCALA_HOME may be invalid.\nPlease set proper SCALA_HOME first!")
         null
@@ -151,7 +151,7 @@ object ScalaHome {
               bin.getFileObject("scala", null)    //NOI18N
             }
           } catch {
-            case ex:IOException =>
+            case ex: IOException =>
               Exceptions.printStackTrace(ex); null
           }
         } else null
@@ -162,7 +162,7 @@ object ScalaHome {
     } else null
   }
 
-  def getSources(scalaHome:File) :List[URL] = {
+  def getSources(scalaHome: File): List[URL] = {
     if (scalaHome != null) {
       try {
         val scalaSrc = new File(scalaHome, "src")    //NOI18N
@@ -205,21 +205,21 @@ object ScalaHome {
     Nil
   }
 
-  def getScaladoc(scalaHome:File) :List[URL] = {
+  def getScaladoc(scalaHome: File): List[URL] = {
     if (scalaHome != null) {
       val scalaDoc = new File(scalaHome, "doc"); //NOI18N
       if (scalaDoc != null && scalaDoc.isDirectory && scalaDoc.canRead) {
         try {
           return List(scalaDoc.toURI.toURL)
         } catch {
-          case mue:MalformedURLException => Exceptions.printStackTrace(mue)
+          case mue: MalformedURLException => Exceptions.printStackTrace(mue)
         }
       }
     }
     Nil
   }
 
-  def computeScalaClassPath(aextraCp:String, scalaLib:File) :String = {
+  def computeScalaClassPath(aextraCp: String, scalaLib: File): String = {
     var extraCp = aextraCp
     val cp = new StringBuilder
     val libs = scalaLib.listFiles
@@ -271,7 +271,7 @@ object ScalaHome {
     return if (Utilities.isWindows) "\"" + cp.toString() + "\"" else cp.toString // NOI18N
   }
 
-  private def printProperties(props:Properties) :Unit = {
+  private def printProperties(props: Properties): Unit = {
     println("===========================")
     val keys = props.keys
     while (keys.hasMoreElements) {

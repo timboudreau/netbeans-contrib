@@ -7,7 +7,7 @@
 package example
 
 class ClassExample {
-    var number :Int = 123;
+    var number: Int = 123;
     val str = "String";
     
     def getElement(index: Int) = {

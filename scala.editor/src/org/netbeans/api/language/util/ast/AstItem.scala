@@ -51,12 +51,12 @@ import org.openide.filesystems.{FileObject}
  */
 trait AstItem[T] extends ForElementHandle {
 
-  def make(idToken:Option[Token[TokenId]], kind:ElementKind) :Unit = {
+  def make(idToken: Option[Token[TokenId]], kind: ElementKind): Unit = {
     this.idToken = idToken
     this.kind = kind
   }
 
-  var resultType :String = _
+  var resultType: String = _
   /**
    * @Note:
    * 1. Not all AstItem has pickToken, such as Expr etc.
@@ -64,27 +64,27 @@ trait AstItem[T] extends ForElementHandle {
    *    pickToken's text as name, pickToken may be <null> and pickToken.text()
    *    will return null when an Identifier token modified, seems sync issue
    */
-  private var _symbol :AstSymbol[T] = _
-  private var _idToken :Option[Token[TokenId]] = None
-  private var _name :String = _
-  private var _enclosingScope :Option[AstScope[T]] = None
-  private var _properties :Map[String, Any] = Map()
-  var kind :ElementKind = ElementKind.OTHER
+  private var _symbol: AstSymbol[T] = _
+  private var _idToken: Option[Token[TokenId]] = None
+  private var _name: String = _
+  private var _enclosingScope: Option[AstScope[T]] = None
+  private var _properties: Map[String, Any] = Map()
+  var kind: ElementKind = ElementKind.OTHER
 
   def symbol = _symbol
-  def symbol_=(symbol:AstSymbol[T]) = {
+  def symbol_=(symbol: AstSymbol[T]) = {
     this._symbol = symbol
     symbol.item = this
   }
 
   def idToken = _idToken
-  def idToken_=(idToken:Option[Token[TokenId]]) = idToken foreach {
+  def idToken_=(idToken: Option[Token[TokenId]]) = idToken foreach {
     x => this._idToken = idToken; name = x.text.toString
   }
 
   def name = _name
-  def name_=(name:String) = this._name = name
-  def name_=(idToken:Token[TokenId]) = {
+  def name_=(name: String) = this._name = name
+  def name_=(idToken: Token[TokenId]) = {
     if (idToken == null) {
       _name = "" // should not happen?
     }
@@ -92,7 +92,7 @@ trait AstItem[T] extends ForElementHandle {
     try {
       _name = idToken.text.toString
     } catch {
-      case ex:Exception =>
+      case ex: Exception =>
         val l = idToken.length
         val sb = new StringBuilder(l)
         var i = 0
@@ -105,7 +105,7 @@ trait AstItem[T] extends ForElementHandle {
     }
   }
 
-  def idOffset(th:TokenHierarchy[_]) :Int = {
+  def idOffset(th: TokenHierarchy[_]): Int = {
     idToken match {
       case None =>
         assert(false, getName + ": Should implement offset(th)")
@@ -114,7 +114,7 @@ trait AstItem[T] extends ForElementHandle {
     }
   }
 
-  def idEndOffset(th:TokenHierarchy[_]) :Int = {
+  def idEndOffset(th: TokenHierarchy[_]): Int = {
     idToken match {
       case None =>
         assert(false, name + ": Should implement getIdEndOffset(th)")
@@ -125,7 +125,7 @@ trait AstItem[T] extends ForElementHandle {
 
   def binaryName = name
 
-  def enclosingDfn[A <: AstDfn[T]](clazz:Class[A]) :Option[A] = {
+  def enclosingDfn[A <: AstDfn[T]](clazz: Class[A]): Option[A] = {
     enclosingScope.get.enclosingDfn(clazz)
   }
 
@@ -133,7 +133,7 @@ trait AstItem[T] extends ForElementHandle {
    * @Note: enclosingScope will be set when call
    *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
    */
-  def enclosingScope_=(enclosingScope:AstScope[T]) :AstItem[T] = {
+  def enclosingScope_=(enclosingScope: AstScope[T]): AstItem[T] = {
     enclosingScope match {
       case null => this._enclosingScope = None
       case _ => this._enclosingScope = Some(enclosingScope)
@@ -144,18 +144,18 @@ trait AstItem[T] extends ForElementHandle {
   /**
    * @return the scope that encloses this item
    */
-  def enclosingScope :Option[AstScope[T]] = {
+  def enclosingScope: Option[AstScope[T]] = {
     assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
     _enclosingScope
   }
 
-  def rootScope :AstRootScope[T] = enclosingScope.get.root
+  def rootScope: AstRootScope[T] = enclosingScope.get.root
 
-  def property(k:String, v:Any) :Unit = {
+  def property(k: String, v: Any): Unit = {
     _properties += (k -> v)
   }
 
-  def property(k:String) :Option[Any] = {
+  def property(k: String): Option[Any] = {
     _properties.get(k)
   }
 
@@ -167,19 +167,19 @@ trait AstItem[T] extends ForElementHandle {
 /**
  * Wrap functions that implemented some ElementHandle's methods
  */
-trait ForElementHandle {self:AstItem[_] =>
+trait ForElementHandle {self: AstItem[_] =>
     
-  def getMimeType :String
+  def getMimeType: String
 
   def getName = self.name
 
-  def getIn :String = ""
+  def getIn: String = ""
 
-  def getKind :ElementKind = self.kind
+  def getKind: ElementKind = self.kind
 
-  def signatureEquals(handle:ElementHandle) = false
+  def signatureEquals(handle: ElementHandle) = false
 
-  def getModifiers :_root_.java.util.Set[Modifier] = _root_.java.util.Collections.emptySet[Modifier]
+  def getModifiers: _root_.java.util.Set[Modifier] = _root_.java.util.Collections.emptySet[Modifier]
 
-  def getOffsetRange(result:ParserResult) :OffsetRange = OffsetRange.NONE
+  def getOffsetRange(result: ParserResult): OffsetRange = OffsetRange.NONE
 }

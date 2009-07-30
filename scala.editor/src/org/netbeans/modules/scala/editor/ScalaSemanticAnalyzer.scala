@@ -54,33 +54,33 @@ import _root_.scala.tools.nsc.symtab.Types
  */
 class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
-  private var cancelled :Boolean = _
-  private var semanticHighlights :_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = _
+  private var cancelled: Boolean = _
+  private var semanticHighlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = _
 
-  protected final def isCancelled :Boolean = synchronized {
+  protected final def isCancelled: Boolean = synchronized {
     cancelled
   }
 
-  protected final def resume :Unit = synchronized {
+  protected final def resume: Unit = synchronized {
     cancelled = false
   }
 
-  override def getHighlights :_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = {
+  override def getHighlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = {
     semanticHighlights
   }
 
-  override def getPriority :Int = 0
+  override def getPriority: Int = 0
 
-  override def getSchedulerClass :Class[_ <: Scheduler] = {
+  override def getSchedulerClass: Class[_ <: Scheduler] = {
     Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER
   }
 
-  override def cancel :Unit = {
+  override def cancel: Unit = {
     cancelled = true
   }
 
   @throws(classOf[Exception])
-  override def run(info:ScalaParserResult, event:SchedulerEvent) :Unit = {
+  override def run(info: ScalaParserResult, event: SchedulerEvent): Unit = {
     resume
 
     if (isCancelled) {
@@ -89,7 +89,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
     val pResult = info match {
       case null => return
-      case x:ScalaParserResult => x
+      case x: ScalaParserResult => x
     }
 
     if (isCancelled) {
@@ -114,7 +114,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     this.semanticHighlights = if (!highlights.isEmpty) {
       //            if (result.getTranslatedSource() != null) {
       //                Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
-      //                for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
+      //                for (Map.Entry<OffsetRange, ColoringAttributes> entry:  highlights.entrySet()) {
       //                    OffsetRange range = LexUtilities.getLexerOffsets(info, entry.getKey());
       //                    if (range != OffsetRange.NONE) {
       //                        translated.put(range, entry.getValue());
@@ -130,21 +130,21 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
   val IMPLICIT_METHOD = Set(ColoringAttributes.INTERFACE)
 
-  private def visitItems(th:TokenHierarchy[_], rootScope:ScalaRootScope,
-                         highlights:_root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]) :Unit = {
+  private def visitItems(th: TokenHierarchy[_], rootScope: ScalaRootScope,
+                         highlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]): Unit =
+  {
     for (items <- rootScope.idTokenToItems(th).valuesIterator;
          item <- items;
-         name = item.getName; idToken = item.idToken;
-         if idToken != None && name != "this" && name != "super")
+         idToken <- item.idToken;
+         name = item.getName;
+         if name != "this" && name != "super")
     {
-      val hiToken = idToken.get
-
       // token may be xml tokens, @see AstVisit#getTokenId
-      hiToken.id match {
+      idToken.id match {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>
-          val hiRange = ScalaLexUtil.getRangeOfToken(th, hiToken)
+          val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)
           item match {
-            case dfn:ScalaDfn =>
+            case dfn: ScalaDfn =>
               dfn.getKind match {
                 case ElementKind.MODULE =>
                   highlights.put(hiRange, ColoringAttributes.CLASS_SET)
@@ -156,7 +156,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   //                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
                 case _ =>
               }
-            case ref:ScalaRef => ref.getKind match {
+            case ref: ScalaRef => ref.getKind match {
                 case ElementKind.CLASS =>
                   highlights.put(hiRange, ColoringAttributes.STATIC_SET)
                 case ElementKind.MODULE =>
@@ -178,7 +178,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                     case t:Throwable =>
                   }
                 case ElementKind.RULE =>
-                  highlights.put(hiRange, ColoringAttributes.UNUSED_SET) // implicit call
+                  // * implicit call
+                  highlights.put(hiRange, ColoringAttributes.UNUSED_SET) 
                 case _ =>
               }
           }

@@ -45,8 +45,8 @@ import _root_.scala.tools.nsc.symtab.Symbols
 
 
 object ScalaSymbol {
-  def apply(value:Symbols#Symbol) = new ScalaSymbol(value)
+  def apply(value: Symbols#Symbol) = new ScalaSymbol(value)
 }
 
-class ScalaSymbol(var value:Symbols#Symbol) extends AstSymbol[Symbols#Symbol] {
+class ScalaSymbol(var value: Symbols#Symbol) extends AstSymbol[Symbols#Symbol] {
 }

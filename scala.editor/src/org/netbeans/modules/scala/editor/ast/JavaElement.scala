@@ -56,7 +56,7 @@ import org.netbeans.modules.csl.api.{HtmlFormatter, OffsetRange}
  */
 object JavaElement {
   /*_
-   def isMirroredBy(element:Element, mirror:AstMirror) :Boolean = {
+   def isMirroredBy(element:Element, mirror:AstMirror): Boolean = {
    if (element.isInstanceOf[ExecutableElement] && mirror.isInstanceOf[FunctionCall]) {
    val function = element.asInstanceOf[ExecutableElement]
    val funCall = mirror.asInstanceOf[FunctionCall]
@@ -87,10 +87,10 @@ object JavaElement {
    */
 }
 
-abstract class JavaElement(name:CharSequence,
-                           pickToken:Token[_],
-                           var bindingScope:AstScope[_],
-                           var kind:ElementKind
+abstract class JavaElement(name: CharSequence,
+                           pickToken: Token[_],
+                           var bindingScope: AstScope[_],
+                           var kind: ElementKind
 ) extends Element {
 
   if (bindingScope != null) {
@@ -98,11 +98,11 @@ abstract class JavaElement(name:CharSequence,
     //this.bindingScope.bindingDfn = this
   }
 
-  def accept[R, P](arg0:ElementVisitor[R, P], arg1:P) :R = {
+  def accept[R, P](arg0: ElementVisitor[R, P], arg1: P): R = {
     arg0.visit(this, arg1)
   }
 
-//  def getEnclosedElements :List[_ <: JavaElement] = {
+//  def getEnclosedElements: List[_ <: JavaElement] = {
 //    if (bindingScope != null) {
 //      bindingScope.getElements
 //    } else {
@@ -110,23 +110,23 @@ abstract class JavaElement(name:CharSequence,
 //    }
 //  }
 
-//  def getEnclosingElement :JavaElement = {
+//  def getEnclosingElement: JavaElement = {
 //    getEnclosingScope.bindingElement
 //  }
 
-  def getAnnotation[A <: Annotation](arg0:Class[A]) :A = {
+  def getAnnotation[A <: Annotation](arg0: Class[A]): A = {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  def getAnnotationMirrors :_root_.java.util.List[_ <: AnnotationMirror] = {
+  def getAnnotationMirrors: _root_.java.util.List[_ <: AnnotationMirror] = {
     throw new UnsupportedOperationException("Not supported yet.")
   }
 
-  def setKind(kind:ElementKind) :Unit = {
+  def setKind(kind: ElementKind): Unit = {
     this.kind = kind
   }
 
-  def getKind :ElementKind = {
+  def getKind: ElementKind = {
     kind
   }
 
@@ -134,36 +134,36 @@ abstract class JavaElement(name:CharSequence,
     getSimpleName + "(kind=" + getKind + ", type=" + asType + ")"
   }
 
-  def getBindingScope :AstScope[_] = {
+  def getBindingScope: AstScope[_] = {
     assert(bindingScope != null , toString + ": Each definition should set binding scope!")
     bindingScope
   }
 
-  def getPickOffset(th:TokenHierarchy[_]) :Int = {
+  def getPickOffset(th: TokenHierarchy[_]): Int = {
     pickToken.offset(th)
   }
 
-  def getBoundsOffset(th:TokenHierarchy[_]) :Int = {
+  def getBoundsOffset(th: TokenHierarchy[_]): Int = {
     getBindingScope.boundsOffset(th)
   }
 
-  def getBoundsEndOffset(th:TokenHierarchy[_]) :Int = {
+  def getBoundsEndOffset(th: TokenHierarchy[_]): Int = {
     return getBindingScope.boundsEndOffset(th)
   }
 
-  def getRange(th:TokenHierarchy[_]) :OffsetRange = {
+  def getRange(th: TokenHierarchy[_]): OffsetRange = {
     getBindingScope.range(th)
   }
 
-//  def isMirroredBy(mirror:AstMirror) :Boolean = {
+//  def isMirroredBy(mirror:AstMirror): Boolean = {
 //    getSimpleName.toString.equals(mirror.getSimpleName.toString)
 //  }
 
-  def mayEquals(element:JavaElement) :Boolean = {
+  def mayEquals(element: JavaElement): Boolean = {
     getSimpleName.toString.equals(element.getSimpleName.toString)
   }
 
-  def htmlFormat(formatter:HtmlFormatter) :Unit = {
+  def htmlFormat(formatter: HtmlFormatter): Unit = {
     formatter.appendText(getSimpleName.toString)
   }
 }

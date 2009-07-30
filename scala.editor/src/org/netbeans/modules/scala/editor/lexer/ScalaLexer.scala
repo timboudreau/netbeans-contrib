@@ -63,30 +63,30 @@ object ScalaLexer {
    * there will be more than one input are used, which causes the offset states, such as readed
    * token length, offset etc in these inputs conflict?. Anyway it's safe to create a new one always.
    */
-  def create(info:LexerRestartInfo[TokenId]) = new ScalaLexer(info)
+  def create(info: LexerRestartInfo[TokenId]) = new ScalaLexer(info)
 }
 
-class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
+class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
   /** @Note:
    * it seems input at this time is empty, so we can not do scanning here.
    * input will be filled in chars when call nextToken
    */
 
-  var input :LexerInput = info.input
-  var tokenFactory :TokenFactory[TokenId] = info.tokenFactory
-  var lexerInputReader :LexerInputReader = new LexerInputReader(input)
+  var input: LexerInput = info.input
+  var tokenFactory: TokenFactory[TokenId] = info.tokenFactory
+  var lexerInputReader: LexerInputReader = new LexerInputReader(input)
     
   val tokenStream = new ArrayBuffer[TokenInfo]
   // * tokenStream.elements always return a new iterator, which point the first
   // * item, so we should have a global one.
-  var tokenStreamItr :Iterator[TokenInfo]  = tokenStream.elements
-  var lookahead :Int = 0
+  var tokenStreamItr: Iterator[TokenInfo]  = tokenStream.elements
+  var lookahead: Int = 0
 
   override def release = {}
 
-  override def state :Object = null
+  override def state: Object = null
 
-  override def nextToken :Token[TokenId] = {
+  override def nextToken: Token[TokenId] = {
     // * In case of embedded tokens, there may be tokens that had been scanned
     // * but not taken yet, check first
     if (!tokenStreamItr.hasNext) {
@@ -146,12 +146,12 @@ class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     }
   }
 
-  def createToken(id:TokenId, length:Int) :Token[TokenId] = id.asInstanceOf[ScalaTokenId].fixedText match {
+  def createToken(id: TokenId, length: Int): Token[TokenId] = id.asInstanceOf[ScalaTokenId].fixedText match {
     case null => tokenFactory.createToken(id, length)
     case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
   }
 
-  def scanTokens :Result = {
+  def scanTokens: Result = {
     /**
      * We cannot keep an instance scope lexer, since lexer (sub-class of ParserBase)
      * has internal states which keep the read-in chars, index and others, it really
@@ -176,7 +176,7 @@ class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     }
   }
 
-  def flattenToTokenStream(node:GNode) :Unit = {
+  def flattenToTokenStream(node: GNode): Unit = {
     val l = node.size
     if (l == 0) {
       /** @Note:
@@ -198,11 +198,11 @@ class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
       node.get(i) match {
         case null =>
           // * child may be null
-        case child:GNode =>
+        case child: GNode =>
           flattenToTokenStream(child)
-        case child:Pair[_] =>
+        case child: Pair[_] =>
           assert(false, "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?")
-        case child:String =>
+        case child: String =>
           val length = child.length
           val id = ScalaTokenId.valueOf(node.getName) match {
             case None => ScalaTokenId.IGNORED
@@ -224,19 +224,19 @@ class ScalaLexer(info:LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
    * {@link xtc.parser.ParserBase#character(int)}
    */
   class LexerInputReader(input:LexerInput) extends Reader {
-    override def read :Int = input.read match {
+    override def read: Int = input.read match {
       case LexerInput.EOF => -1
       case c => c
     }
 
-    override def read(cbuf:Array[Char], off:Int, len:Int) :Int = {
+    override def read(cbuf: Array[Char], off: Int, len: Int): Int = {
       throw new UnsupportedOperationException("Not supported yet.")
     }
 
     override def close = {}
   }
 
-  class TokenInfo(val length:Int, val id:TokenId) {
+  class TokenInfo(val length: Int, val id: TokenId) {
     override def toString = "(id=" + id + ", length=" + length + ")"
   }
 }
