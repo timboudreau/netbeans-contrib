@@ -507,7 +507,7 @@ public abstract class AstVisitor {
                 // a.p where, offset is set to p
                 token = ScalaLexUtilities.findNextIn(ts, ScalaLexUtilities.PotentialIdTokens);
             }
-        } else if (name.equals("_")) {
+        } else if (name.equals("*")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Wild);
         } else if (name.equals("foreach")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);

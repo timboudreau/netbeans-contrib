@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.ast;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.ElementKind;
 import scala.tools.nsc.symtab.Symbols.Symbol;
+import scala.tools.nsc.symtab.Flags;
 
 /**
  * Mirror with AstNode information
@@ -57,13 +58,13 @@ public class AstRef extends AstItem {
 
     public ElementKind getKind() {
         Symbol symbol = getSymbol();
-        if (symbol.isPackage()) {
+        if (symbol.hasFlag(Flags.PACKAGE())) {
             return ElementKind.PACKAGE;
-        } else if (symbol.isClass() || symbol.isTrait()) {
+        } else if (symbol.isClass()) {
             return ElementKind.CLASS;
-        } else if (symbol.isModule()) {
+        } else if (symbol.hasFlag(Flags.MODULE())) {
             return ElementKind.MODULE;
-        } else if (symbol.isMethod()) {
+        } else if (symbol.hasFlag(Flags.METHOD())) {
             return ElementKind.METHOD;
         } else {
             return ElementKind.OTHER;
