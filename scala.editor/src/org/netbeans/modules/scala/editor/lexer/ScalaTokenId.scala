@@ -55,7 +55,7 @@ import org.netbeans.spi.lexer.{LanguageEmbedding,
                                LanguageHierarchy,
                                Lexer,
                                LexerRestartInfo}
-
+import org.netbeans.modules.scala.editor.ScalaMimeResolver
 /**
  * 
  * @author Caoyuan Deng

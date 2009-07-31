@@ -50,6 +50,7 @@ import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.lex.LexUtil
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
+import org.netbeans.modules.scala.editor.ScalaMimeResolver
 
 import _root_.scala.tools.nsc.symtab.Symbols
 import _root_.scala.tools.nsc.symtab.Flags

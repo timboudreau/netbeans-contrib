@@ -40,7 +40,9 @@ package org.netbeans.modules.scala.editor.ast
 
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.csl.api.ElementKind
+
 import org.netbeans.api.language.util.ast.AstRef
+import org.netbeans.modules.scala.editor.ScalaMimeResolver
 
 import _root_.scala.tools.nsc.symtab.Symbols
 
