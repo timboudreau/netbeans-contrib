@@ -973,6 +973,6 @@ abstract class ScalaAstVisitor {
 
     val pos = tree.pos
 
-    println(getAstPathString + "(" + offset(pos.line) + ":" + offset(pos.column) + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
+    println(getAstPathString + "(" + pos.line + ":" + pos.column + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
   }
 }

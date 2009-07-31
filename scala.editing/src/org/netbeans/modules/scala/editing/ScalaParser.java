@@ -555,7 +555,7 @@ public class ScalaParser extends Parser {
         global = ScalaGlobal.getGlobal(context.fileObject());
         global.reporter_$eq(reporter);
 
-        AbstractFile af = file != null ?  new PlainFile(file) : new VirtualFile("<current>", "");
+        AbstractFile af = file != null ? new PlainFile(file) : new VirtualFile("<current>", "");
         BatchSourceFile srcFile = new BatchSourceFile(af, source.toCharArray());
         try {
             CompilationUnit unit = ScalaGlobal.compileSourceForPresentation(global, srcFile);
@@ -800,13 +800,10 @@ public class ScalaParser extends Parser {
             boolean ignoreError = context.sanitizedSource != null;
             if (!ignoreError) {
                 // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
-                Option source = pos.source();
                 //System.out.println("Error in source: " + pos.source());
-                if (source.isDefined()) {
-                    SourceFile sf = (SourceFile) source.get();
-                    if (!context.fileObject().getPath().equals(sf.file().path())) {
-                        return;
-                    }
+                SourceFile sf = pos.source();
+                if (!context.fileObject().getPath().equals(sf.file().path())) {
+                    return;
                 }
 
                 int offset = ScalaUtils.getOffset(pos);

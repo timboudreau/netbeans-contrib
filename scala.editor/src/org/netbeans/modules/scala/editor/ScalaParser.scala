@@ -570,13 +570,11 @@ class ScalaParser extends Parser {
       val ignoreError = context.sanitizedSource != null
       if (!ignoreError) {
         // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
-        pos.source match {
-          case Some(sourceFile) if !context.fileObject.getPath.equals(sourceFile.file.path) =>
-            //System.out.println("Error in source: " + sourceFile);
-            return
-          case _ =>
+        if (!context.fileObject.getPath.equals(pos.source.file.path)) {
+          //System.out.println("Error in source: " + sourceFile);
+          return
         }
-
+        
         val offset = ScalaUtil.getOffset(pos)
         val sev = severity.id match {
           case 0 => return
