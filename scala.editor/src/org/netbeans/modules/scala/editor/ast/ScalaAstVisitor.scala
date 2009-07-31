@@ -973,6 +973,40 @@ abstract class ScalaAstVisitor {
 
     val pos = tree.pos
 
-    println(getAstPathString + "(" + pos.line + ":" + pos.column + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr);
+    println(getAstPathString + "(" + pos.line + ":" + pos.column + ")" + ", idToken: " + idTokenStr + ", symbol: " + symbolStr)
+  }
+
+  /**
+   * Used when endOffset of tree is not available.
+   * @Note from scala-2.8.x, the endOffset has been added, just keep this method
+   * here for reference.
+   */
+  private def setBoundsEndToken(fromScope: AstScope[_]) {
+    assert(fromScope.isScopesSorted == false)
+
+    val children = fromScope.subScopes
+    val itr = children.iterator
+    var curr = if (itr.hasNext) itr.next else null
+    while (curr != null) {
+      if (itr.hasNext) {
+        val next = itr.next
+        val offset = next.boundsOffset(th)
+        if (offset != -1) {
+          val endToken = getBoundsEndToken(offset - 1)
+          curr.boundsEndToken = Some(endToken)
+        } else {
+          println("Scope without start token: " + next);
+        }
+        curr = next
+      } else {
+        curr.parent match {
+          case Some(x) => curr.boundsEndToken = x.boundsEndToken
+          case None =>
+        }
+        curr = null
+      }
+    }
+
+    children foreach {setBoundsEndToken(_)}
   }
 }
