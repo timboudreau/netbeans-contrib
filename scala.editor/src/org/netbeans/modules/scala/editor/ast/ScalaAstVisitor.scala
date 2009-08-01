@@ -432,6 +432,18 @@ abstract class ScalaAstVisitor {
             printcln(")")
             scopes pop
 
+          case Bind(name, body) =>
+            val scope = ScalaScope(getBoundsTokens(tree))
+            scopes.top.addScope(scope)
+
+            /**
+             * case c => println(c), will define a bind val "c"
+             */
+            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.VARIABLE, scope, fo)
+            if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
+
+            traverse(body, level, false)
+
           case TypeTree() =>
             tree.symbol match {
               case null =>
@@ -444,12 +456,12 @@ abstract class ScalaAstVisitor {
                 if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
-              case symbol =>
+              case sym =>
                 // * We'll drop tuple type, since all elements in tuple have their own type trees:
                 // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
                 // * need binding trees of a and b
-                if (!isTupleClass(symbol)) {
-                  val ref = ScalaRef(ScalaSymbol(symbol), getIdToken(tree), ElementKind.CLASS)
+                if (!isTupleClass(sym)) {
+                  val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), ElementKind.CLASS)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                   //if (original != tree) visit(tree.original));
                 }
@@ -501,6 +513,23 @@ abstract class ScalaAstVisitor {
 
             maybeType = None
 
+          case Ident(name) =>
+            val sym = tree.symbol
+            if (sym != null) {
+              val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), ElementKind.OTHER)
+              /**
+               * @Note: this symbol may be NoSymbol, for example, an error tree,
+               * to get error recover in code completion, we need to also add it as a ref
+               */
+              if (sym == NoSymbol && maybeType != None) {
+                //ref.setResultType(maybeType);
+              }
+
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
+
+            printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
+
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
             traverse(tpt, level + 1, true)
@@ -551,9 +580,6 @@ abstract class ScalaAstVisitor {
             
           case EmptyTree =>
             printcln("EmptyTree")
-
-          case Ident(name) =>
-            printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
 
           case Literal(value) =>
             printcln("Literal(" + value + ")")
@@ -875,7 +901,7 @@ abstract class ScalaAstVisitor {
             // a.p where, offset is at p
             ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         }
-      case _ => 
+      case _ =>
         ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens) match {
           case x:Token[_] if x.text.toString.trim == name => x
           case _ => null
