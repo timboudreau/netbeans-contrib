@@ -44,7 +44,7 @@ import org.netbeans.modules.parsing.spi.{ParseException, Parser}
 import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaDfn, ScalaRootScope, ScalaSymbol}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
-import org.openide.filesystems.FileObject
+import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, NbBundle}
 import _root_.scala.tools.nsc.symtab.Symbols
 import _root_.scala.tools.nsc.util.Position
@@ -346,6 +346,12 @@ object ScalaUtil {
   }
 
   def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
+    val srcPath = symbol.pos.source.path
+    val file = new File(srcPath)
+    if (file != null && file.exists) {
+      return Some(FileUtil.toFileObject(file))
+    }
+    
     val qName: String = try {
       symbol.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {
@@ -360,7 +366,7 @@ object ScalaUtil {
       return None
     }
 
-    val lastSep = qName.lastIndexOf(File.separatorChar);
+    val lastSep = qName.lastIndexOf(File.separatorChar)
     val pkgName: String = if (lastSep > 0) {
       qName.substring(0, lastSep)
     } else null

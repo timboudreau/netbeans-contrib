@@ -89,14 +89,14 @@ class ScalaLanguage extends DefaultLanguageConfig {
   override def hasOccurrencesFinder = true
   override def getOccurrencesFinder = new ScalaOccurrencesFinder
   
+  override def getDeclarationFinder = new ScalaDeclarationFinder
+  
   //   override def getKeystrokeHandler = new ScalaKeystrokeHandler
   //
   //   override def hasFormatter =  true
   //   override def getFormatter = new ScalaFormatter
   //
   //   override def getInstantRenamer = new ScalaInstantRenamer
-  //
-  //   override def getDeclarationFinder = new ScalaDeclarationFinder
   //
   //   override def getIndexerFactory = new ScalaIndexer.Factory
   //
