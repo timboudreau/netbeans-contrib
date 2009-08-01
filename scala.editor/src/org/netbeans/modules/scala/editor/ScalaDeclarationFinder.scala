@@ -39,10 +39,10 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.Document;
+import javax.swing.text.Document
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.modules.csl.api.{DeclarationFinder, ElementHandle, ElementKind, OffsetRange}
-import org.netbeans.modules.csl.api.DeclarationFinder.DeclarationLocation;
+import org.netbeans.modules.csl.api.DeclarationFinder.DeclarationLocation
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.filesystems.FileObject
@@ -55,42 +55,35 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
  * @author Caoyuan Deng
  */
 class ScalaDeclarationFinder extends DeclarationFinder {
-
-  //private val CHOOSE_ONE_DECLARATION = Boolean.getBoolean("scala.choose_one_decl");
-
+  
   override def getReferenceSpan(document: Document, lexOffset: Int): OffsetRange = {
-    val th = TokenHierarchy.get(document);
+    val th = TokenHierarchy.get(document)
 
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
-
-    if (ts == null) {
-      return OffsetRange.NONE
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+      case null => return OffsetRange.NONE
+      case x => x
     }
 
     ts.move(lexOffset)
-
     if (!ts.moveNext && !ts.movePrevious) {
       return OffsetRange.NONE
     }
 
-    // Determine whether the caret position is right between two tokens
-    val isBetween = (lexOffset == ts.offset)
-    var range = getReferenceSpan(ts, th, lexOffset);
-    if (range == OffsetRange.NONE && isBetween) {
-      // The caret is between two tokens, and the token on the right
-      // wasn't linkable. Try on the left instead.
-      if (ts.movePrevious()) {
-        range = getReferenceSpan(ts, th, lexOffset)
-      }
+    getReferenceSpan(ts, th, lexOffset) match {
+      case OffsetRange.NONE if lexOffset == ts.offset =>
+        // The caret is between two tokens, and the token on the right
+        // wasn't linkable. Try on the left instead.
+        if (ts.movePrevious) {
+          getReferenceSpan(ts, th, lexOffset)
+        } else OffsetRange.NONE
+      case x => x
     }
-
-    range
   }
 
   private def getReferenceSpan(ts: TokenSequence[_], th: TokenHierarchy[_], lexOffset: Int): OffsetRange = {
     val token = ts.token
     token.id match {
-      case ScalaTokenId.Identifier if token.length == 1 && token.text.toString.equals(",") => OffsetRange.NONE
+      case ScalaTokenId.Identifier if token.length == 1 && token.text.toString == "," => OffsetRange.NONE
       case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super | ScalaTokenId.LArrow | ScalaTokenId.RArrow =>
         new OffsetRange(ts.offset, ts.offset + token.length)
       case _ => OffsetRange.NONE
@@ -102,8 +95,8 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     val global = pResult.parser.global
 
     val root = pResult.rootScope match {
-      case None => return DeclarationLocation.NONE
       case Some(x) => x
+      case None => return DeclarationLocation.NONE
     }
 
     val astOffset = ScalaLexUtil.getAstOffset(info, lexOffset)
@@ -116,8 +109,8 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     var isLocal = false
 
     val closest = root.findItemAt(th, astOffset) match {
-      case None => return DeclarationLocation.NONE
       case Some(x) => x
+      case None => return DeclarationLocation.NONE
     }
         
     root.findDfnOf(closest) match {
