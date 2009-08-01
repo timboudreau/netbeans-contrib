@@ -66,13 +66,13 @@ class ScalaRef(_idToken: Option[Token[TokenId]], _kind: ElementKind) extends Ast
 
   def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
-  override def isOccurrence(ref: AstRef[Symbols#Symbol]): Boolean = ref.getKind match {
-    //    case CALL if self.getKind == CALL => (symbol, ref.symbol) match {
-    //        case (ErlFunction(Some(inX), nameX, arityX), ErlFunction(Some(inY), nameY, arityY))
-    //          if inX == inY && nameX == nameY && arityX == arityY => true
-    //        case _ => false
-    //      }
-    case _ =>
-      if (ref.name == name) true else false
+  override def isOccurrence(ref: AstRef[Symbols#Symbol]): Boolean = {
+    if (ref.getName equals getName) {
+      //        if (isSameNameAsEnclClass() || ref.isSameNameAsEnclClass()) {
+      //          return getSymbol().enclClass() == ref.getSymbol().enclClass();
+      //        }
+
+      ref.symbol.value == symbol.value
+    } else false
   }
 }
