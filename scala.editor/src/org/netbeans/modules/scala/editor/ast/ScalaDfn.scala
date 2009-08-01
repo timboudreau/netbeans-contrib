@@ -129,34 +129,19 @@ class ScalaDfn(_idToken: Option[Token[TokenId]],
     return null // todo
   }
 
-
-  def htmlFormat(formatter: HtmlFormatter): Unit = getKind match {
-    case PACKAGE | CLASS | MODULE => formatter.appendText(getName)
-    case METHOD | RULE => symbol match {
-        //        case ErlFunction(_, name, arity) =>
-        //          formatter.appendText(name)
-        //          formatter.appendText("/")
-        //          formatter.appendText(arity.toString)
-        case _ =>
-          formatter.appendText(getName)
-          formatter.appendText("/?")
-      }
-    case ATTRIBUTE /*if isFunctionClause*/ => property("args") match {
-        case Some(args: List[String]) =>
-          formatter.appendText("(")
-          val itr = args.elements
-          while (itr.hasNext) {
-            formatter.appendText(itr.next)
-            if (itr.hasNext) {
-              formatter.appendText(", ")
-            }
-          }
-          formatter.appendText(")")
-        case _ => formatter.appendText("()")
-      }
-      //case ATTRIBUTE => formatter.appendText(getName)
-    case _ => formatter.appendText(getName)
+  def htmlFormat(formatter: HtmlFormatter): Unit = {
+    symbol.value match {
+      case sym if sym.isPackage | sym.isClass | sym.isModule => formatter.appendText(getName)
+      case sym if sym.isMethod => 
+        formatter.appendText(getName)
+        formatter.appendText(" : ")
+        formatter.appendText(sym.tpe.toString)
+      case sym =>
+        formatter.appendText(getName)
+        formatter.appendText(" : ")
+        formatter.appendText(sym.tpe.toString)
+    }
   }
-    
+  
 }
 
