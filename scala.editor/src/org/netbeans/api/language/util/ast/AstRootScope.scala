@@ -61,8 +61,8 @@ class AstRootScope[T](boundsTokens: Array[Token[TokenId]]) extends AstScope[T](b
     if (!tokensSorted) {
       sortedTokens = _idTokenToItems.keySet.toList sort {compareToken(th, _, _)}
       tokensSorted = true
-      sortedTokens
-    } else Nil
+    }
+    sortedTokens
   }
 
   /**

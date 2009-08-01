@@ -135,6 +135,25 @@ trait LexUtil {
     }
   }
 
+  def getAstOffset(pResult: Parser.Result, lexOffset: Int): Int = {
+    if (pResult != null) {
+      pResult.getSnapshot.getEmbeddedOffset(lexOffset)
+    } else lexOffset
+  }
+
+  def getAstOffsets(pResult: Parser.Result, lexicalRange: OffsetRange): OffsetRange = {
+    if (pResult != null) {
+      val rangeStart = lexicalRange.getStart
+      pResult.getSnapshot.getEmbeddedOffset(rangeStart) match {
+        case `rangeStart` => lexicalRange
+        case -1 => OffsetRange.NONE
+        case start =>
+          // Assumes the translated range maintains size
+          new OffsetRange(start, start + lexicalRange.getLength)
+      }
+    } else lexicalRange
+  }
+
   /** Find the Fortress token sequence (in case it's embedded in something else at the top level */
   def getTokenSequence(doc: BaseDocument, offset: Int): TokenSequence[TokenId] = {
     val th = TokenHierarchy.get(doc)
