@@ -372,9 +372,11 @@ class AstScope[T](var boundsTokens: Array[Token[TokenId]]) {
     }
   }
 
-  def findDfnOf(item: AstItem[T]): Option[AstDfn[T]] = item match {
-    case dfn:AstDfn[T] => Some(dfn)
-    case ref:AstRef[T] => findDfnOf(ref)
+  def findDfnOf(item: AstItem[T]): Option[AstDfn[T]] = {
+    item match {
+      case dfn:AstDfn[T] => Some(dfn)
+      case ref:AstRef[T] => findDfnOf(ref)
+    }
   }
   
 
@@ -385,15 +387,15 @@ class AstScope[T](var boundsTokens: Array[Token[TokenId]]) {
     }
   }
 
-  private def findDfnOfUpward(aRef: AstRef[T]): Option[AstDfn[T]] = {
-    _dfns.find{_ isReferredBy aRef} match {
+  private def findDfnOfUpward(ref: AstRef[T]): Option[AstDfn[T]] = {
+    _dfns.find{_ isReferredBy ref} match {
       case Some(x) => return Some(x)
       case None =>
     }
 
     /** search upward */
     parent match {
-      case Some(x) => x.findDfnOfUpward(aRef)
+      case Some(x) => x.findDfnOfUpward(ref)
       case None => None
     }
   }

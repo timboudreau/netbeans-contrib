@@ -456,13 +456,11 @@ public abstract class AstVisitor {
     }
 
     protected int offset(Tree tree) {
-        Option offsetOpt = tree.pos().offset();
-        return offset(offsetOpt);
+        return tree.pos().startOrPoint();
     }
 
     protected int offset(Symbol symbol) {
-        Option offsetOpt = symbol.pos().offset();
-        return offset(offsetOpt);
+        return symbol.pos().startOrPoint();
     }
 
     protected int offset(Option intOption) {

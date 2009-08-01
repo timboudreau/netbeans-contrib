@@ -412,8 +412,9 @@ abstract class ScalaAstVisitor {
             scopes.top.addScope(scope)
 
             val kind = getCurrentParent match {
-              case _:Template => ElementKind.FIELD
-              case _:DefDef => ElementKind.PARAMETER
+              case _: Template => ElementKind.FIELD
+              case _: DefDef => ElementKind.PARAMETER
+              case _: Function => ElementKind.PARAMETER
               case _ => ElementKind.VARIABLE
             }
 
@@ -444,7 +445,7 @@ abstract class ScalaAstVisitor {
 
             traverse(body, level, false)
 
-          case TypeTree() =>
+          case theTree@TypeTree() =>
             tree.symbol match {
               case null =>
                 // * in case of: <type ?>
@@ -452,7 +453,7 @@ abstract class ScalaAstVisitor {
               case NoSymbol =>
                 // * type tree in case def, for example: case Some(_),
                 // * since the symbol is NoSymbol, we should visit its original type
-                val original = tree.asInstanceOf[TypeTree].original
+                val original = theTree.original
                 if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
@@ -463,7 +464,11 @@ abstract class ScalaAstVisitor {
                 if (!isTupleClass(sym)) {
                   val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), ElementKind.CLASS)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                  //if (original != tree) visit(tree.original));
+                }
+                
+                val original = theTree.original
+                if (original != null && original != tree) {
+                  traverse(original, level, false)
                 }
             }
 
@@ -516,7 +521,7 @@ abstract class ScalaAstVisitor {
           case Ident(name) =>
             val sym = tree.symbol
             if (sym != null) {
-              val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), ElementKind.OTHER)
+              val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree, name.decode.trim), ElementKind.OTHER)
               /**
                * @Note: this symbol may be NoSymbol, for example, an error tree,
                * to get error recover in code completion, we need to also add it as a ref
@@ -529,6 +534,16 @@ abstract class ScalaAstVisitor {
             }
 
             printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
+
+          case Import(expr, selectors) =>
+            traverse(expr, level, false)
+            selectors foreach {
+              case (x:Name, y:Name) =>
+            }
+
+          case Function(vparams, body) =>
+            vparams foreach {traverse(_, level, false)}
+            traverse(body, level, false)
 
           case AppliedTypeTree(tpt, args) =>
             println("AppliedTypeTree(" + nodeinfo(tree))
@@ -593,6 +608,8 @@ abstract class ScalaAstVisitor {
             printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
 
           case Template(parents, self, body) =>
+            parents foreach {traverse(_, level, false)}
+            
             println("Template(" + nodeinfo(tree))
             println("  " + parents.map(p =>
                 if (p.tpe ne null) p.tpe.typeSymbol else "null-" + p
@@ -842,18 +859,7 @@ abstract class ScalaAstVisitor {
   }
 
   protected def offset(tree: Tree): Int = {
-    offset(tree.pos.offset)
-  }
-
-  protected def offset(symbol: Symbol): Unit = {
-    offset(symbol.pos.offset)
-  }
-
-  protected def offset(intOption: Option[Int]): Int = {
-    intOption match {
-      case None => -1
-      case Some(i) => i
-    }
+    tree.pos.startOrPoint
   }
 
   /**
@@ -861,15 +867,18 @@ abstract class ScalaAstVisitor {
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree: Tree): Option[Token[TokenId]] = {
-    val symbol = tree.symbol
-    if (symbol == null) {
+  protected def getIdToken(tree: Tree, knownName: String = ""): Option[Token[TokenId]] = {
+    val sym = tree.symbol
+    if (sym == null) {
       return None
     }
 
-    /** Do not use symbol.nameString() here, for example, a constructor Dog()'s nameString maybe "this" */
-    //String name = symbol.idString();
-    val name = symbol.rawname.decode.trim
+    /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
+    val name = if (sym != NoSymbol) sym.rawname.decode.trim else knownName
+    if (name == "") {
+      return None
+    }
+    
     val offset1 = offset(tree)
     val ts = ScalaLexUtil.getTokenSequence(th, offset1)
     ts.move(offset1)
