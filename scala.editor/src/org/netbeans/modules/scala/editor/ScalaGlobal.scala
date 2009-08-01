@@ -41,24 +41,21 @@ package org.netbeans.modules.scala.editor
 import _root_.java.io.{File, IOException}
 import _root_.java.lang.ref.{Reference, WeakReference}
 import _root_.java.net.{MalformedURLException, URI, URISyntaxException, URL}
-import _root_.java.util.{Iterator, Map, WeakHashMap}
+import _root_.java.util.WeakHashMap
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, SourceGroup}
 import org.netbeans.spi.java.classpath.ClassPathProvider
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
-import org.netbeans.modules.scala.editor.ast.{ScalaAstVisitor, ScalaRootScope}
-import org.openide.filesystems.{FileChangeAdapter,
-                                FileEvent,
-                                FileObject,
-                                FileRenameEvent,
-                                FileStateInvalidException,
-                                FileSystem,
-                                FileUtil,
-                                JarFileSystem}
+import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRenameEvent,
+                                FileStateInvalidException, FileSystem, FileUtil, JarFileSystem}
 import org.openide.util.{Exceptions, RequestProcessor}
-import _root_.scala.tools.nsc.{Global,Settings}
+
+import org.netbeans.modules.scala.editor.ast.{ScalaAstVisitor, ScalaRootScope}
+
+import _root_.scala.tools.nsc.{Phase, Settings}
+import _root_.scala.tools.nsc.interactive.Global
 import _root_.scala.tools.nsc.symtab.{SymbolTable}
 import _root_.scala.tools.nsc.util.BatchSourceFile
 
@@ -395,7 +392,7 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings: Settings) extends Global(settings) {
+class ScalaGlobal(settings: Settings) extends Global(settings, null) {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
@@ -408,17 +405,18 @@ class ScalaGlobal(settings: Settings) extends Global(settings) {
   override def logError(msg: String, t: Throwable): Unit = {}
 
   def compileSourceForPresentation(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
-    compileSource(srcFile, Phase.superaccessors, th)
+    compileSource(srcFile, superAccessors.phaseName, th)
   }
 
-  // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built, the following setting exlcudes 'stopPhase'
+  // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built
   def compileSourceForDebugger(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
-    compileSource(srcFile, Phase.constructors, th)
+    compileSource(srcFile, constructors.phaseName, th)
   }
 
-  def compileSource(srcFile: BatchSourceFile, stopPhase: Phase, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
+  // * @Note the following setting exlcudes 'stopPhase' itself
+  def compileSource(srcFile: BatchSourceFile, stopPhaseName: String, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
     settings.stop.value = Nil
-    settings.stop.tryToSetColon(List(stopPhase.name))
+    settings.stop.tryToSetColon(List(stopPhaseName))
     resetSelectTypeErrors
     val run = new this.Run
 
@@ -457,32 +455,6 @@ class ScalaGlobal(settings: Settings) extends Global(settings) {
       }
     }
 
-    ScalaRootScope(Array())
+    ScalaRootScope.EMPTY
   }
-}
-
-abstract class Phase(val name:String)
-object Phase {
-  case object parser extends Phase("parser")
-  case object namer extends Phase("name")
-  case object typer extends Phase("typer")
-  case object superaccessors extends Phase("superaccessors")
-  case object pickler extends Phase("pickler")
-  case object refchecks extends Phase("refchecks")
-  case object liftcode extends Phase("liftcode")
-  case object uncurry extends Phase("uncurry")
-  case object tailcalls extends Phase("tailcalls")
-  case object explicitouter extends Phase("explicitouter")
-  case object erasure extends Phase("erasure")
-  case object lazyvals extends Phase("lazyvals")
-  case object lambdalift extends Phase("lambdalift")
-  case object constructors extends Phase("constructors")
-  case object flatten extends Phase("flatten")
-  case object mixin extends Phase("mixin")
-  case object cleanup extends Phase("cleanup")
-  case object icode extends Phase("icode")
-  case object inliner extends Phase("inliner")
-  case object closelim extends Phase("closelim")
-  case object dce extends Phase("dce")
-  case object jvm extends Phase("jvm")
 }

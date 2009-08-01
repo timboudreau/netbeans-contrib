@@ -319,7 +319,7 @@ abstract class ScalaAstVisitor {
         
         tree match {
           case PackageDef(name, stats) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
@@ -332,7 +332,7 @@ abstract class ScalaAstVisitor {
             scopes pop
 
           case ClassDef(mods, name, tparams, impl) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
             (if (mods.isTrait) "trait " else "class ")
@@ -357,7 +357,7 @@ abstract class ScalaAstVisitor {
             scopes pop
 
           case ModuleDef(mods, name, impl) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
             val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
@@ -368,7 +368,7 @@ abstract class ScalaAstVisitor {
             scopes pop
 
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
             val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
@@ -408,7 +408,7 @@ abstract class ScalaAstVisitor {
             scopes pop
 
           case ValDef(mods, name, tpt, rhs) =>
-            val scope = ScalaScope(getBoundsToken(offset(tree)))
+            val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
             val kind = getCurrentParent match {
@@ -897,6 +897,15 @@ abstract class ScalaAstVisitor {
     Array(getBoundsToken(offset), getBoundsEndToken(endOffset))
   }
 
+  protected def getBoundsTokens(tree: Tree): Array[Token[TokenId]] = {
+    val pos = tree.pos
+    val (offset, endOffset) = if (tree.pos.isDefined) {
+      (pos.startOrPoint, pos.endOrPoint)
+    } else (-1, -1)
+    
+    getBoundsTokens(offset, endOffset)
+  }
+  
   protected def getBoundsToken(offset: Int): Token[TokenId]  = {
     if (offset == -1) {
       return null
