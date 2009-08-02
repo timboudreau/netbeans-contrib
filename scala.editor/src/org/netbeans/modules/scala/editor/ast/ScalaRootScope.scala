@@ -40,16 +40,14 @@ package org.netbeans.modules.scala.editor.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 
-import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope, AstSymbol}
-
-import _root_.scala.tools.nsc.symtab.Symbols
+import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope}
 
 object ScalaRootScope {
   def apply(boundsTokens: Array[Token[TokenId]]) = new ScalaRootScope(boundsTokens)
   val EMPTY = new ScalaRootScope(Array())
 }
 
-class ScalaRootScope(boundsTokens: Array[Token[TokenId]]) extends AstRootScope[Symbols#Symbol](boundsTokens) {
+class ScalaRootScope(boundsTokens: Array[Token[TokenId]]) extends AstRootScope(boundsTokens) {
   //  def findDfnOfSym(symbol:AstSymbol[_]): Option[AstDfn] = {
   //    _idTokenToItem.values.find{item =>
   //      // ElementKind.Rule is "-spec", we won't let it as

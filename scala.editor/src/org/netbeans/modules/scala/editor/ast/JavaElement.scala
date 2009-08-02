@@ -89,7 +89,7 @@ object JavaElement {
 
 abstract class JavaElement(name: CharSequence,
                            pickToken: Token[_],
-                           var bindingScope: AstScope[_],
+                           var bindingScope: AstScope,
                            var kind: ElementKind
 ) extends Element {
 
@@ -102,17 +102,17 @@ abstract class JavaElement(name: CharSequence,
     arg0.visit(this, arg1)
   }
 
-//  def getEnclosedElements: List[_ <: JavaElement] = {
-//    if (bindingScope != null) {
-//      bindingScope.getElements
-//    } else {
-//      _root_.java.util.Collections.emptyList[JavaElement]
-//    }
-//  }
+  //  def getEnclosedElements: List[_ <: JavaElement] = {
+  //    if (bindingScope != null) {
+  //      bindingScope.getElements
+  //    } else {
+  //      _root_.java.util.Collections.emptyList[JavaElement]
+  //    }
+  //  }
 
-//  def getEnclosingElement: JavaElement = {
-//    getEnclosingScope.bindingElement
-//  }
+  //  def getEnclosingElement: JavaElement = {
+  //    getEnclosingScope.bindingElement
+  //  }
 
   def getAnnotation[A <: Annotation](arg0: Class[A]): A = {
     throw new UnsupportedOperationException("Not supported yet.");
@@ -134,7 +134,7 @@ abstract class JavaElement(name: CharSequence,
     getSimpleName + "(kind=" + getKind + ", type=" + asType + ")"
   }
 
-  def getBindingScope: AstScope[_] = {
+  def getBindingScope: AstScope = {
     assert(bindingScope != null , toString + ": Each definition should set binding scope!")
     bindingScope
   }
@@ -155,9 +155,9 @@ abstract class JavaElement(name: CharSequence,
     getBindingScope.range(th)
   }
 
-//  def isMirroredBy(mirror:AstMirror): Boolean = {
-//    getSimpleName.toString.equals(mirror.getSimpleName.toString)
-//  }
+  //  def isMirroredBy(mirror:AstMirror): Boolean = {
+  //    getSimpleName.toString.equals(mirror.getSimpleName.toString)
+  //  }
 
   def mayEquals(element: JavaElement): Boolean = {
     getSimpleName.toString.equals(element.getSimpleName.toString)

@@ -41,10 +41,9 @@ package org.netbeans.modules.scala.editor.ast
 
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.api.language.util.ast.AstScope
-import _root_.scala.tools.nsc.symtab.Symbols
 
 object ScalaScope {
-  def apply(boundsToken: Token[TokenId]) = new AstScope[Symbols#Symbol](Array(boundsToken))
-  def apply(boundsTokens: Array[Token[TokenId]]) = new AstScope[Symbols#Symbol](boundsTokens)
-  val EMPTY = new AstScope[Symbols#Symbol](Array())
+  def apply(boundsToken: Token[TokenId]) = new AstScope(Array(boundsToken))
+  def apply(boundsTokens: Array[Token[TokenId]]) = new AstScope(boundsTokens)
+  val EMPTY = new AstScope(Array())
 }

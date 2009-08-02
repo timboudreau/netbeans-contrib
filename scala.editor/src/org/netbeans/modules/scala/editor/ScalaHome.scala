@@ -260,7 +260,7 @@ object ScalaHome {
 
     if (extraCp != null) {
       if (cp.length > 0) {
-        cp.append(File.pathSeparatorChar);
+        cp.append(File.pathSeparatorChar)
       }
       //if (File.pathSeparatorChar != ':' && extraCp.indexOf(File.pathSeparatorChar) == -1 &&
       //        extraCp.indexOf(':') != -1) {

@@ -42,37 +42,42 @@ import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.csl.api.ElementKind
 
 import org.netbeans.api.language.util.ast.AstRef
-import org.netbeans.modules.scala.editor.ScalaMimeResolver
+import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver}
 
-import _root_.scala.tools.nsc.symtab.Symbols
+import _root_.scala.tools.nsc.symtab.{Symbols, Types}
 
 /**
  * Mirror with AstDfn information
  * 
- * Represent usage/reference of an AstDfn
+ * Represent usage/reference of an AstDfn, which will be enabled in ScalaGlobal
  * 
  * @author Caoyuan Deng
  */
-object ScalaRef {
-  def apply(symbol: ScalaSymbol, _idToken: Option[Token[TokenId]], _kind: ElementKind) = {
-    val ref = new ScalaRef(_idToken, _kind)
-    ref.symbol = symbol
-    ref
+trait ScalaRefs {self: ScalaGlobal =>
+
+  object ScalaRef{
+    def apply(symbol: Symbol, idToken: Option[Token[TokenId]], kind: ElementKind) = {
+      new ScalaRef(symbol, idToken, kind)
+    }
   }
-}
 
-class ScalaRef(_idToken: Option[Token[TokenId]], _kind: ElementKind) extends AstRef[Symbols#Symbol](_idToken, _kind) {
-  import ElementKind._
+  class ScalaRef(asymbol: Symbol, aidToken: Option[Token[TokenId]], akind: ElementKind) extends AstRef(aidToken, akind) {
 
-  def getMimeType: String = ScalaMimeResolver.MIME_TYPE
+    type S = Symbol
+    type T = Type
 
-  override def isOccurrence(ref: AstRef[Symbols#Symbol]): Boolean = {
-    if (ref.getName equals getName) {
-      //        if (isSameNameAsEnclClass() || ref.isSameNameAsEnclClass()) {
-      //          return getSymbol().enclClass() == ref.getSymbol().enclClass();
-      //        }
+    symbol = asymbol
+    
+    def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
-      ref.symbol.value == symbol.value
-    } else false
+    override def isOccurrence(ref: AstRef): Boolean = {
+      if (ref.getName == getName) {
+        //        if (isSameNameAsEnclClass() || ref.isSameNameAsEnclClass()) {
+        //          return getSymbol().enclClass() == ref.getSymbol().enclClass();
+        //        }
+
+        ref.symbol == symbol
+      } else false
+    }
   }
 }

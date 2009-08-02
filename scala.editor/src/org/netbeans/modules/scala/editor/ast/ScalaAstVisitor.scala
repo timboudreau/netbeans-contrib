@@ -91,6 +91,9 @@ import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.Typed;
 //import scala.tools.nsc.ast.Trees.UnApply;
 //import scala.tools.nsc.ast.Trees.ValDef;
+
+import org.netbeans.modules.scala.editor.ScalaGlobal
+
 import _root_.scala.tools.nsc.symtab.{Symbols, SymbolTable}
 import _root_.scala.tools.nsc.symtab.Flags._
 import _root_.scala.tools.nsc.util.{BatchSourceFile, Position}
@@ -107,7 +110,7 @@ import _root_.scala.collection.mutable.{Stack, HashSet}
  */
 abstract class ScalaAstVisitor {
 
-  val global: Global
+  val global: ScalaGlobal
   import global._
 
   val EOL = System.getProperty("line.separator", "\n")
@@ -118,7 +121,7 @@ abstract class ScalaAstVisitor {
   //private var exprs: Stack[AstExpr] = new Stack
   private var visited: Set[Tree] = _
 
-  private var scopes: Stack[AstScope[Symbols#Symbol]] = _
+  private var scopes: Stack[AstScope] = _
   private var rootScope: ScalaRootScope = _
 
   private var fo: Option[FileObject] = _
@@ -322,7 +325,7 @@ abstract class ScalaAstVisitor {
             val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.PACKAGE, scope, fo)
+            val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.PACKAGE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             scopes push scope
@@ -337,7 +340,7 @@ abstract class ScalaAstVisitor {
 
             (if (mods.isTrait) "trait " else "class ")
 
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.CLASS, scope, fo)
+            val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.CLASS, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             scopes push scope
@@ -360,7 +363,7 @@ abstract class ScalaAstVisitor {
             val scope = ScalaScope(getBoundsTokens(tree))
             scopes.top.addScope(scope)
 
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.MODULE, scope, fo)
+            val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.MODULE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             scopes push scope
@@ -373,7 +376,7 @@ abstract class ScalaAstVisitor {
 
             val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
 
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+            val dfn = ScalaDfn(tree.symbol, getIdToken(tree), kind, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             scopes push scope
@@ -420,7 +423,7 @@ abstract class ScalaAstVisitor {
 
             // special case for: val (a, b, c) = (1, 2, 3)
             if (!isTupleClass(tpt.symbol)) {
-              val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), kind, scope, fo)
+              val dfn = ScalaDfn(tree.symbol, getIdToken(tree), kind, scope, fo)
               if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
             }
 
@@ -440,7 +443,7 @@ abstract class ScalaAstVisitor {
             /**
              * case c => println(c), will define a bind val "c"
              */
-            val dfn = ScalaDfn(ScalaSymbol(tree.symbol), getIdToken(tree), ElementKind.VARIABLE, scope, fo)
+            val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.VARIABLE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             traverse(body, level, false)
@@ -462,7 +465,7 @@ abstract class ScalaAstVisitor {
                 // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
                 // * need binding trees of a and b
                 if (!isTupleClass(sym)) {
-                  val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), ElementKind.CLASS)
+                  val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
                 
@@ -490,7 +493,7 @@ abstract class ScalaAstVisitor {
               ElementKind.FIELD
             }
             
-            val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree), kind)
+            val ref = ScalaRef(sym, getIdToken(tree), kind)
             if (sym != null && sym == NoSymbol && maybeType != None) {
               //ref.setResultType(maybeType)
             }
@@ -521,7 +524,7 @@ abstract class ScalaAstVisitor {
           case Ident(name) =>
             val sym = tree.symbol
             if (sym != null) {
-              val ref = ScalaRef(ScalaSymbol(sym), getIdToken(tree, name.decode.trim), ElementKind.OTHER)
+              val ref = ScalaRef(sym, getIdToken(tree, name.decode.trim), ElementKind.OTHER)
               /**
                * @Note: this symbol may be NoSymbol, for example, an error tree,
                * to get error recover in code completion, we need to also add it as a ref
@@ -993,7 +996,7 @@ abstract class ScalaAstVisitor {
     println(message)
   }
 
-  protected def info(message: String, item: AstItem[Symbols#Symbol]): Unit = {
+  protected def info(message: String, item: AstItem): Unit = {
     if (!debug) {
       return
     }
@@ -1025,7 +1028,7 @@ abstract class ScalaAstVisitor {
    * @Note from scala-2.8.x, the endOffset has been added, just keep this method
    * here for reference.
    */
-  private def setBoundsEndToken(fromScope: AstScope[_]) {
+  private def setBoundsEndToken(fromScope: AstScope) {
     assert(fromScope.isScopesSorted == false)
 
     val children = fromScope.subScopes

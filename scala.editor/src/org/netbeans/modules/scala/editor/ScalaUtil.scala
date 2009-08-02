@@ -34,19 +34,20 @@ import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.SourceForBinaryQuery
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.TokenHierarchy
-import org.netbeans.api.language.util.ast.{AstScope, AstSymbol}
+import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
 import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
-import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaDfn, ScalaRootScope, ScalaSymbol}
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, NbBundle}
-import _root_.scala.tools.nsc.symtab.Symbols
+
+import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaRootScope}
+import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+
 import _root_.scala.tools.nsc.util.Position
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -60,6 +61,23 @@ object ScalaUtil {
 
   def isScalaFile(f: FileObject): Boolean = {
     ScalaMimeResolver.MIME_TYPE.equals(f.getMIMEType)
+  }
+
+  /** Includes things you'd want selected as a unit when double clicking in the editor */
+  def isIdentifierChar(c: Char): Boolean = {
+    c match {
+      case '$' | '@' | '&' | ':' | '!' | '?' | '=' => true // Function name suffixes
+      case _ if Character.isJavaIdentifierPart(c) => true // Globals, fields and parameter prefixes (for blocks and symbols)
+      case _ => false
+    }
+  }
+
+  /** Includes things you'd want selected as a unit when double clicking in the editor */
+  def isStrictIdentifierChar(c: Char): Boolean = {
+    c match {
+      case '!' | '?' | '=' => true
+      case _ if Character.isJavaIdentifierPart(c) => true
+    }
   }
 
   def getOffset(pos: Position): Int = {
@@ -345,7 +363,7 @@ object ScalaUtil {
     element.getPickOffset(th)
   }
 
-  def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
+  def getFileObject(info: ParserResult, symbol: ScalaGlobal#Symbol): Option[FileObject] = {
     val srcPath = symbol.pos.source.path
     val file = new File(srcPath)
     if (file != null && file.exists) {
@@ -378,8 +396,8 @@ object ScalaUtil {
       val cpInfo = ClasspathInfo.create(srcFo)
       val cp = ClassPathSupport.createProxyClassPath(Array(
           cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
-          cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
-          cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)):_*)
+            cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
+            cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)):_*)
 
       val clzFo = cp.findResource(clzName)
       var srcPath: String = null
@@ -429,30 +447,30 @@ object ScalaUtil {
     
     var clzName = ""
 
-    for (enclDfn <- rootScope.enclosingDfn(TMPL_KINDS, th, offset)) {
-      val sym = enclDfn.symbol.value
-      if (sym != null) {
-        // "scalarun.Dog.$talk$1"
-        val fqn = new StringBuilder(sym.fullNameString('.'))
+    rootScope.enclosingDfn(TMPL_KINDS, th, offset) foreach {case enclDfn: ScalaGlobal#ScalaDfn =>
+        val sym = enclDfn.symbol
+        if (sym != null) {
+          // "scalarun.Dog.$talk$1"
+          val fqn = new StringBuilder(sym.fullNameString('.'))
 
-        // * getTopLevelClassName "scalarun.Dog"
-        val topSym = sym.toplevelClass
-        val topClzName = topSym.fullNameString('.')
+          // * getTopLevelClassName "scalarun.Dog"
+          val topSym = sym.toplevelClass
+          val topClzName = topSym.fullNameString('.')
 
-        // "scalarun.Dog$$talk$1"
-        for (i <- topClzName.length until fqn.length) {
-          if (fqn.charAt(i) == '.') {
-            fqn.setCharAt(i, '$')
+          // "scalarun.Dog$$talk$1"
+          for (i <- topClzName.length until fqn.length) {
+            if (fqn.charAt(i) == '.') {
+              fqn.setCharAt(i, '$')
+            }
           }
-        }
 
-        // * According to Symbol#kindString, an object template isModuleClass()
-        // * trait's symbol name has been added "$class" by compiler
-        if (topSym.isModuleClass) {
-          fqn.append("$")
+          // * According to Symbol#kindString, an object template isModuleClass()
+          // * trait's symbol name has been added "$class" by compiler
+          if (topSym.isModuleClass) {
+            fqn.append("$")
+          }
+          clzName = fqn.toString
         }
-        clzName = fqn.toString
-      }
     }
 
     if (clzName.length == 0) {
@@ -485,7 +503,7 @@ object ScalaUtil {
    * @return the classes containing main method
    * @throws IllegalArgumentException when file does not exist or is not a java source file.
    */
-  def getMainClasses(fo: FileObject): Seq[ScalaDfn] = {
+  def getMainClasses(fo: FileObject): Seq[ScalaGlobal#ScalaDfn] = {
     if (fo == null || !fo.isValid || fo.isVirtual) {
       throw new IllegalArgumentException
     }
@@ -494,7 +512,7 @@ object ScalaUtil {
       case x => x
     }
     try {
-      val result = new ArrayBuffer[ScalaDfn]
+      val result = new ArrayBuffer[ScalaGlobal#ScalaDfn]
       ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
           override def run(resultIterator: ResultIterator): Unit = {
@@ -509,22 +527,22 @@ object ScalaUtil {
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
               packaging => packaging.bindingScope.dfns foreach {
-                case obj: ScalaDfn if isMainMethodExists(obj) => result += obj
+                case obj: ScalaGlobal#ScalaDfn if isMainMethodExists(obj) => result += obj
               }
             }
             
             rootScope.visibleDfns(ElementKind.MODULE) foreach {
-              case obj: ScalaDfn if isMainMethodExists(obj) => result += obj
+              case obj: ScalaGlobal#ScalaDfn if isMainMethodExists(obj) => result += obj
             }
           }
 
-          def getAllDefs(rootScope: AstScope[Symbols#Symbol], kind: ElementKind): Seq[ScalaDfn] = {
-            getAllDefs(rootScope, kind, new ArrayBuffer[ScalaDfn])
+          def getAllDefs(rootScope: AstScope, kind: ElementKind): Seq[ScalaGlobal#ScalaDfn] = {
+            getAllDefs(rootScope, kind, new ArrayBuffer[ScalaGlobal#ScalaDfn])
           }
 
-          def getAllDefs(astScope: AstScope[Symbols#Symbol], kind: ElementKind, result: ArrayBuffer[ScalaDfn]): Seq[ScalaDfn] = {
+          def getAllDefs(astScope: AstScope, kind: ElementKind, result: ArrayBuffer[ScalaGlobal#ScalaDfn]): Seq[ScalaGlobal#ScalaDfn] = {
             astScope.dfns foreach {
-              case dfn:ScalaDfn if dfn.getKind == kind => result += dfn
+              case dfn: ScalaGlobal#ScalaDfn if dfn.getKind == kind => result += dfn
             }
             astScope.subScopes foreach {
               childScope => getAllDefs(childScope, kind, result)
@@ -539,8 +557,8 @@ object ScalaUtil {
     }
   }
 
-  def isMainMethodExists(obj: ScalaDfn): Boolean = {
-    obj.symbol.value.tpe.members exists {
+  def isMainMethodExists(obj: ScalaGlobal#ScalaDfn): Boolean = {
+    obj.symbol.tpe.members exists {
       member => member.isMethod && isMainMethod(member)
     }
   }
@@ -550,7 +568,7 @@ object ScalaUtil {
    * @param method to be checked
    * @return true when the method is a main method
    */
-  def isMainMethod(method: Symbols#Symbol): Boolean = {
+  def isMainMethod(method: ScalaGlobal#Symbol): Boolean = {
     (method.nameString, method.tpe.paramTypes) match {
       case ("main", List(x)) => true  //NOI18N
       case _ => false
@@ -563,8 +581,8 @@ object ScalaUtil {
    * @return the classes containing the main methods
    * Currently this method is not optimized and may be slow
    */
-  def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaDfn] = {
-    val result = new ArrayBuffer[ScalaDfn]
+  def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaGlobal#ScalaDfn] = {
+    val result = new ArrayBuffer[ScalaGlobal#ScalaDfn]
     for (root <- sourceRoots) {
       result ++= getMainClasses(root)
       try {

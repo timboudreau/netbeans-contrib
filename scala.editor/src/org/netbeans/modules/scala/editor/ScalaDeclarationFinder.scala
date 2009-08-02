@@ -47,7 +47,7 @@ import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.filesystems.FileObject
 
-import org.netbeans.modules.scala.editor.ast.{ScalaDfn, ScalaRef, ScalaSymbol, ScalaScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
@@ -128,12 +128,12 @@ class ScalaDeclarationFinder extends DeclarationFinder {
         val token = ts.token
         if (token.id == ScalaTokenId.Identifier) {
           root.findItemAt(th, token.offset(th)) match {
-            case Some(x) =>
-              val sym = x.symbol.value
+            case Some(x: global.ScalaDfn) =>
+              val sym = x.symbol
               ScalaUtil.getFileObject(info, sym) match {
                 case me@Some(fo) =>
                   val offset = sym.pos.startOrPoint
-                  val remoteDfn = ScalaDfn(ScalaSymbol(sym), None, ElementKind.OTHER, ScalaScope.EMPTY, me)
+                  val remoteDfn = global.ScalaDfn(sym, None, ElementKind.OTHER, ScalaScope.EMPTY, me)
                   return new DeclarationLocation(fo, offset, remoteDfn)
                 case None =>
               }

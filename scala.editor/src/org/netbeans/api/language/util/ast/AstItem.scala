@@ -45,18 +45,20 @@ import org.openide.filesystems.{FileObject}
 
 /**
  *
- * T is type of AstSymbol's type parameter. @see AstSymbol[T]
- *
  * @author Caoyuan Deng
  */
-trait AstItem[T] extends ForElementHandle {
+trait AstItem extends ForElementHandle {
+
+  type S  // type of symbol
+  type T // type of symbol's type
 
   def make(idToken: Option[Token[TokenId]], kind: ElementKind): Unit = {
     this.idToken = idToken
     this.kind = kind
   }
 
-  var resultType: String = _
+  var resultType: T = _
+  
   /**
    * @Note:
    * 1. Not all AstItem has pickToken, such as Expr etc.
@@ -64,17 +66,16 @@ trait AstItem[T] extends ForElementHandle {
    *    pickToken's text as name, pickToken may be <null> and pickToken.text()
    *    will return null when an Identifier token modified, seems sync issue
    */
-  private var _symbol: AstSymbol[T] = _
+  private var _symbol: S = _
   private var _idToken: Option[Token[TokenId]] = None
   private var _name: String = _
-  private var _enclosingScope: Option[AstScope[T]] = None
+  private var _enclosingScope: Option[AstScope] = None
   private var _properties: Map[String, Any] = Map()
   var kind: ElementKind = ElementKind.OTHER
 
   def symbol = _symbol
-  def symbol_=(symbol: AstSymbol[T]) = {
+  def symbol_=(symbol: S) = {
     this._symbol = symbol
-    symbol.item = this
   }
 
   def idToken = _idToken
@@ -125,7 +126,7 @@ trait AstItem[T] extends ForElementHandle {
 
   def binaryName = name
 
-  def enclosingDfn[A <: AstDfn[T]](clazz: Class[A]): Option[A] = {
+  def enclosingDfn[A <: AstDfn](clazz: Class[A]): Option[A] = {
     enclosingScope.get.enclosingDfn(clazz)
   }
 
@@ -133,7 +134,7 @@ trait AstItem[T] extends ForElementHandle {
    * @Note: enclosingScope will be set when call
    *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
    */
-  def enclosingScope_=(enclosingScope: AstScope[T]): AstItem[T] = {
+  def enclosingScope_=(enclosingScope: AstScope): AstItem = {
     enclosingScope match {
       case null => this._enclosingScope = None
       case _ => this._enclosingScope = Some(enclosingScope)
@@ -144,12 +145,12 @@ trait AstItem[T] extends ForElementHandle {
   /**
    * @return the scope that encloses this item
    */
-  def enclosingScope: Option[AstScope[T]] = {
+  def enclosingScope: Option[AstScope] = {
     assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
     _enclosingScope
   }
 
-  def rootScope: AstRootScope[T] = enclosingScope.get.root
+  def rootScope: AstRootScope = enclosingScope.get.root
 
   def property(k: String, v: Any): Unit = {
     _properties += (k -> v)
@@ -160,14 +161,14 @@ trait AstItem[T] extends ForElementHandle {
   }
 
   override def toString = {
-    symbol.value.toString
+    symbol.toString
   }
 }
 
 /**
  * Wrap functions that implemented some ElementHandle's methods
  */
-trait ForElementHandle {self: AstItem[_] =>
+trait ForElementHandle {self: AstItem =>
     
   def getMimeType: String
 

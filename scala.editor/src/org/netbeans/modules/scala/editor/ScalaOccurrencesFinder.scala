@@ -46,7 +46,7 @@ import org.netbeans.modules.csl.api.{ColoringAttributes, OccurrencesFinder, Offs
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
 import org.openide.filesystems.FileObject
 
-import org.netbeans.modules.scala.editor.ast.{ScalaDfn, ScalaRef, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
@@ -218,8 +218,8 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
     for (item <- itemOpt) {
       val _occurrences = rootScope.findOccurrences(item)
-      for (_item <- _occurrences; name = _item.getName if !name.equals("this") || !name.equals("super");
-           idToken <- _item.idToken)
+      for (x <- _occurrences; name = x.getName if !name.equals("this") || !name.equals("super");
+           idToken <- x.idToken)
       {
         highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
       }

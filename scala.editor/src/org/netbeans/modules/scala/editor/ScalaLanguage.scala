@@ -70,7 +70,7 @@ class ScalaLanguage extends DefaultLanguageConfig {
  
   override def getDisplayName: String =  "Scala" // NOI18N
     
-  override def getPreferredExtension: String = "Scala" // NOI18N
+  override def getPreferredExtension: String = "scala" // NOI18N
 
   /**
    * @see org.netbeans.modules.scala.platform.ScalaPlatformClassPathProvider and ModuleInstall

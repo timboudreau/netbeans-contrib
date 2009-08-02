@@ -336,7 +336,7 @@ trait LexUtil {
   /**
    * Tries to skip parenthesis
    */
-  def skipPair(ts: TokenSequence[ScalaTokenId], back: boolean, left: TokenId, right: TokenId): Boolean = {
+  def skipPair(ts: TokenSequence[TokenId], back: boolean, left: TokenId, right: TokenId): Boolean = {
     var balance = 0
 
     var token = ts.token

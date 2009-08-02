@@ -46,7 +46,7 @@ import org.netbeans.modules.csl.api.ElementHandle
  */
 trait AstElementHandle extends ElementHandle {
 
-  def symbol: AstSymbol[_]
+  def symbol: Any
 
   def tpe: String
     

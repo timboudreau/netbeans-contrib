@@ -44,15 +44,17 @@ import _root_.java.net.{MalformedURLException, URI, URISyntaxException, URL}
 import _root_.java.util.WeakHashMap
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
-import org.netbeans.api.lexer.{TokenHierarchy}
+import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, SourceGroup}
+import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.spi.java.classpath.ClassPathProvider
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
 import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRenameEvent,
                                 FileStateInvalidException, FileSystem, FileUtil, JarFileSystem}
 import org.openide.util.{Exceptions, RequestProcessor}
 
-import org.netbeans.modules.scala.editor.ast.{ScalaAstVisitor, ScalaRootScope}
+import org.netbeans.api.language.util.ast.{AstScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor}
 
 import _root_.scala.tools.nsc.{Phase, Settings}
 import _root_.scala.tools.nsc.interactive.Global
@@ -392,7 +394,7 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings: Settings) extends Global(settings, null) {
+class ScalaGlobal(settings: Settings) extends Global(settings, null) with ScalaDfns with ScalaRefs {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
