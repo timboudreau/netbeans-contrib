@@ -540,7 +540,7 @@ public abstract class AstVisitor {
                     token = null;
                 }
             }
-            if (!token.text().toString().equals(name)) {
+            if (token != null && !token.text().toString().equals(name)) {
                 token = null;
             }
         }
