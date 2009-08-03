@@ -117,7 +117,7 @@ trait ScalaDfns {self: ScalaGlobal =>
       } else false
     }
 
-    def docComment: String = {
+    def getDocComment: String = {
       val srcDoc = doc match {
         case Some(x) => x
         case None => return null

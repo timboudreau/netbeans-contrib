@@ -214,8 +214,8 @@ trait ScalaElements {self: ScalaGlobal =>
       this.kind = kind
     }
 
-    def getType: Type = {
-      symbol.tpe
+    def tpe: String = {
+      ""
     }
 
     override def getFileObject: FileObject = {

@@ -492,12 +492,16 @@ abstract class ScalaAstVisitor {
             } else {
               ElementKind.FIELD
             }
-            
-            val ref = ScalaRef(sym, getIdToken(tree), kind)
-            if (sym != null && sym == NoSymbol && maybeType.isDefined) {
-              ref.resultType = maybeType.get
+
+            val name = selector.decode.trim
+            if (!name.startsWith("<error")) {
+              val idToken = getIdToken(tree, name)
+              val ref = ScalaRef(sym, idToken, kind)
+              if (sym != null && sym == NoSymbol && maybeType.isDefined) {
+                ref.resultType = maybeType.get
+              }
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
-            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
 
             /**
              * For error Select tree, the qual type may stored, try to fetch it now
@@ -512,6 +516,7 @@ abstract class ScalaAstVisitor {
             qualifier match {
               case Ident(name) => guessMaybeType
               case Apply(fun, args) => guessMaybeType
+              case Select(qualifier, selector) => guessMaybeType
               case _ =>
             }
 
@@ -905,18 +910,31 @@ abstract class ScalaAstVisitor {
           tk
         }
       case (_, "*") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
-      case (_, _) if name.startsWith("<error") => ts.token.id match {
-          case ScalaTokenId.Dot =>
-            // a. where, offset is at .
-            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
-          case _ =>
-            // a.p where, offset is at p
-            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-        }
+//      case (_, _) if name.startsWith("<error") => ts.token.id match {
+//          case ScalaTokenId.Dot =>
+//            // a. where, offset is at .
+//            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
+//          case _ =>
+//            // a.p where, offset is at p
+//            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+//        }
       case _ =>
-        ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens) match {
-          case x:Token[_] if x.text.toString.trim == name => x
-          case _ => null
+        val pos = tree.pos
+        val end = if (pos.isDefined) pos.endOrPoint else -1
+        var tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+        var curr = offset1 + tk.length
+        while (tk != null && !(tk.text.toString.trim == name) && curr <= end) {
+          if (ts.moveNext) {
+            tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+            curr = ts.offset + tk.length
+          } else {
+            tk = null
+          }
+        }
+        tk match {
+          case null => null
+          case _ if tk.text.toString != name => null
+          case _ => tk
         }
     }
 

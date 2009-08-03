@@ -50,7 +50,7 @@ trait AstElementHandle extends ElementHandle {
 
   def tpe: String
     
-  def docComment: String
+  def getDocComment: String
 
   def isDeprecated: Boolean
 
