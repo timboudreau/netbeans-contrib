@@ -469,7 +469,7 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitSuper(Super tree) {
         Symbol symbol = tree.symbol();
         Token idToken = getIdToken(tree, "");
-        if (idToken.id() == ScalaTokenId.Super && !symbol.isPackageClass()) {
+        if (idToken != null && idToken.id() == ScalaTokenId.Super && !symbol.isPackageClass()) {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 info("\tAdded: ", ref);
@@ -481,7 +481,7 @@ public class AstTreeVisitor extends AstVisitor {
     public void visitThis(This tree) {
         Symbol symbol = tree.symbol();
         Token idToken = getIdToken(tree, "");
-        if (idToken.id() == ScalaTokenId.This && !symbol.isPackageClass()) {
+        if (idToken != null && idToken.id() == ScalaTokenId.This && !symbol.isPackageClass()) {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
                 info("\tAdded: ", ref);
