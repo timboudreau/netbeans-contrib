@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
-import org.netbeans.editor.Utilities;
+import org.netbeans.editor.Utilities
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -316,8 +316,8 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
   object KeywordProposal {
-    private var keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
-    private val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png"; //NOI18N
+    private val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png" //NOI18N
+    private val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
 
   }
   class KeywordProposal(keyword: String, description: String, request: CompletionRequest) extends ScalaCompletionProposal(null, request) {

@@ -50,7 +50,7 @@ import org.openide.filesystems.MIMEResolver
  * @author Caoyuan Deng
  */
 @org.openide.util.lookup.ServiceProvider(service = classOf[org.openide.filesystems.MIMEResolver])
-class ScalaMimeResolver extends MIMEResolver {
+class ScalaMimeResolver extends MIMEResolver(ScalaMimeResolver.MIME_TYPE) {
   def findMIMEType(fo: FileObject): String = {
     if (ScalaMimeResolver isScalaExt fo.getExt) ScalaMimeResolver.MIME_TYPE else null
   }

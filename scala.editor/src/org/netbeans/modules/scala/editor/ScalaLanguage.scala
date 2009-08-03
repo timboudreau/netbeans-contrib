@@ -93,6 +93,8 @@ class ScalaLanguage extends DefaultLanguageConfig {
 
   override def getInstantRenamer = new ScalaInstantRenamer
   
+  override def getCompletionHandler = new ScalaCodeCompletion
+  
   //   override def getKeystrokeHandler = new ScalaKeystrokeHandler
   //
   //   override def hasFormatter =  true
@@ -101,7 +103,6 @@ class ScalaLanguage extends DefaultLanguageConfig {
   //
   //   override def getIndexerFactory = new ScalaIndexer.Factory
   //
-  //   override def getCompletionHandler = new ScalaCodeCompletion
 }
 
 object ScalaLanguage {

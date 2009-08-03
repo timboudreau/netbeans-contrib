@@ -288,6 +288,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         case ScalaTokenId.REGEXP_LITERAL | ScalaTokenId.REGEXP_END =>
           completeRegexps(proposals, request)
           return completionResult
+        case _ =>
       }
 
       val ts = ScalaLexUtil.getTokenSequence(th, lexOffset - 1)
@@ -1176,6 +1177,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
       // TODO - auto query on ' and " when you're in $() or $F()
       case '\n' | '(' | '[' | '{' |';' => return QueryType.STOP
       case c if c != '.' => return QueryType.NONE
+      case _ =>
     }
 
     val offset = component.getCaretPosition
@@ -1861,20 +1863,21 @@ abstract class CompletionRequest {
     try {
       val members = resType.members
       for (member <- members if startsWith(member.nameString, prefix) && !member.isConstructor) {
-        val (element: ScalaElement, proposal: CompletionProposal) = if (!member.hasFlag(Flags.PRIVATE)) {
+        var element: ScalaElement = null
+        var proposal: CompletionProposal = null
+        if (!member.hasFlag(Flags.PRIVATE)) {
           if (member.isMethod) {
-            val element = ScalaElement(member, info)
-            (element, new FunctionProposal(element, this))
+            element = ScalaElement(member, info)
+            proposal = new FunctionProposal(element, this)
           } else if (member.isVariable) {
-            (null, null)
           } else if (member.isValue) {
-            val element = ScalaElement(member, info)
-            (element, new PlainProposal(element, this))
+            element = ScalaElement(member, info)
+            proposal = new PlainProposal(element, this)
           } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
-            val element = ScalaElement(member, info)
-            (element, new PlainProposal(element, this))
-          }
-        } else (null, null)
+            element = ScalaElement(member, info)
+            proposal = new PlainProposal(element, this)
+          } 
+        }
 
         if (proposal != null) {
           val resTypeSymbol = resType.typeSymbol
@@ -1914,6 +1917,7 @@ abstract class CompletionRequest {
               case ScalaTokenId.RParen => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen, ScalaTokenId.RParen)
               case ScalaTokenId.RBrace => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
               case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+              case _ =>
             }
         }
       }
@@ -1933,7 +1937,7 @@ abstract class CompletionRequest {
 
         ScalaLexUtil.findPreviousNonWsNonComment(ts) match {
           case prev if prev != null && prev.id == ScalaTokenId.Dot =>
-            call.caretAfterDot = true;
+            call.caretAfterDot = true
             call.select = item
             findCall(rootScope, ts, th, call, times + 1)
           case _ =>

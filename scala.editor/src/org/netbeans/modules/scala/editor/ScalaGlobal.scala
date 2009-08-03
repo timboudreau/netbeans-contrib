@@ -120,11 +120,11 @@ object ScalaGlobal {
         dirsx
       case ref =>
         ref.get match {
-            case null =>
-                val dirsx = findDirsInfo(project);
-                ProjectToDirs.put(project, new WeakReference(dirsx))
-                dirsx
-            case x => x
+          case null =>
+            val dirsx = findDirsInfo(project);
+            ProjectToDirs.put(project, new WeakReference(dirsx))
+            dirsx
+          case x => x
         }
     }
     // is fo under test source?

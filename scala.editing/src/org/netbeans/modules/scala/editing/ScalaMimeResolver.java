@@ -65,6 +65,7 @@ public class ScalaMimeResolver extends MIMEResolver {
     public static final String MIME_TYPE = "text/x-scala"; // NOI18N
     
     public ScalaMimeResolver() {
+        super(MIME_TYPE);
     }
     
     public static boolean isScalaExt(String ext) {
