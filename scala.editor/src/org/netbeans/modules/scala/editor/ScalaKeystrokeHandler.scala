@@ -122,7 +122,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                 val id = token.id();
                 //TODO
                 id match {
-                    case ScalaTokenId.Identifier => {
+                    case ScalaTokenId.Identifier => { //TODO this should have been Error token??
                         if (token.text.toString.startsWith("/*") && ts.offset == Utilities.getRowFirstNonWhite(doc, offset)) {
                             val indent = GsfUtilities.getLineIndent(doc, offset)
                             val sb = new StringBuilder()
