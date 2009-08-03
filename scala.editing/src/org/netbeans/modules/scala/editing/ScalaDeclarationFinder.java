@@ -66,7 +66,7 @@ import org.netbeans.modules.scala.editing.nodes.FieldCall;
 import org.netbeans.modules.scala.editing.nodes.FunctionCall;
 import org.netbeans.modules.scala.editing.nodes.types.Type;
 import org.openide.filesystems.FileObject;
-import scala.tools.nsc.Global;
+import scala.tools.nsc.interactive.Global;
 
 /**
  * 

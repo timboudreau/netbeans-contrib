@@ -65,7 +65,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import scala.Option;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
-import scala.tools.nsc.Global;
+import scala.tools.nsc.interactive.Global;
 import scala.tools.nsc.io.AbstractFile;
 import scala.tools.nsc.io.PlainFile;
 import scala.tools.nsc.io.VirtualFile;

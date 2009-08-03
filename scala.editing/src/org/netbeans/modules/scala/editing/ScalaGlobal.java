@@ -69,7 +69,7 @@ import org.openide.filesystems.JarFileSystem;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import scala.tools.nsc.CompilationUnits.CompilationUnit;
-import scala.tools.nsc.Global;
+import scala.tools.nsc.interactive.Global;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.util.BatchSourceFile;
 
@@ -204,7 +204,7 @@ public class ScalaGlobal {
             }
             settings.classpath().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{sb.toString()}));
 
-            global = new Global(settings) {
+            global = new Global(settings, null) {
 
                 @Override
                 public boolean onlyPresentation() {

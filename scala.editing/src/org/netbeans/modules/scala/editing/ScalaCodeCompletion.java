@@ -90,7 +90,7 @@ import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import scala.tools.nsc.Global;
+import scala.tools.nsc.interactive.Global;
 import scala.tools.nsc.symtab.Flags;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.symtab.Types.MethodType;

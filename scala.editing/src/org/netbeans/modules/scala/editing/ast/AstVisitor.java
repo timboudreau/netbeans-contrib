@@ -99,6 +99,7 @@ import scala.tools.nsc.ast.Trees.UnApply;
 import scala.tools.nsc.ast.Trees.ValDef;
 import scala.tools.nsc.symtab.Symbols.Symbol;
 import scala.tools.nsc.util.BatchSourceFile;
+import scala.tools.nsc.util.NoPosition;
 import scala.tools.nsc.util.Position;
 
 /**
@@ -313,7 +314,6 @@ public abstract class AstVisitor {
 
 //    public void visitAnnotation(Annotation tree) {
 //    }
-
     public void visitTemplate(Template tree) {
     }
 
@@ -456,11 +456,21 @@ public abstract class AstVisitor {
     }
 
     protected int offset(Tree tree) {
-        return tree.pos().startOrPoint();
+        Position pos = tree.pos();
+        if (pos.isDefined()) {
+            return tree.pos().startOrPoint();
+        } else {
+            return -1;
+        }
     }
 
     protected int offset(Symbol symbol) {
-        return symbol.pos().startOrPoint();
+        Position pos = symbol.pos();
+        if (pos.isDefined()) {
+            return symbol.pos().startOrPoint();
+        } else {
+            return -1;
+        }
     }
 
     protected int offset(Option intOption) {
