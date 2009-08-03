@@ -118,9 +118,15 @@ object ScalaGlobal {
         val dirsx = findDirsInfo(project);
         ProjectToDirs.put(project, new WeakReference(dirsx))
         dirsx
-      case ref => ref.get
+      case ref =>
+        ref.get match {
+            case null =>
+                val dirsx = findDirsInfo(project);
+                ProjectToDirs.put(project, new WeakReference(dirsx))
+                dirsx
+            case x => x
+        }
     }
-
     // is fo under test source?
     val forTest = if (dirs.testSrcDir != null && (dirs.testSrcDir.equals(fo) ||
                                                   FileUtil.isParentOf(dirs.testSrcDir, fo))) {
