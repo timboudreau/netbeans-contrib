@@ -165,7 +165,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.PACKAGE, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, ElementKind.PACKAGE, fo);
         if (scopes.peek().addDef(def)) {
             info("\tAdded: ", def);
         }
@@ -180,7 +180,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, ElementKind.CLASS, fo);
         if (scopes.peek().addDef(def)) {
             info("\tAdded: ", def);
         }
@@ -196,7 +196,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.MODULE, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, ElementKind.MODULE, fo);
         if (scopes.peek().addDef(def)) {
             if (debug) {
                 System.out.println("\tAdded: " + def);
@@ -224,7 +224,7 @@ public class AstTreeVisitor extends AstVisitor {
         // special case for: val (a, b, c) = (1, 2, 3)
         boolean isTuple = isTupleClass(tree.tpt().symbol());
         if (!isTuple) {
-            AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
+            AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, kind, fo);
             if (scopes.peek().addDef(def)) {
                 info("\tAdded: ", def);
             }
@@ -243,7 +243,7 @@ public class AstTreeVisitor extends AstVisitor {
 
         ElementKind kind = tree.symbol().isConstructor() ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, kind, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, kind, fo);
         if (scopes.peek().addDef(def)) {
             info("\tAdded: ", def);
         }
@@ -261,7 +261,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.CLASS, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, ElementKind.CLASS, fo);
         if (scopes.peek().addDef(def)) {
             info("\tAdded: ", def);
         }
@@ -354,7 +354,7 @@ public class AstTreeVisitor extends AstVisitor {
         AstScope scope = new AstScope(getBoundsToken(offset(tree)));
         scopes.peek().addScope(scope);
 
-        AstDef def = new AstDef(tree.symbol(), getIdToken(tree), scope, ElementKind.VARIABLE, fo);
+        AstDef def = new AstDef(tree.symbol(), getIdToken(tree, ""), scope, ElementKind.VARIABLE, fo);
         if (scopes.peek().addDef(def)) {
             info("\tAdded: ", def);
         }
@@ -432,10 +432,7 @@ public class AstTreeVisitor extends AstVisitor {
         scala.collection.immutable.List<Symbol> funOwnerChain = tree.fun().symbol().ownerChain();
         int size = funOwnerChain.size();
         if (size == 4) {
-            if (((Symbol) funOwnerChain.apply(0)).rawname().decode().equals("apply") &&
-                    ((Symbol) funOwnerChain.apply(1)).rawname().decode().startsWith("Tuple") &&
-                    ((Symbol) funOwnerChain.apply(2)).rawname().decode().equals("scala") &&
-                    ((Symbol) funOwnerChain.apply(3)).rawname().decode().equals("<root>")) {
+            if (((Symbol) funOwnerChain.apply(0)).rawname().decode().equals("apply") && ((Symbol) funOwnerChain.apply(1)).rawname().decode().startsWith("Tuple") && ((Symbol) funOwnerChain.apply(2)).rawname().decode().equals("scala") && ((Symbol) funOwnerChain.apply(3)).rawname().decode().equals("<root>")) {
                 isTupleApply = true;
             }
         }
@@ -471,7 +468,7 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitSuper(Super tree) {
         Symbol symbol = tree.symbol();
-        Token idToken = getIdToken(tree);
+        Token idToken = getIdToken(tree, "");
         if (idToken.id() == ScalaTokenId.Super && !symbol.isPackageClass()) {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
@@ -483,7 +480,7 @@ public class AstTreeVisitor extends AstVisitor {
     @Override
     public void visitThis(This tree) {
         Symbol symbol = tree.symbol();
-        Token idToken = getIdToken(tree);
+        Token idToken = getIdToken(tree, "");
         if (idToken.id() == ScalaTokenId.This && !symbol.isPackageClass()) {
             AstRef ref = new AstRef(symbol, idToken);
             if (scopes.peek().addRef(ref)) {
@@ -498,29 +495,24 @@ public class AstTreeVisitor extends AstVisitor {
          * For error Select tree, for example a.p, the error part's offset will be set to 'p',
          * The tree.qualifier() part's offset will be 'a'
          */
-        Token idToken = getIdToken(tree);
-
         Symbol sym = tree.symbol();
-        AstRef ref = new AstRef(sym, idToken);
-        if (sym != null && isNoSymbol(sym) && maybeType != null) {
-            ref.setResultType(maybeType);
+        String name = tree.name().decode().trim();
+        if (!name.startsWith("<error")) {
+            Token idToken = getIdToken(tree, name);
+            AstRef ref = new AstRef(sym, idToken);
+            if (sym != null && isNoSymbol(sym) && maybeType != null) {
+                ref.setResultType(maybeType);
+            }
+            if (scopes.peek().addRef(ref)) {
+                info("\tAdded: ", ref);
+            }
         }
-        if (scopes.peek().addRef(ref)) {
-            info("\tAdded: ", ref);
-        }
-
-        AstExpr expr = new AstExpr();
-        exprs.peek().addSubExpr(expr);
-
-        exprs.push(expr);
-        // For Select tree, should its idToken to the same expr
-        exprs.peek().addToken(idToken);
 
         /**
          * For error Select tree, the qual type may stored, try to fetch it now
          */
         Tree qual = tree.qualifier();
-        if (qual instanceof Ident || qual instanceof Apply) {
+        if (qual instanceof Ident || qual instanceof Apply || qual instanceof Select) {
             Symbol qualSym = qual.symbol();
             if (qualSym != null && isNoSymbol(qualSym) && global != null) {
                 scala.collection.Map<Tree, Type> errors = global.selectTypeErrors();
@@ -530,7 +522,6 @@ public class AstTreeVisitor extends AstVisitor {
         }
         visit(qual);
         maybeType = null;
-        exprs.pop();
     }
 
     @Override
@@ -541,7 +532,7 @@ public class AstTreeVisitor extends AstVisitor {
              * @Note: this symbol may be NoSymbol, for example, an error tree,
              * to get error recover in code completion, we need to also add it as a ref
              */
-            AstRef ref = new AstRef(symbol, getIdToken(tree));
+            AstRef ref = new AstRef(symbol, getIdToken(tree, tree.name().decode().trim()));
             if (isNoSymbol(symbol) && maybeType != null) {
                 ref.setResultType(maybeType);
             }
@@ -578,7 +569,7 @@ public class AstTreeVisitor extends AstVisitor {
                 }
             } else {
                 if (!isTupleClass(symbol)) {
-                    AstRef ref = new AstRef(symbol, getIdToken(tree));
+                    AstRef ref = new AstRef(symbol, getIdToken(tree, ""));
                     if (scopes.peek().addRef(ref)) {
                         info("\tAdded: ", ref);
                     }
@@ -631,18 +622,12 @@ public class AstTreeVisitor extends AstVisitor {
         Object underlying = tree.underlying();
     }
 
-    private boolean isNoSymbol(Symbol symbol) {
-        return symbol.toString().equals("<none>");
-    }
-
     private boolean isTupleClass(Symbol symbol) {
         if (symbol != null) {
             scala.collection.immutable.List<Symbol> chain = symbol.ownerChain();
             int size = chain.size();
             if (size == 3) {
-                if (((Symbol) chain.apply(0)).rawname().decode().startsWith("Tuple") &&
-                        ((Symbol) chain.apply(1)).rawname().decode().equals("scala") &&
-                        ((Symbol) chain.apply(2)).rawname().decode().equals("<root>")) {
+                if (((Symbol) chain.apply(0)).rawname().decode().startsWith("Tuple") && ((Symbol) chain.apply(1)).rawname().decode().equals("scala") && ((Symbol) chain.apply(2)).rawname().decode().equals("<root>")) {
                     return true;
                 }
             }
