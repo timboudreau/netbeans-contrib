@@ -49,7 +49,6 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
-import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
 
@@ -59,18 +58,11 @@ import org.openide.util.ImageUtilities;
  */
 public class DebugProjectAction implements ProjectActionPerformer {
     
-    public static Action createProjectSensitiveAction() {
-        return ProjectSensitiveActions.projectSensitiveAction(
-                new DebugProjectAction(),
-                "Omniscient Debug {0,choice,0#Project|1#\"{1}\"}", // XXX I18N
-                null);
-    }
-    
-    public static Action createMainProjectSensitiveAction() {
+    public static Action create() {
         String icon = "org/netbeans/modules/omnidebugger/omnidebugProject.gif"; // NOI18N
         Action a = MainProjectSensitiveActions.mainProjectSensitiveAction(
                 new DebugProjectAction(),
-                "Omniscient Debug Main Project", // XXX I18N
+                "Omniscient Debug {0,choice,-1#Main Project|0#Project|1#Project ({1})|1<{0} Projects}", // XXX I18N
                 ImageUtilities.loadImageIcon(icon, true));
         // Make sure 24x24 variant is available:
         a.putValue("iconBase", icon); // NOI18N
