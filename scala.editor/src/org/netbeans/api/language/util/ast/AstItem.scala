@@ -85,9 +85,10 @@ trait AstItem extends ForElementHandle {
 
   def name = _name
   def name_=(name: String) = this._name = name
-  def name_=(idToken: Token[TokenId]) = {
+  def name_=(idToken: Token[TokenId]): Unit = {
     if (idToken == null) {
       _name = "" // should not happen?
+      return
     }
         
     try {

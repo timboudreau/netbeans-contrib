@@ -560,12 +560,15 @@ public class AstTreeVisitor extends AstVisitor {
             // in case of: <type ?>
             //System.out.println("Null symbol found, tree is:" + tree);
         } else {
+            Tree original = tree.original();
             if (isNoSymbol(symbol)) {
                 // type tree in case def, for example: case Some(_),
                 // since the symbol is NoSymbol, we should visit its original type
-                Tree original = tree.original();
-                if (original != null && !isTupleClass(original.symbol())) {
-                    visit(original);
+                if (original != null) {
+                    Symbol origSym = original.symbol();
+                    if (origSym != null && !isTupleClass(origSym)) {
+                        visit(original);
+                    }
                 }
             } else {
                 if (!isTupleClass(symbol)) {
@@ -573,7 +576,9 @@ public class AstTreeVisitor extends AstVisitor {
                     if (scopes.peek().addRef(ref)) {
                         info("\tAdded: ", ref);
                     }
-                    visit(tree.original());
+                    if (original != null) {
+                        visit(original);
+                    }
                 }
             }
         }

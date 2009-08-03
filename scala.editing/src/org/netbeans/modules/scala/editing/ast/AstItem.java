@@ -113,6 +113,7 @@ public abstract class AstItem {
     private void setName(Token idToken) {
         if (idToken == null) {
             name = ""; // should not happen?
+            return;
         }
 
         /**

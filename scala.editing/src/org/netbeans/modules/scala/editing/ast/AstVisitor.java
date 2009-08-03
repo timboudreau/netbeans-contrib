@@ -283,7 +283,8 @@ public abstract class AstVisitor {
                 System.out.println("Visit Unknow tree: " + tree + " class=" + tree.getClass().getCanonicalName());
             }
         } catch (Throwable ex) {
-            System.out.println("Exception when visit tree: " + tree + "\n" + ex.getMessage());
+            System.out.println("Exception when visit tree: " + tree );
+            ex.printStackTrace();
         }
         exit(tree);
     }
