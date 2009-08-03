@@ -36,7 +36,7 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editor.ast
+package org.netbeans.modules.scala.editor.element
 
 import _root_.java.lang.annotation.Annotation
 import _root_.javax.lang.model.element.{AnnotationMirror, Element, ElementKind,

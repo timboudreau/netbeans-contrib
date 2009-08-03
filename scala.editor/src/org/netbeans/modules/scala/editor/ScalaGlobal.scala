@@ -55,6 +55,7 @@ import org.openide.util.{Exceptions, RequestProcessor}
 
 import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor}
+import org.netbeans.modules.scala.editor.element.{ScalaElements}
 
 import _root_.scala.tools.nsc.{Phase, Settings}
 import _root_.scala.tools.nsc.interactive.Global
@@ -394,7 +395,7 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings: Settings) extends Global(settings, null) with ScalaDfns with ScalaRefs {
+class ScalaGlobal(settings: Settings) extends Global(settings, null) with ScalaDfns with ScalaRefs with ScalaElements {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591

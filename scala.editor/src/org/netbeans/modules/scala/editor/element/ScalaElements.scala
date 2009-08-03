@@ -1,0 +1,427 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ */
+
+package org.netbeans.modules.scala.editor.element
+
+import _root_.java.io.{File, IOException}
+import javax.lang.model.element.Element;
+import javax.swing.text.BadLocationException;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.openide.filesystems.{FileObject, FileUtil}
+import org.openide.util.Exceptions;
+import scala.tools.nsc.io.AbstractFile;
+import scala.tools.nsc.io.PlainFile;
+import scala.tools.nsc.io.VirtualFile;
+import scala.tools.nsc.util.BatchSourceFile;
+
+import org.netbeans.api.language.util.ast.{AstElementHandle}
+import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaParserResult, ScalaUtil, ScalaMimeResolver}
+
+
+/**
+ *
+ * Wrapper scalac's symbol to AstElementHandle, these symbols are created by
+ * scala compiler, that may be from class file instead of source files by
+ * invoking ScalaGlobal#compilexxx methods.
+ *
+ * @author Caoyuan Deng
+ */
+trait ScalaElements {self: ScalaGlobal =>
+
+  object ScalaElement {
+    def apply(symbol: Symbol, info: ParserResult) = {
+      new ScalaElement(symbol, info)
+    }
+
+    def getKind(symbol: Symbol): ElementKind = {
+      try {
+        if (symbol.isClass) {
+          ElementKind.CLASS
+        } else if (symbol.isConstructor) {
+          ElementKind.CONSTRUCTOR
+        } else if (symbol.isConstant) {
+          ElementKind.CONSTANT
+        } else if (symbol.isValue) {
+          ElementKind.FIELD
+        } else if (symbol.isModule) {
+          ElementKind.MODULE
+        } else if (symbol.isLocal && symbol.isVariable) {
+          ElementKind.VARIABLE
+        } else if (symbol.isMethod) {
+          ElementKind.METHOD
+        } else if (symbol.isPackage) {
+          ElementKind.PACKAGE
+        } else if (symbol.isValueParameter) {
+          ElementKind.PARAMETER
+        } else if (symbol.isTypeParameter) {
+          ElementKind.CLASS
+        } else {
+          ElementKind.OTHER
+        }
+      } catch {case t: Throwable =>
+          ElementKind.OTHER
+          // java.lang.Error: no-symbol does not have owner
+          //      at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1609)
+          //      at scala.tools.nsc.symtab.Symbols$Symbol.isLocal(Symbols.scala:346)
+      }
+    }
+
+    def getModifiers(symbol: Symbol): _root_.java.util.Set[Modifier] = {
+      val modifiers = new _root_.java.util.HashSet[Modifier]
+
+      if (symbol.isPublic) {
+        modifiers.add(Modifier.PUBLIC)
+      }
+
+      if (symbol.isPrivateLocal) {
+        modifiers.add(Modifier.PRIVATE)
+      }
+
+      if (symbol.isProtectedLocal) {
+        modifiers.add(Modifier.PROTECTED);
+      }
+
+      if (symbol.isStatic) {
+        modifiers.add(Modifier.STATIC)
+      }
+
+      modifiers
+    }
+
+    def symbolQualifiedName(symbol: Symbol): String = {
+      return symbolQualifiedName(symbol, true)
+    }
+
+    /**
+     * Due to the ugly implementation of scala's Symbols.scala, Symbol#fullNameString()
+     * may cause:
+     * java.lang.Error: no-symbol does not have owner
+     *        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
+     * We should bypass it via symbolQualifiedName
+     */
+    def symbolQualifiedName(symbol: Symbol, forScala: Boolean): String = {
+      if (symbol.isError) {
+        "<error>"
+      } else if (symbol == NoSymbol) {
+        "<none>"
+      } else {
+        var paths: List[String] = Nil
+        var owner = symbol.owner
+        // remove type parameter part at the beginnig, for example: scala.Array[T0] will be: scala.Array.T0
+        if (!symbol.isTypeParameterOrSkolem) {
+          paths = symbol.nameString :: paths
+        }
+        while (!owner.nameString.equals("<none>") && !owner.nameString.equals("<root>")) {
+          if (!symbol.isTypeParameterOrSkolem) {
+            paths = owner.nameString :: paths
+          }
+          owner = owner.owner
+        }
+
+        paths.reverse
+        val sb = paths.mkString(".")
+
+        if (sb.length == 0) {
+          if (symbol.isPackage) {
+            ""
+          } else {
+            if (forScala) symbol.nameString else "Object" // it maybe a TypeParameter likes: T0
+          }
+        } else sb
+      }
+    }
+
+    def typeQualifiedName(tpe: Type, forScala: Boolean): String = {
+      symbolQualifiedName(tpe.typeSymbol, forScala);
+    }
+
+    def isInherited(template: Symbol, member: Symbol): Boolean = {
+      !symbolQualifiedName(template).equals(symbolQualifiedName(member.enclClass))
+    }
+
+    def typeToString(tpe: Type): String = {
+      val str = try {
+        tpe.toString
+      } catch {
+        case ex: _root_.java.lang.AssertionError => ScalaGlobal.reset; null // ignore assert ex from scala
+        case ex: Throwable => ScalaGlobal.reset; null
+      }
+
+      if (str != null) str else tpe.termSymbol.nameString
+    }
+  }
+
+  class ScalaElement(val symbol: Symbol, val info: ParserResult) extends AstElementHandle {
+    import ScalaElement._
+  
+    private var kind: ElementKind = _
+    private var modifiers: _root_.java.util.Set[Modifier] = _
+    private var inherited: Boolean = _
+    private var smart: Boolean = _
+    private var fo: FileObject = _
+    private var path: String = _
+    private var doc: BaseDocument = _
+    private var offset: Int = _
+    private var javaElement: Element = _
+    private var loaded: Boolean = _
+
+
+    def this(kind: ElementKind) = {
+      this(null, null)
+      this.kind = kind
+    }
+
+    def getType: Type = {
+      symbol.tpe
+    }
+
+    override def getFileObject: FileObject = {
+      if (fo == null) {
+        val srcFile = symbol.pos.source
+        if (srcFile != null) {
+          var srcPath = srcFile.path
+          // Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
+          if (!srcPath.startsWith(File.separator)) {
+            srcPath = File.separator + srcPath
+          }
+          val file = new File(srcPath)
+          if (file != null && file.exists) {
+            // it's a real file and not archive file
+            fo = FileUtil.toFileObject(file)
+          }
+        }
+
+        if (fo == null) {
+          fo = ScalaUtil.getFileObject(info, symbol) match {
+            case Some(x) => x
+            case None => null
+          }
+        }
+
+        if (fo != null) {
+          path = fo.getPath
+        }
+      }
+
+      fo
+    }
+
+    override def getIn: String = {
+      return symbol.owner.nameString
+    }
+
+    override def getKind: ElementKind = {
+      return ScalaElement.getKind(symbol)
+    }
+
+    override def getMimeType: String = {
+      ScalaMimeResolver.MIME_TYPE
+    }
+
+    override def getModifiers: _root_.java.util.Set[Modifier] = {
+      if (modifiers == null) {
+        modifiers = ScalaElement.getModifiers(symbol)
+      }
+
+      modifiers
+    }
+
+    override def getName: String = {
+      symbol.nameString
+    }
+
+    override def signatureEquals(handle: ElementHandle): Boolean = {
+      false
+    }
+
+    def getDocComment: String = {
+      if (!isLoaded) load
+
+      val srcDoc = getDoc
+      if (srcDoc != null) {
+        if (!isJava) {
+          return ScalaUtil.getDocComment(srcDoc, getOffset)
+        } else {
+          if (javaElement != null) {
+            try {
+              val docComment: String = null//JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), javaElement);
+              if (docComment != null) {
+                return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString();
+              }
+            } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
+          }
+        }
+      }
+
+      null
+    }
+
+    def getOffset: Int = {
+      if (!isLoaded) load
+
+      if (isJava) {
+        if (javaElement != null) {
+          try {
+            return -1 //JavaUtilities.getOffset(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), javaElement);
+          } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
+        }
+      } else {
+        return symbol.pos.startOrPoint
+      }
+
+      offset
+    }
+
+    override def getOffsetRange(result: ParserResult): OffsetRange = {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    def getDoc: BaseDocument = {
+      val srcFo = getFileObject
+      if (srcFo != null) {
+        doc = if (doc == null) GsfUtilities.getDocument(srcFo, true) else doc
+        doc
+      } else null
+    }
+
+    private def isLoaded: Boolean = {
+      if (loaded) return true
+
+      if (isJava) {
+        javaElement != null
+      } else {
+        symbol.pos.source != null
+      }
+    }
+
+    private def load: Unit = {
+      if (isLoaded) return
+
+      if (isJava) {
+        //javaElement = JavaUtilities.getJavaElement(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), symbol);
+      } else {
+        val srcDoc = getDoc
+        if (srcDoc != null) {
+          assert(path != null)
+          try {
+            val text = srcDoc.getChars(0, srcDoc.getLength());
+            val f = new File(path)
+            val af = if (f != null) new PlainFile(f) else new VirtualFile("<current>", "")
+            val srcFile = new BatchSourceFile(af, text);
+
+            val th = TokenHierarchy.get(srcDoc)
+            if (th == null) {
+              return
+            }
+
+            /**
+             * @Note by compiling the related source file, this symbol will
+             * be automatically loaded next time, but the position/sourcefile
+             * info is not updated for this symbol yet. But we can find the
+             * position via the AST Tree, or use a tree visitor to update
+             * all symbols Position
+             */
+            val root = compileSourceForPresentation(srcFile, th)
+            root.findDfnMatched(symbol) match {
+              case Some(x) => offset = x.idOffset(th)
+              case None =>
+            }
+          } catch {case ex: BadLocationException => Exceptions.printStackTrace(ex)}
+                
+        }
+      }
+
+      loaded = true
+    }
+
+    def isJava: Boolean = {
+      if (path == null) {
+        getFileObject
+      }
+
+      if (path != null) {
+        path.endsWith(".java")
+      } else false
+    }
+
+    def isDeprecated: Boolean = {
+      symbol.isDeprecated
+    }
+
+    def setInherited(inherited: Boolean): Unit = {
+      this.inherited = inherited
+    }
+
+    def isInherited: Boolean = {
+      inherited
+    }
+
+    def isEmphasize: Boolean = {
+      return !isInherited
+    }
+
+    def setSmart(smart: Boolean): Unit = {
+      this.smart = smart
+    }
+
+    override def toString = {
+      symbol.toString
+    }
+
+    def paramNames: List[List[Symbol]] = {
+      assert(symbol.isMethod)
+
+      /** @todo not work yet */
+      val argNamesMap = methodArgumentNames
+      if (argNamesMap != null) {
+        argNamesMap.get(symbol) match {
+          case Some(x) => x
+          case None => Nil
+        }
+      } else Nil
+    }
+  }
+}

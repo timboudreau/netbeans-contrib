@@ -45,7 +45,8 @@ import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, NbBundle}
 
-import org.netbeans.modules.scala.editor.ast.{JavaElement, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
+import org.netbeans.modules.scala.editor.element.{JavaElement}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import _root_.scala.tools.nsc.util.Position
@@ -394,10 +395,10 @@ object ScalaUtil {
     try {
       val srcFo = info.getSnapshot.getSource.getFileObject
       val cpInfo = ClasspathInfo.create(srcFo)
-      val cp = ClassPathSupport.createProxyClassPath(Array(
-          cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
-            cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
-            cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)):_*)
+      val cp = ClassPathSupport.createProxyClassPath(
+        Array(cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
+              cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
+              cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)): _*)
 
       val clzFo = cp.findResource(clzName)
       var srcPath: String = null
@@ -447,30 +448,30 @@ object ScalaUtil {
     
     var clzName = ""
 
-    rootScope.enclosingDfn(TMPL_KINDS, th, offset) foreach {case enclDfn: ScalaGlobal#ScalaDfn =>
-        val sym = enclDfn.symbol
-        if (sym != null) {
-          // "scalarun.Dog.$talk$1"
-          val fqn = new StringBuilder(sym.fullNameString('.'))
+    rootScope.enclosingDfn(TMPL_KINDS, th, offset) foreach {enclDfn =>
+      val sym = enclDfn.asInstanceOf[ScalaGlobal#ScalaDfn].symbol
+      if (sym != null) {
+        // "scalarun.Dog.$talk$1"
+        val fqn = new StringBuilder(sym.fullNameString('.'))
 
-          // * getTopLevelClassName "scalarun.Dog"
-          val topSym = sym.toplevelClass
-          val topClzName = topSym.fullNameString('.')
+        // * getTopLevelClassName "scalarun.Dog"
+        val topSym = sym.toplevelClass
+        val topClzName = topSym.fullNameString('.')
 
-          // "scalarun.Dog$$talk$1"
-          for (i <- topClzName.length until fqn.length) {
-            if (fqn.charAt(i) == '.') {
-              fqn.setCharAt(i, '$')
-            }
+        // "scalarun.Dog$$talk$1"
+        for (i <- topClzName.length until fqn.length) {
+          if (fqn.charAt(i) == '.') {
+            fqn.setCharAt(i, '$')
           }
-
-          // * According to Symbol#kindString, an object template isModuleClass()
-          // * trait's symbol name has been added "$class" by compiler
-          if (topSym.isModuleClass) {
-            fqn.append("$")
-          }
-          clzName = fqn.toString
         }
+
+        // * According to Symbol#kindString, an object template isModuleClass()
+        // * trait's symbol name has been added "$class" by compiler
+        if (topSym.isModuleClass) {
+          fqn.append("$")
+        }
+        clzName = fqn.toString
+      }
     }
 
     if (clzName.length == 0) {
@@ -588,7 +589,7 @@ object ScalaUtil {
       try {
         val bootPath = ClassPath.getClassPath(root, ClassPath.BOOT)
         val compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE)
-        val srcPath = ClassPathSupport.createClassPath(Array(root):_*)
+        val srcPath = ClassPathSupport.createClassPath(Array(root): _*)
         val cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath)
         //                final Set<JavaElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
         //                Source js = Source.create(cpInfo);

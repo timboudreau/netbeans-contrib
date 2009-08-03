@@ -494,8 +494,8 @@ abstract class ScalaAstVisitor {
             }
             
             val ref = ScalaRef(sym, getIdToken(tree), kind)
-            if (sym != null && sym == NoSymbol && maybeType != None) {
-              //ref.setResultType(maybeType)
+            if (sym != null && sym == NoSymbol && maybeType.isDefined) {
+              ref.resultType = maybeType.get
             }
             if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
 
@@ -529,8 +529,8 @@ abstract class ScalaAstVisitor {
                * @Note: this symbol may be NoSymbol, for example, an error tree,
                * to get error recover in code completion, we need to also add it as a ref
                */
-              if (sym == NoSymbol && maybeType != None) {
-                //ref.setResultType(maybeType);
+              if (sym == NoSymbol && maybeType.isDefined) {
+                ref.resultType = maybeType.get
               }
 
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
