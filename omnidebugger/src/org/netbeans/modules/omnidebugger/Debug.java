@@ -415,7 +415,7 @@ class Debug {
                         continue;
                     }
                     for (Node node : nodes) {
-                        DataObject d = node.getCookie(DataObject.class);
+                        DataObject d = node.getLookup().lookup(DataObject.class);
                         if (d != null) {
                             FileObject f = d.getPrimaryFile();
                             if (f.hasExt("java")) { // NOI18N

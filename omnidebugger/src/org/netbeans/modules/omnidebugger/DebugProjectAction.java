@@ -42,7 +42,6 @@
 package org.netbeans.modules.omnidebugger;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -52,7 +51,7 @@ import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
 
 /**
  * Action to debug the main class of a project.
@@ -72,7 +71,7 @@ public class DebugProjectAction implements ProjectActionPerformer {
         Action a = MainProjectSensitiveActions.mainProjectSensitiveAction(
                 new DebugProjectAction(),
                 "Omniscient Debug Main Project", // XXX I18N
-                new ImageIcon(Utilities.loadImage(icon, true)));
+                ImageUtilities.loadImageIcon(icon, true));
         // Make sure 24x24 variant is available:
         a.putValue("iconBase", icon); // NOI18N
         return a;
