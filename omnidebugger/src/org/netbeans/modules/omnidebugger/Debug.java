@@ -54,6 +54,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.lang.model.element.ElementKind;
@@ -74,7 +75,6 @@ import org.netbeans.spi.project.CacheDirectoryProvider;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
-import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -82,6 +82,7 @@ import org.openide.loaders.DataObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -95,86 +96,101 @@ class Debug {
     
     private Debug() {}
 
-    private enum ClassKind {NONE, MAIN, MAIN_WITH_GUI, JUNIT}
+    enum ClassKind {NONE, MAIN, MAIN_WITH_GUI, JUNIT}
+
+    interface KindCallback {
+        void computed(ClassKind kind);
+    }
+    static CancellableTask<CompilationController> getKindTask(final KindCallback result) {
+        return new CancellableTask<CompilationController>() {
+            public void run(CompilationController controller) throws Exception {
+                controller.toPhase(JavaSource.Phase.RESOLVED);
+                CompilationUnitTree compunit = controller.getCompilationUnit();
+                for (Tree t : compunit.getTypeDecls()) {
+                    TypeElement clazz = (TypeElement) controller.getTrees().getElement(controller.getTrees().getPath(compunit, t));
+                    if (clazz == null) {
+                        result.computed(ClassKind.NONE);
+                        return; // ???
+                    }
+                    TypeElement testCase = controller.getElements().getTypeElement("junit.framework.TestCase");
+                    if (testCase != null) {
+                        if (controller.getTypes().isSubtype(clazz.asType(), testCase.asType())) {
+                            result.computed(ClassKind.JUNIT);
+                            return;
+                        }
+                    }
+                    for (javax.lang.model.element.Element child : clazz.getEnclosedElements()) {
+                        if (child.getKind() == ElementKind.METHOD) {
+                            ExecutableElement method = (ExecutableElement) child;
+                            if (method.getSimpleName().contentEquals("main")) {
+                                for (ImportTree imprt : compunit.getImports()) {
+                                    String name = imprt.getQualifiedIdentifier().toString();
+                                    if (name.startsWith("java.awt.") || name.startsWith("javax.swing.")) {
+                                        result.computed(ClassKind.MAIN_WITH_GUI);
+                                        return;
+                                    }
+                                }
+                                result.computed(ClassKind.MAIN);
+                                return;
+                            }
+                        }
+                    }
+                }
+                result.computed(ClassKind.NONE);
+            }
+            public void cancel() {}
+        };
+    }
     
     private static ClassKind getKind(FileObject source) {
-        final ClassKind[] result = new ClassKind[] {ClassKind.NONE};
+        final AtomicReference<ClassKind> result = new AtomicReference<ClassKind>(ClassKind.NONE);
         try {
             JavaSource src = JavaSource.forFileObject(source);
             if (src == null) {
                 return ClassKind.NONE;
             }
-            src.runUserActionTask(new CancellableTask<CompilationController>() {
-                public void run(CompilationController controller) throws Exception {
-                    controller.toPhase(JavaSource.Phase.RESOLVED);
-                    CompilationUnitTree compunit = controller.getCompilationUnit();
-                    for (Tree t : compunit.getTypeDecls()) {
-                        TypeElement clazz = (TypeElement) controller.getTrees().getElement(controller.getTrees().getPath(compunit, t));
-                        if (clazz == null) {
-                            return; // ???
-                        }
-                        TypeElement testCase = controller.getElements().getTypeElement("junit.framework.TestCase");
-                        if (testCase != null) {
-                            if (controller.getTypes().isSubtype(clazz.asType(), testCase.asType())) {
-                                result[0] = ClassKind.JUNIT;
-                                return;
-                            }
-                        }
-                        for (javax.lang.model.element.Element child : clazz.getEnclosedElements()) {
-                            if (child.getKind() == ElementKind.METHOD) {
-                                ExecutableElement method = (ExecutableElement) child;
-                                if (method.getSimpleName().contentEquals("main")) {
-                                    for (ImportTree imprt : compunit.getImports()) {
-                                        String name = imprt.getQualifiedIdentifier().toString();
-                                        if (name.startsWith("java.awt.") || name.startsWith("javax.swing.")) {
-                                            result[0] = ClassKind.MAIN_WITH_GUI;
-                                            return;
-                                        }
-                                    }
-                                    result[0] = ClassKind.MAIN;
-                                    return;
-                                }
-                            }
-                        }
-                    }
+            src.runUserActionTask(getKindTask(new KindCallback() {
+                public void computed(ClassKind kind) {
+                    result.set(kind);
                 }
-                public void cancel() {}
-            }, true);
+            }), true);
         } catch (IOException x) {
             Exceptions.printStackTrace(x);
         }
-        Logger.getLogger(Debug.class.getName()).log(Level.FINE, "Got {0} from {1}", new Object[] {result[0], source});
-        return result[0];
+        Logger.getLogger(Debug.class.getName()).log(Level.FINE, "Got {0} from {1}", new Object[] {result.get(), source});
+        return result.get();
     }
     
-    public static boolean enabled(FileObject clazz) {
-        if (getKind(clazz) == ClassKind.NONE) {
-            return false;
-        }
-        if (ClassPath.getClassPath(clazz, ClassPath.EXECUTE) == null) {
-            return false;
-        }
-        if (ClassPath.getClassPath(clazz, ClassPath.SOURCE) == null) {
-            return false;
-        }
-        return true;
-    }
-    
-    public static ExecutorTask start(FileObject clazz) throws IOException {
-        ClassPath sourceCP = ClassPath.getClassPath(clazz, ClassPath.SOURCE);
-        assert sourceCP != null;
-        ClassPath cp = ClassPath.getClassPath(clazz, ClassPath.EXECUTE);
-        assert cp != null;
-        FileBuiltQuery.Status status = FileBuiltQuery.getStatus(clazz);
-        if (status != null && !status.isBuilt()) {
-            // #72385: not yet compiled?
-            throw Exceptions.attachLocalizedMessage(new IOException("uncompiled: " + clazz),
-                    // XXX I18N
-                    "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging.");
-        }
-        FileObject dir = getWorkingDir(clazz);
-        FileObject buildXml = createBuildXml(dir, clazz, sourceCP.getResourceName(clazz, '.', false), cp);
-        return ActionUtils.runTarget(buildXml, null, null);
+    public static void start(final FileObject clazz) {
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                try {
+                    ClassPath sourceCP = ClassPath.getClassPath(clazz, ClassPath.SOURCE);
+                    ClassPath cp = ClassPath.getClassPath(clazz, ClassPath.EXECUTE);
+                    if (sourceCP == null || cp == null) {
+                        return;
+                    }
+                    FileBuiltQuery.Status status = FileBuiltQuery.getStatus(clazz);
+                    // XXX when using CoS this seems to always be true, yet gives NCDFE
+                    if (status != null && !status.isBuilt()) {
+                        // #72385: not yet compiled?
+                        throw Exceptions.attachLocalizedMessage(new IOException("uncompiled: " + clazz),
+                                // XXX I18N
+                                "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging.");
+                    }
+                    FileObject dir = getWorkingDir(clazz);
+                    ClassKind kind = getKind(clazz);
+                    if (kind == ClassKind.NONE) {
+                        // Race condition with action enablement, forget it.
+                        return;
+                    }
+                    FileObject buildXml = createBuildXml(dir, clazz, sourceCP.getResourceName(clazz, '.', false), cp, kind);
+                    ActionUtils.runTarget(buildXml, null, null);
+                } catch (IOException x) {
+                    Exceptions.printStackTrace(x);
+                }
+            }
+        });
     }
     
     private static FileObject getWorkingDir(FileObject clazz) throws IOException {
@@ -188,10 +204,8 @@ class Debug {
         return FileUtil.toFileObject(new File(System.getProperty("java.io.tmpdir"))); // NOI18N
     }
     
-    private static FileObject createBuildXml(FileObject dir, FileObject clazz, String clazzname, ClassPath cp) throws IOException {
+    private static FileObject createBuildXml(FileObject dir, FileObject clazz, String clazzname, ClassPath cp, ClassKind kind) throws IOException {
         Project prj = FileOwnerQuery.getOwner(clazz);
-        ClassKind kind = getKind(clazz);
-        assert kind != ClassKind.NONE;
         Document doc = createScript(clazz, kind, cp, clazzname, dir, prj);
         FileObject buildXml = FileUtil.createData(dir, "omnidebug.xml"); // NOI18N
         FileLock lock = buildXml.lock();
@@ -439,6 +453,7 @@ class Debug {
             return PropertyUtils.sequentialPropertyEvaluator(null, new PropertyProvider[0]);
         }
         return PropertyUtils.sequentialPropertyEvaluator(null,
+            // XXX does not handle run configs
             PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "nbproject/private/private.properties")), // NOI18N
             PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "nbproject/project.properties")), // NOI18N
             PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "build.properties"))); // NOI18N

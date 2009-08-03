@@ -41,18 +41,23 @@
 
 package org.netbeans.modules.omnidebugger;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.modules.omnidebugger.Debug.ClassKind;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 
 /**
@@ -74,12 +79,7 @@ public class DebugFileAction extends AbstractAction implements ContextAwareActio
     }
 
     public JComponent[] getMenuPresenters() {
-        ContextAction a = new ContextAction(Utilities.actionsGlobalContext());
-        JMenuItem mi = new JMenuItem(a);
-        if (a.isEnabled()) {
-            mi.setText("Omniscient Debug " + a.selection.getNameExt()); // XXX I18N
-        }
-        return new JComponent[] {mi};
+        return new JComponent[] {new JMenuItem(new ContextAction(Utilities.actionsGlobalContext()))};
     }
 
     public JComponent[] synchMenuPresenters(JComponent[] items) {
@@ -97,21 +97,51 @@ public class DebugFileAction extends AbstractAction implements ContextAwareActio
             } else {
                 selection = context.lookup(FileObject.class);
             }
-        }
-
-        public boolean isEnabled() {
-            return selection != null && Debug.enabled(selection);
-        }
-        
-        public void actionPerformed(ActionEvent e) {
-            try {
-                Debug.start(selection);
-            } catch (IOException x) {
-                Exceptions.printStackTrace(x);
+            if (selection == null) {
+                setEnabled(false);
+            } else {
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
+                        if (ClassPath.getClassPath(selection, ClassPath.EXECUTE) == null || ClassPath.getClassPath(selection, ClassPath.SOURCE) == null) {
+                            setEnabled(false);
+                            return;
+                        }
+                        JavaSource src = JavaSource.forFileObject(selection);
+                        if (src == null) {
+                            setEnabled(false);
+                            return;
+                        }
+                        try {
+                            src.runWhenScanFinished(Debug.getKindTask(new Debug.KindCallback() {
+                                public void computed(ClassKind kind) {
+                                    if (kind == ClassKind.NONE) {
+                                        EventQueue.invokeLater(new Runnable() {
+                                            public void run() {
+                                                // XXX for some reason this is too late for DataNode context menu (works e.g. in editor)
+                                                // there are no listeners on the action... why?
+                                                setEnabled(false);
+                                                firePropertyChange(NAME, null, getValue(NAME));
+                                            }
+                                        });
+                                    }
+                                }
+                            }), true);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                });
             }
         }
 
-        public Object getValue(String key) {
+        public void actionPerformed(ActionEvent e) {
+            Debug.start(selection);
+        }
+
+        public @Override Object getValue(String key) {
+            if (key.equals(NAME) && isEnabled()) {
+                return "Omniscient Debug " + selection.getNameExt(); // XXX I18N
+            }
             return DebugFileAction.this.getValue(key);
         }
 

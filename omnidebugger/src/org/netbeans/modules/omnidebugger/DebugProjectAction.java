@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.omnidebugger;
 
-import java.io.IOException;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -53,7 +52,6 @@ import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
 /**
@@ -107,11 +105,7 @@ public class DebugProjectAction implements ProjectActionPerformer {
     }
 
     public void perform(Project project) {
-        try {
-            Debug.start(findMainClass(project));
-        } catch (IOException x) {
-            Exceptions.printStackTrace(x);
-        }
+        Debug.start(findMainClass(project));
     }
     
 }
