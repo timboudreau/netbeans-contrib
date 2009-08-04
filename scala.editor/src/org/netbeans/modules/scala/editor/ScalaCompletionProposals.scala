@@ -39,22 +39,11 @@
 
 package org.netbeans.modules.scala.editor
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import javax.swing.ImageIcon;
-import javax.swing.text.BadLocationException;
+import javax.swing.ImageIcon
+import javax.swing.text.BadLocationException
 import org.netbeans.editor.Utilities
-import org.netbeans.modules.csl.api.CompletionProposal;
-import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.csl.api.ElementKind;
-import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.csl.api.Modifier;
-import org.netbeans.modules.scala.editor.ScalaCodeCompletion._;
+import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier}
 import org.openide.util.Exceptions
-
-import org.netbeans.modules.scala.editor.element.ScalaElements
 
 /**
  *
@@ -64,7 +53,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   abstract class ScalaCompletionProposal(element: ScalaElement, request: CompletionRequest) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
-      return request.anchor
+      request.anchor
     }
 
     override def getName: String = {
@@ -77,28 +66,26 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
     override def getSortText: String = {
       val name = getName
-      val c = name.charAt(0)
-      if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {
-        return name;
-      } else {
-        return '~' + name;
+      name.charAt(0) match {
+        case c if c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' => name
+        case _ => '~' + name
       }
     }
 
     def getSortPrioOverride: Int = {
-      return 0;
+      0
     }
 
     def getElement: ElementHandle = {
-      return element
+      element
     }
 
     def getKind: ElementKind = {
-      return getElement.getKind
+      getElement.getKind
     }
 
     def getIcon: ImageIcon = {
-      return null
+      null
     }
 
     def getLhsHtml(formatter: HtmlFormatter): String = {
@@ -123,7 +110,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         formatter.emphasis(false)
       }
 
-      return formatter.getText
+      formatter.getText
     }
 
     override def getRhsHtml(formatter: HtmlFormatter): String = {
@@ -142,7 +129,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    override def getModifiers: Set[Modifier] = {
+    override def getModifiers: _root_.java.util.Set[Modifier] = {
       return element.getModifiers
     }
 
@@ -150,7 +137,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       var cls = this.getClass().getName();
       cls = cls.substring(cls.lastIndexOf('.') + 1)
 
-      return cls + "(" + getKind + "): " + getName
+      cls + "(" + getKind + "): " + getName
     }
 
     def isSmart: Boolean = {
@@ -163,7 +150,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  class FunctionProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class FunctionProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     private val methodType: Type = element.symbol.tpe
 
@@ -241,10 +228,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    def getInsertParams: List[String] = {
+    def getInsertParams: _root_.java.util.List[String] = {
       val paramTypes = methodType.paramTypes
       if (!paramTypes.isEmpty) {
-        val result = new ArrayList[String](paramTypes.size)
+        val result = new _root_.java.util.ArrayList[String](paramTypes.size)
         val itr = paramTypes.iterator
         while (itr.hasNext) {
           val param = itr.next
@@ -320,7 +307,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     private val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
 
   }
-  class KeywordProposal(keyword: String, description: String, request: CompletionRequest) extends ScalaCompletionProposal(null, request) {
+  case class KeywordProposal(keyword: String, description: String, request: CompletionRequest) extends ScalaCompletionProposal(null, request) {
     import KeywordProposal._
 
     override def getName: String = {
@@ -340,7 +327,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    override  def getRhsHtml(formatter: HtmlFormatter): String = {
+    override def getRhsHtml(formatter: HtmlFormatter): String = {
       if (description != null) {
         formatter.appendText(description)
 
@@ -354,13 +341,12 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       keywordIcon
     }
 
-    override def getModifiers: Set[Modifier] = {
+    override def getModifiers: _root_.java.util.Set[Modifier] = {
       return _root_.java.util.Collections.emptySet[Modifier]
     }
 
     override def getElement: ElementHandle = {
-      // For completion documentation
-      new PseudoElement(keyword, ElementKind.KEYWORD)
+      PseudoElement(keyword, ElementKind.KEYWORD) // For completion documentation
     }
 
     override def isSmart: Boolean = {
@@ -369,23 +355,20 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
  
-  class PlainProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class PlainProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {}
 
-  }
-
-  class PackageItem(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class PackageItem(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
-      return ElementKind.PACKAGE
+      ElementKind.PACKAGE
     }
 
     override def getName: String = {
-      var name = element.getName
+      val name = element.getName
       val lastDot = name.lastIndexOf('.')
       if (lastDot > 0) {
-        name = name.substring(lastDot + 1, name.length)
-      }
-      return name;
+        name.substring(lastDot + 1, name.length)
+      } else name
     }
 
     override def getLhsHtml(formatter: HtmlFormatter): String = {
@@ -394,7 +377,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.appendText(getName)
       formatter.name(kind, false)
 
-      return formatter.getText
+      formatter.getText
     }
 
     override def getRhsHtml(formatter: HtmlFormatter): String = {
@@ -409,16 +392,15 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   class TypeProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
-      return ElementKind.CLASS
+      ElementKind.CLASS
     }
 
     override def getName: String = {
-      var name = element.getName
+      val name = element.getName
       val lastDot = name.lastIndexOf('.')
       if (lastDot > 0) {
-        name = name.substring(lastDot + 1, name.length)
-      }
-      return name;
+        name.substring(lastDot + 1, name.length)
+      } else name
     }
 
     override def getLhsHtml(formatter: HtmlFormatter): String = {
@@ -434,11 +416,11 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         formatter.deprecated(false)
       }
 
-      return formatter.getText
+      formatter.getText
     }
 
     override def getRhsHtml(formatter: HtmlFormatter): String = {
-      return null;
+      null
     }
   }
 
