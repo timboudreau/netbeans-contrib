@@ -39,42 +39,33 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Utilities;
-import org.netbeans.modules.csl.api.CodeCompletionContext;
-import org.netbeans.modules.csl.api.CodeCompletionHandler;
-import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType;
-import org.netbeans.modules.csl.api.CodeCompletionResult;
-import org.netbeans.modules.csl.api.CompletionProposal;
-import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.csl.api.ParameterInfo;
-import org.netbeans.modules.csl.spi.DefaultCompletionResult;
-import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
+import javax.lang.model.element.{ElementKind, ExecutableElement}
+import javax.swing.text.{BadLocationException, Document, JTextComponent}
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
+import org.netbeans.editor.{BaseDocument, Utilities}
+import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType
+import org.netbeans.modules.csl.api.{CodeCompletionContext,
+                                     CodeCompletionHandler,
+                                     CodeCompletionResult,
+                                     CompletionProposal,
+                                     ElementHandle,
+                                     HtmlFormatter,
+                                     OffsetRange,
+                                     ParameterInfo}
+import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
 import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
-import org.netbeans.modules.scala.editor.rats.ParserScala;
+import org.netbeans.modules.scala.editor.rats.ParserScala
 import org.openide.filesystems.FileObject
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
+import org.openide.util.{Exceptions, NbBundle}
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.symtab.Flags
-import _root_.scala.tools.nsc.symtab.Symbols
-import _root_.scala.tools.nsc.symtab.Types
+//import _root_.scala.tools.nsc.symtab.Symbols
+//import _root_.scala.tools.nsc.symtab.Types
 
 /**
  * Code completion handler for JavaScript
@@ -701,7 +692,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
 
       if (token != null) {
         token.id match {
-          case ScalaTokenId.STRING_BEGIN | ScalaTokenId.STRING_END | ScalaTokenId.StringLiteral |
+          case
+            ScalaTokenId.STRING_BEGIN | ScalaTokenId.STRING_END | ScalaTokenId.StringLiteral |
             ScalaTokenId.REGEXP_LITERAL | ScalaTokenId.REGEXP_BEGIN | ScalaTokenId.REGEXP_END if lexOffset > 0 =>
             doc.getText(lexOffset - 1, 1).charAt(0) match {
               case '\\' => return "\\"
@@ -911,7 +903,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
             }
           }
 
-          return prefix
+          prefix
         }
       }
       // Else: normal identifier: just return null and let the machinery do the rest
@@ -923,7 +915,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
 
   override def resolveLink(link: String, elementHandle: ElementHandle): ElementHandle = {
     if (link.indexOf(':') != -1) {
-      return new ElementHandle.UrlHandle(link.replace(':', '.'))
+      new ElementHandle.UrlHandle(link.replace(':', '.'))
     } else null
   }
 
@@ -1291,7 +1283,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
   }
 
   override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): _root_.java.util.Set[String] = {
-    return _root_.java.util.Collections.emptySet[String]
+    _root_.java.util.Collections.emptySet[String]
   }
 
   override def parameters(info: ParserResult, lexOffset: Int, proposal: CompletionProposal): ParameterInfo = {
@@ -1431,7 +1423,7 @@ abstract class CompletionRequest {
     while (itr.hasNext) {
       val keyword = itr.next
       if (startsWith(keyword, prefix)) {
-        val item = new KeywordProposal(keyword, null, this)
+        val item = KeywordProposal(keyword, null, this)
         proposals.add(item)
       }
     }
@@ -1439,7 +1431,7 @@ abstract class CompletionRequest {
 
   @throws(classOf[BadLocationException])
   def completeComments(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
-    val rowStart = Utilities.getRowFirstNonWhite(doc, lexOffset);
+    val rowStart = Utilities.getRowFirstNonWhite(doc, lexOffset)
     if (rowStart == -1) {
       return false
     }
@@ -1465,7 +1457,7 @@ abstract class CompletionRequest {
       val word = JSDOC_WORDS(j)
       if (startsWith(word, prefix)) {
         //KeywordItem item = new KeywordItem(word, desc, request);
-        val item = new KeywordProposal(word, null, this)
+        val item = KeywordProposal(word, null, this)
         proposals.add(item)
       }
     }
@@ -1491,7 +1483,7 @@ abstract class CompletionRequest {
          if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
              (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix))))
     {
-      proposals.add(new PlainProposal(global.ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
+      proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
     }
 
 
@@ -1500,7 +1492,7 @@ abstract class CompletionRequest {
          if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
              (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix))))
     {
-      proposals.add(new FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
+      proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
     }
 
     // Add in "arguments" local variable which is available to all functions
@@ -1523,7 +1515,7 @@ abstract class CompletionRequest {
   def completeNew(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
     //val index = request.index;
 
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset);
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
 
     if (ts != null /* && index != null */) {
       ts.move(lexOffset)
@@ -1699,12 +1691,12 @@ abstract class CompletionRequest {
       // Account for input sanitation
       // TODO - also back up over whitespace, and if I hit the method
       // I'm parameter number 0
-      val originalAstOffset = astOffset;
+      val originalAstOffset = astOffset
 
       // Adjust offset to the left
       val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
       if (doc == null) {
-        return false;
+        return false
       }
 
       val th = info.getSnapshot.getTokenHierarchy
@@ -1730,7 +1722,7 @@ abstract class CompletionRequest {
       }
 
       var closestOpt = root.findItemAt(th, astOffset1)
-      var closestOffset = astOffset1 - 1;
+      var closestOffset = astOffset1 - 1
       while (closestOpt == None && closestOffset > 0) {
         closestOffset -= 1
         closestOpt = root.findItemAt(th, closestOffset)
@@ -1742,7 +1734,7 @@ abstract class CompletionRequest {
       val currentLineStart = Utilities.getRowStart(doc, lexOffset)
       if (callLineStart != -1 && currentLineStart == callLineStart) {
         // We know the method call
-        targetMethod = callMethod;
+        targetMethod = callMethod
         if (targetMethod != null) {
           // Somehow figure out the argument index
           // Perhaps I can keep the node tree around and look in it
@@ -1752,7 +1744,7 @@ abstract class CompletionRequest {
       }
       // Compute the argument index
 
-      var anchorOffset = -1;
+      var anchorOffset = -1
 
       //            if (targetMethod != null) {
       //                Iterator<Node> it = path.leafToRoot();
@@ -1812,21 +1804,21 @@ abstract class CompletionRequest {
       }
 
       if (call == null || index == -1) {
-        callLineStart = -1;
-        callMethod = null;
-        return false;
+        callLineStart = -1
+        callMethod = null
+        return false
       } else if (targetMethod == null) {
         // Look up the
         // See if we can find the method corresponding to this call
 
         //targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
         if (targetMethod == null) {
-          return false;
+          return false
         }
       }
 
-      callLineStart = currentLineStart;
-      callMethod = targetMethod;
+      callLineStart = currentLineStart
+      callMethod = targetMethod
 
       methodHolder(0) = callMethod
       parameterIndexHolder(0) = index
@@ -1835,12 +1827,12 @@ abstract class CompletionRequest {
         anchorOffset = call.idToken.get.offset(th) // TODO - compute
 
       }
-      anchorOffsetHolder(0) = anchorOffset;
+      anchorOffsetHolder(0) = anchorOffset
     } catch {
       case ble: BadLocationException => Exceptions.printStackTrace(ble); return false
     }
 
-    true;
+    true
   }
 
 
@@ -1868,14 +1860,14 @@ abstract class CompletionRequest {
         if (!member.hasFlag(Flags.PRIVATE)) {
           if (member.isMethod) {
             element = ScalaElement(member, info)
-            proposal = new FunctionProposal(element, this)
+            proposal = FunctionProposal(element, this)
           } else if (member.isVariable) {
           } else if (member.isValue) {
             element = ScalaElement(member, info)
-            proposal = new PlainProposal(element, this)
+            proposal = PlainProposal(element, this)
           } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
             element = ScalaElement(member, info)
-            proposal = new PlainProposal(element, this)
+            proposal = PlainProposal(element, this)
           } 
         }
 
@@ -1893,7 +1885,7 @@ abstract class CompletionRequest {
         ScalaGlobal.reset
     }
 
-    return true;
+    true
   }
 
   private def getResultType(tpe: Type): Type = {
