@@ -547,6 +547,8 @@ abstract class ScalaAstVisitor {
             traverse(expr, level, false)
             selectors foreach {
               case (x:Name, y:Name) =>
+              case (x:Name, null) =>
+              case _ =>
             }
 
           case Function(vparams, body) =>
@@ -681,7 +683,7 @@ abstract class ScalaAstVisitor {
       
       buf setLength 0
       traverse(tree, 0, false)
-      rootScope.debugPrintTokens(th)
+      //rootScope.debugPrintTokens(th)
       buf.toString
     }
   }
