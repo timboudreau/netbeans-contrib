@@ -910,20 +910,20 @@ abstract class ScalaAstVisitor {
           tk
         }
       case (_, "*") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
-//      case (_, _) if name.startsWith("<error") => ts.token.id match {
-//          case ScalaTokenId.Dot =>
-//            // a. where, offset is at .
-//            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
-//          case _ =>
-//            // a.p where, offset is at p
-//            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-//        }
+        //      case (_, _) if name.startsWith("<error") => ts.token.id match {
+        //          case ScalaTokenId.Dot =>
+        //            // a. where, offset is at .
+        //            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
+        //          case _ =>
+        //            // a.p where, offset is at p
+        //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+        //        }
       case _ =>
         val pos = tree.pos
         val end = if (pos.isDefined) pos.endOrPoint else -1
         var tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         var curr = offset1 + tk.length
-        while (tk != null && !(tk.text.toString.trim == name) && curr <= end) {
+        while (tk != null && !tokenNameEquals(tk, name) && curr <= end) {
           if (ts.moveNext) {
             tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
             curr = ts.offset + tk.length
@@ -931,11 +931,10 @@ abstract class ScalaAstVisitor {
             tk = null
           }
         }
-        tk match {
-          case null => null
-          case _ if tk.text.toString != name => null
-          case _ => tk
-        }
+
+        if (tk != null && tokenNameEquals(tk, name)) {
+          tk
+        } else null
     }
 
     if (token != null && token.isFlyweight) {
@@ -947,6 +946,16 @@ abstract class ScalaAstVisitor {
     //      exprs.peek().addToken(token);
     //    }
     if (token == null) None else Some(token)
+  }
+
+  protected def tokenNameEquals(token: Token[_], name: String) = {
+    val t = token.text.toString.trim
+    val text = token.id match {
+      case ScalaTokenId.SymbolLiteral => t.substring(1, t.length - 1) // strip '`'
+      case _ => t
+    }
+    
+    text == name
   }
 
   protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {

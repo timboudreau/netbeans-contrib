@@ -94,6 +94,8 @@ object ScalaTokenId extends Enumeration {
   val FloatingPointLiteral = V("FloatingPointLiteral", null, "number")
   val CharacterLiteral = V("CharacterLiteral", null, "character")
   val StringLiteral = V("StringLiteral", null, "string")
+  val SymbolLiteral = V("SymbolLiteral", null, "identifier")
+
   val Operator = V("Operator", null, "operator")
   val Separator = V("Separator", null, "separator")
   val Error = V("Error", null, "error")

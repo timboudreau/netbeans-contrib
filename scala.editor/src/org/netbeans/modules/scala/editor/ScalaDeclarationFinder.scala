@@ -126,19 +126,15 @@ class ScalaDeclarationFinder extends DeclarationFinder {
         }
         
         val token = ts.token
-        if (token.id == ScalaTokenId.Identifier) {
-          root.findItemAt(th, token.offset(th)) match {
-            case Some(x: global.ScalaDfn) =>
-              val sym = x.symbol
-              ScalaUtil.getFileObject(info, sym) match {
-                case me@Some(fo) =>
-                  val offset = sym.pos.startOrPoint
-                  val remoteDfn = global.ScalaDfn(sym, None, ElementKind.OTHER, ScalaScope.EMPTY, me)
-                  return new DeclarationLocation(fo, offset, remoteDfn)
-                case None =>
-              }
-            case None =>
-          }
+        token.id match {
+          case ScalaTokenId.Identifier | ScalaTokenId.SymbolLiteral =>
+            root.findItemAt(th, token.offset(th)) match {
+              case Some(x: global.ScalaRef) =>
+                val remoteDfn = global.ScalaElement(x.symbol, info)
+                return new DeclarationLocation(remoteDfn.getFileObject, remoteDfn.getOffset, remoteDfn)
+              case _ =>
+            }
+          case _ =>
         }
 
         DeclarationLocation.NONE

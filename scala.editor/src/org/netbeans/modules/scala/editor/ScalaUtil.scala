@@ -359,12 +359,23 @@ object ScalaUtil {
   }
 
   def getFileObject(info: ParserResult, symbol: ScalaGlobal#Symbol): Option[FileObject] = {
-    val srcPath = symbol.pos.source.path
-    val file = new File(srcPath)
-    if (file != null && file.exists) {
-      return Some(FileUtil.toFileObject(file))
+    val pos = symbol.pos
+    if (pos.isDefined) {
+      val srcFile = pos.source
+      if (srcFile != null) {
+        var srcPath = srcFile.path
+        // Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
+        if (!srcPath.startsWith(File.separator)) {
+          srcPath = File.separator + srcPath
+        }
+        val file = new File(srcPath)
+        if (file != null && file.exists) {
+          // it's a real file and not archive file
+          return Some(FileUtil.toFileObject(file))
+        }
+      }
     }
-    
+
     val qName: String = try {
       symbol.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {

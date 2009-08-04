@@ -201,7 +201,7 @@ trait ScalaElements {self: ScalaGlobal =>
     private var modifiers: _root_.java.util.Set[Modifier] = _
     private var inherited: Boolean = _
     private var smart: Boolean = _
-    private var fo: FileObject = _
+    private var fo: Option[FileObject] = None
     private var path: String = _
     private var doc: BaseDocument = _
     private var offset: Int = _
@@ -219,42 +219,23 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getFileObject: FileObject = {
-      if (fo == null) {
-        val srcFile = symbol.pos.source
-        if (srcFile != null) {
-          var srcPath = srcFile.path
-          // Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
-          if (!srcPath.startsWith(File.separator)) {
-            srcPath = File.separator + srcPath
-          }
-          val file = new File(srcPath)
-          if (file != null && file.exists) {
-            // it's a real file and not archive file
-            fo = FileUtil.toFileObject(file)
-          }
-        }
-
-        if (fo == null) {
-          fo = ScalaUtil.getFileObject(info, symbol) match {
-            case Some(x) => x
+      fo match {
+        case Some(x) => return x
+        case None =>
+          fo = ScalaUtil.getFileObject(info, symbol) // try to get
+          fo match {
+            case Some(x) => path = x.getPath; x
             case None => null
           }
-        }
-
-        if (fo != null) {
-          path = fo.getPath
-        }
       }
-
-      fo
     }
 
     override def getIn: String = {
-      return symbol.owner.nameString
+      symbol.owner.nameString
     }
 
     override def getKind: ElementKind = {
-      return ScalaElement.getKind(symbol)
+      ScalaElement.getKind(symbol)
     }
 
     override def getMimeType: String = {
@@ -309,7 +290,10 @@ trait ScalaElements {self: ScalaGlobal =>
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
-        return symbol.pos.startOrPoint
+        val pos = symbol.pos
+        if (pos.isDefined) {
+          offset = pos.startOrPoint
+        }
       }
 
       offset
@@ -333,7 +317,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         javaElement != null
       } else {
-        symbol.pos.source != null
+        symbol.pos.isDefined
       }
     }
 
@@ -347,7 +331,7 @@ trait ScalaElements {self: ScalaGlobal =>
         if (srcDoc != null) {
           assert(path != null)
           try {
-            val text = srcDoc.getChars(0, srcDoc.getLength());
+            val text = srcDoc.getChars(0, srcDoc.getLength)
             val f = new File(path)
             val af = if (f != null) new PlainFile(f) else new VirtualFile("<current>", "")
             val srcFile = new BatchSourceFile(af, text);
@@ -400,7 +384,7 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     def isEmphasize: Boolean = {
-      return !isInherited
+      !isInherited
     }
 
     def setSmart(smart: Boolean): Unit = {
