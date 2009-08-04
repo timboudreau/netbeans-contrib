@@ -40,25 +40,21 @@
 package org.netbeans.modules.scala.editor.element
 
 import _root_.java.io.{File, IOException}
-import javax.lang.model.element.Element;
-import javax.swing.text.BadLocationException;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.csl.api.ElementKind;
-import org.netbeans.modules.csl.api.Modifier;
-import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.csl.spi.ParserResult;
+import javax.lang.model.element.Element
+import javax.swing.text.BadLocationException
+import org.netbeans.api.lexer.TokenHierarchy
+import org.netbeans.editor.BaseDocument
+import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange}
+import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.{FileObject, FileUtil}
-import org.openide.util.Exceptions;
-import scala.tools.nsc.io.AbstractFile;
-import scala.tools.nsc.io.PlainFile;
-import scala.tools.nsc.io.VirtualFile;
-import scala.tools.nsc.util.BatchSourceFile;
+import org.openide.util.Exceptions
+
+import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import _root_.scala.tools.nsc.util.BatchSourceFile
+import _root_.scala.tools.nsc.symtab.{Flags}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
-import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaParserResult, ScalaUtil, ScalaMimeResolver}
+import org.netbeans.modules.scala.editor.{JavaUtil, ScalaGlobal, ScalaParserResult, ScalaUtil, ScalaMimeResolver}
 
 
 /**
@@ -264,17 +260,17 @@ trait ScalaElements {self: ScalaGlobal =>
       if (!isLoaded) load
 
       getDoc foreach {srcDoc =>
-        if (!isJava) {
-          return ScalaUtil.getDocComment(srcDoc, getOffset)
-        } else {
+        if (isJava) {
           javaElement foreach {x =>
             try {
-              val docComment: String = ""//JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), x)
+              val docComment: String = JavaUtil.getDocComment(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
               if (docComment.length > 0) {
                 return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString
               }
             } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
           }
+        } else {
+          return ScalaUtil.getDocComment(srcDoc, getOffset)
         }
       }
 
@@ -287,7 +283,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         javaElement foreach {x =>
           try {
-            return -1 //JavaUtilities.getOffset(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), x);
+            return JavaUtil.getOffset(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
@@ -332,7 +328,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isLoaded) return
 
       if (isJava) {
-        //javaElement = JavaUtilities.getJavaElement(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), symbol);
+        javaElement = JavaUtil.getJavaElement(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), symbol)
       } else {
         getDoc foreach {srcDoc =>
           assert(path != null)
@@ -368,13 +364,7 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     def isJava: Boolean = {
-      if (path == null) {
-        getFileObject
-      }
-
-      if (path != null) {
-        path.endsWith(".java")
-      } else false
+      symbol hasFlag Flags.JAVA
     }
 
     def isDeprecated: Boolean = {

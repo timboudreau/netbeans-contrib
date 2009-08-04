@@ -123,7 +123,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     override def getModifiers: _root_.java.util.Set[Modifier] = {
-      return element.getModifiers
+      element.getModifiers
     }
 
     override def toString: String = {

@@ -1365,7 +1365,7 @@ abstract class CompletionRequest {
   var completionResult: DefaultCompletionResult = _
   var th: TokenHierarchy[_] = _
   var info: ParserResult = _
-  var node: Option[AstItem] = _
+  var node: Option[AstItem] = None
   var root: ScalaRootScope = _
   var anchor: Int = _
   var lexOffset: Int = _
