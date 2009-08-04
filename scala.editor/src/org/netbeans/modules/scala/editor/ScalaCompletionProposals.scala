@@ -92,23 +92,16 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       val emphasize = !element.isInherited
       val strike = element.isDeprecated
 
-      if (emphasize) {
-        formatter.emphasis(true)
-      }
-      if (strike) {
-        formatter.deprecated(true)
-      }
+      if (emphasize) formatter.emphasis(true)
+      if (strike) formatter.deprecated(true)
+      
       val kind = getKind
       formatter.name(kind, true)
       formatter.appendText(getName)
       formatter.name(kind, false)
 
-      if (strike) {
-        formatter.deprecated(false)
-      }
-      if (emphasize) {
-        formatter.emphasis(false)
-      }
+      if (strike) formatter.deprecated(false)
+      if (emphasize) formatter.emphasis(false)
 
       formatter.getText
     }

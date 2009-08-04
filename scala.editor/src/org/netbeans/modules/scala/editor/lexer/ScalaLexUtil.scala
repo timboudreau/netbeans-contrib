@@ -77,10 +77,12 @@ object ScalaLexUtil extends LexUtil {
                                                ScalaTokenId.Nl,
                                                ScalaTokenId.LineComment,
                                                ScalaTokenId.DocCommentStart,
+                                               ScalaTokenId.DocCommentData,
                                                ScalaTokenId.DocCommentEnd,
                                                ScalaTokenId.BlockCommentStart,
                                                ScalaTokenId.BlockCommentEnd,
-                                               ScalaTokenId.BlockCommentData
+                                               ScalaTokenId.BlockCommentData,
+                                               ScalaTokenId.CommentTag
   )
 
   override val WS: Set[TokenId] = Set(ScalaTokenId.Ws,

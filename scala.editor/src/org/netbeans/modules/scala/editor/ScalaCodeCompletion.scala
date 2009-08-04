@@ -55,7 +55,7 @@ import org.netbeans.modules.csl.api.{CodeCompletionContext,
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
-import org.netbeans.api.language.util.ast.AstItem
+import org.netbeans.api.language.util.ast.{AstItem, AstElementHandle}
 import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
@@ -1220,65 +1220,42 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
   }
 
   override def document(info: ParserResult, element: ElementHandle): String = {
-    ""
-    /*_
-     val sigFormatter = new SignatureHtmlFormatter();
-     var comment = null;
-     if (element instanceof IndexedElement) {
-     sigFormatter.appendText(IndexedElement.getHtmlSignature((IndexedElement) element));
-     IndexedElement ie = (IndexedElement) element;
-     if (ie.isDocumented() || ie.isJava()) {
-     comment = ie.getComment();
-     //                IndexedElement e = ie.findDocumentedSibling();
-     //                if (e != null) {
-     //                    node = e;
-     //                    e.getComments();
-     //                }
-     }
-     } else if (element instanceof GsfElement) {
-     ((GsfElement) element).htmlFormat(sigFormatter);
-     //comment = ((GsfElement) element).getDocComment();
-     } else if (element instanceof ScalaElementHandle) {
-     ScalaElementHandle element1 = (ScalaElementHandle) element;
-     try {
-     sigFormatter.appendHtml("<i>");
-     sigFormatter.appendText(element1.getSymbol().enclClass().fullNameString());
-     sigFormatter.appendHtml("</i><p>");
-     sigFormatter.appendText(element1.getSymbol().defString());
-     } catch (AssertionError ex) {
-     ScalaGlobal.reset();
-     }
-     //sigFormatter.appendText(element1.getSymbol().nameString());
-     //sigFormatter.appendText(element1.getSymbol().infoString(element1.getSymbol().tpe()));
-     comment = element1.getDocComment();
-     } else {
-     }
+    val sigFormatter = new SignatureHtmlFormatter
 
-     StringBuilder html = new StringBuilder();
+    val (sym, comment) = element match {
+      case x: ScalaGlobal#ScalaDfn =>     (Some(x.symbol), x.getDocComment)
+      case x: ScalaGlobal#ScalaElement => (Some(x.symbol), x.getDocComment)
+      case _ => (None, "")
+    }
+    
+    sym foreach {x =>
+      try {
+        sigFormatter.appendHtml("<i>")
+        sigFormatter.appendText(x.enclClass.fullNameString)
+        sigFormatter.appendHtml("</i><p>")
+        sigFormatter.appendText(x.defString)
+      } catch {case ex: AssertionError =>ScalaGlobal.reset}
+    }
 
-     //String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
-     if (comment == null) {
-     html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
+    val html = new StringBuilder
+    element.getFileObject match {
+      case null =>
+      case fo => html.append("<b>").append(fo.getPath).append("</b><br>")
+    }
 
-     return html.toString();
-     }
+    if (comment.length > 0) {
+      val formatter = new ScalaCommentFormatter(comment)
+      element.getName match {
+        case null =>
+        case name => formatter.setSeqName(name)
+      }
 
-     ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);
-     String name = element.getName();
-     if (name != null && name.length() > 0) {
-     formatter.setSeqName(name);
-     }
+      html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml)
+    } else {
+      html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ScalaCodeCompletion], "NoCommentFound")).append("</i>")
+    }
 
-     FileObject fo = element.getFileObject();
-     if (fo != null) {
-     html.append("<b>").append(fo.getPath()).append("</b><br>");
-     }
-
-     html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml());
-
-     return html.toString();
-     */
-
+    html.toString
   }
 
   override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): _root_.java.util.Set[String] = {

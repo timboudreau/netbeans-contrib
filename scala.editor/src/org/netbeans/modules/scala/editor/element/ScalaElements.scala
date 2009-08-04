@@ -132,7 +132,7 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     def symbolQualifiedName(symbol: Symbol): String = {
-      return symbolQualifiedName(symbol, true)
+      symbolQualifiedName(symbol, true)
     }
 
     /**
@@ -198,14 +198,14 @@ trait ScalaElements {self: ScalaGlobal =>
     import ScalaElement._
   
     private var kind: ElementKind = _
-    private var modifiers: _root_.java.util.Set[Modifier] = _
+    private var modifiers: Option[_root_.java.util.Set[Modifier]] = None
     private var inherited: Boolean = _
     private var smart: Boolean = _
     private var fo: Option[FileObject] = None
     private var path: String = _
-    private var doc: BaseDocument = _
+    private var doc: Option[BaseDocument] = None
     private var offset: Int = _
-    private var javaElement: Element = _
+    private var javaElement: Option[Element] = None
     private var loaded: Boolean = _
 
 
@@ -243,11 +243,13 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getModifiers: _root_.java.util.Set[Modifier] = {
-      if (modifiers == null) {
-        modifiers = ScalaElement.getModifiers(symbol)
+      modifiers match {
+        case Some(x) => x
+        case None =>
+          val x = ScalaElement.getModifiers(symbol)
+          modifiers = Some(x)
+          x
       }
-
-      modifiers
     }
 
     override def getName: String = {
@@ -261,32 +263,31 @@ trait ScalaElements {self: ScalaGlobal =>
     def getDocComment: String = {
       if (!isLoaded) load
 
-      val srcDoc = getDoc
-      if (srcDoc != null) {
+      getDoc foreach {srcDoc =>
         if (!isJava) {
           return ScalaUtil.getDocComment(srcDoc, getOffset)
         } else {
-          if (javaElement != null) {
+          javaElement foreach {x =>
             try {
-              val docComment: String = null//JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), javaElement);
-              if (docComment != null) {
-                return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString();
+              val docComment: String = ""//JavaUtilities.getDocComment(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), x)
+              if (docComment.length > 0) {
+                return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString
               }
             } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
           }
         }
       }
 
-      null
+      ""
     }
 
     def getOffset: Int = {
       if (!isLoaded) load
 
       if (isJava) {
-        if (javaElement != null) {
+        javaElement foreach {x =>
           try {
-            return -1 //JavaUtilities.getOffset(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), javaElement);
+            return -1 //JavaUtilities.getOffset(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), x);
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
@@ -300,22 +301,28 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getOffsetRange(result: ParserResult): OffsetRange = {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException("Not supported yet.")
     }
 
-    def getDoc: BaseDocument = {
+    def getDoc: Option[BaseDocument] = {
       val srcFo = getFileObject
       if (srcFo != null) {
-        doc = if (doc == null) GsfUtilities.getDocument(srcFo, true) else doc
+        doc match {
+          case None => GsfUtilities.getDocument(srcFo, true) match {
+              case null =>
+              case x => doc = Some(x)
+            }
+          case _ =>
+        }
         doc
-      } else null
+      } else None
     }
 
     private def isLoaded: Boolean = {
       if (loaded) return true
 
       if (isJava) {
-        javaElement != null
+        javaElement.isDefined
       } else {
         symbol.pos.isDefined
       }
@@ -327,14 +334,13 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         //javaElement = JavaUtilities.getJavaElement(JavaUtilities.getCompilationInfoForScalaFile(info.getSnapshot().getSource().getFileObject()), symbol);
       } else {
-        val srcDoc = getDoc
-        if (srcDoc != null) {
+        getDoc foreach {srcDoc =>
           assert(path != null)
           try {
             val text = srcDoc.getChars(0, srcDoc.getLength)
             val f = new File(path)
             val af = if (f != null) new PlainFile(f) else new VirtualFile("<current>", "")
-            val srcFile = new BatchSourceFile(af, text);
+            val srcFile = new BatchSourceFile(af, text)
 
             val th = TokenHierarchy.get(srcDoc)
             if (th == null) {

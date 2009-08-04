@@ -50,7 +50,7 @@ import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.lex.LexUtil
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
-import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver}
+import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver, ScalaUtil}
 
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.symtab.{Symbols, Types, Flags}
@@ -120,16 +120,13 @@ trait ScalaDfns {self: ScalaGlobal =>
     def getDocComment: String = {
       val srcDoc = doc match {
         case Some(x) => x
-        case None => return null
+        case None => return ""
       }
 
-      val th = TokenHierarchy.get(srcDoc)
-      if (th == null) {
-        return null
+      TokenHierarchy.get(srcDoc) match {
+        case null => return ""
+        case th => ScalaUtil.getDocComment(srcDoc, idOffset(th))
       }
-
-      //ErlangGlobal.docComment(srcDoc, idOffset(th))
-      return null // todo
     }
 
     def htmlFormat(formatter: HtmlFormatter): Unit = {

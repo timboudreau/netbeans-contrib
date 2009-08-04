@@ -330,7 +330,7 @@ object ScalaUtil {
 
   def getDocComment(doc: BaseDocument, symbolOffset: Int): String = {
     val th = TokenHierarchy.get(doc) match {
-      case null => return null
+      case null => return ""
       case x => x
     }
 
@@ -346,7 +346,7 @@ object ScalaUtil {
       }
     }
 
-    null
+    ""
   }
 
   def getOffset(info: Parser.Result, element: JavaElement): Int = {
