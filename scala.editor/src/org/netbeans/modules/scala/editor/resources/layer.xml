@@ -122,8 +122,8 @@
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-scala">
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/Scala.png"/>
-                <attr name="iconBase" stringvalue="org/netbeans/modules/Scala/editor/resources/Scala.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/scala16x16.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/scala/editor/resources/scala16x16.png"/>
                 <folder name="Actions">
                     <file name="CopyAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
@@ -204,46 +204,52 @@
     -->
     <!--
     <folder name="Templates">
-        <folder name="Other">
-            <file name="javascript.js" url="jstemplate.js">
+        <folder name="Scala">
+            <attr name="position" intvalue="911"/>
+
+            <file name="Main.scala" url="templates/Main.tmpl">
+                <attr name="position" intvalue="100"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/scalaMain.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
+            </file>
+
+            <file name="Class.scala" url="templates/EmptyScalaClass.tmpl">
+                <attr name="position" intvalue="200"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaClassFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
+            </file>
+
+            <file name="Object.scala" url="templates/EmptyScalaObject.tmpl">
+                <attr name="position" intvalue="300"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaObjectFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
+            </file>
+
+            <file name="Trait.scala" url="templates/EmptyScalaTrait.tmpl">
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javascript.editing.Bundle"/>
-                <attr name="templateCategory" stringvalue="simple-files"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javascript/editing/javascript.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaTraitFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
-            <file name="json.json" url="jsontemplate.json">
-                <attr name="position" intvalue="450"/>
+
+            <file name="JUnitTest.scala" url="templates/EmptyScalaJUnitTest.tmpl">
+                <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
-                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javascript.editing.Bundle"/>
-                <attr name="templateCategory" stringvalue="simple-files"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javascript/editing/json.html"/>
-            </file>
-        </folder>
-        <folder name="JSP_Servlet">
-            <file name="javascript.shadow">
-                <attr name="originalFile" stringvalue="Templates/Other/javascript.js"/>
-                <attr name="position" intvalue="700"/>
-                <attr name="templateCategory" stringvalue="web-types"/>
-            </file>
-            <file name="json.shadow">
-                <attr name="originalFile" stringvalue="Templates/Other/json.json"/>
-                <attr name="position" intvalue="750"/>
-                <attr name="templateCategory" stringvalue="web-types"/>
-            </file>
-        </folder>
-        <folder name="Ruby">
-            <file name="javascript.shadow">
-                <attr name="originalFile" stringvalue="Templates/Other/javascript.js"/>
-                <attr name="position" intvalue="703"/>
-                <attr name="templateCategory" stringvalue="ruby"/>
-            </file>
-            <file name="json.shadow">
-                <attr name="originalFile" stringvalue="Templates/Other/json.json"/>
-                <attr name="position" intvalue="750"/>
-                <attr name="templateCategory" stringvalue="ruby"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaJUnitTestFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
         </folder>
     </folder>
