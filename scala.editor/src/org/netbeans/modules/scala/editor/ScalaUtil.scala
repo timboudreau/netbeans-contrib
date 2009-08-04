@@ -78,13 +78,7 @@ object ScalaUtil {
     c match {
       case '!' | '?' | '=' => true
       case _ if Character.isJavaIdentifierPart(c) => true
-    }
-  }
-
-  def getOffset(pos: Position): Int = {
-    pos.offset match {
-      case Some(x) => x
-      case None => -1
+      case _ => false
     }
   }
 

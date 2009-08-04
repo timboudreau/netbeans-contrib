@@ -53,20 +53,18 @@ object AstScope {
 
 class AstScope(var boundsTokens: Array[Token[TokenId]]) {
 
-  var boundsToken: Option[Token[TokenId]] = None
-  var boundsEndToken: Option[Token[TokenId]] = None
-    
-  if (boundsTokens != null) {
+  var (boundsToken, boundsEndToken) = if (boundsTokens != null) {
     assert(boundsTokens.length <= 2)
     boundsTokens.length match {
-      case 0 =>
-      case 1 =>
-        boundsToken = Some(boundsTokens(0))
+      case 1 if boundsTokens(0) != null =>
+        (if (boundsTokens(0) != null) Some(boundsTokens(0)) else None,
+         None)
       case 2 =>
-        boundsToken = Some(boundsTokens(0))
-        boundsEndToken = Some(boundsTokens(1))
+        (if (boundsTokens(0) != null) Some(boundsTokens(0)) else None,
+         if (boundsTokens(1) != null) Some(boundsTokens(1)) else None)
+      case _ => (None, None)
     }
-  }
+  } else (None, None)
   
   var bindingDfn: Option[AstDfn] = None
   var parent: Option[AstScope] = None
@@ -77,9 +75,11 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   private var dfnsSorted: Boolean = false
   private var refsSorted: Boolean = false
 
-  def isRoot = parent match {
-    case Some(_) => false
-    case None => true
+  def isRoot = {
+    parent match {
+      case Some(_) => false
+      case None => true
+    }
   }
 
   def isScopesSorted: Boolean = scopesSorted
@@ -88,14 +88,18 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     new OffsetRange(boundsOffset(th), boundsEndOffset(th))
   }
 
-  def boundsOffset(th: TokenHierarchy[_]): Int = boundsToken match {
-    case Some(x) => x.offset(th)
-    case None => -1
+  def boundsOffset(th: TokenHierarchy[_]): Int = {
+    boundsToken match {
+      case Some(x) => x.offset(th)
+      case None => -1
+    }
   }
 
-  def boundsEndOffset(th: TokenHierarchy[_]): Int = boundsEndToken match {
-    case Some(x) => x.offset(th) + x.length
-    case None => -1
+  def boundsEndOffset(th: TokenHierarchy[_]): Int = {
+    boundsEndToken match {
+      case Some(x) => x.offset(th) + x.length
+      case None => -1
+    }
   }
   
   def subScopes: Seq[AstScope] = _subScopes

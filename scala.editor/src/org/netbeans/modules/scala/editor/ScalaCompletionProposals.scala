@@ -228,41 +228,30 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    def getInsertParams: _root_.java.util.List[String] = {
-      val paramTypes = methodType.paramTypes
-      if (!paramTypes.isEmpty) {
-        val result = new _root_.java.util.ArrayList[String](paramTypes.size)
-        val itr = paramTypes.iterator
-        while (itr.hasNext) {
-          val param = itr.next
-          result.add(param.typeSymbol.nameString.toLowerCase)
-        }
-        result
-      } else {
-        _root_.java.util.Collections.emptyList[String]
-      }
+    def getInsertParams: List[String] = {
+      methodType.paramTypes map {_.typeSymbol.nameString.toLowerCase}
     }
 
     override def getCustomInsertTemplate: String = {
       val sb = new StringBuilder
 
       val insertPrefix = getInsertPrefix
-      sb.append(insertPrefix);
+      sb.append(insertPrefix)
 
-      if (methodType.paramTypes.isEmpty) {
+      val params = getInsertParams
+      if (params.isEmpty) {
         return sb.toString
       }
 
-      val params = getInsertParams
       val startDelimiter = "("
       val endDelimiter = ")"
-      val paramCount = params.size
 
       sb.append(startDelimiter)
 
-      var id = 1;
-      for (i <- 0 to paramCount) {
-        val paramDesc = params.get(i)
+      var id = 1
+      val itr = params.iterator
+      while (itr.hasNext) {
+        val paramDesc = itr.next
         sb.append("${") //NOI18N
         // Ensure that we don't use one of the "known" logical parameters
         // such that a parameter like "path" gets replaced with the source file
@@ -283,9 +272,8 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
         sb.append("}") //NOI18N
 
-        if (i < paramCount - 1) {
+        if (itr.hasNext) {
           sb.append(", ") //NOI18N
-
         }
       }
       sb.append(endDelimiter)

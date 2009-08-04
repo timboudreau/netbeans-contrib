@@ -575,7 +575,7 @@ class ScalaParser extends Parser {
           return
         }
         
-        val offset = ScalaUtil.getOffset(pos)
+        val offset = pos.startOrPoint
         val sev = severity.id match {
           case 0 => return
           case 1 => org.netbeans.modules.csl.api.Severity.WARNING
@@ -592,7 +592,7 @@ class ScalaParser extends Parser {
           end += 1
         }
 
-        val isLineError = end == -1
+        val isLineError = (end == -1)
         notifyError(context, "SYNTAX_ERROR", msg,
                     offset, end, isLineError, sanitizing, sev, Array(offset, msg))
       }

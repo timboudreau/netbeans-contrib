@@ -199,8 +199,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
   import ScalaCodeCompletion._
 
   override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: int,
-                                       name: String , parameters: _root_.java.util.Map[_, _]): String =
-  {
+                                       name: String , parameters: _root_.java.util.Map[_, _]): String = {
     throw new UnsupportedOperationException("Not supported yet.")
   }
 
@@ -317,7 +316,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         val call = new request.Call
         request.findCall(root, ts, th, call, 0)
         for (base <- call.base) {
-          call.select foreach {x => request.prefix = x.getName}
+          call.select foreach {x => request.prefix = x}
           if (base.symbol != null) {
             if (request.completeSymbolMembers(base, proposals)) {
               if (call.caretAfterDot) {
@@ -831,12 +830,12 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         //            }
       }
 
-      val lineBegin = Utilities.getRowStart(doc, lexOffset);
+      val lineBegin = Utilities.getRowStart(doc, lexOffset)
       if (lineBegin != -1) {
-        val lineEnd = Utilities.getRowEnd(doc, lexOffset);
-        val line = doc.getText(lineBegin, lineEnd - lineBegin);
-        val lineOffset = lexOffset - lineBegin;
-        var start = lineOffset;
+        val lineEnd = Utilities.getRowEnd(doc, lexOffset)
+        val line = doc.getText(lineBegin, lineEnd - lineBegin)
+        val lineOffset = lexOffset - lineBegin
+        var start = lineOffset
         if (lineOffset > 0) {
           for (i <- lineOffset - 1 to 0;
                c = line.charAt(i) if ScalaUtil.isIdentifierChar(c))
@@ -847,13 +846,13 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
 
         // Find identifier end
         var prefix = if (upToOffset) {
-          line.substring(start, lineOffset);
+          line.substring(start, lineOffset)
         } else {
-          if (lineOffset == line.length()) {
+          if (lineOffset == line.length) {
             line.substring(start);
           } else {
-            val n = line.length();
-            var end = lineOffset;
+            val n = line.length
+            var end = lineOffset
             for (j <- lineOffset until n; 
                  d = line.charAt(j) if ScalaUtil.isStrictIdentifierChar(d))
             {
@@ -866,18 +865,18 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
 
         if (prefix.length > 0) {
           if (prefix.endsWith("::")) {
-            return "";
+            return ""
           }
 
           if (prefix.endsWith(":") && prefix.length > 1) {
-            return null;
+            return null
           }
 
           // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
-          val q = prefix.lastIndexOf("::");
+          val q = prefix.lastIndexOf("::")
 
           if (q != -1) {
-            prefix = prefix.substring(q + 2);
+            prefix = prefix.substring(q + 2)
           }
 
           // The identifier chars identified by JsLanguage are a bit too permissive;
@@ -1178,9 +1177,9 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
       case "." => // NOI18N
         // See if we're in Js context
 
-        val ts = ScalaLexUtil.getTokenSequence(doc, offset);
+        val ts = ScalaLexUtil.getTokenSequence(doc, offset)
         if (ts == null) {
-          return QueryType.NONE;
+          return QueryType.NONE
         }
         ts.move(offset)
         if (!ts.moveNext && !ts.movePrevious) {
@@ -1381,7 +1380,7 @@ abstract class CompletionRequest {
 
   class Call {
     var base: Option[AstItem] = None
-    var select: Option[AstItem] = None
+    var select: Option[String] = None
     var caretAfterDot: Boolean = _
   }
 
@@ -1456,7 +1455,6 @@ abstract class CompletionRequest {
     for (j <- 0 to JSDOC_WORDS.length) {
       val word = JSDOC_WORDS(j)
       if (startsWith(word, prefix)) {
-        //KeywordItem item = new KeywordItem(word, desc, request);
         val item = KeywordProposal(word, null, this)
         proposals.add(item)
       }
@@ -1675,7 +1673,8 @@ abstract class CompletionRequest {
    * called in methodHolder[0].
    */
   protected def computeMethodCall(info: ParserResult, lexOffset: Int, astOffset: Int,
-                                  methodHolder: Array[ExecutableElement], parameterIndexHolder: Array[int],
+                                  methodHolder: Array[ExecutableElement],
+                                  parameterIndexHolder: Array[int],
                                   anchorOffsetHolder: Array[Int],
                                   alternativesHolder: Array[Set[Function]]): Boolean = {
     try {
@@ -1855,18 +1854,18 @@ abstract class CompletionRequest {
     try {
       val members = resType.members
       for (member <- members if startsWith(member.nameString, prefix) && !member.isConstructor) {
-        var element: ScalaElement = null
+        var element:  ScalaElement = null
         var proposal: CompletionProposal = null
         if (!member.hasFlag(Flags.PRIVATE)) {
           if (member.isMethod) {
-            element = ScalaElement(member, info)
+            element  = ScalaElement(member, info)
             proposal = FunctionProposal(element, this)
           } else if (member.isVariable) {
           } else if (member.isValue) {
-            element = ScalaElement(member, info)
+            element  = ScalaElement(member, info)
             proposal = PlainProposal(element, this)
           } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
-            element = ScalaElement(member, info)
+            element  = ScalaElement(member, info)
             proposal = PlainProposal(element, this)
           } 
         }
@@ -1906,8 +1905,8 @@ abstract class CompletionRequest {
         ScalaLexUtil.findPreviousNonWs(ts) match {
           case null =>
           case prev => prev.id match {
-              case ScalaTokenId.RParen => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen, ScalaTokenId.RParen)
-              case ScalaTokenId.RBrace => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
+              case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
+              case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
               case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
               case _ =>
             }
@@ -1927,14 +1926,17 @@ abstract class CompletionRequest {
           return
         }
 
-        ScalaLexUtil.findPreviousNonWsNonComment(ts) match {
-          case prev if prev != null && prev.id == ScalaTokenId.Dot =>
-            call.caretAfterDot = true
-            call.select = item
-            findCall(rootScope, ts, th, call, times + 1)
-          case _ =>
-            call.base = item
-            return
+        val prev = if (ts.movePrevious) {
+          ScalaLexUtil.findPreviousNonWsNonComment(ts)
+        } else null
+
+        if (prev != null && prev.id == ScalaTokenId.Dot) {
+          call.caretAfterDot = true
+          call.select = Some(idToken.text.toString)
+          findCall(rootScope, ts, th, call, times + 1)
+        } else {
+          call.base = item
+          return
         }
       } else {
         call.base = item

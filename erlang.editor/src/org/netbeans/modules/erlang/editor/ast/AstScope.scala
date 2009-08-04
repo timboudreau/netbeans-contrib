@@ -52,21 +52,18 @@ import xtc.tree.{GNode}
  *
  * @author Caoyuan Deng
  */
-class AstScope(var boundsTokens:Array[Token[TokenId]]) {
+class AstScope(var boundsTokens: Array[Token[TokenId]]) {
 
-  var boundsToken :Option[Token[TokenId]] = None
-  var boundsEndToken :Option[Token[TokenId]] = None
-    
-  if (boundsTokens != null) {
+  val (boundsToken, boundsEndToken) = if (boundsTokens != null) {
     assert(boundsTokens.length <= 2)
     boundsTokens.length match {
       case 1 =>
-        boundsToken = Some(boundsTokens(0))
+        (Some(boundsTokens(0)), None)
       case 2 =>
-        boundsToken = Some(boundsTokens(0))
-        boundsEndToken = Some(boundsTokens(1))
+        (Some(boundsTokens(0)), Some(boundsTokens(1)))
+      case _ => (None, None)
     }
-  }
+  } else (None, None)
 
   var bindingDfn :Option[AstDfn] = None
   var parent :Option[AstScope] = None
@@ -88,14 +85,18 @@ class AstScope(var boundsTokens:Array[Token[TokenId]]) {
     new OffsetRange(boundsOffset(th), boundsEndOffset(th))
   }
 
-  def boundsOffset(th:TokenHierarchy[_]) :Int = boundsToken match {
-    case None => -1
-    case Some(x) => x.offset(th)
+  def boundsOffset(th:TokenHierarchy[_]) :Int = {
+    boundsToken match {
+      case None => -1
+      case Some(x) => x.offset(th)
+    }
   }
 
-  def boundsEndOffset(th:TokenHierarchy[_]) :Int = boundsEndToken match {
-    case None => -1
-    case Some(x) => x.offset(th) + x.length
+  def boundsEndOffset(th:TokenHierarchy[_]) :Int = {
+    boundsEndToken match {
+      case None => -1
+      case Some(x) => x.offset(th) + x.length
+    }
   }
   
   def subScopes :ArrayBuffer[AstScope] = _subScopes match {
