@@ -39,6 +39,10 @@
 
 package org.netbeans.modules.scala.hints
 
+import scala.collection.JavaConversions._
+
+import scala.collection.mutable
+
 import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.Hint
 import org.netbeans.modules.csl.api.HintFix
@@ -48,11 +52,16 @@ import org.netbeans.modules.csl.api.RuleContext
 import org.netbeans.modules.scala.editor.util.NbBundler
 import java.util.prefs.Preferences;
 import javax.swing.JComponent;
-
+import java.util.regex.{Pattern, Matcher}
+import org.netbeans.api.java.source.ElementHandle
+import org.netbeans.api.java.source.ClassIndex
+import javax.lang.model.element.ElementKind
+import org.openide.filesystems.FileObject
+import javax.lang.model.element.TypeElement
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
-    println("created ClassNotFDoundRule")
+    val DEFAULT_PRIORITY = 292;
 
     override def appliesTo(context : RuleContext) : Boolean = true
 
@@ -97,6 +106,63 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     override def createHints(context : ScalaRuleContext, error : Error) : List[Hint] =  {
         val desc = error.getDescription
         println("desc=" + desc)
-        List()
+        if (desc != null) {
+          checkMissingImport(desc) match {
+              case Some(missing) => createImportHints(missing, context, error)
+              case None => List()
+          }
+        } else {
+          List()
+        }
     }
+
+    val pattern = Pattern.compile("not found: value (.*)")
+
+    private def checkMissingImport(desc: String) : Option[String] = {
+        val matcher = pattern.matcher(desc)
+        if (matcher.matches) {
+            Some(matcher.group(1))
+        } else {
+            None
+        }
+    }
+
+    private def createImportHints(missing : String, context : ScalaRuleContext, error : Error) : List[Hint] = {
+
+        val rangeOpt = context.calcOffsetRange(error.getStartPosition, error.getEndPosition)
+        if (rangeOpt == None) {
+            List[Hint]()
+        } else {
+            val pathInfo = context.getClasspathInfo
+            val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex().getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
+                            java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
+            val fo = context.getFileObject
+            var toRet = List[Hint]()
+            for (typeName <- typeNames;
+                 ek = typeName.getKind;
+                 if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE)
+            {
+               val fixToApply = new AddImportFix(fo, typeName.getQualifiedName)
+               toRet = new Hint(this, error.getDescription, fo, rangeOpt.get,
+                      java.util.Collections.singletonList[HintFix](fixToApply), DEFAULT_PRIORITY) :: toRet
+            }
+            toRet
+        }
+    }
+
+
+    class AddImportFix(fileObject : FileObject, fqn : String) extends HintFix {
+        val HINT_PREFIX = locMessage("ClassNotFoundRuleHintDescription")
+
+        override def getDescription = HINT_PREFIX + " " + fqn
+        override val isSafe = true
+        override val isInteractive = false
+
+        @throws(classOf[Exception])
+        override def implement : Unit = {
+
+        }
+    }
+
+
 }

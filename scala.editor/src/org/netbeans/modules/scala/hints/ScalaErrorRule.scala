@@ -52,4 +52,6 @@ abstract class ScalaErrorRule extends Rule.ErrorRule {
 
 object ScalaErrorRule {
     val SYNTAX_ERROR = "SYNTAX_ERROR"
+
+
 }
