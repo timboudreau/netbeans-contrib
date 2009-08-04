@@ -142,7 +142,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                  ek = typeName.getKind;
                  if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE)
             {
-               val fixToApply = new AddImportFix(fo, typeName.getQualifiedName)
+               val fixToApply = new AddImportFix(fo, typeName.getQualifiedName, context)
                toRet = new Hint(this, error.getDescription, fo, rangeOpt.get,
                       java.util.Collections.singletonList[HintFix](fixToApply), DEFAULT_PRIORITY) :: toRet
             }
@@ -151,15 +151,23 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     }
 
 
-    class AddImportFix(fileObject : FileObject, fqn : String) extends HintFix {
+    class AddImportFix(fileObject : FileObject, fqn : String, context : ScalaRuleContext) extends HintFix {
         val HINT_PREFIX = locMessage("ClassNotFoundRuleHintDescription")
 
         override def getDescription = HINT_PREFIX + " " + fqn
         override val isSafe = true
         override val isInteractive = false
+        import org.netbeans.modules.csl.api.EditList
 
         @throws(classOf[Exception])
         override def implement : Unit = {
+            val doc = context.doc
+
+            val firstFreePosition = 0 //TODO
+
+            val edits = new EditList(doc)
+            edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
+            edits.apply()
 
         }
     }
