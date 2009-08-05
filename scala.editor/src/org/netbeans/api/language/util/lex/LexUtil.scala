@@ -195,7 +195,7 @@ trait LexUtil {
     ts
   }
 
-  def getToken(doc: BaseDocument, offset: Int): Token[_ <: TokenId] = {
+  def getToken(doc: BaseDocument, offset: Int): Token[TokenId] = {
     val ts = getPositionedSequence(doc, offset)
 
     if (ts != null) {
