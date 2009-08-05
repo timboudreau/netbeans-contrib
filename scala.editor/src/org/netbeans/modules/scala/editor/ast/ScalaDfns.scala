@@ -38,19 +38,14 @@
  */
 package org.netbeans.modules.scala.editor.ast
 
-import _root_.java.util.{Collections, Set, HashSet}
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.editor.{BaseDocument}
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.HtmlFormatter
-import org.netbeans.modules.csl.api.Modifier
-import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.spi.{GsfUtilities,ParserResult}
+import org.netbeans.modules.csl.api.{ElementKind, HtmlFormatter, Modifier, OffsetRange}
+import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.FileObject
 
-import org.netbeans.api.language.util.lex.LexUtil
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
-import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver, ScalaUtil}
+import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver, ScalaSourceUtil}
 
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.symtab.{Symbols, Types, Flags}
@@ -85,26 +80,11 @@ trait ScalaDfns {self: ScalaGlobal =>
     override def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
     override def getModifiers: _root_.java.util.Set[Modifier] = {
-      if (modifiers != null) {
-        return modifiers
+      if (!modifiers.isDefined) {
+        modifiers = Some(ScalaUtil.getModifiers(symbol))
       }
-    
-      modifiers = new _root_.java.util.HashSet
-
-      if (asymbol hasFlag Flags.PROTECTED) {
-        modifiers.add(Modifier.PROTECTED)
-      } else if (asymbol hasFlag Flags.PRIVATE) {
-        modifiers.add(Modifier.PRIVATE)
-      } else {
-        modifiers.add(Modifier.PUBLIC)
-      }
-    
-      if (asymbol hasFlag Flags.MUTABLE)    modifiers.add(Modifier.STATIC) // to use STATIC icon only
-      if (asymbol hasFlag Flags.DEPRECATED) modifiers.add(Modifier.DEPRECATED)
-    
-      modifiers
+      modifiers.get
     }
-
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref: AstRef): Boolean = {
@@ -125,7 +105,7 @@ trait ScalaDfns {self: ScalaGlobal =>
 
       TokenHierarchy.get(srcDoc) match {
         case null => return ""
-        case th => ScalaUtil.getDocComment(srcDoc, idOffset(th))
+        case th => ScalaSourceUtil.getDocComment(srcDoc, idOffset(th))
       }
     }
 

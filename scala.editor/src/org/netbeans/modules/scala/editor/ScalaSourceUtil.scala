@@ -37,7 +37,7 @@ import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
-import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
+import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
@@ -50,13 +50,14 @@ import org.netbeans.modules.scala.editor.element.{JavaElement}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import _root_.scala.tools.nsc.util.Position
+
 import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
  *
  * @author Caoyuan Deng
  */
-object ScalaUtil {
+object ScalaSourceUtil {
 
   val ANONFUN = "$anonfun"
 

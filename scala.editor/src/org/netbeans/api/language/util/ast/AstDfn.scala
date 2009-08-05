@@ -68,7 +68,7 @@ abstract class AstDfn(_idToken: Option[Token[TokenId]],
 
   make(_idToken, _kind)
 
-  protected var modifiers: _root_.java.util.Set[Modifier] = _
+  protected var modifiers: Option[_root_.java.util.Set[Modifier]] = None
 
   override def getFileObject: FileObject = fo.getOrElse(null)
 
@@ -76,8 +76,8 @@ abstract class AstDfn(_idToken: Option[Token[TokenId]],
 
   override def getModifiers: _root_.java.util.Set[Modifier] = {
     modifiers match {
-      case null => _root_.java.util.Collections.emptySet[Modifier]
-      case _ => modifiers
+      case None => _root_.java.util.Collections.emptySet[Modifier]
+      case Some(x) => x
     }
   }
 

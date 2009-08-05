@@ -838,7 +838,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         var start = lineOffset
         if (lineOffset > 0) {
           for (i <- lineOffset - 1 to 0;
-               c = line.charAt(i) if ScalaUtil.isIdentifierChar(c))
+               c = line.charAt(i) if ScalaSourceUtil.isIdentifierChar(c))
           {
             start = i
           }
@@ -854,7 +854,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
             val n = line.length
             var end = lineOffset
             for (j <- lineOffset until n; 
-                 d = line.charAt(j) if ScalaUtil.isStrictIdentifierChar(d))
+                 d = line.charAt(j) if ScalaSourceUtil.isStrictIdentifierChar(d))
             {
               // Try to accept Foo::Bar as well
               end = j + 1
@@ -1849,7 +1849,7 @@ abstract class CompletionRequest {
 
         if (proposal != null) {
           val resTypeSymbol = resType.typeSymbol
-          val inherited = ScalaElement.isInherited(resTypeSymbol, member)
+          val inherited = ScalaUtil.isInherited(resTypeSymbol, member)
           element.setInherited(inherited)
 
           proposals.add(proposal)

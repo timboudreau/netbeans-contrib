@@ -54,7 +54,7 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
 import _root_.scala.tools.nsc.symtab.{Flags}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
-import org.netbeans.modules.scala.editor.{JavaUtil, ScalaGlobal, ScalaParserResult, ScalaUtil, ScalaMimeResolver}
+import org.netbeans.modules.scala.editor.{JavaSourceUtil, ScalaGlobal, ScalaParserResult, ScalaSourceUtil, ScalaMimeResolver}
 
 
 /**
@@ -70,123 +70,6 @@ trait ScalaElements {self: ScalaGlobal =>
   object ScalaElement {
     def apply(symbol: Symbol, info: ParserResult) = {
       new ScalaElement(symbol, info)
-    }
-
-    def getKind(symbol: Symbol): ElementKind = {
-      try {
-        if (symbol.isClass) {
-          ElementKind.CLASS
-        } else if (symbol.isConstructor) {
-          ElementKind.CONSTRUCTOR
-        } else if (symbol.isConstant) {
-          ElementKind.CONSTANT
-        } else if (symbol.isValue) {
-          ElementKind.FIELD
-        } else if (symbol.isModule) {
-          ElementKind.MODULE
-        } else if (symbol.isLocal && symbol.isVariable) {
-          ElementKind.VARIABLE
-        } else if (symbol.isMethod) {
-          ElementKind.METHOD
-        } else if (symbol.isPackage) {
-          ElementKind.PACKAGE
-        } else if (symbol.isValueParameter) {
-          ElementKind.PARAMETER
-        } else if (symbol.isTypeParameter) {
-          ElementKind.CLASS
-        } else {
-          ElementKind.OTHER
-        }
-      } catch {case t: Throwable =>
-          ElementKind.OTHER
-          // java.lang.Error: no-symbol does not have owner
-          //      at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1609)
-          //      at scala.tools.nsc.symtab.Symbols$Symbol.isLocal(Symbols.scala:346)
-      }
-    }
-
-    def getModifiers(symbol: Symbol): _root_.java.util.Set[Modifier] = {
-      val modifiers = new _root_.java.util.HashSet[Modifier]
-
-      if (symbol.isPublic) {
-        modifiers.add(Modifier.PUBLIC)
-      }
-
-      if (symbol.isPrivateLocal) {
-        modifiers.add(Modifier.PRIVATE)
-      }
-
-      if (symbol.isProtectedLocal) {
-        modifiers.add(Modifier.PROTECTED);
-      }
-
-      if (symbol.isStatic) {
-        modifiers.add(Modifier.STATIC)
-      }
-
-      modifiers
-    }
-
-    def symbolQualifiedName(symbol: Symbol): String = {
-      symbolQualifiedName(symbol, true)
-    }
-
-    /**
-     * Due to the ugly implementation of scala's Symbols.scala, Symbol#fullNameString()
-     * may cause:
-     * java.lang.Error: no-symbol does not have owner
-     *        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
-     * We should bypass it via symbolQualifiedName
-     */
-    def symbolQualifiedName(symbol: Symbol, forScala: Boolean): String = {
-      if (symbol.isError) {
-        "<error>"
-      } else if (symbol == NoSymbol) {
-        "<none>"
-      } else {
-        var paths: List[String] = Nil
-        var owner = symbol.owner
-        // remove type parameter part at the beginnig, for example: scala.Array[T0] will be: scala.Array.T0
-        if (!symbol.isTypeParameterOrSkolem) {
-          paths = symbol.nameString :: paths
-        }
-        while (!owner.nameString.equals("<none>") && !owner.nameString.equals("<root>")) {
-          if (!symbol.isTypeParameterOrSkolem) {
-            paths = owner.nameString :: paths
-          }
-          owner = owner.owner
-        }
-
-        paths.reverse
-        val sb = paths.mkString(".")
-
-        if (sb.length == 0) {
-          if (symbol.isPackage) {
-            ""
-          } else {
-            if (forScala) symbol.nameString else "Object" // it maybe a TypeParameter likes: T0
-          }
-        } else sb
-      }
-    }
-
-    def typeQualifiedName(tpe: Type, forScala: Boolean): String = {
-      symbolQualifiedName(tpe.typeSymbol, forScala);
-    }
-
-    def isInherited(template: Symbol, member: Symbol): Boolean = {
-      !symbolQualifiedName(template).equals(symbolQualifiedName(member.enclClass))
-    }
-
-    def typeToString(tpe: Type): String = {
-      val str = try {
-        tpe.toString
-      } catch {
-        case ex: _root_.java.lang.AssertionError => ScalaGlobal.reset; null // ignore assert ex from scala
-        case ex: Throwable => ScalaGlobal.reset; null
-      }
-
-      if (str != null) str else tpe.termSymbol.nameString
     }
   }
 
@@ -218,7 +101,7 @@ trait ScalaElements {self: ScalaGlobal =>
       fo match {
         case Some(x) => return x
         case None =>
-          fo = ScalaUtil.getFileObject(info, symbol) // try to get
+          fo = ScalaSourceUtil.getFileObject(info, symbol) // try to get
           fo match {
             case Some(x) => path = x.getPath; x
             case None => null
@@ -231,7 +114,7 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getKind: ElementKind = {
-      ScalaElement.getKind(symbol)
+      ScalaUtil.getKind(symbol)
     }
 
     override def getMimeType: String = {
@@ -239,13 +122,10 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getModifiers: _root_.java.util.Set[Modifier] = {
-      modifiers match {
-        case Some(x) => x
-        case None =>
-          val x = ScalaElement.getModifiers(symbol)
-          modifiers = Some(x)
-          x
+      if (!modifiers.isDefined) {
+        modifiers = Some(ScalaUtil.getModifiers(symbol))
       }
+      modifiers.get
     }
 
     override def getName: String = {
@@ -263,14 +143,14 @@ trait ScalaElements {self: ScalaGlobal =>
         if (isJava) {
           javaElement foreach {x =>
             try {
-              val docComment: String = JavaUtil.getDocComment(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
+              val docComment: String = JavaSourceUtil.getDocComment(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
               if (docComment.length > 0) {
                 return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString
               }
             } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
           }
         } else {
-          return ScalaUtil.getDocComment(srcDoc, getOffset)
+          return ScalaSourceUtil.getDocComment(srcDoc, getOffset)
         }
       }
 
@@ -283,7 +163,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         javaElement foreach {x =>
           try {
-            return JavaUtil.getOffset(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
+            return JavaSourceUtil.getOffset(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
@@ -328,7 +208,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isLoaded) return
 
       if (isJava) {
-        javaElement = JavaUtil.getJavaElement(JavaUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), symbol)
+        javaElement = JavaSourceUtil.getJavaElement(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), symbol)
       } else {
         getDoc foreach {srcDoc =>
           assert(path != null)

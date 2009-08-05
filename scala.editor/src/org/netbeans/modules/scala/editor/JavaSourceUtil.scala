@@ -84,7 +84,7 @@ import _root_.scala.tools.nsc.symtab.Types
  *
  * @author Caoyuan Deng
  */
-object JavaUtil {
+object JavaSourceUtil {
 
   private val CAPTURED_WILDCARD = "<captured wildcard>" //NOI18N
   private val ERROR = "<error>" //NOI18N

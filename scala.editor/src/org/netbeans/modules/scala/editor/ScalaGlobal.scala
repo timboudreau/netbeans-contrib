@@ -54,7 +54,7 @@ import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRe
 import org.openide.util.{Exceptions, RequestProcessor}
 
 import org.netbeans.api.language.util.ast.{AstScope}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements}
 
 import _root_.scala.tools.nsc.{Phase, Settings}
@@ -401,8 +401,12 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings: Settings)
-extends Global(settings, null) with ScalaDfns with ScalaRefs with ScalaElements with ScalaCompletionProposals {
+class ScalaGlobal(settings: Settings) extends Global(settings, null)
+with ScalaDfns
+with ScalaRefs
+with ScalaElements
+with ScalaCompletionProposals
+with ScalaUtils {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591

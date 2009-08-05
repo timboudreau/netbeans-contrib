@@ -193,21 +193,21 @@ class ScalaParser extends Parser {
 
     try {
       // Sometimes the offset shows up on the next line
-      if (ScalaUtil.isRowEmpty(source, offset) || ScalaUtil.isRowWhite(source, offset)) {
-        offset = ScalaUtil.getRowStart(source, offset) - 1
+      if (ScalaSourceUtil.isRowEmpty(source, offset) || ScalaSourceUtil.isRowWhite(source, offset)) {
+        offset = ScalaSourceUtil.getRowStart(source, offset) - 1
         if (offset < 0) {
           offset = 0
         }
       }
 
-      if (!(ScalaUtil.isRowEmpty(source, offset) || ScalaUtil.isRowWhite(source, offset))) {
+      if (!(ScalaSourceUtil.isRowEmpty(source, offset) || ScalaSourceUtil.isRowWhite(source, offset))) {
         if ((sanitizing == Sanitize.EDITED_LINE) || (sanitizing == Sanitize.ERROR_LINE)) {
           // See if I should try to remove the current line, since it has text on it.
-          val lineEnd = ScalaUtil.getRowLastNonWhite(source, offset)
+          val lineEnd = ScalaSourceUtil.getRowLastNonWhite(source, offset)
 
           if (lineEnd != -1) {
             val sb = new StringBuilder(source.length)
-            val lineStart = ScalaUtil.getRowStart(source, offset)
+            val lineStart = ScalaSourceUtil.getRowStart(source, offset)
             val rest = lineStart + 1
 
             sb.append(source.substring(0, lineStart))
@@ -227,7 +227,7 @@ class ScalaParser extends Parser {
           assert(sanitizing == Sanitize.ERROR_DOT || sanitizing == Sanitize.EDITED_DOT)
           // Try nuking dots/colons from this line
           // See if I should try to remove the current line, since it has text on it.
-          val lineStart = ScalaUtil.getRowStart(source, offset)
+          val lineStart = ScalaSourceUtil.getRowStart(source, offset)
           var lineEnd = offset - 1
           var break = false
           while (lineEnd >= lineStart && lineEnd < source.length && !break) {
