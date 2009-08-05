@@ -104,10 +104,6 @@ class ScalaLanguage extends DefaultLanguageConfig {
   override def getHintsProvider = new ScalaHintsProvider
   override def hasHintsProvider = true
   //
-  //   override def hasFormatter =  true
-  //   override def getFormatter = new ScalaFormatter
-  //
-  //
   //   override def getIndexerFactory = new ScalaIndexer.Factory
   //
 }
