@@ -167,11 +167,12 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             //TODO then figure if a list of classes in a package is being imported eg.
             // import org.netbeans.api.lexer.{Language, Token}
 
-            val firstFreePosition = imports.find((curr) => curr._3 > fqn) match {
+            val firstFreePosition = imports.sort((one, two) => one._3 < two._3).
+                                            find((curr) => curr._3 > fqn) match {
                 case None => if (imports.isEmpty) {
                                 -1 //TODO
                              } else {
-                               imports.last._2
+                               imports.last._2 + 1 // + 1 for newline
                              }
                 case Some(t) => {
                         println("found some=" + t._3)
@@ -187,7 +188,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         }
 
       /**
-       * returns a sorted list of Tuples (sorted by the import value)
+       * returns a list of Tuples
        */
 
       private def allGlobalImports(doc : BaseDocument) : List[Tuple3[Int, Int, String]] = {
@@ -200,7 +201,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                 toRet + importStatement
                 importStatement = findNextImport(ts, ts.token)
             }
-            toRet.toList.sort( (one, two) => one._3 < two._3)
+            toRet.toList
       }
 
       private def findNextImport(ts : TokenSequence[_], current : Token[_]) : (Int, Int, String) = {
