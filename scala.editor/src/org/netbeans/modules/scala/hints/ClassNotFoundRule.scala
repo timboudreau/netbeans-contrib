@@ -169,7 +169,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
             val firstFreePosition = imports.find((curr) => curr._3 > fqn) match {
                 case None => if (imports.isEmpty) {
-                                0 //TODO
+                                -1 //TODO
                              } else {
                                imports.last._2
                              }
@@ -179,10 +179,11 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                 }
             }
             println("first=" + firstFreePosition)
-            val edits = new EditList(doc)
-            edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
-            edits.apply()
-
+            if (firstFreePosition != -1) {
+              val edits = new EditList(doc)
+              edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
+              edits.apply()
+            }
         }
 
       /**
