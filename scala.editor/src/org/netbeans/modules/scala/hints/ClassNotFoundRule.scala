@@ -131,7 +131,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                  ek = typeName.getKind;
                  if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE)
             {
-               val fixToApply = new AddImportFix(missing, fo, typeName.getQualifiedName, context)
+               val fixToApply = new AddImportFix(missing, fo, typeName.getQualifiedName, context, rangeOpt.get)
                toRet = new Hint(this, error.getDescription, fo, rangeOpt.get,
                       java.util.Collections.singletonList[HintFix](fixToApply), DEFAULT_PRIORITY) :: toRet
             }
@@ -140,7 +140,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     }
 
 
-    class AddImportFix(name : String, fileObject : FileObject, fqn : String, context : ScalaRuleContext) extends HintFix  {
+    class AddImportFix(name : String, fileObject : FileObject, fqn : String, context : ScalaRuleContext, offsetRange : OffsetRange) extends HintFix  {
         val HINT_PREFIX = locMessage("ClassNotFoundRuleHintDescription")
 
         override def getDescription = HINT_PREFIX + " " + fqn
@@ -155,38 +155,51 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             val th = TokenHierarchy.get(doc)
             val ts = ScalaLexUtil.getTokenSequence(th, 0)
             ts.move(0)
-//            val pack = ScalaLexUtil.findNext(ts, ScalaTokenId.Package)
-
-            println("package=" + packageName)
+            
             val imports = allGlobalImports(doc)
             //TODO first find if the package itself is imported eg.
             //   import org.apache.maven.model  or
             //   import org.apache.maven.{model=>mavenmodel}
             //If so, add prefix to declaration, rather than adding new import
-
-            //TODO then figure if a list of classes in a package is being imported eg.
-            // import org.netbeans.api.lexer.{Language, Token}
-
-            val firstFreePosition = imports.sort((one, two) => one._3 < two._3).
-                                            find((curr) => curr._3 > fqn) match {
-                case None => if (imports.isEmpty) {
-                                -1 //TODO
-                             } else {
-                               imports.last._2 + 1 // + 1 for newline
-                             }
-                case Some(t) => {
-                        println("found some=" + t._3)
-                        t._1
+            val packMatch = imports.find((curr) => curr._3.equals(packageName))
+            if (packMatch != None) {
+                val toWrite = packageName.split('.').last + "."
+                val start = calcErrorStartPosition(offsetRange, name, ts)
+                if (start != -1) {
+                  val edits = new EditList(doc)
+                  edits.replace(start, 0, toWrite, false, 0)
+                  edits.apply()
                 }
-            }
-            println("first=" + firstFreePosition)
-            if (firstFreePosition != -1) {
-              val edits = new EditList(doc)
-              edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
-              edits.apply()
+            } else {
+              //TODO then figure if a list of classes in a package is being imported eg.
+              // import org.netbeans.api.lexer.{Language, Token}
+                val firstFreePosition = imports.sort((one, two) => one._3 < two._3).
+                                                find((curr) => curr._3 > fqn) match {
+                    case None => if (imports.isEmpty) {
+                                    -1 //TODO
+                                 } else {
+                                   imports.last._2 + 1 // + 1 for newline
+                                 }
+                    case Some(t) => t._1
+                }
+                if (firstFreePosition != -1) {
+                  val edits = new EditList(doc)
+                  edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
+                  edits.apply()
+                }
             }
         }
 
+      private def calcErrorStartPosition(range : OffsetRange, name : String, ts : TokenSequence[TokenId]) : Int = {
+          ts.move(range.getStart)
+          val includes : Set[TokenId] = Set(ScalaTokenId.Type, ScalaTokenId.Identifier)
+          var token = ScalaLexUtil.findNextIncluding(ts, includes)
+          while (token != null && ts.offset <= range.getEnd) {
+              if (name == token.text.toString) return ts.offset
+              token = ScalaLexUtil.findNextIncluding(ts, includes)
+          }
+          -1
+      }
       /**
        * returns a list of Tuples
        */
