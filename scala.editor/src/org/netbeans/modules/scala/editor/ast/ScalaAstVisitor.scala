@@ -890,7 +890,11 @@ abstract class ScalaAstVisitor {
     }
     
     val offset1 = offset(tree)
-    val ts = ScalaLexUtil.getTokenSequence(th, offset1).get
+    val ts = ScalaLexUtil.getTokenSequence(th, offset1) match {
+      case Some(x) => x
+      case None => return None
+    }
+    
     ts.move(offset1)
     if (!ts.moveNext && !ts.movePrevious) {
       assert(false, "Should not happen!")
