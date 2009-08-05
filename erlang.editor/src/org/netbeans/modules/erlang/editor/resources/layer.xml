@@ -37,11 +37,18 @@
         <folder name="text">
             <folder name="x-erlang">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.editor.Bundle"/>
+
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.editor.lexer.ErlangTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
                 
+                <folder name="BracesMatchers">
+                    <file name="org-netbeans-modules-erlang-editor-ErlangBracesMatcherFactory.instance">
+                        <attr name="position" intvalue="0"/>
+                   </file>
+                </folder>
+
                 <!-- TODO - this should not be necessary; I'm doing this now to work around
                     bugs in color initialization -->
                 <folder name="FontsColors">

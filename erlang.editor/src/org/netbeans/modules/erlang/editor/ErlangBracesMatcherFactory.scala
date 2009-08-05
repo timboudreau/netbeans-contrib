@@ -37,7 +37,7 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editor
+package org.netbeans.modules.erlang.editor
 
 
 import org.netbeans.spi.editor.bracesmatching.{BracesMatcher, BracesMatcherFactory, MatcherContext}
@@ -46,8 +46,8 @@ import org.netbeans.spi.editor.bracesmatching.{BracesMatcher, BracesMatcherFacto
  *
  * @author Caoyuan Deng
  */
-class ScalaBracesMatcherFactory extends BracesMatcherFactory {
+class ErlangBracesMatcherFactory extends BracesMatcherFactory {
 
-  def createMatcher(context: MatcherContext): BracesMatcher = new ScalaBracesMatcher(context)
+  def createMatcher(context: MatcherContext): BracesMatcher = new ErlangBracesMatcher(context)
 
 }

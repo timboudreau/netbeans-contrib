@@ -817,52 +817,8 @@ class ErlangKeystrokeHandler extends KeystrokeHandler {
                                                                                     ErlangTokenId.If,
                                                                                     ErlangTokenId.Receive,
                                                                                     ErlangTokenId.Try))
-
+  /** replaced by ErlangBracesMatcher */
   override def findMatching(document:Document, _offset:Int) :OffsetRange = {
-    val doc = document.asInstanceOf[BaseDocument]
-    var offset = _offset
-    for (ts <- LexUtil.tokenSequence(doc, offset)) {
-      ts.move(offset)
-      if (!ts.moveNext) {
-        return OffsetRange.NONE
-      }
-
-      var token = ts.token
-      if (token == null) {
-        return OffsetRange.NONE
-      }
-
-      var id = token.id
-      if (id == ErlangTokenId.Ws) {
-        // ts.move(offset) gives the token to the left of the caret.
-        // If you have the caret right at the beginning of a token, try
-        // the token to the right too - this means that if you have
-        //  "   |def" it will show the matching "end" for the "def".
-        offset += 1
-        ts.move(offset)
-        if (ts.moveNext && ts.offset <= offset) {
-          token = ts.token
-          id = token.id
-        }
-      }
-
-      for (closeOpens <- PAIRS) closeOpens match {
-        case (close, opens) if opens.contains(id) =>
-          LexUtil.findFwd(ts, opens, close) match {
-            case OffsetRange.NONE =>
-            case x => return x
-          }
-        case _ =>
-      }
-
-      for (opens <- PAIRS.get(id)) {
-        LexUtil.findBwd(ts, opens, id) match {
-          case OffsetRange.NONE =>
-          case x => return x
-        }
-      }
-    }
-
     OffsetRange.NONE
   }
 

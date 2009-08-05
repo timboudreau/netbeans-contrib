@@ -46,6 +46,10 @@ import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.netbeans.spi.editor.bracesmatching.{BracesMatcher, MatcherContext}
 
+/**
+ *
+ * @author Caoyuan Deng
+ */
 class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
 
   @throws(classOf[InterruptedException])
