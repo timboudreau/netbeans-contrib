@@ -60,8 +60,8 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     val th = TokenHierarchy.get(document)
 
     val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-      case null => return OffsetRange.NONE
-      case x => x
+      case None => return OffsetRange.NONE
+      case Some(x) => x
     }
 
     ts.move(lexOffset)
@@ -119,7 +119,10 @@ class ScalaDeclarationFinder extends DeclarationFinder {
         val offset = dfn.idOffset(th)
         return new DeclarationLocation(info.getSnapshot.getSource.getFileObject, offset, dfn)
       case None =>
-        val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
+        val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+          case Some(x) => x
+          case None => return DeclarationLocation.NONE
+        }
         ts.move(lexOffset)
         if (!ts.moveNext && !ts.movePrevious) {
           return DeclarationLocation.NONE

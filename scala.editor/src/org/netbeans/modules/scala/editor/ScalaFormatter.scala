@@ -104,8 +104,8 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
   /** Compute the initial balance of brackets at the given offset. */
   private def getFormatStableStart(doc: BaseDocument, offset: Int): Int = {
     val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
-      case null => return 0
-      case x => x
+      case None => return 0
+      case Some(x) => x
     }
 
     ts.move(offset)
@@ -139,13 +139,13 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
    * </pre>
    */
   @throws(classOf[BadLocationException])
-  private def getFirstTokenOnLine(doc: BaseDocument, offset: Int): Token[_] = {
+  private def getFirstTokenOnLine(doc: BaseDocument, offset: Int): Option[Token[_]] = {
     val lineBegin = Utilities.getRowFirstNonWhite(doc, offset)
     if (lineBegin != -1) {
       return ScalaLexUtil.getToken(doc, lineBegin)
     }
 
-    null
+    None
   }
 
   def reindent(context: Context, document:Document, astartOffset: Int, aendOffset: Int, info: ParserResult, indentOnly: Boolean): Unit = {
@@ -371,8 +371,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     var notWSIdx = -1
     var latestNotWSToken: Token[TokenId] = null
 
-    val ts = ScalaLexUtil.getTokenSequence(doc, lineBegin)
-    if (ts != null) {
+    ScalaLexUtil.getTokenSequence(doc, lineBegin) foreach {ts =>
       try {
         ts.move(lineBegin)
         do {

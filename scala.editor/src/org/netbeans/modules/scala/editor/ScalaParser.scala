@@ -471,9 +471,12 @@ class ScalaParser extends Parser {
       if (msg.startsWith("identifier expected but")) {
         val start = error.getStartPosition
 
-        val ts = ScalaLexUtil.getTokenSequence(th, start - 1)
+        val ts = ScalaLexUtil.getTokenSequence(th, start - 1) match {
+          case Some(x) => x
+          case None => return Sanitize.NONE
+        }
         ts.move(start - 1)
-        if (!ts.moveNext() && !ts.movePrevious) {
+        if (!ts.moveNext && !ts.movePrevious) {
         } else {
           var token = ScalaLexUtil.findPreviousNonWsNonComment(ts)
           if (token != null && token.id == ScalaTokenId.Dot) {

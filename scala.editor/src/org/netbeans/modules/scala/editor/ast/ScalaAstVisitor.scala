@@ -890,7 +890,7 @@ abstract class ScalaAstVisitor {
     }
     
     val offset1 = offset(tree)
-    val ts = ScalaLexUtil.getTokenSequence(th, offset1)
+    val ts = ScalaLexUtil.getTokenSequence(th, offset1).get
     ts.move(offset1)
     if (!ts.moveNext && !ts.movePrevious) {
       assert(false, "Should not happen!")
@@ -978,7 +978,10 @@ abstract class ScalaAstVisitor {
       return null
     }
 
-    val ts = ScalaLexUtil.getTokenSequence(th, offset)
+    val ts = ScalaLexUtil.getTokenSequence(th, offset) match {
+      case Some(x) => x
+      case None => return null
+    }
 
     ts.move(offset)
     if (!ts.moveNext && !ts.movePrevious) {
@@ -1002,7 +1005,10 @@ abstract class ScalaAstVisitor {
       return null
     }
 
-    val ts = ScalaLexUtil.getTokenSequence(th, endOffset)
+    val ts = ScalaLexUtil.getTokenSequence(th, endOffset) match {
+      case Some(x) => x
+      case None => return null
+    }
 
     ts.move(endOffset)
     if (!ts.movePrevious && !ts.moveNext) {
@@ -1071,7 +1077,7 @@ abstract class ScalaAstVisitor {
           val endToken = getBoundsEndToken(offset - 1)
           curr.boundsEndToken = Some(endToken)
         } else {
-          println("Scope without start token: " + next);
+          println("Scope without start token: " + next)
         }
         curr = next
       } else {

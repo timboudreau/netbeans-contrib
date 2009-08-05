@@ -155,14 +155,13 @@ trait LexUtil {
   }
 
   /** Find the Fortress token sequence (in case it's embedded in something else at the top level */
-  def getTokenSequence(doc: BaseDocument, offset: Int): TokenSequence[TokenId] = {
+  def getTokenSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
     val th = TokenHierarchy.get(doc)
     getTokenSequence(th, offset)
   }
 
-  def getTokenSequence(th: TokenHierarchy[_], offset: Int): TokenSequence[TokenId] = {
+  def getTokenSequence(th: TokenHierarchy[_], offset: Int): Option[TokenSequence[TokenId]] = {
     var ts = th.tokenSequence(LANGUAGE)
-
     if (ts == null) {
       // Possibly an embedding scenario such as an RHTML file
       // First try with backward bias true
@@ -192,30 +191,38 @@ trait LexUtil {
       }
     }
 
-    ts
+    ts match {
+      case null => None
+      case _ => Some(ts)
+    }
   }
 
-  def getToken(doc: BaseDocument, offset: Int): Token[TokenId] = {
-    val ts = getPositionedSequence(doc, offset)
+  def getToken(doc: BaseDocument, offset: Int): Option[Token[TokenId]] = {
+    getPositionedSequence(doc, offset) match {
+      case Some(x) => x.token match {
+          case null => None
+          case token => Some(token)
+        }
+      case None => None
+    }
+  }
 
-    if (ts != null) {
-      ts.token
-    } else {
-      null
+  def getTokenId(doc: BaseDocument, offset: Int): Option[TokenId] = {
+    getToken(doc, offset) match {
+      case Some(x) => Some(x.id)
+      case None => None
     }
   }
 
   def getTokenChar(doc: BaseDocument, offset: Int): Char = {
-    val token = getToken(doc, offset)
-
-    if (token != null) {
-      val text = token.text.toString
-      if (text.length > 0) { // Usually true, but I could have gotten EOF right?
-        return text.charAt(0)
-      }
+    getToken(doc, offset) match {
+      case Some(x) =>
+        val text = x.text.toString
+        if (text.length > 0) { // Usually true, but I could have gotten EOF right?
+          text.charAt(0)
+        } else 0
+      case None => 0
     }
-
-    0
   }
 
   def findNextNonWsNonComment(ts: TokenSequence[TokenId]): Token[TokenId] = {
@@ -534,17 +541,16 @@ trait LexUtil {
     try {
       val first = Utilities.getRowFirstNonWhite(doc, offset)
       if (first != -1) {
-        val token = getToken(doc, first)
-        if (token != null) {
-          val text = token.text.toString
-          if (text.equals("while") || text.equals("for")) {
-            return false
-          }
+        getToken(doc, first) match {
+          case Some(x) =>
+            val text = x.text.toString
+            if (text.equals("while") || text.equals("for")) {
+              return false
+            }
+          case None => return true
         }
       }
-    } catch {
-      case ble: BadLocationException => Exceptions.printStackTrace(ble)
-    }
+    } catch {case ble: BadLocationException => Exceptions.printStackTrace(ble)}
 
     true
   }
@@ -560,13 +566,12 @@ trait LexUtil {
       val begin = Utilities.getRowStart(doc, offset);
       val end = if (upToOffset) offset else Utilities.getRowEnd(doc, offset)
 
-      val ts = getTokenSequence(doc, begin)
-      if (ts == null) {
-        return 0
+      val ts = getTokenSequence(doc, begin) match {
+        case Some(x) => x
+        case None => return 0
       }
 
       ts.move(begin)
-
       if (!ts.moveNext) {
         return 0
       }
@@ -591,19 +596,18 @@ trait LexUtil {
   }
 
   /** Compute the balance of begin/end tokens on the line */
-  def getLineBalance(doc: BaseDocument, offset: Int, up: TokenId, down: TokenId): Stack[Token[_ <: TokenId]] = {
-    val balanceStack = new Stack[Token[_ <: TokenId]]
+  def getLineBalance(doc: BaseDocument, offset: Int, up: TokenId, down: TokenId): Stack[Token[TokenId]] = {
+    val balanceStack = new Stack[Token[TokenId]]
     try {
       val begin = Utilities.getRowStart(doc, offset)
       val end = Utilities.getRowEnd(doc, offset)
 
-      val ts = getTokenSequence(doc, begin)
-      if (ts == null) {
-        return balanceStack
+      val ts = getTokenSequence(doc, begin) match {
+        case Some(x) => x
+        case None =>  return balanceStack
       }
 
       ts.move(begin)
-
       if (!ts.moveNext) {
         return balanceStack
       }
@@ -638,20 +642,18 @@ trait LexUtil {
    */
   @throws(classOf[BadLocationException])
   def getTokenBalance(doc: BaseDocument, open: TokenId, close: TokenId, offset: Int): Int = {
-    val ts = getTokenSequence(doc, 0)
-    if (ts == null) {
-      return 0
+    val ts = getTokenSequence(doc, 0) match {
+      case Some(x) => x
+      case None => return 0
     }
 
     // XXX Why 0? Why not offset?
     ts.moveIndex(0)
-
     if (!ts.moveNext) {
       return 0
     }
 
     var balance = 0
-
     do {
       val t = ts.token
 
@@ -673,14 +675,13 @@ trait LexUtil {
    */
   @throws(classOf[BadLocationException])
   def getTokenBalance(doc: BaseDocument, open: String, close: String, offset: Int): int = {
-    val ts = getTokenSequence(doc, 0)
-    if (ts == null) {
-      return 0
+    val ts = getTokenSequence(doc, 0) match {
+      case Some(x) => x
+      case None => return 0
     }
 
     // XXX Why 0? Why not offset?
     ts.moveIndex(0)
-
     if (!ts.moveNext) {
       return 0
     }
@@ -713,8 +714,10 @@ trait LexUtil {
       return false // whitespace only
     }
 
-    val token = getToken(doc, begin)
-    token != null && isLineComment(token.id)
+    getTokenId(doc, begin) match {
+      case Some(x) if isLineComment(x) => true
+      case _ => false
+    }
   }
 
   /**
@@ -994,9 +997,9 @@ trait LexUtil {
     // Check if the caret is within a comment, and if so insert a new
     // leaf "node" which contains the comment line and then comment block
     try {
-      val ts = getTokenSequence(doc, caretOffset)
-      if (ts == null) {
-        return OffsetRange.NONE
+      val ts = getTokenSequence(doc, caretOffset) match {
+        case Some(x) => x
+        case None => return OffsetRange.NONE
       }
 
       ts.move(caretOffset)
@@ -1104,9 +1107,9 @@ trait LexUtil {
    *   break on - no need to call Utilities.getRowStart.
    */
   def findSpaceBegin(doc: BaseDocument, lexOffset: Int): Int = {
-    val ts = getTokenSequence(doc, lexOffset)
-    if (ts == null) {
-      return lexOffset
+    val ts = getTokenSequence(doc, lexOffset) match {
+      case Some(x) => x
+      case None => return lexOffset
     }
     var allowPrevLine = false
     var lineStart: Int = 0
@@ -1314,14 +1317,12 @@ trait LexUtil {
     None
   }
 
-  def getPositionedSequence(doc: BaseDocument, offset: Int): TokenSequence[TokenId] = {
+  def getPositionedSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
     getPositionedSequence(doc, offset, true)
   }
 
-  def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): TokenSequence[TokenId] = {
-    var ts = getTokenSequence(doc, offset);
-
-    if (ts != null) {
+  def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): Option[TokenSequence[TokenId]] = {
+    getTokenSequence(doc, offset) foreach {ts =>
       try {
         ts.move(offset)
       } catch {
@@ -1334,15 +1335,12 @@ trait LexUtil {
       }
 
       if (!lookBack && !ts.moveNext) {
-        null
+        None
       } else if (lookBack && !ts.moveNext && !ts.movePrevious) {
-        null
-      } else {
-        ts
-      }
-    } else {
-      null
+        None
+      } else Some(ts)
     }
+    None
   }
 
 }

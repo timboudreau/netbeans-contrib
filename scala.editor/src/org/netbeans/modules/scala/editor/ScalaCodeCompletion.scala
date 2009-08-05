@@ -178,8 +178,8 @@ object ScalaCodeCompletion {
 
   def isJsContext(doc: BaseDocument, offset: Int): Boolean = {
     val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
-      case null => return false
-      case x => x
+      case Some(x) => x
+      case None => return false
     }
 
     ts.move(offset)
@@ -258,12 +258,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
       request.fileObject = fileObject
       request.anchor = lexOffset - prefix.length
 
-      val token = ScalaLexUtil.getToken(doc, lexOffset - 1)
-      if (token == null) {
-        return completionResult
-      }
-
-      token.id match {
+      ScalaLexUtil.getTokenId(doc, lexOffset - 1)  match {
+        case None => return completionResult
         case ScalaTokenId.LineComment =>
           // TODO - Complete symbols in comments?
           return completionResult
@@ -281,7 +277,10 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         case _ =>
       }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset - 1)
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset - 1) match {
+        case Some(x) => x
+        case None => return completionResult
+      }
       ts.move(lexOffset - 1)
       if (!ts.moveNext && !ts.movePrevious) {
         return completionResult
@@ -671,11 +670,10 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
       //                return doc.getText(requireStart, lexOffset - requireStart);
       //            }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
-      if (ts == null) {
-        return null
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+        case Some(x) => x
+        case None => return null
       }
-
       ts.move(lexOffset)
       if (!ts.moveNext && !ts.movePrevious) {
         return null
@@ -1177,9 +1175,9 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
       case "." => // NOI18N
         // See if we're in Js context
 
-        val ts = ScalaLexUtil.getTokenSequence(doc, offset)
-        if (ts == null) {
-          return QueryType.NONE
+        val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
+          case Some(x) => x
+          case None => return QueryType.NONE
         }
         ts.move(offset)
         if (!ts.moveNext && !ts.movePrevious) {
@@ -1490,13 +1488,16 @@ abstract class CompletionRequest {
   def completeNew(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
     //val index = request.index;
 
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+      case Some(x) => x
+      case None => return false
+    }
+    ts.move(lexOffset)
+    if (!ts.moveNext && !ts.movePrevious) {
+      return false
+    }
 
-    if (ts != null /* && index != null */) {
-      ts.move(lexOffset)
-      if (!ts.moveNext && !ts.movePrevious) {
-        return false
-      }
+    if (true /* && index != null */) {
 
       if (ts.offset == lexOffset) {
         // We're looking at the offset to the RIGHT of the caret
@@ -1691,7 +1692,10 @@ abstract class CompletionRequest {
         }
       }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset)
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+        case Some(x) => x
+        case None => return false
+      }
       ts.move(lexOffset)
       if (!ts.moveNext && !ts.movePrevious) {
         return false

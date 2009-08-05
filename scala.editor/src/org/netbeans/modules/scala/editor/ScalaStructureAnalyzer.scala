@@ -97,11 +97,10 @@ class ScalaStructureAnalyzer extends StructureScanner {
       case pResult: ScalaParserResult =>
         var folds = _root_.java.util.Collections.emptyMap[String, _root_.java.util.List[OffsetRange]]
         for (rootScope <- pResult.rootScope;
-             doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true))
+             doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true);
+             th = pResult.getSnapshot.getTokenHierarchy;
+             ts <- ScalaLexUtil.getTokenSequence(th, 1))
         {
-          val th = pResult.getSnapshot.getTokenHierarchy
-          val ts = ScalaLexUtil.getTokenSequence(th, 1)
-
           folds = new _root_.java.util.HashMap[String, _root_.java.util.List[OffsetRange]]
           val codefolds = new _root_.java.util.ArrayList[OffsetRange]
           folds.put("codeblocks", codefolds) // NOI18N
