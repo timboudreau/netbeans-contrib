@@ -42,6 +42,7 @@ package org.netbeans.modules.scala.hints
 import scala.collection.JavaConversions._
 
 import scala.collection.mutable
+import scala.collection.immutable
 
 import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.Hint
@@ -58,6 +59,12 @@ import org.netbeans.api.java.source.ClassIndex
 import javax.lang.model.element.ElementKind
 import org.openide.filesystems.FileObject
 import javax.lang.model.element.TypeElement
+import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
+
+import org.netbeans.modules.csl.api.EditList
+import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.editor.BaseDocument
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
@@ -79,30 +86,6 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         codes
     }
 
-        /** Gets unique ID of the rule
-         */
-//    override def getId : String = "ID"
-
-        /** Gets longer description of the rule
-         */
-//    override def getDescription() : String = "desc"
-
-        /** Finds out whether the rule is currently enabled.
-         * @return true if enabled false otherwise.
-         */
-//    override def getDefaultEnabled() : Boolean = true
-
-        /** Gets the UI description for this rule. It is fine to return null
-         * to get the default behavior. Notice that the Preferences node is a copy
-         * of the node returned from {link:getPreferences()}. This is in oder to permit
-         * canceling changes done in the options dialog.<BR>
-         * Default implementation return null, which results in no customizer.
-         * It is fine to return null (as default implementation does)
-         * @param node Preferences node the customizer should work on.
-         * @return Component which will be shown in the options dialog.
-         */
-//     override def getCustomizer(node: Preferences) : JComponent = null
-    
     override def createHints(context : ScalaRuleContext, error : Error) : List[Hint] =  {
         val desc = error.getDescription
         println("desc=" + desc)
@@ -116,14 +99,20 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         }
     }
 
-    val pattern = Pattern.compile("not found: value (.*)")
+    val pattern1 = Pattern.compile("not found: value (.*)")
+    val pattern2 = Pattern.compile("not found: type (.*)")
 
     private def checkMissingImport(desc: String) : Option[String] = {
-        val matcher = pattern.matcher(desc)
+        val matcher = pattern1.matcher(desc)
         if (matcher.matches) {
             Some(matcher.group(1))
         } else {
-            None
+            val m2 = pattern2.matcher(desc)
+            if (m2.matches) {
+                Some(m2.group(1))
+            } else {
+              None
+            }
         }
     }
 
@@ -142,7 +131,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                  ek = typeName.getKind;
                  if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE)
             {
-               val fixToApply = new AddImportFix(fo, typeName.getQualifiedName, context)
+               val fixToApply = new AddImportFix(missing, fo, typeName.getQualifiedName, context)
                toRet = new Hint(this, error.getDescription, fo, rangeOpt.get,
                       java.util.Collections.singletonList[HintFix](fixToApply), DEFAULT_PRIORITY) :: toRet
             }
@@ -151,26 +140,107 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     }
 
 
-    class AddImportFix(fileObject : FileObject, fqn : String, context : ScalaRuleContext) extends HintFix {
+    class AddImportFix(name : String, fileObject : FileObject, fqn : String, context : ScalaRuleContext) extends HintFix  {
         val HINT_PREFIX = locMessage("ClassNotFoundRuleHintDescription")
 
         override def getDescription = HINT_PREFIX + " " + fqn
         override val isSafe = true
         override val isInteractive = false
-        import org.netbeans.modules.csl.api.EditList
 
         @throws(classOf[Exception])
         override def implement : Unit = {
             val doc = context.doc
 
-            val firstFreePosition = 0 //TODO
+            val packageName = fqn.substring(0, fqn.length - (name.length + 1));
+            val th = TokenHierarchy.get(doc)
+            val ts = ScalaLexUtil.getTokenSequence(th, 0)
+            ts.move(0)
+//            val pack = ScalaLexUtil.findNext(ts, ScalaTokenId.Package)
 
+            println("package=" + packageName)
+            val imports = allGlobalImports(doc)
+            //TODO first find if the package itself is imported eg.
+            //   import org.apache.maven.model  or
+            //   import org.apache.maven.{model=>mavenmodel}
+            //If so, add prefix to declaration, rather than adding new import
+
+            //TODO then figure if a list of classes in a package is being imported eg.
+            // import org.netbeans.api.lexer.{Language, Token}
+
+            val firstFreePosition = imports.find((curr) => curr._3 > fqn) match {
+                case None => if (imports.isEmpty) {
+                                0 //TODO
+                             } else {
+                               imports.last._2
+                             }
+                case Some(t) => {
+                        println("found some=" + t._3)
+                        t._1
+                }
+            }
+            println("first=" + firstFreePosition)
             val edits = new EditList(doc)
             edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
             edits.apply()
 
         }
-    }
 
+      /**
+       * returns a sorted list of Tuples (sorted by the import value)
+       */
 
+      private def allGlobalImports(doc : BaseDocument) : List[Tuple3[Int, Int, String]] = {
+            val ts = ScalaLexUtil.getTokenSequence(doc, 0)
+            ts.move(0)
+            var importStatement = findNextImport(ts, ts.token)
+            // +1 means the dot
+            val toRet = new mutable.ArrayBuffer[Tuple3[Int, Int, String]]()
+            while (importStatement != null && importStatement._1 != null && importStatement._3.trim.length > 0) {
+                toRet + importStatement
+                importStatement = findNextImport(ts, ts.token)
+            }
+            toRet.toList.sort( (one, two) => one._3 < two._3)
+      }
+
+      private def findNextImport(ts : TokenSequence[_], current : Token[_]) : (Int, Int, String) = {
+          val buffer = new StringBuffer()
+          var collecting = false
+          var starter = -1
+          var finisher = -1
+          while (ts.isValid && ts.moveNext) {
+              val token : Token[_] = ts.token
+              token.id match {
+                  case ScalaTokenId.Import =>
+                      if (collecting) {
+                          ts.movePrevious
+                          return (starter, finisher, buffer.toString)
+                      } else {
+                          collecting = true;
+                          starter = ts.offset
+                      }
+                  case ScalaTokenId.Package =>
+                  case c if c == ScalaTokenId.Class || c == ScalaTokenId.Trait || c == ScalaTokenId.Object =>
+                      if (collecting) {
+                        //too far
+                        ts.movePrevious
+                        return (starter, finisher, buffer.toString)
+                      } else {
+                          return null
+                      }
+                  case wsComment if ScalaLexUtil.WS_COMMENTS.contains(wsComment) =>
+
+                  case _ => if (collecting) {
+                          buffer.append(token.text.toString)
+                          finisher = ts.offset + token.length
+                  }
+              }
+          }
+          if (collecting) {
+              //reasonable case?
+              (starter, finisher, buffer.toString)
+          } else {
+              null
+          }
+      }
+   }
 }
