@@ -161,13 +161,23 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             //   import org.apache.maven.model  or
             //   import org.apache.maven.{model=>mavenmodel}
             //If so, add prefix to declaration, rather than adding new import
-            val packMatch = imports.find((curr) => curr._3.equals(packageName))
+            val splitted = packageName.split('.')
+            val lastPack = splitted.last
+            val headPack = splitted.dropRight(1).mkString("""\.""")
+            val impPattern = Pattern.compile(headPack + """\.\{""" + lastPack + """=>([\w]*)\}""")
+            imports.foreach((p) => println("-" + p._3 + "-"))
+            val packMatch = imports.find((curr) => curr._3.equals(packageName) || impPattern.matcher(curr._3).matches)
             if (packMatch != None) {
-                val toWrite = packageName.split('.').last + "."
+                val matcher = impPattern.matcher(packMatch.get._3)
+                val toWrite = if (matcher.matches) {
+                        matcher.group(1)
+                    } else {
+                        packageName.split('.').last 
+                    }
                 val start = calcErrorStartPosition(offsetRange, name, ts)
                 if (start != -1) {
                   val edits = new EditList(doc)
-                  edits.replace(start, 0, toWrite, false, 0)
+                  edits.replace(start, 0, toWrite + ".", false, 0)
                   edits.apply()
                 }
             } else {
@@ -201,7 +211,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
           -1
       }
       /**
-       * returns a list of Tuples
+       * returns a list of Tuples(start, end, import string)
        */
 
       private def allGlobalImports(doc : BaseDocument) : List[Tuple3[Int, Int, String]] = {
