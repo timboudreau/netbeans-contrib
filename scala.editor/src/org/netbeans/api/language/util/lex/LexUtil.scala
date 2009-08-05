@@ -191,10 +191,7 @@ trait LexUtil {
       }
     }
 
-    ts match {
-      case null => None
-      case _ => Some(ts)
-    }
+    if (ts != null) Some(ts) else None
   }
 
   def getToken(doc: BaseDocument, offset: Int): Option[Token[TokenId]] = {
@@ -1329,7 +1326,7 @@ trait LexUtil {
         case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
             case dobj:DataObject =>
               Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
-            case _ => ()
+            case _ =>
           }
           throw ex
       }
