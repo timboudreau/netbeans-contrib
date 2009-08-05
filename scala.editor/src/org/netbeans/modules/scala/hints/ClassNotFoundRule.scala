@@ -181,21 +181,32 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                   edits.apply()
                 }
             } else {
-              //TODO then figure if a list of classes in a package is being imported eg.
-              // import org.netbeans.api.lexer.{Language, Token}
-                val firstFreePosition = imports.sort((one, two) => one._3 < two._3).
-                                                find((curr) => curr._3 > fqn) match {
-                    case None => if (imports.isEmpty) {
-                                    -1 //TODO
-                                 } else {
-                                   imports.last._2 + 1 // + 1 for newline
-                                 }
-                    case Some(t) => t._1
-                }
-                if (firstFreePosition != -1) {
-                  val edits = new EditList(doc)
-                  edits.replace(firstFreePosition, 0, "import " + fqn + "\n", false, 0)
-                  edits.apply()
+                //then figure if a list of classes in a package is being imported eg.
+                // import org.netbeans.api.lexer.{Language, Token}
+                val listPattern = Pattern.compile(packageName + """\.\{([\w\,\s]*)\}""")
+                val listMatch = imports.find((curr) => listPattern.matcher(curr._3).matches)
+                if (listMatch != None) {
+                    val pos = listMatch.get._2 - 1 //-1 for the bracket?
+                    val edits = new EditList(doc)
+                    edits.replace(pos, 0, "," + name, false, 0)
+                    edits.apply()
+
+                } else {
+                  //if none of the above applies, add as single import
+                  val pos = imports.sort((one, two) => one._3 < two._3).
+                                    find((curr) => curr._3 > fqn) match {
+                      case None => if (imports.isEmpty) {
+                                      -1 //TODO
+                                   } else {
+                                     imports.last._2 + 1 // + 1 for newline
+                                   }
+                      case Some(t) => t._1
+                  }
+                  if (pos != -1) {
+                    val edits = new EditList(doc)
+                    edits.replace(pos, 0, "import " + fqn + "\n", false, 0)
+                    edits.apply()
+                  }
                 }
             }
         }
@@ -220,7 +231,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             var importStatement = findNextImport(ts, ts.token)
             // +1 means the dot
             val toRet = new mutable.ArrayBuffer[Tuple3[Int, Int, String]]()
-            while (importStatement != null && importStatement._1 != null && importStatement._3.trim.length > 0) {
+            while (importStatement != null && importStatement._1 != -1 && importStatement._3.trim.length > 0) {
                 toRet + importStatement
                 importStatement = findNextImport(ts, ts.token)
             }
