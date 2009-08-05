@@ -157,7 +157,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             ts.move(0)
             
             val imports = allGlobalImports(doc)
-            //TODO first find if the package itself is imported eg.
+            // first find if the package itself is imported eg.
             //   import org.apache.maven.model  or
             //   import org.apache.maven.{model=>mavenmodel}
             //If so, add prefix to declaration, rather than adding new import
@@ -176,9 +176,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                     }
                 val start = calcErrorStartPosition(offsetRange, name, ts)
                 if (start != -1) {
-                  val edits = new EditList(doc)
-                  edits.replace(start, 0, toWrite + ".", false, 0)
-                  edits.apply()
+                    simpleEdit(start, toWrite + ".", doc)
                 }
             } else {
                 //then figure if a list of classes in a package is being imported eg.
@@ -187,10 +185,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                 val listMatch = imports.find((curr) => listPattern.matcher(curr._3).matches)
                 if (listMatch != None) {
                     val pos = listMatch.get._2 - 1 //-1 for the bracket?
-                    val edits = new EditList(doc)
-                    edits.replace(pos, 0, "," + name, false, 0)
-                    edits.apply()
-
+                    simpleEdit(pos, "," + name, doc)
                 } else {
                   //if none of the above applies, add as single import
                   val pos = imports.sort((one, two) => one._3 < two._3).
@@ -203,13 +198,17 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
                       case Some(t) => t._1
                   }
                   if (pos != -1) {
-                    val edits = new EditList(doc)
-                    edits.replace(pos, 0, "import " + fqn + "\n", false, 0)
-                    edits.apply()
+                      simpleEdit(pos, "import " + fqn + "\n", doc)
                   }
                 }
             }
         }
+
+    private def simpleEdit(position : Int, addition: String, doc : BaseDocument) : Unit = {
+        val edits = new EditList(doc)
+        edits.replace(position, 0, addition, false, 0)
+        edits.apply()
+    }
 
       private def calcErrorStartPosition(range : OffsetRange, name : String, ts : TokenSequence[TokenId]) : Int = {
           ts.move(range.getStart)
