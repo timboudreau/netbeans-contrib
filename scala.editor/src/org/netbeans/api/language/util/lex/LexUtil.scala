@@ -199,22 +199,23 @@ trait LexUtil {
   }
 
   def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): Option[TokenSequence[TokenId]] = {
-    getTokenSequence(doc, offset) foreach {ts =>
-      try {
-        ts.move(offset)
-      } catch {
-        case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
-            case dobj:DataObject => Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
-            case _ =>
-          }
-          throw ex
-      }
+    getTokenSequence(doc, offset) match {
+      case Some(ts) =>
+        try {
+          ts.move(offset)
+        } catch {
+          case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
+              case dobj:DataObject => Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+              case _ =>
+            }
+            throw ex
+        }
 
-      if (!lookBack && !ts.moveNext || lookBack && !ts.moveNext && !ts.movePrevious) {
-        None
-      } else Some(ts)
+        if (!lookBack && !ts.moveNext || lookBack && !ts.moveNext && !ts.movePrevious) {
+          None
+        } else Some(ts)
+      case None => None
     }
-    None
   }
 
   def getToken(doc: BaseDocument, offset: Int): Option[Token[TokenId]] = {
