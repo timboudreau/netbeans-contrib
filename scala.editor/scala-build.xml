@@ -32,8 +32,8 @@
             <classpath refid="scalac.cp"/>
         </depend>
         <!-- scalac -->
-        <fsc srcdir="${src.dir}" destdir="${build.classes.dir}" encoding="UTF-8" target="jvm-${javac.target}">
-            <classpath refid="scalac.cp"/>
+        <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}" 
+            encoding="UTF-8" target="jvm-${javac.target}" addparams="-verbose">
         </fsc>
         <!-- javac -->
         <nb-javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" debuglevel="${build.compiler.debuglevel}" encoding="UTF-8"
