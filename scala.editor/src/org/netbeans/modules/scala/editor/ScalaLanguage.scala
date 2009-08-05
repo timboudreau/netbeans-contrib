@@ -55,6 +55,7 @@ import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.modules.scala.hints.ScalaHintsProvider
 
 /**
  * Language/lexing configuration for Scala
@@ -100,6 +101,8 @@ class ScalaLanguage extends DefaultLanguageConfig {
   override def hasFormatter =  true
   override def getFormatter = new ScalaFormatter
   
+  override def getHintsProvider = new ScalaHintsProvider
+  override def hasHintsProvider = true
   //
   //   override def getIndexerFactory = new ScalaIndexer.Factory
   //
