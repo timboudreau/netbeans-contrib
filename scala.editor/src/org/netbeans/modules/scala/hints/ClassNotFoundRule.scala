@@ -153,7 +153,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
             val packageName = fqn.substring(0, fqn.length - (name.length + 1));
             val th = TokenHierarchy.get(doc)
-            val ts = ScalaLexUtil.getTokenSequence(th, 0)
+            val ts = ScalaLexUtil.getTokenSequence(th, 0).get
             ts.move(0)
             
             val imports = allGlobalImports(doc)
@@ -215,7 +215,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
        */
 
       private def allGlobalImports(doc : BaseDocument) : List[Tuple3[Int, Int, String]] = {
-            val ts = ScalaLexUtil.getTokenSequence(doc, 0)
+            val ts = ScalaLexUtil.getTokenSequence(doc, 0).get
             ts.move(0)
             var importStatement = findNextImport(ts, ts.token)
             // +1 means the dot
