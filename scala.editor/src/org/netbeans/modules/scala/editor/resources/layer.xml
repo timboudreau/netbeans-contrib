@@ -37,11 +37,18 @@
         <folder name="text">
             <folder name="x-scala">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.Bundle"/>
+
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editor.lexer.ScalaTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
-                
+
+                <folder name="BracesMatchers">
+                    <file name="org-netbeans-modules-scala-editor-ScalaBracesMatcherFactory.instance">
+                        <attr name="position" intvalue="0"/>
+                   </file>
+                </folder>
+
                 <!-- TODO - this should not be necessary; I'm doing this now to work around
                     bugs in color initialization -->
                 <folder name="FontsColors">

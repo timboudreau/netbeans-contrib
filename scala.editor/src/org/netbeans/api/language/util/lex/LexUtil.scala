@@ -194,6 +194,29 @@ trait LexUtil {
     if (ts != null) Some(ts) else None
   }
 
+  def getPositionedSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
+    getPositionedSequence(doc, offset, true)
+  }
+
+  def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): Option[TokenSequence[TokenId]] = {
+    getTokenSequence(doc, offset) foreach {ts =>
+      try {
+        ts.move(offset)
+      } catch {
+        case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
+            case dobj:DataObject => Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+            case _ =>
+          }
+          throw ex
+      }
+
+      if (!lookBack && !ts.moveNext || lookBack && !ts.moveNext && !ts.movePrevious) {
+        None
+      } else Some(ts)
+    }
+    None
+  }
+
   def getToken(doc: BaseDocument, offset: Int): Option[Token[TokenId]] = {
     getPositionedSequence(doc, offset) match {
       case Some(x) => x.token match {
@@ -1311,32 +1334,6 @@ trait LexUtil {
       case ex:IOException => Exceptions.printStackTrace(ex)
     }
 
-    None
-  }
-
-  def getPositionedSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
-    getPositionedSequence(doc, offset, true)
-  }
-
-  def getPositionedSequence(doc: BaseDocument, offset: Int, lookBack: Boolean): Option[TokenSequence[TokenId]] = {
-    getTokenSequence(doc, offset) foreach {ts =>
-      try {
-        ts.move(offset)
-      } catch {
-        case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
-            case dobj:DataObject =>
-              Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
-            case _ =>
-          }
-          throw ex
-      }
-
-      if (!lookBack && !ts.moveNext) {
-        None
-      } else if (lookBack && !ts.moveNext && !ts.movePrevious) {
-        None
-      } else Some(ts)
-    }
     None
   }
 

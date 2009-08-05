@@ -735,8 +735,8 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    */
   @throws(classOf[BadLocationException])
   override def afterCharInserted(document: Document, dotPos: Int, target: JTextComponent, ch: char): Boolean = {
-    isAfter = true;
-    val caret = target.getCaret();
+    isAfter = true
+    val caret = target.getCaret
     val doc = document.asInstanceOf[BaseDocument]
 
     //        if (REFLOW_COMMENTS) {
@@ -919,7 +919,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         }
 
         val begin = id match {
-          case ScalaTokenId.RBrace =>
+          case ScalaTokenId.RBrace   =>
             ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
           case ScalaTokenId.RBracket =>
             ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
@@ -938,70 +938,8 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     }
   }
 
+  /** replaced by ScalaBracesMatcher#findMatching */
   override def findMatching(document: Document, aoffset: Int /*, boolean simpleSearch*/): OffsetRange = {
-    var offset = aoffset
-    val doc = document.asInstanceOf[BaseDocument]
-    ScalaLexUtil.getTokenSequence(doc, offset) foreach {ts =>
-      ts.move(offset)
-      if (!ts.moveNext) {
-        return OffsetRange.NONE;
-      }
-
-      var token = ts.token
-      if (token == null) {
-        return OffsetRange.NONE
-      }
-
-      var id = token.id
-
-      if (id == ScalaTokenId.Ws) {
-        // ts.move(offset) gives the token to the left of the caret.
-        // If you have the caret right at the beginning of a token, try
-        // the token to the right too - this means that if you have
-        //  "   |def" it will show the matching "end" for the "def".
-        offset += 1
-        ts.move(offset)
-        if (ts.moveNext && ts.offset <= offset) {
-          token = ts.token
-          id = token.id
-        }
-      }
-
-      id match {
-        case ScalaTokenId.STRING_BEGIN =>
-          return ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END);
-        case ScalaTokenId.STRING_END =>
-          return ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END);
-        case ScalaTokenId.REGEXP_BEGIN =>
-          return ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
-        case ScalaTokenId.REGEXP_END =>
-          return ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
-        case ScalaTokenId.LParen =>
-          return ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
-        case ScalaTokenId.RParen =>
-          return ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
-        case ScalaTokenId.LBrace =>
-          return ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
-        case ScalaTokenId.RBrace =>
-          return ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
-        case ScalaTokenId.LBracket =>
-          return ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
-          //            } else if (id == ScalaTokenId.DO && !ScalaLexUtil.isEndmatchingDo(doc, ts.offset())) {
-          //                // No matching dot for "do" used in conditionals etc.
-          //                return OffsetRange.NONE;
-        case ScalaTokenId.RBracket =>
-          return ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
-          //            } else if (id.primaryCategory().equals("keyword")) {
-          //                if (ScalaLexUtil.isBeginToken(id, doc, ts)) {
-          //                    return ScalaLexUtil.findEnd(doc, ts);
-          //                } else if ((id == ScalaTokenId.END) || ScalaLexUtil.isIndentToken(id)) { // Find matching block
-          //
-          //                    return ScalaLexUtil.findBegin(doc, ts);
-          //                }
-        case _ =>
-      }
-    }
-
     OffsetRange.NONE
   }
 
