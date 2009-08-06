@@ -433,7 +433,7 @@ with ScalaUtils {
     settings.stop.tryToSetColon(List(stopPhaseName))
     resetSelectTypeErrors
     val run = new this.Run
-
+    
     val srcFiles = List(srcFile)
     try {
       run.compileSources(srcFiles)

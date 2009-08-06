@@ -40,12 +40,9 @@ package org.netbeans.modules.scala.editor.ast
 
 import _root_.java.io.File
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
-import org.netbeans.api.language.util.ast.{AstItem, AstScope}
 import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.parsing.api.Snapshot
 import org.openide.filesystems.{FileObject, FileUtil}
-import _root_.scala.tools.nsc.{CompilationUnits, Global}
-import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.Annotated;
 ////import scala.tools.nsc.ast.Trees.Annotation;
 //import scala.tools.nsc.ast.Trees.AppliedTypeTree;
@@ -92,11 +89,15 @@ import _root_.scala.tools.nsc.ast.Trees
 //import scala.tools.nsc.ast.Trees.UnApply;
 //import scala.tools.nsc.ast.Trees.ValDef;
 
+import org.netbeans.api.language.util.ast.{AstItem, AstScope}
 import org.netbeans.modules.scala.editor.ScalaGlobal
+import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
+import _root_.scala.tools.nsc.{CompilationUnits, Global}
+import _root_.scala.tools.nsc.ast.Trees
 import _root_.scala.tools.nsc.symtab.{Symbols, SymbolTable}
 import _root_.scala.tools.nsc.symtab.Flags._
-import _root_.scala.tools.nsc.util.{BatchSourceFile, Position}
+import _root_.scala.tools.nsc.util.{BatchSourceFile, Position, SourceFile}
 import _root_.scala.collection.mutable.{Stack, HashSet}
 
 /**
@@ -126,6 +127,8 @@ abstract class ScalaAstVisitor {
 
   private var fo: Option[FileObject] = _
   private var th: TokenHierarchy[_] = _
+  private var srcFile: SourceFile = _
+  private var docLength: Int = _
 
   def reset: Unit = {
     this.scopes = new Stack
@@ -135,7 +138,8 @@ abstract class ScalaAstVisitor {
   
   def visit(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
     this.th = th
-    val srcFile = unit.source
+    this.srcFile = unit.source
+    this.docLength = srcFile.content.size
     this.fo = if (srcFile ne null) {
       val file = new File(srcFile.path)
       if (file != null && file.exists) { // it's a real file and not archive file
@@ -906,22 +910,13 @@ abstract class ScalaAstVisitor {
       assert(false, "Should not happen!")
     }
 
-    var altToken: Token[TokenId] = null
-    var token = (tree, name) match {
-      case (_: This, _)    => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
-      case (_, "this")     => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
-      case (_: Super, _)   => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
-      case (_, "super")    => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
-      case (_, "expected") => ts.token
-      case (_, "foreach")  =>
-        val tk = ScalaLexUtil.findNext(ts, ScalaTokenId.Identifier)
-        altToken = tk
-        if (tk != null && tk.text.toString.equals("foreach")) {
-          ScalaLexUtil.findNext(ts, ScalaTokenId.LArrow)
-        } else {
-          tk
-        }
-      case (_, "*") => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
+    var token = tree match {
+      case _: This  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
+      case _: Super => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
+      case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
+      case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
+      case _ if name == "expected" => ts.token
+      case _ if name == "*" => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
         //      case (_, _) if name.startsWith("<error") => ts.token.id match {
         //          case ScalaTokenId.Dot =>
         //            // a. where, offset is at .
@@ -930,38 +925,30 @@ abstract class ScalaAstVisitor {
         //            // a.p where, offset is at p
         //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         //        }
-      case (Select(qual, selector), name) if endOffset > 0 =>
+      case Select(qual, selector) if endOffset > 0 =>
         // * for Select tree, will look backward from endOffset
+        //val chars = srcFile.content.subSequence(offset, endOffset)
         ts.move(endOffset)
-        var tk = if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
-        } else null
-        var curr = endOffset
-        while (tk != null && !tokenNameEquals(tk, name) && curr >= offset) {
-          tk = if (ts.movePrevious) {
-            ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
-          } else null
-          curr = ts.offset
+        findIdTokenBackward(ts, name, offset, endOffset) match {
+          case Some(x) => x
+          case None =>
+            // * bug in scalac, wrong RangePosition for "list filter {...}", the range only contains "list"
+            ts.move(endOffset)
+            if (ts.moveNext && ts.movePrevious) {
+              val end = Iterable.min(Array(endOffset + 100, docLength - 1))
+              findIdTokenForward(ts, name, endOffset, end) match {
+                case Some(x) => x
+                case None => null
+              }
+            } else null
         }
-
-        if (tk != null && tokenNameEquals(tk, name)) {
-          tk
-        } else null
         
       case _ =>
-        // * default, will look forward from offset
-        var tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-        var curr = offset + tk.length
-        while (tk != null && !tokenNameEquals(tk, name) && curr <= endOffset) {
-          tk = if (ts.moveNext) {
-            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-          } else null
-          curr = ts.offset + tk.length
+        //val chars = srcFile.content.subSequence(offset, endOffset)
+        findIdTokenForward(ts, name, offset, endOffset) match {
+          case Some(x) => x
+          case None => null
         }
-
-        if (tk != null && tokenNameEquals(tk, name)) {
-          tk
-        } else null
     }
 
     if (token != null && token.isFlyweight) {
@@ -971,14 +958,45 @@ abstract class ScalaAstVisitor {
     if (token == null) None else Some(token)
   }
 
-  protected def tokenNameEquals(token: Token[_], name: String) = {
-    val t = token.text.toString.trim
-    val text = token.id match {
-      case ScalaTokenId.SymbolLiteral => t.substring(1, t.length - 1) // strip '`'
-      case _ => t
+  private def findIdTokenForward(ts: TokenSequence[TokenId], name: String, offset: Int, endOffset: Int): Option[Token[TokenId]] = {
+    var token = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+    var curr = offset + token.length
+    while (token != null && !tokenNameEquals(token, name) && curr <= endOffset) {
+      token = if (ts.moveNext) {
+        ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+      } else null
+      curr = ts.offset + token.length
     }
-    
-    text == name
+
+    if (token != null && tokenNameEquals(token, name)) {
+      Some(token)
+    } else None
+  }
+
+  private def findIdTokenBackward(ts: TokenSequence[TokenId], name: String, offset: Int, endOffset: Int): Option[Token[TokenId]] = {
+    var token = if (ts.movePrevious) {
+      ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
+    } else null
+    var curr = endOffset
+    while (token != null && !tokenNameEquals(token, name) && curr >= offset) {
+      token = if (ts.movePrevious) {
+        ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
+      } else null
+      curr = ts.offset
+    }
+
+    if (token != null && tokenNameEquals(token, name)) {
+      Some(token)
+    } else None
+  }
+  
+  private def tokenNameEquals(token: Token[_], name: String) = {
+    val text = token.text.toString.trim
+    token.id match {
+      case ScalaTokenId.SymbolLiteral => text.substring(1, text.length - 1) == name // strip '`'
+      case ScalaTokenId.LArrow => name == "foreach" | name == "map"
+      case _ => text == name
+    }
   }
 
   protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {

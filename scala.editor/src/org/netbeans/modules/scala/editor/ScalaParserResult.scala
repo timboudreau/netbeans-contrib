@@ -46,7 +46,6 @@ import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.scala.editor.ast.ScalaRootScope
-//import org.netbeans.modules.scala.editor.ast.AstTreeVisitor
 import org.openide.filesystems.{FileObject, FileUtil}
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
