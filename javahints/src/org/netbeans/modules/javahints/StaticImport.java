@@ -103,7 +103,7 @@ public class StaticImport extends AbstractHint {
             return null;
         }
         Element e = info.getTrees().getElement(treePath);
-        if (e == null || !e.getModifiers().contains(Modifier.STATIC)) {
+        if (e == null || !e.getModifiers().contains(Modifier.STATIC) || e.getKind() != ElementKind.METHOD) {
             return null;
         }
         if (!supportsStaticImports(info)) {
