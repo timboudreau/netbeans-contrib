@@ -302,7 +302,7 @@ trait LexUtil {
     ts.token
   }
 
-  def findPreviousIncluding(ts: TokenSequence[TokenId], includes: Set[TokenId]): Token[TokenId] = {
+  def findPreviousIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Token[TokenId] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.movePrevious && !includes.contains(ts.token.id)) {}
     }

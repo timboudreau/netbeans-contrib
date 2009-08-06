@@ -149,7 +149,7 @@ abstract class ScalaAstVisitor {
     if (unit.body ne null) {
       reset
       val rootTree = unit.body
-      this.rootScope = ScalaRootScope(getBoundsTokens(offset(rootTree), srcFile.length))
+      this.rootScope = ScalaRootScope(getBoundsTokens(getOffset(rootTree), srcFile.length))
       scopes push rootScope
       //exprs.push(rootScope.getExprContainer());
       //visit(rootTree)
@@ -683,7 +683,7 @@ abstract class ScalaAstVisitor {
       
       buf setLength 0
       traverse(tree, 0, false)
-      //rootScope.debugPrintTokens(th)
+      if (debug) rootScope.debugPrintTokens(th)
       buf.toString
     }
   }
@@ -868,7 +868,7 @@ abstract class ScalaAstVisitor {
     astPath.pop
   }
 
-  protected def offset(tree: Tree): Int = {
+  protected def getOffset(tree: Tree): Int = {
     tree.pos.startOrPoint
   }
 
@@ -888,14 +888,20 @@ abstract class ScalaAstVisitor {
     if (name == "") {
       return None
     }
+
+    val pos = tree.pos
+    val offset = if (pos.isDefined) pos.startOrPoint else -1
+    val endOffset = if (pos.isDefined) pos.endOrPoint else -1
+    if (offset == -1) {
+      return None
+    }
     
-    val offset1 = offset(tree)
-    val ts = ScalaLexUtil.getTokenSequence(th, offset1) match {
+    val ts = ScalaLexUtil.getTokenSequence(th, offset) match {
       case Some(x) => x
       case None => return None
     }
     
-    ts.move(offset1)
+    ts.move(offset)
     if (!ts.moveNext && !ts.movePrevious) {
       assert(false, "Should not happen!")
     }
@@ -924,18 +930,33 @@ abstract class ScalaAstVisitor {
         //            // a.p where, offset is at p
         //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         //        }
+      case (Select(qual, selector), name) if endOffset > 0 =>
+        // * for Select tree, will look backward from endOffset
+        ts.move(endOffset)
+        var tk = if (ts.movePrevious) {
+          ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
+        } else null
+        var curr = endOffset
+        while (tk != null && !tokenNameEquals(tk, name) && curr >= offset) {
+          tk = if (ts.movePrevious) {
+            ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
+          } else null
+          curr = ts.offset
+        }
+
+        if (tk != null && tokenNameEquals(tk, name)) {
+          tk
+        } else null
+        
       case _ =>
-        val pos = tree.pos
-        val end = if (pos.isDefined) pos.endOrPoint else -1
+        // * default, will look forward from offset
         var tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-        var curr = offset1 + tk.length
-        while (tk != null && !tokenNameEquals(tk, name) && curr <= end) {
-          if (ts.moveNext) {
-            tk = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-            curr = ts.offset + tk.length
-          } else {
-            tk = null
-          }
+        var curr = offset + tk.length
+        while (tk != null && !tokenNameEquals(tk, name) && curr <= endOffset) {
+          tk = if (ts.moveNext) {
+            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+          } else null
+          curr = ts.offset + tk.length
         }
 
         if (tk != null && tokenNameEquals(tk, name)) {
@@ -947,10 +968,6 @@ abstract class ScalaAstVisitor {
       token = ts.offsetToken
     }
 
-    // root expr is just a container
-    //    if (!exprs.peek().isRoot()) {
-    //      exprs.peek().addToken(token);
-    //    }
     if (token == null) None else Some(token)
   }
 

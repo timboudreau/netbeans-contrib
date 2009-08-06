@@ -39,42 +39,14 @@
 
 package org.netbeans.modules.scala.editor
 
+import javax.swing.text.{BadLocationException, Caret, Document, JTextComponent}
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
+import org.netbeans.editor.{BaseDocument, Utilities}
+import org.netbeans.modules.csl.api.{EditorOptions, KeystrokeHandler, OffsetRange}
+import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
+import org.netbeans.modules.editor.indent.api.IndentUtils
+import org.openide.util.Exceptions
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import java.util.Stack;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Utilities;
-import org.netbeans.modules.csl.api.EditorOptions;
-import org.netbeans.modules.csl.api.KeystrokeHandler;
-import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.editor.indent.api.IndentUtils;
-import org.openide.util.Exceptions;
-
-
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.api.KeystrokeHandler
-import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.editor.indent.api.IndentUtils;
-import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
-import org.netbeans.editor.BaseDocument
-import org.netbeans.editor.Utilities
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
@@ -320,15 +292,15 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         val isBlockStart = line.startsWith("/*")
         if (isBlockStart || line.startsWith("*")) {
           var indent = GsfUtilities.getLineIndent(doc, offset)
-          val sb = new StringBuilder();
+          val sb = new StringBuilder
           if (isBlockStart) {
             indent += 1
           }
-          sb.append(IndentUtils.createIndentString(doc, indent));
-          sb.append("*"); // NOI18N
+          sb.append(IndentUtils.createIndentString(doc, indent))
+          sb.append("*") // NOI18N
           // Copy existing indentation
           val afterStar = if (isBlockStart) begin + 2 else begin + 1
-          line = doc.getText(afterStar, Utilities.getRowEnd(doc, afterStar) - afterStar);
+          line = doc.getText(afterStar, Utilities.getRowEnd(doc, afterStar) - afterStar)
           var break = false
           for (i <- 0 until line.length if !break) {
             val c = line.charAt(i)
@@ -343,11 +315,11 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           if (offset == begin && insertOffset > 0) {
             insertOffset = Utilities.getRowStart(doc, offset)
             val sp = Utilities.getRowStart(doc, offset) + sb.length
-            doc.insertString(insertOffset, sb.toString(), null)
+            doc.insertString(insertOffset, sb.toString, null)
             caret.setDot(sp)
             return sp
           }
-          doc.insertString(insertOffset, sb.toString(), null)
+          doc.insertString(insertOffset, sb.toString, null)
           caret.setDot(insertOffset)
           return insertOffset + sb.length + 1
         }
@@ -383,7 +355,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       }
       val rowEnd = Utilities.getRowEnd(doc, offset)
       if (rowEnd < doc.getLength) {
-        val nextBegin = Utilities.getRowFirstNonWhite(doc, rowEnd + 1);
+        val nextBegin = Utilities.getRowFirstNonWhite(doc, rowEnd + 1)
         if (nextBegin != -1) {
           ScalaLexUtil.getTokenId(doc, nextBegin) match {
             case Some(ScalaTokenId.LineComment) => nextLineIsComment = true
@@ -450,12 +422,12 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         if (offset == begin && insertOffset > 0) {
           insertOffset = Utilities.getRowStart(doc, offset)
           val sp = Utilities.getRowStart(doc, offset) + sb.length
-          doc.insertString(insertOffset, sb.toString(), null)
-          caret.setDot(sp);
-          return sp;
+          doc.insertString(insertOffset, sb.toString, null)
+          caret.setDot(sp)
+          return sp
         }
-        doc.insertString(insertOffset, sb.toString(), null)
-        caret.setDot(insertOffset);
+        doc.insertString(insertOffset, sb.toString, null)
+        caret.setDot(insertOffset)
         return insertOffset + sb.length + 1
       }
     }
@@ -585,7 +557,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
     //dumpTokens(doc, caretOffset);
 
-    if (target.getSelectionStart() != -1) {
+    if (target.getSelectionStart != -1) {
       val isCodeTemplateEditing = false // GsfUtilities.isCodeTemplateEditing(doc)
       if (isCodeTemplateEditing) {
         val start = target.getSelectionStart
@@ -600,8 +572,8 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         // Fall through to do normal insert matching work
       } else if (ch == '"' || ch == '\'' || ch == '(' || ch == '{' || ch == '[' || ch == '/') {
         // Bracket the selection
-        val selection = target.getSelectedText();
-        if (selection != null && selection.length() > 0) {
+        val selection = target.getSelectedText
+        if (selection != null && selection.length > 0) {
           val firstChar = selection.charAt(0)
           if (firstChar != ch) {
             val start = target.getSelectionStart
@@ -613,16 +585,16 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                 // Replace the surround-with chars?
                 firstChar match {
                   case '"' | '\'' | '(' | '{' | '[' |  '/' if selection.length > 1 && lastChar == matching(firstChar) =>
-                    doc.remove(end - 1, 1);
-                    doc.insertString(end - 1, "" + matching(ch), null);
-                    doc.remove(start, 1);
-                    doc.insertString(start, "" + ch, null);
-                    target.getCaret().setDot(end);
+                    doc.remove(end - 1, 1)
+                    doc.insertString(end - 1, "" + matching(ch), null)
+                    doc.remove(start, 1)
+                    doc.insertString(start, "" + ch, null)
+                    target.getCaret.setDot(end)
                   case _ =>
                     // No, insert around
-                    doc.remove(start, end - start);
-                    doc.insertString(start, ch + selection + matching(ch), null);
-                    target.getCaret().setDot(start + selection.length() + 2);
+                    doc.remove(start, end - start)
+                    doc.insertString(start, ch + selection + matching(ch), null)
+                    target.getCaret.setDot(start + selection.length + 2)
                 }
                 return true
               case _ =>
@@ -794,7 +766,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           case Some(token) => token.id match {
               case ScalaTokenId.ANY_OPERATOR =>
                 val length = token.length
-                val s = token.text().toString
+                val s = token.text.toString
                 if (length == 2 && "[]" == s || "[]=" == s) { // Special case
                   skipClosingBracket(doc, caret, ch, ScalaTokenId.RBracket)
                   return true
@@ -909,7 +881,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         if (ts.offset > rowFirstNonWhite) {
           //                    if (RubyUtils.isRhtmlDocument(doc)) {
           //                        // Allow "<%[whitespace]*" to preceed
-          //                        String s = doc.getText(rowFirstNonWhite, ts.offset()-rowFirstNonWhite);
+          //                        String s = doc.getText(rowFirstNonWhite, ts.offsetg-rowFirstNonWhite);
           //                        if (!s.matches("<%\\s*")) {
           //                            return;
           //                        }
@@ -962,10 +934,10 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         ScalaLexUtil.getPositionedSequence(doc, dotPos) foreach {ts =>
           if (ts.token.id == ScalaTokenId.LineComment) {
             if (ts.offset == dotPos - 2) {
-              doc.remove(dotPos - 2, 2);
-              target.getCaret().setDot(dotPos - 2);
+              doc.remove(dotPos - 2, 2)
+              target.getCaret.setDot(dotPos - 2)
 
-              return true;
+              return true
             }
           }
         }
@@ -984,9 +956,9 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         // Backspacing over "//" ? Delete the whole "//"
         ScalaLexUtil.getPositionedSequence(doc, dotPos) foreach {ts =>
           if (ts.token.id == ScalaTokenId.REGEXP_BEGIN) {
-            if (ts.offset() == dotPos - 1) {
+            if (ts.offset == dotPos - 1) {
               doc.remove(dotPos - 1, 1)
-              target.getCaret().setDot(dotPos - 1)
+              target.getCaret.setDot(dotPos - 1)
 
               return true
             }
@@ -1159,11 +1131,11 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           //int tokenIntId = token.getTokenID().getNumericID();
           token.id match {
             case ScalaTokenId.LParen | ScalaTokenId.LBracket =>
-              if (token.id().ordinal == leftBracketIntId) {
+              if (token.id.ordinal == leftBracketIntId) {
                 bracketBalance += 1
               }
             case ScalaTokenId.RParen | ScalaTokenId.RBracket =>
-              if (token.id().ordinal == bracketIntId) {
+              if (token.id.ordinal == bracketIntId) {
                 bracketBalance -= 1
 
                 if (bracketBalance == 0) {
@@ -1312,7 +1284,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         insideString = true;
       } else if (previousToken.id == ScalaTokenId.Error) {
         if (ts.movePrevious) {
-          if (ts.token().id == beginToken) {
+          if (ts.token.id == beginToken) {
             insideString = true
           }
         }
@@ -1438,7 +1410,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     }
 
     //AstPath path = new AstPath(root, astOffset);
-    val ranges = new ArrayList[OffsetRange]
+    val ranges = new  _root_.java.util.ArrayList[OffsetRange]
 
     /** Furthest we can go back in the buffer (in RHTML documents, this
      * may be limited to the surrounding &lt;% starting tag
@@ -1496,8 +1468,8 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             ranges.add(new OffsetRange(begin, end))
           case ScalaTokenId.LineComment =>
             // First add a range for the current line
-            var begin = Utilities.getRowStart(doc, caretOffset);
-            var end = Utilities.getRowEnd(doc, caretOffset);
+            var begin = Utilities.getRowStart(doc, caretOffset)
+            var end = Utilities.getRowEnd(doc, caretOffset)
 
             if (ScalaLexUtil.isCommentOnlyLine(doc, caretOffset)) {
               ranges.add(new OffsetRange(Utilities.getRowFirstNonWhite(doc, begin),
@@ -1658,18 +1630,18 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             for (i <- offsetInImage - 1 to 0) {
               val charAtI = s.charAt(i)
               if (charAtI == '_') {
-                return ts.offset() + i + 1
+                return ts.offset + i + 1
               }
               if (Character.isUpperCase(charAtI)) {
                 // now skip over previous uppercase chars in the identifier
                 for (j <- i to 0) {
                   val charAtJ = s.charAt(j)
                   if (charAtJ == '_') {
-                    return ts.offset() + j + 1
+                    return ts.offset + j + 1
                   }
                   if (!Character.isUpperCase(charAtJ)) {
                     // return offset of previous uppercase char in the identifier
-                    return ts.offset() + j + 1
+                    return ts.offset + j + 1
                   }
                 }
                 return ts.offset
@@ -1695,7 +1667,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                 break = true
               } else {
                 if (s.charAt(i) == '_') {
-                  return ts.offset() + i
+                  return ts.offset + i
                 }
                 start += 1
               }
@@ -1704,7 +1676,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           for (i <- start until length) {
             val charAtI = s.charAt(i)
             if (charAtI == '_' || Character.isUpperCase(charAtI)) {
-              return ts.offset() + i
+              return ts.offset + i
             }
           }
         }

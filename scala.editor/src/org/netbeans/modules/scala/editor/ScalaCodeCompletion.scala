@@ -1894,7 +1894,7 @@ abstract class CompletionRequest {
         }
       }
 
-      ScalaLexUtil.findPreviousIncluding(ts, CALL_IDs)
+      ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
     } else if (CALL_IDs.contains(closest.id)) {
       closest
     } else null
