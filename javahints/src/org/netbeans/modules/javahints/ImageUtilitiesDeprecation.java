@@ -48,6 +48,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.support.CaretAwareJavaSourceTaskFactory;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
@@ -87,12 +89,23 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
         MethodInvocationTree mit = (MethodInvocationTree) treePath.getLeaf();
         TreePath ms = new TreePath(treePath, mit.getMethodSelect());
         Element e = info.getTrees().getElement(ms);
-        if (e != null && (
-                e.getSimpleName().contentEquals("loadImage") ||
-                e.getSimpleName().contentEquals("mergeImages") ||
-                e.getSimpleName().contentEquals("icon2Image")
-            ) && info.getElementUtilities().enclosingTypeElement(e).getQualifiedName().contentEquals("org.openide.util.Utilities")
+        if (e == null) {
+            return null;
+        }
+        Name sn = e.getSimpleName();
+        if (
+            sn.contentEquals("loadImage") ||
+            sn.contentEquals("mergeImages") ||
+            sn.contentEquals("icon2Image")
         ) {
+            TypeElement enclose = info.getElementUtilities().enclosingTypeElement(e);
+            if (enclose == null) {
+                return null;
+            }
+            Name qn = enclose.getQualifiedName();
+            if (qn == null || !qn.contentEquals("org.openide.util.Utilities")) {
+                return null;
+            }
             int[] span;
 
             switch (mit.getMethodSelect().getKind()) {
