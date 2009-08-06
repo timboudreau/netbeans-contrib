@@ -221,7 +221,8 @@ object ScalaLexUtil extends LexUtil {
                                             ScalaTokenId.XmlComment,
                                             ScalaTokenId.XmlSTagName,
                                             ScalaTokenId.XmlSTagName,
-                                            ScalaTokenId.XmlCharData
+                                            ScalaTokenId.XmlCharData,
+                                            ScalaTokenId.LArrow
   )
 
   /** Some AstItems have Xml Nl etc type of idToken, here we just pick following as proper one */

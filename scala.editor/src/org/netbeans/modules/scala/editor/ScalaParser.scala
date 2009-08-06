@@ -391,7 +391,7 @@ class ScalaParser extends Parser {
 
     val th = context.snapshot.getTokenHierarchy
 
-    val ignoreErrors = sanitizedSource;
+    val ignoreErrors = sanitizedSource
 
     val file = if (context.fileObject != null) FileUtil.toFile(context.fileObject) else null
     // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
