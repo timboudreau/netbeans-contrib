@@ -357,7 +357,7 @@ object ScalaSourceUtil {
     element.getPickOffset(th)
   }
 
-  def getFileObject(info: ParserResult, symbol: ScalaGlobal#Symbol): Option[FileObject] = {
+  def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
     val pos = symbol.pos
     if (pos.isDefined) {
       val srcFile = pos.source
@@ -434,7 +434,7 @@ object ScalaSourceUtil {
 
         srcCp.findResource(srcPath) match {
           case null => None
-          case x => Some(x)
+          case x => return Some(x)
         }
       }
     } catch {
