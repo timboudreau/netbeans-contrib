@@ -1,74 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="scala-module" default="netbeans" basedir=".">
-    <import file="../../nbbuild/templates/projectized.xml"/>
+  <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="scala-taskdef" depends="init">
-        <echo message="Compiling scala sources via ${scala.library}, ${scala.compiler}"/>
-        <taskdef resource="scala/tools/ant/antlib.xml">
-            <classpath>
-                <pathelement location="${scala.library}"/>
-                <pathelement location="${scala.compiler}"/>
-            </classpath>
-        </taskdef>
-    </target>
+  <target name="scala-taskdef" depends="init">
+    <echo message="Compiling scala sources via ${scala.library}, ${scala.compiler}"/>
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala.library}"/>
+        <pathelement location="${scala.compiler}"/>
+      </classpath>
+    </taskdef>
+  </target>
 
-    <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
-    
-    <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
-        <!-- javac's classpath should include scala.library and all these paths of "cp" -->
-        <path id="javac.cp">
-            <pathelement path="${scala.libs}"/>
-            <pathelement path="${module.classpath}"/>
-            <pathelement path="${cp.extra}"/>
-        </path>
-        <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
-        <path id="scalac.cp">
-            <pathelement path="${scala.libs}"/>
-            <pathelement path="${module.run.classpath}"/>
-            <pathelement path="${cp.extra}"/>
-        </path>
-        <mkdir dir="${build.classes.dir}"/>
-        <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
-            <classpath refid="scalac.cp"/>
-        </depend>
-        <!-- scalac -->
-        <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
+  <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
+
+  <target name="-do-scalac" depends="init,up-to-date,scala-taskdef">
+    <condition property="condition-scala-fsc">
+      <isset property="scala.fsc"/>
+    </condition>
+    <antcall target="-do-fast-scalac"/>  <!--then-->
+    <antcall target="-do-norm-scalac"/>  <!--else-->
+  </target>
+
+  <target name="-do-fast-scalac" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc">
+    <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
             encoding="UTF-8" target="jvm-${javac.target}" addparams="-verbose">
-        </scalac>
-        <!-- javac -->
-        <nb-javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" debuglevel="${build.compiler.debuglevel}" encoding="UTF-8"
+    </fsc>
+  </target>
+
+  <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
+    <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
+            encoding="UTF-8" target="jvm-${javac.target}">
+    </scalac>
+  </target>
+  
+  <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
+        <!-- javac's classpath should include scala.library and all these paths of "cp" -->
+    <path id="javac.cp">
+      <pathelement path="${scala.libs}"/>
+      <pathelement path="${module.classpath}"/>
+      <pathelement path="${cp.extra}"/>
+    </path>
+        <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
+    <path id="scalac.cp">
+      <pathelement path="${scala.libs}"/>
+      <pathelement path="${module.run.classpath}"/>
+      <pathelement path="${cp.extra}"/>
+    </path>
+    <mkdir dir="${build.classes.dir}"/>
+    <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
+      <classpath refid="scalac.cp"/>
+    </depend>
+
+    <!-- scalac -->
+    <antcall target="-do-scalac"/>
+
+    <!-- javac -->
+    <nb-javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" debuglevel="${build.compiler.debuglevel}" encoding="UTF-8"
                 deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
-            <classpath refid="javac.cp"/>
-            <compilerarg line="${javac.compilerargs}"/>
-            <processorpath refid="processor.cp"/>
-        </nb-javac>
+      <classpath refid="javac.cp"/>
+      <compilerarg line="${javac.compilerargs}"/>
+      <processorpath refid="processor.cp"/>
+    </nb-javac>
         <!-- Sanity check: -->
-        <pathconvert pathsep=":" property="class.files.in.src">
-            <path>
-                <fileset dir="${src.dir}">
-                    <include name="**/*.class"/>
-                </fileset>
-            </path>
-        </pathconvert>
-        <fail>
-            <condition>
-                <not>
-                    <equals arg1="${class.files.in.src}" arg2=""/>
-                </not>
-            </condition>
+    <pathconvert pathsep=":" property="class.files.in.src">
+      <path>
+        <fileset dir="${src.dir}">
+          <include name="**/*.class"/>
+        </fileset>
+      </path>
+    </pathconvert>
+    <fail>
+      <condition>
+        <not>
+          <equals arg1="${class.files.in.src}" arg2=""/>
+        </not>
+      </condition>
             You have stray *.class files in ${src.dir} which you must remove.
             Probably you failed to clean your sources before updating them.
-        </fail>
+    </fail>
         <!-- OK, continue: -->
-        <copy todir="${build.classes.dir}">
-            <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
-        </copy>
-    </target>
+    <copy todir="${build.classes.dir}">
+      <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
+    </copy>
+  </target>
 
-    <target name="do-test-build" depends="projectized-common.do-test-build">
-        <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
+  <target name="do-test-build" depends="projectized-common.do-test-build">
+    <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
                encoding="UTF-8">
-            <classpath refid="test.unit.cp"/>
-        </scalac>
-    </target>
+      <classpath refid="test.unit.cp"/>
+    </scalac>
+  </target>
 </project>
