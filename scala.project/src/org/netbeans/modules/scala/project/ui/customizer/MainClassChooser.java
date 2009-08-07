@@ -58,14 +58,15 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.scala.editing.ScalaUtils;
-import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.openide.awt.Mnemonics;
 import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+
+import org.netbeans.api.language.util.ast.AstDfn;
+import org.netbeans.modules.scala.editor.ScalaSourceUtil;
 
 /** Browses and allows to choose a project's main class.
  *
@@ -75,7 +76,7 @@ public class MainClassChooser extends JPanel {
 
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
-    private Collection<AstDef> possibleMainClasses;
+    private Collection<AstDfn> possibleMainClasses;
             
     /** Creates new form MainClassChooser */
     public MainClassChooser (FileObject[] sourcesRoots) {
@@ -90,7 +91,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel(sourcesRoots);
     }
     
-    public MainClassChooser (final Collection<AstDef> mainClassesInFile) {
+    public MainClassChooser (final Collection<AstDfn> mainClassesInFile) {
         assert mainClassesInFile != null;
         this.initComponents();
         jMainClassList.setCellRenderer(new MainClassRenderer());
@@ -98,7 +99,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel (mainClassesInFile);
     }
     
-    public MainClassChooser (final Collection<AstDef> mainClassesInFile, final String subtitle) {
+    public MainClassChooser (final Collection<AstDfn> mainClassesInFile, final String subtitle) {
         assert mainClassesInFile != null;
         dialogSubtitle = subtitle;
         this.initComponents();
@@ -143,7 +144,7 @@ public class MainClassChooser extends JPanel {
         RequestProcessor.getDefault ().post (new Runnable () {
             public void run () {
                 
-                possibleMainClasses = ScalaUtils.getMainClasses(sourcesRoots);
+                possibleMainClasses = ScalaSourceUtil.getMainClassesAsJavaCollection(sourcesRoots);
                 if (possibleMainClasses.isEmpty ()) {                    
                     SwingUtilities.invokeLater( new Runnable () {
                         public void run () {
@@ -165,8 +166,8 @@ public class MainClassChooser extends JPanel {
         });
     }
     
-    private void initClassesModel (final Collection<AstDef> mainClasses) {
-        final AstDef[] arr = mainClasses.toArray(new AstDef[mainClasses.size()]);
+    private void initClassesModel (final Collection<AstDfn> mainClasses) {
+        final AstDfn[] arr = mainClasses.toArray(new AstDfn[mainClasses.size()]);
         //Arrays.sort (arr, new MainClassComparator());
         possibleMainClasses = mainClasses;
         jMainClassList.setListData (arr);
@@ -195,8 +196,8 @@ public class MainClassChooser extends JPanel {
         if (isValidMainClassName (jMainClassList.getSelectedValue ())) {
             te = (ElementHandle)jMainClassList.getSelectedValue();
         }
-        if (te instanceof AstDef) {
-            return ((AstDef) te).getSymbol().fullNameString();
+        if (te instanceof AstDfn) {
+            return ((AstDfn) te).qualifiedName();
         }
         return te == null ? null : te.getName();
     }
@@ -284,9 +285,9 @@ public class MainClassChooser extends JPanel {
             if (value instanceof String) {
                 displayName = (String) value;
             } if (value instanceof TypeElement) {
-                displayName = ((TypeElement)value).getQualifiedName().toString();
-            } else if (value instanceof AstDef) {
-                displayName = ((AstDef)value).getSymbol().fullNameString();
+                displayName = ((TypeElement) value).getQualifiedName().toString();
+            } else if (value instanceof AstDfn) {
+                displayName = ((AstDfn) value).qualifiedName();
             } else {
                 displayName = value.toString ();
             }

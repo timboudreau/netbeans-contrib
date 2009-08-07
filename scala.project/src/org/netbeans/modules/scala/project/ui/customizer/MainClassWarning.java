@@ -44,9 +44,9 @@ package org.netbeans.modules.scala.project.ui.customizer;
 import java.util.Collection;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
-
-import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.openide.filesystems.FileObject;
+
+import org.netbeans.api.language.util.ast.AstDfn;
 
 /** Shows a warning that no main class is set and allows choose a main class.
  *
@@ -56,18 +56,18 @@ public class MainClassWarning extends JPanel {
 
     private final String message;
     private final FileObject[] sourcesRoots;
-    private final Collection<AstDef> mainClasses;
+    private final Collection<AstDfn> mainClasses;
 
     /** Creates new form LibrariesChooser */
     public MainClassWarning (final String message, final FileObject[] sourcesRoots) {
         this (message,sourcesRoots,null);
     }
     
-    public MainClassWarning (String message, final Collection<AstDef> mainClasses) {
+    public MainClassWarning (String message, final Collection<AstDfn> mainClasses) {
         this (message,null,mainClasses);
     }
     
-    private MainClassWarning (final String message, final FileObject[] sourcesRoots, final Collection<AstDef> mainClasses) {
+    private MainClassWarning (final String message, final FileObject[] sourcesRoots, final Collection<AstDfn> mainClasses) {
         assert (sourcesRoots != null && mainClasses == null) || (sourcesRoots == null && mainClasses != null);
         this.sourcesRoots = sourcesRoots;
         this.message = message;
@@ -142,7 +142,7 @@ public class MainClassWarning extends JPanel {
         return new MainClassChooser(sourceRoots, org.openide.util.NbBundle.getBundle(MainClassWarning.class).getString("CTL_SelectAvaialableMainClasses"));
     }
     
-    private static MainClassChooser createMainClassChooser (final Collection<AstDef> mainClasses) {
+    private static MainClassChooser createMainClassChooser (final Collection<AstDfn> mainClasses) {
         return new MainClassChooser (mainClasses,org.openide.util.NbBundle.getBundle(MainClassWarning.class).getString("CTL_SelectAvaialableMainClasses"));
     }
 

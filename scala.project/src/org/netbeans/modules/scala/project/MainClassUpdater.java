@@ -61,9 +61,6 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -76,6 +73,10 @@ import org.openide.util.Mutex;
 import org.openide.util.MutexException;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
+
+import org.netbeans.api.language.util.ast.AstDfn;
+import org.netbeans.api.language.util.ast.AstRootScope;
+import org.netbeans.modules.scala.editor.ScalaParserResult;
 
 /**
  *
@@ -154,8 +155,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             ElementHandle mainHandle = main.iterator().next();
                             newMainClass = mainHandle.getQualifiedName();
                         }
-                        if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() &&
-                                // XXX ##84806: ideally should update nbproject/configs/*.properties in this case:
+                        if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() && // XXX ##84806: ideally should update nbproject/configs/*.properties in this case:
                                 eval.getProperty(J2SEConfigurationProvider.PROP_CONFIG) == null) {
                             final String newMainClassFinal = newMainClass;
                             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
@@ -232,22 +232,26 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             if (pResult == null) {
                                 return;
                             }
-                            AstRootScope rootScope = pResult.rootScope();
+                            AstRootScope rootScope = pResult.rootScope().getOrElse(null);
                             if (rootScope == null) {
                                 return;
                             }
 
-                            List<AstDef> objs = null;
-                            for (AstDef packaging : rootScope.getVisibleDefs(ElementKind.PACKAGE)) {
-                                objs = packaging.getBindingScope().getVisibleDefs(ElementKind.CLASS);
+                            scala.collection.Sequence<AstDfn> objs = null;
+                            scala.collection.Iterator<AstDfn> itr = rootScope.visibleDfns(ElementKind.PACKAGE).iterator();
+                            while (itr.hasNext()) {
+                                AstDfn packaging = itr.next();
+                                objs = packaging.bindingScope().visibleDfns(ElementKind.CLASS);
                                 break;
                             }
                             if (objs == null) {
-                                objs = rootScope.getVisibleDefs(ElementKind.CLASS);
+                                objs = rootScope.visibleDfns(ElementKind.CLASS);
                             }
-                            AstDef mainClass = null;
-                            for (AstDef obj : objs) {
-                                if (obj.getQualifiedName().toString().equals(mainClassName)) {
+                            AstDfn mainClass = null;
+                            itr = objs.iterator();
+                            while (itr.hasNext()) {
+                                AstDfn obj = itr.next();
+                                if (obj.qualifiedName().equals(mainClassName)) {
                                     mainClass = obj;
                                     break;
                                 }
