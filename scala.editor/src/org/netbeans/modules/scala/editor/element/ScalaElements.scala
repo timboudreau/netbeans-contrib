@@ -128,9 +128,9 @@ trait ScalaElements {self: ScalaGlobal =>
       modifiers.get
     }
 
-    override def getName: String = {
-      symbol.nameString
-    }
+    override def getName: String = symbol.nameString
+
+    override def qualifiedName: String = symbol.fullNameString
 
     override def signatureEquals(handle: ElementHandle): Boolean = {
       false

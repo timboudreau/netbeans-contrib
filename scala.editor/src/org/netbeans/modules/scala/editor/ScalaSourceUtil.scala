@@ -34,7 +34,6 @@ import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.SourceForBinaryQuery
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.TokenHierarchy
-import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
 import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
@@ -45,12 +44,13 @@ import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, NbBundle}
 
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
+import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
 import org.netbeans.modules.scala.editor.element.{JavaElement}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import _root_.scala.tools.nsc.util.Position
-
+import _root_.scala.tools.nsc.symtab.Symbols
 import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
@@ -58,8 +58,6 @@ import _root_.scala.collection.mutable.ArrayBuffer
  * @author Caoyuan Deng
  */
 object ScalaSourceUtil {
-
-  val ANONFUN = "$anonfun"
 
   def isScalaFile(f: FileObject): Boolean = {
     ScalaMimeResolver.MIME_TYPE.equals(f.getMIMEType)
@@ -455,7 +453,7 @@ object ScalaSourceUtil {
     var clzName = ""
 
     rootScope.enclosingDfn(TMPL_KINDS, th, offset) foreach {enclDfn =>
-      val sym = enclDfn.asInstanceOf[ScalaGlobal#ScalaDfn].symbol
+      val sym = enclDfn.asInstanceOf[ScalaDfns#ScalaDfn].symbol
       if (sym != null) {
         // "scalarun.Dog.$talk$1"
         val fqn = new StringBuilder(sym.fullNameString('.'))
@@ -510,7 +508,7 @@ object ScalaSourceUtil {
    * @return the classes containing main method
    * @throws IllegalArgumentException when file does not exist or is not a java source file.
    */
-  def getMainClasses(fo: FileObject): Seq[ScalaGlobal#ScalaDfn] = {
+  def getMainClasses(fo: FileObject): Seq[ScalaDfns#ScalaDfn] = {
     if (fo == null || !fo.isValid || fo.isVirtual) {
       throw new IllegalArgumentException
     }
@@ -519,7 +517,7 @@ object ScalaSourceUtil {
       case x => x
     }
     try {
-      val result = new ArrayBuffer[ScalaGlobal#ScalaDfn]
+      val result = new ArrayBuffer[ScalaDfns#ScalaDfn]
       ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
           override def run(resultIterator: ResultIterator): Unit = {
@@ -529,30 +527,30 @@ object ScalaSourceUtil {
               case Some(x) => x
             }
             // Get all defs will return all visible packages from the root and down
-            getAllDefs(rootScope, ElementKind.PACKAGE) foreach {
+            getAllDfns(rootScope, ElementKind.PACKAGE) foreach {
               // Only go through the defs for each package scope.
               // Sub-packages are handled by the fact that
               // getAllDefs will find them.
-              packaging => packaging.bindingScope.dfns foreach {
-                case obj: ScalaGlobal#ScalaDfn if isMainMethodExists(obj) => result += obj
+              packaging => packaging.bindingScope.dfns foreach {dfn =>
+                if (isMainMethodExists(dfn.asInstanceOf[ScalaDfns#ScalaDfn])) result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
               }
             }
             
-            rootScope.visibleDfns(ElementKind.MODULE) foreach {
-              case obj: ScalaGlobal#ScalaDfn if isMainMethodExists(obj) => result += obj
+            rootScope.visibleDfns(ElementKind.MODULE) foreach {dfn =>
+              if (isMainMethodExists(dfn.asInstanceOf[ScalaDfns#ScalaDfn])) result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
             }
           }
 
-          def getAllDefs(rootScope: AstScope, kind: ElementKind): Seq[ScalaGlobal#ScalaDfn] = {
-            getAllDefs(rootScope, kind, new ArrayBuffer[ScalaGlobal#ScalaDfn])
+          def getAllDfns(rootScope: AstScope, kind: ElementKind): Seq[ScalaDfns#ScalaDfn] = {
+            getAllDfns(rootScope, kind, new ArrayBuffer[ScalaDfns#ScalaDfn])
           }
 
-          def getAllDefs(astScope: AstScope, kind: ElementKind, result: ArrayBuffer[ScalaGlobal#ScalaDfn]): Seq[ScalaGlobal#ScalaDfn] = {
-            astScope.dfns foreach {
-              case dfn: ScalaGlobal#ScalaDfn if dfn.getKind == kind => result += dfn
+          def getAllDfns(astScope: AstScope, kind: ElementKind, result: ArrayBuffer[ScalaDfns#ScalaDfn]): Seq[ScalaDfns#ScalaDfn] = {
+            astScope.dfns foreach {dfn =>
+              if (dfn.getKind == kind)  result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
             }
             astScope.subScopes foreach {
-              childScope => getAllDefs(childScope, kind, result)
+              childScope => getAllDfns(childScope, kind, result)
             }
             result
           }
@@ -564,7 +562,62 @@ object ScalaSourceUtil {
     }
   }
 
-  def isMainMethodExists(obj: ScalaGlobal#ScalaDfn): Boolean = {
+  def getMainClassesAsJavaCollection(fo: FileObject): _root_.java.util.Collection[AstDfn] = {
+    val result = new _root_.java.util.ArrayList[AstDfn]
+    getMainClasses(fo) foreach {result.add(_)}
+    result
+  }
+
+  /**
+   * Returns classes declared under the given source roots which have the main method.
+   * @param sourceRoots the source roots
+   * @return the classes containing the main methods
+   * Currently this method is not optimized and may be slow
+   */
+  def getMainClassesAsJavaCollection(sourceRoots: Array[FileObject]): _root_.java.util.Collection[AstDfn] = {
+    val result = new _root_.java.util.ArrayList[AstDfn]
+    for (root <- sourceRoots) {
+      result.addAll(getMainClassesAsJavaCollection(root))
+      try {
+        val bootPath = ClassPath.getClassPath(root, ClassPath.BOOT)
+        val compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE)
+        val srcPath = ClassPathSupport.createClassPath(Array(root): _*)
+        val cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath)
+        //                final Set<AstElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
+        //                Source js = Source.create(cpInfo);
+        //                js.runUserActionTask(new CancellableTask<CompilationController>() {
+        //
+        //                    public void cancel() {
+        //                    }
+        //
+        //                    public void run(CompilationController control) throws Exception {
+        //                        for (AstElement cls : classes) {
+        //                            TypeElement te = cls.resolve(control);
+        //                            if (te != null) {
+        //                                Iterable<? extends ExecutableElement> methods = ElementFilter.methodsIn(te.getEnclosedElements());
+        //                                for (ExecutableElement method : methods) {
+        //                                    if (isMainMethod(method)) {
+        //                                        if (isIncluded(cls, control.getClasspathInfo())) {
+        //                                            result.add(cls);
+        //                                        }
+        //                                        break;
+        //                                    }
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }, false);
+        result
+      } catch {case ioe: Exception =>
+          Exceptions.printStackTrace(ioe)
+          return _root_.java.util.Collections.emptySet[AstDfn]
+      }
+    }
+    result
+  }
+
+  
+  def isMainMethodExists(obj: ScalaDfns#ScalaDfn): Boolean = {
     obj.symbol.tpe.members exists {
       member => member.isMethod && isMainMethod(member)
     }
@@ -575,7 +628,7 @@ object ScalaSourceUtil {
    * @param method to be checked
    * @return true when the method is a main method
    */
-  def isMainMethod(method: ScalaGlobal#Symbol): Boolean = {
+  def isMainMethod(method: Symbols#Symbol): Boolean = {
     (method.nameString, method.tpe.paramTypes) match {
       case ("main", List(x)) => true  //NOI18N
       case _ => false
@@ -588,8 +641,8 @@ object ScalaSourceUtil {
    * @return the classes containing the main methods
    * Currently this method is not optimized and may be slow
    */
-  def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaGlobal#ScalaDfn] = {
-    val result = new ArrayBuffer[ScalaGlobal#ScalaDfn]
+  def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaDfns#ScalaDfn] = {
+    val result = new ArrayBuffer[ScalaDfns#ScalaDfn]
     for (root <- sourceRoots) {
       result ++= getMainClasses(root)
       try {

@@ -55,7 +55,7 @@ import _root_.scala.tools.nsc.symtab.{Symbols, Types, Flags}
  */
 trait ScalaDfns {self: ScalaGlobal =>
 
-  object ScalaDfn{
+  object ScalaDfn {
     def apply(symbol: Symbol,
               idToken: Option[Token[TokenId]],
               kind: ElementKind,
@@ -86,6 +86,8 @@ trait ScalaDfns {self: ScalaGlobal =>
       modifiers.get
     }
 
+    override def qualifiedName: String = symbol.fullNameString
+
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref: AstRef): Boolean = {
       if (ref.getName == getName) {
@@ -93,7 +95,7 @@ trait ScalaDfns {self: ScalaGlobal =>
         //                return true;
         //            }
 
-        ref.symbol == asymbol
+        ref.symbol == symbol
       } else false
     }
 
