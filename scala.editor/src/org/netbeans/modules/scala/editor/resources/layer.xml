@@ -233,7 +233,6 @@
         </folder>
     </folder>
     -->
-    <!--
     <folder name="Templates">
         <folder name="Scala">
             <attr name="position" intvalue="911"/>
@@ -241,6 +240,8 @@
             <file name="Main.scala" url="templates/Main.tmpl">
                 <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/scalaMain.html"/>
@@ -250,6 +251,8 @@
             <file name="Class.scala" url="templates/EmptyScalaClass.tmpl">
                 <attr name="position" intvalue="200"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaClassFileDescription.html"/>
@@ -259,6 +262,8 @@
             <file name="Object.scala" url="templates/EmptyScalaObject.tmpl">
                 <attr name="position" intvalue="300"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaObjectFileDescription.html"/>
@@ -268,6 +273,8 @@
             <file name="Trait.scala" url="templates/EmptyScalaTrait.tmpl">
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaTraitFileDescription.html"/>
@@ -277,6 +284,8 @@
             <file name="JUnitTest.scala" url="templates/EmptyScalaJUnitTest.tmpl">
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaJUnitTestFileDescription.html"/>
@@ -284,5 +293,4 @@
             </file>
         </folder>
     </folder>
-    -->
 </filesystem>
