@@ -57,7 +57,6 @@ import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.Watch;
 import org.netbeans.api.debugger.jpda.MethodBreakpoint;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
@@ -69,6 +68,7 @@ import org.openide.util.WeakListeners;
 * @author   Jan Jancura
 */
 public class StepIntoActionProvider extends ActionsProviderSupport {
+    private final static String MIME_TYPE = "text/x-scala";
 
 //    private MethodBreakpoint breakpoint;
     Listener listener;
@@ -81,13 +81,13 @@ public class StepIntoActionProvider extends ActionsProviderSupport {
                 WeakListeners.create(DebuggerManagerListener.class, listener, DebuggerManager.getDebuggerManager()));
         
         setEnabled (
-            ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE,
+            ActionsManager.ACTION_STEP_INTO + MIME_TYPE,
             shouldBeEnabled ()
         );
     }
     
     public Set getActions () {
-        return Collections.singleton (ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE);
+        return Collections.singleton (ActionsManager.ACTION_STEP_INTO + MIME_TYPE);
     }
     
     public void doAction (final Object action) {
@@ -180,7 +180,7 @@ public class StepIntoActionProvider extends ActionsProviderSupport {
         
         private void doSetEnabled() {
             setEnabled (
-                ActionsManager.ACTION_STEP_INTO + ScalaMimeResolver.MIME_TYPE,
+                ActionsManager.ACTION_STEP_INTO + MIME_TYPE,
                 shouldBeEnabled ()
             );
         }

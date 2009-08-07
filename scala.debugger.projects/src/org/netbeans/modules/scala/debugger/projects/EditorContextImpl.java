@@ -94,8 +94,8 @@ import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.ScalaUtils;
+import org.netbeans.modules.scala.editor.ScalaParserResult;
+import org.netbeans.modules.scala.editor.ScalaSourceUtil;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 
@@ -1005,7 +1005,7 @@ public class EditorContextImpl extends EditorContext {
                 @Override
                 public void run(ResultIterator resultIterator) throws Exception {
                     ScalaParserResult pResult = (ScalaParserResult) resultIterator.getParserResult(offset);
-                    String clzFqn = ScalaUtils.getBinaryClassName(pResult, offset);
+                    String clzFqn = ScalaSourceUtil.getBinaryClassName(pResult, offset);
 
                     if (clzFqn == null) {
                         ErrorManager.getDefault().log(

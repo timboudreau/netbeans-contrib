@@ -58,7 +58,6 @@ import org.netbeans.api.debugger.jpda.JPDADebugger;
 
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.project.ActionProvider;
@@ -73,7 +72,8 @@ import org.openide.windows.TopComponent;
 * @author   Jan Jancura
 */
 public class RunToCursorActionProvider extends ActionsProviderSupport {
-    
+    private final static String MIME_TYPE = "text/x-scala";
+
     private EditorContext       editor;
     private LineBreakpoint      breakpoint;
     
@@ -93,7 +93,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
         SwingUtilities.invokeLater (new Runnable () {
             public void run () {
                 setEnabled (
-                    ActionsManager.ACTION_RUN_TO_CURSOR + ScalaMimeResolver.MIME_TYPE,
+                    ActionsManager.ACTION_RUN_TO_CURSOR + MIME_TYPE,
                     shouldBeEnabled ()
                 );
             }
@@ -102,7 +102,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
     }
     
     public Set getActions () {
-        return Collections.singleton (ActionsManager.ACTION_RUN_TO_CURSOR + ScalaMimeResolver.MIME_TYPE);
+        return Collections.singleton (ActionsManager.ACTION_RUN_TO_CURSOR + MIME_TYPE);
     }
     
     public void doAction (Object action) {
@@ -204,7 +204,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
                 return;
             }
             setEnabled (
-                ActionsManager.ACTION_RUN_TO_CURSOR + ScalaMimeResolver.MIME_TYPE,
+                ActionsManager.ACTION_RUN_TO_CURSOR + MIME_TYPE,
                 shouldBeEnabled ()
             );
         }
