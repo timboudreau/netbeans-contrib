@@ -103,6 +103,38 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     Nil
   }
 
+  def findNeastItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
+    val tokens1 = sortedTokens(th)
+
+    var lo = 0
+    var hi = tokens1.size - 1
+    while (lo <= hi) {
+      val mid = (lo + hi) >> 1
+      val middle = tokens1(mid)
+      if (offset < middle.offset(th)) {
+        hi = mid - 1
+      } else if (offset > middle.offset(th) + middle.length) {
+        lo = mid + 1
+      } else {
+        _idTokenToItems.get(middle) match {
+          case Some(x :: _) => return Some(x)
+          case _ =>
+        }
+      }
+    }
+
+    // * found null, return AstItem at lo, lo is always increasing during above procedure
+    if (lo < tokens1.size) {
+      val neastToken = tokens1(lo)
+      return _idTokenToItems.get(neastToken) match {
+        case Some(x :: _) => Some(x)
+        case _ => None
+      }
+    } else {
+      None
+    }
+  }
+
   def findItemsAt(token: Token[TokenId]): List[AstItem] = {
     _idTokenToItems.get(token) match {
       case Some(x) => x

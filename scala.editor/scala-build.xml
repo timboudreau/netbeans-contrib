@@ -32,7 +32,7 @@
             <classpath refid="scalac.cp"/>
         </depend>
         <!-- scalac -->
-        <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}" 
+        <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
             encoding="UTF-8" target="jvm-${javac.target}" addparams="-verbose">
         </fsc>
         <!-- javac -->
