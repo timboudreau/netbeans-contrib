@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.scala.project.ui.wizards;
+package org.netbeans.modules.scala.editor.wizards;
 
 import java.awt.Component;
 import java.io.IOException;

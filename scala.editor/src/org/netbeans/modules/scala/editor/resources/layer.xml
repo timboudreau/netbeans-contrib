@@ -233,7 +233,6 @@
         </folder>
     </folder>
     -->
-    <!--
     <folder name="Templates">
         <folder name="Scala">
             <attr name="position" intvalue="911"/>
@@ -242,6 +241,7 @@
                 <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/scalaMain.html"/>
@@ -252,6 +252,7 @@
                 <attr name="position" intvalue="200"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaClassFileDescription.html"/>
@@ -262,6 +263,7 @@
                 <attr name="position" intvalue="300"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaObjectFileDescription.html"/>
@@ -272,6 +274,7 @@
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaTraitFileDescription.html"/>
@@ -282,6 +285,7 @@
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileWizardIterator.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/EmptyScalaJUnitTestFileDescription.html"/>
@@ -289,5 +293,4 @@
             </file>
         </folder>
     </folder>
-    -->
 </filesystem>
