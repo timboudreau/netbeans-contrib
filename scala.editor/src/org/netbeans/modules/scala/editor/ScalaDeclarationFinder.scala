@@ -134,7 +134,10 @@ class ScalaDeclarationFinder extends DeclarationFinder {
             root.findItemAt(th, token.offset(th)) match {
               case Some(x: global.ScalaRef) =>
                 val remoteDfn = global.ScalaElement(x.symbol, info)
-                return new DeclarationLocation(remoteDfn.getFileObject, remoteDfn.getOffset, remoteDfn)
+                remoteDfn.getFileObject match {
+                  case null =>
+                  case _ => return new DeclarationLocation(remoteDfn.getFileObject, remoteDfn.getOffset, remoteDfn)
+                }
               case _ =>
             }
           case _ =>
