@@ -117,7 +117,11 @@ trait ScalaDfns {self: ScalaGlobal =>
         case sym if sym.isMethod =>
           formatter.appendText(getName)
           formatter.appendText(" : ")
-          formatter.appendText(sym.tpe.toString)
+          try {
+            formatter.appendText(sym.tpe.toString)
+          } catch {
+            case _ =>
+          }
         case sym =>
           formatter.appendText(getName)
           formatter.appendText(" : ")
