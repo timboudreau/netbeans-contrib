@@ -1014,7 +1014,7 @@ trait LexUtil {
    *   such as a method node. In this case it needs to back up to find the comment.
    * @return
    */
-  def getCommentBlock(doc: BaseDocument, caretOffset: Int, isAfter:Boolean): OffsetRange = {
+  def getCommentBlock(doc: BaseDocument, caretOffset: Int, isAfter: Boolean): OffsetRange = {
     // Check if the caret is within a comment, and if so insert a new
     // leaf "node" which contains the comment line and then comment block
     try {
@@ -1284,7 +1284,7 @@ trait LexUtil {
     WS.contains(id)
   }
 
-  def isWsComment(id:TokenId): Boolean = {
+  def isWsComment(id: TokenId): Boolean = {
     WS_COMMENTS.contains(id)
   }
 
@@ -1301,7 +1301,7 @@ trait LexUtil {
 
   }
 
-  def isBlockComment(id:TokenId): Boolean = {
+  def isBlockComment(id: TokenId): Boolean = {
     BLOCK_COMMENTS.contains(id)
   }
 

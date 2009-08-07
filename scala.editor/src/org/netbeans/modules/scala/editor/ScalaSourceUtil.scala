@@ -282,10 +282,10 @@ object ScalaSourceUtil {
   }
 
   /**
-   * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
-   * does not support virtual source yet (only ".java" and ".class" files
-   * are supported), but we can create js via JavaSource.create(cpInfo);
-   */
+    * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
+    * does not support virtual source yet (only ".java" and ".class" files
+    * are supported), but we can create js via JavaSource.create(cpInfo);
+    */
   private def getSourceForScalaFile(fo: FileObject): Source = {
     var source: Source = scalaFileToSource.get(fo) match {
       case null => null
@@ -401,8 +401,8 @@ object ScalaSourceUtil {
       val cpInfo = ClasspathInfo.create(srcFo)
       val cp = ClassPathSupport.createProxyClassPath(
         Array(cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)): _*)
+        cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
+        cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)): _*)
 
       val clzFo = cp.findResource(clzName)
       var srcPath: String = null
@@ -430,9 +430,12 @@ object ScalaSourceUtil {
 
         val result = SourceForBinaryQuery.findSourceRoots(root.getURL)
         val srcRoots = result.getRoots
-        val srcCp = ClassPathSupport.createClassPath(srcRoots:_*)
+        val srcCp = ClassPathSupport.createClassPath(srcRoots: _*)
 
-        return Some(srcCp.findResource(srcPath))
+        srcCp.findResource(srcPath) match {
+          case null => None
+          case x => Some(x)
+        }
       }
     } catch {
       case ex: IOException => ex.printStackTrace
@@ -503,11 +506,11 @@ object ScalaSourceUtil {
   }
 
   /**
-   * Returns classes declared in the given source file which have the main method.
-   * @param fo source file
-   * @return the classes containing main method
-   * @throws IllegalArgumentException when file does not exist or is not a java source file.
-   */
+    * Returns classes declared in the given source file which have the main method.
+    * @param fo source file
+    * @return the classes containing main method
+    * @throws IllegalArgumentException when file does not exist or is not a java source file.
+    */
   def getMainClasses(fo: FileObject): Seq[ScalaDfns#ScalaDfn] = {
     if (fo == null || !fo.isValid || fo.isVirtual) {
       throw new IllegalArgumentException
@@ -569,11 +572,11 @@ object ScalaSourceUtil {
   }
 
   /**
-   * Returns classes declared under the given source roots which have the main method.
-   * @param sourceRoots the source roots
-   * @return the classes containing the main methods
-   * Currently this method is not optimized and may be slow
-   */
+    * Returns classes declared under the given source roots which have the main method.
+    * @param sourceRoots the source roots
+    * @return the classes containing the main methods
+    * Currently this method is not optimized and may be slow
+    */
   def getMainClassesAsJavaCollection(sourceRoots: Array[FileObject]): _root_.java.util.Collection[AstDfn] = {
     val result = new _root_.java.util.ArrayList[AstDfn]
     for (root <- sourceRoots) {
@@ -624,10 +627,10 @@ object ScalaSourceUtil {
   }
 
   /**
-   * Returns true if the method is a main method
-   * @param method to be checked
-   * @return true when the method is a main method
-   */
+    * Returns true if the method is a main method
+    * @param method to be checked
+    * @return true when the method is a main method
+    */
   def isMainMethod(method: Symbols#Symbol): Boolean = {
     (method.nameString, method.tpe.paramTypes) match {
       case ("main", List(x)) => true  //NOI18N
@@ -636,11 +639,11 @@ object ScalaSourceUtil {
   }
 
   /**
-   * Returns classes declared under the given source roots which have the main method.
-   * @param sourceRoots the source roots
-   * @return the classes containing the main methods
-   * Currently this method is not optimized and may be slow
-   */
+    * Returns classes declared under the given source roots which have the main method.
+    * @param sourceRoots the source roots
+    * @return the classes containing the main methods
+    * Currently this method is not optimized and may be slow
+    */
   def getMainClasses(sourceRoots: Array[FileObject]): Seq[ScalaDfns#ScalaDfn] = {
     val result = new ArrayBuffer[ScalaDfns#ScalaDfn]
     for (root <- sourceRoots) {
