@@ -44,6 +44,7 @@ package org.netbeans.modules.scala.project;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map.Entry;
@@ -55,13 +56,14 @@ import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.scala.editing.ScalaUtils;
-import org.netbeans.modules.scala.editing.ast.AstDef;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+
+import org.netbeans.api.language.util.ast.AstDfn;
+import org.netbeans.modules.scala.editor.ScalaSourceUtil;
 
 /**
  * Miscellaneous utilities for the j2seproject module.
@@ -108,12 +110,12 @@ public class J2SEProjectUtil {
     }
     
     /** @Todo should rename to getMainClasses */
-    public static Collection<AstDef> getMainMethods (final FileObject fo) {
+    public static Collection<AstDfn> getMainMethods (final FileObject fo) {
         // support for unit testing
         if (fo == null || MainClassChooser.unitTestingSupport_hasMainMethodResult != null) {
-            return Collections.<AstDef>emptySet();
+            return Collections.<AstDfn>emptySet();
         }
-        return ScalaUtils.getMainClasses(fo);
+        return ScalaSourceUtil.getMainClassesAsJavaCollection(fo);
     }
 
         

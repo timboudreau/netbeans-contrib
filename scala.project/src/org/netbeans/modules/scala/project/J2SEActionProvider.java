@@ -82,9 +82,6 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.ast.AstDef;
-import org.netbeans.modules.scala.editing.ast.AstRootScope;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
@@ -113,6 +110,11 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
+
+import org.netbeans.api.language.util.ast.AstDfn;
+import org.netbeans.api.language.util.ast.AstRootScope;
+import org.netbeans.modules.scala.editor.ScalaParserResult;
+
 
 /** Action provider of the J2SE project. This is the place where to do
  * strange things to J2SE actions. E.g. compile-single.
@@ -495,7 +497,7 @@ class J2SEActionProvider implements ActionProvider {
                 clazz = clazz.replace('/','.');
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
-                final Collection<AstDef> mainClasses = J2SEProjectUtil.getMainMethods (file);
+                final Collection<AstDfn> mainClasses = J2SEProjectUtil.getMainMethods (file);
                 if (!hasMainClassFromTest && mainClasses.isEmpty()) {
 //                    if (AppletSupport.isApplet(file)) {
 //
@@ -543,9 +545,9 @@ class J2SEActionProvider implements ActionProvider {
                 } else {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
-                            final AstDef next = mainClasses.iterator().next();
+                            final AstDfn next = mainClasses.iterator().next();
                             //Just one main class, resolve from the symbol
-                            clazz = next.getSymbol().fullNameString();
+                            clazz = next.qualifiedName();
                         }
                         else {
                             //Several main classes, let the user choose
@@ -749,14 +751,16 @@ class J2SEActionProvider implements ActionProvider {
 
                     @Override
                     public void run(ResultIterator resultIterator) throws Exception {
-                        AstRootScope rootScope = ((ScalaParserResult) resultIterator.getParserResult()).rootScope();
+                        AstRootScope rootScope = ((ScalaParserResult) resultIterator.getParserResult()).rootScope().getOrElse(null);
                         if (rootScope == null) {
                             return;
                         }
 
-                        List<AstDef> tmpls = rootScope.getVisibleDefs(ElementKind.CLASS);
-                        if (tmpls.size() > 0) {
-                            for (AstDef tmpl : tmpls) {
+                        scala.collection.Sequence<AstDfn> tmpls = rootScope.visibleDfns(ElementKind.CLASS);
+                        if (!tmpls.isEmpty()) {
+                            scala.collection.Iterator itr = tmpls.iterator();
+                            while (itr.hasNext()) {
+                                AstDfn tmpl = (AstDfn) itr.next();
                                 if (classes[0].length() > 0) {
                                     classes[0] = classes[0] + " ";            // NOI18N
                                 }
@@ -986,7 +990,7 @@ class J2SEActionProvider implements ActionProvider {
         return canceled;
     }
     
-    private String showMainClassWarning (final FileObject file, final Collection<AstDef> mainClasses) {
+    private String showMainClassWarning (final FileObject file, final Collection<AstDfn> mainClasses) {
         assert mainClasses != null;
         String mainClass = null;
         final JButton okButton = new JButton (NbBundle.getMessage (MainClassWarning.class, "LBL_MainClassWarning_ChooseMainClass_OK")); // NOI18N

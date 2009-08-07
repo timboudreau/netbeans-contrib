@@ -965,7 +965,7 @@ abstract class ScalaAstVisitor {
       token = if (ts.moveNext) {
         ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
       } else null
-      curr = ts.offset + token.length
+      if (token != null) curr = ts.offset + token.length
     }
 
     if (token != null && tokenNameEquals(token, name)) {
@@ -982,7 +982,7 @@ abstract class ScalaAstVisitor {
       token = if (ts.movePrevious) {
         ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
       } else null
-      curr = ts.offset
+      if (token != null) curr = ts.offset
     }
 
     if (token != null && tokenNameEquals(token, name)) {

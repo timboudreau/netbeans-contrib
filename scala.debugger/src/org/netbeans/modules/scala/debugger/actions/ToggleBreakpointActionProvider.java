@@ -55,7 +55,6 @@ import org.netbeans.spi.debugger.ContextProvider;
 import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 import org.netbeans.modules.scala.debugger.EditorContextBridge;
-import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
@@ -68,6 +67,8 @@ import org.openide.util.NbBundle;
  */
 public class ToggleBreakpointActionProvider extends ActionsProviderSupport
         implements PropertyChangeListener {
+
+    private final static String MIME_TYPE = "text/x-scala";
 
     private JPDADebugger debugger;
 
@@ -95,10 +96,10 @@ public class ToggleBreakpointActionProvider extends ActionsProviderSupport
             fo = null;
         }
         setEnabled(
-                ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE,
+                ActionsManager.ACTION_TOGGLE_BREAKPOINT + MIME_TYPE,
                 (EditorContextBridge.getContext().getCurrentLineNumber() >= 0) &&
                 // "text/x-scala" MIMEType will be resolved by scala.editing module, thus this module should run-dependency on scala.editing
-                (fo != null && ScalaMimeResolver.MIME_TYPE.equals(fo.getMIMEType())) // NOI18N
+                (fo != null && MIME_TYPE.equals(fo.getMIMEType())) // NOI18N
                 //(fo != null && (url.endsWith (".scala")))  // NOI18N
                 );
         if (debugger != null &&
@@ -108,7 +109,7 @@ public class ToggleBreakpointActionProvider extends ActionsProviderSupport
     }
 
     public Set getActions() {
-        return Collections.singleton(ActionsManager.ACTION_TOGGLE_BREAKPOINT + ScalaMimeResolver.MIME_TYPE);
+        return Collections.singleton(ActionsManager.ACTION_TOGGLE_BREAKPOINT + MIME_TYPE);
     }
 
     public void doAction(Object action) {

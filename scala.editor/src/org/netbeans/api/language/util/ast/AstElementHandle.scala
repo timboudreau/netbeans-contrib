@@ -52,6 +52,8 @@ trait AstElementHandle extends ElementHandle {
     
   def getDocComment: String
 
+  def qualifiedName: String
+
   def isDeprecated: Boolean
 
   def isInherited: Boolean
