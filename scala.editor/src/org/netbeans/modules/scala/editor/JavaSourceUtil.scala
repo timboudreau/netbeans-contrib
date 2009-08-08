@@ -320,6 +320,7 @@ object JavaSourceUtil {
               case _ =>
             }
           case ElementKind.FIELD => return Some(element)
+          case _ =>
         }
       }
     }

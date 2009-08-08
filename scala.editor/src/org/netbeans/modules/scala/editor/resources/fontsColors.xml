@@ -70,6 +70,7 @@
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
     <fontcolor name="mod-abstract" />
     <fontcolor name="mod-field" default="field" foreColor="009B00"/>  
+    <fontcolor name="mod-static-field" default="field" foreColor="009B00" waveUnderlined="009B00"/>
     <fontcolor name="mod-local-variable" />
     <fontcolor name="mod-parameter" foreColor="A06001"/>
 
@@ -86,9 +87,7 @@
     <fontcolor name="mod-global" foreColor="B8860B">  <!-- for Object Ref bc8f8f, 717ab3, light blue:7777cc -->
         <font style="italic" />
     </fontcolor>
-    <fontcolor name="mod-interface" foreColor="009B00"> <!-- for implicit method Ref -->
-        <font style="bold" />
-    </fontcolor>
+    <fontcolor name="mod-interface" foreColor="009B00" underline="009B00"/> <!-- for implicit method Ref -->
     <fontcolor name="mod-annotation-type" />
     <fontcolor name="mod-enum" />
     <fontcolor name="mod-deprecated" strikeThrough="404040" />

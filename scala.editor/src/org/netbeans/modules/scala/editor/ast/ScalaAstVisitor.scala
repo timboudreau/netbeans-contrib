@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editor.ast
 
 import _root_.java.io.File
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
-import org.netbeans.modules.csl.api.ElementKind
+import org.netbeans.modules.csl.api.{ElementKind, Modifier}
 import org.netbeans.modules.parsing.api.Snapshot
 import org.openide.filesystems.{FileObject, FileUtil}
 //import scala.tools.nsc.ast.Trees.Annotated;
@@ -925,6 +925,14 @@ abstract class ScalaAstVisitor {
         //            // a.p where, offset is at p
         //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         //        }
+      case Select(qual, selector) if sym hasFlag IMPLICIT =>
+        // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
+        rootScope.findNeastItemAt(th, offset) match {
+          case Some(x) => x.kind = ElementKind.RULE
+          case _ =>
+        }
+        null
+        
       case Select(qual, selector) if endOffset > 0 =>
         // * for Select tree, will look backward from endOffset
         //val chars = srcFile.content.subSequence(offset, endOffset)
@@ -994,7 +1002,8 @@ abstract class ScalaAstVisitor {
     val text = token.text.toString.trim
     token.id match {
       case ScalaTokenId.SymbolLiteral => text.substring(1, text.length - 1) == name // strip '`'
-      case ScalaTokenId.LArrow => name == "foreach" | name == "map"
+      case ScalaTokenId.LArrow => name == "foreach" || name == "map"
+      case _ if name.endsWith("_=") => text + "_=" == name
       case _ => text == name
     }
   }
