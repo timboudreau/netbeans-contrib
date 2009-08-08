@@ -134,10 +134,12 @@ class ScalaDeclarationFinder extends DeclarationFinder {
             root.findItemAt(th, token.offset(th)) match {
               case Some(x: global.ScalaRef) =>
                 val remoteDfn = global.ScalaElement(x.symbol, info)
-                remoteDfn.getFileObject match {
-                  case null =>
-                  case _ => return new DeclarationLocation(remoteDfn.getFileObject, remoteDfn.getOffset, remoteDfn)
+                val location = new DeclarationLocation(remoteDfn.getFileObject, remoteDfn.getOffset, remoteDfn)
+                if (remoteDfn.getFileObject == null) {
+                  // even fo is null, we should return a location to enable popping up a declaration string
+                  location.setInvalidMessage("No source file found!")
                 }
+                return location
               case _ =>
             }
           case _ =>

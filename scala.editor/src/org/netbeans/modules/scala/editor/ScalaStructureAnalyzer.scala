@@ -47,7 +47,7 @@ import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, Offse
                                      HtmlFormatter, StructureItem, StructureScanner}
 import org.netbeans.modules.csl.api.StructureScanner._
 import org.netbeans.modules.csl.spi.ParserResult
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.openide.util.Exceptions
 
@@ -79,7 +79,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
 
   private def scanTopForms(scope: AstScope, items: _root_.java.util.List[StructureItem], pResult: ScalaParserResult): Unit = {
     scope.dfns foreach {
-      case dfn: ScalaGlobal#ScalaDfn => dfn.getKind match {
+      case dfn: ScalaDfns#ScalaDfn => dfn.getKind match {
           case ElementKind.CLASS | ElementKind.MODULE =>
             (dfn.enclosingScope, dfn.enclosingDfn) match {
               case (Some(x), _) if x.isRoot => items.add(new ScalaStructureItem(dfn, pResult))
@@ -192,7 +192,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  private class ScalaStructureItem(val dfn: ScalaGlobal#ScalaDfn, pResult: ScalaParserResult) extends StructureItem {
+  private class ScalaStructureItem(val dfn: ScalaDfns#ScalaDfn, pResult: ScalaParserResult) extends StructureItem {
     import ElementKind._
 
     override def getName: String = dfn.getName
@@ -224,7 +224,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
         val children = new _root_.java.util.ArrayList[StructureItem]
 
         nested foreach {
-          case child: ScalaGlobal#ScalaDfn => child.getKind match {
+          case child: ScalaDfns#ScalaDfn => child.getKind match {
               case PARAMETER | OTHER =>
               case _ => children.add(new ScalaStructureItem(child, pResult))
             }

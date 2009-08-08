@@ -56,7 +56,8 @@ import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
 import org.netbeans.api.language.util.ast.{AstItem, AstElementHandle}
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
+import org.netbeans.modules.scala.editor.element.{ScalaElements}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
 import org.netbeans.modules.scala.editor.rats.ParserScala
@@ -1221,8 +1222,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
     val sigFormatter = new SignatureHtmlFormatter
 
     val (sym, comment) = element match {
-      case x: ScalaGlobal#ScalaDfn =>     (Some(x.symbol), x.getDocComment)
-      case x: ScalaGlobal#ScalaElement => (Some(x.symbol), x.getDocComment)
+      case x: ScalaDfns#ScalaDfn         => (Some(x.symbol), x.getDocComment)
+      case x: ScalaElements#ScalaElement => (Some(x.symbol), x.getDocComment)
       case _ => (None, "")
     }
     
