@@ -392,8 +392,7 @@ abstract class ScalaAstVisitor {
             else {
               val n = tparams.length
               println("  List( // " + n + " type parameter(s)")
-              for (i <- 0 until n)
-              traverse(tparams(i), level + 2, i < n-1)
+              for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
               println("  ),")
             }
             val n = vparamss.length
@@ -408,6 +407,7 @@ abstract class ScalaAstVisitor {
               }
               println("  ),")
             }
+            traverse(tpt, level, false)
             println("  " + tpt + ",")
             traverse(rhs, level + 1, false)
             printcln(")")
@@ -435,7 +435,7 @@ abstract class ScalaAstVisitor {
             println("ValDef(" + nodeinfo(tree))
             println("  " + symflags(tree))
             println("  \"" + name + "\",")
-            traverse(tpt, level + 1, true) // tpe is usually a TypeTree
+            traverse(tpt, level, false) // tpe is usually a TypeTree
             traverse(rhs, level + 1, false)
             printcln(")")
             scopes pop
