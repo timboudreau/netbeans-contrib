@@ -54,6 +54,8 @@ import org.netbeans.modules.csl.api.{CodeCompletionContext,
                                      ParameterInfo}
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
+import org.openide.filesystems.FileObject
+import org.openide.util.{Exceptions, NbBundle}
 
 import org.netbeans.api.language.util.ast.{AstItem, AstElementHandle}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
@@ -61,12 +63,9 @@ import org.netbeans.modules.scala.editor.element.{ScalaElements}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
 import org.netbeans.modules.scala.editor.rats.ParserScala
-import org.openide.filesystems.FileObject
-import org.openide.util.{Exceptions, NbBundle}
+
 import _root_.scala.tools.nsc.Global
 import _root_.scala.tools.nsc.symtab.Flags
-//import _root_.scala.tools.nsc.symtab.Symbols
-//import _root_.scala.tools.nsc.symtab.Types
 
 /**
  * Code completion handler for JavaScript

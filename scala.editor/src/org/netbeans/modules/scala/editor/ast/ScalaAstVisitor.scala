@@ -269,7 +269,7 @@ abstract class ScalaAstVisitor {
               else tree.asInstanceOf[MemberDef].mods.annotations
             } catch {case _ => ""})
           (if (buf.length() > 2) buf.substring(3)
-            else "0") + ", // flags=" + flagsToString(sym.flags) + annots
+           else "0") + ", // flags=" + flagsToString(sym.flags) + annots
         }
         
         def nodeinfo(tree: Tree): String =
@@ -293,9 +293,9 @@ abstract class ScalaAstVisitor {
             if (sym != NoSymbol) {
               buf.append(", tpe.sym.owner=" + sym.owner)
               if ((infolevel > InfoLevel.Normal) &&
-                !(sym.owner eq definitions.ScalaPackageClass) &&
-                !sym.isModuleClass && !sym.isPackageClass &&
-                !sym.hasFlag(JAVA)) {
+                  !(sym.owner eq definitions.ScalaPackageClass) &&
+                  !sym.isModuleClass && !sym.isPackageClass &&
+                  !sym.hasFlag(JAVA)) {
                 val members = for (m <- tree.tpe.decls.toList)
                 yield m.toString() + ": " + m.tpe + ", "
                 buf.append(", tpe.decls=" + members)
@@ -445,8 +445,8 @@ abstract class ScalaAstVisitor {
             scopes.top.addScope(scope)
 
             /**
-              * case c => println(c), will define a bind val "c"
-              */
+             * case c => println(c), will define a bind val "c"
+             */
             val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.VARIABLE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
@@ -483,9 +483,9 @@ abstract class ScalaAstVisitor {
 
           case Select(qualifier, selector) =>
             /**
-              * For error Select tree, for example a.p, the error part's offset will be set to 'p',
-              * The tree.qualifier() part's offset will be 'a'
-              */
+             * For error Select tree, for example a.p, the error part's offset will be set to 'p',
+             * The tree.qualifier() part's offset will be 'a'
+             */
             val sym = tree.symbol
             val kind = if (sym hasFlag IMPLICIT) {
               ElementKind.RULE
@@ -508,8 +508,8 @@ abstract class ScalaAstVisitor {
             }
 
             /**
-              * For error Select tree, the qual type may stored, try to fetch it now
-              */
+             * For error Select tree, the qual type may stored, try to fetch it now
+             */
             def guessMaybeType {
               val qualSym = qualifier.symbol
               if (qualSym != null && qualSym == NoSymbol && global != null) {
@@ -535,9 +535,9 @@ abstract class ScalaAstVisitor {
             if (sym != null) {
               val ref = ScalaRef(sym, getIdToken(tree, name.decode.trim), ElementKind.OTHER)
               /**
-                * @Note: this symbol may be NoSymbol, for example, an error tree,
-                * to get error recover in code completion, we need to also add it as a ref
-                */
+               * @Note: this symbol may be NoSymbol, for example, an error tree,
+               * to get error recover in code completion, we need to also add it as a ref
+               */
               if (sym == NoSymbol && maybeType.isDefined) {
                 ref.resultType = maybeType.get
               }
@@ -693,151 +693,151 @@ abstract class ScalaAstVisitor {
   }
 
   /*_
-    protected def visit(trees:List[Tree]): Unit = {
-    trees.foreach {
-    case x:Tree => visit(x)
-    case x:Tree => visit(x)
-    case x:List[_] => visit(x)
-    case x:Tuple2[_, _] =>
-    /*
-      System.out.println("Visit Tuple: " + tree + " class=" + tree.getClass().getCanonicalName());
+   protected def visit(trees:List[Tree]): Unit = {
+   trees.foreach {
+   case x:Tree => visit(x)
+   case x:Tree => visit(x)
+   case x:List[_] => visit(x)
+   case x:Tuple2[_, _] =>
+   /*
+    System.out.println("Visit Tuple: " + tree + " class=" + tree.getClass().getCanonicalName());
 
-      Object o1 = ((Tuple2) tree)._1();
-      if (o1 != null) {
-      System.out.println("Visit Tuple: " + o1 + " class=" + o1.getClass().getCanonicalName());
-      }
-      Object o2 = ((Tuple2) tree)._2();
-      if (o2 != null) {
-      System.out.println("Visit Tuple: " + o2 + " class=" + o2.getClass().getCanonicalName());
-      }
-      */
-    case x => println("Try to visit unknown: " + x + " class=" + x.getClass.getCanonicalName);
+    Object o1 = ((Tuple2) tree)._1();
+    if (o1 != null) {
+    System.out.println("Visit Tuple: " + o1 + " class=" + o1.getClass().getCanonicalName());
     }
-    }
-
-    protected def visit(tree:global.Tree): Unit = {
-    if (tree == null) {
-    return
-    }
-
-    if (offset(tree) == -1) {
-    /** It may be EmptyTree, emptyValDef$, or remote TypeTree which presents an inferred Type etc */
-    return
-    }
-
-    /**
-      * @Note: For some reason, or bug in Scala's native compiler, the tree will
-      * be recursively linked to itself via childern. Which causes infinite loop,
-      * We have to avoid this happens:
-      */
-    if (visited.contains(tree)) {
-    //System.out.println("Detected a possible infinite loop of visiting: " + tree);
-    return
-    } else {
-    visited += tree
-    }
-
-    enter(tree)
-    try {
-    if (tree instanceof PackageDef) {
-    visitPackageDef((PackageDef) tree);
-    } else if (tree instanceof ClassDef) {
-    visitClassDef((ClassDef) tree);
-    } else if (tree instanceof ModuleDef) {
-    visitModuleDef((ModuleDef) tree);
-    } else if (tree instanceof ValDef) {
-    visitValDef((ValDef) tree);
-    } else if (tree instanceof DefDef) {
-    visitDefDef((DefDef) tree);
-    } else if (tree instanceof TypeDef) {
-    visitTypeDef((TypeDef) tree);
-    } else if (tree instanceof LabelDef) {
-    visitLabelDef((LabelDef) tree);
-    } else if (tree instanceof Import) {
-    visitImport((Import) tree);
-    //            } else if (tree instanceof Annotation) {
-    //                visitAnnotation((Annotation) tree);
-    } else if (tree instanceof Template) {
-    visitTemplate((Template) tree);
-    } else if (tree instanceof Block) {
-    visitBlock((Block) tree);
-    } else if (tree instanceof Match) {
-    visitMatch((Match) tree);
-    } else if (tree instanceof CaseDef) {
-    visitCaseDef((CaseDef) tree);
-    } else if (tree instanceof Sequence) {
-    visitSequence((Sequence) tree);
-    } else if (tree instanceof Alternative) {
-    visitAlternative((Alternative) tree);
-    } else if (tree instanceof Star) {
-    visitStar((Star) tree);
-    } else if (tree instanceof Bind) {
-    visitBind((Bind) tree);
-    } else if (tree instanceof UnApply) {
-    visitUnApply((UnApply) tree);
-    } else if (tree instanceof ArrayValue) {
-    visitArrayValue((ArrayValue) tree);
-    } else if (tree instanceof Function) {
-    visitFunction((Function) tree);
-    } else if (tree instanceof Assign) {
-    visitAssign((Assign) tree);
-    } else if (tree instanceof If) {
-    visitIf((If) tree);
-    } else if (tree instanceof Return) {
-    visitReturn((Return) tree);
-    } else if (tree instanceof Try) {
-    visitTry((Try) tree);
-    } else if (tree instanceof Throw) {
-    visitThrow((Throw) tree);
-    } else if (tree instanceof New) {
-    visitNew((New) tree);
-    } else if (tree instanceof Typed) {
-    visitTyped((Typed) tree);
-    } else if (tree instanceof TypeApply) {
-    visitTypeApply((TypeApply) tree);
-    } else if (tree instanceof Apply) {
-    visitApply((Apply) tree);
-    } else if (tree instanceof ApplyDynamic) {
-    visitApplyDynamic((ApplyDynamic) tree);
-    } else if (tree instanceof Super) {
-    visitSuper((Super) tree);
-    } else if (tree instanceof This) {
-    visitThis((This) tree);
-    } else if (tree instanceof Select) {
-    visitSelect((Select) tree);
-    } else if (tree instanceof Ident) {
-    visitIdent((Ident) tree);
-    } else if (tree instanceof Literal) {
-    visitLiteral((Literal) tree);
-    } else if (tree instanceof TypeTree) {
-    visitTypeTree((TypeTree) tree);
-    } else if (tree instanceof Annotated) {
-    visitAnnotated((Annotated) tree);
-    } else if (tree instanceof SingletonTypeTree) {
-    visitSingletonTypeTree((SingletonTypeTree) tree);
-    } else if (tree instanceof SelectFromTypeTree) {
-    visitSelectFromTypeTree((SelectFromTypeTree) tree);
-    } else if (tree instanceof CompoundTypeTree) {
-    visitCompoundTypeTree((CompoundTypeTree) tree);
-    } else if (tree instanceof AppliedTypeTree) {
-    visitAppliedTypeTree((AppliedTypeTree) tree);
-    } else if (tree instanceof TypeBoundsTree) {
-    visitTypeBoundsTree((TypeBoundsTree) tree);
-    } else if (tree instanceof ExistentialTypeTree) {
-    visitExistentialTypeTree((ExistentialTypeTree) tree);
-    } else if (tree instanceof StubTree) {
-    visitStubTree((StubTree) tree);
-    } else if (tree instanceof DocDef) {
-    visitDocDef((DocDef) tree)
-    } else {
-    println("Visit Unknow tree: " + tree + " class=" + tree.getClass.getCanonicalName)
-    }
-    } catch {
-    case ex:Throwable => println("Exception when visit tree: " + tree + "\n" + ex.getMessage)
-    }
-    exit(tree)
+    Object o2 = ((Tuple2) tree)._2();
+    if (o2 != null) {
+    System.out.println("Visit Tuple: " + o2 + " class=" + o2.getClass().getCanonicalName());
     }
     */
+   case x => println("Try to visit unknown: " + x + " class=" + x.getClass.getCanonicalName);
+   }
+   }
+
+   protected def visit(tree:global.Tree): Unit = {
+   if (tree == null) {
+   return
+   }
+
+   if (offset(tree) == -1) {
+   /** It may be EmptyTree, emptyValDef$, or remote TypeTree which presents an inferred Type etc */
+   return
+   }
+
+   /**
+    * @Note: For some reason, or bug in Scala's native compiler, the tree will
+    * be recursively linked to itself via childern. Which causes infinite loop,
+    * We have to avoid this happens:
+    */
+   if (visited.contains(tree)) {
+   //System.out.println("Detected a possible infinite loop of visiting: " + tree);
+   return
+   } else {
+   visited += tree
+   }
+
+   enter(tree)
+   try {
+   if (tree instanceof PackageDef) {
+   visitPackageDef((PackageDef) tree);
+   } else if (tree instanceof ClassDef) {
+   visitClassDef((ClassDef) tree);
+   } else if (tree instanceof ModuleDef) {
+   visitModuleDef((ModuleDef) tree);
+   } else if (tree instanceof ValDef) {
+   visitValDef((ValDef) tree);
+   } else if (tree instanceof DefDef) {
+   visitDefDef((DefDef) tree);
+   } else if (tree instanceof TypeDef) {
+   visitTypeDef((TypeDef) tree);
+   } else if (tree instanceof LabelDef) {
+   visitLabelDef((LabelDef) tree);
+   } else if (tree instanceof Import) {
+   visitImport((Import) tree);
+   //            } else if (tree instanceof Annotation) {
+   //                visitAnnotation((Annotation) tree);
+   } else if (tree instanceof Template) {
+   visitTemplate((Template) tree);
+   } else if (tree instanceof Block) {
+   visitBlock((Block) tree);
+   } else if (tree instanceof Match) {
+   visitMatch((Match) tree);
+   } else if (tree instanceof CaseDef) {
+   visitCaseDef((CaseDef) tree);
+   } else if (tree instanceof Sequence) {
+   visitSequence((Sequence) tree);
+   } else if (tree instanceof Alternative) {
+   visitAlternative((Alternative) tree);
+   } else if (tree instanceof Star) {
+   visitStar((Star) tree);
+   } else if (tree instanceof Bind) {
+   visitBind((Bind) tree);
+   } else if (tree instanceof UnApply) {
+   visitUnApply((UnApply) tree);
+   } else if (tree instanceof ArrayValue) {
+   visitArrayValue((ArrayValue) tree);
+   } else if (tree instanceof Function) {
+   visitFunction((Function) tree);
+   } else if (tree instanceof Assign) {
+   visitAssign((Assign) tree);
+   } else if (tree instanceof If) {
+   visitIf((If) tree);
+   } else if (tree instanceof Return) {
+   visitReturn((Return) tree);
+   } else if (tree instanceof Try) {
+   visitTry((Try) tree);
+   } else if (tree instanceof Throw) {
+   visitThrow((Throw) tree);
+   } else if (tree instanceof New) {
+   visitNew((New) tree);
+   } else if (tree instanceof Typed) {
+   visitTyped((Typed) tree);
+   } else if (tree instanceof TypeApply) {
+   visitTypeApply((TypeApply) tree);
+   } else if (tree instanceof Apply) {
+   visitApply((Apply) tree);
+   } else if (tree instanceof ApplyDynamic) {
+   visitApplyDynamic((ApplyDynamic) tree);
+   } else if (tree instanceof Super) {
+   visitSuper((Super) tree);
+   } else if (tree instanceof This) {
+   visitThis((This) tree);
+   } else if (tree instanceof Select) {
+   visitSelect((Select) tree);
+   } else if (tree instanceof Ident) {
+   visitIdent((Ident) tree);
+   } else if (tree instanceof Literal) {
+   visitLiteral((Literal) tree);
+   } else if (tree instanceof TypeTree) {
+   visitTypeTree((TypeTree) tree);
+   } else if (tree instanceof Annotated) {
+   visitAnnotated((Annotated) tree);
+   } else if (tree instanceof SingletonTypeTree) {
+   visitSingletonTypeTree((SingletonTypeTree) tree);
+   } else if (tree instanceof SelectFromTypeTree) {
+   visitSelectFromTypeTree((SelectFromTypeTree) tree);
+   } else if (tree instanceof CompoundTypeTree) {
+   visitCompoundTypeTree((CompoundTypeTree) tree);
+   } else if (tree instanceof AppliedTypeTree) {
+   visitAppliedTypeTree((AppliedTypeTree) tree);
+   } else if (tree instanceof TypeBoundsTree) {
+   visitTypeBoundsTree((TypeBoundsTree) tree);
+   } else if (tree instanceof ExistentialTypeTree) {
+   visitExistentialTypeTree((ExistentialTypeTree) tree);
+   } else if (tree instanceof StubTree) {
+   visitStubTree((StubTree) tree);
+   } else if (tree instanceof DocDef) {
+   visitDocDef((DocDef) tree)
+   } else {
+   println("Visit Unknow tree: " + tree + " class=" + tree.getClass.getCanonicalName)
+   }
+   } catch {
+   case ex:Throwable => println("Exception when visit tree: " + tree + "\n" + ex.getMessage)
+   }
+   exit(tree)
+   }
+   */
   
   // ---- Helper methods
   protected def getCurrentParent: Tree = {
@@ -877,10 +877,10 @@ abstract class ScalaAstVisitor {
   }
 
   /**
-    * @Note: nameNode may contains preceding void productions, and may also contains
-    * following void productions, but nameString has stripped the void productions,
-    * so we should adjust nameRange according to name and its length.
-    */
+   * @Note: nameNode may contains preceding void productions, and may also contains
+   * following void productions, but nameString has stripped the void productions,
+   * so we should adjust nameRange according to name and its length.
+   */
   protected def getIdToken(tree: Tree, knownName: String = ""): Option[Token[TokenId]] = {
     val sym = tree.symbol
     if (sym == null) {
@@ -1098,10 +1098,10 @@ abstract class ScalaAstVisitor {
   }
 
   /**
-    * Used when endOffset of tree is not available.
-    * @Note from scala-2.8.x, the endOffset has been added, just keep this method
-    * here for reference.
-    */
+   * Used when endOffset of tree is not available.
+   * @Note from scala-2.8.x, the endOffset has been added, just keep this method
+   * here for reference.
+   */
   private def setBoundsEndToken(fromScope: AstScope) {
     assert(fromScope.isScopesSorted == false)
 

@@ -57,19 +57,19 @@ trait ScalaDfns {self: ScalaGlobal =>
 
   object ScalaDfn {
     def apply(symbol: Symbol,
-      idToken: Option[Token[TokenId]],
-      kind: ElementKind,
-      bindingScope: AstScope,
-      fo: Option[FileObject]) = {
+              idToken: Option[Token[TokenId]],
+              kind: ElementKind,
+              bindingScope: AstScope,
+              fo: Option[FileObject]) = {
       new ScalaDfn(symbol, idToken, kind, bindingScope, fo)
     }
   }
   
   class ScalaDfn(asymbol: Symbol,
-    aidToken: Option[Token[TokenId]],
-    akind: ElementKind,
-    abindingScope: AstScope,
-    afo: Option[FileObject]
+                 aidToken: Option[Token[TokenId]],
+                 akind: ElementKind,
+                 abindingScope: AstScope,
+                 afo: Option[FileObject]
   ) extends AstDfn(aidToken, akind, abindingScope, afo) {
   
     type S = Symbol
