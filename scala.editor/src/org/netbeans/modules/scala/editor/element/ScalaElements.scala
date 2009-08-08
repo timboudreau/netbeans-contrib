@@ -248,7 +248,9 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     def isDeprecated: Boolean = {
-      symbol.isDeprecated
+      try {
+        symbol.isDeprecated
+      } catch {case _ => false}
     }
 
     def setInherited(inherited: Boolean): Unit = {

@@ -66,6 +66,8 @@ import org.netbeans.modules.csl.api.EditList
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.editor.BaseDocument
 
+import org.netbeans.modules.scala.editor.actions.FixImportsHelper
+
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
     val DEFAULT_PRIORITY = 292;
@@ -90,29 +92,12 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         val desc = error.getDescription
         println("desc=" + desc)
         if (desc != null) {
-          checkMissingImport(desc) match {
+          FixImportsHelper.checkMissingImport(desc) match {
               case Some(missing) => createImportHints(missing, context, error)
               case None => List()
           }
         } else {
           List()
-        }
-    }
-
-    val pattern1 = Pattern.compile("not found: value (.*)")
-    val pattern2 = Pattern.compile("not found: type (.*)")
-
-    private def checkMissingImport(desc: String) : Option[String] = {
-        val matcher = pattern1.matcher(desc)
-        if (matcher.matches) {
-            Some(matcher.group(1))
-        } else {
-            val m2 = pattern2.matcher(desc)
-            if (m2.matches) {
-                Some(m2.group(1))
-            } else {
-              None
-            }
         }
     }
 
