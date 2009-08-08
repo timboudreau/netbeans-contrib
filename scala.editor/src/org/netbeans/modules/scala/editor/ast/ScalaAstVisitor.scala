@@ -512,7 +512,7 @@ abstract class ScalaAstVisitor {
              */
             def guessMaybeType {
               val qualSym = qualifier.symbol
-              if (qualSym != null && qualSym == NoSymbol && global != null) {
+              if (qualSym != null && qualSym == NoSymbol) {
                 maybeType = global.selectTypeErrors.get(tree)
               }
             }
