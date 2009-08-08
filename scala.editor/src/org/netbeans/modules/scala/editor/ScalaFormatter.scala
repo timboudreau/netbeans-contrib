@@ -488,20 +488,19 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
     // Now we've got the final indent of this line, adjust offset for new added
     // braces (which should be on this line)
-    for (brace <- openBraces) {
-      if (brace.onProcessingLine) {
-        brace.offsetOnline += indent
-        if (brace.ordinalOnline == notWSIdx) {
-          brace.isLatestOnLine = true
-        }
-        brace.lasestTokenOnLine = latestNotWSToken
+    for (brace <- openBraces if brace.onProcessingLine) {
+      brace.offsetOnline += indent
+      if (brace.ordinalOnline == notWSIdx) {
+        brace.isLatestOnLine = true
       }
+      brace.lasestTokenOnLine = latestNotWSToken
     }
 
     // Compute indent for next line
     var nextIndent = 0
-    val latestOpenBrace = if (openBraces.size > 0) openBraces.toList(openBraces.size - 1) else null
-    val latestOpenId = if (latestOpenBrace != null) latestOpenBrace.token.id else null
+    val (latestOpenBrace, latestOpenId) = if (!openBraces.isEmpty) {
+      (openBraces.top, openBraces.top.token.id)
+    } else (null, null)
 
     // decide if next line is new or continued continute line
     var isContinueLine = false
@@ -511,10 +510,8 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     } else {
       isContinueLine = false // default
 
-      val id = latestNotWSToken.id
-
-      if (id == ScalaTokenId.Comma) {
-        //we have special case
+      if (latestNotWSToken.id == ScalaTokenId.Comma) {
+        // * we have special case
         if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine && (latestOpenId == ScalaTokenId.LParen ||
                                                                           latestOpenId == ScalaTokenId.LBracket ||
                                                                           latestOpenId == ScalaTokenId.LBrace)) {
@@ -543,43 +540,39 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
         // All braces resolved
         nextIndent = 0
       } else {
-        val offset = latestOpenBrace.offsetOnline;
-        if (latestOpenId == ScalaTokenId.RArrow) {
-          var nearestHangableBrace: Brace = null
-          var depth1 = 0
-          var break = false
-          val openBraces1 = openBraces.toList
-          for (i <- openBraces.size - 1 to 0 if !break) {
-            val brace = openBraces1(i)
-            depth1 += 1
-            if (brace.token.id != ScalaTokenId.RArrow) {
-              nearestHangableBrace = brace
-              break = true
+        val offset = latestOpenBrace.offsetOnline
+        nextIndent = latestOpenId match {
+          case ScalaTokenId.RArrow =>
+            var nearestHangableBrace: Brace = null
+            var depth1 = 0
+            var break = false
+            val openBraces1 = openBraces.toList
+            for (i <- openBraces.size - 1 to 0 if !break) {
+              val brace = openBraces1(i)
+              depth1 += 1
+              if (brace.token.id != ScalaTokenId.RArrow) {
+                nearestHangableBrace = brace
+                break = true
+              }
             }
-          }
 
-          if (nearestHangableBrace != null) {
-            // Hang it from this brace
-            nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize
-          } else {
-            nextIndent = openBraces.size * indentSize
-          }
-        } else if ((latestOpenId == ScalaTokenId.LParen ||
-                    latestOpenId == ScalaTokenId.LBracket ||
-                    latestOpenId == ScalaTokenId.LBrace) &&
-                   !latestOpenBrace.isLatestOnLine &&
-                   (latestOpenBrace.lasestTokenOnLine == null || latestOpenBrace.lasestTokenOnLine.id != ScalaTokenId.RArrow)) {
+            if (nearestHangableBrace != null) {
+              // Hang it from this brace
+              nearestHangableBrace.offsetOnline + depth1 * indentSize
+            } else {
+              openBraces.size * indentSize
+            }
+          case ScalaTokenId.LParen | ScalaTokenId.LBracket | ScalaTokenId.LBrace
+            if !latestOpenBrace.isLatestOnLine && (latestOpenBrace.lasestTokenOnLine == null ||
+                                                   latestOpenBrace.lasestTokenOnLine.id != ScalaTokenId.RArrow) =>
 
-          nextIndent = offset + latestOpenBrace.token.text.toString.length;
+            offset + latestOpenBrace.token.text.toString.length
 
-        } else if (latestOpenId == ScalaTokenId.BlockCommentStart ||
-                   latestOpenId == ScalaTokenId.DocCommentStart) {
+          case ScalaTokenId.BlockCommentStart | ScalaTokenId.DocCommentStart =>
 
-          nextIndent = offset + 1;
+            offset + 1
 
-        } else {
-          // default
-          nextIndent = openBraces.size * indentSize
+          case _ => openBraces.size * indentSize // default
         }
       }
     }
