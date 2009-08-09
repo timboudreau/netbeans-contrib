@@ -243,14 +243,14 @@
         <folder name="Scala">
             <attr name="position" intvalue="911"/>
 
-            <file name="Main.scala" url="templates/Main.tmpl">
+            <file name="Main.scala" url="templates/MainScalaObject.tmpl">
                 <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.editor.wizards.ScalaFileUtil.create"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/class.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.templates.Bundle"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/scalaMain.html"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/editor/resources/templates/MainScalaObjectFileDescription.html"/>
                 <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
             </file>
 
