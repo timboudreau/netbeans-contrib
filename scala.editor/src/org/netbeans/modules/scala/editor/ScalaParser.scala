@@ -411,7 +411,7 @@ class ScalaParser extends Parser {
     } catch {
       case ex: AssertionError =>
         // avoid scala nsc's assert error
-        ScalaGlobal.reset
+        ScalaGlobal.reset(global)
       case ex: _root_.java.lang.Error =>
         // avoid scala nsc's exceptions
         ex.printStackTrace

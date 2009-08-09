@@ -92,13 +92,17 @@ object ScalaGlobal {
   private val ProjectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
   private val ProjectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
   private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
-  private var GlobalForStdLid: Option[ScalaGlobal] = None
+  private var GlobalForStdLib: Option[ScalaGlobal] = None
 
-  def reset {
+  def resetAll {
     ProjectToGlobal.clear
-    GlobalForStdLid = None
+    GlobalForStdLib = None
   }
 
+  def reset(global: Global) {
+    ProjectToGlobal.remove(global)
+    if (global == GlobalForStdLib) GlobalForStdLib = None
+  }
 
   /**
    * Scala's global is not thread safed
@@ -112,10 +116,10 @@ object ScalaGlobal {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // it may be a standalone file, or file in standard lib
-      return GlobalForStdLid match {
+      return GlobalForStdLib match {
         case None =>
           val g = ScalaHome.getGlobalForStdLib
-          GlobalForStdLid = Some(g)
+          GlobalForStdLib = Some(g)
           g
         case Some(x) => x
       }
@@ -135,10 +139,11 @@ object ScalaGlobal {
           case x => x
         }
     }
-    // is fo under test source?
+
+    // * is this `fo` under test source?
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
-    // Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
+    // * Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
     val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
     if (globalRef != null) {
       globalRef.get match {
@@ -191,7 +196,7 @@ object ScalaGlobal {
     val global = new ScalaGlobal(settings)
 
     if (forTest) {
-      ProjectToGlobalForTest.put(project, new WeakReference[ScalaGlobal](global))
+      ProjectToGlobalForTest.put(project, new WeakReference(global))
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
@@ -447,11 +452,12 @@ with ScalaUtils {
       run.compileSources(srcFiles)
     } catch {
       case ex: AssertionError =>
-        /**@Note: avoid scala nsc's assert error. Since global's
+        /**
+         * @Note: avoid scala nsc's assert error. Since global's
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.reset
+        ScalaGlobal.reset(this)
       case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }

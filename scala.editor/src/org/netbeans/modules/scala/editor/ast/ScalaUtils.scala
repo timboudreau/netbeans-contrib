@@ -153,8 +153,8 @@ trait ScalaUtils {self: ScalaGlobal =>
       val str = try {
         tpe.toString
       } catch {
-        case ex: _root_.java.lang.AssertionError => ScalaGlobal.reset; null // ignore assert ex from scala
-        case ex: Throwable => ScalaGlobal.reset; null
+        case ex: _root_.java.lang.AssertionError => ScalaGlobal.reset(self); null // ignore assert ex from scala
+        case ex: Throwable => ScalaGlobal.reset(self); null
       }
 
       if (str != null) str else tpe.termSymbol.nameString

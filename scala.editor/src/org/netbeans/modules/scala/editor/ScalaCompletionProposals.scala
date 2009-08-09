@@ -112,7 +112,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.`type`(true)
       val retType =  try {
         symbol.tpe.resultType
-      } catch {case ex: Throwable => ScalaGlobal.reset; null}
+      } catch {case ex: Throwable => ScalaGlobal.reset(self); null}
     
       if (retType != null && !symbol.isConstructor) {
         formatter.appendText(ScalaUtil.typeToString(retType))

@@ -1218,6 +1218,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
   }
 
   override def document(info: ParserResult, element: ElementHandle): String = {
+    val pResult = info.asInstanceOf[ScalaParserResult]
+    
     val sigFormatter = new SignatureHtmlFormatter
 
     val (sym, comment) = element match {
@@ -1232,7 +1234,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         sigFormatter.appendText(x.enclClass.fullNameString)
         sigFormatter.appendHtml("</i><p>")
         sigFormatter.appendText(x.defString)
-      } catch {case ex: AssertionError =>ScalaGlobal.reset}
+      } catch {case ex: AssertionError => ScalaGlobal.reset(pResult.parser.global)}
     }
 
     val html = new StringBuilder
@@ -1862,7 +1864,7 @@ abstract class CompletionRequest {
     } catch {
       case ex: AssertionError =>
         // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
-        ScalaGlobal.reset
+        ScalaGlobal.reset(global)
     }
 
     true

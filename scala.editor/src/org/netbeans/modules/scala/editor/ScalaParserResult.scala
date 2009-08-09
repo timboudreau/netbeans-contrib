@@ -103,7 +103,7 @@ class ScalaParserResult(val parser: ScalaParser,
       } catch {
         case ex: AssertionError =>
           // avoid scala nsc's assert error
-          ScalaGlobal.reset
+          ScalaGlobal.reset(global)
         case ex: _root_.java.lang.Error =>
           // avoid scala nsc's exceptions
         case ex: IllegalArgumentException =>
