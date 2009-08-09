@@ -61,6 +61,8 @@ import _root_.scala.tools.nsc.{Phase, Settings}
 import _root_.scala.tools.nsc.interactive.Global
 import _root_.scala.tools.nsc.symtab.{SymbolTable}
 import _root_.scala.tools.nsc.util.BatchSourceFile
+import scala.tools.nsc.io.PlainFile
+import scala.tools.nsc.io.AbstractFile
 
 /**
  *
@@ -144,14 +146,6 @@ object ScalaGlobal {
       }
     }
 
-    val (srcPath, outPath) = if (forTest) {
-      (if (dirs.testSrcDir == null) "" else FileUtil.toFile(dirs.testSrcDir).getAbsolutePath,
-       if (dirs.testOutDir == null) "" else FileUtil.toFile(dirs.testOutDir).getAbsolutePath)
-    } else {
-      (if (dirs.srcDir == null) "" else FileUtil.toFile(dirs.srcDir).getAbsolutePath,
-       if (dirs.outDir == null) "" else FileUtil.toFile(dirs.outDir).getAbsolutePath)
-    }
-
     val settings = new Settings
     if (debug) {
       settings.debug.value = true
@@ -160,9 +154,17 @@ object ScalaGlobal {
       settings.verbose.value = false
     }
 
-    settings.sourcepath.tryToSet(List(srcPath))
-    //settings.outdir().tryToSet(scala.netbeans.Wrapper$.MODULE$.stringList(new String[]{"-d", outPath}));
-    settings.outputDirs.setSingleOutput(outPath)
+    val (srcFolder, outFolder) = if (forTest) {
+      (if (dirs.testSrcDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.testOutDir)),
+       if (dirs.testOutDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.testOutDir)))
+    } else {
+      (if (dirs.srcDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.srcDir)),
+       if (dirs.outDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.outDir)))
+    }
+    
+    if (srcFolder != null && outFolder != null) {
+      settings.outputDirs.add(srcFolder, outFolder)
+    }
 
     // add boot, compile classpath
     val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
