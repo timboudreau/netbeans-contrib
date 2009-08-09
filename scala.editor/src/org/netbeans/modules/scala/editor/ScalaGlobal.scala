@@ -57,11 +57,10 @@ import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements}
 
-import _root_.scala.tools.nsc.{Phase, Settings}
-import _root_.scala.tools.nsc.interactive.Global
-import _root_.scala.tools.nsc.symtab.{SymbolTable}
-import _root_.scala.tools.nsc.util.BatchSourceFile
-import scala.tools.nsc.io.PlainFile
+import scala.tools.nsc.{Phase, Settings}
+import scala.tools.nsc.interactive.Global
+import scala.tools.nsc.symtab.{SymbolTable}
+import scala.tools.nsc.util.BatchSourceFile
 import scala.tools.nsc.io.AbstractFile
 
 /**
@@ -70,10 +69,17 @@ import scala.tools.nsc.io.AbstractFile
  */
 object ScalaGlobal {
   private class SrcOutDirs {
-    var srcDir: FileObject = _
-    var outDir: FileObject = _
-    var testSrcDir: FileObject = _
-    var testOutDir: FileObject = _
+    var srcOutDirs: Map[FileObject, FileObject] = Map()
+    var testSrcOutDirs: Map[FileObject, FileObject] = Map()
+
+    def scalaSrcOutDirs = toScalaDirs(srcOutDirs)
+    def scalaTestSrcOutDirs = toScalaDirs(testSrcOutDirs)
+
+    private def toScalaDirs(dirs: Map[FileObject, FileObject]): Map[AbstractFile, AbstractFile] = {
+      for ((src, out) <- dirs) yield (toScalaDir(src), toScalaDir(out))
+    }
+
+    private def toScalaDir(fo: FileObject) = AbstractFile.getDirectory(FileUtil.toFile(fo))
   }
 
   private val debug = false
@@ -117,25 +123,20 @@ object ScalaGlobal {
 
     val dirs = ProjectToDirs.get(project) match {
       case null =>
-        val dirsx = findDirsInfo(project);
+        val dirsx = findDirResouces(project)
         ProjectToDirs.put(project, new WeakReference(dirsx))
         dirsx
       case ref =>
         ref.get match {
           case null =>
-            val dirsx = findDirsInfo(project);
+            val dirsx = findDirResouces(project)
             ProjectToDirs.put(project, new WeakReference(dirsx))
             dirsx
           case x => x
         }
     }
     // is fo under test source?
-    val forTest = if (dirs.testSrcDir != null && (dirs.testSrcDir.equals(fo) ||
-                                                  FileUtil.isParentOf(dirs.testSrcDir, fo))) {
-      true
-    } else {
-      false
-    }
+    val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
     val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
@@ -154,19 +155,11 @@ object ScalaGlobal {
       settings.verbose.value = false
     }
 
-    val (srcFolder, outFolder) = if (forTest) {
-      (if (dirs.testSrcDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.testOutDir)),
-       if (dirs.testOutDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.testOutDir)))
-    } else {
-      (if (dirs.srcDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.srcDir)),
-       if (dirs.outDir == null) null else AbstractFile.getDirectory(FileUtil.toFile(dirs.outDir)))
-    }
-    
-    if (srcFolder != null && outFolder != null) {
-      settings.outputDirs.add(srcFolder, outFolder)
+    for ((src, out) <- if (forTest) dirs.scalaTestSrcOutDirs else dirs.scalaSrcOutDirs) {
+      settings.outputDirs.add(src, out)
     }
 
-    // add boot, compile classpath
+    // * add boot, compile classpath
     val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
     var (bootCp, compCp): (ClassPath, ClassPath) = if (cpp != null) {
       (cpp.findClassPath(fo, ClassPath.BOOT), cpp.findClassPath(fo, ClassPath.COMPILE))
@@ -174,7 +167,7 @@ object ScalaGlobal {
 
     var inStdLib = false
     if (bootCp == null || compCp == null) {
-      // in case of fo in standard libaray
+      // * in case of fo in standard libaray
       inStdLib = true
       bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
       compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
@@ -186,8 +179,12 @@ object ScalaGlobal {
 
     sb.delete(0, sb.length)
     computeClassPath(project, sb, compCp)
-    if (forTest && !inStdLib && dirs.outDir != null) {
-      sb.append(File.pathSeparator).append(dirs.outDir)
+    if (forTest && !inStdLib) {
+      var visited = Set[FileObject]()
+      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
+        sb.append(File.pathSeparator).append(out)
+        visited += out
+      }
     }
     settings.classpath.tryToSet(List(sb.toString))
 
@@ -195,8 +192,9 @@ object ScalaGlobal {
 
     if (forTest) {
       ProjectToGlobalForTest.put(project, new WeakReference[ScalaGlobal](global))
-      if (dirs.testOutDir != null) {
-        dirs.testOutDir.addFileChangeListener(new FileChangeAdapter {
+      var visited = Set[FileObject]()
+      for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
+        out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
@@ -209,17 +207,20 @@ object ScalaGlobal {
             }
 
             override def fileDeleted(fe: FileEvent): Unit = {
-              // maybe a clean task invoked
+              // * maybe a clean task invoked
               ProjectToGlobalForTest.remove(project)
               ProjectToDirs.remove(project)
             }
           })
+
+        visited += out
       }
 
-      if (dirs.outDir != null) {
-        // monitor outDir's changes,
+      visited = Set[FileObject]()
+      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
+        // * monitor outDir's changes,
         /** @Todo should reset global for any changes under out dir, including subdirs */
-        dirs.outDir.addFileChangeListener(new FileChangeAdapter {
+        out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobalForTest.remove(project)
@@ -236,11 +237,14 @@ object ScalaGlobal {
               ProjectToDirs.remove(project)
             }
           })
+
+        visited += out
       }
     } else {
       ProjectToGlobal.put(project, new WeakReference(global))
-      if (dirs.outDir != null) {
-        dirs.outDir.addFileChangeListener(new FileChangeAdapter {
+      var visited = Set[FileObject]()
+      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
+        out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
               ProjectToGlobal.remove(project)
@@ -258,34 +262,36 @@ object ScalaGlobal {
               ProjectToDirs.remove(project)
             }
           })
+        visited += out
       }
     }
     
     global
   }
 
-  private def findDirsInfo(project: Project): SrcOutDirs = {
+  private def findDirResouces(project: Project): SrcOutDirs = {
     val dirs = new SrcOutDirs
 
     val sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA) match {
       case Array() =>
-        // as a fallback use java ones..
+        // * found none, as a fallback use java ones ..
         ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_JAVA)
       case x => x
     }
 
-    sgs match {
-      case Array(src) =>
-        dirs.srcDir = src.getRootFolder
-        dirs.outDir = findOutDir(project, dirs.srcDir)
-      case Array(src, test, _*) =>
-        dirs.srcDir = src.getRootFolder
-        dirs.outDir = findOutDir(project, dirs.srcDir)
-        dirs.testSrcDir = test.getRootFolder
-        dirs.testOutDir = findOutDir(project, dirs.testSrcDir)
-      case _ =>
+    if (sgs.size > 0) {
+      val src = sgs(0).getRootFolder
+      val out = findOutDir(project, src)
+      dirs.srcOutDirs += (src -> out)
     }
 
+    if (sgs.size > 1) { // the 2nd one is test src
+      val src = sgs(1).getRootFolder
+      val out = findOutDir(project, src)
+      dirs.testSrcOutDirs += (src -> out)
+    }
+
+    // @todo add other srcs
     dirs
   }
 
