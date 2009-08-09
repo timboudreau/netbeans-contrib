@@ -126,6 +126,15 @@
         </folder>
     </folder>
 
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="x-scala" url="ScalaPreviewExample.tmpl"/>
+            </folder>
+        </folder>
+    </folder>
+
+
     <folder name="CslPlugins">
         <folder name="text">
             <folder name="x-scala">

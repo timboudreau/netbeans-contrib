@@ -107,7 +107,10 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         if (rangeOpt == None) {
             List[Hint]()
         } else {
-            val pathInfo = context.getClasspathInfo
+            val pathInfo = context.getClasspathInfo match {
+              case Some(x) => x
+              case None => return Nil
+            }
             val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex().getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
                             java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
             val fo = context.getFileObject

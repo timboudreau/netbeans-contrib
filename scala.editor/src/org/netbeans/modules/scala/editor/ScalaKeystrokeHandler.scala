@@ -259,6 +259,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           case Some(prevId) => (id, prevId) match {
               case (ScalaTokenId.RBrace, ScalaTokenId.LBrace) => insertIndent
               case (ScalaTokenId.RBracket, ScalaTokenId.LBracket) => insertIndent
+              case _ =>
             }
           case None =>
         }

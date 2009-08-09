@@ -46,25 +46,17 @@ import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.editor.Utilities
 
+import org.netbeans.modules.scala.editor.ScalaSourceUtil
+
 
 
 class ScalaRuleContext() extends RuleContext {
 
     def getFileObject = parserResult.getSnapshot().getSource().getFileObject()
 
-    /**
-    * cache somehow?
-    */
-    def getClasspathInfo  : ClasspathInfo  = {
+    def getClasspathInfo  : Option[ClasspathInfo]  = {
         val fo = getFileObject
-        val bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT);
-        val compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE);
-        val srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE);
-
-        if (bootPath == null || compilePath == null || srcPath == null) {
-            throw new IllegalStateException("NO classpath, is that illegal?")
-        }
-        ClasspathInfo.create(bootPath, compilePath, srcPath)
+        ScalaSourceUtil.getClasspathInfoForFileObject(fo)
     }
 
     def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
