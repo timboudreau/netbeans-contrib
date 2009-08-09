@@ -72,13 +72,21 @@ object ScalaGlobal {
     var srcOutDirs: Map[FileObject, FileObject] = Map()
     var testSrcOutDirs: Map[FileObject, FileObject] = Map()
 
-    def scalaSrcOutDirs = toScalaDirs(srcOutDirs)
-    def scalaTestSrcOutDirs = toScalaDirs(testSrcOutDirs)
+    def srcOutDirsPath = toDirPaths(srcOutDirs)
+    def testSrcOutDirsPath = toDirPaths(testSrcOutDirs)
+
+    def scalaSrcOutDirs: Map[AbstractFile, AbstractFile] = toScalaDirs(srcOutDirs)
+    def scalaTestSrcOutDirs: Map[AbstractFile, AbstractFile] = toScalaDirs(testSrcOutDirs)
+
+    private def toDirPaths(dirs: Map[FileObject, FileObject]): Map[String, String] = {
+      for ((src, out) <- dirs) yield (toDirPath(src), toDirPath(out))
+    }
 
     private def toScalaDirs(dirs: Map[FileObject, FileObject]): Map[AbstractFile, AbstractFile] = {
       for ((src, out) <- dirs) yield (toScalaDir(src), toScalaDir(out))
     }
 
+    private def toDirPath(fo: FileObject) = FileUtil.toFile(fo).getAbsolutePath
     private def toScalaDir(fo: FileObject) = AbstractFile.getDirectory(FileUtil.toFile(fo))
   }
 
@@ -160,9 +168,22 @@ object ScalaGlobal {
       settings.verbose.value = false
     }
 
-    for ((src, out) <- if (forTest) dirs.scalaTestSrcOutDirs else dirs.scalaSrcOutDirs) {
-      settings.outputDirs.add(src, out)
+    var outPath = ""
+    var srcPaths: List[String] = Nil
+    var firstGot = false
+    for ((src, out) <- if (forTest) dirs.testSrcOutDirsPath else dirs.srcOutDirsPath) {
+      srcPaths = src :: srcPaths
+      if (!firstGot) outPath = out
     }
+    settings.sourcepath.tryToSet(srcPaths.reverse)
+    settings.outputDirs.setSingleOutput(outPath)
+
+    /** @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why? */
+    /*_
+     for ((src, out) <- if (forTest) dirs.scalaTestSrcOutDirs else dirs.scalaSrcOutDirs) {
+     settings.outputDirs.add(src, out)
+     }
+     */
 
     // * add boot, compile classpath
     val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
