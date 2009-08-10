@@ -763,7 +763,7 @@ abstract class ScalaAstVisitor {
       case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
       case _ if name == "expected" => ts.token
-      case _ if name == "*" => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
+      case _ if name == "_" => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
         //      case (_, _) if name.startsWith("<error") => ts.token.id match {
         //          case ScalaTokenId.Dot =>
         //            // a. where, offset is at .
