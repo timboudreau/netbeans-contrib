@@ -51,6 +51,7 @@ import org.netbeans.modules.csl.api.HintSeverity
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.api.RuleContext
 import org.netbeans.modules.scala.editor.util.NbBundler
+import java.util.Arrays
 import java.util.prefs.Preferences;
 import javax.swing.JComponent;
 import java.util.regex.{Pattern, Matcher}
@@ -111,19 +112,18 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
               case Some(x) => x
               case None => return Nil
             }
-            val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex().getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
+            val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex.getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
                             java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
             val fo = context.getFileObject
-            var toRet = List[Hint]()
+            val toRet = mutable.ListBuffer[HintFix]()
             for (typeName <- typeNames;
                  ek = typeName.getKind;
                  if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE)
             {
-               val fixToApply = new AddImportFix(missing, fo, typeName.getQualifiedName, context, rangeOpt.get)
-               toRet = new Hint(this, error.getDescription, fo, rangeOpt.get,
-                      java.util.Collections.singletonList[HintFix](fixToApply), DEFAULT_PRIORITY) :: toRet
+               toRet += new AddImportFix(missing, fo, typeName.getQualifiedName, context, rangeOpt.get)
             }
-            toRet
+            new Hint(this, error.getDescription, fo, rangeOpt.get,
+                 toRet, DEFAULT_PRIORITY) :: Nil
         }
     }
 

@@ -84,7 +84,6 @@ class ScalaHintsProvider() extends HintsProvider {
         cancelled = false
         val parserResult = context.parserResult;
         if (parserResult != null) {
-            println("one")
             val errors = JavaConversions.asBuffer(parserResult.getDiagnostics);
             println("errors=" + parserResult.getDiagnostics)
             if (errors != null && !errors.isEmpty) {
@@ -94,7 +93,6 @@ class ScalaHintsProvider() extends HintsProvider {
                 println("two3=" + manager.getSuggestions)
 
                 if (errHints.isEmpty || cancelled) {
-                    println("three")
                     unhandled.addAll(errors)
                 } else {
 
