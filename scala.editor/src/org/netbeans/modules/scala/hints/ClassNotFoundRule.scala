@@ -95,15 +95,17 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         val rangeOpt = context.calcOffsetRange(error.getStartPosition, error.getEndPosition)
         if (rangeOpt == None || desc == null) return List[Hint]()
         val hintfixes = mutable.ListBuffer[HintFix]()
-        hintfixes.addAll(
-            FixImportsHelper.checkMissingImport(desc) match {
-                case Some(missing) => createImportHints(missing, context, error, rangeOpt.get)
-                case None => mutable.ListBuffer[HintFix]()
-            })
+        FixImportsHelper.checkMissingImport(desc) match {
+            case Some(missing) => hintfixes.addAll(createImportHints(missing, context, error, rangeOpt.get))
+            case None =>
+        }
+//        FixImportsHelper.NotFoundValue.matcher(desc) match {
+//           case m if m.matches => hintfixes.addAll(createNewDefVal(m.group(1), context, error, rangeOpt.get))
+//           case _ =>
+//        }
 
-        val fo = context.getFileObject
 
-        new Hint(this, error.getDescription, fo, rangeOpt.get,
+        new Hint(this, error.getDescription, context.getFileObject, rangeOpt.get,
                hintfixes, DEFAULT_PRIORITY) :: Nil
 
     }
@@ -126,10 +128,25 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     toRet
   }
 
+  private def createNewDefVal(missing : String, context : ScalaRuleContext, error : Error, range : OffsetRange) : mutable.ListBuffer[HintFix] = {
+    mutable.ListBuffer[HintFix]() += new AddDefValFix(missing, context, range)
+  }
+
+  private def calcErrorStartPosition(range : OffsetRange, name : String, ts : TokenSequence[TokenId]) : Int = {
+      ts.move(range.getStart)
+      val includes : Set[TokenId] = Set(ScalaTokenId.Type, ScalaTokenId.Identifier)
+      var token = ScalaLexUtil.findNextIncluding(ts, includes)
+      while (token != null && ts.offset <= range.getEnd) {
+          if (name == token.text.toString) return ts.offset
+          token = ScalaLexUtil.findNextIncluding(ts, includes)
+      }
+      -1
+  }
+
 
     class AddImportFix(name : String, fqn : String, context : ScalaRuleContext, offsetRange : OffsetRange) extends HintFix  {
 
-        override def getDescription = locMessage("ClassNotFoundRuleHintDescription", fqn)
+        override def getDescription = locMessage("AddImport", fqn)
         override val isSafe = true
         override val isInteractive = false
 
@@ -196,16 +213,6 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         edits.apply()
     }
 
-      private def calcErrorStartPosition(range : OffsetRange, name : String, ts : TokenSequence[TokenId]) : Int = {
-          ts.move(range.getStart)
-          val includes : Set[TokenId] = Set(ScalaTokenId.Type, ScalaTokenId.Identifier)
-          var token = ScalaLexUtil.findNextIncluding(ts, includes)
-          while (token != null && ts.offset <= range.getEnd) {
-              if (name == token.text.toString) return ts.offset
-              token = ScalaLexUtil.findNextIncluding(ts, includes)
-          }
-          -1
-      }
       /**
        * returns a list of Tuples(start, end, import string)
        */
@@ -261,6 +268,41 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
               (starter, finisher, buffer.toString)
           } else {
               null
+          }
+      }
+   }
+
+   class AddDefValFix(name : String, context : ScalaRuleContext, offsetRange : OffsetRange) extends HintFix  {
+
+        override def getDescription = locMessage("CreateDef", name)
+        override val isSafe = true
+        override val isInteractive = false
+
+        @throws(classOf[Exception])
+        override def implement : Unit = {
+            val doc = context.doc
+
+            val th = TokenHierarchy.get(doc)
+            val ts = ScalaLexUtil.getTokenSequence(th, 0).get
+            val start = calcErrorStartPosition(offsetRange, name, ts)
+            var collecting = false
+            if (start != -1) {
+/**              ts.move(start)
+              while (ts.isValid && ts.moveNext) {
+                val token : Token[_] = ts.token
+                token.id match {
+                  case ScalaTokenId.Import =>
+                    collecting = true;
+                  case wsComment if ScalaLexUtil.WS_COMMENTS.contains(wsComment) =>
+
+                  case _ => if (collecting) {
+                      buffer.append(token.text.toString)
+                      finisher = ts.offset + token.length
+                    }
+                }
+              }
+            }
+**/
           }
       }
    }

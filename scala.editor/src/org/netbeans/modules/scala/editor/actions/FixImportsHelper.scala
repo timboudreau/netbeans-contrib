@@ -85,13 +85,13 @@ object FixImportsHelper{
     weight
   }
   
-  val pattern1 = Pattern.compile("not found: value (.*)") // NOI18N
-  val pattern2 = Pattern.compile("not found: type (.*)")  // NOI18N
+  val NotFoundValue = Pattern.compile("not found: value (.*)") // NOI18N
+  val NotFoundType = Pattern.compile("not found: type (.*)")  // NOI18N
 
   def checkMissingImport(desc: String): Option[String] = {
-    pattern1.matcher(desc) match {
+    NotFoundValue.matcher(desc) match {
       case x if x.matches => Some(x.group(1))
-      case _ => pattern2.matcher(desc) match {
+      case _ => NotFoundType.matcher(desc) match {
           case x if x.matches => Some(x.group(1))
           case _ => None
         }
