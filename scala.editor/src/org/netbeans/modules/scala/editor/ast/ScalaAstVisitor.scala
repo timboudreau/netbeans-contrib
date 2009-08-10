@@ -421,7 +421,7 @@ abstract class ScalaAstVisitor {
 
             // special case for: val (a, b, c) = (1, 2, 3)
             if (!isTupleClass(tpt.symbol)) {
-              val dfn = ScalaDfn(tree.symbol, getIdToken(tree), kind, scope, fo)
+              val dfn = ScalaDfn(tree.symbol, getIdToken(tree, name.decode.trim), kind, scope, fo)
               if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
             }
 
@@ -763,7 +763,6 @@ abstract class ScalaAstVisitor {
       case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
       case _ if name == "expected" => ts.token
-      case _ if name == "_" => ScalaLexUtil.findNext(ts, ScalaTokenId.Wild)
         //      case (_, _) if name.startsWith("<error") => ts.token.id match {
         //          case ScalaTokenId.Dot =>
         //            // a. where, offset is at .
@@ -772,6 +771,12 @@ abstract class ScalaAstVisitor {
         //            // a.p where, offset is at p
         //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
         //        }
+      case ValDef(mods, namex, tpt, rhs) if sym hasFlag SYNTHETIC =>
+        // * is it a placeholder '_' token ?
+        ScalaLexUtil.findNext(ts, ScalaTokenId.Wild) match {
+          case x if x != null && x.offset(th) <= endOffset => x
+          case _ => null
+        }
       case Select(qual, selector) if sym hasFlag IMPLICIT =>
         // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
         rootScope.findNeastItemAt(th, offset) match {
