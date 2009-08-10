@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.netbeans.api.annotations.common.CheckForNull;
@@ -65,12 +66,25 @@ public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementati
 
     @CheckForNull
     public URL getFindBugsUrl(Project project, boolean remote) {
-        if (!remote) {
-            return null;
-        }
         URL url = null;
         NbModuleProvider prov = project.getLookup().lookup(NbModuleProvider.class);
         if (prov != null && prov.getModuleType() == NbModuleProvider.NETBEANS_ORG) {
+            if (!remote) {
+                File file = prov.getActivePlatformLocation();
+                File parent = file.getParentFile();
+                if (parent != null) {
+                    File findbugsFile = new File(parent, "build" + File.separator + "findbugs" + File.separator
+                            + prov.getCodeNameBase().replace('.', '-') + ".xml");
+                    if (findbugsFile.exists() && findbugsFile.isFile() && findbugsFile.canRead()) {
+                        try {
+                            return findbugsFile.toURI().toURL();
+                        } catch (MalformedURLException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                }
+            }
+
             try {
                 String urlStr = NB_HUDSON_FBUGS_URLROOT + prov.getCodeNameBase().replace('.', '-') + ".xml";
                 url = new URL(urlStr);
