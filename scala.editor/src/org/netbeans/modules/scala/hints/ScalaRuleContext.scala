@@ -54,10 +54,8 @@ class ScalaRuleContext() extends RuleContext {
 
     def getFileObject = parserResult.getSnapshot().getSource().getFileObject()
 
-    def getClasspathInfo  : Option[ClasspathInfo]  = {
-        val fo = getFileObject
-        ScalaSourceUtil.getClasspathInfoForFileObject(fo)
-    }
+    def getClasspathInfo  : Option[ClasspathInfo]  = 
+        ScalaSourceUtil.getClasspathInfoForFileObject(getFileObject)
 
     def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
         try {
