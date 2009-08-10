@@ -84,7 +84,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     val token = ts.token
     token.id match {
       case ScalaTokenId.Identifier if token.length == 1 && token.text.toString == "," => OffsetRange.NONE
-      case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super | ScalaTokenId.LArrow | ScalaTokenId.RArrow =>
+      case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super | ScalaTokenId.LArrow | ScalaTokenId.RArrow | ScalaTokenId.Wild =>
         new OffsetRange(ts.offset, ts.offset + token.length)
       case _ => OffsetRange.NONE
     }

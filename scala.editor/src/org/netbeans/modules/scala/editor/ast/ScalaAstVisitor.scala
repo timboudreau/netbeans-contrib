@@ -152,7 +152,7 @@ abstract class ScalaAstVisitor {
     if (unit.body ne null) {
       reset
       val rootTree = unit.body
-      this.rootScope = ScalaRootScope(getBoundsTokens(getOffset(rootTree), srcFile.length))
+      this.rootScope = ScalaRootScope(getBoundsTokens(0, srcFile.length))
       scopes push rootScope
       
       (new TreeVisitor) visit unit.body

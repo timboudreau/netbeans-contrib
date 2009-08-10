@@ -56,11 +56,12 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.rats.LexerScala
 import org.openide.filesystems.{FileObject, FileStateInvalidException, FileUtil}
 import org.openide.util.Exceptions
-import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.tools.nsc.Global
-import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
-import _root_.scala.tools.nsc.reporters.Reporter
-import _root_.scala.tools.nsc.util.{BatchSourceFile, Position,SourceFile}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.tools.nsc.{Global, Settings}
+import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.reporters.Reporter
+import scala.tools.nsc.util.{BatchSourceFile, Position,SourceFile}
 
 /**
  * 
@@ -399,10 +400,8 @@ class ScalaParser extends Parser {
 
     var rootScope: Option[ScalaRootScope] = None
 
-    // Scala global parser
-    val reporter = new ErrorReporter(context, doc, sanitizing)
     global = ScalaGlobal.getGlobal(context.fileObject)
-    global.reporter = reporter
+    global.reporter = new ErrorReporter(context, doc, sanitizing)
 
     val af = if (file != null)  new PlainFile(file) else new VirtualFile("<current>", "")
     val srcFile = new BatchSourceFile(af, source.toCharArray)
@@ -417,8 +416,7 @@ class ScalaParser extends Parser {
         ex.printStackTrace
       case ex: IllegalArgumentException =>
         // An internal exception thrown by ParserScala, just catch it and notify
-        notifyError(context, "SYNTAX_ERROR", ex.getMessage,
-                    0, 0, true, sanitizing, Severity.ERROR, Array(ex))
+        notifyError(context, "SYNTAX_ERROR", ex.getMessage, 0, 0, true, sanitizing, Severity.ERROR, Array(ex))
       case ex: Exception =>
         // Scala's global throws too many exceptions
         ex.printStackTrace
@@ -596,8 +594,7 @@ class ScalaParser extends Parser {
         }
 
         val isLineError = (end == -1)
-        notifyError(context, "SYNTAX_ERROR", msg,
-                    offset, end, isLineError, sanitizing, sev, Array(offset, msg))
+        notifyError(context, "SYNTAX_ERROR", msg, offset, end, isLineError, sanitizing, sev, Array(offset, msg))
       }
     }
   }
