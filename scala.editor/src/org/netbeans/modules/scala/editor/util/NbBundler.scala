@@ -44,4 +44,6 @@ import org.openide.util.NbBundle
 trait NbBundler {
 
     def locMessage(key : String) = NbBundle.getMessage(getClass, key)
+
+    def locMessage(key : String, value : String) = NbBundle.getMessage(getClass, key, value)
 }

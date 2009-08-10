@@ -128,9 +128,8 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
 
     class AddImportFix(name : String, fqn : String, context : ScalaRuleContext, offsetRange : OffsetRange) extends HintFix  {
-        val HINT_PREFIX = locMessage("ClassNotFoundRuleHintDescription")
 
-        override def getDescription = HINT_PREFIX + " " + fqn
+        override def getDescription = locMessage("ClassNotFoundRuleHintDescription", fqn)
         override val isSafe = true
         override val isInteractive = false
 
