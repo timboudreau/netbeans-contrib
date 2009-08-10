@@ -1317,8 +1317,8 @@ object CompletionRequest {
   private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
                                            ScalaTokenId.This,
                                            ScalaTokenId.Super,
-                                           ScalaTokenId.Class
-  )
+                                           ScalaTokenId.Class,
+                                           ScalaTokenId.Wild)
 
   private val JSDOC_WORDS = Array("@augments",
                                   "@class",
@@ -1344,8 +1344,7 @@ object CompletionRequest {
                                   "@scope",
                                   "@scope",
                                   "@static",
-                                  "@type"
-  )
+                                  "@type")
 
 }
 

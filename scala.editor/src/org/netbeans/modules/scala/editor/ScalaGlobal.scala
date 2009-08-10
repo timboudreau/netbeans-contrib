@@ -45,7 +45,7 @@ import _root_.java.util.WeakHashMap
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
-import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, SourceGroup}
+import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, Sources, SourceGroup}
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.spi.java.classpath.ClassPathProvider
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
@@ -62,6 +62,10 @@ import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.util.BatchSourceFile
 import scala.tools.nsc.io.AbstractFile
+import scala.collection.mutable.ArrayBuffer
+import scala.tools.nsc.reporters.ConsoleReporter
+import scala.tools.nsc.reporters.Reporter
+import scala.tools.nsc.util.Position
 
 /**
  *
@@ -101,6 +105,8 @@ object ScalaGlobal {
   private val ProjectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
   private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
   private var GlobalForStdLib: Option[ScalaGlobal] = None
+
+  private val dummyReport = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   def resetAll {
     ProjectToGlobal.clear
@@ -151,7 +157,7 @@ object ScalaGlobal {
     // * is this `fo` under test source?
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
-    // * Do not use srcCp as the key, different fo under same src dir seems returning diff instance of srcCp
+    // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
     val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
     if (globalRef != null) {
       globalRef.get match {
@@ -297,8 +303,72 @@ object ScalaGlobal {
         visited += out
       }
     }
-    
+
+    if (srcCp != null) {
+      // * we have to do following step to get mixed java sources visible to scala sources
+
+      project.getProjectDirectory.getFileSystem.addFileChangeListener(new FileChangeAdapter {
+          val srcRoots = srcCp.getRoots
+
+          private def isUnderSrcDir(fo: FileObject) = {
+            srcRoots.find(x => FileUtil.isParentOf(x, fo)).isDefined
+          }
+
+          override def fileDataCreated(fe: FileEvent): Unit = {
+            val fo = fe.getFile
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
+              global.reporter = dummyReport
+              global.compileSourcesForPresentation(List(fo))
+            }
+          }
+          
+          override def fileChanged(fe: FileEvent): Unit = {
+            val fo = fe.getFile
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
+              global.reporter = dummyReport
+              global.compileSourcesForPresentation(List(fo))
+            }
+          }
+
+          override def fileRenamed(fe: FileRenameEvent): Unit = {
+            val fo = fe.getFile
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
+              global.reporter = dummyReport
+              global.compileSourcesForPresentation(List(fo))
+            }
+          }
+
+          override def fileDeleted(fe: FileEvent): Unit = {
+            // @todo recompile all?
+          }
+        })
+      
+
+      val javaSrcs = new ArrayBuffer[FileObject]
+      srcCp.getRoots foreach {x => findAllSourcesOf("text/x-java", x, javaSrcs)}
+
+      if (!javaSrcs.isEmpty) {
+        val scalaSrcs = new ArrayBuffer[FileObject]
+        // * it seems we only need to push javaSrcs to global?
+        //srcCp.getRoots foreach {x => findAllSources("text/x-scala", x, scalaSrcs)}
+
+        // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
+        global.reporter = dummyReport
+        global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
+      }
+    }
+
     global
+  }
+
+  private def findAllSourcesOf(mimeType: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
+    dirFo.getChildren foreach {x =>
+      if (x.isFolder) {
+        findAllSourcesOf(mimeType, x, result)
+      } else if (x.getMIMEType == mimeType) {
+        result += x
+      }
+    }
   }
 
   private def findDirResouces(project: Project): SrcOutDirs = {
@@ -457,9 +527,27 @@ with ScalaUtils {
     val global: ScalaGlobal.this.type = ScalaGlobal.this
   } with ScalaAstVisitor
 
-  override def onlyPresentation = false
+  override def onlyPresentation = true
 
   override def logError(msg: String, t: Throwable): Unit = {}
+
+  def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
+    settings.stop.value = Nil
+    settings.stop.tryToSetColon(List(superAccessors.phaseName))
+    try {
+      new this.Run compile (srcFiles map {FileUtil.toFile(_).getAbsolutePath})
+    } catch {
+      case ex: AssertionError =>
+        /**
+         * @Note: avoid scala nsc's assert error. Since global's
+         * symbol table may have been broken, we have to reset ScalaGlobal
+         * to clean this global
+         */
+        ScalaGlobal.reset(this)
+      case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex: Throwable => // just ignore all ex
+    }
+  }
 
   def compileSourceForPresentation(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, superAccessors.phaseName, th)
@@ -502,7 +590,7 @@ with ScalaUtils {
         case unit if (unit.source == srcFile) =>
           if (ScalaGlobal.debug) {
             RequestProcessor.getDefault.post(new Runnable {
-                def run: Unit = {
+                def run {
                   treeBrowser.browse(unit.body)
                 }
               })
