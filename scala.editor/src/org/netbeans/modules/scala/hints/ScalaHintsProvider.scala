@@ -46,6 +46,7 @@ import java.{ lang => jl, util => ju }
 import org.netbeans.modules.csl.api.HintsProvider.HintsManager;
 import org.netbeans.modules.csl.api._;
 import org.netbeans.modules.csl.spi.ParserResult;
+import scala.collection.mutable.ListBuffer
 
 class ScalaHintsProvider() extends HintsProvider {
 
@@ -71,8 +72,21 @@ class ScalaHintsProvider() extends HintsProvider {
      * the given suggestion list.
      */
     def computeSelectionHints(manager : HintsManager, context : RuleContext, suggestions : ju.List[Hint], start : Int, end : Int) : Unit = {
-
-    }
+      println("compute selections")
+      cancelled = false
+      val parserResult = context.parserResult;
+      if (parserResult != null) {
+        val selHints  = manager.getSelectionHints.asInstanceOf[ju.List[ScalaSelectionRule]]
+        if (!selHints.isEmpty && !cancelled) {
+          try {
+            context.doc.readLock();
+            suggestions.addAll(applySelectionRules(manager, context.asInstanceOf[ScalaRuleContext], selHints, start, end))
+          } finally {
+            context.doc.readUnlock();
+          }
+        }
+      }
+  }
 
     /**
      * Process the errors for the given compilation info, and add errors and
@@ -85,12 +99,8 @@ class ScalaHintsProvider() extends HintsProvider {
         val parserResult = context.parserResult;
         if (parserResult != null) {
             val errors = JavaConversions.asBuffer(parserResult.getDiagnostics);
-            println("errors=" + parserResult.getDiagnostics)
             if (errors != null && !errors.isEmpty) {
                 val errHints  = manager.getErrors.asInstanceOf[ju.Map[String, ju.List[ScalaErrorRule]]]
-                println("two=" + errHints)
-                println("two2=" + manager.getHints)
-                println("two3=" + manager.getSuggestions)
 
                 if (errHints.isEmpty || cancelled) {
                     unhandled.addAll(errors)
@@ -126,6 +136,19 @@ class ScalaHintsProvider() extends HintsProvider {
             false
         }
     }
+
+   def applySelectionRules(manager : HintsManager, context : ScalaRuleContext,  selHints : ju.List[ScalaSelectionRule], start : Int, end : Int) : List[Hint] = {
+       val added = ListBuffer[Hint]()
+       val applicableRules = for {
+           rule <- selHints
+           if rule.appliesTo(context)
+       } yield rule
+       for (rule <- applicableRules) {
+           added ++= rule.createHints(context, start, end)
+       }
+       added.toList
+    }
+
 
 
     /**

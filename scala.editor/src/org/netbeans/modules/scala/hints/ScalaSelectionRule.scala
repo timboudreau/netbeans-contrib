@@ -40,17 +40,10 @@
 package org.netbeans.modules.scala.hints
 
 import org.netbeans.modules.csl.api.Hint
-import org.netbeans.modules.csl.api.Rule
-import org.netbeans.modules.csl.api.Error
+import org.netbeans.modules.csl.api.Rule.SelectionRule
 
-abstract class ScalaErrorRule extends Rule.ErrorRule {
-    
-    def createHints(context : ScalaRuleContext, error : Error) : List[Hint]
+abstract class ScalaSelectionRule extends SelectionRule {
 
-}
-
-object ScalaErrorRule {
-    val SYNTAX_ERROR = "SYNTAX_ERROR"
-
+    def createHints(context : ScalaRuleContext, start : Int, end : Int) : List[Hint]
 
 }
