@@ -582,10 +582,10 @@ object ScalaSourceUtil {
     for (root <- sourceRoots) {
       result.addAll(getMainClassesAsJavaCollection(root))
       try {
-        val bootPath = ClassPath.getClassPath(root, ClassPath.BOOT)
-        val compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE)
-        val srcPath = ClassPathSupport.createClassPath(Array(root): _*)
-        val cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath)
+        val bootCp = ClassPath.getClassPath(root, ClassPath.BOOT)
+        val compileCp = ClassPath.getClassPath(root, ClassPath.COMPILE)
+        val srcCp = ClassPathSupport.createClassPath(Array(root): _*)
+        val cpInfo = ClasspathInfo.create(bootCp, compileCp, srcCp)
         //                final Set<AstElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
         //                Source js = Source.create(cpInfo);
         //                js.runUserActionTask(new CancellableTask<CompilationController>() {

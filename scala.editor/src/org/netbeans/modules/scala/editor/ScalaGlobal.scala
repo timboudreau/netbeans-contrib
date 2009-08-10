@@ -170,10 +170,11 @@ object ScalaGlobal {
 
     var outPath = ""
     var srcPaths: List[String] = Nil
-    var firstGot = false
     for ((src, out) <- if (forTest) dirs.testSrcOutDirsPath else dirs.srcOutDirsPath) {
       srcPaths = src :: srcPaths
-      if (!firstGot) outPath = out
+      if (outPath == "") {
+        outPath = out
+      }
     }
     settings.sourcepath.tryToSet(srcPaths.reverse)
     settings.outputDirs.setSingleOutput(outPath)
@@ -187,13 +188,17 @@ object ScalaGlobal {
 
     // * add boot, compile classpath
     val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
-    var (bootCp, compCp): (ClassPath, ClassPath) = if (cpp != null) {
-      (cpp.findClassPath(fo, ClassPath.BOOT), cpp.findClassPath(fo, ClassPath.COMPILE))
-    } else (null, null)
+    var (bootCp, compCp, srcCp): (ClassPath, ClassPath, ClassPath) = if (cpp != null) {
+      (cpp.findClassPath(fo, ClassPath.BOOT), 
+       cpp.findClassPath(fo, ClassPath.COMPILE),
+       cpp.findClassPath(fo, ClassPath.SOURCE))
+    } else (null, null, null)
+
+    if (srcCp != null) println("project's srcDir: [" + srcCp.getRoots.mkString(", ") + "]") else println("project's srcDir is empty !")
 
     var inStdLib = false
     if (bootCp == null || compCp == null) {
-      // * in case of fo in standard libaray
+      // * in case of `fo` in standard libaray
       inStdLib = true
       bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
       compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
@@ -288,6 +293,7 @@ object ScalaGlobal {
               ProjectToDirs.remove(project)
             }
           })
+        
         visited += out
       }
     }
@@ -298,26 +304,29 @@ object ScalaGlobal {
   private def findDirResouces(project: Project): SrcOutDirs = {
     val dirs = new SrcOutDirs
 
-    val sgs = ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_SCALA) match {
-      case Array() =>
-        // * found none, as a fallback use java ones ..
-        ProjectUtils.getSources(project).getSourceGroups(SOURCES_TYPE_JAVA)
-      case x => x
-    }
+    val sources = ProjectUtils.getSources(project)
+    val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
+    val javaSgs = sources.getSourceGroups(SOURCES_TYPE_JAVA)
 
-    if (sgs.size > 0) {
-      val src = sgs(0).getRootFolder
-      val out = findOutDir(project, src)
-      dirs.srcOutDirs += (src -> out)
-    }
+    println("project's src group[Scala] dir: [" + scalaSgs.map{_.getRootFolder}.mkString(", ") + "]")
+    println("project's src group[Java] dir: [" + javaSgs.map{_.getRootFolder}.mkString(", ") + "]")
 
-    if (sgs.size > 1) { // the 2nd one is test src
-      val src = sgs(1).getRootFolder
-      val out = findOutDir(project, src)
-      dirs.testSrcOutDirs += (src -> out)
-    }
+    List(scalaSgs, javaSgs) foreach {sgs =>
+      if (sgs.size > 0) {
+        val src = sgs(0).getRootFolder
+        val out = findOutDir(project, src)
+        dirs.srcOutDirs += (src -> out)
+      }
 
-    // @todo add other srcs
+      if (sgs.size > 1) { // the 2nd one is test src
+        val src = sgs(1).getRootFolder
+        val out = findOutDir(project, src)
+        dirs.testSrcOutDirs += (src -> out)
+      }
+
+      // @todo add other srcs
+    }
+    
     dirs
   }
 
