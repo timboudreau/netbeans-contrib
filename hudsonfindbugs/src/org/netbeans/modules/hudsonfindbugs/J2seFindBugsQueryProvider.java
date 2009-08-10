@@ -43,6 +43,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
@@ -64,9 +65,12 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
         return new J2seFindBugsQueryProvider();
     }
     
-    
+    @CheckForNull
     public URL getFindBugsUrl(Project project, boolean remote) {
-        if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
+        if (!remote) {
+            return null;
+        }
+
         URL url = null;
         String urlValue = null;
         // TODO when the provider is only in project's lookup this condition is not necessary.

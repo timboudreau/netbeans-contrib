@@ -44,8 +44,11 @@ package org.netbeans.modules.hudsonfindbugs.api;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
+import org.openide.util.Parameters;
 
 /**
  * Find the Hudson FindBugs scan result files for projects. Files may be located either on 
@@ -66,10 +69,9 @@ public class FindBugsQuery {
      * @return URL to findbugs file for project 'project' or null if the url is not defined. Note the physical resource 
      * itself might not exist.
      */
-    public static URL getFindBugsUrl(Project project, boolean remote) {
-        if (project == null) {
-            throw new NullPointerException("Passed null to FindBugsQuery.getFindBugsUrl(Project, boolean)"); // NOI18N
-        }
+    @CheckForNull
+    public static URL getFindBugsUrl(@NonNull Project project, boolean remote) {
+        Parameters.notNull("project", project);
         FindBugsQueryImplementation query = project.getLookup().lookup(FindBugsQueryImplementation.class);
         if (query != null) {
             URL url = query.getFindBugsUrl(project, remote);
@@ -86,10 +88,9 @@ public class FindBugsQuery {
      * @return Local file if present, otherwise remote file. Null if the url is not defined. Note the physical resource 
      * itself might not exist.
      */
-    public static URL getFindBugsUrl(Project project) {
-        if (project == null) {
-            throw new NullPointerException("Passed null to FindBugsQuery.getFindBugsUrl(Project)"); // NOI18N
-        }
+    @CheckForNull
+    public static URL getFindBugsUrl(@NonNull Project project) {
+        Parameters.notNull("project", project);
         FindBugsQueryImplementation query = project.getLookup().lookup(FindBugsQueryImplementation.class);
         if (query != null) {
             URL url = query.getFindBugsUrl(project, false);

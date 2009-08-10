@@ -41,6 +41,7 @@ package org.netbeans.modules.hudsonfindbugs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.apisupport.project.spi.NbModuleProvider;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
@@ -53,7 +54,7 @@ import org.openide.util.Exceptions;
 public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementation {
 
     private final static String NB_HUDSON_FBUGS_URLROOT = 
-            "http://deadlock.netbeans.org/hudson/job/FindBugs/lastSuccessfulBuild/artifact/nbbuild/build/findbugs/";
+            "http://qa-findbugs.netbeans.org/job/All-FindBugs/lastSuccessfulBuild/artifact/nbbuild/build/findbugs/";
     
     public NBMFindBugsQueryProvider() {}
     
@@ -61,9 +62,12 @@ public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementati
         // TODO possibly also use just one static instance everywhere..
         return new NBMFindBugsQueryProvider();
     }
-    
+
+    @CheckForNull
     public URL getFindBugsUrl(Project project, boolean remote) {
-        if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
+        if (!remote) {
+            return null;
+        }
         URL url = null;
         NbModuleProvider prov = project.getLookup().lookup(NbModuleProvider.class);
         if (prov != null && prov.getModuleType() == NbModuleProvider.NETBEANS_ORG) {

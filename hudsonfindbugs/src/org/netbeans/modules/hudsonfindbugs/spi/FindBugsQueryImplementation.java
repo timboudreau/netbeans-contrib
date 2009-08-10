@@ -42,6 +42,7 @@
 package org.netbeans.modules.hudsonfindbugs.spi;
 
 import java.net.URL;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 
 /**
@@ -62,6 +63,7 @@ public interface FindBugsQueryImplementation {
      * @return URL for the findbugs results file on remote server if remote is true, otherwise local location; 
      * If the resource doesn't exist, return null
      */
+    @CheckForNull
     URL getFindBugsUrl(Project project, boolean remote);
 
 }

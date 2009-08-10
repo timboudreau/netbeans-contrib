@@ -105,18 +105,23 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                 if (file != null) {
                     ParseRequest req = new ParseRequest();
                     Project project = FileOwnerQuery.getOwner(file);
-                    req.projectRoot = file;
-                    URL url = FindBugsQuery.getFindBugsUrl(project, true);
-                    req.url = url;
-                    req.callback = callback;
-                    req.scanner = this;
-                    RP.post(req);
+                    URL url = FindBugsQuery.getFindBugsUrl(project);
+                    if (url != null) {
+                        req.projectRoot = file;
+                        req.url = url;
+                        req.callback = callback;
+                        req.scanner = this;
+                        RP.post(req);
+                    }
                 }
             } else {            
                 for (Project project : projects) {
                     ParseRequest req = new ParseRequest();
+                    URL url = FindBugsQuery.getFindBugsUrl(project);
+                    if (url == null) {
+                        continue;
+                    }
                     req.projectRoot = project.getProjectDirectory();
-                    URL url = FindBugsQuery.getFindBugsUrl(project, true);
                     req.url = url;
                     req.callback = callback;
                     req.scanner = this;
