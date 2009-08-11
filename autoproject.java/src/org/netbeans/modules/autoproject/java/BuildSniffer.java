@@ -48,6 +48,7 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -113,6 +114,13 @@ public class BuildSniffer extends AntLogger {
     private static class State {
 
         /**
+         * Cache keys of any sort to be written in this session.
+         * Prefer to write them all at once at end of build to minimize the event storm
+         * and subsequent rescanning.
+         */
+        final Map<String,String> toWrite = new LinkedHashMap<String,String>();
+
+        /**
          * Cache keys of path type already written during this session.
          * If they come up again in the same session, append to them rather than overwriting them.
          * This is useful in case a script compiles the same source root several times
@@ -137,6 +145,16 @@ public class BuildSniffer extends AntLogger {
          */
         final Map<String,String> filesetBasedirs = new HashMap<String,String>();
 
+    }
+
+    public @Override void buildFinished(AntEvent event) {
+        State state = (State) event.getSession().getCustomData(this);
+        if (state == null) {
+            return;
+        }
+        for (Map.Entry<String,String> entry : state.toWrite.entrySet()) {
+            Cache.put(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
@@ -265,7 +283,7 @@ public class BuildSniffer extends AntLogger {
         for (String s : sources) {
             String includesKey = s + JavaCacheConstants.INCLUDES;
             if (includes.isEmpty()) {
-                Cache.put(includesKey, null);
+                state.toWrite.put(includesKey, null);
             } else {
                 writePath(includesKey, includes, state, true, ',');
             }
@@ -275,7 +293,7 @@ public class BuildSniffer extends AntLogger {
                 writePath(s + JavaCacheConstants.BOOTCLASSPATH, bootclasspath, state, true, File.pathSeparatorChar);
             }
             if (destdir != null) {
-                Cache.put(s + JavaCacheConstants.BINARY, destdir);
+                state.toWrite.put(s + JavaCacheConstants.BINARY, destdir);
             }
             String sourceLevel = task.getAttribute("source");
             if (sourceLevel != null) {
@@ -283,11 +301,11 @@ public class BuildSniffer extends AntLogger {
                 if (level.matches("\\d+")) {
                     level = "1." + level;
                 }
-                Cache.put(s + JavaCacheConstants.SOURCE_LEVEL, level);
+                state.toWrite.put(s + JavaCacheConstants.SOURCE_LEVEL, level);
             }
             String encoding = task.getAttribute("encoding");
             if (encoding != null) {
-                Cache.put(s + Cache.ENCODING, event.evaluate(encoding));
+                state.toWrite.put(s + Cache.ENCODING, event.evaluate(encoding));
             }
             writePath(s + JavaCacheConstants.SOURCE, sources, state, true, File.pathSeparatorChar);
         }
@@ -401,7 +419,7 @@ public class BuildSniffer extends AntLogger {
                 }
             }
         }
-        Cache.put(key, writtenPath != null ? join(writtenPath, separator) : null);
+        state.toWrite.put(key, writtenPath != null ? join(writtenPath, separator) : null);
     }
 
     private static void appendPath(String raw, AntEvent event, List<String> entries, boolean split) {
