@@ -100,7 +100,7 @@ trait ScalaDfns {self: ScalaGlobal =>
     }
 
     def getDocComment: String = {
-      val srcDoc = doc match {
+      val srcDoc = getDoc match {
         case Some(x) => x
         case None => return ""
       }

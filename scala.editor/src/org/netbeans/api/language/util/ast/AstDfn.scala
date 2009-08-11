@@ -129,7 +129,7 @@ abstract class AstDfn(_idToken: Option[Token[TokenId]],
     //return getName().equals(def.getName())
   }
 
-  def doc: Option[BaseDocument] = {
+  def getDoc: Option[BaseDocument] = {
     fo match {
       case Some(x) => GsfUtilities.getDocument(x, true) match {
           case null => None
