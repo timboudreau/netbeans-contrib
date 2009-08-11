@@ -71,7 +71,7 @@ import org.netbeans.modules.scala.editor.actions.FixImportsHelper
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
-    val DEFAULT_PRIORITY = 292;
+    val DEFAULT_PRIORITY = 292
 
     override def appliesTo(context : RuleContext) : Boolean = true
 
@@ -155,7 +155,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             val doc = context.doc
 
             val packageName = fqn.substring(0, fqn.length - (name.length + 1));
-            val th = TokenHierarchy.get(doc)
+            val th = context.getTokenHierarchy
             val ts = ScalaLexUtil.getTokenSequence(th, 0).get
             ts.move(0)
             
