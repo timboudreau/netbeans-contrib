@@ -311,7 +311,7 @@ object ScalaGlobal {
           val srcRoots = srcCp.getRoots
 
           private def isUnderSrcDir(fo: FileObject) = {
-            srcRoots.find(x => FileUtil.isParentOf(x, fo)).isDefined
+            srcRoots.find{x => FileUtil.isParentOf(x, fo)}.isDefined
           }
 
           override def fileDataCreated(fe: FileEvent): Unit = {

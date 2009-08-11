@@ -212,8 +212,8 @@ class ScalaStructureAnalyzer extends StructureScanner {
 
     override def isLeaf: Boolean = {
       dfn.getKind match {
-        case MODULE | CLASS | METHOD => false
-        case CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
+        case MODULE | CLASS => false
+        case METHOD | CONSTRUCTOR | FIELD | VARIABLE | OTHER | PARAMETER | ATTRIBUTE => true
         case _ => true
       }
     }
