@@ -49,6 +49,8 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.core.AutomaticProjectFactory;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
+import org.openide.util.test.MockLookup;
 import org.openide.util.test.TestFileUtils;
 
 public class BuildSnifferTest extends NbTestCase {
@@ -65,6 +67,7 @@ public class BuildSnifferTest extends NbTestCase {
         Cache.clear();
         prefix = getWorkDirPath() + File.separator;
         AutomaticProjectFactory.setAutomaticDetectionMode(true);
+        MockLookup.setInstances(Lookup.EMPTY); // suppress MainLookup
     }
 
     public void testBasicJavac() throws Exception {
@@ -82,6 +85,29 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "x.jar", Cache.get(prefix + "s" + JavaCacheConstants.CLASSPATH));
         assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.BOOTCLASSPATH));
         assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
+    }
+
+    public void testJavaLevels() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='5' target='5'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='7'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("1.7", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
     }
 
     public void testParallelSourceTrees() throws Exception {
@@ -296,6 +322,45 @@ public class BuildSnifferTest extends NbTestCase {
                 "</project>\n");
         runAnt();
         assertEquals("foo bar/,sub2/", Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg1/,pkg2/' excludes='**/impl/,**/Special.java'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg3/' excludes='**/impl/'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("pkg1/,pkg2/,pkg3/", Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals("**/impl/", Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg1/, pkg2/'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg3/'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("pkg1/,pkg2/,pkg3/", Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg1/' excludes='pkg2'/>\n" +
+                "  <javac srcdir='s' destdir='c'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
         assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
         // XXX unless attr, nested <includesfile> w/ if/unless, ...
         // XXX would be nice to also honor <selector>s as used by Apache Ant's build script
