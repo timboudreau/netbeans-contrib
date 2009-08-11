@@ -263,14 +263,19 @@ public class BuildSniffer extends AntLogger {
                 state.sourceForBinary.put(destdir, otherSourceRoots);
             }
         }
-        String includes = findInclExclProp(event, task, "includes", "includesfile", "include", true);
-        String excludes = findInclExclProp(event, task, "excludes", "excludesfile", "exclude", false);
+        List<String> includes = findInclExclProp(event, task, "includes", "includesfile", "include", true);
+        List<String> excludes = findInclExclProp(event, task, "excludes", "excludesfile", "exclude", false);
         for (String s : sources) {
-            Cache.put(s + JavaCacheConstants.INCLUDES, includes);
-            Cache.put(s + JavaCacheConstants.EXCLUDES, excludes);
-            writePath(s + JavaCacheConstants.CLASSPATH, classpath, state);
+            String includesKey = s + JavaCacheConstants.INCLUDES;
+            if (includes.isEmpty()) {
+                Cache.put(includesKey, null);
+            } else {
+                writePath(includesKey, includes, state, true, ',');
+            }
+            writePath(s + JavaCacheConstants.EXCLUDES, excludes.isEmpty() ? null : excludes, state, false, ',');
+            writePath(s + JavaCacheConstants.CLASSPATH, classpath, state, true, File.pathSeparatorChar);
             if (!bootclasspath.isEmpty()) {
-                writePath(s + JavaCacheConstants.BOOTCLASSPATH, bootclasspath, state);
+                writePath(s + JavaCacheConstants.BOOTCLASSPATH, bootclasspath, state, true, File.pathSeparatorChar);
             }
             if (destdir != null) {
                 Cache.put(s + JavaCacheConstants.BINARY, destdir);
@@ -283,12 +288,12 @@ public class BuildSniffer extends AntLogger {
             if (encoding != null) {
                 Cache.put(s + Cache.ENCODING, event.evaluate(encoding));
             }
-            writePath(s + JavaCacheConstants.SOURCE, sources, state);
+            writePath(s + JavaCacheConstants.SOURCE, sources, state, true, File.pathSeparatorChar);
         }
     }
 
-    private String findInclExclProp(AntEvent event, TaskStructure task, String prop, String fileprop, String nested, boolean includesMode) {
-        StringBuilder val = new StringBuilder();
+    private List<String> findInclExclProp(AntEvent event, TaskStructure task, String prop, String fileprop, String nested, boolean includesMode) {
+        List<String> val = new ArrayList<String>();
         String propV = task.getAttribute(prop);
         if (propV != null) {
             for (String pattern : event.evaluate(propV).split("[, ]+")) {
@@ -328,9 +333,9 @@ public class BuildSniffer extends AntLogger {
                 addInclExcl(val, event.evaluate(child.getAttribute("name")), includesMode);
             }
         }
-        return val.length() > 0 ? val.toString() : null;
+        return val;
     }
-    private void addInclExcl(StringBuilder val, String pattern, boolean includesMode) {
+    private void addInclExcl(List<String> val, String pattern, boolean includesMode) {
         if (pattern.length() == 0) {
             return;
         }
@@ -346,10 +351,7 @@ public class BuildSniffer extends AntLogger {
             // Again a poorly written build script which really meant to exclude the _folder_.
             pattern = pattern.substring(0, pattern.length() - 6);
         }
-        if (val.length() > 0) {
-            val.append(',');
-        }
-        val.append(pattern);
+        val.add(pattern);
     }
 
     private void handleJar(AntEvent event, State state) {
@@ -374,20 +376,31 @@ public class BuildSniffer extends AntLogger {
                 }
             }
         }
-        writePath(key, basedirs, state);
+        writePath(key, basedirs, state, true, File.pathSeparatorChar);
     }
 
-    private static void writePath(String key, List<String> path, State state) {
+    private static void writePath(String key, List<String> path, State state, boolean union, char separator) {
         Set<String> writtenPath;
         synchronized (state.writtenKeys) {
             writtenPath = state.writtenKeys.get(key);
             if (writtenPath == null) {
-                writtenPath = new LinkedHashSet<String>();
-                state.writtenKeys.put(key, writtenPath);
+                if (path != null) {
+                    writtenPath = new LinkedHashSet<String>(path);
+                    state.writtenKeys.put(key, writtenPath);
+                }
+            } else if (union) {
+                if (path != null) {
+                    writtenPath.addAll(path);
+                }
+            } else {
+                if (path != null) {
+                    writtenPath.retainAll(path);
+                } else {
+                    writtenPath = null;
+                }
             }
-            writtenPath.addAll(path);
         }
-        Cache.put(key, join(writtenPath));
+        Cache.put(key, writtenPath != null ? join(writtenPath, separator) : null);
     }
 
     private static void appendPath(String raw, AntEvent event, List<String> entries, boolean split) {
@@ -532,11 +545,11 @@ public class BuildSniffer extends AntLogger {
         }
     }
 
-    private static String join(Iterable<String> path) {
+    private static String join(Iterable<String> path, char separator) {
         StringBuilder b = new StringBuilder();
         for (String p : path) {
             if (b.length() > 0) {
-                b.append(File.pathSeparatorChar);
+                b.append(separator);
             }
             b.append(p);
         }
