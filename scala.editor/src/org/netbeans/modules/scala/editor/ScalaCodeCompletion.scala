@@ -1824,10 +1824,15 @@ abstract class CompletionRequest {
     //            // this maybe an object, which can not be resolved by scala's compiler
     //            symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
     //        }
-    val a = sym.tpe
-    val resType = if (sym == NoSymbol) {
-      item.resultType.asInstanceOf[Type]
-    } else getResultType(sym.tpe)
+
+    // * use explict assigned `resultType` first
+    val resType = item.resultType match {
+      case null => getResultType(sym.tpe)
+      case x => x.asInstanceOf[Type]
+    }
+    //val resType = if (sym == NoSymbol || tpe == ErrorType) {
+    //  item.resultType.asInstanceOf[Type]
+    //} else getResultType(sym.tpe)
 
     if (resType == null) {
       return false
@@ -1901,7 +1906,15 @@ abstract class CompletionRequest {
     } else null
 
     if (idToken != null) {
-      val item = rootScope.findItemAt(th, idToken.offset(th))
+      val items = rootScope.findItemsAt(th, idToken.offset(th))
+      val item = items.find{_.resultType != null} match {
+        case Some(x) => Some(x)
+        case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
+            case Some(x) => Some(x)
+            case None => if (items.isEmpty) None else Some(items.head)
+          }
+      }
+
       if (times == 0) {
         if (call.caretAfterDot) {
           call.base = item

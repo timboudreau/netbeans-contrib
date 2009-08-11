@@ -50,7 +50,7 @@ import org.openide.filesystems.{FileObject}
 trait AstItem extends ForElementHandle {
 
   type S  // type of symbol
-  type T // type of symbol's type
+  type T  // type of symbol's type
 
   def make(idToken: Option[Token[TokenId]], kind: ElementKind): Unit = {
     this.idToken = idToken

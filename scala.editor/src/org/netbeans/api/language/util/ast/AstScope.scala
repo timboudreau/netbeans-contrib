@@ -138,11 +138,6 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def addRef(ref: AstRef): Boolean = {
     ref.idToken match {
       case Some(x) =>
-        /** if a def or ref that corresponds to this idToekn has been added, this ref won't be added */
-        if (root.contains(x)) {
-          return false
-        }
-
         root.put(x, ref)
         _refs = ref :: _refs
         refsSorted = false
@@ -153,7 +148,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   }
 
   def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
-    // Always seach Ref first, since Ref can be included in Def's range
+    // * Always seach Ref first, since Ref can be included in Dfn's range
     if (!refsSorted) {
       _refs sort {compareRef(th, _, _)}
       refsSorted = true

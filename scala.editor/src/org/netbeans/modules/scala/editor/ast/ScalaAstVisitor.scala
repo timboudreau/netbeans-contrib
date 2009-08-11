@@ -167,7 +167,7 @@ abstract class ScalaAstVisitor {
 
     private val buf = new StringBuilder
 
-    private var maybeType: Option[Type] = None
+    private var qualiferMaybeType: Option[Type] = None
 
     def visit(tree: Tree): String = {
       def traverse(tree: Tree, level: Int, comma: Boolean) {
@@ -492,50 +492,56 @@ abstract class ScalaAstVisitor {
             }
 
             val name = selector.decode.trim
-            if (!name.startsWith("<error")) {
-              val idToken = getIdToken(tree, name)
-              val ref = ScalaRef(sym, idToken, kind)
-              if (sym != null && sym == NoSymbol && maybeType.isDefined) {
-                ref.resultType = maybeType.get
-              }
-              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-            }
-
+            val idToken = getIdToken(tree, name)
+            val ref = ScalaRef(sym, idToken, kind)
             /**
-             * For error Select tree, the qual type may stored, try to fetch it now
+             * @Note: this symbol may has wrong tpe, for example, an error tree,
+             * to get the proper resultType, we'll check if the qualierMaybeType isDefined
              */
-            def guessMaybeType {
-              val qualSym = qualifier.symbol
-              if (qualSym != null && qualSym == NoSymbol) {
-                maybeType = global.selectTypeErrors.get(tree)
-              }
+            if (qualiferMaybeType.isDefined) {
+              ref.resultType = qualiferMaybeType.get
             }
 
-            qualifier match {
-              case Ident(name) => guessMaybeType
-              case Apply(fun, args) => guessMaybeType
-              case Select(qualifier, selector) => guessMaybeType
-              case _ =>
-            }
+            //* is this tree marked as select type error? if so, the qualifier may be below type
+            qualiferMaybeType = global.selectTypeErrors.get(tree)
+              
+            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
 
             println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)
             printcln("  \"" + selector + "\")")
 
-            maybeType = None
+            // * reset qualiferMaybeType
+            qualiferMaybeType = None
+
+          case Apply(fun, args) =>
+            // * this tree's `fun` part is extractly an `Ident` tree, so add ref at Ident(name) instead here
+            println("Apply(" + nodeinfo(tree))
+            traverse(fun, level + 1, true)
+            if (args.isEmpty) println("  List() // no argument")
+            else {
+              val n = args.length
+              println("  List( // " + n + " argument(s)")
+              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
+              println("  )")
+            }
+            printcln(")")
 
           case Ident(name) =>
             val sym = tree.symbol
             if (sym != null) {
-              val ref = ScalaRef(sym, getIdToken(tree, name.decode.trim), ElementKind.OTHER)
-              /**
-               * @Note: this symbol may be NoSymbol, for example, an error tree,
-               * to get error recover in code completion, we need to also add it as a ref
-               */
-              if (sym == NoSymbol && maybeType.isDefined) {
-                ref.resultType = maybeType.get
-              }
+              val idToken = getIdToken(tree, name.decode.trim)
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
 
+              /**
+               * @Note: this symbol may has wrong tpe, for example, an error tree,
+               * to get the proper resultType, we'll check if the qualierMaybeType isDefined
+               */
+              val tpe = sym.tpe
+              if (qualiferMaybeType.isDefined) {
+                ref.resultType = qualiferMaybeType.get
+              }
+              
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
 
@@ -560,18 +566,6 @@ abstract class ScalaAstVisitor {
             else {
               val n = args.length
               println("  List( // " + n + " arguments(s)")
-              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
-              println("  )")
-            }
-            printcln(")")
-
-          case Apply(fun, args) =>
-            println("Apply(" + nodeinfo(tree))
-            traverse(fun, level + 1, true)
-            if (args.isEmpty) println("  List() // no argument")
-            else {
-              val n = args.length
-              println("  List( // " + n + " argument(s)")
               for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
               println("  )")
             }
@@ -763,20 +757,13 @@ abstract class ScalaAstVisitor {
       case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
       case _ if name == "expected" => ts.token
-        //      case (_, _) if name.startsWith("<error") => ts.token.id match {
-        //          case ScalaTokenId.Dot =>
-        //            // a. where, offset is at .
-        //            ScalaLexUtil.findPrevious(ts, ScalaTokenId.Identifier)
-        //          case _ =>
-        //            // a.p where, offset is at p
-        //            ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-        //        }
       case ValDef(mods, namex, tpt, rhs) if sym hasFlag SYNTHETIC =>
         // * is it a placeholder '_' token ?
         ScalaLexUtil.findNext(ts, ScalaTokenId.Wild) match {
           case x if x != null && x.offset(th) <= endOffset => x
           case _ => null
         }
+        
       case Select(qual, selector) if sym hasFlag IMPLICIT =>
         // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
         rootScope.findNeastItemAt(th, offset) match {
@@ -785,9 +772,13 @@ abstract class ScalaAstVisitor {
         }
         null
         
+      case Select(qual, selector) if name == "apply" =>
+        // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
+        //val content = getContent(offet, endOffset
+        ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
+
       case Select(qual, selector) if endOffset > 0 =>
         // * for Select tree, will look backward from endOffset
-        //val chars = srcFile.content.subSequence(offset, endOffset)
         ts.move(endOffset)
         findIdTokenBackward(ts, name, offset, endOffset) match {
           case Some(x) => x
@@ -804,7 +795,6 @@ abstract class ScalaAstVisitor {
         }
         
       case _ =>
-        //val chars = srcFile.content.subSequence(offset, endOffset)
         findIdTokenForward(ts, name, offset, endOffset) match {
           case Some(x) => x
           case None => null
@@ -850,14 +840,19 @@ abstract class ScalaAstVisitor {
     } else None
   }
   
-  private def tokenNameEquals(token: Token[_], name: String) = {
+  private def tokenNameEquals(token: Token[_], name: String): Boolean = {
     val text = token.text.toString.trim
     token.id match {
       case ScalaTokenId.SymbolLiteral => text.substring(1, text.length - 1) == name // strip '`'
-      case ScalaTokenId.LArrow => name == "foreach" || name == "map"
+      case ScalaTokenId.LArrow if name == "foreach" || name == "map" => true
+      case ScalaTokenId.Identifier if name == "apply" || name.startsWith("<error") => true // return the first matched identifier token
       case _ if name.endsWith("_=") => text + "_=" == name
       case _ => text == name
     }
+  }
+
+  private def getContent(offset: Int, endOffset: Int): CharSequence = {
+    srcFile.content.subSequence(offset, endOffset)
   }
 
   protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {
