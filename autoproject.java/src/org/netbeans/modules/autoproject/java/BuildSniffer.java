@@ -77,9 +77,6 @@ public class BuildSniffer extends AntLogger {
 
     private static final Logger LOG = Logger.getLogger(BuildSniffer.class.getName());
 
-    /** Default constructor for lookup. */
-    public BuildSniffer() {}
-
     @Override
     public boolean interestedInSession(AntSession session) {
         FileObject script = FileUtil.toFileObject(session.getOriginatingScript());
@@ -119,8 +116,8 @@ public class BuildSniffer extends AntLogger {
          * Cache keys of path type already written during this session.
          * If they come up again in the same session, append to them rather than overwriting them.
          * This is useful in case a script compiles the same source root several times
-         * with different includes using a different classpath each time.
-         * The IDE cannot really model this, but it can offer the union of those classpaths.
+         * with different includes and possibly using a different classpath each time.
+         * The IDE cannot really model this, but it can offer the union of those classpaths and/or includes.
          */
         final Map<String,Set<String>> writtenKeys = new HashMap<String,Set<String>>();
 
