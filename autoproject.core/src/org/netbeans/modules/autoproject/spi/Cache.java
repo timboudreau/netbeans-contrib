@@ -147,7 +147,7 @@ public class Cache {
             }
             LOG.log(Level.FINE, "put({0}, {1})", new Object[] {key, value});
             if (value != null) {
-                String[] pieces = value.split("(?<=[" + File.pathSeparator + "])");
+                String[] pieces = value.split("(?<=[" + File.pathSeparator + ",])");
                 if (pieces.length > 1) {
                     data.setProperty(key, pieces);
                 } else {
