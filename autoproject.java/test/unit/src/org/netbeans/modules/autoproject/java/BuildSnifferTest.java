@@ -87,6 +87,29 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
     }
 
+    public void testJavaLevels() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='5' target='5'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("1.5", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' source='7'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("1.7", Cache.get(prefix + "s" + JavaCacheConstants.SOURCE_LEVEL));
+    }
+
     public void testParallelSourceTrees() throws Exception {
         write("build.xml",
                 "<project default='c'>\n" +

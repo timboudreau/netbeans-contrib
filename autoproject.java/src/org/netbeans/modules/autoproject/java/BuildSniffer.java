@@ -282,7 +282,11 @@ public class BuildSniffer extends AntLogger {
             }
             String sourceLevel = task.getAttribute("source");
             if (sourceLevel != null) {
-                Cache.put(s + JavaCacheConstants.SOURCE_LEVEL, event.evaluate(sourceLevel));
+                String level = event.evaluate(sourceLevel);
+                if (level.matches("\\d+")) {
+                    level = "1." + level;
+                }
+                Cache.put(s + JavaCacheConstants.SOURCE_LEVEL, level);
             }
             String encoding = task.getAttribute("encoding");
             if (encoding != null) {
