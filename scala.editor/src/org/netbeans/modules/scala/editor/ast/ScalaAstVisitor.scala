@@ -491,21 +491,25 @@ abstract class ScalaAstVisitor {
               ElementKind.FIELD
             }
 
-            val name = selector.decode.trim
-            val idToken = getIdToken(tree, name)
-            val ref = ScalaRef(sym, idToken, kind)
-            /**
-             * @Note: this symbol may has wrong tpe, for example, an error tree,
-             * to get the proper resultType, we'll check if the qualierMaybeType isDefined
-             */
-            if (qualiferMaybeType.isDefined) {
-              ref.resultType = qualiferMaybeType.get
+            // special case for: val (a, b, c) = (e, e, e), where it may be a `tuple.apple` call
+            if (!isTupleClass(qualifier.symbol)) {
+              val name = selector.decode.trim
+              val idToken = getIdToken(tree, name)
+              val ref = ScalaRef(sym, idToken, kind)
+              /**
+               * @Note: this symbol may has wrong tpe, for example, an error tree,
+               * to get the proper resultType, we'll check if the qualierMaybeType isDefined
+               */
+              if (qualiferMaybeType.isDefined) {
+                ref.resultType = qualiferMaybeType.get
+              }
+
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
 
             //* is this tree marked as select type error? if so, the qualifier may be below type
             qualiferMaybeType = global.selectTypeErrors.get(tree)
               
-            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
 
             println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)
