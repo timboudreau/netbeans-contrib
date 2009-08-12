@@ -154,7 +154,15 @@ trait LexUtil {
     } else lexicalRange
   }
 
-  /** Find the Fortress token sequence (in case it's embedded in something else at the top level */
+  /** Find the token hierarchy (in case it's embedded in something else at the top level */
+  def getTokenHierarchy(doc: BaseDocument, offset: Int): Option[TokenHierarchy[_]] = {
+    TokenHierarchy.get(doc) match {
+      case null => None
+      case x => Some(x)
+    }
+  }
+
+  /** Find the token sequence (in case it's embedded in something else at the top level */
   def getTokenSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
     val th = TokenHierarchy.get(doc)
     getTokenSequence(th, offset)
@@ -476,7 +484,7 @@ trait LexUtil {
   /** Search backwards in the token sequence until a token of type <code>up</code> is found */
   def findBwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
     var balance = 0
-    while (ts.movePrevious()) {
+    while (ts.movePrevious) {
       val token = ts.token
       val id = token.id
       val text = token.text.toString
