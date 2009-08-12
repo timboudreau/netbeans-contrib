@@ -351,9 +351,9 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
   /**
    * Compute indent for next line, and adjust this line's indent if necessary
-   * @return int[]
-   *      int[0] - adjusted indent of this line
-   *      int[1] - indent for next line
+   * @return Array[Int]
+   *      int(0) - adjusted indent of this line
+   *      int(1) - indent for next line
    */
   private def computeLineIndent(aindent: Int, prevIndent: Int, acontinueIndent: Int,
                                 openBraces: Stack[Brace], doc: BaseDocument, lineBegin: Int, lineEnd: Int): Array[Int] = {
@@ -368,8 +368,8 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     var continueIndent = acontinueIndent
     // token index on this line (we only count not-white tokens,
     // if notWhiteIdx == 0, means the first non-white token on this line
-    var notWSIdx = -1
-    var latestNotWSToken: Token[TokenId] = null
+    var noWSIdx = -1
+    var latestNoWSToken: Token[TokenId] = null
 
     ScalaLexUtil.getTokenSequence(doc, lineBegin) foreach {ts =>
       try {
@@ -384,8 +384,8 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
             //sb.append(text); // for debug
 
             if (!ScalaLexUtil.isWsComment(id)) {
-              notWSIdx += 1
-              latestNotWSToken = token
+              noWSIdx += 1
+              latestNoWSToken = token
             }
 
             // match/add brace
@@ -426,7 +426,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                     justClosedBrace = openBraces.pop
                   }
 
-                  if (notWSIdx == 0) {
+                  if (noWSIdx == 0) {
                     // At the beginning of this line, adjust this line's indent if necessary
                     indent = id match {
                       case ScalaTokenId.Case | ScalaTokenId.RParen | ScalaTokenId.RBracket | ScalaTokenId.RBrace =>
@@ -459,7 +459,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                   newBrace.token = token
                   // will add indent of this line to offsetOnline later
                   newBrace.offsetOnline = offset - lineBegin
-                  newBrace.ordinalOnline = notWSIdx
+                  newBrace.ordinalOnline = noWSIdx
                   newBrace.onProcessingLine = true
                   openBraces push newBrace
                 }
@@ -469,7 +469,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                * A literal string with more than one line is a whole token and when goes
                * to second or following lines, will has offset < lineBegin
                */
-              if (notWSIdx == 0 || notWSIdx == -1) {
+              if (noWSIdx == 0 || noWSIdx == -1) {
                 // No indentation for literal strings from 2nd line.
                 indent = -1
               }
@@ -486,39 +486,37 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
       }
     }
 
-    // Now we've got the final indent of this line, adjust offset for new added
-    // braces (which should be on this line)
+    // * Now we've got the final indent of this line, adjust offset for new added
+    // * braces (which should be on this line)
     for (brace <- openBraces if brace.onProcessingLine) {
       brace.offsetOnline += indent
-      if (brace.ordinalOnline == notWSIdx) {
+      if (brace.ordinalOnline == noWSIdx) {
         brace.isLatestOnLine = true
       }
-      brace.lasestTokenOnLine = latestNotWSToken
+      brace.lasestTokenOnLine = latestNoWSToken
     }
 
-    // Compute indent for next line
+    // * Compute indent for next line
     var nextIndent = 0
     val (latestOpenBrace, latestOpenId) = if (!openBraces.isEmpty) {
       (openBraces.top, openBraces.top.token.id)
     } else (null, null)
 
-    // decide if next line is new or continued continute line
-    var isContinueLine = false
-    if (latestNotWSToken == null) {
-      // empty line or comment line
-      isContinueLine = false
+    // * decide if next line is new or continued continute line
+    val isContinueLine = if (latestNoWSToken == null) {
+      // * empty line or comment line
+      false
     } else {
-      isContinueLine = false // default
 
-      if (latestNotWSToken.id == ScalaTokenId.Comma) {
+      if (latestNoWSToken.id == ScalaTokenId.Comma) {
         // * we have special case
         if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine && (latestOpenId == ScalaTokenId.LParen ||
                                                                           latestOpenId == ScalaTokenId.LBracket ||
                                                                           latestOpenId == ScalaTokenId.LBrace)) {
 
-          isContinueLine = true
-        }
-      }
+          true
+        } else false // default
+      } else false   // default
     }
 
     if (isContinueLine) {
