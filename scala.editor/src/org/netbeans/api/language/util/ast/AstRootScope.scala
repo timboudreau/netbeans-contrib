@@ -75,8 +75,8 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
 
   override def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
     findItemsAt(th, offset) match {
-      case x :: xs => Some(x)
-      case _ => None
+      case Nil => None
+      case xs => Some(xs.reverse.head)
     }
   }
 
