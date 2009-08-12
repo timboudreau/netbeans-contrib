@@ -159,5 +159,63 @@ trait ScalaUtils {self: ScalaGlobal =>
 
       if (str != null) str else tpe.termSymbol.nameString
     }
+
+    def typeName(sym: Symbol): String = {
+      try {
+        typeName(sym.tpe)
+      } catch {case _ => ""}
+    }
+
+    def typeName(tpe: Type): String = {
+      tpe match {
+        case ErrorType => "<error>"
+          // internal: error
+        case WildcardType => "_"
+          // internal: unknown
+        case NoType => "<notype>"
+        case NoPrefix => "<noprefix>"
+        case ThisType(sym) => sym.nameString + ".this.type"
+          // sym.this.type
+        case SingleType(pre, sym) => sym.nameString + ".type"
+          // pre.sym.type
+        case ConstantType(value) => ""
+          // int(2)
+        case TypeRef(pre, sym, args) =>
+          sym.nameString + {if (args.isEmpty) "" else args.map{typeName(_)}.mkString("[", ", ", "]")}
+          // pre.sym[targs]
+        case RefinedType(parents, defs) => ""
+          // parent1 with ... with parentn { defs }
+        case AnnotatedType(annots, tp, selfsym) => typeName(tp)
+          // tp @annots
+
+          // the following are non-value types; you cannot write them down in Scala source.
+
+        case TypeBounds(lo, hi) => ">: " + typeName(lo) + " <: " + typeName(hi)
+          // >: lo <: hi
+        case ClassInfoType(parents, defs, clazz) => typeName(clazz.tpe)
+          // same as RefinedType except as body of class
+        case MethodType(paramtypes, result) =>
+          {if (paramtypes.isEmpty) ": " else paramtypes.map{typeName(_)}.mkString("(", ", ", "): ")} + typeName(result)
+          // (paramtypes)result
+        case PolyType(tparams, result) =>
+          {if (tparams.isEmpty) ": " else tparams.map{typeName(_)}.mkString("(", ", ", "): ")} + typeName(result)
+          // [tparams]result where result is a MethodType or ClassInfoType
+          // or
+          // []T  for a eval-by-name type
+        case ExistentialType(tparams, result) => "ExistantialType"
+          // exists[tparams]result
+
+          // the last five types are not used after phase `typer'.
+
+          //case OverloadedType(pre, tparams, alts) => "Overlaod"
+          // all alternatives of an overloaded ident
+        case AntiPolyType(pre: Type, targs) => "AntiPolyType"
+        case TypeVar(_, _) => tpe.safeToString
+          // a type variable
+        case DeBruijnIndex(level, index) => "DeBruijnIndex"
+        case _ => tpe.getClass.getSimpleName
+      }
+    }
+
   }
 }

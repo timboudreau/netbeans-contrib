@@ -47,8 +47,8 @@ import org.openide.filesystems.FileObject
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
 import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver, ScalaSourceUtil}
 
-import _root_.scala.tools.nsc.Global
-import _root_.scala.tools.nsc.symtab.{Symbols, Types, Flags}
+import scala.tools.nsc.Global
+import scala.tools.nsc.symtab.{Symbols, Types, Flags}
 
 /**
  * Scala AstDfn special functions, which will be enabled in ScalaGlobal
@@ -71,7 +71,7 @@ trait ScalaDfns {self: ScalaGlobal =>
                  abindingScope: AstScope,
                  afo: Option[FileObject]
   ) extends AstDfn(aidToken, akind, abindingScope, afo) {
-  
+    
     type S = Symbol
     type T = Type
 
@@ -94,7 +94,6 @@ trait ScalaDfns {self: ScalaGlobal =>
         //            if ((symbol.value.isClass || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
         //                return true;
         //            }
-
         ref.symbol == symbol
       } else false
     }
@@ -111,28 +110,26 @@ trait ScalaDfns {self: ScalaGlobal =>
       }
     }
 
-    def htmlFormat(formatter: HtmlFormatter): Unit = {
+    def htmlFormat(fm: HtmlFormatter): Unit = {
       symbol match {
-        case sym if sym.isPackage | sym.isClass | sym.isModule => formatter.appendText(getName)
+        case sym if sym.isPackage | sym.isClass | sym.isModule => fm.appendText(getName)
+        case sym if sym.isConstructor =>
+          fm.appendText(sym.owner.nameString)
+          fm.appendText(ScalaUtil.typeName(sym))
         case sym if sym.isMethod =>
-          formatter.appendText(getName)
-          formatter.appendText(" : ")
+          fm.appendText(sym.nameString)
           try {
-            formatter.appendText(sym.tpe.toString)
-          } catch {
-            case _ =>
-          }
+            fm.appendText(ScalaUtil.typeName(sym))
+          } catch {case _ =>}
         case sym =>
-          formatter.appendText(getName)
-          formatter.appendText(" : ")
+          fm.appendText(getName)
+          fm.appendText(": ")
           try {
-            formatter.appendText(sym.tpe.toString)
-          } catch {
-            case _ =>
-          }
+            fm.appendText(ScalaUtil.typeName(sym))
+          } catch {case _ =>}
       }
     }
-  
+
   }
 }
 

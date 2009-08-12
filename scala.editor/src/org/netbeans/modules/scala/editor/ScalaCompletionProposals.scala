@@ -50,6 +50,7 @@ import org.openide.util.Exceptions
  * @author Caoyuan Deng
  */
 trait ScalaCompletionProposals {self: ScalaGlobal =>
+  
   abstract class ScalaCompletionProposal(element: ScalaElement, request: CompletionRequest) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
