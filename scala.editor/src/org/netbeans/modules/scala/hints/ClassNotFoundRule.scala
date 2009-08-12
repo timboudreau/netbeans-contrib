@@ -136,8 +136,8 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
       ts.move(range.getStart)
       val includes : Set[TokenId] = Set(ScalaTokenId.Type, ScalaTokenId.Identifier)
       var token = ScalaLexUtil.findNextIncluding(ts, includes)
-      while (token != null && ts.offset <= range.getEnd) {
-          if (name == token.text.toString) return ts.offset
+      while (token != None && ts.offset <= range.getEnd) {
+          if (name == token.get.text.toString) return ts.offset
           token = ScalaLexUtil.findNextIncluding(ts, includes)
       }
       -1

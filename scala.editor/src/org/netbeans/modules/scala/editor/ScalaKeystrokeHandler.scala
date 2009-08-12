@@ -896,8 +896,8 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
               case OffsetRange.NONE => OffsetRange.NONE
               case _ if ts.moveNext => // found LBrace, now find followed `case`
-                ScalaLexUtil.findNextNonWsNonComment(ts) match {
-                  case tk if tk != null && tk.id == ScalaTokenId.Case =>
+                ScalaLexUtil.findNextNoWsNoComment(ts) match {
+                  case Some(tk) if tk.id == ScalaTokenId.Case =>
                     new OffsetRange(ts.offset, ts.offset + 1)
                   case _ => OffsetRange.NONE
                 }

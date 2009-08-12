@@ -756,24 +756,18 @@ abstract class ScalaAstVisitor {
       case _: Super => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
       case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
-      case _ if name == "expected" => ts.token
+      case _ if name == "expected" => Some(ts.token)
       case ValDef(mods, namex, tpt, rhs) if sym hasFlag SYNTHETIC =>
         // * is it a placeholder '_' token ?
-        ScalaLexUtil.findNext(ts, ScalaTokenId.Wild) match {
-          case x if x != null && x.offset(th) <= endOffset => x
-          case _ => null
-        }
+        ScalaLexUtil.findNext(ts, ScalaTokenId.Wild) find {_.offset(th) <= endOffset}
         
       case Select(qual, selector) if sym hasFlag IMPLICIT =>
-        // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
-        rootScope.findNeastItemAt(th, offset) match {
-          case Some(x) => x.kind = ElementKind.RULE
-          case _ =>
-        }
-        null
+        // * for Select tree that is implicit call, will look forward for the nearest item and change its kind to ElementKind.RULE
+        rootScope.findNeastItemAt(th, offset) foreach {_.kind = ElementKind.RULE}
+        None
         
       case Select(qual, selector) if name == "apply" =>
-        // * for Select tree that is implicit call, will look forward for the nearest item, it will be added
+        // * for Select tree that is `apple` call, will look forward for the nearest id token
         //val content = getContent(offet, endOffset
         ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
 
@@ -781,63 +775,57 @@ abstract class ScalaAstVisitor {
         // * for Select tree, will look backward from endOffset
         ts.move(endOffset)
         findIdTokenBackward(ts, name, offset, endOffset) match {
-          case Some(x) => x
           case None =>
             // * bug in scalac, wrong RangePosition for "list filter {...}", the range only contains "list"
             ts.move(endOffset)
             if (ts.moveNext && ts.movePrevious) {
-              val end = Iterable.min(Array(endOffset + 100, docLength - 1))
-              findIdTokenForward(ts, name, endOffset, end) match {
-                case Some(x) => x
-                case None => null
-              }
-            } else null
+              val end = Math.min(endOffset + 100, docLength - 1)
+              findIdTokenForward(ts, name, endOffset, end)
+            } else None
+          case x => x
         }
         
-      case _ =>
-        findIdTokenForward(ts, name, offset, endOffset) match {
-          case Some(x) => x
-          case None => null
-        }
+      case _ => findIdTokenForward(ts, name, offset, endOffset)
     }
 
-    if (token != null && token.isFlyweight) {
-      token = ts.offsetToken
+    token match {
+      case Some(x) if x.isFlyweight => Some(ts.offsetToken)
+      case x => x
     }
-
-    if (token == null) None else Some(token)
   }
 
   private def findIdTokenForward(ts: TokenSequence[TokenId], name: String, offset: Int, endOffset: Int): Option[Token[TokenId]] = {
     var token = ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-    var curr = offset + token.length
-    while (token != null && !tokenNameEquals(token, name) && curr <= endOffset) {
+    var curr = offset + token.get.length
+    while (token.isDefined && !tokenNameEquals(token.get, name) && curr <= endOffset) {
       token = if (ts.moveNext) {
         ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
-      } else null
-      if (token != null) curr = ts.offset + token.length
+      } else None
+      if (token.isDefined) curr = ts.offset + token.get.length
     }
 
-    if (token != null && tokenNameEquals(token, name)) {
-      Some(token)
-    } else None
+    token match {
+      case Some(x) if tokenNameEquals(x, name) => token
+      case _ => None
+    }
   }
 
   private def findIdTokenBackward(ts: TokenSequence[TokenId], name: String, offset: Int, endOffset: Int): Option[Token[TokenId]] = {
     var token = if (ts.movePrevious) {
       ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
-    } else null
+    } else None
     var curr = endOffset
-    while (token != null && !tokenNameEquals(token, name) && curr >= offset) {
+    while (token.isDefined && !tokenNameEquals(token.get, name) && curr >= offset) {
       token = if (ts.movePrevious) {
         ScalaLexUtil.findPreviousIn(ts, ScalaLexUtil.PotentialIdTokens)
-      } else null
-      if (token != null) curr = ts.offset
+      } else None
+      if (token.isDefined) curr = ts.offset
     }
 
-    if (token != null && tokenNameEquals(token, name)) {
-      Some(token)
-    } else None
+    token match {
+      case Some(x) if tokenNameEquals(x, name) => token
+      case _ => None
+    }
   }
   
   private def tokenNameEquals(token: Token[_], name: String): Boolean = {
@@ -856,7 +844,7 @@ abstract class ScalaAstVisitor {
   }
 
   protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {
-    Array(getBoundsToken(offset), getBoundsEndToken(endOffset))
+    Array(getBoundsToken(offset).getOrElse(null), getBoundsEndToken(endOffset).getOrElse(null))
   }
 
   protected def getBoundsTokens(tree: Tree): Array[Token[TokenId]] = {
@@ -868,14 +856,14 @@ abstract class ScalaAstVisitor {
     getBoundsTokens(offset, endOffset)
   }
   
-  protected def getBoundsToken(offset: Int): Token[TokenId]  = {
+  protected def getBoundsToken(offset: Int): Option[Token[TokenId]]  = {
     if (offset == -1) {
-      return null
+      return None
     }
 
     val ts = ScalaLexUtil.getTokenSequence(th, offset) match {
       case Some(x) => x
-      case None => return null
+      case None => return None
     }
 
     ts.move(offset)
@@ -883,26 +871,26 @@ abstract class ScalaAstVisitor {
       assert(false, "Should not happen!")
     }
 
-    val startToken = ScalaLexUtil.findPreviousNonWsNonComment(ts) match {
-      case x if x.isFlyweight => ts.offsetToken
+    val startToken = ScalaLexUtil.findPreviousNoWsNoComment(ts) match {
+      case Some(x) if x.isFlyweight => Some(ts.offsetToken)
       case x => x
     }
 
-    if (startToken == null) {
+    if (startToken == None) {
       println("null start token(" + offset + ")")
     }
 
     startToken
   }
 
-  protected def getBoundsEndToken(endOffset: Int): Token[TokenId] = {
+  protected def getBoundsEndToken(endOffset: Int): Option[Token[TokenId]] = {
     if (endOffset == -1) {
-      return null
+      return None
     }
 
     val ts = ScalaLexUtil.getTokenSequence(th, endOffset) match {
       case Some(x) => x
-      case None => return null
+      case None => return None
     }
 
     ts.move(endOffset)
@@ -910,8 +898,8 @@ abstract class ScalaAstVisitor {
       assert(false, "Should not happen!")
     }
     
-    val endToken = ScalaLexUtil.findPreviousNonWsNonComment(ts) match {
-      case x if x.isFlyweight => ts.offsetToken
+    val endToken = ScalaLexUtil.findPreviousNoWsNoComment(ts) match {
+      case Some(x) if x.isFlyweight => Some(ts.offsetToken)
       case x => x
     }
 
@@ -970,7 +958,7 @@ abstract class ScalaAstVisitor {
         val offset = next.boundsOffset(th)
         if (offset != -1) {
           val endToken = getBoundsEndToken(offset - 1)
-          curr.boundsEndToken = Some(endToken)
+          curr.boundsEndToken = endToken
         } else {
           println("Scope without start token: " + next)
         }

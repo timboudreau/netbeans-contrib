@@ -476,16 +476,14 @@ class ScalaParser extends Parser {
         ts.move(start - 1)
         if (!ts.moveNext && !ts.movePrevious) {
         } else {
-          var token = ScalaLexUtil.findPreviousNonWsNonComment(ts)
-          if (token != null && token.id == ScalaTokenId.Dot) {
-            if (context.caretOffset == token.offset(th) + 1) {
-              if (ts.movePrevious) {
-                token = ScalaLexUtil.findPreviousNonWsNonComment(ts)
-                if (token != null && token.id == ScalaTokenId.Identifier) {
+          ScalaLexUtil.findPreviousNoWsNoComment(ts) match {
+            case Some(tokenx) if tokenx.id == ScalaTokenId.Dot && context.caretOffset == tokenx.offset(th) + 1 && ts.movePrevious =>
+              ScalaLexUtil.findPreviousNoWsNoComment(ts) match {
+                case Some(tokeny) if tokeny.id == ScalaTokenId.Identifier =>
                   return Sanitize.EDITED_DOT
-                }
+                case _ =>
               }
-            }
+            case _ =>
           }
         }
       }

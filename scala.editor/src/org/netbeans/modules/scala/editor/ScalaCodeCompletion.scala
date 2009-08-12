@@ -286,7 +286,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler {
         return completionResult
       }
 
-      val closetToken = ScalaLexUtil.findPreviousNonWsNonComment(ts)
+      val closetToken = ScalaLexUtil.findPreviousNoWsNoComment(ts).get
       if (closetToken.id == ScalaTokenId.Import) {
         request.prefix = ""
         request.completeImport(proposals)
@@ -1884,14 +1884,14 @@ abstract class CompletionRequest {
   def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th:TokenHierarchy[_], call: Call , times: Int): Unit = {
     assert(rootScope != null)
 
-    val closest = ScalaLexUtil.findPreviousNonWsNonComment(ts)
-    var idToken = if (closest.id == ScalaTokenId.Dot) {
+    val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
+    var idToken = if (closest.get.id == ScalaTokenId.Dot) {
       call.caretAfterDot = true
       // skip RParen if it's the previous
       if (ts.movePrevious) {
-        ScalaLexUtil.findPreviousNonWs(ts) match {
-          case null =>
-          case prev => prev.id match {
+        ScalaLexUtil.findPreviousNoWs(ts) match {
+          case None =>
+          case Some(prev) => prev.id match {
               case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
               case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
               case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
@@ -1901,12 +1901,12 @@ abstract class CompletionRequest {
       }
 
       ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
-    } else if (CALL_IDs.contains(closest.id)) {
+    } else if (CALL_IDs.contains(closest.get.id)) {
       closest
-    } else null
+    } else None
 
-    if (idToken != null) {
-      val items = rootScope.findItemsAt(th, idToken.offset(th))
+    if (idToken.isDefined) {
+      val items = rootScope.findItemsAt(th, idToken.get.offset(th))
       val item = items.find{_.resultType != null} match {
         case Some(x) => Some(x)
         case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
@@ -1922,16 +1922,17 @@ abstract class CompletionRequest {
         }
 
         val prev = if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousNonWsNonComment(ts)
-        } else null
-
-        if (prev != null && prev.id == ScalaTokenId.Dot) {
-          call.caretAfterDot = true
-          call.select = Some(idToken.text.toString)
-          findCall(rootScope, ts, th, call, times + 1)
-        } else {
-          call.base = item
-          return
+          ScalaLexUtil.findPreviousNoWsNoComment(ts)
+        } else None
+        
+        prev match {
+          case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
+            call.caretAfterDot = true
+            call.select = Some(idToken.get.text.toString)
+            findCall(rootScope, ts, th, call, times + 1)
+          case _ =>
+            call.base = item
+            return
         }
       } else {
         call.base = item

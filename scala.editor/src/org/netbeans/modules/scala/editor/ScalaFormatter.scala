@@ -445,7 +445,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                 // is it a case object or class?, if so, do not indent
                 if (id == ScalaTokenId.Case) {
                   if (ts.moveNext) {
-                    val next = ScalaLexUtil.findNextNonWs(ts)
+                    val next = ScalaLexUtil.findNextNoWs(ts).get
                     next.id match {
                       case ScalaTokenId.Object | ScalaTokenId.Class => ignore = true
                       case _ =>
