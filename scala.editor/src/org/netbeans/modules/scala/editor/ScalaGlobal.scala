@@ -57,11 +57,12 @@ import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements}
 
+import scala.collection.mutable.ArrayBuffer
+
 import scala.tools.nsc.{Phase, Settings}
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.io.AbstractFile
-import scala.collection.mutable.ArrayBuffer
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.reporters.Reporter
 import scala.tools.nsc.util.{Position, SourceFile}
@@ -120,11 +121,6 @@ object ScalaGlobal {
 
   /**
    * Scala's global is not thread safed
-   *
-   * @Todo: it seems scala's Settings only support one source path, i.e.
-   * "/scalaproject/src" only, does not support "/scalaproject/src:/scalaproject/src2"
-   * since we can not gaurantee the srcCp returns only one entry, we have to use
-   * following guessing method:
    */
   def getGlobal(fo: FileObject): ScalaGlobal = synchronized {
     val project = FileOwnerQuery.getOwner(fo)
