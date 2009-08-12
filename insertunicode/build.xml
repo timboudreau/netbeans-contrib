@@ -63,22 +63,4 @@ made subject to such option by the copyright holder.
         <copy file="build/tmp/uni-names.txt" tofile="build/classes/org/netbeans/modules/insertunicode/uni-names.txt"/>
     </target>
   
-    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="http://${dist.base}/${nbm}"
-                 needsrestart="${nbm.needs.restart}">
-            <license>
-                <text>For the module itself:</text>
-                <file location="${license.file}"/>
-                <text>For the included Unicode naming data, extracted from http://www.unicode.org/Public/UNIDATA/UnicodeData.txt:</text>
-                <file location="external/UnicodeData-4.0.0-license.txt"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
-
 </project>

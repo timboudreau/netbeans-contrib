@@ -44,8 +44,7 @@ made subject to such option by the copyright holder.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="external">
-        <property file="external/public.properties"/>
+    <target name="compile" depends="projectized-common.compile">
         <mkdir dir="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
         <unzip src="external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
         <unzip src="external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
@@ -73,9 +72,6 @@ made subject to such option by the copyright holder.
             <entry key="graphics.files" value="${graphics.files}"/>
             <entry key="solbook-xml.version" value="${libs.solbook-xml.version}"/>
         </propertyfile>
-    </target>
-
-    <target name="compile" depends="projectized-common.compile,external">
         <copy todir="${build.classes.dir}/org/netbeans/modules/docbook/lib">
             <fileset dir="build/docbook-libs">
                 <include name="config.properties"/>
@@ -97,35 +93,6 @@ made subject to such option by the copyright holder.
                 <exclude name="**/ChangeLog"/>
             </fileset>
         </copy>
-    </target>
-
-    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <property name="nbm.target.cluster" value=""/> <!-- fallback -->
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="${nbm.distribution}"
-                 needsrestart="${nbm.needs.restart}"
-                 global="${nbm.is.global}"
-                 targetcluster="${nbm.target.cluster}"
-                 releasedate="${nbm.release.date}"
-                 moduleauthor="${nbm.module.author}">
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-            <license>
-                <text>For the module itself:</text>
-                <file location="${license.file}"/>
-                <text>For the included DocBook stylesheets and Slides DTD:</text>
-                <file location="external/docbook-xsl-${libs.docbook-xsl.version}-license.txt"/>
-                <text>For the included DocBook XML DTD:</text>
-                <file location="external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
-                <text>For the included Saxon 9 XSLT processor:</text>
-                <file location="external/saxonb9-0-0-4j-license.txt"/>
-                <text>For the included Solbook XML DTD:</text>
-                <file location="external/solbook-xml-${libs.solbook-xml.version}-license.txt"/>
-            </license>
-        </makenbm>
     </target>
 
 </project>

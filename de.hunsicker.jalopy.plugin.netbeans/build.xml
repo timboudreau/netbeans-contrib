@@ -41,44 +41,5 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <project name="contrib/de.hunsicker.jalopy.plugin.netbeans" default="netbeans" basedir=".">
-
     <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="build-init" depends="projectized.build-init">
-        <property file="build.properties"/>
-    </target>
-
-    <target name="release" depends="init">
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy todir="${cluster}/modules/ext">
-            <fileset dir="external">
-                <include name="${jalopy}"/>
-                <include name="${log4j}"/>
-            </fileset>
-        </copy>
-</target>
-
-    <target name="netbeans-extra" depends="release"/>
-
-    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <makenbm file="build/${nbm}"
-            productdir="${cluster}"
-            module="${module.jar}"
-            homepage="${nbm.homepage}"
-            distribution="http://${dist.base}/${nbm}"
-            needsrestart="${nbm.needs.restart}"
-            releasedate="${nbm.release.date}"
-            moduleauthor="${nbm.module.author}">
-            <license>
-                <text>The Jalopy NetBeans Plugin module is under CDDL.</text>
-                <text>For the Jalopy Source Code Formatter code itself:</text>
-                <file location="external/${jalopy.license}"/>
-                <text>For the bundled Log4j Logging Toolkit:</text>
-                <file location="external/${log4j.license}"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
-
 </project>
