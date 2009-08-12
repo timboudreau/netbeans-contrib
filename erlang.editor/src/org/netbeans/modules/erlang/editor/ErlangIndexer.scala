@@ -39,7 +39,7 @@
 package org.netbeans.modules.erlang.editor
 
 import _root_.java.io.{File,IOException}
-import _root_.java.net.MalformedURLException
+import _root_.java.net.{MalformedURLException, URL}
 import _root_.java.lang.{Iterable}
 import _root_.java.util.logging.{Logger,Level}
 import javax.swing.text.Document
@@ -434,6 +434,8 @@ object ErlangIndexer {
         }
       } catch {case ioe:IOException => LOG.log(Level.WARNING, null, ioe)}
     }
+
+    override def rootsRemoved(removedRoots: Iterable[_ <: URL]): Unit = {}
 
     override def filesDirty(dirty:Iterable[_ <: Indexable], context:Context) :Unit = {
       try {
