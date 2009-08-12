@@ -86,11 +86,11 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
   }
 
   override def reindent(context: Context): Unit = {
-    reindent(context, context.document, context.startOffset, context.endOffset, null, true);
+    reindent(context, context.document, context.startOffset, context.endOffset, null, true)
   }
 
   override def reformat(context: Context, info: ParserResult): Unit =  {
-    reindent(context, context.document, context.startOffset, context.endOffset, info, false);
+    reindent(context, context.document, context.startOffset, context.endOffset, info, false)
   }
 
   def indentSize: Int = {
@@ -368,12 +368,12 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
     //StringBuilder sb = new StringBuilder(); // for debug
     
-    // --- Compute new balance and adjust indent of this line
+    // --- Compute new balance and adjust indent (computed by previous `computeLineIndent`) of this line
 
     var indent = aindent
     var continueIndent = acontinueIndent
-    // token index on this line (we only count not-white tokens,
-    // if notWhiteIdx == 0, means the first non-white token on this line
+    // * token index on this line (we only count not-white tokens,
+    // * if noWSIdx == 0, means the first non-white token on this line
     var noWSIdx = -1
     var latestNoWSToken: Token[TokenId] = null
 
@@ -490,12 +490,10 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                   }
                 }
               case _ if (id == ScalaTokenId.XmlCDData || (id == ScalaTokenId.StringLiteral && offset < lineBegin)) =>
-                /**
-                 * A literal string with more than one line is a whole token and when goes
-                 * to second or following lines, will has offset < lineBegin
-                 */
+                // * A literal string with more than one line is a whole token and when goes
+                // * to second or following lines, will has offset < lineBegin
                 if (noWSIdx == 0 || noWSIdx == -1) {
-                  // No indentation for literal strings from 2nd line.
+                  // * No indentation for literal strings from 2nd line.
                   indent = -1
                 }
               case _ =>
